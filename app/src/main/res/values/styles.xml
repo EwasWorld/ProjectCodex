@@ -9,6 +9,7 @@
     </style>
 
     <style name="ScoreButtons">
+        <item name="android:tag">score_button</item>
         <item name="android:minWidth">45dp</item>
         <item name="android:layout_marginEnd">5dp</item>
         <item name="android:layout_marginRight">5dp</item>

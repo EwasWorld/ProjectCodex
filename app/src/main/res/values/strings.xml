@@ -3,5 +3,13 @@
     <string name="score_button_min_width">45dp</string>
     <string name="clear_end_input">Clear</string>
     <string name="backspace_end_input">Backspace</string>
+
     <string name="empty_end">.-.-.-.-.-.</string>
+    <string name="arrow_deliminator">-</string>
+    <string name="arrow_placeholder">.</string>
+    <string name="arrow_value_x">X</string>
+    <string name="arrow_value_m">m</string>
+
+    <string name="err_end_full">Arrows already added</string>
+    <string name="err_end_empty">No arrows entered</string>
 </resources>
