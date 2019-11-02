@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#534AFF</color>
+    <color name="colorPrimaryDark">#14248F</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="textWhite">#C9C9C9</color>
+
+    <color name="targetFaceGreen">#26FF00</color>
+    <color name="targetFaceWhite">#FFFFFF</color>
+    <color name="targetFaceBlack">#000000</color>
+    <color name="targetFaceBlue">#0099FF</color>
+    <color name="targetFaceRed">#FF0000</color>
+    <color name="targetFaceGold">#FFBE00</color>
+</resources>

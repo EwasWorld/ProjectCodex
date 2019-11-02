@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ProjectCodex</string>
+    <string name="score_button_min_width">45dp</string>
+    <string name="clear_end_input">Clear</string>
+    <string name="backspace_end_input">Backspace</string>
+    <string name="empty_end">.-.-.-.-.-.</string>
+</resources>
