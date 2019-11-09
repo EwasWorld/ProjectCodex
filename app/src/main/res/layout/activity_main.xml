@@ -52,7 +52,7 @@
         android:background="@color/targetFaceBlack"
         android:text="3"
         android:textColor="@color/textWhite"
-        app:layout_constraintBottom_toTopOf="@+id/button_clear_end"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_arrow_scores"
@@ -176,26 +176,31 @@
         app:layout_constraintStart_toStartOf="parent"
         />
 
-    <Button
-        android:id="@+id/button_clear_end"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:text="@string/clear_end_input"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
 
-    <Button
-        android:id="@+id/button_backspace"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/backspace_end_input"
-        app:layout_constraintBottom_toBottomOf="@+id/button_clear_end"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_clear_end"
-        app:layout_constraintTop_toTopOf="@+id/button_clear_end"
-        />
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+
+        <Button
+            android:id="@+id/button_clear_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            android:layout_toEndOf="@id/button_backspace"
+            android:layout_toRightOf="@id/button_backspace"
+            android:text="@string/clear_end_input"
+            />
+
+        <Button
+            android:id="@+id/button_backspace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/backspace_end_input"
+            />
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
