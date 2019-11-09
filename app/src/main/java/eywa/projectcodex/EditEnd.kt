@@ -89,4 +89,22 @@ class EditEnd(_resources: Resources) {
         }
         return scores.joinToString(arrowDeliminator)
     }
+
+    /**
+     * @param end the string representation of the end
+     * @return the number of arrows scores entered into the given string
+     */
+    fun getArrowCount(end: String): Int {
+        val scores = end.split(arrowDeliminator)
+        val notEnteredCount = scores.count { arrowString -> arrowString == arrowPlaceholder }
+        return scores.size - notEnteredCount
+    }
+
+    /**
+     * @param arrowsPerEnd the number of arrows in an end
+     * @return the place holder arrow score text for an end
+     */
+    fun getEmptyEnd(arrowsPerEnd: Int): String {
+        return generateSequence { arrowPlaceholder }.take(arrowsPerEnd).joinToString(arrowDeliminator)
+    }
 }

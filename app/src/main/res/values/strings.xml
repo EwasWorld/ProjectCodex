@@ -4,7 +4,6 @@
     <string name="clear_end_input">Clear</string>
     <string name="backspace_end_input">Backspace</string>
 
-    <string name="empty_end">.-.-.-.-.-.</string>
     <string name="arrow_deliminator">-</string>
     <string name="arrow_placeholder">.</string>
     <string name="arrow_value_x">X</string>
@@ -12,4 +11,9 @@
 
     <string name="err_end_full">Arrows already added</string>
     <string name="err_end_empty">No arrows entered</string>
+    <string name="err_end_not_full">Please enter all arrows for this end</string>
+    <string name="next_end">Next end</string>
+    <string name="archer_name_header">Archer</string>
+    <string name="archer_score_header">Score</string>
+    <string name="archer_arrows_count_header">Arrows</string>
 </resources>

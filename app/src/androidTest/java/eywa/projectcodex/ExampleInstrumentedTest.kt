@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
     @get:Rule
-    val activity = ActivityTestRule(MainActivity::class.java)
+    val activity = ActivityTestRule(AddEndActivity::class.java)
     private val emptyEnd = ".-.-.-.-.-."
 
     @Test
@@ -153,12 +153,74 @@ class ExampleInstrumentedTest {
         R.id.text_arrow_scores.textEquals(emptyEnd)
         R.id.text_end_total.textEquals("0")
     }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun testNextEnd() {
+        R.id.text_table_score_1.textEquals("0")
+        R.id.text_table_arrow_count_1.textEquals("0")
+
+        // End 1
+        R.id.score_button_3.click()
+        R.id.score_button_7.click()
+        R.id.score_button_3.click()
+        R.id.score_button_1.click()
+        R.id.score_button_1.click()
+        R.id.score_button_3.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
+        R.id.text_end_total.textEquals("18")
+
+        R.id.button_next_end.click()
+        R.id.text_table_score_1.textEquals("18")
+        R.id.text_table_arrow_count_1.textEquals("6")
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+
+        // End 2
+        R.id.score_button_3.click()
+        R.id.score_button_7.click()
+        R.id.score_button_3.click()
+        R.id.score_button_6.click()
+        R.id.score_button_6.click()
+        R.id.score_button_3.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-6-6-3")
+        R.id.text_end_total.textEquals("28")
+
+        R.id.button_next_end.click()
+        R.id.text_table_score_1.textEquals("46")
+        R.id.text_table_arrow_count_1.textEquals("12")
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+
+        // No arrows
+        R.id.button_next_end.click()
+        activity containsToast "Please enter all arrows for this end"
+        R.id.text_table_score_1.textEquals("46")
+        R.id.text_table_arrow_count_1.textEquals("12")
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+
+        // Some arrows
+        R.id.score_button_3.click()
+        R.id.score_button_7.click()
+        R.id.score_button_3.click()
+        R.id.score_button_6.click()
+        R.id.score_button_6.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-6-6-.")
+
+        R.id.button_next_end.click()
+        activity containsToast "Please enter all arrows for this end"
+        R.id.text_table_score_1.textEquals("46")
+        R.id.text_table_arrow_count_1.textEquals("12")
+        R.id.text_arrow_scores.textEquals("3-7-3-6-6-.")
+    }
 }
 
 fun Int.click() = onView(withId(this)).perform(ViewActions.click())
 fun Int.write(text: String) = onView(withId(this)).perform(typeText(text))
 fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))
-infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
+infix fun ActivityTestRule<AddEndActivity>.containsToast(message: String) =
     onView(withText(message))
             .inRoot(withDecorView(not(activity.window.decorView)))
             .check(matches(isDisplayed()))

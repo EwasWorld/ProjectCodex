@@ -5,8 +5,67 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".MainActivity"
+    tools:context=".AddEndActivity"
     >
+
+    <TableLayout
+        android:id="@+id/tableLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".1"
+        >
+
+        <TableRow>
+            <TextView
+                android:id="@+id/text_table_name_header"
+                style="@style/TableHeader"
+                android:text="@string/archer_name_header"
+                android:background="@drawable/table_border"
+                />
+
+            <TextView
+                android:id="@+id/text_table_score_header"
+                style="@style/TableHeader"
+                android:text="@string/archer_score_header"
+                android:background="@drawable/table_border"
+                />
+
+            <TextView
+                android:id="@+id/text_table_arrow_count_header"
+                style="@style/TableHeader"
+                android:text="@string/archer_arrows_count_header"
+                android:background="@drawable/table_border"
+                />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:id="@+id/text_table_name_1"
+                style="@style/TableItem"
+                android:text="Bob"
+                android:background="@drawable/table_border"
+                />
+
+            <TextView
+                android:id="@+id/text_table_score_1"
+                style="@style/TableItem"
+                android:text="0"
+                android:background="@drawable/table_border"
+                />
+
+            <TextView
+                android:id="@+id/text_table_arrow_count_1"
+                style="@style/TableItem"
+                android:text="0"
+                android:background="@drawable/table_border"
+                />
+        </TableRow>
+
+    </TableLayout>
 
     <Button
         android:id="@+id/score_button_0"
@@ -52,10 +111,11 @@
         android:background="@color/targetFaceBlack"
         android:text="3"
         android:textColor="@color/textWhite"
-        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_arrow_scores"
+        app:layout_constraintTop_toBottomOf="@+id/tableLayout"
+        app:layout_constraintVertical_bias=".3"
         />
 
     <Button
@@ -155,13 +215,13 @@
         android:id="@+id/text_arrow_scores"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/empty_end"
+        android:paddingBottom="10sp"
+        android:text=""
         android:textColor="@color/textWhite"
         android:textSize="40sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/score_button_3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         />
 
     <TextView
@@ -177,30 +237,47 @@
         />
 
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/button_next_end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_button_8"
+        app:layout_constraintVertical_bias=".3"
         >
 
         <Button
             android:id="@+id/button_clear_end"
+            style="@style/GeneralButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_toEndOf="@id/button_backspace"
-            android:layout_toRightOf="@id/button_backspace"
             android:text="@string/clear_end_input"
             />
 
         <Button
             android:id="@+id/button_backspace"
+            style="@style/GeneralButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/backspace_end_input"
             />
-    </RelativeLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_next_end"
+        style="@style/GeneralButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/next_end"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_button_8"
+        app:layout_constraintVertical_bias=".6"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
