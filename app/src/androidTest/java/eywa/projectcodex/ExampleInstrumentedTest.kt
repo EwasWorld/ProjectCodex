@@ -1,0 +1,164 @@
+package eywa.projectcodex
+
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
+import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.ActivityTestRule
+import org.hamcrest.CoreMatchers.not
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+@RunWith(AndroidJUnit4::class)
+class ExampleInstrumentedTest {
+    @get:Rule
+    val activity = ActivityTestRule(MainActivity::class.java)
+    private val emptyEnd = ".-.-.-.-.-."
+
+    @Test
+    @Throws(Exception::class)
+    fun testScoreButtonPressed() {
+        val buttons = mapOf(
+                R.id.score_button_0 to "m",
+                R.id.score_button_1 to "1",
+                R.id.score_button_2 to "2",
+                R.id.score_button_3 to "3",
+                R.id.score_button_4 to "4",
+                R.id.score_button_5 to "5",
+                R.id.score_button_6 to "6",
+                R.id.score_button_7 to "7",
+                R.id.score_button_8 to "8",
+                R.id.score_button_9 to "9",
+                R.id.score_button_10 to "10",
+                R.id.score_button_x to "X"
+        )
+
+        // Pressing each button
+        for (button in buttons) {
+            val expected: Int = when {
+                button.value == "m" -> 0
+                button.value == "X" -> 10
+                else -> Integer.parseInt(button.value)
+            }
+            button.key.click()
+            R.id.text_arrow_scores.textEquals(button.value + emptyEnd.substring(1))
+            R.id.text_end_total.textEquals(expected.toString())
+
+            button.key.click()
+            R.id.text_arrow_scores.textEquals(button.value + "-" + button.value + emptyEnd.substring(3))
+            R.id.text_end_total.textEquals((expected * 2).toString())
+
+            R.id.button_clear_end.click()
+            R.id.text_arrow_scores.textEquals(emptyEnd)
+            R.id.text_end_total.textEquals("0")
+        }
+
+        // Filling an end
+        R.id.score_button_3.click()
+        R.id.score_button_7.click()
+        R.id.text_arrow_scores.textEquals("3-7-.-.-.-.")
+        R.id.text_end_total.textEquals("10")
+        R.id.score_button_3.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-.-.-.")
+        R.id.text_end_total.textEquals("13")
+        R.id.score_button_1.click()
+        R.id.score_button_1.click()
+        R.id.score_button_3.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
+        R.id.text_end_total.textEquals("18")
+
+        // Too many arrows
+        R.id.score_button_7.click()
+        activity containsToast "Arrows already added"
+        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
+        R.id.text_end_total.textEquals("18")
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testClearScore() {
+        // Full score
+        R.id.score_button_3.click()
+        R.id.score_button_7.click()
+        R.id.score_button_3.click()
+        R.id.score_button_1.click()
+        R.id.score_button_1.click()
+        R.id.score_button_3.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
+        R.id.text_end_total.textEquals("18")
+        R.id.button_clear_end.click()
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+
+        // Partial score
+        R.id.score_button_3.click()
+        R.id.score_button_7.click()
+        R.id.score_button_3.click()
+        R.id.score_button_1.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-1-.-.")
+        R.id.text_end_total.textEquals("14")
+        R.id.button_clear_end.click()
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+
+        // No score
+        R.id.button_clear_end.click()
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testBackSpace() {
+        // Full score
+        R.id.score_button_3.click()
+        R.id.score_button_7.click()
+        R.id.score_button_3.click()
+        R.id.score_button_1.click()
+        R.id.score_button_1.click()
+        R.id.score_button_3.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
+        R.id.text_end_total.textEquals("18")
+
+        R.id.button_backspace.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-1-1-.")
+        R.id.text_end_total.textEquals("15")
+
+        R.id.button_backspace.click()
+        R.id.text_arrow_scores.textEquals("3-7-3-1-.-.")
+        R.id.text_end_total.textEquals("14")
+
+        R.id.button_backspace.click()
+        R.id.button_backspace.click()
+        R.id.text_arrow_scores.textEquals("3-7-.-.-.-.")
+        R.id.text_end_total.textEquals("10")
+
+        R.id.button_backspace.click()
+        R.id.button_backspace.click()
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+
+        R.id.button_backspace.click()
+        activity containsToast "No arrows entered"
+        R.id.text_arrow_scores.textEquals(emptyEnd)
+        R.id.text_end_total.textEquals("0")
+    }
+}
+
+fun Int.click() = onView(withId(this)).perform(ViewActions.click())
+fun Int.write(text: String) = onView(withId(this)).perform(typeText(text))
+fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))
+infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
+    onView(withText(message))
+            .inRoot(withDecorView(not(activity.window.decorView)))
+            .check(matches(isDisplayed()))

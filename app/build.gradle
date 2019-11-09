@@ -40,7 +40,10 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.18.3'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
     implementation 'com.xfinity:resourceprovider-library:1.2.1'
     kapt "com.xfinity:resourceprovider-compiler:1.2.1"
+    testImplementation 'com.xfinity:resourceprovider-testutils:1.2.1'
 
 }

@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
                 try {
                     arrowScores.text = editEnd.addArrowToEnd(arrowScores.text.toString(), buttonText)
                     endTotalTextView.text = editEnd.getEndScore(arrowScores.text.toString()).toString()
-                    arrowScores.text = editEnd.rewriteScores(arrowScores.text.toString())
                 } catch (e: NullPointerException) {
                     Toast.makeText(this, resources.getString(R.string.err_end_full), Toast.LENGTH_SHORT).show()
                 }
