@@ -29,18 +29,18 @@ class ExampleInstrumentedTest {
     @Throws(Exception::class)
     fun testScoreButtonPressed() {
         val buttons = mapOf(
-                R.id.score_button_0 to "m",
-                R.id.score_button_1 to "1",
-                R.id.score_button_2 to "2",
-                R.id.score_button_3 to "3",
-                R.id.score_button_4 to "4",
-                R.id.score_button_5 to "5",
-                R.id.score_button_6 to "6",
-                R.id.score_button_7 to "7",
-                R.id.score_button_8 to "8",
-                R.id.score_button_9 to "9",
-                R.id.score_button_10 to "10",
-                R.id.score_button_x to "X"
+                R.id.button_score_0 to "m",
+                R.id.button_score_1 to "1",
+                R.id.button_score_2 to "2",
+                R.id.button_score_3 to "3",
+                R.id.button_score_4 to "4",
+                R.id.button_score_5 to "5",
+                R.id.button_score_6 to "6",
+                R.id.button_score_7 to "7",
+                R.id.button_score_8 to "8",
+                R.id.button_score_9 to "9",
+                R.id.button_score_10 to "10",
+                R.id.button_score_x to "X"
         )
 
         // Pressing each button
@@ -64,21 +64,21 @@ class ExampleInstrumentedTest {
         }
 
         // Filling an end
-        R.id.score_button_3.click()
-        R.id.score_button_7.click()
+        R.id.button_score_3.click()
+        R.id.button_score_7.click()
         R.id.text_arrow_scores.textEquals("3-7-.-.-.-.")
         R.id.text_end_total.textEquals("10")
-        R.id.score_button_3.click()
+        R.id.button_score_3.click()
         R.id.text_arrow_scores.textEquals("3-7-3-.-.-.")
         R.id.text_end_total.textEquals("13")
-        R.id.score_button_1.click()
-        R.id.score_button_1.click()
-        R.id.score_button_3.click()
+        R.id.button_score_1.click()
+        R.id.button_score_1.click()
+        R.id.button_score_3.click()
         R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
         R.id.text_end_total.textEquals("18")
 
         // Too many arrows
-        R.id.score_button_7.click()
+        R.id.button_score_7.click()
         activity containsToast "Arrows already added"
         R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
         R.id.text_end_total.textEquals("18")
@@ -88,12 +88,12 @@ class ExampleInstrumentedTest {
     @Throws(Exception::class)
     fun testClearScore() {
         // Full score
-        R.id.score_button_3.click()
-        R.id.score_button_7.click()
-        R.id.score_button_3.click()
-        R.id.score_button_1.click()
-        R.id.score_button_1.click()
-        R.id.score_button_3.click()
+        R.id.button_score_3.click()
+        R.id.button_score_7.click()
+        R.id.button_score_3.click()
+        R.id.button_score_1.click()
+        R.id.button_score_1.click()
+        R.id.button_score_3.click()
         R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
         R.id.text_end_total.textEquals("18")
         R.id.button_clear_end.click()
@@ -101,10 +101,10 @@ class ExampleInstrumentedTest {
         R.id.text_end_total.textEquals("0")
 
         // Partial score
-        R.id.score_button_3.click()
-        R.id.score_button_7.click()
-        R.id.score_button_3.click()
-        R.id.score_button_1.click()
+        R.id.button_score_3.click()
+        R.id.button_score_7.click()
+        R.id.button_score_3.click()
+        R.id.button_score_1.click()
         R.id.text_arrow_scores.textEquals("3-7-3-1-.-.")
         R.id.text_end_total.textEquals("14")
         R.id.button_clear_end.click()
@@ -121,12 +121,12 @@ class ExampleInstrumentedTest {
     @Throws(Exception::class)
     fun testBackSpace() {
         // Full score
-        R.id.score_button_3.click()
-        R.id.score_button_7.click()
-        R.id.score_button_3.click()
-        R.id.score_button_1.click()
-        R.id.score_button_1.click()
-        R.id.score_button_3.click()
+        R.id.button_score_3.click()
+        R.id.button_score_7.click()
+        R.id.button_score_3.click()
+        R.id.button_score_1.click()
+        R.id.button_score_1.click()
+        R.id.button_score_3.click()
         R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
         R.id.text_end_total.textEquals("18")
 
@@ -162,12 +162,12 @@ class ExampleInstrumentedTest {
         R.id.text_table_arrow_count_1.textEquals("0")
 
         // End 1
-        R.id.score_button_3.click()
-        R.id.score_button_7.click()
-        R.id.score_button_3.click()
-        R.id.score_button_1.click()
-        R.id.score_button_1.click()
-        R.id.score_button_3.click()
+        R.id.button_score_3.click()
+        R.id.button_score_7.click()
+        R.id.button_score_3.click()
+        R.id.button_score_1.click()
+        R.id.button_score_1.click()
+        R.id.button_score_3.click()
         R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
         R.id.text_end_total.textEquals("18")
 
@@ -178,12 +178,12 @@ class ExampleInstrumentedTest {
         R.id.text_end_total.textEquals("0")
 
         // End 2
-        R.id.score_button_3.click()
-        R.id.score_button_7.click()
-        R.id.score_button_3.click()
-        R.id.score_button_6.click()
-        R.id.score_button_6.click()
-        R.id.score_button_3.click()
+        R.id.button_score_3.click()
+        R.id.button_score_7.click()
+        R.id.button_score_3.click()
+        R.id.button_score_6.click()
+        R.id.button_score_6.click()
+        R.id.button_score_3.click()
         R.id.text_arrow_scores.textEquals("3-7-3-6-6-3")
         R.id.text_end_total.textEquals("28")
 
@@ -202,11 +202,11 @@ class ExampleInstrumentedTest {
         R.id.text_end_total.textEquals("0")
 
         // Some arrows
-        R.id.score_button_3.click()
-        R.id.score_button_7.click()
-        R.id.score_button_3.click()
-        R.id.score_button_6.click()
-        R.id.score_button_6.click()
+        R.id.button_score_3.click()
+        R.id.button_score_7.click()
+        R.id.button_score_3.click()
+        R.id.button_score_6.click()
+        R.id.button_score_6.click()
         R.id.text_arrow_scores.textEquals("3-7-3-6-6-.")
 
         R.id.button_next_end.click()

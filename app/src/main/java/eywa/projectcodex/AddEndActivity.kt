@@ -21,18 +21,18 @@ class AddEndActivity : AppCompatActivity() {
 
         // TODO better way to do this? Tags?
         val scoreButtons = arrayOf(
-            score_button_0,
-            score_button_1,
-            score_button_2,
-            score_button_3,
-            score_button_4,
-            score_button_5,
-            score_button_6,
-            score_button_7,
-            score_button_8,
-            score_button_9,
-            score_button_10,
-            score_button_x
+            button_score_0,
+            button_score_1,
+            button_score_2,
+            button_score_3,
+            button_score_4,
+            button_score_5,
+            button_score_6,
+            button_score_7,
+            button_score_8,
+            button_score_9,
+            button_score_10,
+            button_score_x
         )
 
         for (button in scoreButtons) {
