@@ -5,8 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".AddEndActivity"
+    tools:context=".fragments.InputEndFragment"
     >
+
+    <Button
+        android:id="@+id/button_score_pad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Score Pad"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <TableLayout
         android:id="@+id/tableLayout"

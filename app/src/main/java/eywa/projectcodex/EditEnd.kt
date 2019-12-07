@@ -1,7 +1,6 @@
 package eywa.projectcodex
 
 import android.content.res.Resources
-import java.lang.NullPointerException
 
 // TODO is there a way to not pass in resources? Feels silly, hard to mock...
 class EditEnd(_resources: Resources) {

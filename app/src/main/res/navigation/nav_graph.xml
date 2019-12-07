@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/addEndActivity"
+    >
+    <fragment
+        android:id="@+id/addEndActivity"
+        android:name="eywa.projectcodex.fragments.InputEndFragment"
+        android:label="activity_add_end"
+        tools:layout="@layout/activity_add_end"
+        >
+        <action
+            android:id="@+id/actionInputEndFragmentToScorePadFragment"
+            app:destination="@id/viewScoresActivity"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/viewScoresActivity"
+        android:name="eywa.projectcodex.fragments.ScorePadFragment"
+        android:label="activity_view_scores"
+        tools:layout="@layout/activity_view_scores"
+        />
+</navigation>

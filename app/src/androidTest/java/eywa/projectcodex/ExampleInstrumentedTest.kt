@@ -9,6 +9,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import org.hamcrest.CoreMatchers.not
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,8 +23,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
     @get:Rule
-    val activity = ActivityTestRule(AddEndActivity::class.java)
+    val activity = ActivityTestRule(MainActivity::class.java)
     private val emptyEnd = ".-.-.-.-.-."
+
+    @Before
+    fun init() {
+        activity.getActivity().getSupportFragmentManager().beginTransaction()
+    }
 
     @Test
     @Throws(Exception::class)
@@ -220,7 +226,7 @@ class ExampleInstrumentedTest {
 fun Int.click() = onView(withId(this)).perform(ViewActions.click())
 fun Int.write(text: String) = onView(withId(this)).perform(typeText(text))
 fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))
-infix fun ActivityTestRule<AddEndActivity>.containsToast(message: String) =
+infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
     onView(withText(message))
             .inRoot(withDecorView(not(activity.window.decorView)))
             .check(matches(isDisplayed()))
