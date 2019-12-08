@@ -11,19 +11,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import eywa.projectcodex.EditEnd
+import eywa.projectcodex.End
 import eywa.projectcodex.R
 import eywa.projectcodex.database.ScoresViewModel
 import eywa.projectcodex.database.entities.ArrowValue
 import kotlinx.android.synthetic.main.activity_add_end.*
 
 class InputEndFragment : Fragment() {
-    private val arrowsPerEnd = 6
     private lateinit var scoresViewModel: ScoresViewModel
     private var allArrows = emptyList<ArrowValue>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.activity_add_end, container, false)
     }
 
@@ -31,18 +29,24 @@ class InputEndFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         scoresViewModel = ViewModelProvider(this).get(ScoresViewModel::class.java)
-        scoresViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows -> arrows?.let { allArrows = arrows } })
+        scoresViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
+            arrows?.let {
+                allArrows = arrows
+                updateRoundTotals(view)
+            }
+        })
 
-        val editEnd = EditEnd(resources)
-        val endTotalTextView = view.findViewById<TextView>(R.id.text_end_total)
+        val end =
+            End(6, resources.getString(R.string.arrow_placeholder), resources.getString(R.string.arrow_deliminator))
 
         // Set the place holder text for the arrow scores
-        view.findViewById<TextView>(R.id.text_arrow_scores).text = editEnd.getEmptyEnd(arrowsPerEnd)
+        view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()
 
         button_score_pad.setOnClickListener {
             val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment()
             view.findNavController().navigate(action)
         }
+
         // TODO better way to do this? Tags?
         val scoreButtons = arrayOf(
                 button_score_0,
@@ -58,14 +62,11 @@ class InputEndFragment : Fragment() {
                 button_score_10,
                 button_score_x
         )
-
         for (button in scoreButtons) {
             button.setOnClickListener {
-                val buttonText = view.findViewById<Button>(button.id).text.toString()
-                val arrowScores = view.findViewById<TextView>(R.id.text_arrow_scores)
                 try {
-                    arrowScores.text = editEnd.addArrowToEnd(arrowScores.text.toString(), buttonText)
-                    endTotalTextView.text = editEnd.getEndScore(arrowScores.text.toString()).toString()
+                    end.addArrowToEnd(view.findViewById<Button>(button.id).text.toString())
+                    updateEndStringAndTotal(view, end)
                 }
                 catch (e: NullPointerException) {
                     Toast.makeText(context, resources.getString(R.string.err_end_full), Toast.LENGTH_SHORT).show()
@@ -74,64 +75,58 @@ class InputEndFragment : Fragment() {
         }
 
         button_clear_end.setOnClickListener {
-            clearEnd(view, editEnd)
+            end.clear()
+            updateEndStringAndTotal(view, end)
         }
 
         button_backspace.setOnClickListener {
-            val arrowScores = view.findViewById<TextView>(R.id.text_arrow_scores)
             try {
-                arrowScores.text = editEnd.removeLastArrowFromEnd(arrowScores.text.toString())
+                end.removeLastArrowFromEnd()
+                updateEndStringAndTotal(view, end)
             }
             catch (e: NullPointerException) {
                 Toast.makeText(context, resources.getString(R.string.err_end_empty), Toast.LENGTH_SHORT).show()
             }
-            endTotalTextView.text = editEnd.getEndScore(arrowScores.text.toString()).toString()
         }
 
         button_next_end.setOnClickListener {
-            if (editEnd.getArrowCount(view.findViewById<TextView>(R.id.text_arrow_scores).text.toString()) != arrowsPerEnd) {
+            try {
+                // Update database
+                var highestArrowNumber = 0
+                for (arrow in allArrows) {
+                    if (arrow.arrowNumber > highestArrowNumber) {
+                        highestArrowNumber = arrow.arrowNumber
+                    }
+                }
+                end.addArrowsToDatabase(1, highestArrowNumber + 1, scoresViewModel)
+                updateEndStringAndTotal(view, end)
+
+                // Update overview table
+//                view.findViewById<TextView>(R.id.text_table_score_1).text = roundTotal().toString()
+//                view.findViewById<TextView>(R.id.text_table_arrow_count_1).text = allArrows.size.toString()
+            }
+            catch (e: NullPointerException) {
                 Toast.makeText(context, resources.getString(R.string.err_end_not_full), Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
             }
-
-            // Update database
-            val arrowScores = view.findViewById<TextView>(R.id.text_arrow_scores)
-            val arrowList = arrowScores.text.replace(resources.getString(R.string.arrow_value_m).toRegex(), "0")
-                    .split(resources.getString(R.string.arrow_deliminator)).toMutableList()
-            arrowList.removeAll { arrow -> arrow == resources.getString(R.string.arrow_deliminator) }
-            var highestArrowNumber = 0
-            for (arrow in allArrows) {
-                if (arrow.arrowNumber > highestArrowNumber) {
-                    highestArrowNumber = arrow.arrowNumber
-                }
-            }
-            for (arrow in arrowList) {
-                val isX = arrow == resources.getString(R.string.arrow_value_x)
-                val arrowScore = when (isX) {
-                    true -> 10
-                    false -> Integer.parseInt(arrow)
-                }
-                scoresViewModel.insert(ArrowValue(1, ++highestArrowNumber, arrowScore, isX))
-            }
-
-            // Update archer's score
-            val endTotal = Integer.parseInt(endTotalTextView.text.toString())
-            val archerTotal = view.findViewById<TextView>(R.id.text_table_score_1)
-            archerTotal.text = (Integer.parseInt(archerTotal.text.toString()) + endTotal).toString()
-
-            // Update archer's arrow count
-            val arrowCount = view.findViewById<TextView>(R.id.text_table_arrow_count_1)
-            arrowCount.text = (arrowsPerEnd + Integer.parseInt(arrowCount.text.toString())).toString()
-
-            clearEnd(view, editEnd)
         }
     }
 
-    private fun clearEnd(view: View, editEnd: EditEnd) {
-        val endTotalTextView = view.findViewById<TextView>(R.id.text_end_total)
-        val arrowScores = view.findViewById<TextView>(R.id.text_arrow_scores)
-        arrowScores.text = editEnd.getEmptyEnd(arrowsPerEnd)
-        endTotalTextView.text = editEnd.getEndScore(arrowScores.text.toString()).toString()
+    private fun updateEndStringAndTotal(view: View, end: End) {
+        view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()
+        view.findViewById<TextView>(R.id.text_end_total).text = end.getEndScore().toString()
+    }
+
+    private fun updateRoundTotals(view: View) {
+        view.findViewById<TextView>(R.id.text_table_score_1).text = roundTotal().toString()
+        view.findViewById<TextView>(R.id.text_table_arrow_count_1).text = allArrows.size.toString()
+    }
+
+    private fun roundTotal(): Int {
+        var total = 0
+        for (arrow in allArrows) {
+            total += arrow.score
+        }
+        return total
     }
 }
 

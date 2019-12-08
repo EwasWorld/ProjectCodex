@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
+class InputEndInstrumentedTest {
     @get:Rule
     val activity = ActivityTestRule(MainActivity::class.java)
     private val emptyEnd = ".-.-.-.-.-."

@@ -54,10 +54,6 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
         suspend fun populateDatabase(arrowValueDao: ArrowValueDao) {
             // TODO Don't delete everything in the database on launch
             arrowValueDao.deleteAll()
-            var arrow = ArrowValue(1, 1, 5, false)
-            arrowValueDao.insert(arrow)
-            arrow = ArrowValue(1, 2, 7, false)
-            arrowValueDao.insert(arrow)
         }
     }
 }

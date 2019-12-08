@@ -16,7 +16,4 @@
     <string name="archer_name_header">Archer</string>
     <string name="archer_score_header">Score</string>
     <string name="archer_arrows_count_header">Arrows</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
