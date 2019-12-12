@@ -1,12 +1,16 @@
 package eywa.projectcodex
 
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import eywa.projectcodex.database.ScoresViewModel
+import eywa.projectcodex.database.entities.ArrowValue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
+import org.junit.Before
 import org.junit.Test
 
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
-import java.lang.NumberFormatException
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -15,7 +19,6 @@ import java.lang.NumberFormatException
  * https://medium.com/@daptronic/unit-testing-android-resources-with-kotlin-and-resourceprovider-65874997aa
  * https://github.com/Comcast/resourceprovider
  */
-@RunWith(MockitoJUnitRunner.Silent::class)
 class EndUnitTest {
     private var end: End = End(6, ".", "-")
     private var arrows = arrayOf(
@@ -150,7 +153,31 @@ class EndUnitTest {
 
     @Test
     fun testAddArrowsToDatabase() {
-        // TODO Work out how to mock scoresViewModel
+        val arrowScores = arrayOf(1, 3, 5, 6, 10, 10)
+        for (arrow in arrowScores) {
+            end.addArrowToEnd(arrows[arrow])
+        }
+        // Swap the last arrow to an X
+        end.removeLastArrowFromEnd()
+        end.addArrowToEnd(arrows[11])
+        assertEquals(arrowScores.sum(), end.getEndScore())
+
+        val viewModel = mock<ScoresViewModel>()
+        val archerRoundID = 1
+        var arrowNumber = 1
+        end.addArrowsToDatabase(archerRoundID, arrowNumber, viewModel)
+
+        argumentCaptor<ArrowValue>().apply {
+            verify(viewModel, times(6)).insert(capture())
+            for (arrow in allValues) {
+                assertEquals(archerRoundID, arrow.archerRoundsID)
+                assertEquals(arrowNumber, arrow.arrowNumber)
+                assertEquals(arrowScores[arrowNumber - 1], arrow.score)
+                // Only the last arrow, 6, should be an X
+                assertEquals(arrowNumber == 6, arrow.isX)
+                arrowNumber++
+            }
+        }
     }
 
     @Test
