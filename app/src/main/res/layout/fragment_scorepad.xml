@@ -7,16 +7,16 @@
     tools:context=".fragments.ScorePadFragment"
     >
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+    <ph.ingenuity.tableview.TableView
+        android:id="@+id/table_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:table_selected_color="@color/colorPrimary"
+        app:table_separator_color="@color/textDark"
+        app:table_unselected_color="@color/colorAccent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/recyclerview_item"
+        app:table_show_horizontal_separator="true"
+        app:table_show_vertical_separator="true"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

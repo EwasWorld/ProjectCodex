@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/column_header_container"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/cell_height"
+    android:background="@android:color/white"
+    android:orientation="horizontal"
+    android:gravity="center"
+    >
+
+    <TextView
+        android:id="@+id/text_scorepad_column_header"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/margins"
+        android:layout_marginEnd="@dimen/margins"
+        android:paddingLeft="@dimen/padding"
+        android:paddingRight="@dimen/padding"
+        android:gravity="center"
+        android:textColor="@color/table_view_default_text_color"
+        android:textSize="@dimen/text_size"
+        tools:text="Header Data"
+        />
+</LinearLayout>

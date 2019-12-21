@@ -3,23 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/addEndActivity"
+    app:startDestination="@id/inputEndFragment"
     >
     <fragment
-        android:id="@+id/addEndActivity"
+        android:id="@+id/inputEndFragment"
         android:name="eywa.projectcodex.fragments.InputEndFragment"
         android:label="activity_add_end"
-        tools:layout="@layout/activity_add_end"
+        tools:layout="@layout/fragment_add_end"
         >
         <action
             android:id="@+id/actionInputEndFragmentToScorePadFragment"
-            app:destination="@id/viewScoresActivity"
+            app:destination="@id/scorePadFragment"
             />
     </fragment>
     <fragment
-        android:id="@+id/viewScoresActivity"
+        android:id="@+id/scorePadFragment"
         android:name="eywa.projectcodex.fragments.ScorePadFragment"
         android:label="activity_view_scores"
-        tools:layout="@layout/activity_view_scores"
-        />
+        tools:layout="@layout/fragment_scorepad"
+        >
+        <argument
+            android:name="endSize"
+            app:argType="integer"
+            />
+    </fragment>
 </navigation>

@@ -16,4 +16,14 @@
     <string name="archer_name_header">Archer</string>
     <string name="archer_score_header">Score</string>
     <string name="archer_arrows_count_header">Arrows</string>
+
+    <string name="scorepad_end_string_header">E/T</string>
+    <string name="scorepad_hits_header">H</string>
+    <string name="scorepad_score_header">S</string>
+    <string name="scorepad_golds_nines_header">G</string>
+    <string name="scorepad_golds_tens_header">10</string>
+    <string name="scorepad_golds_xs_header">X</string>
+    <string name="scorepad_running_total_header">R/T</string>
+
+    <string name="to_score_pad">Score Pad</string>
 </resources>

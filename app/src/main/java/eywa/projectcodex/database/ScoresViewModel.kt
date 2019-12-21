@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 class ScoresViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: ScoresRepository
-    // LiveData gives us updated words when they change.
     val allArrows: LiveData<List<ArrowValue>>
 
     init {

@@ -1,14 +1,10 @@
 package eywa.projectcodex
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.withDecorView
-import androidx.test.espresso.matcher.ViewMatchers.*
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
-import org.hamcrest.CoreMatchers.not
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,9 +22,17 @@ class InputEndInstrumentedTest {
     val activity = ActivityTestRule(MainActivity::class.java)
     private val emptyEnd = ".-.-.-.-.-."
 
+    lateinit var db: SQLiteDatabase
+
     @Before
-    fun init() {
-        activity.getActivity().getSupportFragmentManager().beginTransaction()
+    fun beforeEach() {
+        activity.activity.supportFragmentManager.beginTransaction()
+        db = activity.activity.openOrCreateDatabase("TestDatabase", Context.MODE_PRIVATE, null)
+    }
+
+    @After
+    fun afterEach() {
+        activity.activity.deleteDatabase("TestDatabase")
     }
 
     @Test
@@ -221,12 +225,10 @@ class InputEndInstrumentedTest {
         R.id.text_table_arrow_count_1.textEquals("12")
         R.id.text_arrow_scores.textEquals("3-7-3-6-6-.")
     }
-}
 
-fun Int.click() = onView(withId(this)).perform(ViewActions.click())
-fun Int.write(text: String) = onView(withId(this)).perform(typeText(text))
-fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))
-infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
-    onView(withText(message))
-            .inRoot(withDecorView(not(activity.window.decorView)))
-            .check(matches(isDisplayed()))
+    @Test
+    @Throws(Exception::class)
+    fun testOpenScorePad() {
+        // TODO Implement (need some way to check it worked)
+    }
+}

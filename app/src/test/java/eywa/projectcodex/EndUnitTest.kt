@@ -10,11 +10,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import java.lang.IllegalArgumentException
 
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
  * See [testing documentation](http://d.android.com/tools/testing).
  * https://medium.com/@daptronic/unit-testing-android-resources-with-kotlin-and-resourceprovider-65874997aa
  * https://github.com/Comcast/resourceprovider
@@ -34,26 +33,50 @@ class EndUnitTest {
     }
 
     @Test
+    fun testCreateEndFromList() {
+        val arrowValues = arrows.map { ArrowValue(1, 1, it.score, it.isX) }
+
+        val endArrows = mutableListOf(arrowValues[0], arrowValues[3], arrowValues[11])
+        end = End(endArrows, 6, ".", "-")
+        assertEquals(13, end.getScore())
+        assertEquals(1, end.getGolds(GoldsType.XS))
+
+        endArrows.add(arrowValues[1])
+        endArrows.add(arrowValues[1])
+        endArrows.add(arrowValues[1])
+        end = End(endArrows, 6, ".", "-")
+        assertEquals(16, end.getScore())
+
+        try {
+            endArrows.add(arrowValues[1])
+            end = End(endArrows, 6, ".", "-")
+            fail("Too many arrows")
+        }
+        catch (e: IllegalArgumentException) {
+        }
+    }
+
+    @Test
     fun testAddArrowStringToEnd() {
         end.addArrowToEnd("1")
-        assertEquals(1, end.getEndScore())
+        assertEquals(1, end.getScore())
 
         end.addArrowToEnd("m")
-        assertEquals(1, end.getEndScore())
+        assertEquals(1, end.getScore())
 
         end.addArrowToEnd("X")
-        assertEquals(11, end.getEndScore())
+        assertEquals(11, end.getScore())
 
         end.addArrowToEnd("3")
         end.addArrowToEnd("3")
         end.addArrowToEnd("3")
-        assertEquals(20, end.getEndScore())
+        assertEquals(20, end.getScore())
 
         try {
             end.addArrowToEnd("3")
             fail("Too many arrows")
         }
-        catch (e: NullPointerException) {
+        catch (e: IllegalStateException) {
         }
 
         try {
@@ -70,26 +93,26 @@ class EndUnitTest {
         catch (e: NumberFormatException) {
         }
 
-        assertEquals(20, end.getEndScore())
+        assertEquals(20, end.getScore())
     }
 
     @Test
     fun testAddArrowValueToEnd() {
         end.addArrowToEnd(arrows[1])
-        assertEquals(1, end.getEndScore())
+        assertEquals(1, end.getScore())
 
         end.addArrowToEnd(arrows[0])
-        assertEquals(1, end.getEndScore())
+        assertEquals(1, end.getScore())
 
         end.addArrowToEnd(arrows[11])
-        assertEquals(11, end.getEndScore())
+        assertEquals(11, end.getScore())
 
         end.addArrowToEnd(arrows[3])
         end.addArrowToEnd(arrows[3])
         end.addArrowToEnd(arrows[3])
-        assertEquals(20, end.getEndScore())
+        assertEquals(20, end.getScore())
 
-        assertEquals(20, end.getEndScore())
+        assertEquals(20, end.getScore())
     }
 
     @Test
@@ -98,22 +121,54 @@ class EndUnitTest {
             end.removeLastArrowFromEnd()
             fail("No arrows in end")
         }
-        catch (e: NullPointerException) {
+        catch (e: IllegalStateException) {
         }
 
         end.addArrowToEnd(arrows[7])
         end.addArrowToEnd(arrows[3])
         end.addArrowToEnd(arrows[5])
-        assertEquals(15, end.getEndScore())
+        assertEquals(15, end.getScore())
 
         end.removeLastArrowFromEnd()
-        assertEquals(10, end.getEndScore())
+        assertEquals(10, end.getScore())
 
         end.removeLastArrowFromEnd()
-        assertEquals(7, end.getEndScore())
+        assertEquals(7, end.getScore())
 
         end.removeLastArrowFromEnd()
-        assertEquals(0, end.getEndScore())
+        assertEquals(0, end.getScore())
+    }
+
+    @Test
+    fun testGetHits() {
+        assertEquals(0, end.getHits())
+
+        end.addArrowToEnd(arrows[0])
+        assertEquals(0, end.getHits())
+
+        end.addArrowToEnd(arrows[1])
+        assertEquals(1, end.getHits())
+
+        end.addArrowToEnd(arrows[0])
+        assertEquals(1, end.getHits())
+
+        end.addArrowToEnd(arrows[4])
+        end.addArrowToEnd(arrows[7])
+        end.addArrowToEnd(arrows[11])
+        assertEquals(4, end.getHits())
+    }
+
+    @Test
+    fun testGetGolds() {
+        assertEquals(0, end.getGolds(GoldsType.NINES))
+
+        end.addArrowToEnd(arrows[0])
+        end.addArrowToEnd(arrows[4])
+        assertEquals(0, end.getGolds(GoldsType.NINES))
+
+        end.addArrowToEnd(arrows[10])
+        end.addArrowToEnd(arrows[11])
+        assertEquals(2, end.getGolds(GoldsType.NINES))
     }
 
     @Test
@@ -148,7 +203,7 @@ class EndUnitTest {
         assertEquals("1-X-m-3-10-.", end.toString())
 
         end.reorderScores()
-        assertEquals("m-1-3-10-X-.", end.toString())
+        assertEquals("X-10-3-1-m-.", end.toString())
     }
 
     @Test
@@ -160,7 +215,7 @@ class EndUnitTest {
         // Swap the last arrow to an X
         end.removeLastArrowFromEnd()
         end.addArrowToEnd(arrows[11])
-        assertEquals(arrowScores.sum(), end.getEndScore())
+        assertEquals(arrowScores.sum(), end.getScore())
 
         val viewModel = mock<ScoresViewModel>()
         val archerRoundID = 1

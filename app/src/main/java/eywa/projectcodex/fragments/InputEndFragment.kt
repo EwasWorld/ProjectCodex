@@ -12,17 +12,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.End
+import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.ScoresViewModel
 import eywa.projectcodex.database.entities.ArrowValue
-import kotlinx.android.synthetic.main.activity_add_end.*
+import kotlinx.android.synthetic.main.fragment_add_end.*
 
 class InputEndFragment : Fragment() {
     private lateinit var scoresViewModel: ScoresViewModel
     private var allArrows = emptyList<ArrowValue>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.activity_add_end, container, false)
+        return inflater.inflate(R.layout.fragment_add_end, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,7 +44,7 @@ class InputEndFragment : Fragment() {
         view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()
 
         button_score_pad.setOnClickListener {
-            val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment()
+            val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(end.arrowsPerEnd)
             view.findNavController().navigate(action)
         }
 
@@ -68,7 +69,7 @@ class InputEndFragment : Fragment() {
                     end.addArrowToEnd(view.findViewById<Button>(button.id).text.toString())
                     updateEndStringAndTotal(view, end)
                 }
-                catch (e: NullPointerException) {
+                catch (e: IllegalStateException) {
                     Toast.makeText(context, resources.getString(R.string.err_end_full), Toast.LENGTH_SHORT).show()
                 }
             }
@@ -84,7 +85,7 @@ class InputEndFragment : Fragment() {
                 end.removeLastArrowFromEnd()
                 updateEndStringAndTotal(view, end)
             }
-            catch (e: NullPointerException) {
+            catch (e: IllegalStateException) {
                 Toast.makeText(context, resources.getString(R.string.err_end_empty), Toast.LENGTH_SHORT).show()
             }
         }
@@ -100,12 +101,8 @@ class InputEndFragment : Fragment() {
                 }
                 end.addArrowsToDatabase(1, highestArrowNumber + 1, scoresViewModel)
                 updateEndStringAndTotal(view, end)
-
-                // Update overview table
-//                view.findViewById<TextView>(R.id.text_table_score_1).text = roundTotal().toString()
-//                view.findViewById<TextView>(R.id.text_table_arrow_count_1).text = allArrows.size.toString()
             }
-            catch (e: NullPointerException) {
+            catch (e: IllegalStateException) {
                 Toast.makeText(context, resources.getString(R.string.err_end_not_full), Toast.LENGTH_SHORT).show()
             }
         }
@@ -113,7 +110,7 @@ class InputEndFragment : Fragment() {
 
     private fun updateEndStringAndTotal(view: View, end: End) {
         view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()
-        view.findViewById<TextView>(R.id.text_end_total).text = end.getEndScore().toString()
+        view.findViewById<TextView>(R.id.text_end_total).text = end.getScore().toString()
     }
 
     private fun updateRoundTotals(view: View) {
