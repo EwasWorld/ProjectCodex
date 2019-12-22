@@ -9,7 +9,7 @@
         android:id="@+id/inputEndFragment"
         android:name="eywa.projectcodex.fragments.InputEndFragment"
         android:label="activity_add_end"
-        tools:layout="@layout/fragment_add_end"
+        tools:layout="@layout/fragment_input_end"
         >
         <action
             android:id="@+id/actionInputEndFragmentToScorePadFragment"

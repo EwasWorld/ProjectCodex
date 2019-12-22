@@ -15,14 +15,14 @@ import eywa.projectcodex.End
 import eywa.projectcodex.R
 import eywa.projectcodex.database.ScoresViewModel
 import eywa.projectcodex.database.entities.ArrowValue
-import kotlinx.android.synthetic.main.fragment_add_end.*
+import kotlinx.android.synthetic.main.fragment_input_end.*
 
 class InputEndFragment : Fragment() {
     private lateinit var scoresViewModel: ScoresViewModel
     private var allArrows = emptyList<ArrowValue>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_add_end, container, false)
+        return inflater.inflate(R.layout.fragment_input_end, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
