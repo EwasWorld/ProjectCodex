@@ -6,7 +6,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="ScoreButtons">
+    <style name="InputArrowScoreButtons">
         <item name="android:tag">score_button</item>
         <item name="android:minWidth">45dp</item>
         <item name="android:layout_marginEnd">5dp</item>
@@ -17,35 +17,18 @@
         <item name="android:layout_marginBottom">5dp</item>
     </style>
 
-    <style name="TableHeader" parent="TableItem">
+    <style name="InputEndTableHeader" parent="InputEndTableItem">
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TableItem">
-        <item name="android:textColor">@color/textWhite</item>
+    <style name="InputEndTableItem">
+        <item name="android:textColor">@color/inputEndText</item>
         <item name="android:textSize">25sp</item>
         <item name="android:gravity">center</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">5dp</item>
-    </style>
-
-    <style name="GeneralButton" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:textColor">@color/textDark</item>
-    </style>
-
-    <style name="score_pad_item">
-        <item name="android:textColor">@color/textWhite</item>
-        <item name="android:textSize">25sp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:layout_marginRight">1dp</item>
-        <item name="android:layout_marginLeft">1dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:background">@android:color/holo_blue_light</item>
-        <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
     </style>
 
 </resources>

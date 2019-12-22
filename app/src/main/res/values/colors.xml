@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#69BEFF</color>
-<!--    <color name="colorPrimary">#4B8BB9</color>-->
+    <color name="colorLightAccent">#CCF1FF</color>
+    <color name="colorAccent">#5FEFB3</color>
     <color name="colorPrimaryDark">#14248F</color>
-    <color name="colorAccent">#FFFFFF</color>
-    <color name="textWhite">#FFFFFF</color>
-    <color name="textDark">#242424</color>
-<!--    <color name="textWhite">#C9C9C9</color>-->
+    <color name="colorAccentDark">#317882</color>
+    <color name="colorTertiary">#59D6C1</color>
+
+    <color name="black">#000000</color>
+    <color name="offBlack">#242424</color>
+    <color name="white">#FFFFFF</color>
+    <color name="offWhite">#C9C9C9</color>
+
+    <color name="scorepadText">@color/offBlack</color>
+    <color name="inputEndText">@color/white</color>
 
     <color name="targetFaceGreen">#26FF00</color>
     <color name="targetFaceWhite">#FFFFFF</color>

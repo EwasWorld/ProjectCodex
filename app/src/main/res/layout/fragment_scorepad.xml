@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context=".fragments.ScorePadFragment"
     >
 
@@ -11,12 +12,13 @@
         android:id="@+id/table_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:table_selected_color="@color/colorPrimary"
-        app:table_separator_color="@color/textDark"
-        app:table_unselected_color="@color/colorAccent"
+        android:layout_margin="@dimen/scorepad__main_margins"
         app:layout_constraintTop_toTopOf="parent"
+        app:table_selected_color="@color/colorAccent"
+        app:table_separator_color="@color/offBlack"
         app:table_show_horizontal_separator="true"
         app:table_show_vertical_separator="true"
+        app:table_unselected_color="@color/colorLightAccent"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

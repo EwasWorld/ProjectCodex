@@ -1,22 +1,24 @@
 <resources>
     <string name="app_name">ProjectCodex</string>
-    <string name="score_button_min_width">45dp</string>
-    <string name="clear_end_input">Clear</string>
-    <string name="backspace_end_input">Backspace</string>
 
-    <string name="arrow_deliminator">-</string>
-    <string name="arrow_placeholder">.</string>
+    <!-- Arrow information -->
+    <string name="end_to_string_arrow_deliminator">-</string>
+    <string name="end_to_string_arrow_placeholder">.</string>
     <string name="arrow_value_x">X</string>
     <string name="arrow_value_m">m</string>
 
-    <string name="err_end_full">Arrows already added</string>
-    <string name="err_end_empty">No arrows entered</string>
-    <string name="err_end_not_full">Please enter all arrows for this end</string>
-    <string name="next_end">Next end</string>
+    <!-- Input end -->
+    <string name="input_end__clear">Clear</string>
+    <string name="input_end__backspace">Backspace</string>
+    <string name="input_end__next_end">Next end</string>
+    <string name="input_end__score_pad">Score Pad</string>
+
+    <!-- Input end mini table -->
     <string name="archer_name_header">Archer</string>
     <string name="archer_score_header">Score</string>
     <string name="archer_arrows_count_header">Arrows</string>
 
+    <!-- Score Pad Headers -->
     <string name="scorepad_end_string_header">E/T</string>
     <string name="scorepad_hits_header">H</string>
     <string name="scorepad_score_header">S</string>
@@ -25,5 +27,8 @@
     <string name="scorepad_golds_xs_header">X</string>
     <string name="scorepad_running_total_header">R/T</string>
 
-    <string name="to_score_pad">Score Pad</string>
+    <!-- Errors -->
+    <string name="err_end_full">Arrows already added</string>
+    <string name="err_end_empty">No arrows entered</string>
+    <string name="err_end_not_full">Please enter all arrows for this end</string>
 </resources>

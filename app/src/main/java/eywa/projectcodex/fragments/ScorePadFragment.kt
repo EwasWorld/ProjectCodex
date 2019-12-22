@@ -61,10 +61,6 @@ class ScorePadFragment : Fragment() {
                 var row = 0
                 val rowHeaders = IntRange(1, arrows2DArray.size).map { ScorePadCell(it, "row" + row++.toString()) }
                 tableAdapter.setAllItems(arrows2DArray, columnHeadersList, rowHeaders)
-
-                for (i in tableAdapter.columnHeaderItems?.indices ?: columnHeadersList.indices) {
-                    tableView.remeasureColumnWidth(i)
-                }
             }
         })
     }
@@ -79,8 +75,8 @@ class ScorePadFragment : Fragment() {
             val end = End(
                     allArrows.subList(index, min(index + args.endSize, allArrows.size)),
                     6,
-                    resources.getString(R.string.arrow_placeholder),
-                    resources.getString(R.string.arrow_deliminator)
+                    resources.getString(R.string.end_to_string_arrow_placeholder),
+                    resources.getString(R.string.end_to_string_arrow_deliminator)
             )
             end.reorderScores()
             rowData.add(end.toString())

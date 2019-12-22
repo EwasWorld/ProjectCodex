@@ -12,7 +12,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.End
-import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.ScoresViewModel
 import eywa.projectcodex.database.entities.ArrowValue
@@ -38,7 +37,7 @@ class InputEndFragment : Fragment() {
         })
 
         val end =
-            End(6, resources.getString(R.string.arrow_placeholder), resources.getString(R.string.arrow_deliminator))
+            End(6, resources.getString(R.string.end_to_string_arrow_placeholder), resources.getString(R.string.end_to_string_arrow_deliminator))
 
         // Set the place holder text for the arrow scores
         view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()

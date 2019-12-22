@@ -3,10 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/column_header_container"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/cell_height"
-    android:background="@android:color/white"
-    android:orientation="horizontal"
+    android:layout_height="@dimen/scorepad__cell_height"
     android:gravity="center"
+    android:orientation="horizontal"
     >
 
     <TextView
@@ -14,13 +13,13 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_marginStart="@dimen/margins"
-        android:layout_marginEnd="@dimen/margins"
-        android:paddingLeft="@dimen/padding"
-        android:paddingRight="@dimen/padding"
+        android:layout_marginStart="@dimen/scorepad__cell_margins"
+        android:layout_marginEnd="@dimen/scorepad__cell_margins"
         android:gravity="center"
-        android:textColor="@color/table_view_default_text_color"
-        android:textSize="@dimen/text_size"
+        android:paddingLeft="@dimen/scorepad__padding"
+        android:paddingRight="@dimen/scorepad__padding"
+        android:textColor="@color/scorepadText"
+        android:textSize="@dimen/scorepad__text_size"
         tools:text="Header Data"
         />
 </LinearLayout>

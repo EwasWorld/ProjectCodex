@@ -8,16 +8,6 @@
     tools:context=".fragments.InputEndFragment"
     >
 
-    <Button
-        android:id="@+id/button_score_pad"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/to_score_pad"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
     <TableLayout
         android:id="@+id/tableLayout"
         android:layout_width="wrap_content"
@@ -31,23 +21,24 @@
 
         <TableRow>
 
-            <TextView
-                android:id="@+id/text_table_name_header"
-                style="@style/TableHeader"
-                android:background="@drawable/table_border"
-                android:text="@string/archer_name_header"
-                />
+            <!-- Re-add when multiple archers are implemented -->
+            <!-- <TextView-->
+            <!-- android:id="@+id/text_table_name_header"-->
+            <!-- style="@style/TableHeader"-->
+            <!-- android:background="@drawable/table_border"-->
+            <!-- android:text="@string/archer_name_header"-->
+            <!-- />-->
 
             <TextView
                 android:id="@+id/text_table_score_header"
-                style="@style/TableHeader"
+                style="@style/InputEndTableHeader"
                 android:background="@drawable/table_border"
                 android:text="@string/archer_score_header"
                 />
 
             <TextView
                 android:id="@+id/text_table_arrow_count_header"
-                style="@style/TableHeader"
+                style="@style/InputEndTableHeader"
                 android:background="@drawable/table_border"
                 android:text="@string/archer_arrows_count_header"
                 />
@@ -55,37 +46,38 @@
 
         <TableRow>
 
-            <TextView
-                android:id="@+id/text_table_name_1"
-                style="@style/TableItem"
-                android:background="@drawable/table_border"
-                android:text="Bob"
-                />
+            <!-- <TextView-->
+            <!-- android:id="@+id/text_table_name_1"-->
+            <!-- style="@style/TableItem"-->
+            <!-- android:background="@drawable/table_border"-->
+            <!-- android:text="Bob"-->
+            <!-- />-->
 
             <TextView
                 android:id="@+id/text_table_score_1"
-                style="@style/TableItem"
+                style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
                 android:text="0"
                 />
 
             <TextView
                 android:id="@+id/text_table_arrow_count_1"
-                style="@style/TableItem"
+                style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
                 android:text="0"
                 />
         </TableRow>
     </TableLayout>
 
+    <!-- text is a placeholder than will be overwritten on load -->
     <TextView
         android:id="@+id/text_arrow_scores"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
-        android:text=""
-        android:textColor="@color/textWhite"
-        android:textSize="40sp"
+        android:text="X-10-3-m-.-."
+        android:textColor="@color/inputEndText"
+        android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toTopOf="@+id/button_score_3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,8 +88,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textColor="@color/textWhite"
-        android:textSize="40sp"
+        android:textColor="@color/inputEndText"
+        android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toTopOf="@+id/text_arrow_scores"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,7 +97,7 @@
 
     <Button
         android:id="@+id/button_score_0"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGreen"
@@ -117,7 +109,7 @@
 
     <Button
         android:id="@+id/button_score_1"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceWhite"
@@ -129,7 +121,7 @@
 
     <Button
         android:id="@+id/button_score_2"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceWhite"
@@ -141,27 +133,27 @@
 
     <Button
         android:id="@+id/button_score_3"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlack"
         android:text="3"
-        android:textColor="@color/textWhite"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tableLayout"
-        app:layout_constraintVertical_bias=".3"
+        app:layout_constraintVertical_bias="0.4"
         />
 
     <Button
         android:id="@+id/button_score_4"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlack"
         android:text="4"
-        android:textColor="@color/textWhite"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="@+id/button_score_3"
         app:layout_constraintStart_toEndOf="@+id/button_score_3"
         app:layout_constraintTop_toTopOf="@+id/button_score_3"
@@ -169,7 +161,7 @@
 
     <Button
         android:id="@+id/button_score_5"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlue"
@@ -181,7 +173,7 @@
 
     <Button
         android:id="@+id/button_score_6"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlue"
@@ -192,7 +184,7 @@
 
     <Button
         android:id="@+id/button_score_7"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceRed"
@@ -203,7 +195,7 @@
 
     <Button
         android:id="@+id/button_score_8"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceRed"
@@ -215,7 +207,7 @@
 
     <Button
         android:id="@+id/button_score_9"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGold"
@@ -226,7 +218,7 @@
 
     <Button
         android:id="@+id/button_score_10"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGold"
@@ -237,7 +229,7 @@
 
     <Button
         android:id="@+id/button_score_x"
-        style="@style/ScoreButtons"
+        style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGold"
@@ -254,7 +246,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/button_next_end"
+        app:layout_constraintBottom_toTopOf="@+id/layout_edit_end"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_score_8"
@@ -263,32 +255,54 @@
 
         <Button
             android:id="@+id/button_clear_end"
-            style="@style/GeneralButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/clear_end_input"
+            android:text="@string/input_end__clear"
             />
 
         <Button
             android:id="@+id/button_backspace"
-            style="@style/GeneralButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/backspace_end_input"
+            android:text="@string/input_end__backspace"
             />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/button_next_end"
-        style="@style/GeneralButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/layout_edit_end"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/next_end"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_score_8"
-        app:layout_constraintVertical_bias=".6"
-        />
+        >
+
+        <Button
+            android:id="@+id/button_score_pad"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/input_end__score_pad"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+        <Button
+            android:id="@+id/button_next_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/input_end__next_end"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_score_8"
+            />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

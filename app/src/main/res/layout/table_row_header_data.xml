@@ -1,42 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
-    android:layout_width="@dimen/row_header_width"
-    android:layout_height="@dimen/cell_height"
-    android:background="@android:color/white">
+    android:layout_width="@dimen/scorepad__row_header_width"
+    android:layout_height="@dimen/scorepad__cell_height"
+    android:gravity="center"
+    android:orientation="horizontal"
+    >
 
-    <View
-        android:layout_width="1px"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:background="@color/colorAccent" />
-
-    <LinearLayout
-        android:id="@+id/row_header_container"
+    <TextView
+        android:id="@+id/text_scorepad_row_header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/scorepad__cell_margins"
+        android:layout_marginEnd="@dimen/scorepad__cell_margins"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingLeft="@dimen/scorepad__padding"
+        android:paddingRight="@dimen/scorepad__padding"
+        android:textColor="@color/scorepadText"
+        android:textSize="@dimen/scorepad__text_size"
+        tools:text="Row Data"
+        />
 
-        <TextView
-            android:id="@+id/text_scorepad_row_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:textColor="@color/table_view_default_text_color"
-            android:textSize="@dimen/text_size"
-            tools:text="Row Data" />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="1px"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:background="@color/colorAccent" />
-</RelativeLayout>
+</LinearLayout>

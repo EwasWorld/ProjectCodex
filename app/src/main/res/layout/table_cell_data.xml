@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/cell_height"
+    android:layout_height="@dimen/scorepad__cell_height"
     android:gravity="center"
     android:orientation="vertical"
     >
@@ -11,13 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="@dimen/margins"
-        android:layout_marginEnd="@dimen/margins"
-        android:paddingLeft="@dimen/padding"
-        android:paddingRight="@dimen/padding"
+        android:layout_marginStart="@dimen/scorepad__cell_margins"
+        android:layout_marginEnd="@dimen/scorepad__cell_margins"
         android:gravity="center"
         android:maxLines="1"
+        android:paddingLeft="@dimen/scorepad__padding"
+        android:paddingRight="@dimen/scorepad__padding"
         android:text="@string/app_name"
-        android:textSize="@dimen/text_size"
+        android:textColor="@color/scorepadText"
+        android:textSize="@dimen/scorepad__text_size"
         />
 </RelativeLayout>
