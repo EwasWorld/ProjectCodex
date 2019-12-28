@@ -20,6 +20,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun arrowValueDao(): ArrowValueDao
 
     companion object {
+        var dbName = "scores_database"
         // Singleton prevents multiple instances of database opening at the same time.
         @Volatile
         private var INSTANCE: ScoresRoomDatabase? = null
@@ -31,7 +32,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
             }
             synchronized(this) {
                 val instance =
-                    Room.databaseBuilder(context.applicationContext, ScoresRoomDatabase::class.java, "scores_database")
+                    Room.databaseBuilder(context.applicationContext, ScoresRoomDatabase::class.java, dbName)
                             .addCallback(ScoresDatabaseCallback(scope)).build()
                 INSTANCE = instance
                 return instance
@@ -42,8 +43,6 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     private class ScoresDatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
         override fun onOpen(db: SupportSQLiteDatabase) {
             super.onOpen(db)
-            // If you want to keep the data through app restarts,
-            // comment out the following line.
             INSTANCE?.let { database ->
                 scope.launch {
                     populateDatabase(database.arrowValueDao())
@@ -53,7 +52,9 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
 
         suspend fun populateDatabase(arrowValueDao: ArrowValueDao) {
             // TODO Don't delete everything in the database on launch
-            arrowValueDao.deleteAll()
+//            if (dbName.contains("test")) {
+                arrowValueDao.deleteAll()
+//            }
         }
     }
 }

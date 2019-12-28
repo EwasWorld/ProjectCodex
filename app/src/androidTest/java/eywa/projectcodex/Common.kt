@@ -9,6 +9,8 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
 import org.hamcrest.CoreMatchers
 
+const val testDatabaseName = "test_database"
+
 fun Int.click() = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())
 fun Int.write(text: String) = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.typeText(text))
 fun Int.textEquals(text: String) = Espresso.onView(ViewMatchers.withId(this)).check(

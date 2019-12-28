@@ -1,10 +1,8 @@
 package eywa.projectcodex
 
-import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
-import org.junit.After
+import eywa.projectcodex.database.ScoresRoomDatabase
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -18,21 +16,19 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class InputEndInstrumentedTest {
+    companion object {
+        init {
+            ScoresRoomDatabase.dbName = testDatabaseName
+        }
+    }
+
     @get:Rule
     val activity = ActivityTestRule(MainActivity::class.java)
     private val emptyEnd = ".-.-.-.-.-."
 
-    lateinit var db: SQLiteDatabase
-
     @Before
     fun beforeEach() {
         activity.activity.supportFragmentManager.beginTransaction()
-        db = activity.activity.openOrCreateDatabase("TestDatabase", Context.MODE_PRIVATE, null)
-    }
-
-    @After
-    fun afterEach() {
-        activity.activity.deleteDatabase("TestDatabase")
     }
 
     @Test
