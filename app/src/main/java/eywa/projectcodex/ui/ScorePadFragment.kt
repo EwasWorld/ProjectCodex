@@ -1,4 +1,4 @@
-package eywa.projectcodex.fragments
+package eywa.projectcodex.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,17 +11,17 @@ import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.End
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
-import eywa.projectcodex.database.ScoresViewModel
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.scorepadTable.ScorePadCell
 import eywa.projectcodex.scorepadTable.ScorePadTableViewAdapter
+import eywa.projectcodex.viewModels.ScorePadViewModel
 import ph.ingenuity.tableview.TableView
 import kotlin.math.min
 
 class ScorePadFragment : Fragment() {
 
     private val args: ScorePadFragmentArgs by navArgs()
-    private lateinit var scoresViewModel: ScoresViewModel
+    private lateinit var scorePadViewModel: ScorePadViewModel
     // TODO pull this from the database when rounds are properly implemented
     private val goldsType = GoldsType.TENS
 
@@ -47,15 +47,15 @@ class ScorePadFragment : Fragment() {
                 resources.getString(R.string.scorepad_end_string_header),
                 resources.getString(R.string.scorepad_hits_header),
                 resources.getString(R.string.scorepad_score_header),
-                resources.getString(goldsType.colHeaderStringID),
+                resources.getString(goldsType.colHeaderStringId),
                 resources.getString(R.string.scorepad_running_total_header)
         ).map { ScorePadCell(it, "col" + col++.toString()) }
 
         /*
          * Setup database and its callback
          */
-        scoresViewModel = ViewModelProvider(this).get(ScoresViewModel::class.java)
-        scoresViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
+        scorePadViewModel = ViewModelProvider(this).get(ScorePadViewModel::class.java)
+        scorePadViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
                 val arrows2DArray = create2DArrowArray(arrows)
                 var row = 0

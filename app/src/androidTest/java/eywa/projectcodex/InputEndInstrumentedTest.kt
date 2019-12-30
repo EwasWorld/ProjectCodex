@@ -3,6 +3,8 @@ package eywa.projectcodex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.ui.MainActivity
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -18,7 +20,7 @@ import org.junit.runner.RunWith
 class InputEndInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.dbName = testDatabaseName
+            ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
         }
     }
 
@@ -29,6 +31,11 @@ class InputEndInstrumentedTest {
     @Before
     fun beforeEach() {
         activity.activity.supportFragmentManager.beginTransaction()
+    }
+
+    @After
+    fun afterEach() {
+        activity.activity.applicationContext.deleteDatabase(testDatabaseName);
     }
 
     @Test

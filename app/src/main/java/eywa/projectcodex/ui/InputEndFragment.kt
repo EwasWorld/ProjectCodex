@@ -1,4 +1,4 @@
-package eywa.projectcodex.fragments
+package eywa.projectcodex.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,12 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.End
 import eywa.projectcodex.R
-import eywa.projectcodex.database.ScoresViewModel
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.viewModels.InputEndViewModel
 import kotlinx.android.synthetic.main.fragment_input_end.*
 
 class InputEndFragment : Fragment() {
-    private lateinit var scoresViewModel: ScoresViewModel
+    private lateinit var scoresViewModel: InputEndViewModel
     private var allArrows = emptyList<ArrowValue>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -28,7 +28,7 @@ class InputEndFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        scoresViewModel = ViewModelProvider(this).get(ScoresViewModel::class.java)
+        scoresViewModel = ViewModelProvider(this).get(InputEndViewModel::class.java)
         scoresViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
                 allArrows = arrows
@@ -37,7 +37,11 @@ class InputEndFragment : Fragment() {
         })
 
         val end =
-            End(6, resources.getString(R.string.end_to_string_arrow_placeholder), resources.getString(R.string.end_to_string_arrow_deliminator))
+            End(
+                    6,
+                    resources.getString(R.string.end_to_string_arrow_placeholder),
+                    resources.getString(R.string.end_to_string_arrow_deliminator)
+            )
 
         // Set the place holder text for the arrow scores
         view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()

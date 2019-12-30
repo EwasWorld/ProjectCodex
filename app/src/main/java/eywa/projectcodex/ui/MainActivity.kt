@@ -1,9 +1,10 @@
-package eywa.projectcodex
+package eywa.projectcodex.ui
 
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import eywa.projectcodex.R
 
 class MainActivity : AppCompatActivity() {
 

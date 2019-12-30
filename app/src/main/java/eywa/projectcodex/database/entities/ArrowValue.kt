@@ -2,9 +2,9 @@ package eywa.projectcodex.database.entities
 
 import androidx.room.Entity
 
-@Entity(tableName = "arrow_value_table", primaryKeys = ["archerRoundsID", "arrowNumber"])
+@Entity(tableName = "arrow_values", primaryKeys = ["archerRoundId", "arrowNumber"])
 data class ArrowValue(
-        val archerRoundsID: Int,
+        val archerRoundId: Int,
         val arrowNumber: Int,
         var score: Int,
         var isX: Boolean

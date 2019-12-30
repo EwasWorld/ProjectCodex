@@ -7,6 +7,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
+import eywa.projectcodex.ui.MainActivity
 import org.hamcrest.CoreMatchers
 
 const val testDatabaseName = "test_database"

@@ -1,7 +1,7 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.database.ScoresViewModel
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.viewModels.InputEndViewModel
 
 class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private val arrowDeliminator: String) {
     private var arrows: MutableList<Arrow> = mutableListOf()
@@ -103,16 +103,16 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
     /**
      * Updates the archer-round ID and arrow IDs for all arrows in the end then adds them to the database and clears the end
      *
-     * @param archerRoundsID the archer-round ID to assign to each arrow
-     * @param firstArrowID the arrow number to assign to the first arrow in the end, subsequent arrows increment on this
+     * @param archerRoundId the archer-round ID to assign to each arrow
+     * @param firstArrowId the arrow number to assign to the first arrow in the end, subsequent arrows increment on this
      * @param scoresViewModel the database accessor
      * @throws IllegalStateException if the end is not full
      */
-    fun addArrowsToDatabase(archerRoundsID: Int, firstArrowID: Int, scoresViewModel: ScoresViewModel) {
+    fun addArrowsToDatabase(archerRoundId: Int, firstArrowId: Int, scoresViewModel: InputEndViewModel) {
         check(arrows.size == arrowsPerEnd) { "End not full" }
-        var arrowID = firstArrowID
+        var arrowID = firstArrowId
         for (arrow in arrows) {
-            scoresViewModel.insert(ArrowValue(archerRoundsID, arrowID++, arrow.score, arrow.isX))
+            scoresViewModel.insert(ArrowValue(archerRoundId, arrowID++, arrow.score, arrow.isX))
         }
         clear()
     }

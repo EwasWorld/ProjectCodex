@@ -12,9 +12,9 @@ interface ArrowValueDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(arrowValue: ArrowValue)
 
-    @Query("SELECT * from arrow_value_table")
+    @Query("SELECT * from arrow_values")
     fun getAllArrowValues(): LiveData<List<ArrowValue>>
 
-    @Query("DELETE FROM arrow_value_table")
+    @Query("DELETE FROM arrow_values")
     suspend fun deleteAll()
 }

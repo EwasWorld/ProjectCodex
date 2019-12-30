@@ -7,7 +7,7 @@
     >
     <fragment
         android:id="@+id/inputEndFragment"
-        android:name="eywa.projectcodex.fragments.InputEndFragment"
+        android:name="eywa.projectcodex.ui.InputEndFragment"
         android:label="activity_add_end"
         tools:layout="@layout/fragment_input_end"
         >
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/scorePadFragment"
-        android:name="eywa.projectcodex.fragments.ScorePadFragment"
+        android:name="eywa.projectcodex.ui.ScorePadFragment"
         android:label="activity_view_scores"
         tools:layout="@layout/fragment_scorepad"
         >

@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import eywa.projectcodex.database.ScoresViewModel
+import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.database.entities.ArrowValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -217,15 +217,15 @@ class EndUnitTest {
         end.addArrowToEnd(arrows[11])
         assertEquals(arrowScores.sum(), end.getScore())
 
-        val viewModel = mock<ScoresViewModel>()
-        val archerRoundID = 1
+        val viewModel = mock<InputEndViewModel>()
+        val archerRoundId = 1
         var arrowNumber = 1
-        end.addArrowsToDatabase(archerRoundID, arrowNumber, viewModel)
+        end.addArrowsToDatabase(archerRoundId, arrowNumber, viewModel)
 
         argumentCaptor<ArrowValue>().apply {
             verify(viewModel, times(6)).insert(capture())
             for (arrow in allValues) {
-                assertEquals(archerRoundID, arrow.archerRoundsID)
+                assertEquals(archerRoundId, arrow.archerRoundId)
                 assertEquals(arrowNumber, arrow.arrowNumber)
                 assertEquals(arrowScores[arrowNumber - 1], arrow.score)
                 // Only the last arrow, 6, should be an X
