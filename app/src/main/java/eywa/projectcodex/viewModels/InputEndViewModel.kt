@@ -17,14 +17,13 @@ import kotlinx.coroutines.launch
  * https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate
  * https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
  */
-class InputEndViewModel(application: Application) : AndroidViewModel(application) {
-
+class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidViewModel(application) {
     private val repository: ArrowValuesRepo
     val allArrows: LiveData<List<ArrowValue>>
 
     init {
         val arrowValueDao = ScoresRoomDatabase.getDatabase(application, viewModelScope).arrowValueDao()
-        repository = ArrowValuesRepo(arrowValueDao)
+        repository = ArrowValuesRepo(arrowValueDao, archerRoundId)
         allArrows = repository.allArrowValues
     }
 

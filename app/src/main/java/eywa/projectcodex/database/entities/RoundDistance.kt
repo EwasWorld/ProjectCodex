@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class RoundDistance(
         @PrimaryKey(autoGenerate = true)
         val roundDistanceId: Int,
-        val roundReferenceId: Int?,
-        val distanceInM: Double?,
-        val faceSizeInCm: Int?,
-        val arrowCount: Int?
+        val roundReferenceId: Int? = null,
+        val distanceInM: Double? = null,
+        val faceSizeInCm: Int? = null,
+        val arrowCount: Int? = null
 )

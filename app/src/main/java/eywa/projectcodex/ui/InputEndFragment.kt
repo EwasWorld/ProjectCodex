@@ -7,18 +7,22 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.End
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.viewModels.InputEndViewModel
+import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_input_end.*
 
 class InputEndFragment : Fragment() {
-    private lateinit var scoresViewModel: InputEndViewModel
+    private val args: InputEndFragmentArgs by navArgs()
+    private lateinit var inputEndViewModel: InputEndViewModel
     private var allArrows = emptyList<ArrowValue>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -28,8 +32,10 @@ class InputEndFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        scoresViewModel = ViewModelProvider(this).get(InputEndViewModel::class.java)
-        scoresViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
+        inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
+            InputEndViewModel(activity!!.application, args.archerRoundId)
+        }).get(InputEndViewModel::class.java)
+        inputEndViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
                 allArrows = arrows
                 updateRoundTotals(view)
@@ -47,7 +53,10 @@ class InputEndFragment : Fragment() {
         view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()
 
         button_score_pad.setOnClickListener {
-            val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(end.arrowsPerEnd)
+            val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(
+                    end.arrowsPerEnd,
+                    args.archerRoundId
+            )
             view.findNavController().navigate(action)
         }
 
@@ -102,13 +111,19 @@ class InputEndFragment : Fragment() {
                         highestArrowNumber = arrow.arrowNumber
                     }
                 }
-                end.addArrowsToDatabase(1, highestArrowNumber + 1, scoresViewModel)
+                end.addArrowsToDatabase(args.archerRoundId, highestArrowNumber + 1, inputEndViewModel)
                 updateEndStringAndTotal(view, end)
             }
             catch (e: IllegalStateException) {
                 Toast.makeText(context, resources.getString(R.string.err_end_not_full), Toast.LENGTH_SHORT).show()
             }
         }
+
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            val action = InputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
+            view.findNavController().navigate(action)
+        }
+        callback.isEnabled = true
     }
 
     private fun updateEndStringAndTotal(view: View, end: End) {

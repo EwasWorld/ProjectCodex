@@ -5,8 +5,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import eywa.projectcodex.database.daos.ArrowValueDao
-import eywa.projectcodex.database.daos.RoundReferenceDao
+import eywa.projectcodex.database.daos.*
 import eywa.projectcodex.database.entities.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -20,7 +19,10 @@ import java.util.*
 @TypeConverters(ScoresRoomDatabase.Converters::class)
 abstract class ScoresRoomDatabase : RoomDatabase() {
 
+    abstract fun archerDao(): ArcherDao
+    abstract fun archerRoundDao(): ArcherRoundDao
     abstract fun arrowValueDao(): ArrowValueDao
+    abstract fun roundDistanceDao(): RoundDistanceDao
     abstract fun roundsReferenceDao(): RoundReferenceDao
 
     companion object {
@@ -134,9 +136,8 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
         }
 
         suspend fun prepareDatabase(arrowValueDao: ArrowValueDao) {
-            if (DATABASE_NAME.contains("test")) {
-                arrowValueDao.deleteAll()
-            }
+//            arrowValueDao.deleteAll()
+            // TODO Add default round types
         }
     }
 

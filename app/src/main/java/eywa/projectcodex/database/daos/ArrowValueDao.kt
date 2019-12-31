@@ -12,8 +12,8 @@ interface ArrowValueDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(arrowValue: ArrowValue)
 
-    @Query("SELECT * from arrow_values")
-    fun getAllArrowValues(): LiveData<List<ArrowValue>>
+    @Query("SELECT * FROM arrow_values WHERE archerRoundId = :archerRoundId")
+    fun getArrowValuesForRound(archerRoundId: Int): LiveData<List<ArrowValue>>
 
     @Query("DELETE FROM arrow_values")
     suspend fun deleteAll()

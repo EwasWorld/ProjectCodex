@@ -3,8 +3,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/inputEndFragment"
+    app:startDestination="@id/mainMenuFragment"
     >
+    <fragment
+        android:id="@+id/mainMenuFragment"
+        android:name="eywa.projectcodex.ui.MainMenuFragment"
+        android:label="fragment_main_menu"
+        tools:layout="@layout/fragment_main_menu"
+        >
+        <action
+            android:id="@+id/actionMainMenuFragmentToNewRoundFragment"
+            app:destination="@id/newRoundFragment"
+            />
+        <action
+            android:id="@+id/actionMainMenuFragmentToViewRoundsFragment"
+            app:destination="@id/viewRoundsFragment"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/viewRoundsFragment"
+        android:name="eywa.projectcodex.ui.ViewRoundsFragment"
+        android:label="fragment_view_rounds"
+        tools:layout="@layout/fragment_view_rounds"
+        >
+        <action
+            android:id="@+id/actionViewRoundsFragmentToScorePadFragment"
+            app:destination="@id/scorePadFragment"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/newRoundFragment"
+        android:name="eywa.projectcodex.ui.NewRoundFragment"
+        android:label="fragment_new_round"
+        tools:layout="@layout/fragment_new_round"
+        >
+        <action
+            android:id="@+id/actionNewRoundFragmentToInputEndFragment"
+            app:destination="@id/inputEndFragment"
+            />
+    </fragment>
     <fragment
         android:id="@+id/inputEndFragment"
         android:name="eywa.projectcodex.ui.InputEndFragment"
@@ -15,6 +52,14 @@
             android:id="@+id/actionInputEndFragmentToScorePadFragment"
             app:destination="@id/scorePadFragment"
             />
+        <argument
+            android:name="archerRoundId"
+            app:argType="integer"
+            />
+        <action
+            android:id="@+id/actionInputEndFragmentToMainMenuFragment"
+            app:destination="@id/mainMenuFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/scorePadFragment"
@@ -24,6 +69,10 @@
         >
         <argument
             android:name="endSize"
+            app:argType="integer"
+            />
+        <argument
+            android:name="archerRoundId"
             app:argType="integer"
             />
     </fragment>

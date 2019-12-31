@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">ProjectCodex</string>
 
+    <!-- Main menu -->
+    <string name="main_menu__new_round">Start New Round</string>
+    <string name="main_menu__view_rounds">View Rounds</string>
+    <string name="create_round__submit">Create Round</string>
+
     <!-- Arrow information -->
     <string name="end_to_string_arrow_deliminator">-</string>
     <string name="end_to_string_arrow_placeholder">.</string>
@@ -31,4 +36,9 @@
     <string name="err_end_full">Arrows already added</string>
     <string name="err_end_empty">No arrows entered</string>
     <string name="err_end_not_full">Please enter all arrows for this end</string>
+
+    <string name="create_round__imperial_metric">Imperial</string>
+    <string name="create_round__round_type">Round Type</string>
+    <string name="create_round__round_length">Round Length</string>
+    <string name="create_round__arrows_per_end">Arrows per End</string>
 </resources>

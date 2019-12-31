@@ -6,6 +6,25 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="CreateRoundLinearLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginTop">@dimen/create_round__margins</item>
+        <item name="android:layout_marginBottom">@dimen/create_round__margins</item>
+    </style>
+
+    <style name="CreateRoundLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginRight">@dimen/create_round__margins</item>
+        <item name="android:layout_marginEnd">@dimen/create_round__margins</item>
+        <item name="android:textColor">@color/offBlack</item>
+        <item name="android:textSize">@dimen/create_round__text_size</item>
+    </style>
+
     <style name="InputArrowScoreButtons">
         <item name="android:tag">score_button</item>
         <item name="android:minWidth">45dp</item>

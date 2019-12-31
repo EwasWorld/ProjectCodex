@@ -11,12 +11,12 @@ import eywa.projectcodex.database.entities.ArrowValue
  *
  *  If DAOs have just one or two methods then repositories are often combined
  */
-class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
+class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, archerRoundId: Int) {
+    val allArrowValues: LiveData<List<ArrowValue>> = arrowValueDao.getArrowValuesForRound(archerRoundId)
+
     suspend fun insert(arrowValue: ArrowValue) {
         arrowValueDao.insert(arrowValue)
     }
-
-    val allArrowValues: LiveData<List<ArrowValue>> = arrowValueDao.getAllArrowValues()
 
     suspend fun deleteAll() {
         arrowValueDao.deleteAll()

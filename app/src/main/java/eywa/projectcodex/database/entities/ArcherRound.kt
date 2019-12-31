@@ -11,10 +11,10 @@ data class ArcherRound(
         val archerRoundId: Int,
         var dateShot: Date,
         val archerId: Int,
-        val bowId: Int?,
-        val roundReferenceId: Int?,
-        val roundDistanceId: Int?,
-        val goalScore: Int?,
-        var shootStatus: String?,
-        val countsTowardsHandicap: Boolean
+        val countsTowardsHandicap: Boolean,
+        val bowId: Int? = null,
+        val roundReferenceId: Int? = null,
+        val roundDistanceId: Int? = null,
+        val goalScore: Int? = null,
+        var shootStatus: String? = null
 )

@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 data class RoundReference(
         @PrimaryKey(autoGenerate = true)
         val roundReferenceId: Int,
-        val type: String,
-        val length: String?,
-        val scoringType: String,
         val outdoor: Boolean,
-        val innerTenScoring: Boolean
+        val scoringType: String,
+        val innerTenScoring: Boolean,
+        val type: String, // Warwick, National, etc.
+        val length: String? = null // Standard, Short, Long, etc.
 )

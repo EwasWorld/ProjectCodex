@@ -31,11 +31,13 @@ class InputEndInstrumentedTest {
     @Before
     fun beforeEach() {
         activity.activity.supportFragmentManager.beginTransaction()
+        R.id.button_start_new_round.click()
+        R.id.button_create_round.click()
     }
 
     @After
     fun afterEach() {
-        activity.activity.applicationContext.deleteDatabase(testDatabaseName);
+        activity.activity.applicationContext.deleteDatabase(testDatabaseName)
     }
 
     @Test

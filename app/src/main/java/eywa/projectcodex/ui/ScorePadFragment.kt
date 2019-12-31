@@ -15,6 +15,7 @@ import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.scorepadTable.ScorePadCell
 import eywa.projectcodex.scorepadTable.ScorePadTableViewAdapter
 import eywa.projectcodex.viewModels.ScorePadViewModel
+import eywa.projectcodex.viewModels.ViewModelFactory
 import ph.ingenuity.tableview.TableView
 import kotlin.math.min
 
@@ -54,7 +55,9 @@ class ScorePadFragment : Fragment() {
         /*
          * Setup database and its callback
          */
-        scorePadViewModel = ViewModelProvider(this).get(ScorePadViewModel::class.java)
+        scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
+            ScorePadViewModel(activity!!.application, args.archerRoundId)
+        } ).get(ScorePadViewModel::class.java)
         scorePadViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
                 val arrows2DArray = create2DArrowArray(arrows)
