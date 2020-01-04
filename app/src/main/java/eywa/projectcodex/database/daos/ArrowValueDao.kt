@@ -12,6 +12,9 @@ interface ArrowValueDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(arrowValue: ArrowValue)
 
+    /**
+     * When returning LiveData, suspend is not needed as LiveData is already async
+     */
     @Query("SELECT * FROM arrow_values WHERE archerRoundId = :archerRoundId")
     fun getArrowValuesForRound(archerRoundId: Int): LiveData<List<ArrowValue>>
 

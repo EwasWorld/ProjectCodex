@@ -9,7 +9,7 @@ import androidx.test.rule.ActivityTestRule
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.ui.MainActivity
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import kotlinx.coroutines.GlobalScope
 import org.junit.After
 import org.junit.Before

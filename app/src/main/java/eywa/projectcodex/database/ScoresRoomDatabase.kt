@@ -23,7 +23,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun archerRoundDao(): ArcherRoundDao
     abstract fun arrowValueDao(): ArrowValueDao
     abstract fun roundDistanceDao(): RoundDistanceDao
-    abstract fun roundsReferenceDao(): RoundReferenceDao
+    abstract fun roundReferenceDao(): RoundReferenceDao
 
     companion object {
         @VisibleForTesting

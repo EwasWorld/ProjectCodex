@@ -1,5 +1,7 @@
 package eywa.projectcodex
 
+import eywa.projectcodex.database.entities.ArrowValue
+
 /**
  * @param arrow the arrow value as a string
  * @return the arrow value as an integer
@@ -36,5 +38,9 @@ class Arrow(val score: Int, val isX: Boolean) {
             score == 0 -> "m"
             else -> score.toString()
         }
+    }
+
+    fun toArrowValue(archerRoundId: Int, arrowNumber: Int): ArrowValue {
+        return ArrowValue(archerRoundId, arrowNumber, score, isX)
     }
 }

@@ -1,6 +1,8 @@
 package eywa.projectcodex
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -9,6 +11,9 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
 import eywa.projectcodex.ui.MainActivity
 import org.hamcrest.CoreMatchers
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+
 
 const val testDatabaseName = "test_database"
 
@@ -29,4 +34,16 @@ fun AppCompatActivity.getString(name: String): String {
 
 fun AppCompatActivity.idFromString(name: String): Int {
     return resources.getIdentifier(name, "id", packageName)
+}
+
+fun <T> LiveData<T>.retrieveValue(): T? {
+    var value: T? = null
+    val latch = CountDownLatch(1)
+    val observer = Observer<T> { t ->
+        value = t
+        latch.countDown()
+    }
+    observeForever(observer)
+    latch.await(2, TimeUnit.SECONDS)
+    return value
 }

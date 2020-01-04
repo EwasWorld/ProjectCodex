@@ -112,7 +112,7 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
         check(arrows.size == arrowsPerEnd) { "End not full" }
         var arrowID = firstArrowId
         for (arrow in arrows) {
-            scoresViewModel.insert(ArrowValue(archerRoundId, arrowID++, arrow.score, arrow.isX))
+            scoresViewModel.insert(arrow.toArrowValue(archerRoundId, arrowID++))
         }
         clear()
     }
