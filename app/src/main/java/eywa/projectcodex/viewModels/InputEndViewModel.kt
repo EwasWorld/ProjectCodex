@@ -24,7 +24,7 @@ class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidV
     init {
         val arrowValueDao = ScoresRoomDatabase.getDatabase(application, viewModelScope).arrowValueDao()
         repository = ArrowValuesRepo(arrowValueDao, archerRoundId)
-        allArrows = repository.allArrowValues
+        allArrows = repository.arrowValuesForRound!!
     }
 
     /**

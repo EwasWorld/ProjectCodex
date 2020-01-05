@@ -10,6 +10,8 @@ import eywa.projectcodex.database.entities.ArcherRound
 class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
     val maxId: LiveData<Int> = archerRoundDao.getMaxId()
 
+    val allArcherRounds: LiveData<List<ArcherRound>> = archerRoundDao.getAllArcherRounds()
+
     suspend fun insert(archerRound: ArcherRound) {
         archerRoundDao.insert(archerRound)
     }

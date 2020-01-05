@@ -13,11 +13,11 @@ import eywa.projectcodex.database.repositories.ArrowValuesRepo
  */
 class ScorePadViewModel(application: Application, archerRoundId: Int) : AndroidViewModel(application) {
     private val repository: ArrowValuesRepo
-    val allArrows: LiveData<List<ArrowValue>>
+    val arrowsForRound: LiveData<List<ArrowValue>>
 
     init {
         val arrowValueDao = ScoresRoomDatabase.getDatabase(application, viewModelScope).arrowValueDao()
         repository = ArrowValuesRepo(arrowValueDao, archerRoundId)
-        allArrows = repository.allArrowValues
+        arrowsForRound = repository.arrowValuesForRound!!
     }
 }

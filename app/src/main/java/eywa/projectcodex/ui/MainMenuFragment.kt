@@ -21,5 +21,10 @@ class MainMenuFragment : Fragment() {
             val action = MainMenuFragmentDirections.actionMainMenuFragmentToNewRoundFragment()
             view.findNavController().navigate(action)
         }
+
+        button_view_rounds.setOnClickListener {
+            val action = MainMenuFragmentDirections.actionMainMenuFragmentToViewRoundsFragment()
+            view.findNavController().navigate(action)
+        }
     }
 }

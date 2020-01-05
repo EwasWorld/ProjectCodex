@@ -23,14 +23,20 @@
     <string name="archer_score_header">Score</string>
     <string name="archer_arrows_count_header">Arrows</string>
 
-    <!-- Score Pad Headers -->
+    <!-- Table Headers -->
+    <string name="view_round_date_header">Date</string>
+    <string name="view_round_counts_to_hc_header">HC</string>
+
     <string name="scorepad_end_string_header">E/T</string>
-    <string name="scorepad_hits_header">H</string>
-    <string name="scorepad_score_header">S</string>
-    <string name="scorepad_golds_nines_header">G</string>
-    <string name="scorepad_golds_tens_header">10</string>
-    <string name="scorepad_golds_xs_header">X</string>
     <string name="scorepad_running_total_header">R/T</string>
+
+    <string name="table_hits_header">H</string>
+    <string name="table_score_header">S</string>
+    <string name="table_golds_nines_header">G</string>
+    <string name="table_golds_tens_header">10</string>
+    <string name="table_golds_xs_header">X</string>
+    <string name="short_boolean_true">Y</string>
+    <string name="short_boolean_false">N</string>
 
     <!-- Errors -->
     <string name="err_end_full">Arrows already added</string>

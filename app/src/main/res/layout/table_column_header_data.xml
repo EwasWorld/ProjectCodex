@@ -9,7 +9,7 @@
     >
 
     <TextView
-        android:id="@+id/text_scorepad_column_header"
+        android:id="@+id/text_info_table_column_header"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"

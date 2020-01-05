@@ -83,8 +83,9 @@ class DatabaseTests {
         val retrievedArcherRounds = archerRoundDao.getAllArcherRounds()
         val retrievedMax = archerRoundDao.getMaxId()
 
+        val archerRounds = TestData.generateArcherRounds(6, 2)
         var currentMax = -1
-        for (archerRound in TestData.ARCHER_ROUNDS) {
+        for (archerRound in archerRounds) {
             runBlocking {
                 archerRoundDao.insert(
                         ArcherRound(
@@ -105,7 +106,7 @@ class DatabaseTests {
             currentMax = unpackedMax
         }
 
-        assertEquals(TestData.ARCHER_ROUNDS.toSet(), retrievedArcherRounds.retrieveValue()!!.toSet())
+        assertEquals(archerRounds.toSet(), retrievedArcherRounds.retrieveValue()!!.toSet())
     }
 
 }

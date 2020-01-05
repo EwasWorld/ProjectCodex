@@ -1,4 +1,4 @@
-package eywa.projectcodex.scorepadTable
+package eywa.projectcodex.infoTable
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -11,20 +11,20 @@ import ph.ingenuity.tableview.adapter.AbstractTableAdapter
 import ph.ingenuity.tableview.adapter.recyclerview.holder.AbstractViewHolder
 
 
-class ScorePadTableViewAdapter(private val context: Context) : AbstractTableAdapter(context) {
-    class ScorePadCellViewHolder(itemView: View) : AbstractViewHolder(itemView) {
+class InfoTableViewAdapter(private val context: Context) : AbstractTableAdapter(context) {
+    class InfoTableCellViewHolder(itemView: View) : AbstractViewHolder(itemView) {
         val cellTextView: TextView
-            get() = itemView.findViewById(R.id.text_scorepad_cell_data)
+            get() = itemView.findViewById(R.id.text_info_table_cell_data)
     }
 
-    class ScorePadColumnHeaderViewHolder(itemView: View) : AbstractViewHolder(itemView) {
+    class InfoTableColumnHeaderViewHolder(itemView: View) : AbstractViewHolder(itemView) {
         val cellTextView: TextView
-            get() = itemView.findViewById(R.id.text_scorepad_column_header)
+            get() = itemView.findViewById(R.id.text_info_table_column_header)
     }
 
-    class ScorePadHeaderViewHolder(itemView: View) : AbstractViewHolder(itemView) {
+    class InfoTableHeaderViewHolder(itemView: View) : AbstractViewHolder(itemView) {
         val cellTextView: TextView
-            get() = itemView.findViewById(R.id.text_scorepad_row_header)
+            get() = itemView.findViewById(R.id.text_info_table_row_header)
     }
 
     override fun getCellItemViewType(column: Int): Int = 0
@@ -34,20 +34,20 @@ class ScorePadTableViewAdapter(private val context: Context) : AbstractTableAdap
     override fun getRowHeaderItemViewType(row: Int): Int = 0
 
     override fun onBindCellViewHolder(holder: AbstractViewHolder, cellItem: Any, column: Int, row: Int) {
-        val cell = cellItem as ScorePadCell
-        val cellViewHolder = holder as ScorePadCellViewHolder
+        val cell = cellItem as InfoTableCell
+        val cellViewHolder = holder as InfoTableCellViewHolder
         cellViewHolder.cellTextView.text = cell.content.toString()
     }
 
     override fun onBindColumnHeaderViewHolder(holder: AbstractViewHolder, columnHeaderItem: Any, column: Int) {
-        val columnHeaderCell = columnHeaderItem as ScorePadCell
-        val columnHeaderViewHolder = holder as ScorePadColumnHeaderViewHolder
+        val columnHeaderCell = columnHeaderItem as InfoTableCell
+        val columnHeaderViewHolder = holder as InfoTableColumnHeaderViewHolder
         columnHeaderViewHolder.cellTextView.text = columnHeaderCell.content.toString()
     }
 
     override fun onBindRowHeaderViewHolder(holder: AbstractViewHolder, rowHeaderItem: Any, row: Int) {
-        val rowHeaderCell = rowHeaderItem as ScorePadCell
-        val rowHeaderViewHolder = holder as ScorePadHeaderViewHolder
+        val rowHeaderCell = rowHeaderItem as InfoTableCell
+        val rowHeaderViewHolder = holder as InfoTableHeaderViewHolder
         rowHeaderViewHolder.cellTextView.text = rowHeaderCell.content.toString()
     }
 
@@ -57,7 +57,7 @@ class ScorePadTableViewAdapter(private val context: Context) : AbstractTableAdap
                 parent,
                 false
         )
-        return ScorePadCellViewHolder(cellView)
+        return InfoTableCellViewHolder(cellView)
     }
 
     override fun onCreateColumnHeaderViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -66,7 +66,7 @@ class ScorePadTableViewAdapter(private val context: Context) : AbstractTableAdap
                 parent,
                 false
         )
-        return ScorePadColumnHeaderViewHolder(columnHeaderView)
+        return InfoTableColumnHeaderViewHolder(columnHeaderView)
     }
 
     override fun onCreateCornerView(): View? {
@@ -79,6 +79,6 @@ class ScorePadTableViewAdapter(private val context: Context) : AbstractTableAdap
                 parent,
                 false
         )
-        return ScorePadHeaderViewHolder(rowHeaderView)
+        return InfoTableHeaderViewHolder(rowHeaderView)
     }
 }

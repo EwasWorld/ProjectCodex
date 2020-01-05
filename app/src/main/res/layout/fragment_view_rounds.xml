@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.ViewRoundsFragment"
     android:background="@color/colorPrimary"
+    tools:context=".ui.ViewRoundsFragment"
     >
 
-    <!-- Filters: -->
-    <!-- Round type -->
-    <!-- PBs only -->
-    <!-- Date range -->
-    <!-- HC > x -->
+    <ph.ingenuity.tableview.TableView
+        android:id="@+id/table_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/scorepad__main_margins"
+        app:layout_constraintTop_toTopOf="parent"
+        app:table_selected_color="@color/colorAccent"
+        app:table_separator_color="@color/offBlack"
+        app:table_show_horizontal_separator="true"
+        app:table_show_vertical_separator="true"
+        app:table_unselected_color="@color/colorLightAccent"
+        />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
