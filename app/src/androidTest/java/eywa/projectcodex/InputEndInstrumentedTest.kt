@@ -5,10 +5,12 @@ import androidx.test.rule.ActivityTestRule
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.ui.MainActivity
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import ph.ingenuity.tableview.TableView
 
 
 /**
@@ -30,6 +32,7 @@ class InputEndInstrumentedTest {
 
     @Before
     fun beforeEach() {
+        activity.activity.applicationContext.deleteDatabase(testDatabaseName)
         activity.activity.supportFragmentManager.beginTransaction()
         R.id.button_start_new_round.click()
         R.id.button_create_round.click()
@@ -234,6 +237,13 @@ class InputEndInstrumentedTest {
     @Test
     @Throws(Exception::class)
     fun testOpenScorePad() {
-        // TODO Implement (need some way to check it worked)
+        for (i in 0.rangeTo(5)) {
+            R.id.button_score_1.click()
+        }
+        R.id.button_next_end.click()
+        R.id.button_score_pad.click()
+        val cellItems = activity.activity.findViewById<TableView>(R.id.table_view).adapter!!.cellItems!!
+        assertEquals(1, cellItems.size)
+        assertEquals(5, cellItems[0].size)
     }
 }

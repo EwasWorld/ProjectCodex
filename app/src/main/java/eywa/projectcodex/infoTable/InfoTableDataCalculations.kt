@@ -118,8 +118,8 @@ private fun toCells(rowData: List<Any>, rowId: Int): List<InfoTableCell> {
 private fun toCellsHeader(data: List<String>, isColumn: Boolean): List<InfoTableCell> {
     require(data.isNotEmpty()) { "Data cannot be empty" }
     val prefix = if (isColumn) "col" else "row"
-    var col = 0
-    return data.map { InfoTableCell(it, prefix + col++.toString()) }
+    var index = 0
+    return data.map { InfoTableCell(it, prefix + index++) }
 }
 
 /**

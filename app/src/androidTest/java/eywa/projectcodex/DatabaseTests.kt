@@ -37,6 +37,7 @@ class DatabaseTests {
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(testDatabaseName)
         db = Room.inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java).allowMainThreadQueries().build()
         archerDao = db.archerDao()
         archerRoundDao = db.archerRoundDao()
