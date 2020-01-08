@@ -45,8 +45,8 @@ class ScorePadFragment : Fragment() {
                 try {
                     val tableData = calculateScorePadTableData(
                             arrows, args.endSize, goldsType,
-                            resources.getString(R.string.end_to_string_arrow_placeholder),
-                            resources.getString(R.string.end_to_string_arrow_deliminator)
+                            getString(R.string.end_to_string_arrow_placeholder),
+                            getString(R.string.end_to_string_arrow_deliminator)
                     )
                     tableAdapter.setAllItems(
                             tableData,

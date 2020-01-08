@@ -60,8 +60,8 @@ class ViewRoundsFragment : Fragment() {
                     allArcherRounds,
                     allArrows,
                     goldsType,
-                    resources.getString(R.string.short_boolean_true),
-                    resources.getString(R.string.short_boolean_false)
+                    getString(R.string.short_boolean_true),
+                    getString(R.string.short_boolean_false)
             )
             tableAdapter.setAllItems(
                     tableData,

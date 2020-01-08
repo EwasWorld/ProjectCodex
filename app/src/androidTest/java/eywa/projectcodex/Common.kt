@@ -29,7 +29,7 @@ infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
 fun AppCompatActivity.getString(name: String): String {
-    return resources.getString(resources.getIdentifier(name, "string", packageName))
+    return getString(resources.getIdentifier(name, "string", packageName))
 }
 
 fun AppCompatActivity.idFromString(name: String): Int {

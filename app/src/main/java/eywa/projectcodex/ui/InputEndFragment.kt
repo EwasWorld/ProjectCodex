@@ -46,8 +46,8 @@ class InputEndFragment : Fragment() {
         val end =
             End(
                     6,
-                    resources.getString(R.string.end_to_string_arrow_placeholder),
-                    resources.getString(R.string.end_to_string_arrow_deliminator)
+                    getString(R.string.end_to_string_arrow_placeholder),
+                    getString(R.string.end_to_string_arrow_deliminator)
             )
 
         // Set the place holder text for the arrow scores
@@ -83,7 +83,7 @@ class InputEndFragment : Fragment() {
                     updateEndStringAndTotal(view, end)
                 }
                 catch (e: IllegalStateException) {
-                    Toast.makeText(context, resources.getString(R.string.err_input_end__end_full), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.err_input_end__end_full), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -99,7 +99,7 @@ class InputEndFragment : Fragment() {
                 updateEndStringAndTotal(view, end)
             }
             catch (e: IllegalStateException) {
-                Toast.makeText(context, resources.getString(R.string.err_input_end__end_empty), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.err_input_end__end_empty), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -116,7 +116,7 @@ class InputEndFragment : Fragment() {
                 updateEndStringAndTotal(view, end)
             }
             catch (e: IllegalStateException) {
-                Toast.makeText(context, resources.getString(R.string.err_input_end__end_not_full), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.err_input_end__end_not_full), Toast.LENGTH_SHORT).show()
             }
         }
 
