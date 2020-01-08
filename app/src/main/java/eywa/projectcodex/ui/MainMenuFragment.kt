@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.fragment_main_menu.*
 
 class MainMenuFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        activity?.title = getString(R.string.main_menu__title)
         return inflater.inflate(R.layout.fragment_main_menu, container, false)
     }
 

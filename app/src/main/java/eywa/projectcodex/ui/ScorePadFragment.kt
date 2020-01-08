@@ -29,6 +29,7 @@ class ScorePadFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.title = getString(R.string.score_pad__title)
 
         val tableAdapter = InfoTableViewAdapter(context!!)
         val tableView = view.findViewById<TableView>(R.id.table_view)

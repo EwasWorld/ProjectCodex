@@ -2,8 +2,12 @@
     <string name="app_name">ProjectCodex</string>
 
     <!-- Main menu -->
+    <string name="main_menu__title">Main Menu</string>
     <string name="main_menu__new_round">Start New Round</string>
     <string name="main_menu__view_rounds">View Rounds</string>
+
+    <!-- Create round -->
+    <string name="create_round__title">Create Round</string>
     <string name="create_round__submit">Create Round</string>
 
     <!-- Arrow information -->
@@ -13,6 +17,7 @@
     <string name="arrow_value_m">m</string>
 
     <!-- Input end -->
+    <string name="input_end__title">Input End</string>
     <string name="input_end__clear">Clear</string>
     <string name="input_end__backspace">Backspace</string>
     <string name="input_end__next_end">Next end</string>
@@ -23,13 +28,17 @@
     <string name="archer_score_header">Score</string>
     <string name="archer_arrows_count_header">Arrows</string>
 
-    <!-- Table Headers -->
+    <!-- View Round -->
+    <string name="view_round__title">All Rounds</string>
     <string name="view_round_date_header">Date</string>
     <string name="view_round_counts_to_hc_header">HC</string>
 
+    <!-- Score Pad -->
+    <string name="score_pad__title">Score Pad</string>
     <string name="scorepad_end_string_header">E/T</string>
     <string name="scorepad_running_total_header">R/T</string>
 
+    <!-- Table View -->
     <string name="table_hits_header">H</string>
     <string name="table_score_header">S</string>
     <string name="table_golds_nines_header">G</string>

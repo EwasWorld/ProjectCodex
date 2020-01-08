@@ -30,6 +30,7 @@ class ViewRoundsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.title = getString(R.string.view_round__title)
 
         val tableAdapter = InfoTableViewAdapter(context!!)
         val tableView = view.findViewById<TableView>(R.id.table_view)

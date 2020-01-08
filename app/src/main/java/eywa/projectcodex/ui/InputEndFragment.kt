@@ -31,6 +31,7 @@ class InputEndFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.title = getString(R.string.input_end__title)
 
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
             InputEndViewModel(activity!!.application, args.archerRoundId)

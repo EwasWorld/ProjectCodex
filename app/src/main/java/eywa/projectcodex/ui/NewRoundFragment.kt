@@ -29,6 +29,7 @@ class NewRoundFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.title = getString(R.string.create_round__title)
 
         newRoundViewModel = ViewModelProvider(this).get(NewRoundViewModel::class.java)
         newRoundViewModel.maxId.observe(viewLifecycleOwner, Observer { id ->
