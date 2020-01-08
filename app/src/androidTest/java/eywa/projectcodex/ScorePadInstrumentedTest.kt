@@ -2,6 +2,12 @@ package eywa.projectcodex
 
 import android.os.Handler
 import android.os.Looper
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -39,6 +45,9 @@ class ScorePadInstrumentedTest {
     fun beforeEach() {
         activity.activity.applicationContext.deleteDatabase(testDatabaseName)
         activity.activity.supportFragmentManager.beginTransaction()
+    }
+
+    private fun addDataToDatabase() {
         val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
         arrows = TestData.generateArrowValues(36, 1)
         Handler(Looper.getMainLooper()).post {
@@ -48,7 +57,9 @@ class ScorePadInstrumentedTest {
                 }
             }
         }
+    }
 
+    private fun goToViewRoundsAndPopulateAdapter() {
         R.id.button_start_new_round.click()
         R.id.button_create_round.click()
         R.id.button_score_pad.click()
@@ -63,6 +74,8 @@ class ScorePadInstrumentedTest {
     @Test
     @Throws(Exception::class)
     fun testTableValues() {
+        addDataToDatabase()
+        goToViewRoundsAndPopulateAdapter()
         assertEquals(
                 calculateScorePadTableData(arrows, 6, GoldsType.TENS, ".", "-"),
                 tableViewAdapter.cellItems as List<List<InfoTableCell>>
@@ -73,5 +86,13 @@ class ScorePadInstrumentedTest {
                 tableViewAdapter.columnHeaderItems
         )
         assertEquals(generateNumberedRowHeaders(6), tableViewAdapter.rowHeaderItems)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testEmptyTable() {
+        goToViewRoundsAndPopulateAdapter()
+        onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(ViewActions.click())
+        onView(withText("Input End")).check(matches(isDisplayed()))
     }
 }

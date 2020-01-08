@@ -2,6 +2,12 @@ package eywa.projectcodex
 
 import android.os.Handler
 import android.os.Looper
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.ArcherRound
@@ -38,6 +44,9 @@ class ViewRoundsInstrumentedTest {
     fun beforeEach() {
         activity.activity.applicationContext.deleteDatabase(testDatabaseName)
         activity.activity.supportFragmentManager.beginTransaction()
+    }
+
+    private fun addDataToDatabase() {
         val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
         archerRounds = TestData.generateArcherRounds(5, 1)
         for (round in archerRounds) {
@@ -55,7 +64,9 @@ class ViewRoundsInstrumentedTest {
                 }
             }
         }
+    }
 
+    private fun goToViewRoundsAndPopulateAdapter() {
         R.id.button_view_rounds.click()
         tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view).adapter!!
     }
@@ -68,6 +79,9 @@ class ViewRoundsInstrumentedTest {
     @Test
     @Throws(Exception::class)
     fun testTableValues() {
+        addDataToDatabase()
+        goToViewRoundsAndPopulateAdapter()
+
         val expected = calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, "Y", "N")
         assertEquals(expected, tableViewAdapter.cellItems as List<List<InfoTableCell>>)
         var col = 0
@@ -76,5 +90,13 @@ class ViewRoundsInstrumentedTest {
                 tableViewAdapter.columnHeaderItems
         )
         assertEquals(generateNumberedRowHeaders(expected.size), tableViewAdapter.rowHeaderItems)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testEmptyTable() {
+        goToViewRoundsAndPopulateAdapter()
+        onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
+        onView(withText("Main Menu")).check(matches(isDisplayed()))
     }
 }

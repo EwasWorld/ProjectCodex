@@ -9,6 +9,10 @@
     <!-- Create round -->
     <string name="create_round__title">Create Round</string>
     <string name="create_round__submit">Create Round</string>
+    <string name="create_round__imperial_metric">Imperial</string>
+    <string name="create_round__round_type">Round Type</string>
+    <string name="create_round__round_length">Round Length</string>
+    <string name="create_round__arrows_per_end">Arrows per End</string>
 
     <!-- Arrow information -->
     <string name="end_to_string_arrow_deliminator">-</string>
@@ -22,6 +26,9 @@
     <string name="input_end__backspace">Backspace</string>
     <string name="input_end__next_end">Next end</string>
     <string name="input_end__score_pad">Score Pad</string>
+    <string name="err_input_end__end_full">Arrows already added</string>
+    <string name="err_input_end__end_empty">No arrows entered</string>
+    <string name="err_input_end__end_not_full">Please enter all arrows for this end</string>
 
     <!-- Input end mini table -->
     <string name="archer_name_header">Archer</string>
@@ -30,13 +37,15 @@
 
     <!-- View Round -->
     <string name="view_round__title">All Rounds</string>
-    <string name="view_round_date_header">Date</string>
-    <string name="view_round_counts_to_hc_header">HC</string>
+    <string name="view_round__date_header">Date</string>
+    <string name="view_round__counts_to_hc_header">HC</string>
+    <string name="err_view_round__no_rounds">There are no rounds to show</string>
 
     <!-- Score Pad -->
     <string name="score_pad__title">Score Pad</string>
-    <string name="scorepad_end_string_header">E/T</string>
-    <string name="scorepad_running_total_header">R/T</string>
+    <string name="score_pad__end_string_header">E/T</string>
+    <string name="score_pad__running_total_header">R/T</string>
+    <string name="err_score_pad__no_arrows">There are no arrows to show</string>
 
     <!-- Table View -->
     <string name="table_hits_header">H</string>
@@ -46,14 +55,8 @@
     <string name="table_golds_xs_header">X</string>
     <string name="short_boolean_true">Y</string>
     <string name="short_boolean_false">N</string>
+    <string name="err_table_view__no_data">Table is empty</string>
 
     <!-- Errors -->
-    <string name="err_end_full">Arrows already added</string>
-    <string name="err_end_empty">No arrows entered</string>
-    <string name="err_end_not_full">Please enter all arrows for this end</string>
-
-    <string name="create_round__imperial_metric">Imperial</string>
-    <string name="create_round__round_type">Round Type</string>
-    <string name="create_round__round_length">Round Length</string>
-    <string name="create_round__arrows_per_end">Arrows per End</string>
+    <string name="err_button__ok">OK</string>
 </resources>

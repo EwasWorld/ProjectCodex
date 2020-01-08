@@ -1,5 +1,6 @@
 package eywa.projectcodex.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import eywa.projectcodex.*
+import eywa.projectcodex.GoldsType
+import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.InfoTableViewAdapter
@@ -23,6 +25,7 @@ class ViewRoundsFragment : Fragment() {
     private var allArcherRounds: List<ArcherRound> = listOf()
     // TODO pull this from the database when rounds are properly implemented
     private val goldsType = GoldsType.TENS
+    private var dialog: AlertDialog? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_view_rounds, container, false)
@@ -52,7 +55,7 @@ class ViewRoundsFragment : Fragment() {
     }
 
     private fun populateTable(tableAdapter: InfoTableViewAdapter) {
-        if (allArcherRounds.isNotEmpty()) {
+        try {
             val tableData = calculateViewRoundsTableData(
                     allArcherRounds,
                     allArrows,
@@ -65,6 +68,23 @@ class ViewRoundsFragment : Fragment() {
                     getViewRoundsColumnHeaders(resources, goldsType),
                     generateNumberedRowHeaders(tableData.size)
             )
+            if (dialog!!.isShowing) {
+                dialog!!.dismiss()
+            }
+        }
+        catch (e: IllegalArgumentException) {
+            if (dialog == null) {
+                val builder = AlertDialog.Builder(activity)
+                builder.setTitle(R.string.err_table_view__no_data)
+                builder.setMessage(R.string.err_view_round__no_rounds)
+                builder.setPositiveButton(R.string.err_button__ok) { _, _ ->
+                    activity?.onBackPressed()
+                }
+                dialog = builder.create()
+            }
+            if (!dialog!!.isShowing) {
+                dialog!!.show()
+            }
         }
     }
 }

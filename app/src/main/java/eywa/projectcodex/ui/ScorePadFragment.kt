@@ -1,5 +1,6 @@
 package eywa.projectcodex.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
-import eywa.projectcodex.*
+import eywa.projectcodex.GoldsType
+import eywa.projectcodex.R
 import eywa.projectcodex.infoTable.InfoTableViewAdapter
 import eywa.projectcodex.infoTable.calculateScorePadTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
@@ -40,16 +42,28 @@ class ScorePadFragment : Fragment() {
         }).get(ScorePadViewModel::class.java)
         scorePadViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
-                val tableData = calculateScorePadTableData(
-                        arrows, args.endSize, goldsType,
-                        resources.getString(R.string.end_to_string_arrow_placeholder),
-                        resources.getString(R.string.end_to_string_arrow_deliminator)
-                )
-                tableAdapter.setAllItems(
-                        tableData,
-                        getScorePadColumnHeaders(resources, goldsType),
-                        generateNumberedRowHeaders(tableData.size)
-                )
+                try {
+                    val tableData = calculateScorePadTableData(
+                            arrows, args.endSize, goldsType,
+                            resources.getString(R.string.end_to_string_arrow_placeholder),
+                            resources.getString(R.string.end_to_string_arrow_deliminator)
+                    )
+                    tableAdapter.setAllItems(
+                            tableData,
+                            getScorePadColumnHeaders(resources, goldsType),
+                            generateNumberedRowHeaders(tableData.size)
+                    )
+                }
+                catch (e: IllegalArgumentException) {
+                    val builder = AlertDialog.Builder(activity)
+                    builder.setTitle(R.string.err_table_view__no_data)
+                    builder.setMessage(R.string.err_score_pad__no_arrows)
+                    builder.setPositiveButton(R.string.err_button__ok) { _, _ ->
+                        activity?.onBackPressed()
+                    }
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()
+                }
             }
         })
     }

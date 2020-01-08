@@ -83,7 +83,7 @@ class InputEndFragment : Fragment() {
                     updateEndStringAndTotal(view, end)
                 }
                 catch (e: IllegalStateException) {
-                    Toast.makeText(context, resources.getString(R.string.err_end_full), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, resources.getString(R.string.err_input_end__end_full), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -99,7 +99,7 @@ class InputEndFragment : Fragment() {
                 updateEndStringAndTotal(view, end)
             }
             catch (e: IllegalStateException) {
-                Toast.makeText(context, resources.getString(R.string.err_end_empty), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, resources.getString(R.string.err_input_end__end_empty), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -116,7 +116,7 @@ class InputEndFragment : Fragment() {
                 updateEndStringAndTotal(view, end)
             }
             catch (e: IllegalStateException) {
-                Toast.makeText(context, resources.getString(R.string.err_end_not_full), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, resources.getString(R.string.err_input_end__end_not_full), Toast.LENGTH_SHORT).show()
             }
         }
 

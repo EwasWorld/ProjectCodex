@@ -17,11 +17,11 @@ val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.UK)
 fun getScorePadColumnHeaders(resources: Resources, goldsType: GoldsType): List<InfoTableCell> {
     return toCellsHeader(
             listOf(
-                    resources.getString(R.string.scorepad_end_string_header),
+                    resources.getString(R.string.score_pad__end_string_header),
                     resources.getString(R.string.table_hits_header),
                     resources.getString(R.string.table_score_header),
                     resources.getString(goldsType.colHeaderStringId),
-                    resources.getString(R.string.scorepad_running_total_header)
+                    resources.getString(R.string.score_pad__running_total_header)
             ), true
     )
 }
@@ -65,11 +65,11 @@ fun calculateScorePadTableData(
 fun getViewRoundsColumnHeaders(resources: Resources, goldsType: GoldsType): List<InfoTableCell> {
     return toCellsHeader(
             listOf(
-                    resources.getString(R.string.view_round_date_header),
+                    resources.getString(R.string.view_round__date_header),
                     resources.getString(R.string.table_hits_header),
                     resources.getString(R.string.table_score_header),
                     resources.getString(goldsType.colHeaderStringId),
-                    resources.getString(R.string.view_round_counts_to_hc_header)
+                    resources.getString(R.string.view_round__counts_to_hc_header)
             ), true
     )
 }
