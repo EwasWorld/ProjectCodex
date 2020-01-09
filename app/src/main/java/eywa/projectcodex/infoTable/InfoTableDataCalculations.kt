@@ -60,7 +60,7 @@ fun calculateScorePadTableData(
 }
 
 /**
- * Columns: Date, H, S, G, Counts to HC
+ * Columns: Date, H, S, G, Counts to HC, archerRoundId
  */
 fun getViewRoundsColumnHeaders(resources: Resources, goldsType: GoldsType): List<InfoTableCell> {
     return toCellsHeader(
@@ -69,7 +69,8 @@ fun getViewRoundsColumnHeaders(resources: Resources, goldsType: GoldsType): List
                     resources.getString(R.string.table_hits_header),
                     resources.getString(R.string.table_score_header),
                     resources.getString(goldsType.colHeaderStringId),
-                    resources.getString(R.string.view_round__counts_to_hc_header)
+                    resources.getString(R.string.view_round__counts_to_hc_header),
+                    resources.getString(R.string.view_round__id_header)
             ), true
     )
 }
@@ -98,6 +99,8 @@ fun calculateViewRoundsTableData(
         rowData.add(relevantArrows.count { goldsType.isGold(it) })
 
         rowData.add(if (archerRound.countsTowardsHandicap) yes else no)
+        // TODO change to row headers if can't be headers can't be removed and col can't be hidden
+        rowData.add(archerRound.archerRoundId)
         tableData.add(toCells(rowData, tableData.size))
     }
     return tableData

@@ -136,7 +136,7 @@ class InfoTableDataCalculationsTest {
             val archerRound = generatedArcherRounds[i]
             val arrows = generatedArrows[i]
             val data = viewRoundsData[i]
-            assertEquals(5, data.size)
+            assertEquals(6, data.size)
 
             val expected = mutableListOf<Any>()
             expected.add(dateFormat.format(archerRound.dateShot))
@@ -144,6 +144,7 @@ class InfoTableDataCalculationsTest {
             expected.add(arrows.sumBy { it.score })
             expected.add(arrows.count { goldsType.isGold(it) })
             expected.add(if (archerRound.countsTowardsHandicap) yes else no)
+            expected.add(archerRound.archerRoundId)
 
             for (j in data.indices) {
                 assertEquals("cell$i$j", data[j].id)

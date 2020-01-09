@@ -8,16 +8,16 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.ArrowValue
-import eywa.projectcodex.infoTable.InfoTableViewAdapter
-import eywa.projectcodex.infoTable.calculateViewRoundsTableData
-import eywa.projectcodex.infoTable.generateNumberedRowHeaders
-import eywa.projectcodex.infoTable.getViewRoundsColumnHeaders
+import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.viewModels.ViewRoundsViewModel
 import ph.ingenuity.tableview.TableView
+import ph.ingenuity.tableview.listener.ITableViewListener
 
 class ViewRoundsFragment : Fragment() {
     private lateinit var viewRoundsViewModel: ViewRoundsViewModel
@@ -26,6 +26,7 @@ class ViewRoundsFragment : Fragment() {
     // TODO pull this from the database when rounds are properly implemented
     private val goldsType = GoldsType.TENS
     private var dialog: AlertDialog? = null
+    private val archerRoundIdRowId = 5
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_view_rounds, container, false)
@@ -38,6 +39,7 @@ class ViewRoundsFragment : Fragment() {
         val tableAdapter = InfoTableViewAdapter(context!!)
         val tableView = view.findViewById<TableView>(R.id.table_view)
         tableView.adapter = tableAdapter
+        tableView.tableViewListener = ViewRoundsTableViewListener(tableView)
 
         viewRoundsViewModel = ViewModelProvider(this).get(ViewRoundsViewModel::class.java)
         viewRoundsViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
@@ -87,4 +89,28 @@ class ViewRoundsFragment : Fragment() {
             }
         }
     }
+
+    inner class ViewRoundsTableViewListener(private val tableView: TableView) : ITableViewListener {
+        override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
+            tableView.adapter?.cellItems?.let { cellItems ->
+                // TODO set up preferred end size
+                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(
+                        6,
+                        (cellItems[row][archerRoundIdRowId] as InfoTableCell).content as Int
+                )
+                view?.findNavController()?.navigate(action)
+            }
+        }
+
+        override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
+
+        override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
+
+        override fun onColumnHeaderLongPressed(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
+
+        override fun onRowHeaderClicked(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
+
+        override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
+    }
+
 }

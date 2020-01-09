@@ -86,7 +86,7 @@ class ViewRoundsInstrumentedTest {
         assertEquals(expected, tableViewAdapter.cellItems as List<List<InfoTableCell>>)
         var col = 0
         assertEquals(
-                listOf("Date", "H", "S", "10", "HC").map { InfoTableCell(it, "col" + col++) },
+                listOf("Date", "H", "S", "10", "HC", "ID").map { InfoTableCell(it, "col" + col++) },
                 tableViewAdapter.columnHeaderItems
         )
         assertEquals(generateNumberedRowHeaders(expected.size), tableViewAdapter.rowHeaderItems)
@@ -98,5 +98,35 @@ class ViewRoundsInstrumentedTest {
         goToViewRoundsAndPopulateAdapter()
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
         onView(withText("Main Menu")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testOpenScorePad() {
+        // Generate rounds until there is a unique score
+        var uniqueScore: Int? = null
+        while (uniqueScore == null) {
+            addDataToDatabase()
+            val scores = arrows.map { roundArrows -> roundArrows.sumBy { arrow -> arrow.score } }
+
+            for ((i, score) in scores.withIndex()) {
+                if (scores.lastIndexOf(score) == i) {
+                    uniqueScore = score
+                    break
+                }
+            }
+        }
+
+        goToViewRoundsAndPopulateAdapter()
+        // Click on that unique score
+        onView(withText(uniqueScore.toString())).perform(click())
+        onView(withText("Score Pad")).check(matches(isDisplayed()))
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view).adapter!!
+        // Check the last running total is the unique score
+        val cellItems = tableViewAdapter.cellItems!!
+        assertEquals(
+                uniqueScore,
+                (cellItems[cellItems.size - 1][cellItems[0].size - 1] as InfoTableCell).content as Int
+        )
     }
 }
