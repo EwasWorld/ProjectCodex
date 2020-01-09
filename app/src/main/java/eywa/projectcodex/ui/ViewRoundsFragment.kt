@@ -68,7 +68,7 @@ class ViewRoundsFragment : Fragment() {
                     getViewRoundsColumnHeaders(resources, goldsType),
                     generateNumberedRowHeaders(tableData.size)
             )
-            if (dialog!!.isShowing) {
+            if (dialog?.isShowing == true) {
                 dialog!!.dismiss()
             }
         }
