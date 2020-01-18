@@ -50,4 +50,12 @@
         <item name="android:paddingBottom">5dp</item>
     </style>
 
+    <style name="TableViewStyle">
+        <item name="android:layout_margin">@dimen/info_table__main_margins</item>
+        <item name="selected_color">@color/colorAccent</item>
+        <item name="unselected_color">@color/colorLightAccent</item>
+        <item name="separator_color">@color/colorPrimary</item>
+        <item name="shadow_color">@color/colorAccent</item>
+    </style>
+
 </resources>

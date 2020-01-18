@@ -10,9 +10,9 @@
 
     <com.evrencoskun.tableview.TableView
         android:id="@+id/score_pad__table_view"
+        style="@style/TableViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/scorepad__main_margins"
         app:layout_constraintTop_toTopOf="parent"
         />
 

@@ -12,7 +12,7 @@
     <color name="white">#FFFFFF</color>
     <color name="offWhite">#C9C9C9</color>
 
-    <color name="scorepadText">@color/offBlack</color>
+    <color name="scorePadText">@color/offBlack</color>
     <color name="inputEndText">@color/white</color>
 
     <color name="targetFaceGreen">#26FF00</color>

@@ -25,7 +25,7 @@ class ScorePadFragment : Fragment() {
     private val goldsType = GoldsType.TENS
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_scorepad, container, false)
+        return inflater.inflate(R.layout.fragment_score_pad, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

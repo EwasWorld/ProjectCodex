@@ -10,16 +10,10 @@
 
     <com.evrencoskun.tableview.TableView
         android:id="@+id/view_round__table_view"
+        style="@style/TableViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/scorepad__main_margins"
         app:layout_constraintTop_toTopOf="parent"
-        app:selected_color="@color/colorAccent"
-        app:unselected_color="@color/colorLightAccent"
         />
-
-<!--    app:column_header_height="@dimen/column_header_height"-->
-<!--    app:row_header_width="@dimen/row_header_width"-->
-<!--    app:shadow_color="@color/shadow_background_color"-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

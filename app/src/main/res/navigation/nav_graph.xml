@@ -65,7 +65,7 @@
         android:id="@+id/scorePadFragment"
         android:name="eywa.projectcodex.ui.ScorePadFragment"
         android:label="activity_view_scores"
-        tools:layout="@layout/fragment_scorepad"
+        tools:layout="@layout/fragment_score_pad"
         >
         <argument
             android:name="endSize"
