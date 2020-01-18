@@ -9,6 +9,9 @@ import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
+import com.azimolabs.conditionwatcher.ConditionWatcher
+import com.evrencoskun.tableview.TableView
+import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.ArrowValue
@@ -16,6 +19,7 @@ import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
 import eywa.projectcodex.ui.MainActivity
+import eywa.projectcodex.ui.ScorePadFragment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -23,8 +27,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import ph.ingenuity.tableview.TableView
-import ph.ingenuity.tableview.adapter.AbstractTableAdapter
 
 class ViewRoundsInstrumentedTest {
     companion object {
@@ -36,7 +38,9 @@ class ViewRoundsInstrumentedTest {
     @get:Rule
     val activity = ActivityTestRule(MainActivity::class.java)
 
-    private lateinit var tableViewAdapter: AbstractTableAdapter
+    private val removedColumnIndexes = listOf(0, 5)
+
+    private lateinit var tableViewAdapter: AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
     private lateinit var archerRounds: List<ArcherRound>
     private var arrows: MutableList<List<ArrowValue>> = mutableListOf()
 
@@ -68,7 +72,8 @@ class ViewRoundsInstrumentedTest {
 
     private fun goToViewRoundsAndPopulateAdapter() {
         R.id.button_view_rounds.click()
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view).adapter!!
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.view_round__table_view).adapter!!
+                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
     }
 
     @After
@@ -83,13 +88,22 @@ class ViewRoundsInstrumentedTest {
         goToViewRoundsAndPopulateAdapter()
 
         val expected = calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, "Y", "N")
-        assertEquals(expected, tableViewAdapter.cellItems as List<List<InfoTableCell>>)
+        for (i in expected.indices) {
+            assertEquals(
+                    expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) },
+                    tableViewAdapter.getCellRowItems(i) as List<InfoTableCell>
+            )
+        }
         var col = 0
-        assertEquals(
-                listOf("Date", "H", "S", "10", "HC", "ID").map { InfoTableCell(it, "col" + col++) },
-                tableViewAdapter.columnHeaderItems
-        )
-        assertEquals(generateNumberedRowHeaders(expected.size), tableViewAdapter.rowHeaderItems)
+        val expectedColumns = listOf("ID", "Date", "H", "S", "10", "HC").map { InfoTableCell(it, "col" + col++) }
+                .filterIndexed { i, _ -> !removedColumnIndexes.contains(i) }
+        for (i in expectedColumns.indices) {
+            assertEquals(expectedColumns[i], tableViewAdapter.getColumnHeaderItem(i))
+        }
+        val expectedRows = generateNumberedRowHeaders(expected.size)
+        for (i in expectedRows.indices) {
+            assertEquals(expectedRows[i], tableViewAdapter.getRowHeaderItem(i))
+        }
     }
 
     @Test
@@ -116,17 +130,21 @@ class ViewRoundsInstrumentedTest {
                 }
             }
         }
-
         goToViewRoundsAndPopulateAdapter()
+
         // Click on that unique score
         onView(withText(uniqueScore.toString())).perform(click())
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
         onView(withText("Score Pad")).check(matches(isDisplayed()))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view).adapter!!
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+
         // Check the last running total is the unique score
-        val cellItems = tableViewAdapter.cellItems!!
+        val maxColIndex = tableViewAdapter.getCellRowItems(0)?.size!! - 1
+        val maxRowIndex = tableViewAdapter.getCellColumnItems(0).size - 1
         assertEquals(
                 uniqueScore,
-                (cellItems[cellItems.size - 1][cellItems[0].size - 1] as InfoTableCell).content as Int
+                tableViewAdapter.getCellItem(maxColIndex, maxRowIndex)?.content!! as Int
         )
     }
 }

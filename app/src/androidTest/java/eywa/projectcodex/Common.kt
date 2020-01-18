@@ -9,7 +9,9 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
+import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.ui.MainActivity
+import kotlinx.android.synthetic.main.content_main.*
 import org.hamcrest.CoreMatchers
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -46,4 +48,22 @@ fun <T> LiveData<T>.retrieveValue(): T? {
     observeForever(observer)
     latch.await(2, TimeUnit.SECONDS)
     return value
+}
+
+fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName: String): Instruction {
+    return object : Instruction() {
+        override fun checkCondition(): Boolean {
+            val fragments = activity.nav_host_fragment.childFragmentManager.fragments
+            for (fragment in fragments) {
+                if (fragment.javaClass.name == fragmentClassName) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        override fun getDescription(): String {
+            return "Wait for $fragmentClassName to appear"
+        }
+    }
 }

@@ -3,13 +3,15 @@ package eywa.projectcodex
 import android.os.Handler
 import android.os.Looper
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import com.evrencoskun.tableview.TableView
+import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.InfoTableCell
@@ -24,8 +26,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import ph.ingenuity.tableview.TableView
-import ph.ingenuity.tableview.adapter.AbstractTableAdapter
 
 @RunWith(AndroidJUnit4::class)
 class ScorePadInstrumentedTest {
@@ -39,7 +39,7 @@ class ScorePadInstrumentedTest {
     val activity = ActivityTestRule(MainActivity::class.java)
 
     private lateinit var arrows: List<ArrowValue>
-    private lateinit var tableViewAdapter: AbstractTableAdapter
+    private lateinit var tableViewAdapter: AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
 
     @Before
     fun beforeEach() {
@@ -49,7 +49,7 @@ class ScorePadInstrumentedTest {
 
     private fun addDataToDatabase() {
         val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
-        arrows = TestData.generateArrowValues(36, 1)
+        arrows = TestData.generateArrowValues(36, 5)
         Handler(Looper.getMainLooper()).post {
             for (arrow in arrows) {
                 runBlocking {
@@ -57,13 +57,6 @@ class ScorePadInstrumentedTest {
                 }
             }
         }
-    }
-
-    private fun goToViewRoundsAndPopulateAdapter() {
-        R.id.button_start_new_round.click()
-        R.id.button_create_round.click()
-        R.id.button_score_pad.click()
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view).adapter!!
     }
 
     @After
@@ -75,24 +68,38 @@ class ScorePadInstrumentedTest {
     @Throws(Exception::class)
     fun testTableValues() {
         addDataToDatabase()
-        goToViewRoundsAndPopulateAdapter()
-        assertEquals(
-                calculateScorePadTableData(arrows, 6, GoldsType.TENS, ".", "-"),
-                tableViewAdapter.cellItems as List<List<InfoTableCell>>
-        )
+        Thread.sleep(1000)
+        R.id.button_view_rounds.click()
+        onView(withText(arrows.sumBy { it.score }.toString())).perform(click())
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+
+        val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, ".", "-")
+        for (i in expectedCells.indices) {
+            assertEquals(expectedCells[i], tableViewAdapter.getCellRowItems(i))
+        }
+
         var col = 0
-        assertEquals(
-                listOf("E/T", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) },
-                tableViewAdapter.columnHeaderItems
-        )
-        assertEquals(generateNumberedRowHeaders(6), tableViewAdapter.rowHeaderItems)
+        val expectedColumnHeaders = listOf("E/T", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
+        for (i in expectedColumnHeaders.indices) {
+            assertEquals(expectedColumnHeaders[i], tableViewAdapter.getColumnHeaderItem(i))
+        }
+
+        val expectedRowHeaders = generateNumberedRowHeaders(6)
+        for (i in expectedRowHeaders.indices) {
+            assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
+        }
     }
 
     @Test
     @Throws(Exception::class)
     fun testEmptyTable() {
-        goToViewRoundsAndPopulateAdapter()
-        onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(ViewActions.click())
+        R.id.button_start_new_round.click()
+        R.id.button_create_round.click()
+        R.id.button_score_pad.click()
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+        onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
         onView(withText("Input End")).check(matches(isDisplayed()))
     }
 }

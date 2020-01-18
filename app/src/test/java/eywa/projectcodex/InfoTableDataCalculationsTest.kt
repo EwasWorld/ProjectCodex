@@ -1,9 +1,15 @@
 package eywa.projectcodex
 
+import android.content.res.Resources
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.calculateScorePadTableData
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
+import eywa.projectcodex.infoTable.getColumnHeadersForTable
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -15,13 +21,43 @@ class InfoTableDataCalculationsTest {
     private val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.UK)
 
     @Test
-    fun testScorePadColumnHeaders() {
-        // TODO find a way to get or mock Resources
-    }
+    fun testGetColumnHeaders() {
+        val headerIds = listOf(1, 4, 7, -1, 12)
+        val goldsType = GoldsType.TENS
 
-    @Test
-    fun testViewRoundsColumnHeaders() {
-        // TODO find a way to get or mock Resources
+        for (testGoldsType in GoldsType.values()) {
+            val resources = mock<Resources>()
+            getColumnHeadersForTable(headerIds, resources, testGoldsType)
+            argumentCaptor<Int>().apply {
+                verify(resources, times(5)).getString(capture())
+                for (i in allValues.indices) {
+                    if (headerIds[i] == -1) {
+                        assertEquals(testGoldsType.colHeaderStringId, allValues[i])
+                    }
+                    else {
+                        assertEquals(headerIds[i], allValues[i])
+                    }
+                }
+            }
+        }
+
+        val resources = mock<Resources>()
+        try {
+            getColumnHeadersForTable(listOf(), resources, goldsType)
+            fail("Create column headers with no data")
+        }
+        catch (e: IllegalArgumentException) {
+        }
+
+        try {
+            getColumnHeadersForTable(listOf(-1), resources)
+            fail("Golds placeholder and no goldsType given")
+        }
+        catch (e: IllegalArgumentException) {
+        }
+
+        // Should not throw exception
+        getColumnHeadersForTable(listOf(1), resources)
     }
 
     @Test
@@ -116,11 +152,14 @@ class InfoTableDataCalculationsTest {
     private fun checkViewRoundsData(arrowsSizes: List<Int>, goldsType: GoldsType) {
         val yes = "Y"
         val no = "N"
+        val removedColumnIndexes = listOf(0, 5)
 
         val generatedArcherRounds = TestData.generateArcherRounds(arrowsSizes.size, 1)
+        val sortedGenArcherRounds = generatedArcherRounds.sortedByDescending { it.dateShot }
         val generatedArrows = mutableListOf<List<ArrowValue>>()
-        for ((i, arrowCount) in arrowsSizes.withIndex()) {
-            generatedArrows.add(TestData.generateArrowValues(arrowCount, i + 1))
+        for (round in sortedGenArcherRounds) {
+            val originalIndex = generatedArcherRounds.indexOf(round)
+            generatedArrows.add(TestData.generateArrowValues(arrowsSizes[originalIndex], round.archerRoundId))
         }
         val viewRoundsData =
             calculateViewRoundsTableData(
@@ -132,21 +171,21 @@ class InfoTableDataCalculationsTest {
             )
         assertEquals(generatedArcherRounds.size, viewRoundsData.size)
 
-        for (i in generatedArcherRounds.indices) {
-            val archerRound = generatedArcherRounds[i]
+        for (i in sortedGenArcherRounds.indices) {
+            val archerRound = sortedGenArcherRounds[i]
             val arrows = generatedArrows[i]
             val data = viewRoundsData[i]
             assertEquals(6, data.size)
 
             val expected = mutableListOf<Any>()
+            expected.add(archerRound.archerRoundId)
             expected.add(dateFormat.format(archerRound.dateShot))
             expected.add(arrows.count { it.score != 0 })
             expected.add(arrows.sumBy { it.score })
             expected.add(arrows.count { goldsType.isGold(it) })
             expected.add(if (archerRound.countsTowardsHandicap) yes else no)
-            expected.add(archerRound.archerRoundId)
 
-            for (j in data.indices) {
+            for (j in expected.indices.filterIndexed { k, _ -> !removedColumnIndexes.contains(k) }) {
                 assertEquals("cell$i$j", data[j].id)
                 assertEquals(expected[j], data[j].content)
             }

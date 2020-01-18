@@ -11,23 +11,49 @@ import java.util.*
 
 val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.UK)
 
+val viewRoundsColumnHeaderIds = listOf(
+        R.string.view_round__id_header,
+        R.string.view_round__date_header,
+        R.string.table_hits_header,
+        R.string.table_score_header,
+        -1,
+        R.string.view_round__counts_to_hc_header
+)
+val scorePadColumnHeaderIds = listOf(
+        R.string.score_pad__end_string_header,
+        R.string.table_hits_header,
+        R.string.table_score_header,
+        -1,
+        R.string.score_pad__running_total_header
+)
+
 /**
- * Columns: End string, H, S, G, running total
+ * @param headerStringIds the resource IDs of each of the column headers in order (golds column should be -1)
+ * @param goldsType the goldsType to get the golds column header from (required if a headerStringId contains a -1)
  */
-fun getScorePadColumnHeaders(resources: Resources, goldsType: GoldsType): List<InfoTableCell> {
+fun getColumnHeadersForTable(
+        headerStringIds: List<Int>,
+        resources: Resources,
+        goldsType: GoldsType? = null
+): List<InfoTableCell> {
+    require(headerStringIds.isNotEmpty()) { "No headers provided" }
+    require(!headerStringIds.contains(-1) || goldsType != null) {
+        "Must provide a goldsType if stringIds contains the golds placeholder, -1"
+    }
     return toCellsHeader(
-            listOf(
-                    resources.getString(R.string.score_pad__end_string_header),
-                    resources.getString(R.string.table_hits_header),
-                    resources.getString(R.string.table_score_header),
-                    resources.getString(goldsType.colHeaderStringId),
-                    resources.getString(R.string.score_pad__running_total_header)
-            ), true
+            headerStringIds.map {
+                if (it == -1) {
+                    resources.getString(goldsType!!.colHeaderStringId)
+                }
+                else {
+                    resources.getString(it)
+                }
+            }, true
     )
 }
 
 /**
- * @see getScorePadColumnHeaders
+ * @see scorePadColumnHeaderIds
  */
 fun calculateScorePadTableData(
         allArrows: List<ArrowValue>,
@@ -35,11 +61,11 @@ fun calculateScorePadTableData(
         goldsType: GoldsType,
         arrowPlaceholder: String,
         arrowDeliminator: String
-): List<List<InfoTableCell>> {
+): MutableList<MutableList<InfoTableCell>> {
     require(allArrows.isNotEmpty()) { "allArrows cannot be empty" }
     require(endSize > 0) { "endSize must be >0" }
 
-    val tableData = mutableListOf<List<InfoTableCell>>()
+    val tableData = mutableListOf<MutableList<InfoTableCell>>()
     var runningCount = 0
     for (sublist in allArrows.chunked(endSize)) {
         val rowData = mutableListOf<Any>()
@@ -60,23 +86,7 @@ fun calculateScorePadTableData(
 }
 
 /**
- * Columns: Date, H, S, G, Counts to HC, archerRoundId
- */
-fun getViewRoundsColumnHeaders(resources: Resources, goldsType: GoldsType): List<InfoTableCell> {
-    return toCellsHeader(
-            listOf(
-                    resources.getString(R.string.view_round__date_header),
-                    resources.getString(R.string.table_hits_header),
-                    resources.getString(R.string.table_score_header),
-                    resources.getString(goldsType.colHeaderStringId),
-                    resources.getString(R.string.view_round__counts_to_hc_header),
-                    resources.getString(R.string.view_round__id_header)
-            ), true
-    )
-}
-
-/**
- * @see getViewRoundsColumnHeaders
+ * @see viewRoundsColumnHeaderIds
  */
 fun calculateViewRoundsTableData(
         archerRounds: List<ArcherRound>,
@@ -84,12 +94,13 @@ fun calculateViewRoundsTableData(
         goldsType: GoldsType,
         yes: String,
         no: String
-): List<List<InfoTableCell>> {
+): MutableList<MutableList<InfoTableCell>> {
     require(archerRounds.isNotEmpty()) { "archerRounds cannot be empty" }
 
-    val tableData = mutableListOf<List<InfoTableCell>>()
-    for (archerRound in archerRounds.sortedBy { archerRound -> archerRound.dateShot }) {
+    val tableData = mutableListOf<MutableList<InfoTableCell>>()
+    for (archerRound in archerRounds.sortedByDescending { archerRound -> archerRound.dateShot }) {
         val rowData = mutableListOf<Any>()
+        rowData.add(archerRound.archerRoundId)
         rowData.add(dateFormat.format(archerRound.dateShot))
 
         // H/S/G
@@ -99,20 +110,23 @@ fun calculateViewRoundsTableData(
         rowData.add(relevantArrows.count { goldsType.isGold(it) })
 
         rowData.add(if (archerRound.countsTowardsHandicap) yes else no)
-        // TODO change to row headers if can't be headers can't be removed and col can't be hidden
-        rowData.add(archerRound.archerRoundId)
         tableData.add(toCells(rowData, tableData.size))
     }
     return tableData
 }
 
+fun blankViewRoundsTableData(): List<List<InfoTableCell>> {
+    var cellId = 0
+    return listOf(List(viewRoundsColumnHeaderIds.size) { InfoTableCell("-", "cell0" + cellId++) })
+}
+
 /**
  * Convert from List<String> to List<InfoTableCell> for cells
  */
-private fun toCells(rowData: List<Any>, rowId: Int): List<InfoTableCell> {
+private fun toCells(rowData: List<Any>, rowId: Int): MutableList<InfoTableCell> {
     require(rowData.isNotEmpty()) { "Data cannot be empty" }
     var col = 0
-    return rowData.map { InfoTableCell(it, "cell" + (rowId).toString() + col++.toString()) }
+    return rowData.map { InfoTableCell(it, "cell" + (rowId).toString() + col++.toString()) }.toMutableList()
 }
 
 /**

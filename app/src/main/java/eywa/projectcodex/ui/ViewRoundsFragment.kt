@@ -10,14 +10,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.evrencoskun.tableview.TableView
+import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.viewModels.ViewRoundsViewModel
-import ph.ingenuity.tableview.TableView
-import ph.ingenuity.tableview.listener.ITableViewListener
 
 class ViewRoundsFragment : Fragment() {
     private lateinit var viewRoundsViewModel: ViewRoundsViewModel
@@ -26,7 +26,10 @@ class ViewRoundsFragment : Fragment() {
     // TODO pull this from the database when rounds are properly implemented
     private val goldsType = GoldsType.TENS
     private var dialog: AlertDialog? = null
-    private val archerRoundIdRowId = 5
+    private val archerRoundIdRow = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)
+    private val countsToHcRow = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__counts_to_hc_header)
+    private val hiddenColumnIndexes = listOf(archerRoundIdRow, countsToHcRow).sorted()
+    private lateinit var hiddenColumns: MutableList<MutableList<InfoTableCell>>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_view_rounds, container, false)
@@ -37,8 +40,9 @@ class ViewRoundsFragment : Fragment() {
         activity?.title = getString(R.string.view_round__title)
 
         val tableAdapter = InfoTableViewAdapter(context!!)
-        val tableView = view.findViewById<TableView>(R.id.table_view)
+        val tableView = view.findViewById<TableView>(R.id.view_round__table_view)
         tableView.adapter = tableAdapter
+        tableView.rowHeaderWidth = 0
         tableView.tableViewListener = ViewRoundsTableViewListener(tableView)
 
         viewRoundsViewModel = ViewModelProvider(this).get(ViewRoundsViewModel::class.java)
@@ -65,10 +69,23 @@ class ViewRoundsFragment : Fragment() {
                     getString(R.string.short_boolean_true),
                     getString(R.string.short_boolean_false)
             )
+
+            // Remove columns to be hidden
+            val displayTableData = mutableListOf<MutableList<InfoTableCell>>()
+            hiddenColumns = mutableListOf()
+            for (row in tableData) {
+                hiddenColumns.add(row.filterIndexed { i, _ -> hiddenColumnIndexes.contains(i) }.toMutableList())
+                displayTableData.add(row.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) }.toMutableList())
+            }
+
             tableAdapter.setAllItems(
-                    tableData,
-                    getViewRoundsColumnHeaders(resources, goldsType),
-                    generateNumberedRowHeaders(tableData.size)
+                    getColumnHeadersForTable(
+                            viewRoundsColumnHeaderIds,
+                            resources,
+                            goldsType
+                    ).filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) }.toMutableList(),
+                    generateNumberedRowHeaders(tableData.size),
+                    displayTableData
             )
             if (dialog?.isShowing == true) {
                 dialog!!.dismiss()
@@ -92,14 +109,12 @@ class ViewRoundsFragment : Fragment() {
 
     inner class ViewRoundsTableViewListener(private val tableView: TableView) : ITableViewListener {
         override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
-            tableView.adapter?.cellItems?.let { cellItems ->
-                // TODO set up preferred end size
-                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(
-                        6,
-                        (cellItems[row][archerRoundIdRowId] as InfoTableCell).content as Int
-                )
-                view?.findNavController()?.navigate(action)
-            }
+            // TODO set up preferred end size user setting
+            val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(
+                    6,
+                    hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdRow)].content as Int
+            )
+            view?.findNavController()?.navigate(action)
         }
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
@@ -112,5 +127,4 @@ class ViewRoundsFragment : Fragment() {
 
         override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
     }
-
 }

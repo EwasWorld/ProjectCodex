@@ -8,17 +8,12 @@
     tools:context=".ui.ScorePadFragment"
     >
 
-    <ph.ingenuity.tableview.TableView
-        android:id="@+id/table_view"
+    <com.evrencoskun.tableview.TableView
+        android:id="@+id/score_pad__table_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/scorepad__main_margins"
         app:layout_constraintTop_toTopOf="parent"
-        app:table_selected_color="@color/colorAccent"
-        app:table_separator_color="@color/offBlack"
-        app:table_show_horizontal_separator="true"
-        app:table_show_vertical_separator="true"
-        app:table_unselected_color="@color/colorLightAccent"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

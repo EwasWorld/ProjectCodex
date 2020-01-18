@@ -1,8 +1,27 @@
 package eywa.projectcodex.infoTable
 
-import ph.ingenuity.tableview.feature.sort.Sortable
+import com.evrencoskun.tableview.sort.ISortableModel
 
-class InfoTableCell(override var content: Any, override var id: String) : Sortable {
+class InfoTableCell(content: Any?, id: String) : ISortableModel {
+    private var cellContent = content
+    private var cellId = id
+
+    override fun getContent(): Any? {
+        return cellContent
+    }
+
+    override fun getId(): String {
+        return cellId
+    }
+
+    fun setContent(value: Any?) {
+        cellContent = value
+    }
+
+    fun setId(value: String) {
+        cellId = value
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other !is InfoTableCell) {
             return false

@@ -2,7 +2,10 @@ package eywa.projectcodex
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import com.evrencoskun.tableview.TableView
+import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.ui.MainActivity
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -10,7 +13,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import ph.ingenuity.tableview.TableView
 
 
 /**
@@ -242,8 +244,9 @@ class InputEndInstrumentedTest {
         }
         R.id.button_next_end.click()
         R.id.button_score_pad.click()
-        val cellItems = activity.activity.findViewById<TableView>(R.id.table_view).adapter!!.cellItems!!
-        assertEquals(1, cellItems.size)
-        assertEquals(5, cellItems[0].size)
+        val tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+        assertEquals(1, tableViewAdapter.getCellColumnItems(0).size)
+        assertEquals(5, tableViewAdapter.getCellRowItems(0)?.size)
     }
 }

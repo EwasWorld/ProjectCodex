@@ -125,5 +125,8 @@ dependencies {
     implementation("androidx.test:runner:1.2.0")
 
     // Table view for the score pad
-    implementation "ph.ingenuity.tableview:tableview:0.1.0-alpha"
+    implementation 'com.evrencoskun.library:tableview:0.8.9'
+
+    // Espresso testing wait conditions
+    androidTestImplementation 'com.azimolabs.conditionwatcher:conditionwatcher:0.2'
 }

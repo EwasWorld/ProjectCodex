@@ -9,15 +9,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
+import com.evrencoskun.tableview.TableView
+import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
-import eywa.projectcodex.infoTable.InfoTableViewAdapter
-import eywa.projectcodex.infoTable.calculateScorePadTableData
-import eywa.projectcodex.infoTable.generateNumberedRowHeaders
-import eywa.projectcodex.infoTable.getScorePadColumnHeaders
+import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.viewModels.ScorePadViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
-import ph.ingenuity.tableview.TableView
 
 class ScorePadFragment : Fragment() {
     private val args: ScorePadFragmentArgs by navArgs()
@@ -34,8 +33,9 @@ class ScorePadFragment : Fragment() {
         activity?.title = getString(R.string.score_pad__title)
 
         val tableAdapter = InfoTableViewAdapter(context!!)
-        val tableView = view.findViewById<TableView>(R.id.table_view)
+        val tableView = view.findViewById<TableView>(R.id.score_pad__table_view)
         tableView.adapter = tableAdapter
+        tableView.tableViewListener = ScorePadTableViewListener(tableView)
 
         scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
             ScorePadViewModel(activity!!.application, args.archerRoundId)
@@ -49,9 +49,9 @@ class ScorePadFragment : Fragment() {
                             getString(R.string.end_to_string_arrow_deliminator)
                     )
                     tableAdapter.setAllItems(
-                            tableData,
-                            getScorePadColumnHeaders(resources, goldsType),
-                            generateNumberedRowHeaders(tableData.size)
+                            getColumnHeadersForTable(scorePadColumnHeaderIds, resources, goldsType),
+                            generateNumberedRowHeaders(tableData.size),
+                            tableData
                     )
                 }
                 catch (e: IllegalArgumentException) {
@@ -66,5 +66,19 @@ class ScorePadFragment : Fragment() {
                 }
             }
         })
+    }
+
+    inner class ScorePadTableViewListener(private val tableView: TableView) : ITableViewListener {
+        override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
+
+        override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
+
+        override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
+
+        override fun onColumnHeaderLongPressed(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
+
+        override fun onRowHeaderClicked(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
+
+        override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
     }
 }
