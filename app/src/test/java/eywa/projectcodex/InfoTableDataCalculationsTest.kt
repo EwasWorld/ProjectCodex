@@ -104,28 +104,35 @@ class InfoTableDataCalculationsTest {
     }
 
     private fun checkScorePadData(size: Int, endSize: Int, goldsType: GoldsType) {
-        val arrowPHold = "."
-        val arrowDelim = "-"
+        val arrowPlaceHolder = "."
+        val arrowDeliminator = "-"
+        val grandTotal = "Grand total:"
+
+        val resources = mock<Resources>()
+        `when`(resources.getString(any())).thenAnswer { invocation ->
+            when (invocation.getArgument<Int>(0)) {
+                R.string.end_to_string_arrow_placeholder -> arrowPlaceHolder
+                R.string.end_to_string_arrow_deliminator -> arrowDeliminator
+                R.string.score_pad__grand_total -> grandTotal
+                else -> fail("Bad string passed to resources")
+            }
+        }
 
         val generatedArrows = TestData.generateArrowValues(size, 1)
-        val scorePadData = calculateScorePadTableData(
-                generatedArrows,
-                endSize,
-                goldsType,
-                arrowPHold,
-                arrowDelim
-        )
+        val scorePadData = calculateScorePadTableData(generatedArrows, endSize, goldsType, resources)
 
         val chunkedArrows = generatedArrows.chunked(endSize)
-        assertEquals(ceil(generatedArrows.size / endSize.toDouble()).toInt(), scorePadData.size)
-        assertEquals(chunkedArrows.size, scorePadData.size)
+        // -1 for grand total
+        assertEquals(ceil(generatedArrows.size / endSize.toDouble()).toInt(), scorePadData.size - 1)
+        assertEquals(chunkedArrows.size, scorePadData.size - 1)
 
+        // Main score pad
         var runningTotal = 0
         for (i in chunkedArrows.indices) {
             val data = scorePadData[i]
             assertEquals(5, data.size)
 
-            val end = End(chunkedArrows[i], endSize, arrowPHold, arrowDelim)
+            val end = End(chunkedArrows[i], endSize, arrowPlaceHolder, arrowDeliminator)
             end.reorderScores()
             runningTotal += end.getScore()
             val expected = listOf(end.toString(), end.getHits(), end.getScore(), end.getGolds(goldsType), runningTotal)
@@ -133,6 +140,20 @@ class InfoTableDataCalculationsTest {
                 assertEquals("cell$i$j", data[j].id)
                 assertEquals(expected[j], data[j].content)
             }
+        }
+
+        // Grand total row
+        val totalRow = scorePadData[scorePadData.size - 1]
+        val expected = listOf(
+                grandTotal,
+                generatedArrows.count { it.score != 0 },
+                generatedArrows.sumBy { it.score },
+                generatedArrows.count { goldsType.isGold(it) },
+                "-"
+        )
+        for (i in totalRow.indices) {
+            assertEquals("grandTotal$i", totalRow[i].id)
+            assertEquals(expected[i], totalRow[i].content)
         }
     }
 
@@ -173,7 +194,7 @@ class InfoTableDataCalculationsTest {
                 R.string.short_boolean_true -> yes
                 R.string.short_boolean_false -> no
                 R.string.table_delete -> delete
-                else -> ""
+                else -> fail("Bad string passed to resources")
             }
         }
 
@@ -225,17 +246,108 @@ class InfoTableDataCalculationsTest {
 
     @Test
     fun testGenerateNumberedRowHeaders() {
-        for (size in listOf(1, 6, 20)) {
-            var rowId = 1
-            for (cell in generateNumberedRowHeaders(6)) {
-                cell.content = rowId
-                cell.id = "row" + rowId++
+        val totalRowHeader = "T"
+        val grandTotalRowHeader = "GT"
+        val size = listOf(24)
+        val resources = mock<Resources>()
+        `when`(resources.getString(any())).thenAnswer { invocation ->
+            when (invocation.getArgument<Int>(0)) {
+                R.string.score_pad__grand_total_row_header -> grandTotalRowHeader
+                R.string.score_pad__total_row_header -> totalRowHeader
+                else -> fail("Bad string passed to resources")
             }
         }
 
+        /*
+         * Normal headers
+         */
+        var rowId: Int
+        for (testSize in listOf(1, 6, 20)) {
+            val generated = generateNumberedRowHeaders(listOf(testSize))
+            assertEquals(testSize, generated.size)
+            rowId = 0
+            for (cell in generated) {
+                assertEquals((rowId + 1).toString(), cell.content)
+                assertEquals("row$rowId", cell.id)
+                rowId++
+            }
+        }
+
+        /*
+         * Grand total row
+         */
+        var generated = generateNumberedRowHeaders(size, resources, true)
+        assertEquals(size[0] + 1, generated.size)
+        val grandTotalHeader = generated[generated.size - 1]
+        rowId = 0
+        for (cell in generated.minus(grandTotalHeader)) {
+            assertEquals((rowId + 1).toString(), cell.content)
+            assertEquals("row$rowId", cell.id)
+            rowId++
+        }
+        assertEquals(grandTotalRowHeader, grandTotalHeader.content)
+        assertEquals("grandTotalHeader", grandTotalHeader.id)
+
+        /*
+         * Distance total rows
+         */
+        for (distanceList in listOf(listOf(24), listOf(8, 8, 8), listOf(12, 8, 4), listOf(8, 8))) {
+            generated = generateNumberedRowHeaders(distanceList, resources, true)
+            var expectedSize = distanceList.sum() + 1
+            if (distanceList.size > 1) {
+                expectedSize += distanceList.size
+            }
+            assertEquals(expectedSize, generated.size)
+            val grandTotal = generated[generated.size - 1]
+            var totalId = 0
+            rowId = 0
+            for (cell in generated.minus(grandTotal)) {
+                if (!cell.id.contains("total")) {
+                    assertEquals((rowId + 1).toString(), cell.content)
+                    assertEquals("row$rowId", cell.id)
+                    rowId++
+                }
+                else {
+                    assertEquals(totalRowHeader, cell.content)
+                    assertEquals("totalRow$totalId", cell.id)
+                    totalId++
+                }
+            }
+            assertEquals(grandTotalRowHeader, grandTotal.content)
+            assertEquals("grandTotalHeader", grandTotal.id)
+        }
+
         try {
-            generateNumberedRowHeaders(0)
+            generateNumberedRowHeaders(listOf(0))
             fail("Generate no header rows")
+        }
+        catch (e: IllegalArgumentException) {
+        }
+
+        try {
+            generateNumberedRowHeaders(listOf(-1))
+            fail("Negative row count for distance")
+        }
+        catch (e: IllegalArgumentException) {
+        }
+
+        try {
+            generateNumberedRowHeaders(listOf(24), grandTotal = true)
+            fail("Resources required, grand total")
+        }
+        catch (e: IllegalArgumentException) {
+        }
+
+        try {
+            generateNumberedRowHeaders(listOf(1, 4))
+            fail("Resources required, multiple distances")
+        }
+        catch (e: IllegalArgumentException) {
+        }
+
+        try {
+            generateNumberedRowHeaders(listOf(1, 4), grandTotal = true)
+            fail("Resources required, grand total and multiple distances")
         }
         catch (e: IllegalArgumentException) {
         }

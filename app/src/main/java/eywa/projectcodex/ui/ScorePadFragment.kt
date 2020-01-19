@@ -17,6 +17,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.viewModels.ScorePadViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
+import kotlin.math.ceil
 
 class ScorePadFragment : Fragment() {
     private val args: ScorePadFragmentArgs by navArgs()
@@ -43,14 +44,14 @@ class ScorePadFragment : Fragment() {
         scorePadViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
                 try {
-                    val tableData = calculateScorePadTableData(
-                            arrows, args.endSize, goldsType,
-                            getString(R.string.end_to_string_arrow_placeholder),
-                            getString(R.string.end_to_string_arrow_deliminator)
-                    )
+                    val tableData = calculateScorePadTableData(arrows, args.endSize, goldsType, resources)
                     tableAdapter.setAllItems(
                             getColumnHeadersForTable(scorePadColumnHeaderIds, resources, goldsType),
-                            generateNumberedRowHeaders(tableData.size),
+                            generateNumberedRowHeaders(
+                                    listOf(ceil(arrows.size / args.endSize.toDouble()).toInt()),
+                                    resources,
+                                    true
+                            ),
                             tableData
                     )
                 }

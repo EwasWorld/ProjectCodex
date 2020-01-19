@@ -35,7 +35,7 @@ fun getColumnHeadersForTable(
         headerStringIds: List<Int>,
         resources: Resources,
         goldsType: GoldsType? = null,
-        deleteColumn: Boolean? = false
+        deleteColumn: Boolean = false
 ): List<InfoTableCell> {
     require(headerStringIds.isNotEmpty()) { "No headers provided" }
     require(!headerStringIds.contains(-1) || goldsType != null) {
@@ -49,30 +49,38 @@ fun getColumnHeadersForTable(
             resources.getString(it)
         }
     }.toMutableList()
-    if (deleteColumn != null && deleteColumn) {
+    if (deleteColumn) {
         stringsList.add(resources.getString(R.string.table_delete))
     }
     return toCellsHeader(stringsList, true)
 }
 
 /**
+ * Displays the arrow data along with a grand total row
  * @see scorePadColumnHeaderIds
  */
 fun calculateScorePadTableData(
         allArrows: List<ArrowValue>,
         endSize: Int,
         goldsType: GoldsType,
-        arrowPlaceholder: String,
-        arrowDeliminator: String
+        resources: Resources
 ): MutableList<MutableList<InfoTableCell>> {
     require(allArrows.isNotEmpty()) { "allArrows cannot be empty" }
     require(endSize > 0) { "endSize must be >0" }
 
+    /*
+     * Main score pad
+     */
     val tableData = mutableListOf<MutableList<InfoTableCell>>()
     var runningCount = 0
     for (sublist in allArrows.chunked(endSize)) {
         val rowData = mutableListOf<Any>()
-        val end = End(sublist, endSize, arrowPlaceholder, arrowDeliminator)
+        val end = End(
+                sublist,
+                endSize,
+                resources.getString(R.string.end_to_string_arrow_placeholder),
+                resources.getString(R.string.end_to_string_arrow_deliminator)
+        )
         end.reorderScores()
         rowData.add(end.toString())
 
@@ -85,6 +93,18 @@ fun calculateScorePadTableData(
         rowData.add(allArrows.subList(0, runningCount).sumBy { arrow -> arrow.score })
         tableData.add(toCells(rowData, tableData.size))
     }
+
+    /*
+     * Totals
+     */
+    val rowData = mutableListOf<Any>()
+    rowData.add(resources.getString(R.string.score_pad__grand_total))
+    rowData.add(allArrows.count { it.score != 0 })
+    rowData.add(allArrows.sumBy { it.score })
+    rowData.add(allArrows.count { goldsType.isGold(it) })
+    rowData.add("-")
+    tableData.add(toCells(rowData, null, "grandTotal"))
+
     return tableData
 }
 
@@ -124,18 +144,14 @@ fun calculateViewRoundsTableData(
     return tableData
 }
 
-fun blankViewRoundsTableData(): List<List<InfoTableCell>> {
-    var cellId = 0
-    return listOf(List(viewRoundsColumnHeaderIds.size) { InfoTableCell("-", "cell0" + cellId++) })
-}
-
 /**
  * Convert from List<String> to List<InfoTableCell> for cells
  */
-private fun toCells(rowData: List<Any>, rowId: Int): MutableList<InfoTableCell> {
+private fun toCells(rowData: List<Any>, rowId: Int?, prefix: String = "cell"): MutableList<InfoTableCell> {
     require(rowData.isNotEmpty()) { "Data cannot be empty" }
+    val row = rowId?.toString() ?: ""
     var col = 0
-    return rowData.map { InfoTableCell(it, "cell" + (rowId).toString() + col++.toString()) }.toMutableList()
+    return rowData.map { InfoTableCell(it, prefix + row + col++.toString()) }.toMutableList()
 }
 
 /**
@@ -149,11 +165,57 @@ private fun toCellsHeader(data: List<String>, isColumn: Boolean): List<InfoTable
 }
 
 /**
- * Generate row headers that increment from **1** to size
+ * Generate row headers that increment from **1** to size, adding in totals rows where appropriate.
+ *
+ * Cell IDs: Normal row headers, distance totals have their own numbering 'totalRow$i', grand total row: grandTotalHeader
+ *
+ * @param grandTotal whether there is a row for the grand total
+ * @param rowsPerDistance the number of rows after which a total-for-distance row will appear (singleton if no total-for-distance rows desired)
+ * @see toCellsHeader
  */
-fun generateNumberedRowHeaders(size: Int): List<InfoTableCell> {
-    require(size > 0) { "Size cannot be <0" }
-    return toCellsHeader(IntRange(1, size).map { it.toString() }, false)
+fun generateNumberedRowHeaders(
+        rowsPerDistance: List<Int>,
+        resources: Resources? = null,
+        grandTotal: Boolean = false
+): List<InfoTableCell> {
+    require(rowsPerDistance.sum() > 0) { "Must have at least one distance (array item) with at least one row in it" }
+    require(resources != null || (!grandTotal && rowsPerDistance.size == 1)) { "Totals rows require resources to be not null" }
+    for (count in rowsPerDistance) {
+        require(count > 0) { "Row counts cannot be <= 0" }
+    }
+
+    val headers = toCellsHeader(IntRange(1, rowsPerDistance.sum()).map { it.toString() }, false).toMutableList()
+
+    // Distance total headers
+    if (rowsPerDistance.size > 1) {
+        var nextLocation = 0
+        for ((i, distanceRowCount) in rowsPerDistance.withIndex()) {
+            nextLocation += distanceRowCount
+            headers.add(
+                    nextLocation,
+                    InfoTableCell(resources!!.getString(R.string.score_pad__total_row_header), "totalRow$i")
+            )
+        }
+    }
+
+    // Grand total header
+    if (grandTotal) {
+        headers.add(
+                InfoTableCell(resources!!.getString(R.string.score_pad__grand_total_row_header), "grandTotalHeader")
+        )
+    }
+    return headers
+}
+
+/**
+ * @see generateNumberedRowHeaders
+ */
+fun generateNumberedRowHeaders(
+        rowsPerDistance: Int,
+        resources: Resources? = null,
+        grandTotal: Boolean = false
+): List<InfoTableCell> {
+    return generateNumberedRowHeaders(listOf(rowsPerDistance), resources, grandTotal)
 }
 
 private fun createDeleteCell(resources: Resources, rowId: Int): InfoTableCell {

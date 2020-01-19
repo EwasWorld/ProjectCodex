@@ -3,6 +3,8 @@ package eywa.projectcodex
 import android.os.Handler
 import android.os.Looper
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -10,6 +12,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import com.azimolabs.conditionwatcher.ConditionWatcher
+import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -18,6 +22,7 @@ import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateScorePadTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
 import eywa.projectcodex.ui.MainActivity
+import eywa.projectcodex.ui.ScorePadFragment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -49,13 +54,16 @@ class ScorePadInstrumentedTest {
 
     private fun addDataToDatabase() {
         val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
-        arrows = TestData.generateArrowValues(36, 5)
+        arrows = TestData.generateArrowValues(36, 1)
         Handler(Looper.getMainLooper()).post {
             for (arrow in arrows) {
                 runBlocking {
                     db.arrowValueDao().insert(arrow)
                 }
             }
+        }
+        runBlocking {
+            db.archerRoundDao().insert(TestData.generateArcherRounds(1, 1)[0])
         }
     }
 
@@ -68,13 +76,28 @@ class ScorePadInstrumentedTest {
     @Throws(Exception::class)
     fun testTableValues() {
         addDataToDatabase()
-        Thread.sleep(1000)
-        R.id.button_view_rounds.click()
-        onView(withText(arrows.sumBy { it.score }.toString())).perform(click())
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+        ConditionWatcher.waitForCondition(object : Instruction() {
+            override fun getDescription(): String {
+                return "Wait for data to appear in view rounds table"
+            }
+
+            override fun checkCondition(): Boolean {
+                return try {
+                    R.id.button_view_rounds.click()
+                    onView(withText(arrows.sumBy { it.score }.toString())).perform(click())
+                    true
+                }
+                catch (e: NoMatchingViewException) {
+                    pressBack()
+                    false
+                }
+            }
+        })
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view)?.adapter!!
                 as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
 
-        val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, ".", "-")
+        val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, activity.activity.resources)
         for (i in expectedCells.indices) {
             assertEquals(expectedCells[i], tableViewAdapter.getCellRowItems(i))
         }
@@ -85,7 +108,7 @@ class ScorePadInstrumentedTest {
             assertEquals(expectedColumnHeaders[i], tableViewAdapter.getColumnHeaderItem(i))
         }
 
-        val expectedRowHeaders = generateNumberedRowHeaders(6)
+        val expectedRowHeaders = generateNumberedRowHeaders(6, activity.activity.resources, true)
         for (i in expectedRowHeaders.indices) {
             assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
         }
