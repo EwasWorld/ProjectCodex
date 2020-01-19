@@ -34,22 +34,25 @@ val scorePadColumnHeaderIds = listOf(
 fun getColumnHeadersForTable(
         headerStringIds: List<Int>,
         resources: Resources,
-        goldsType: GoldsType? = null
+        goldsType: GoldsType? = null,
+        deleteColumn: Boolean? = false
 ): List<InfoTableCell> {
     require(headerStringIds.isNotEmpty()) { "No headers provided" }
     require(!headerStringIds.contains(-1) || goldsType != null) {
         "Must provide a goldsType if stringIds contains the golds placeholder, -1"
     }
-    return toCellsHeader(
-            headerStringIds.map {
-                if (it == -1) {
-                    resources.getString(goldsType!!.colHeaderStringId)
-                }
-                else {
-                    resources.getString(it)
-                }
-            }, true
-    )
+    val stringsList = headerStringIds.map {
+        if (it == -1) {
+            resources.getString(goldsType!!.colHeaderStringId)
+        }
+        else {
+            resources.getString(it)
+        }
+    }.toMutableList()
+    if (deleteColumn != null && deleteColumn) {
+        stringsList.add(resources.getString(R.string.table_delete))
+    }
+    return toCellsHeader(stringsList, true)
 }
 
 /**
@@ -86,14 +89,14 @@ fun calculateScorePadTableData(
 }
 
 /**
+ * Adds a delete column on the end
  * @see viewRoundsColumnHeaderIds
  */
 fun calculateViewRoundsTableData(
         archerRounds: List<ArcherRound>,
         arrows: List<ArrowValue>,
         goldsType: GoldsType,
-        yes: String,
-        no: String
+        resources: Resources
 ): MutableList<MutableList<InfoTableCell>> {
     require(archerRounds.isNotEmpty()) { "archerRounds cannot be empty" }
 
@@ -109,8 +112,14 @@ fun calculateViewRoundsTableData(
         rowData.add(relevantArrows.sumBy { it.score })
         rowData.add(relevantArrows.count { goldsType.isGold(it) })
 
-        rowData.add(if (archerRound.countsTowardsHandicap) yes else no)
-        tableData.add(toCells(rowData, tableData.size))
+        val countsToHandicap =
+            if (archerRound.countsTowardsHandicap) R.string.short_boolean_true else R.string.short_boolean_false
+        rowData.add(resources.getString(countsToHandicap))
+
+        val rowCells = toCells(rowData, tableData.size)
+        rowCells.add(createDeleteCell(resources, tableData.size))
+
+        tableData.add(rowCells)
     }
     return tableData
 }
@@ -145,4 +154,8 @@ private fun toCellsHeader(data: List<String>, isColumn: Boolean): List<InfoTable
 fun generateNumberedRowHeaders(size: Int): List<InfoTableCell> {
     require(size > 0) { "Size cannot be <0" }
     return toCellsHeader(IntRange(1, size).map { it.toString() }, false)
+}
+
+private fun createDeleteCell(resources: Resources, rowId: Int): InfoTableCell {
+    return InfoTableCell(resources.getString(R.string.table_delete), "delete$rowId")
 }

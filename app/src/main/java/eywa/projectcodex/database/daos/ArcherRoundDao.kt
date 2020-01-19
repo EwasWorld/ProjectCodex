@@ -18,6 +18,9 @@ interface ArcherRoundDao {
     @Query("SELECT * from archer_rounds")
     fun getAllArcherRounds(): LiveData<List<ArcherRound>>
 
+    @Query("DELETE FROM archer_rounds WHERE archerRoundId = :archerRoundId")
+    suspend fun deleteRound(archerRoundId: Int)
+
     // TODO Remove custom type example when from-to filter has been implemented
 //    @Entity
 //    data class User(private val birthday: Date?)

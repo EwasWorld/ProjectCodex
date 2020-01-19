@@ -1,10 +1,7 @@
 package eywa.projectcodex
 
 import android.content.res.Resources
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.calculateScorePadTableData
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
@@ -13,6 +10,7 @@ import eywa.projectcodex.infoTable.getColumnHeadersForTable
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
+import org.mockito.Mockito.`when`
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.ceil
@@ -22,7 +20,7 @@ class InfoTableDataCalculationsTest {
 
     @Test
     fun testGetColumnHeaders() {
-        val headerIds = listOf(1, 4, 7, -1, 12)
+        var headerIds = listOf(1, 4, 7, -1, 12)
         val goldsType = GoldsType.TENS
 
         for (testGoldsType in GoldsType.values()) {
@@ -41,7 +39,22 @@ class InfoTableDataCalculationsTest {
             }
         }
 
+        // Delete column added
         val resources = mock<Resources>()
+        getColumnHeadersForTable(headerIds, resources, goldsType, true)
+        headerIds = headerIds.plus(R.string.table_delete)
+        argumentCaptor<Int>().apply {
+            verify(resources, times(6)).getString(capture())
+            for (i in allValues.indices) {
+                if (headerIds[i] == -1) {
+                    assertEquals(goldsType.colHeaderStringId, allValues[i])
+                }
+                else {
+                    assertEquals(headerIds[i], allValues[i])
+                }
+            }
+        }
+
         try {
             getColumnHeadersForTable(listOf(), resources, goldsType)
             fail("Create column headers with no data")
@@ -132,13 +145,13 @@ class InfoTableDataCalculationsTest {
             checkViewRoundsData(testArrowsSizes, GoldsType.TENS)
         }
 
+        val resources = mock<Resources>()
         try {
             calculateViewRoundsTableData(
                     listOf(),
                     TestData.generateArrowValues(3, 1),
                     GoldsType.TENS,
-                    "Y",
-                    "N"
+                    resources
             )
             fail("Create table data with no data")
         }
@@ -152,6 +165,18 @@ class InfoTableDataCalculationsTest {
     private fun checkViewRoundsData(arrowsSizes: List<Int>, goldsType: GoldsType) {
         val yes = "Y"
         val no = "N"
+        val delete = "Delete"
+
+        val resources = mock<Resources>()
+        `when`(resources.getString(any())).thenAnswer { invocation ->
+            when (invocation.getArgument<Int>(0)) {
+                R.string.short_boolean_true -> yes
+                R.string.short_boolean_false -> no
+                R.string.table_delete -> delete
+                else -> ""
+            }
+        }
+
         val removedColumnIndexes = listOf(0, 5)
 
         val generatedArcherRounds = TestData.generateArcherRounds(arrowsSizes.size, 1)
@@ -166,8 +191,7 @@ class InfoTableDataCalculationsTest {
                     generatedArcherRounds,
                     generatedArrows.flatten(),
                     goldsType,
-                    yes,
-                    no
+                    resources
             )
         assertEquals(generatedArcherRounds.size, viewRoundsData.size)
 
@@ -175,7 +199,14 @@ class InfoTableDataCalculationsTest {
             val archerRound = sortedGenArcherRounds[i]
             val arrows = generatedArrows[i]
             val data = viewRoundsData[i]
-            assertEquals(6, data.size)
+
+            if (data.size != 7) {
+                assertEquals(6, data.size)
+            }
+            else {
+                assertEquals("delete$i", data[6].id)
+                assertEquals(delete, data[6].content)
+            }
 
             val expected = mutableListOf<Any>()
             expected.add(archerRound.archerRoundId)

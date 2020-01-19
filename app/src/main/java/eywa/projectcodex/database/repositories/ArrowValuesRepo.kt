@@ -23,4 +23,8 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, archerRoundId: I
     suspend fun deleteAll() {
         arrowValueDao.deleteAll()
     }
+
+    suspend fun deleteRoundsArrows(archerRoundId: Int) {
+        arrowValueDao.deleteRoundsArrows(archerRoundId)
+    }
 }

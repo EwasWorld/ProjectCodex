@@ -10,6 +10,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
+import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -87,7 +88,8 @@ class ViewRoundsInstrumentedTest {
         addDataToDatabase()
         goToViewRoundsAndPopulateAdapter()
 
-        val expected = calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, "Y", "N")
+        val expected =
+            calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, activity.activity.resources)
         for (i in expected.indices) {
             assertEquals(
                     expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) },
@@ -146,5 +148,37 @@ class ViewRoundsInstrumentedTest {
                 uniqueScore,
                 tableViewAdapter.getCellItem(maxColIndex, maxRowIndex)?.content!! as Int
         )
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeleteRow() {
+        addDataToDatabase()
+        goToViewRoundsAndPopulateAdapter()
+        var expected: List<List<InfoTableCell>> =
+            calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, activity.activity.resources)
+
+        assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
+        // Delete second row (index 2 because header has the same text)
+        onView(withIndex(withText("Delete"), 2)).perform(click())
+        ConditionWatcher.waitForCondition(object : Instruction() {
+            override fun getDescription(): String {
+                return "wait for row to be removed"
+            }
+
+            override fun checkCondition(): Boolean {
+                return tableViewAdapter.getCellColumnItems(2).size == expected.size - 1
+            }
+        })
+        assertEquals(expected.size - 1, tableViewAdapter.getCellColumnItems(2).size)
+
+        // Only check contents as the ids will have changed when the table recalculated itself
+        expected = expected.minusElement(expected[1])
+        for (i in expected.indices) {
+            assertEquals(
+                    expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) }.map { it.content },
+                    (tableViewAdapter.getCellRowItems(i) as List<InfoTableCell>).map { it.content }
+            )
+        }
     }
 }

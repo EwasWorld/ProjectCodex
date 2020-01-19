@@ -66,8 +66,7 @@ class ViewRoundsFragment : Fragment() {
                     allArcherRounds,
                     allArrows,
                     goldsType,
-                    getString(R.string.short_boolean_true),
-                    getString(R.string.short_boolean_false)
+                    resources
             )
 
             // Remove columns to be hidden
@@ -78,12 +77,9 @@ class ViewRoundsFragment : Fragment() {
                 displayTableData.add(row.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) }.toMutableList())
             }
 
+            val colHeaders = getColumnHeadersForTable(viewRoundsColumnHeaderIds, resources, goldsType, true)
             tableAdapter.setAllItems(
-                    getColumnHeadersForTable(
-                            viewRoundsColumnHeaderIds,
-                            resources,
-                            goldsType
-                    ).filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) }.toMutableList(),
+                    colHeaders.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) || i == colHeaders.size - 1 },
                     generateNumberedRowHeaders(tableData.size),
                     displayTableData
             )
@@ -109,17 +105,22 @@ class ViewRoundsFragment : Fragment() {
 
     inner class ViewRoundsTableViewListener(private val tableView: TableView) : ITableViewListener {
         override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
-            // TODO set up preferred end size user setting
-            val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(
-                    6,
-                    hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdRow)].content as Int
-            )
-            view?.findNavController()?.navigate(action)
+            val roundId = hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdRow)].content as Int
+            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains("delete")) {
+                viewRoundsViewModel.deleteRound(roundId)
+            }
+            else {
+                // TODO set up preferred end size user setting
+                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(6, roundId)
+                view?.findNavController()?.navigate(action)
+            }
         }
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
 
-        override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
+        override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {
+            tableView.remeasureColumnWidth(column)
+        }
 
         override fun onColumnHeaderLongPressed(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
 

@@ -1,5 +1,6 @@
 package eywa.projectcodex
 
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -13,6 +14,9 @@ import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.android.synthetic.main.content_main.*
 import org.hamcrest.CoreMatchers
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.TypeSafeMatcher
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -50,6 +54,9 @@ fun <T> LiveData<T>.retrieveValue(): T? {
     return value
 }
 
+/**
+ * Wait for a particular fragment to appear on the screen
+ */
 fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName: String): Instruction {
     return object : Instruction() {
         override fun checkCondition(): Boolean {
@@ -64,6 +71,25 @@ fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName:
 
         override fun getDescription(): String {
             return "Wait for $fragmentClassName to appear"
+        }
+    }
+}
+
+/**
+ * If the matcher matches multiple elements, get the element with the specified index
+ */
+fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
+    return object : TypeSafeMatcher<View>() {
+        var currentIndex = 0
+
+        override fun describeTo(description: Description) {
+            description.appendText("with index: ")
+            description.appendValue(index)
+            matcher.describeTo(description)
+        }
+
+        override fun matchesSafely(view: View): Boolean {
+            return matcher.matches(view) && currentIndex++ == index
         }
     }
 }

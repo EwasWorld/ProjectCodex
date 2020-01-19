@@ -9,6 +9,7 @@ import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.repositories.ArcherRoundsRepo
 import eywa.projectcodex.database.repositories.ArrowValuesRepo
+import kotlinx.coroutines.launch
 
 /**
  * @see InputEndViewModel
@@ -25,5 +26,13 @@ class ViewRoundsViewModel(application: Application) : AndroidViewModel(applicati
     init {
         allArrows = arrowValuesRepo.allArrowValues
         allArcherRounds = archerRoundsRepo.allArcherRounds
+    }
+
+    /**
+     * Deletes the specified round and all its arrows
+     */
+    fun deleteRound(archerRoundId: Int) = viewModelScope.launch {
+        archerRoundsRepo.deleteRound(archerRoundId)
+        arrowValuesRepo.deleteRoundsArrows(archerRoundId)
     }
 }

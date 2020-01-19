@@ -62,15 +62,30 @@ class DatabaseTests {
         val arrows1 = TestData.generateArrowValues(6, 1)
         val arrows2 = TestData.generateArrowValues(12, 2)
 
+        /*
+         * Add and retrieve
+         */
         for (arrow in arrows1.plus(arrows2)) {
             runBlocking {
                 arrowValueDao.insert(arrow)
             }
         }
-        val retrievedArrows1 = arrowValueDao.getArrowValuesForRound(1).retrieveValue()!!
-        val retrievedArrows2 = arrowValueDao.getArrowValuesForRound(2).retrieveValue()!!
+        var retrievedArrows1 = arrowValueDao.getArrowValuesForRound(1).retrieveValue()!!
+        var retrievedArrows2 = arrowValueDao.getArrowValuesForRound(2).retrieveValue()!!
 
         assertEquals(arrows1.toSet(), retrievedArrows1.toSet())
+        assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
+
+        /*
+         * Delete
+         */
+        runBlocking {
+            arrowValueDao.deleteRoundsArrows(1)
+        }
+
+        retrievedArrows1 = arrowValueDao.getArrowValuesForRound(1).retrieveValue()!!
+        retrievedArrows2 = arrowValueDao.getArrowValuesForRound(2).retrieveValue()!!
+        assert(retrievedArrows1.isEmpty())
         assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
     }
 
@@ -84,6 +99,9 @@ class DatabaseTests {
         val retrievedArcherRounds = archerRoundDao.getAllArcherRounds()
         val retrievedMax = archerRoundDao.getMaxId()
 
+        /*
+         * Add and retrieve
+         */
         val archerRounds = TestData.generateArcherRounds(6, 2)
         var currentMax = -1
         for (archerRound in archerRounds) {
@@ -108,6 +126,18 @@ class DatabaseTests {
         }
 
         assertEquals(archerRounds.toSet(), retrievedArcherRounds.retrieveValue()!!.toSet())
+
+        /*
+         * Delete
+         */
+        runBlocking {
+            archerRoundDao.deleteRound(1)
+            archerRoundDao.deleteRound(2)
+        }
+        assertEquals(
+                archerRounds.subList(2, archerRounds.size).toSet(),
+                retrievedArcherRounds.retrieveValue()!!.toSet()
+        )
     }
 
 }

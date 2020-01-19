@@ -23,4 +23,7 @@ interface ArrowValueDao {
 
     @Query("DELETE FROM arrow_values")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM arrow_values WHERE archerRoundId = :archerRoundId")
+    suspend fun deleteRoundsArrows(archerRoundId: Int)
 }
