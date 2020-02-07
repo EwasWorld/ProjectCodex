@@ -129,4 +129,7 @@ dependencies {
 
     // Espresso testing wait conditions
     androidTestImplementation 'com.azimolabs.conditionwatcher:conditionwatcher:0.2'
+
+    // JSON Parsing
+    implementation 'com.beust:klaxon:5.0.1'
 }
