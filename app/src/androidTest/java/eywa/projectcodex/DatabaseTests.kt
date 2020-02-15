@@ -31,8 +31,8 @@ class DatabaseTests {
     private lateinit var archerDao: ArcherDao
     private lateinit var archerRoundDao: ArcherRoundDao
     private lateinit var arrowValueDao: ArrowValueDao
-    private lateinit var roundDistanceDao: RoundDistanceDao
-    private lateinit var roundReferenceDao: RoundReferenceDao
+    private lateinit var roundSubTypeDao: RoundSubTypeDao
+    private lateinit var roundDao: RoundDao
 
     @Before
     fun createDb() {
@@ -42,8 +42,8 @@ class DatabaseTests {
         archerDao = db.archerDao()
         archerRoundDao = db.archerRoundDao()
         arrowValueDao = db.arrowValueDao()
-        roundDistanceDao = db.roundDistanceDao()
-        roundReferenceDao = db.roundReferenceDao()
+        roundSubTypeDao = db.roundDistanceDao()
+        roundDao = db.roundReferenceDao()
     }
 
     @After

@@ -3,10 +3,10 @@ package eywa.projectcodex.database.daos
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import eywa.projectcodex.database.entities.RoundReference
+import eywa.projectcodex.database.entities.RoundSubType
 
 @Dao
-interface RoundReferenceDao {
+interface RoundSubTypeDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(roundReference: RoundReference)
+    suspend fun insert(roundSubType: RoundSubType)
 }

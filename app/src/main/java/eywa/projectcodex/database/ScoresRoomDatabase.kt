@@ -12,8 +12,11 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 @Database(
-        entities = [ArcherRound::class, Archer::class, ArrowValue::class, RoundDistance::class, RoundReference::class],
-        version = 2,
+        entities = [
+            ArcherRound::class, Archer::class, ArrowValue::class,
+            Round::class, RoundArrowCount::class, RoundSubType::class, RoundSubTypeCount::class
+        ],
+        version = 3,
         exportSchema = true
 )
 @TypeConverters(ScoresRoomDatabase.Converters::class)
@@ -22,8 +25,8 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun archerDao(): ArcherDao
     abstract fun archerRoundDao(): ArcherRoundDao
     abstract fun arrowValueDao(): ArrowValueDao
-    abstract fun roundDistanceDao(): RoundDistanceDao
-    abstract fun roundReferenceDao(): RoundReferenceDao
+    abstract fun roundDistanceDao(): RoundSubTypeDao
+    abstract fun roundReferenceDao(): RoundDao
 
     companion object {
         @VisibleForTesting
@@ -101,12 +104,76 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                         )"""
                 )
 
+                executeMigrations(sqlStrings, database)
+            }
+        }
+
+        @VisibleForTesting
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                val sqlStrings = mutableListOf<String>()
+
                 /*
-                 * Execute
+                 * Delete old rounds tables
                  */
-                for (sqlStatement in sqlStrings) {
-                    database.execSQL(sqlStatement.trimIndent().replace("\\n", ""))
-                }
+                sqlStrings.add("DROP TABLE `round_distances`")
+                sqlStrings.add("DROP TABLE `rounds_references`")
+
+                /*
+                 * Create new rounds tables
+                 */
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `rounds` (
+                            `roundId` INTEGER NOT NULL, 
+                            `name` TEXT NOT NULL, 
+                            `isOutdoor` INTEGER NOT NULL, 
+                            `isMetric` INTEGER NOT NULL, 
+                            `fiveArrowEnd` INTEGER NOT NULL, 
+                            `permittedFaces` TEXT NOT NULL, 
+                            `isDefaultRound` INTEGER NOT NULL, 
+                            PRIMARY KEY(`roundId`)
+                        )"""
+                )
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `round_arrow_counts` (
+                            `roundId` INTEGER NOT NULL, 
+                            `distanceNumber` INTEGER NOT NULL, 
+                            `faceSizeInCm` INTEGER NOT NULL, 
+                            `arrowCount` INTEGER NOT NULL, 
+                            CONSTRAINT PK_round_arrow_counts PRIMARY KEY(roundId, distanceNumber)
+                        )"""
+                )
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `round_sub_types` (
+                            `roundId` INTEGER NOT NULL, 
+                            `subTypeId` INTEGER NOT NULL, 
+                            `name` TEXT, 
+                            `gents` INTEGER, 
+                            `ladies` INTEGER, 
+                            CONSTRAINT PK_round_sub_types PRIMARY KEY(roundId, subTypeId)
+                        )"""
+                )
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `round_sub_type_counts` (
+                            `roundId` INTEGER NOT NULL, 
+                            `distanceNumber` INTEGER NOT NULL, 
+                            `subTypeId` INTEGER NOT NULL, 
+                            `distance` INTEGER NOT NULL, 
+                            CONSTRAINT PK_round_sub_type_counts PRIMARY KEY(roundId, distanceNumber, subTypeId)
+                        )"""
+                )
+
+                executeMigrations(sqlStrings, database)
+            }
+        }
+
+        private fun executeMigrations(sqlStrings: List<String>, database: SupportSQLiteDatabase) {
+            for (sqlStatement in sqlStrings) {
+                database.execSQL(sqlStatement.trimIndent().replace("\\n", ""))
             }
         }
 
@@ -150,6 +217,16 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
         @TypeConverter
         fun dateToTimestamp(date: Date?): Long? {
             return date?.time
+        }
+
+        @TypeConverter
+        fun toStringList(value: String): List<String> {
+            return value.split(':')
+        }
+
+        @TypeConverter
+        fun toFlatString(value: List<String>): String {
+            return value.joinToString(":")
         }
     }
 }
