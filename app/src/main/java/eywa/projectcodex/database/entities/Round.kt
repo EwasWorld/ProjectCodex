@@ -10,10 +10,19 @@ import androidx.room.PrimaryKey
 data class Round(
         @PrimaryKey(autoGenerate = true)
         val roundId: Int,
-        val name: String, // Warwick, National, etc.
+        /**
+         * @see displayName
+         *
+         * Contains lower case alphanumerics only. Must be unique
+         */
+        val name: String,
+        /**
+         * Round display name e.g. Warwick, National, etc.
+         */
+        val displayName: String,
         val isOutdoor: Boolean,
         val isMetric: Boolean,
-        val fiveArrowEnd: Boolean,
         val permittedFaces: List<String>,
-        val isDefaultRound: Boolean = false
+        val isDefaultRound: Boolean = false,
+        val fiveArrowEnd: Boolean = false
 )

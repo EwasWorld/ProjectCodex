@@ -47,7 +47,6 @@ class ViewRoundsInstrumentedTest {
 
     @Before
     fun beforeEach() {
-        activity.activity.applicationContext.deleteDatabase(testDatabaseName)
         activity.activity.supportFragmentManager.beginTransaction()
     }
 

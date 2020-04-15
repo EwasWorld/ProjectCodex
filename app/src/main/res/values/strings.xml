@@ -5,6 +5,7 @@
     <string name="main_menu__title">Main Menu</string>
     <string name="main_menu__new_round">Start New Round</string>
     <string name="main_menu__view_rounds">View Rounds</string>
+    <string name="main_menu__update_default_rounds">Update Default Rounds</string>
 
     <!-- Create round -->
     <string name="create_round__title">Create Round</string>

@@ -5,18 +5,18 @@ import androidx.annotation.VisibleForTesting
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import eywa.projectcodex.Log
 import eywa.projectcodex.database.daos.*
 import eywa.projectcodex.database.entities.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.util.*
 
 @Database(
         entities = [
             ArcherRound::class, Archer::class, ArrowValue::class,
-            Round::class, RoundArrowCount::class, RoundSubType::class, RoundSubTypeCount::class
+            Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class
         ],
-        version = 3,
+        version = 4,
         exportSchema = true
 )
 @TypeConverters(ScoresRoomDatabase.Converters::class)
@@ -25,10 +25,14 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun archerDao(): ArcherDao
     abstract fun archerRoundDao(): ArcherRoundDao
     abstract fun arrowValueDao(): ArrowValueDao
-    abstract fun roundDistanceDao(): RoundSubTypeDao
-    abstract fun roundReferenceDao(): RoundDao
+    abstract fun roundDao(): RoundDao
+    abstract fun roundArrowCountDao(): RoundArrowCountDao
+    abstract fun roundSubTypeDao(): RoundSubTypeDao
+    abstract fun roundDistanceDao(): RoundDistanceDao
 
     companion object {
+        private const val MIGRATION_LOG_TAG = "DatabaseMigration"
+
         @VisibleForTesting
         var DATABASE_NAME = "scores_database"
         // Singleton prevents multiple instances of database opening at the same time.
@@ -104,7 +108,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                         )"""
                 )
 
-                executeMigrations(sqlStrings, database)
+                executeMigrations(sqlStrings, database, startVersion, endVersion)
             }
         }
 
@@ -167,11 +171,116 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                         )"""
                 )
 
-                executeMigrations(sqlStrings, database)
+                executeMigrations(sqlStrings, database, startVersion, endVersion)
             }
         }
 
-        private fun executeMigrations(sqlStrings: List<String>, database: SupportSQLiteDatabase) {
+        @VisibleForTesting
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                val sqlStrings = mutableListOf<String>()
+
+                // All the other round tables were remade, so delete all the records in here to maintain consistency
+                sqlStrings.add("DELETE FROM round_sub_types")
+
+                /*
+                 * round_sub_type_counts -> round_distances
+                 */
+                sqlStrings.add("DROP TABLE `round_sub_type_counts`")
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `round_distances` (
+                            `roundId` INTEGER NOT NULL, 
+                            `distanceNumber` INTEGER NOT NULL, 
+                            `subTypeId` INTEGER NOT NULL, 
+                            `distance` INTEGER NOT NULL, 
+                            CONSTRAINT PK_round_sub_type_counts PRIMARY KEY(roundId, distanceNumber, subTypeId)
+                        )"""
+                )
+
+                /*
+                 * Change type of faceSizeInCm
+                 */
+                sqlStrings.add("DROP TABLE `round_arrow_counts`")
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `round_arrow_counts` (
+                            `roundId` INTEGER NOT NULL, 
+                            `distanceNumber` INTEGER NOT NULL, 
+                            `faceSizeInCm` REAL NOT NULL, 
+                            `arrowCount` INTEGER NOT NULL, 
+                            CONSTRAINT PK_round_arrow_counts PRIMARY KEY(roundId, distanceNumber)
+                        )"""
+                )
+
+                /*
+                 * Add displayName column to Rounds
+                 */
+                sqlStrings.add("DROP TABLE `rounds`")
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `rounds` (
+                            `roundId` INTEGER NOT NULL, 
+                            `name` TEXT NOT NULL, 
+                            `displayName` TEXT NOT NULL, 
+                            `isOutdoor` INTEGER NOT NULL, 
+                            `isMetric` INTEGER NOT NULL, 
+                            `fiveArrowEnd` INTEGER NOT NULL, 
+                            `permittedFaces` TEXT NOT NULL, 
+                            `isDefaultRound` INTEGER NOT NULL, 
+                            PRIMARY KEY(`roundId`)
+                        )"""
+                )
+
+                /*
+                 * Rename columns in ArcherRound
+                 * roundReferenceId, roundDistanceId -> roundId, roundSubTypeId
+                 */
+                sqlStrings.add("ALTER TABLE archer_rounds RENAME TO archer_rounds_old")
+                sqlStrings.add(
+                        """
+                        CREATE TABLE `archer_rounds` (
+                            `archerRoundId` INTEGER NOT NULL, 
+                            `dateShot` INTEGER NOT NULL, 
+                            `archerId` INTEGER NOT NULL, 
+                            `bowId` INTEGER, 
+                            `roundId` INTEGER, 
+                            `roundSubTypeId` INTEGER, 
+                            `goalScore` INTEGER, 
+                            `shootStatus` TEXT, 
+                            `countsTowardsHandicap` INTEGER NOT NULL, 
+                            PRIMARY KEY(`archerRoundId`)
+                        )"""
+                )
+                sqlStrings.add(
+                        """
+                            INSERT INTO `archer_rounds` (`archerRoundId`, `dateShot`, `archerId`, `bowId`, `roundId`, 
+                                                         `roundSubTypeId`, `goalScore`, `shootStatus`, 
+                                                         `countsTowardsHandicap`)
+                            SELECT `archerRoundId`, `dateShot`, `archerId`, `bowId`, `roundReferenceId`, 
+                                   `roundDistanceId`, `goalScore`, `shootStatus`, `countsTowardsHandicap`
+                            FROM archer_rounds_old;
+                        """
+                )
+                sqlStrings.add("DROP TABLE `archer_rounds_old`")
+                executeMigrations(sqlStrings, database, startVersion, endVersion)
+            }
+        }
+
+        @VisibleForTesting
+        val MIGRATION_BLANK = object : Migration(1, 1) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                val sqlStrings = mutableListOf<String>()
+
+                executeMigrations(sqlStrings, database, startVersion, endVersion)
+            }
+        }
+
+        private fun executeMigrations(
+                sqlStrings: List<String>, database: SupportSQLiteDatabase,
+                startVersion: Int, endVersion: Int
+        ) {
+            Log.i(MIGRATION_LOG_TAG, "migrating from $startVersion to $endVersion")
             for (sqlStatement in sqlStrings) {
                 database.execSQL(sqlStatement.trimIndent().replace("\\n", ""))
             }
@@ -185,26 +294,10 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
             synchronized(this) {
                 val instance =
                     Room.databaseBuilder(context.applicationContext, ScoresRoomDatabase::class.java, DATABASE_NAME)
-                            .addCallback(ScoresDatabaseCallback(scope)).addMigrations(MIGRATION_1_2).build()
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
                 INSTANCE = instance
                 return instance
             }
-        }
-    }
-
-    private class ScoresDatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
-        override fun onOpen(db: SupportSQLiteDatabase) {
-            super.onOpen(db)
-            INSTANCE?.let { database ->
-                scope.launch {
-                    prepareDatabase(database.arrowValueDao())
-                }
-            }
-        }
-
-        suspend fun prepareDatabase(arrowValueDao: ArrowValueDao) {
-//            arrowValueDao.deleteAll()
-            // TODO Add default round types
         }
     }
 

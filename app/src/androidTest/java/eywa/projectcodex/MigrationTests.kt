@@ -1,16 +1,24 @@
 package eywa.projectcodex
 
+import android.content.ContentValues
+import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import eywa.projectcodex.database.ScoresRoomDatabase
+import org.junit.Assert.assertEquals
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
+// TODO It is recommended you make a test that goes through of all migrations (i.e. from version 1 through to the current versions)
+/**
+ * Note: there are no migration tests from version 1 because there is no exported schema of version 1
+ */
 @RunWith(AndroidJUnit4::class)
 class MigrationTests {
     private val TEST_DB = "migration-test"
@@ -22,7 +30,7 @@ class MigrationTests {
             FrameworkSQLiteOpenHelperFactory()
     )
 
-    @Test
+    @Ignore("Version 3 appears to be inconsistent and not working")
     @Throws(IOException::class)
     fun migrate2To3() {
         helper.createDatabase(TEST_DB, 2).apply {
@@ -31,18 +39,45 @@ class MigrationTests {
         helper.runMigrationsAndValidate(TEST_DB, 3, true, ScoresRoomDatabase.MIGRATION_2_3)
     }
 
-    // TODO It is recommended you make a test that goes through of all migrations (i.e. from version 1 through to the current versions)
-    @Ignore("Reference for when a migration has data changes which need to be tested rather than just schema changes")
     @Test
     @Throws(IOException::class)
-    fun migrate3To4() {
-        var db = helper.createDatabase(TEST_DB, 3).apply {
-            // execSQL(...)
+    fun migrate2To4() {
+        val values = ContentValues().apply {
+            put("archerRoundId", 1)
+            put("dateShot", 2)
+            put("archerId", 3)
+            put("bowId", 4)
+            put("roundReferenceId", 5)
+            put("roundDistanceId", 6)
+            put("goalScore", 7)
+            put("shootStatus", "practice")
+            put("countsTowardsHandicap", 0)
+        }
+
+        helper.createDatabase(TEST_DB, 2).apply {
+            insert("archer_rounds", SQLiteDatabase.CONFLICT_IGNORE, values)
             close()
         }
 
-        db = helper.runMigrationsAndValidate(TEST_DB, 4, true, ScoresRoomDatabase.MIGRATION_2_3)
+        val db = helper.runMigrationsAndValidate(
+                TEST_DB, 4, true, ScoresRoomDatabase.MIGRATION_2_3, ScoresRoomDatabase.MIGRATION_3_4
+        )
 
         // Verify data migrated properly
+        val response = db.query("SELECT * FROM archer_rounds")
+        assertEquals(1, response.count)
+        response.moveToFirst()
+        for (key in values.keySet()) {
+            val newColumnName = when (key) {
+                "roundReferenceId" -> "roundId"
+                "roundDistanceId" -> "roundSubTypeId"
+                else -> key
+            }
+            val index = response.getColumnIndex(newColumnName)
+            when (response.getType(index)) {
+                Cursor.FIELD_TYPE_INTEGER -> assertEquals(values.getAsInteger(key), response.getInt(index))
+                Cursor.FIELD_TYPE_STRING -> assertEquals(values.getAsString(key), response.getString(index))
+            }
+        }
     }
 }

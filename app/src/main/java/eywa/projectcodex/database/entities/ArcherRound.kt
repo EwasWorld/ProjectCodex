@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import java.util.*
 
 /**
- * Main information about a round an archer has shot
+ * Main information about a round/session an archer has shot
  */
 @Entity(tableName = "archer_rounds")
 data class ArcherRound(
@@ -15,8 +15,8 @@ data class ArcherRound(
         val archerId: Int,
         val countsTowardsHandicap: Boolean,
         val bowId: Int? = null,
-        val roundReferenceId: Int? = null, // RoundId
-        val roundDistanceId: Int? = null, // RoundSubTypeId
+        val roundId: Int? = null,
+        val roundSubTypeId: Int? = null,
         val goalScore: Int? = null,
         var shootStatus: String? = null
 )
