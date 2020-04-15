@@ -143,7 +143,8 @@ class ViewRoundsInstrumentedTest {
 
         // Check the last running total is the unique score
         val maxColIndex = tableViewAdapter.getCellRowItems(0)?.size!! - 1
-        val maxRowIndex = tableViewAdapter.getCellColumnItems(0).size - 1
+        // -2 to ignore the total row
+        val maxRowIndex = tableViewAdapter.getCellColumnItems(0).size - 2
         assertEquals(
                 uniqueScore,
                 tableViewAdapter.getCellItem(maxColIndex, maxRowIndex)?.content!! as Int

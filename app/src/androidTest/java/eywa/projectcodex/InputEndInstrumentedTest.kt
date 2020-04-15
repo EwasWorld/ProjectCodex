@@ -174,7 +174,6 @@ class InputEndInstrumentedTest {
         R.id.text_end_total.textEquals("0")
     }
 
-
     @Test
     @Throws(Exception::class)
     fun testNextEnd() {
@@ -246,7 +245,7 @@ class InputEndInstrumentedTest {
         R.id.button_score_pad.click()
         val tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
                 as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-        assertEquals(1, tableViewAdapter.getCellColumnItems(0).size)
+        assertEquals(2, tableViewAdapter.getCellColumnItems(0).size)
         assertEquals(5, tableViewAdapter.getCellRowItems(0)?.size)
     }
 }
