@@ -30,17 +30,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/create_round__round"
-                tools:layout_editor_absoluteX="150dp"
-                tools:layout_editor_absoluteY="81dp"
                 />
 
             <Spinner
                 android:id="@+id/spinner_select_round"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 />
         </LinearLayout>
 
@@ -56,17 +51,58 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/create_round__round_sub_type"
-                tools:layout_editor_absoluteX="150dp"
-                tools:layout_editor_absoluteY="81dp"
                 />
 
             <Spinner
                 android:id="@+id/spinner_select_round_sub_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_select_round_arrow_count_indicator"
+            style="@style/CreateRoundLinearLayout"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/label_select_round_arrow_count_indicator"
+                style="@style/GeneralText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_round__arrow_count_indicator"
+                />
+
+            <TextView
+                android:id="@+id/text_select_round_arrow_count_indicator"
+                style="@style/GeneralText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_select_round_distance_indicator"
+            style="@style/CreateRoundLinearLayout"
+            android:layout_marginTop="5dp"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/label_select_round_distance_indicator"
+                style="@style/GeneralText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_round__distance_indicator"
+                />
+
+            <TextView
+                android:id="@+id/text_select_round_distance_indicator"
+                style="@style/GeneralText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 />
         </LinearLayout>
 
@@ -80,9 +116,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/create_round__submit"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 />
         </LinearLayout>
     </LinearLayout>

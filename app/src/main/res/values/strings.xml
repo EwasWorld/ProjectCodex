@@ -11,11 +11,15 @@
     <string name="create_round__title">Create Round</string>
     <string name="create_round__submit">Create Round</string>
     <string name="create_round__imperial_metric">Imperial</string>
-    <string name="create_round__round">Round</string>
-    <string name="create_round__round_sub_type">Round Subtype</string>
+    <string name="create_round__round">Round:</string>
+    <string name="create_round__round_sub_type">Round Subtype:</string>
     <string name="create_round__no_round">No Round</string>
     <string name="create_round__no_rounds_found">No round found in database</string>
+    <string name="create_round__arrow_count_indicator">Arrows per distance (doz):</string>
+    <string name="create_round__distance_indicator">Distances:</string>
     <string name="create_round__arrows_per_end">Arrows per End</string>
+    <string name="units_meters_short">m</string>
+    <string name="units_yards_short">yd</string>
 
     <!-- Arrow information -->
     <string name="end_to_string_arrow_deliminator">-</string>

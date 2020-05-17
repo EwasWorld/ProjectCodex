@@ -110,7 +110,6 @@ class ViewRoundsFragment : Fragment() {
                 viewRoundsViewModel.deleteRound(roundId)
             }
             else {
-                // TODO set up preferred end size user setting
                 val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(6, roundId)
                 view?.findNavController()?.navigate(action)
             }
