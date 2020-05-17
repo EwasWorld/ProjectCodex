@@ -10,12 +10,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
+import java.io.File
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
-        RoundInfoUnitTest.RoundsFromJsonUnitTests::class, RoundInfoUnitTest.CheckDefaultRoundsUnitTests::class
+        DefaultRoundInfoUnitTest.RoundsFromJsonUnitTests::class,
+        DefaultRoundInfoUnitTest.CheckDefaultRoundsUnitTests::class
 )
-class RoundInfoUnitTest {
+class DefaultRoundInfoUnitTest {
     class RoundsFromJsonUnitTests {
         private class TestData {
             companion object {
@@ -175,6 +177,15 @@ class RoundInfoUnitTest {
             }
             """
             }
+        }
+
+        /**
+         * Testing that there are no errors when parsing the default rounds resource file
+         */
+        @Test
+        fun defaultRoundsFileTest() {
+            val json = File("src/main/res/raw/default_rounds_data.json").readText()
+            roundsFromJson(json)
         }
 
         /**
@@ -608,21 +619,21 @@ class RoundInfoUnitTest {
     }
 
     class CheckDefaultRoundsUnitTests {
-        private val defaultRound = RoundInfo(
+        private val defaultRound = DefaultRoundInfo(
                 "York", true, true, true, listOf("Boop"),
                 listOf(
-                        RoundInfo.RoundInfoSubType(1, "one", null, null),
-                        RoundInfo.RoundInfoSubType(2, "two", null, null)
+                        DefaultRoundInfo.RoundInfoSubType(1, "one", null, null),
+                        DefaultRoundInfo.RoundInfoSubType(2, "two", null, null)
                 ),
                 listOf(
-                        RoundInfo.RoundInfoArrowCount(1, 122.0, 36),
-                        RoundInfo.RoundInfoArrowCount(2, 122.0, 36)
+                        DefaultRoundInfo.RoundInfoArrowCount(1, 122.0, 36),
+                        DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36)
                 ),
                 listOf(
-                        RoundInfo.RoundInfoDistance(1, 1, 100),
-                        RoundInfo.RoundInfoDistance(1, 2, 80),
-                        RoundInfo.RoundInfoDistance(2, 1, 80),
-                        RoundInfo.RoundInfoDistance(2, 2, 60)
+                        DefaultRoundInfo.RoundInfoDistance(1, 1, 100),
+                        DefaultRoundInfo.RoundInfoDistance(1, 2, 80),
+                        DefaultRoundInfo.RoundInfoDistance(2, 1, 80),
+                        DefaultRoundInfo.RoundInfoDistance(2, 2, 60)
                 )
         )
 
@@ -692,21 +703,21 @@ class RoundInfoUnitTest {
 
         @Test
         fun deleteRound() {
-            val defaultRound2 = RoundInfo(
+            val defaultRound2 = DefaultRoundInfo(
                     "St. George", true, true, true, listOf("Boop"),
                     listOf(
-                            RoundInfo.RoundInfoSubType(1, "one", null, null),
-                            RoundInfo.RoundInfoSubType(2, "two", null, null)
+                            DefaultRoundInfo.RoundInfoSubType(1, "one", null, null),
+                            DefaultRoundInfo.RoundInfoSubType(2, "two", null, null)
                     ),
                     listOf(
-                            RoundInfo.RoundInfoArrowCount(1, 122.0, 36),
-                            RoundInfo.RoundInfoArrowCount(2, 122.0, 36)
+                            DefaultRoundInfo.RoundInfoArrowCount(1, 122.0, 36),
+                            DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36)
                     ),
                     listOf(
-                            RoundInfo.RoundInfoDistance(1, 1, 100),
-                            RoundInfo.RoundInfoDistance(1, 2, 80),
-                            RoundInfo.RoundInfoDistance(2, 1, 80),
-                            RoundInfo.RoundInfoDistance(2, 2, 60)
+                            DefaultRoundInfo.RoundInfoDistance(1, 1, 100),
+                            DefaultRoundInfo.RoundInfoDistance(1, 2, 80),
+                            DefaultRoundInfo.RoundInfoDistance(2, 1, 80),
+                            DefaultRoundInfo.RoundInfoDistance(2, 2, 60)
                     )
             )
             val response = checkDefaultRounds(

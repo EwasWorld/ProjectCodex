@@ -18,14 +18,14 @@ class TestData {
                 Arrow(6, false), Arrow(7, false), Arrow(8, false), Arrow(9, false), Arrow(10, false), Arrow(10, true)
         )
         val ROUND_SUB_TYPES = listOf(
-                RoundInfo.RoundInfoSubType(1, "1", null, null),
-                RoundInfo.RoundInfoSubType(2, "2", 0, 0),
-                RoundInfo.RoundInfoSubType(3, "3", 12, 14)
+                DefaultRoundInfo.RoundInfoSubType(1, "1", null, null),
+                DefaultRoundInfo.RoundInfoSubType(2, "2", 0, 0),
+                DefaultRoundInfo.RoundInfoSubType(3, "3", 12, 14)
         )
         val ROUND_ARROW_COUNTS = listOf(
-                RoundInfo.RoundInfoArrowCount(1, 122.0, 48),
-                RoundInfo.RoundInfoArrowCount(2, 122.0, 36),
-                RoundInfo.RoundInfoArrowCount(3, 60.0, 24)
+                DefaultRoundInfo.RoundInfoArrowCount(1, 122.0, 48),
+                DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36),
+                DefaultRoundInfo.RoundInfoArrowCount(3, 60.0, 24)
         )
 
         private val CORE_ARROWS = arrayOf(ARROWS[5], ARROWS[11], ARROWS[0], ARROWS[10])
@@ -185,7 +185,9 @@ class TestData {
          * @return a list of RoundInfoDistances with 1-[arrowCountsCount] distance numbers and 1-[subTypeCountIn] sub
          * types ensuring that as distancesNumber increases, distance decreases
          */
-        private fun generateDistanceSet(arrowCountsCount: Int, subTypeCountIn: Int): List<RoundInfo.RoundInfoDistance> {
+        private fun generateDistanceSet(
+                arrowCountsCount: Int, subTypeCountIn: Int
+        ): List<DefaultRoundInfo.RoundInfoDistance> {
             require(arrowCountsCount > 0) { "Must have at least one arrow count" }
             require(subTypeCountIn >= 0) { "Sub type count cannot be negative" }
             val subTypeCount = max(1, subTypeCountIn)
@@ -197,11 +199,13 @@ class TestData {
             distancesLengths.sortDescending()
 
             val distanceLengthsIt = distancesLengths.iterator()
-            val distances = mutableListOf<RoundInfo.RoundInfoDistance>()
+            val distances = mutableListOf<DefaultRoundInfo.RoundInfoDistance>()
             for (distanceNumber in 1..arrowCountsCount) {
                 for (subTypeId in 1..subTypeCount) {
                     check(distanceLengthsIt.hasNext()) { "Insufficient distance values generated" }
-                    distances.add(RoundInfo.RoundInfoDistance(distanceNumber, subTypeId, distanceLengthsIt.next()))
+                    distances.add(
+                            DefaultRoundInfo.RoundInfoDistance(distanceNumber, subTypeId, distanceLengthsIt.next())
+                    )
                 }
             }
 

@@ -16,16 +16,16 @@ private const val defaultRoundMinimumId = 5
  * @throws KlaxonException for invalid Json
  * @throws ClassCastException for invalid type for any given object
  */
-fun roundsFromJson(objectJson: String): List<RoundInfo> {
-    return Klaxon().converter(ParsedRoundsConverter()).parse<ParsedRounds>(objectJson)!!.roundInfo
+fun roundsFromJson(objectJson: String): List<DefaultRoundInfo> {
+    return Klaxon().converter(ParsedRoundsConverter()).parse<ParsedRounds>(objectJson)!!.defaultRoundInfo
 }
 
 /**
  * A wrapper object to parse a JsonArrays of RoundInfo objects
  */
-private class ParsedRounds(val roundInfo: List<RoundInfo>) {
+private class ParsedRounds(val defaultRoundInfo: List<DefaultRoundInfo>) {
     init {
-        require(roundInfo.size == roundInfo.distinctBy {
+        require(defaultRoundInfo.size == defaultRoundInfo.distinctBy {
             formatNameString(it.displayName)
         }.size) { "Duplicate round names are not allowed" }
     }
@@ -47,7 +47,7 @@ fun formatNameString(string: String): String {
  * a round it will only return an entry for the main round, not all arrowCounts, etc.
  */
 fun checkDefaultRounds(
-        defaultRounds: List<RoundInfo>,
+        defaultRounds: List<DefaultRoundInfo>,
         allDbRounds: List<Round>,
         allDbArrowCounts: List<RoundArrowCount>,
         allDbSubTypes: List<RoundSubType>,
@@ -252,7 +252,7 @@ fun checkDefaultRounds(
 /**
  * @see Round
  */
-class RoundInfo(
+class DefaultRoundInfo(
         val displayName: String,
         private val isOutdoor: Boolean,
         private val isMetric: Boolean,
@@ -280,9 +280,9 @@ class RoundInfo(
         val subTypeList = if (roundSubTypes.isNotEmpty()) roundSubTypes else listOf(RoundInfoSubType(1, "", null, null))
         for (subType in subTypeList) {
             val distances = roundDistances.filter { subTypeCount -> subTypeCount.roundSubTypeId == subType.id }
-            require(distances.size == distances.distinctBy { it.distance }.size) { "Duplicate distance in $displayName for subType: " + subType.id }
-            require(roundArrowCounts.map { it.distanceNumber }.toSet() == distances.map { it.distanceNumber }.toSet()) { "Mismatched distanceNumbers in $displayName for subType: " + subType.id }
-            require(distances.sortedByDescending { it.distance } == distances.sortedBy { it.distanceNumber }) { "Distances in $displayName are not non-ascending" }
+            require(distances.size == distances.distinctBy { it.distance }.size) { "Duplicate distance in $displayName for subType: ${subType.id}" }
+            require(roundArrowCounts.map { it.distanceNumber }.toSet() == distances.map { it.distanceNumber }.toSet()) { "Mismatched distanceNumbers in $displayName for subType: ${subType.id}" }
+            require(distances.sortedByDescending { it.distance } == distances.sortedBy { it.distanceNumber }) { "Distances in $displayName are not non-ascending subType: ${subType.id}" }
         }
 
         // Names
@@ -372,7 +372,7 @@ private class ParsedRoundsConverter : Converter {
         val jsonObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")
         val jsonRoundObjects = jsonObject["rounds"] as JsonArray<JsonObject>
 
-        val all = mutableListOf<RoundInfo>()
+        val all = mutableListOf<DefaultRoundInfo>()
         for (jsonRoundObject in jsonRoundObjects) {
             val roundName = parseObject<String>(jsonRoundObject, "roundName")
             Log.i(CONVERTER_LOG_TAG, roundName)
@@ -383,39 +383,39 @@ private class ParsedRoundsConverter : Converter {
             val permittedFaces = (jsonRoundObject["permittedFaces"] as JsonArray<String>).value
 
             val roundLengthsJson = jsonRoundObject["roundSubTypes"] as JsonArray<String>
-            val roundLengths = mutableListOf<RoundInfo.RoundInfoSubType>()
+            val roundLengths = mutableListOf<DefaultRoundInfo.RoundInfoSubType>()
             for (roundLength in (roundLengthsJson.value as ArrayList<JsonObject>)) {
                 roundLength["id"] = roundLength["roundSubTypeId"]
                 roundLength.remove("roundSubTypeId")
-                val parsed = klaxon.parse<RoundInfo.RoundInfoSubType>(roundLength.toJsonString())
+                val parsed = klaxon.parse<DefaultRoundInfo.RoundInfoSubType>(roundLength.toJsonString())
                 if (parsed != null) {
                     roundLengths.add(parsed)
                 }
             }
 
             val roundProgressionJson = jsonRoundObject["roundArrowCounts"] as JsonArray<JsonObject>
-            val roundProgressions = mutableListOf<RoundInfo.RoundInfoArrowCount>()
+            val roundProgressions = mutableListOf<DefaultRoundInfo.RoundInfoArrowCount>()
             for (roundProgression in (roundProgressionJson.value as ArrayList<JsonObject>)) {
-                val parsed = klaxon.parse<RoundInfo.RoundInfoArrowCount>(roundProgression.toJsonString())
+                val parsed = klaxon.parse<DefaultRoundInfo.RoundInfoArrowCount>(roundProgression.toJsonString())
                 if (parsed != null) {
                     roundProgressions.add(parsed)
                 }
             }
 
             val roundDistancesJson = jsonRoundObject["roundDistances"] as JsonArray<JsonObject>
-            val roundDistances = mutableListOf<RoundInfo.RoundInfoDistance>()
+            val roundDistances = mutableListOf<DefaultRoundInfo.RoundInfoDistance>()
             for (roundDistance in (roundDistancesJson.value as ArrayList<JsonObject>)) {
                 if (roundDistance["roundSubTypeId"] == null) {
                     roundDistance["roundSubTypeId"] = 1
                 }
-                val parsed = klaxon.parse<RoundInfo.RoundInfoDistance>(roundDistance.toJsonString())
+                val parsed = klaxon.parse<DefaultRoundInfo.RoundInfoDistance>(roundDistance.toJsonString())
                 if (parsed != null) {
                     roundDistances.add(parsed)
                 }
             }
 
             all.add(
-                    RoundInfo(
+                    DefaultRoundInfo(
                             roundName, isOutdoor, isMetric, fiveArrowEnd, permittedFaces,
                             roundLengths, roundProgressions, roundDistances
                     )

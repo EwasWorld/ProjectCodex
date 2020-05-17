@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.entities.Round
+import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.database.repositories.ArcherRoundsRepo
 import kotlinx.coroutines.launch
 
@@ -13,16 +15,20 @@ import kotlinx.coroutines.launch
  * @see InputEndViewModel
  */
 class NewRoundViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: ArcherRoundsRepo
+    private val archerRoundsRepo: ArcherRoundsRepo
     val maxId: LiveData<Int>
+    val allRounds: LiveData<List<Round>>
+    val allRoundSubTypes: LiveData<List<RoundSubType>>
 
     init {
-        val arrowValueDao = ScoresRoomDatabase.getDatabase(application, viewModelScope).archerRoundDao()
-        repository = ArcherRoundsRepo(arrowValueDao)
-        maxId = repository.maxId
+        val db = ScoresRoomDatabase.getDatabase(application, viewModelScope)
+        archerRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
+        maxId = archerRoundsRepo.maxId
+        allRounds = db.roundDao().getAllRounds()
+        allRoundSubTypes = db.roundSubTypeDao().getAllSubTypes()
     }
 
     fun insert(archerRound: ArcherRound) = viewModelScope.launch {
-        repository.insert(archerRound)
+        archerRoundsRepo.insert(archerRound)
     }
 }

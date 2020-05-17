@@ -50,12 +50,32 @@
         <item name="android:paddingBottom">5dp</item>
     </style>
 
+    <style name="GeneralText">
+        <item name="android:textColor">@color/inputEndText</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+    </style>
+
     <style name="TableViewStyle">
         <item name="android:layout_margin">@dimen/info_table__main_margins</item>
         <item name="selected_color">@color/colorAccent</item>
         <item name="unselected_color">@color/colorLightAccent</item>
         <item name="separator_color">@color/colorPrimary</item>
         <item name="shadow_color">@color/colorAccent</item>
+    </style>
+
+    <style name="ListCell">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:paddingLeft">@dimen/info_table__padding</item>
+        <item name="android:paddingRight">@dimen/info_table__padding</item>
+        <item name="android:paddingTop">@dimen/info_table__padding</item>
+        <item name="android:paddingBottom">@dimen/info_table__padding</item>
+        <item name="android:textColor">@color/scorePadText</item>
+        <item name="android:textSize">@dimen/info_table__text_size</item>
     </style>
 
 </resources>

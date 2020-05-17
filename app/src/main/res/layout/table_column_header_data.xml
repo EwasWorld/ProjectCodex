@@ -12,14 +12,8 @@
         android:id="@+id/text_info_table_column_header"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_marginStart="@dimen/info_table__cell_margins"
-        android:layout_marginEnd="@dimen/info_table__cell_margins"
+        style="@style/ListCell"
         android:gravity="center"
-        android:paddingLeft="@dimen/info_table__padding"
-        android:paddingRight="@dimen/info_table__padding"
-        android:textColor="@color/scorePadText"
-        android:textSize="@dimen/info_table__text_size"
         tools:text="Header Data"
         />
 </LinearLayout>
