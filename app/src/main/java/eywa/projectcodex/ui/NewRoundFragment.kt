@@ -128,6 +128,7 @@ class NewRoundFragment : Fragment() {
                 if (filteredRounds.isEmpty() || filteredRounds.size == 1 && filteredRounds[0].first.isNullOrBlank()) {
                     selectedRoundsSubtypes = arrayOf()
                     setDistanceIndicatorText(selectedRoundId!!, null, selectedRoundInfo.isMetric)
+                    layout_select_round_sub_type.visibility = View.GONE
                     return
                 }
                 selectedRoundsSubtypes = filteredRounds.map { (it.first ?: "") to it.second }.toTypedArray()
@@ -168,7 +169,7 @@ class NewRoundFragment : Fragment() {
         }
         distances = distances.sortedBy { it.distanceNumber }
 
-        val unitText = resources.getString(if (isMetric) R.string.units_meters_short else R.string.units_meters_short)
+        val unitText = resources.getString(if (isMetric) R.string.units_meters_short else R.string.units_yards_short)
         text_select_round_distance_indicator.text =
             (distances.map { it.distance }.joinToString("$unitText, ") + unitText)
         layout_select_round_distance_indicator.visibility = View.VISIBLE
