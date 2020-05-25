@@ -115,6 +115,9 @@ class TestData {
             return Date.valueOf("$year-$month-$day")
         }
 
+        /**
+         * The first round will always be imperial, the second will always be metric.
+         */
         fun generateRounds(size: Int = 6): List<Round> {
             require(size >= 0)
             if (size == 0) {
@@ -213,94 +216,120 @@ class TestData {
         }
 
         /**
-         * @param sets the number of arrow count sets to create (each set contains 1-[maxSetSize] arrow counts and has a
-         * unique roundId)
+         * @param sets the number of arrow count sets to create (each set contains [minSetSize]-[maxSetSize] arrow
+         * counts and has a unique roundId)
          */
-        fun generateArrowCounts(sets: Int = 1, maxSetSize: Int = 3): List<RoundArrowCount> {
+        fun generateArrowCounts(sets: Int = 1, maxSetSize: Int = 3, minSetSize: Int = 0): List<RoundArrowCount> {
             require(sets >= 0)
             if (sets == 0) {
                 return listOf()
             }
 
             require(maxSetSize > 0)
+            require(minSetSize >= 0)
+            require(maxSetSize >= minSetSize)
             val arrowCounts =
                 ROUND_ARROW_COUNTS.map { it.toRoundArrowCount(1) }.subList(0, min(ROUND_ARROW_COUNTS.size, maxSetSize))
                         .toMutableList()
+            while (arrowCounts.size < minSetSize) {
+                arrowCounts.add(generateArrowCount(1, arrowCounts.size))
+            }
             if (sets == 1) {
                 return arrowCounts
             }
 
             for (set in 2..sets) {
-                for (distanceNumber in 0..Random.nextInt(maxSetSize)) {
-                    arrowCounts.add(
-                            RoundArrowCount(set, distanceNumber + 1, Random.nextDouble(122.0), Random.nextInt(60))
-                    )
+                val bound = maxSetSize - minSetSize
+                val subsets = minSetSize + if (bound > 0) Random.nextInt(bound) else 0
+                for (distanceNumber in 1..subsets) {
+                    arrowCounts.add(generateArrowCount(set, distanceNumber + 1))
                 }
+                check(arrowCounts.filter { it.roundId == set }.size == subsets) { "Arrow counts set size incorrect" }
             }
 
             check(arrowCounts.map { it.roundId }.distinct().size == sets) { "Arrow counts size incorrect" }
             return arrowCounts
         }
 
+        private fun generateArrowCount(roundId: Int, distanceNumber: Int): RoundArrowCount {
+            return RoundArrowCount(roundId, distanceNumber, Random.nextDouble(122.0), Random.nextInt(60))
+        }
+
         /**
-         * @param sets the number of sub type sets to create (each set contains 1-[maxSetSize] sub types and has a
-         * unique roundId)
+         * @param sets the number of sub type sets to create (each set contains [minSetSize]-[maxSetSize] sub types and
+         * has a unique roundId starting from 1)
          */
-        fun generateSubTypes(sets: Int = 1, maxSetSize: Int = 3): List<RoundSubType> {
+        fun generateSubTypes(sets: Int = 1, maxSetSize: Int = 3, minSetSize: Int = 1): List<RoundSubType> {
             require(sets >= 0)
             if (sets == 0) {
                 return listOf()
             }
 
             require(maxSetSize > 0)
+            require(minSetSize > 0)
+            require(maxSetSize >= minSetSize)
             val subTypes =
                 ROUND_SUB_TYPES.map { it.toRoundSubType(1) }.subList(0, min(ROUND_SUB_TYPES.size, maxSetSize))
                         .toMutableList()
+            while (subTypes.size < minSetSize) {
+                subTypes.add(generateSubType(1, subTypes.size, subTypes))
+            }
             if (sets == 1) {
                 return subTypes
             }
 
             for (set in 2..sets) {
-                for (subtypeId in 0..Random.nextInt(maxSetSize)) {
-                    var name: String
-                    do {
-                        name = Random.nextInt(1000).toString()
-                    } while (subTypes.find { it.name == name } != null)
-
-                    var gents: Int? = Random.nextInt(20)
-                    if (gents == 19) {
-                        gents = null
-                    }
-                    var ladies: Int? = Random.nextInt(20)
-                    if (ladies == 19) {
-                        ladies = null
-                    }
-
-                    subTypes.add(RoundSubType(set, subtypeId + 1, name, gents, ladies))
+                val bound = maxSetSize - minSetSize
+                val subsets = minSetSize + if (bound > 0) Random.nextInt(bound) else 0
+                for (subtypeId in 1..subsets) {
+                    subTypes.add(generateSubType(set, subtypeId, subTypes))
                 }
+                check(subTypes.filter { it.roundId == set }.size == subsets) { "Sub types set size incorrect" }
             }
 
             check(subTypes.map { it.roundId }.distinct().size == sets) { "Sub types size incorrect" }
             return subTypes
         }
 
+        private fun generateSubType(roundId: Int, subTypeId: Int, currentSubTypes: List<RoundSubType>): RoundSubType {
+            var name: String
+            do {
+                name = Random.nextInt(1000).toString()
+            } while (currentSubTypes.find { it.name == name } != null)
+
+            var gents: Int? = Random.nextInt(20)
+            if (gents == 19) {
+                gents = null
+            }
+            var ladies: Int? = Random.nextInt(20)
+            if (ladies == 19) {
+                ladies = null
+            }
+
+            return RoundSubType(roundId, subTypeId, name, gents, ladies)
+        }
+
         /**
-         * @param sets the number of distance sets to create (each set contains 1-[maxSetSize] arrow counts and
-         * 1-[maxSetSize] sub types and has a unique roundId)
+         * @param minSetSize Must be >= 0. If it is 0, there will be at least one arrow count but min 0 subtypes
+         * @param sets the number of distance sets to create (each set contains [minSetSize]-[maxSetSize] arrow counts
+         * and [minSetSize]-[maxSetSize] sub types and has a unique roundId)
          * @see generateDistanceSet
          */
-        fun generateDistances(sets: Int = 1, maxSetSize: Int = 3): List<RoundDistance> {
+        fun generateDistances(sets: Int = 1, maxSetSize: Int = 3, minSetSize: Int = 1): List<RoundDistance> {
             require(sets >= 0)
             if (sets == 0) {
                 return listOf()
             }
             require(maxSetSize > 0)
+            require(minSetSize >= 0)
+            require(maxSetSize >= minSetSize)
 
             val distances = mutableListOf<RoundDistance>()
             for (set in 1..sets) {
-                distances.addAll(generateDistanceSet(
-                        Random.nextInt(maxSetSize - 1) + 1, Random.nextInt(maxSetSize)
-                ).map { it.toRoundDistance(set) })
+                val bound = maxSetSize - minSetSize
+                val arrowSubsets = max(1, minSetSize + if (bound > 0) Random.nextInt(bound) else 0)
+                val subtypeSets = minSetSize + if (bound > 0) Random.nextInt(bound) else 0
+                distances.addAll(generateDistanceSet(arrowSubsets, subtypeSets).map { it.toRoundDistance(set) })
             }
 
             check(distances.map { it.roundId }.distinct().size == sets) { "Distances size incorrect" }

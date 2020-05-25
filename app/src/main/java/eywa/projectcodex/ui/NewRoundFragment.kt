@@ -50,7 +50,7 @@ class NewRoundFragment : Fragment() {
             }
         })
 
-        val roundSelection = RoundSelection(newRoundViewModel, viewLifecycleOwner, resources)
+        val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
         // Update the spinners if the database updates (not sure why it would but whatever)
         newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer { _ ->
             spinner_select_round.adapter = ArrayAdapter(
