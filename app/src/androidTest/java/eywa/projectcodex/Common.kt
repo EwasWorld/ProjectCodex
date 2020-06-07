@@ -13,26 +13,28 @@ import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.android.synthetic.main.content_main.*
-import org.hamcrest.CoreMatchers
-import org.hamcrest.Description
-import org.hamcrest.Matcher
-import org.hamcrest.TypeSafeMatcher
+import org.hamcrest.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 
 const val testDatabaseName = "test_database"
 
-fun Int.click() = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())
-fun Int.write(text: String) = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.typeText(text))
+fun Int.click() = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())!!
+fun Int.write(text: String) = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.typeText(text))!!
 fun Int.textEquals(text: String) = Espresso.onView(ViewMatchers.withId(this)).check(
         ViewAssertions.matches(ViewMatchers.withText(text))
-)
+)!!
+
+fun Int.clickSpinnerItem(text: String) = this.run {
+    Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())
+    Espresso.onData(Matchers.hasToString(text)).perform(ViewActions.click())
+}!!
 
 infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
-    Espresso.onView(ViewMatchers.withText(message))
-            .inRoot(RootMatchers.withDecorView(CoreMatchers.not(activity.window.decorView)))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withText(message))
+                .inRoot(RootMatchers.withDecorView(CoreMatchers.not(activity.window.decorView)))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))!!
 
 fun AppCompatActivity.getString(name: String): String {
     return getString(resources.getIdentifier(name, "string", packageName))
