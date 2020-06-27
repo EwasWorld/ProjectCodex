@@ -4,18 +4,20 @@ import android.os.Handler
 import android.os.Looper
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.swipeLeft
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.entities.ArcherRoundWithName
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.database.entities.Round
+import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
@@ -39,10 +41,13 @@ class ViewRoundsInstrumentedTest {
     @get:Rule
     val activity = ActivityTestRule(MainActivity::class.java)
 
-    private val removedColumnIndexes = listOf(0, 5)
+    // RoundId and handicap
+    private val removedColumnIndexes = listOf(0, 6)
 
     private lateinit var tableViewAdapter: AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-    private lateinit var archerRounds: List<ArcherRound>
+    private lateinit var archerRounds: List<ArcherRoundWithName>
+    private lateinit var round: Round
+    private lateinit var roundSubType: RoundSubType
     private var arrows: MutableList<List<ArrowValue>> = mutableListOf()
 
     @Before
@@ -52,20 +57,31 @@ class ViewRoundsInstrumentedTest {
 
     private fun addDataToDatabase() {
         val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
-        archerRounds = TestData.generateArcherRounds(5, 1)
+        round = TestData.generateRounds(1)[0]
+        roundSubType = TestData.generateSubTypes(1)[0]
+        archerRounds = TestData.generateArcherRounds(5, 1, listOf(1, 1, null), listOf(1, null, null))
+                .mapIndexed { i, archerRound ->
+                    val roundName = if (i % 3 == 0 || i % 3 == 1) round.displayName else null
+                    val roundSubTypeName = if (i % 3 == 0) roundSubType.name else null
+                    ArcherRoundWithName(archerRound, roundName, roundSubTypeName)
+                }
         for (round in archerRounds) {
-            arrows.add(TestData.generateArrowValues(36, round.archerRoundId))
+            arrows.add(TestData.generateArrowValues(36, round.archerRound.archerRoundId))
         }
         Handler(Looper.getMainLooper()).post {
             for (archerRound in archerRounds) {
                 runBlocking {
-                    db.archerRoundDao().insert(archerRound)
+                    db.archerRoundDao().insert(archerRound.archerRound)
                 }
             }
             for (arrow in arrows.flatten()) {
                 runBlocking {
                     db.arrowValueDao().insert(arrow)
                 }
+            }
+            runBlocking {
+                db.roundDao().insert(round)
+                db.roundSubTypeDao().insert(roundSubType)
             }
         }
     }
@@ -96,7 +112,8 @@ class ViewRoundsInstrumentedTest {
             )
         }
         var col = 0
-        val expectedColumns = listOf("ID", "Date", "H", "S", "10", "HC").map { InfoTableCell(it, "col" + col++) }
+        val expectedColumns =
+                listOf("ID", "Date", "Round", "H", "S", "10", "HC").map { InfoTableCell(it, "col" + col++) }
                 .filterIndexed { i, _ -> !removedColumnIndexes.contains(i) }
         for (i in expectedColumns.indices) {
             assertEquals(expectedColumns[i], tableViewAdapter.getColumnHeaderItem(i))
@@ -160,6 +177,7 @@ class ViewRoundsInstrumentedTest {
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
         // Delete second row (index 2 because header has the same text)
+        onView(withId((R.id.view_round__table_view))).perform(swipeLeft())
         onView(withIndex(withText("Delete"), 2)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {

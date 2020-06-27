@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.entities.ArcherRoundWithName
 import eywa.projectcodex.database.entities.Round
 
 @Dao
@@ -24,6 +25,16 @@ interface ArcherRoundDao {
             """
     )
     fun getRoundInfo(archerRoundId: Int): LiveData<Round>
+
+    @Query(
+            """
+                SELECT archer_rounds.*, rounds.displayName AS roundName, round_sub_types.name AS roundSubTypeName
+                FROM archer_rounds LEFT JOIN rounds ON archer_rounds.roundId = rounds.roundId
+                                   LEFT JOIN round_sub_types ON archer_rounds.roundSubTypeId = round_sub_types.subTypeId
+                                                             AND archer_rounds.roundId = round_sub_types.roundId
+            """
+    )
+    fun getAllArcherRoundsWithName(): LiveData<List<ArcherRoundWithName>>
 
     @Query("SELECT * from archer_rounds")
     fun getAllArcherRounds(): LiveData<List<ArcherRound>>

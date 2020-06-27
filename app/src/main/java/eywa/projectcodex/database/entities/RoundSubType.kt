@@ -9,6 +9,9 @@ import androidx.room.Entity
 data class RoundSubType(
         val roundId: Int,
         val subTypeId: Int,
+        /**
+         * Should be recognisable as a standalone name
+         */
         val name: String? = null,
         /**
          * null -> no age restriction

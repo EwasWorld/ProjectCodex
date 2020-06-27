@@ -6,6 +6,7 @@ import eywa.projectcodex.TestData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.daos.ArcherRoundDao
 import eywa.projectcodex.database.daos.RoundDao
+import eywa.projectcodex.database.daos.RoundSubTypeDao
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.retrieveValue
 import kotlinx.coroutines.runBlocking
@@ -25,12 +26,14 @@ class ArcherRoundsDaoTest {
     private lateinit var db: ScoresRoomDatabase
     private lateinit var archerRoundDao: ArcherRoundDao
     private lateinit var roundDao: RoundDao
+    private lateinit var roundSubTypeDao: RoundSubTypeDao
 
     @Before
     fun createDb() {
         db = DatabaseSuite.createDatabase()
         archerRoundDao = db.archerRoundDao()
         roundDao = db.roundDao()
+        roundSubTypeDao = db.roundSubTypeDao()
     }
 
     @After
@@ -125,6 +128,52 @@ class ArcherRoundsDaoTest {
                 assertEquals(archerRound.roundId, retrievedRoundInfo.roundId)
                 assert(rounds[archerRound.roundId!! - 1] == retrievedRoundInfo)
             }
+        }
+    }
+
+    /**
+     * Check the correct round name info is retrieved for the given archer round
+     */
+    @Test
+    fun getArcherRoundsWithNamesTest() {
+        /*
+         * Create data and populate tables
+         */
+        val archerRounds = TestData.generateArcherRounds(6, 2, listOf(1, 2, null), listOf(1, null, null))
+        val rounds = TestData.generateRounds(3)
+        val roundSubTypes = TestData.generateSubTypes(3)
+
+        for (archerRound in archerRounds) {
+            runBlocking {
+                archerRoundDao.insert(archerRound)
+            }
+        }
+        for (round in rounds) {
+            runBlocking {
+                roundDao.insert(round)
+            }
+        }
+        for (roundSubType in roundSubTypes) {
+            runBlocking {
+                roundSubTypeDao.insert(roundSubType)
+            }
+        }
+
+        /*
+         * Check the correct round info is retrieved
+         */
+        val retrievedRoundInfo = archerRoundDao.getAllArcherRoundsWithName().retrieveValue()!!
+        for (i in retrievedRoundInfo.indices) {
+            assertEquals(archerRounds[i], retrievedRoundInfo[i].archerRound)
+
+            val expectedRoundName = rounds.find { it.roundId == archerRounds[i].roundId }?.displayName
+            assertEquals(expectedRoundName, retrievedRoundInfo[i].roundName)
+
+            val expectedRoundSubTypeName =
+                    roundSubTypes.find {
+                        it.roundId == archerRounds[i].roundId && it.subTypeId == archerRounds[i].roundSubTypeId
+                    }?.name
+            assertEquals(expectedRoundSubTypeName, retrievedRoundInfo[i].roundSubTypeName)
         }
     }
 }

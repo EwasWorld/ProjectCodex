@@ -45,6 +45,7 @@
     <!-- View Round -->
     <string name="view_round__title">All Rounds</string>
     <string name="view_round__date_header">Date</string>
+    <string name="view_round__round_name_header">Round</string>
     <string name="view_round__counts_to_hc_header">HC</string>
     <string name="view_round__id_header">ID</string>
     <string name="err_view_round__no_rounds">There are no rounds to show</string>

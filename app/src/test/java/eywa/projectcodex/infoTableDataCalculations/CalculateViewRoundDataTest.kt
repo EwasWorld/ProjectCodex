@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.mock
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
+import eywa.projectcodex.database.entities.ArcherRoundWithName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import org.junit.Assert
@@ -62,12 +63,19 @@ class CalculateViewRoundDataTest {
     private fun checkViewRoundsData(arrowsSizes: List<Int>, goldsType: GoldsType) {
         val removedColumnIndexes = listOf(0, 5)
 
-        val generatedArcherRounds = TestData.generateArcherRounds(arrowsSizes.size, 1)
-        val sortedGenArcherRounds = generatedArcherRounds.sortedByDescending { it.dateShot }
+        var currentName = 1
+        val generatedArcherRounds = TestData.generateArcherRounds(arrowsSizes.size, 1).mapIndexed { i, round ->
+            val roundName = if (i % 3 == 0 || i % 3 == 1) currentName++.toString() else null
+            val roundSubTypeName = if (i % 3 == 0) currentName++.toString() else null
+            ArcherRoundWithName(round, roundName, roundSubTypeName)
+        }
+        val sortedGenArcherRounds = generatedArcherRounds.sortedByDescending { it.archerRound.dateShot }
         val generatedArrows = mutableListOf<List<ArrowValue>>()
         for (round in sortedGenArcherRounds) {
             val originalIndex = generatedArcherRounds.indexOf(round)
-            generatedArrows.add(TestData.generateArrowValues(arrowsSizes[originalIndex], round.archerRoundId))
+            generatedArrows.add(
+                    TestData.generateArrowValues(arrowsSizes[originalIndex], round.archerRound.archerRoundId)
+            )
         }
         val viewRoundsData =
             calculateViewRoundsTableData(
@@ -79,21 +87,23 @@ class CalculateViewRoundDataTest {
         Assert.assertEquals(generatedArcherRounds.size, viewRoundsData.size)
 
         for (i in sortedGenArcherRounds.indices) {
-            val archerRound = sortedGenArcherRounds[i]
+            val archerRound = sortedGenArcherRounds[i].archerRound
             val arrows = generatedArrows[i]
             val data = viewRoundsData[i]
 
-            if (data.size != 7) {
-                Assert.assertEquals(6, data.size)
+            // Check delete column if it's there
+            if (data.size != 8) {
+                Assert.assertEquals(7, data.size)
             }
             else {
-                Assert.assertEquals("delete$i", data[6].id)
-                Assert.assertEquals(delete, data[6].content)
+                Assert.assertEquals("delete$i", data[7].id)
+                Assert.assertEquals(delete, data[7].content)
             }
 
             val expected = mutableListOf<Any>()
             expected.add(archerRound.archerRoundId)
             expected.add(dateFormat.format(archerRound.dateShot))
+            expected.add(sortedGenArcherRounds[i].roundSubTypeName ?: sortedGenArcherRounds[i].roundName ?: "")
             expected.add(arrows.count { it.score != 0 })
             expected.add(arrows.sumBy { it.score })
             expected.add(arrows.count { goldsType.isGold(it) })

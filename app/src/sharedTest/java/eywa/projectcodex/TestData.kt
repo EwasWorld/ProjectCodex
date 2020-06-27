@@ -72,11 +72,14 @@ class TestData {
          * @param numberOfArchers the number of Archers to spread the rounds across
          * @param roundIds if present, Return\[0].roundId = [roundIds]\[0], etc. If Return.size > roundIds.size, it will
          * start from [roundIds]\[0] again when it runs out of values
+         * @param roundSubTypeIds See [roundIds]
          * @return a list of randomly generated ArcherRounds containing at least one round for each archer
          * (size permitting). List is sorted by date (archerIds start at 1)
          * @see generateDate
          */
-        fun generateArcherRounds(size: Int, numberOfArchers: Int, roundIds: List<Int?>? = null): List<ArcherRound> {
+        fun generateArcherRounds(
+                size: Int, numberOfArchers: Int, roundIds: List<Int?>? = null, roundSubTypeIds: List<Int?>? = null
+        ): List<ArcherRound> {
             require(size >= 0)
             if (size == 0) {
                 return listOf()
@@ -90,7 +93,8 @@ class TestData {
                 archerRounds.add(
                         ArcherRound(
                                 archerRoundId, dates[archerRoundId - 1], i + 1, Random.nextBoolean(),
-                                roundId = roundIds?.get((archerRoundId - 1) % roundIds.size)
+                                roundId = roundIds?.get((archerRoundId - 1) % roundIds.size),
+                                roundSubTypeId = roundSubTypeIds?.get((archerRoundId - 1) % roundSubTypeIds.size)
                         )
                 )
                 archerRoundId++
@@ -103,7 +107,8 @@ class TestData {
                                 dates[archerRoundId - 1],
                                 Random.nextInt(numberOfArchers) + 1,
                                 Random.nextBoolean(),
-                                roundId = roundIds?.get((archerRoundId - 1) % roundIds.size)
+                                roundId = roundIds?.get((archerRoundId - 1) % roundIds.size),
+                                roundSubTypeId = roundSubTypeIds?.get((archerRoundId - 1) % roundSubTypeIds.size)
                         )
                 )
                 archerRoundId++

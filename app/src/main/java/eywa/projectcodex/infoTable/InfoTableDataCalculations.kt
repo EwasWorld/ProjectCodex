@@ -4,26 +4,28 @@ import android.content.res.Resources
 import eywa.projectcodex.End
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
-import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.entities.ArcherRoundWithName
 import eywa.projectcodex.database.entities.ArrowValue
 import java.text.SimpleDateFormat
 import java.util.*
 
-val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.UK)
+private val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.UK)
+private const val GOLDS_HEADER_PLACE_HOLDER = -1
 
 val viewRoundsColumnHeaderIds = listOf(
         R.string.view_round__id_header,
         R.string.view_round__date_header,
+        R.string.view_round__round_name_header,
         R.string.table_hits_header,
         R.string.table_score_header,
-        -1,
+        GOLDS_HEADER_PLACE_HOLDER,
         R.string.view_round__counts_to_hc_header
 )
 val scorePadColumnHeaderIds = listOf(
         R.string.score_pad__end_string_header,
         R.string.table_hits_header,
         R.string.table_score_header,
-        -1,
+        GOLDS_HEADER_PLACE_HOLDER,
         R.string.score_pad__running_total_header
 )
 
@@ -38,11 +40,11 @@ fun getColumnHeadersForTable(
         deleteColumn: Boolean = false
 ): List<InfoTableCell> {
     require(headerStringIds.isNotEmpty()) { "No headers provided" }
-    require(!headerStringIds.contains(-1) || goldsType != null) {
-        "Must provide a goldsType if stringIds contains the golds placeholder, -1"
+    require(!headerStringIds.contains(GOLDS_HEADER_PLACE_HOLDER) || goldsType != null) {
+        "Must provide a goldsType if stringIds contains the golds placeholder, $GOLDS_HEADER_PLACE_HOLDER"
     }
     val stringsList = headerStringIds.map {
-        if (it == -1) {
+        if (it == GOLDS_HEADER_PLACE_HOLDER) {
             resources.getString(goldsType!!.colHeaderStringId)
         }
         else {
@@ -113,7 +115,7 @@ fun calculateScorePadTableData(
  * @see viewRoundsColumnHeaderIds
  */
 fun calculateViewRoundsTableData(
-        archerRounds: List<ArcherRound>,
+        archerRounds: List<ArcherRoundWithName>,
         arrows: List<ArrowValue>,
         goldsType: GoldsType,
         resources: Resources
@@ -121,10 +123,13 @@ fun calculateViewRoundsTableData(
     require(archerRounds.isNotEmpty()) { "archerRounds cannot be empty" }
 
     val tableData = mutableListOf<MutableList<InfoTableCell>>()
-    for (archerRound in archerRounds.sortedByDescending { archerRound -> archerRound.dateShot }) {
+    for (archerRoundInfo in archerRounds.sortedByDescending { archerRound -> archerRound.archerRound.dateShot }) {
+        val archerRound = archerRoundInfo.archerRound
+
         val rowData = mutableListOf<Any>()
         rowData.add(archerRound.archerRoundId)
         rowData.add(dateFormat.format(archerRound.dateShot))
+        rowData.add(archerRoundInfo.roundSubTypeName ?: archerRoundInfo.roundName ?: "")
 
         // H/S/G
         val relevantArrows = arrows.filter { arrow -> arrow.archerRoundId == archerRound.archerRoundId }

@@ -20,11 +20,11 @@ So I can call myself a liar when I don't follow my own decisions
 - Separate any initial `require` and `check` lines from the rest of the code with a new line
 
 ## SQL and DAOs
-- If the SQL statement gets too long, it should be wrapped in triple quotes for a multi-line string with each of the SQL parts (`SELECT`, `FROM`, `WHERE`, etc.) on new lines (example below)
+- If the SQL statement gets too long, it should be wrapped in triple quotes for a multi-line string with each of the SQL parts (`SELECT`, `FROM`, `WHERE`, etc.) on new lines (examples below). Similar sections should be grouped together
 - SQL keywords should be in capitals
 - If a query contains a JOIN or multiple tables, in order of preference it should be placed in the DAO of:
-    1. The main parameter (if there are any). The example below would therefore go in `ArcherRoundsDao`
-    2. The majority return type (if there is one). In the example below, if it had no parameters, it would go in `RoundsDao`
+    1. The main parameter (if there are any). The first example below would go in `ArcherRoundsDao`
+    2. The majority return type (if there is one). The second example below would also go in `ArcherRoundsDao` as its return type is mostly `ArcherRound`
     3. The table that is most affected
 
 ```kotlin
@@ -36,6 +36,16 @@ So I can call myself a liar when I don't follow my own decisions
         """
 )
 fun getRoundInfo(archerRoundId: Int): LiveData<Round>
+
+@Query(
+        """
+            SELECT archer_rounds.*, rounds.displayName AS roundName, round_sub_types.name AS roundSubTypeName
+            FROM archer_rounds LEFT JOIN rounds ON archer_rounds.roundId = rounds.roundId
+                               LEFT JOIN round_sub_types ON archer_rounds.roundSubTypeId = round_sub_types.subTypeId
+                                                         AND archer_rounds.roundId = round_sub_types.roundId
+        """
+)
+fun getAllArcherRoundsWithName(): LiveData<List<ArcherRoundWithName>>
 ```
 
 ## Types
