@@ -14,6 +14,7 @@ import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
+import eywa.projectcodex.getGoldsType
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.viewModels.ScorePadViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
@@ -22,8 +23,7 @@ import kotlin.math.ceil
 class ScorePadFragment : Fragment() {
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
-    // TODO pull this from the database when rounds are properly implemented
-    private val goldsType = GoldsType.TENS
+    private var goldsType = GoldsType.TENS
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_score_pad, container, false)
@@ -41,6 +41,11 @@ class ScorePadFragment : Fragment() {
         scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
             ScorePadViewModel(activity!!.application, args.archerRoundId)
         }).get(ScorePadViewModel::class.java)
+        scorePadViewModel.roundInfo.observe(viewLifecycleOwner, Observer { roundInfo ->
+            roundInfo?.let {
+                goldsType = getGoldsType(roundInfo.isOutdoor, roundInfo.isMetric)
+            }
+        })
         scorePadViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
                 try {

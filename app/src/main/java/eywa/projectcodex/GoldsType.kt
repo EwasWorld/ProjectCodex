@@ -3,6 +3,17 @@ package eywa.projectcodex
 import eywa.projectcodex.database.entities.ArrowValue
 
 /**
+ * @return which golds type should be used
+ */
+fun getGoldsType(isOutdoor: Boolean, isMetric: Boolean): GoldsType {
+    return when {
+        !isOutdoor -> GoldsType.TENS
+        isMetric -> GoldsType.XS
+        else -> GoldsType.NINES
+    }
+}
+
+/**
  * The minimum arrow value to be counted as a gold
  */
 enum class GoldsType(private val score: Int, private val isX: Boolean, val colHeaderStringId: Int) {

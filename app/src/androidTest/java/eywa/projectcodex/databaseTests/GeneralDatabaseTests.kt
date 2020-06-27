@@ -1,14 +1,17 @@
-package eywa.projectcodex
+package eywa.projectcodex.databaseTests
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import eywa.projectcodex.TestData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.daos.*
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.Round
+import eywa.projectcodex.retrieveValue
+import eywa.projectcodex.testDatabaseName
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -21,9 +24,10 @@ import java.io.IOException
 
 /**
  * Test DAOs
+ * TODO Split these into separate classes
  */
 @RunWith(AndroidJUnit4::class)
-class DatabaseTests {
+class GeneralDatabaseTests {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -39,9 +43,7 @@ class DatabaseTests {
 
     @Before
     fun createDb() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        context.deleteDatabase(testDatabaseName)
-        db = Room.inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java).allowMainThreadQueries().build()
+        db = DatabaseSuite.createDatabase()
         archerDao = db.archerDao()
         archerRoundDao = db.archerRoundDao()
         arrowValueDao = db.arrowValueDao()
@@ -92,57 +94,6 @@ class DatabaseTests {
         retrievedArrows2 = arrowValueDao.getArrowValuesForRound(2).retrieveValue()!!
         assert(retrievedArrows1.isEmpty())
         assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
-    }
-
-    /**
-     * Check max ID value increases with each insertion
-     * Check inserted values are the same as retrieved
-     */
-    @Test
-    @Throws(Exception::class)
-    fun archerRoundsTest() {
-        val retrievedArcherRounds = archerRoundDao.getAllArcherRounds()
-        val retrievedMax = archerRoundDao.getMaxId()
-
-        /*
-         * Add and retrieve
-         */
-        val archerRounds = TestData.generateArcherRounds(6, 2)
-        var currentMax = -1
-        for (archerRound in archerRounds) {
-            runBlocking {
-                archerRoundDao.insert(
-                        ArcherRound(
-                                0,
-                                archerRound.dateShot,
-                                archerRound.archerId,
-                                archerRound.countsTowardsHandicap
-                        )
-                )
-            }
-
-            val unpackedMax = retrievedMax.retrieveValue()!!
-            assertEquals(
-                    retrievedArcherRounds.retrieveValue()!!.maxBy { it.archerRoundId }?.archerRoundId ?: 0,
-                    unpackedMax
-            )
-            assert(currentMax < unpackedMax)
-            currentMax = unpackedMax
-        }
-
-        assertEquals(archerRounds.toSet(), retrievedArcherRounds.retrieveValue()!!.toSet())
-
-        /*
-         * Delete
-         */
-        runBlocking {
-            archerRoundDao.deleteRound(1)
-            archerRoundDao.deleteRound(2)
-        }
-        assertEquals(
-                archerRounds.subList(2, archerRounds.size).toSet(),
-                retrievedArcherRounds.retrieveValue()!!.toSet()
-        )
     }
 
     /**

@@ -70,11 +70,13 @@ class TestData {
         /**
          * @param size the number of ArcherRounds to generate
          * @param numberOfArchers the number of Archers to spread the rounds across
+         * @param roundIds if present, Return\[0].roundId = [roundIds]\[0], etc. If Return.size > roundIds.size, it will
+         * start from [roundIds]\[0] again when it runs out of values
          * @return a list of randomly generated ArcherRounds containing at least one round for each archer
-         * (size permitting). List is sorted by date (roundIds and archerIds start at 1)
+         * (size permitting). List is sorted by date (archerIds start at 1)
          * @see generateDate
          */
-        fun generateArcherRounds(size: Int, numberOfArchers: Int): List<ArcherRound> {
+        fun generateArcherRounds(size: Int, numberOfArchers: Int, roundIds: List<Int?>? = null): List<ArcherRound> {
             require(size >= 0)
             if (size == 0) {
                 return listOf()
@@ -83,22 +85,28 @@ class TestData {
 
             val dates = List(size) { generateDate() }.sorted()
             val archerRounds = mutableListOf<ArcherRound>()
-            var roundId = 1
+            var archerRoundId = 1
             for (i in 0 until min(numberOfArchers, size)) {
-                archerRounds.add(ArcherRound(roundId, dates[roundId - 1], i + 1, Random.nextBoolean()))
-                roundId++
+                archerRounds.add(
+                        ArcherRound(
+                                archerRoundId, dates[archerRoundId - 1], i + 1, Random.nextBoolean(),
+                                roundId = roundIds?.get((archerRoundId - 1) % roundIds.size)
+                        )
+                )
+                archerRoundId++
             }
 
             while (archerRounds.size < size) {
                 archerRounds.add(
                         ArcherRound(
-                                roundId,
-                                dates[roundId - 1],
+                                archerRoundId,
+                                dates[archerRoundId - 1],
                                 Random.nextInt(numberOfArchers) + 1,
-                                Random.nextBoolean()
+                                Random.nextBoolean(),
+                                roundId = roundIds?.get((archerRoundId - 1) % roundIds.size)
                         )
                 )
-                roundId++
+                archerRoundId++
             }
             return archerRounds
         }

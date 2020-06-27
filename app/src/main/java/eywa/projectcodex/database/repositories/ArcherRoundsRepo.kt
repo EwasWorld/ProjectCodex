@@ -3,6 +3,7 @@ package eywa.projectcodex.database.repositories
 import androidx.lifecycle.LiveData
 import eywa.projectcodex.database.daos.ArcherRoundDao
 import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.entities.Round
 
 /**
  * @see ArrowValuesRepo
@@ -11,6 +12,10 @@ class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
     val maxId: LiveData<Int> = archerRoundDao.getMaxId()
 
     val allArcherRounds: LiveData<List<ArcherRound>> = archerRoundDao.getAllArcherRounds()
+
+    fun getRoundInfo(archerRoundId: Int): LiveData<Round> {
+        return archerRoundDao.getRoundInfo(archerRoundId)
+    }
 
     suspend fun insert(archerRound: ArcherRound) {
         archerRoundDao.insert(archerRound)

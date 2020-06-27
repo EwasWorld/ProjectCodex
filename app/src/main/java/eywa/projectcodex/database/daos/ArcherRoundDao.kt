@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.entities.Round
 
 @Dao
 interface ArcherRoundDao {
@@ -14,6 +15,15 @@ interface ArcherRoundDao {
 
     @Query("SELECT MAX(archerRoundId) from archer_rounds")
     fun getMaxId(): LiveData<Int>
+
+    @Query(
+            """
+                SELECT rounds.*
+                FROM archer_rounds INNER JOIN rounds ON archer_rounds.roundId = rounds.roundId
+                WHERE archerRoundId = :archerRoundId
+            """
+    )
+    fun getRoundInfo(archerRoundId: Int): LiveData<Round>
 
     @Query("SELECT * from archer_rounds")
     fun getAllArcherRounds(): LiveData<List<ArcherRound>>

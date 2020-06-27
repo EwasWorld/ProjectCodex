@@ -1,6 +1,11 @@
 # Project Codex Code Styling Guides
 So I can call myself a liar when I don't follow my own decisions
 
+## General
+- Max line length: 120 characters
+- Favour having as few indents as possible (for example, use `if (condition) return \n <do something>` over `if (!condition) <do something>`)
+- Favour `nullableItem?.let { }` over `if nullableItem == null { }`. The advantage with let is that everywhere inside the braces the `nullableItem` will be of a non-nullable type, whereas with the if statement, if `nullableItem` is mutable, it will require the addition of many `!!` to ensure `nullableItem` is still not null
+
 ## Styling Tools
 - Follow Android Studio's recommendations for redundant type declarations and such like
 - Use Android Studio's formatter (with the agreed settings), ensuring the option to format on commit is enabled
@@ -13,6 +18,25 @@ So I can call myself a liar when I don't follow my own decisions
 ## Methods
 - A section of code should in general only be extracted into a method if it is used more than once or if it is separating logic from ui
 - Separate any initial `require` and `check` lines from the rest of the code with a new line
+
+## SQL and DAOs
+- If the SQL statement gets too long, it should be wrapped in triple quotes for a multi-line string with each of the SQL parts (`SELECT`, `FROM`, `WHERE`, etc.) on new lines (example below)
+- SQL keywords should be in capitals
+- If a query contains a JOIN or multiple tables, in order of preference it should be placed in the DAO of:
+    1. The main parameter (if there are any). The example below would therefore go in `ArcherRoundsDao`
+    2. The majority return type (if there is one). In the example below, if it had no parameters, it would go in `RoundsDao`
+    3. The table that is most affected
+
+```kotlin
+@Query(
+        """
+            SELECT rounds.* 
+            FROM archer_rounds INNER JOIN rounds ON archer_rounds.roundId = rounds.roundId 
+            WHERE archerRoundId = :archerRoundId
+        """
+)
+fun getRoundInfo(archerRoundId: Int): LiveData<Round>
+```
 
 ## Types
 - List should be used over Array [Reasoning][1] [Differences][2]
@@ -27,11 +51,13 @@ So I can call myself a liar when I don't follow my own decisions
 - If statements should ALWAYS use braces unless they can be completely contained on one line e.g. val test = if (isAwesome) "yes" else "no"
 
 ## Comments
-- Classes, methods, and member fields should be commented using doc /** comments
+- Classes, methods, and member fields should be commented using [KDoc][3] /** comments
 - Any throws should be documented with @throws in the method comment
 - Methods with initial `require` and `check` should document these requirements in the method comment
 - Block /* comments should be used to introduce sections of code and split up larger methods
 - All other comments should be //
+
+[3]: https://kotlinlang.org/docs/reference/kotlin-doc.html
 
 ## TODOs
 - Should only be used when a specific piece of code needs to be highlighted for something that cannot be done now
