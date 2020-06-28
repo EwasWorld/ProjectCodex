@@ -5,8 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.ArcherRound
-import eywa.projectcodex.database.entities.ArcherRoundWithName
+import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.repositories.ArcherRoundsRepo
 import eywa.projectcodex.database.repositories.ArrowValuesRepo
@@ -22,11 +21,11 @@ class ViewRoundsViewModel(application: Application) : AndroidViewModel(applicati
         ArcherRoundsRepo(ScoresRoomDatabase.getDatabase(application, viewModelScope).archerRoundDao())
 
     val allArrows: LiveData<List<ArrowValue>>
-    val allArcherRounds: LiveData<List<ArcherRoundWithName>>
+    val allArcherRounds: LiveData<List<ArcherRoundWithRoundInfoAndName>>
 
     init {
         allArrows = arrowValuesRepo.allArrowValues
-        allArcherRounds = archerRoundsRepo.allArcherRoundsWithName
+        allArcherRounds = archerRoundsRepo.allArcherRoundsWithRoundInfoAndName
     }
 
     /**

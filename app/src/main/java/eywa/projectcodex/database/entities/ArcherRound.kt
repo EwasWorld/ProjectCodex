@@ -1,14 +1,16 @@
 package eywa.projectcodex.database.entities
 
-import androidx.room.*
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
-private const val TABLE_NAME = "archer_rounds"
+const val ARCHER_ROUNDS_TABLE_NAME = "archer_rounds"
 
 /**
  * Main information about a round/session an archer has shot
  */
-@Entity(tableName = TABLE_NAME)
+@Entity(tableName = ARCHER_ROUNDS_TABLE_NAME)
 data class ArcherRound(
         @PrimaryKey(autoGenerate = true)
         val archerRoundId: Int,
@@ -22,8 +24,8 @@ data class ArcherRound(
         var shootStatus: String? = null
 )
 
-class ArcherRoundWithName(
-        @Embedded var archerRound: ArcherRound,
-        var roundName: String? = null,
+data class ArcherRoundWithRoundInfoAndName(
+        @Embedded(prefix = "ar_") var archerRound: ArcherRound,
+        @Embedded var round: Round? = null,
         var roundSubTypeName: String? = null
 )

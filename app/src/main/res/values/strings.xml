@@ -62,6 +62,7 @@
     <!-- Table View -->
     <string name="table_hits_header">H</string>
     <string name="table_score_header">S</string>
+    <string name="table_golds_header">G</string>
     <string name="table_golds_nines_header">G</string>
     <string name="table_golds_tens_header">10</string>
     <string name="table_golds_xs_header">X</string>

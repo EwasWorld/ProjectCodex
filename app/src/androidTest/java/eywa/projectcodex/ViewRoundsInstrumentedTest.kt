@@ -14,10 +14,7 @@ import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.ArcherRoundWithName
-import eywa.projectcodex.database.entities.ArrowValue
-import eywa.projectcodex.database.entities.Round
-import eywa.projectcodex.database.entities.RoundSubType
+import eywa.projectcodex.database.entities.*
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
@@ -45,7 +42,7 @@ class ViewRoundsInstrumentedTest {
     private val removedColumnIndexes = listOf(0, 6)
 
     private lateinit var tableViewAdapter: AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-    private lateinit var archerRounds: List<ArcherRoundWithName>
+    private lateinit var archerRounds: List<ArcherRoundWithRoundInfoAndName>
     private lateinit var round: Round
     private lateinit var roundSubType: RoundSubType
     private var arrows: MutableList<List<ArrowValue>> = mutableListOf()
@@ -61,9 +58,9 @@ class ViewRoundsInstrumentedTest {
         roundSubType = TestData.generateSubTypes(1)[0]
         archerRounds = TestData.generateArcherRounds(5, 1, listOf(1, 1, null), listOf(1, null, null))
                 .mapIndexed { i, archerRound ->
-                    val roundName = if (i % 3 == 0 || i % 3 == 1) round.displayName else null
+                    val roundInfo = if (i % 3 == 0 || i % 3 == 1) round else null
                     val roundSubTypeName = if (i % 3 == 0) roundSubType.name else null
-                    ArcherRoundWithName(archerRound, roundName, roundSubTypeName)
+                    ArcherRoundWithRoundInfoAndName(archerRound, roundInfo, roundSubTypeName)
                 }
         for (round in archerRounds) {
             arrows.add(TestData.generateArrowValues(36, round.archerRound.archerRoundId))
@@ -113,7 +110,7 @@ class ViewRoundsInstrumentedTest {
         }
         var col = 0
         val expectedColumns =
-                listOf("ID", "Date", "Round", "H", "S", "10", "HC").map { InfoTableCell(it, "col" + col++) }
+                listOf("ID", "Date", "Round", "H", "S", "G", "HC").map { InfoTableCell(it, "col" + col++) }
                 .filterIndexed { i, _ -> !removedColumnIndexes.contains(i) }
         for (i in expectedColumns.indices) {
             assertEquals(expectedColumns[i], tableViewAdapter.getColumnHeaderItem(i))

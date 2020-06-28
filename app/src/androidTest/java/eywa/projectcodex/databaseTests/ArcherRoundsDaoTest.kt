@@ -162,12 +162,12 @@ class ArcherRoundsDaoTest {
         /*
          * Check the correct round info is retrieved
          */
-        val retrievedRoundInfo = archerRoundDao.getAllArcherRoundsWithName().retrieveValue()!!
+        val retrievedRoundInfo = archerRoundDao.getAllArcherRoundsWithRoundInfoAndName().retrieveValue()!!
         for (i in retrievedRoundInfo.indices) {
             assertEquals(archerRounds[i], retrievedRoundInfo[i].archerRound)
 
-            val expectedRoundName = rounds.find { it.roundId == archerRounds[i].roundId }?.displayName
-            assertEquals(expectedRoundName, retrievedRoundInfo[i].roundName)
+            val expectedRoundName = rounds.find { it.roundId == archerRounds[i].roundId }
+            assert(expectedRoundName == retrievedRoundInfo[i].round)
 
             val expectedRoundSubTypeName =
                     roundSubTypes.find {

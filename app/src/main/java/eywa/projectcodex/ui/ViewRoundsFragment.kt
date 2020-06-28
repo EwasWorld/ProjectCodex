@@ -14,8 +14,7 @@ import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
-import eywa.projectcodex.database.entities.ArcherRound
-import eywa.projectcodex.database.entities.ArcherRoundWithName
+import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.viewModels.ViewRoundsViewModel
@@ -23,8 +22,7 @@ import eywa.projectcodex.viewModels.ViewRoundsViewModel
 class ViewRoundsFragment : Fragment() {
     private lateinit var viewRoundsViewModel: ViewRoundsViewModel
     private var allArrows: List<ArrowValue> = listOf()
-    private var allArcherRoundsWithNames: List<ArcherRoundWithName> = listOf()
-    // TODO pull this from the database when rounds are properly implemented
+    private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
     private val goldsType = GoldsType.TENS
     private var dialog: AlertDialog? = null
     private val archerRoundIdRow = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)

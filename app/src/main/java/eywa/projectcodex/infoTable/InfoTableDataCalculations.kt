@@ -4,8 +4,9 @@ import android.content.res.Resources
 import eywa.projectcodex.End
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
-import eywa.projectcodex.database.entities.ArcherRoundWithName
+import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.getGoldsType
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,7 +19,7 @@ val viewRoundsColumnHeaderIds = listOf(
         R.string.view_round__round_name_header,
         R.string.table_hits_header,
         R.string.table_score_header,
-        GOLDS_HEADER_PLACE_HOLDER,
+        R.string.table_golds_header,
         R.string.view_round__counts_to_hc_header
 )
 val scorePadColumnHeaderIds = listOf(
@@ -112,12 +113,13 @@ fun calculateScorePadTableData(
 
 /**
  * Adds a delete column on the end
+ * @param defaultGoldsType The default GoldsType to use if an archer round doesn't have a round
  * @see viewRoundsColumnHeaderIds
  */
 fun calculateViewRoundsTableData(
-        archerRounds: List<ArcherRoundWithName>,
+        archerRounds: List<ArcherRoundWithRoundInfoAndName>,
         arrows: List<ArrowValue>,
-        goldsType: GoldsType,
+        defaultGoldsType: GoldsType,
         resources: Resources
 ): MutableList<MutableList<InfoTableCell>> {
     require(archerRounds.isNotEmpty()) { "archerRounds cannot be empty" }
@@ -129,12 +131,13 @@ fun calculateViewRoundsTableData(
         val rowData = mutableListOf<Any>()
         rowData.add(archerRound.archerRoundId)
         rowData.add(dateFormat.format(archerRound.dateShot))
-        rowData.add(archerRoundInfo.roundSubTypeName ?: archerRoundInfo.roundName ?: "")
+        rowData.add(archerRoundInfo.roundSubTypeName ?: archerRoundInfo.round?.displayName ?: "")
 
         // H/S/G
         val relevantArrows = arrows.filter { arrow -> arrow.archerRoundId == archerRound.archerRoundId }
         rowData.add(relevantArrows.count { it.score != 0 })
         rowData.add(relevantArrows.sumBy { it.score })
+        val goldsType = archerRoundInfo.round?.let { getGoldsType(it.isOutdoor, it.isMetric) } ?: defaultGoldsType
         rowData.add(relevantArrows.count { goldsType.isGold(it) })
 
         val countsToHandicap =

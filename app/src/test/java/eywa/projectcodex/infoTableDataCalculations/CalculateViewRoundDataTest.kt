@@ -6,8 +6,10 @@ import com.nhaarman.mockitokotlin2.mock
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
-import eywa.projectcodex.database.entities.ArcherRoundWithName
+import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.database.entities.Round
+import eywa.projectcodex.getGoldsType
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import org.junit.Assert
 import org.junit.Before
@@ -64,10 +66,15 @@ class CalculateViewRoundDataTest {
         val removedColumnIndexes = listOf(0, 5)
 
         var currentName = 1
+        val rounds = listOf(
+                Round(1, "round1", "Round1", true, true, listOf()),
+                Round(2, "round2", "Round2", true, false, listOf()),
+                Round(3, "round3", "Round3", false, true, listOf()),
+                null
+        )
         val generatedArcherRounds = TestData.generateArcherRounds(arrowsSizes.size, 1).mapIndexed { i, round ->
-            val roundName = if (i % 3 == 0 || i % 3 == 1) currentName++.toString() else null
-            val roundSubTypeName = if (i % 3 == 0) currentName++.toString() else null
-            ArcherRoundWithName(round, roundName, roundSubTypeName)
+            val roundSubTypeName = if (i % 2 == 0) currentName++.toString() else null
+            ArcherRoundWithRoundInfoAndName(round, rounds[i % rounds.size], roundSubTypeName)
         }
         val sortedGenArcherRounds = generatedArcherRounds.sortedByDescending { it.archerRound.dateShot }
         val generatedArrows = mutableListOf<List<ArrowValue>>()
@@ -103,10 +110,12 @@ class CalculateViewRoundDataTest {
             val expected = mutableListOf<Any>()
             expected.add(archerRound.archerRoundId)
             expected.add(dateFormat.format(archerRound.dateShot))
-            expected.add(sortedGenArcherRounds[i].roundSubTypeName ?: sortedGenArcherRounds[i].roundName ?: "")
+            expected.add(sortedGenArcherRounds[i].roundSubTypeName ?: sortedGenArcherRounds[i].round?.displayName ?: "")
             expected.add(arrows.count { it.score != 0 })
             expected.add(arrows.sumBy { it.score })
-            expected.add(arrows.count { goldsType.isGold(it) })
+            val expectedGoldsType =
+                    rounds[i % rounds.size]?.let { getGoldsType(it.isOutdoor, it.isMetric) } ?: goldsType
+            expected.add(arrows.count { expectedGoldsType.isGold(it) })
             expected.add(if (archerRound.countsTowardsHandicap) yes else no)
 
             for (j in expected.indices.filterIndexed { k, _ -> !removedColumnIndexes.contains(k) }) {
