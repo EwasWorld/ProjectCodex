@@ -41,6 +41,7 @@
         <LinearLayout
             android:id="@+id/layout_create_round__round_sub_type"
             style="@style/CreateRoundLinearLayout"
+            android:visibility="gone"
             >
 
             <TextView
@@ -62,6 +63,7 @@
             android:id="@+id/layout_create_round__arrow_count_indicator"
             style="@style/CreateRoundLinearLayout"
             android:layout_marginBottom="5dp"
+            android:visibility="gone"
             >
 
             <TextView
@@ -86,6 +88,7 @@
             android:id="@+id/layout_create_round__distance_indicator"
             style="@style/CreateRoundLinearLayout"
             android:layout_marginTop="5dp"
+            android:visibility="gone"
             >
 
             <TextView

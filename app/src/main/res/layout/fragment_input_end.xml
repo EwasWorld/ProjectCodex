@@ -9,13 +9,13 @@
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_input_end__round_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="15dp"
+        app:layout_constraintBottom_toTopOf="@+id/layout_input_end__input_arrows"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.65"
         >
 
         <TableLayout
@@ -41,14 +41,14 @@
                     android:id="@+id/text_input_end__score_header"
                     style="@style/InputEndTableHeader"
                     android:background="@drawable/table_border"
-                    android:text="@string/archer_score_header"
+                    android:text="@string/input_end__archer_score_header"
                     />
 
                 <TextView
                     android:id="@+id/text_input_end__arrow_count_header"
                     style="@style/InputEndTableHeader"
                     android:background="@drawable/table_border"
-                    android:text="@string/archer_arrows_count_header"
+                    android:text="@string/input_end__archer_arrows_count_header"
                     />
             </TableRow>
 
@@ -87,6 +87,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/table_layout_input_end"
+            android:visibility="gone"
             >
 
             <TextView
@@ -121,13 +122,13 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_input_end__input_arrows"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layout_input_end__round_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="0.4"
         >
 
         <TextView
@@ -148,13 +149,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            tools:ignore="HardcodedText"
             android:text="X-10-3-m-.-."
             android:textColor="@color/inputEndText"
             android:textSize="@dimen/large_text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/text_input_end__end_total"
+            tools:ignore="HardcodedText"
             />
 
         <Button

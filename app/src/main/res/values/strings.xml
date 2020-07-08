@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Project Codex</string>
 
+    <string name="short_boolean_true">Y</string>
+    <string name="short_boolean_false">N</string>
+    <string name="units_meters_short">m</string>
+    <string name="units_yards_short">yd</string>
+
     <!-- Main menu -->
     <string name="main_menu__title">Main Menu</string>
     <string name="main_menu__new_round">Start New Round</string>
@@ -18,8 +23,6 @@
     <string name="create_round__arrow_count_indicator">Arrows per distance (doz):</string>
     <string name="create_round__distance_indicator">Distances:</string>
     <string name="create_round__arrows_per_end">Arrows per End</string>
-    <string name="units_meters_short">m</string>
-    <string name="units_yards_short">yd</string>
 
     <!-- Arrow information -->
     <string name="end_to_string_arrow_deliminator">-</string>
@@ -41,9 +44,9 @@
     <string name="err_input_end__end_not_full">Please enter all arrows for this end</string>
 
     <!-- Input end mini table -->
-    <string name="archer_name_header">Archer</string>
-    <string name="archer_score_header">Score</string>
-    <string name="archer_arrows_count_header">Arrows</string>
+    <string name="input_end__archer_name_header">Archer</string>
+    <string name="input_end__archer_score_header">Score</string>
+    <string name="input_end__archer_arrows_count_header">Arrows</string>
 
     <!-- View Round -->
     <string name="view_round__title">All Rounds</string>
@@ -70,8 +73,6 @@
     <string name="table_golds_tens_header">10</string>
     <string name="table_golds_xs_header">X</string>
     <string name="table_delete">Delete</string>
-    <string name="short_boolean_true">Y</string>
-    <string name="short_boolean_false">N</string>
     <string name="err_table_view__no_data">Table is empty</string>
 
     <!-- Errors -->
