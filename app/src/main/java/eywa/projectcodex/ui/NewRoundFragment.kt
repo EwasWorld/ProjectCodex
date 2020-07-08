@@ -26,7 +26,8 @@ class NewRoundFragment : Fragment() {
      * Used to find the round that was just created
      */
     private var maxId: Int = 0
-    private var selectedRoundPosition: Int = 0
+    private val noRoundPosition = 0
+    private var selectedRoundPosition: Int = noRoundPosition
     private var selectedSubtypePosition: Int? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -45,7 +46,9 @@ class NewRoundFragment : Fragment() {
             else {
                 maxId = id
                 // When the new round entry has been added, open the input end dialog
-                val action = NewRoundFragmentDirections.actionNewRoundFragmentToInputEndFragment(maxId)
+                val action = NewRoundFragmentDirections.actionNewRoundFragmentToInputEndFragment(
+                        maxId, selectedRoundPosition != noRoundPosition
+                )
                 view.findNavController().navigate(action)
             }
         })
@@ -57,16 +60,16 @@ class NewRoundFragment : Fragment() {
                     activity!!.applicationContext, R.layout.spinner_light_background,
                     roundSelection.getAvailableRounds()
             )
-            spinner_select_round.setSelection(0)
+            spinner_select_round.setSelection(noRoundPosition)
         })
 
         button_create_round.setOnClickListener {
+            val roundId = roundSelection.getSelectedRoundId(selectedRoundPosition)
+            val roundSubtypeId =
+                    if (roundId != null) roundSelection.getSelectedSubtypeId(selectedSubtypePosition) else null
             // TODO Check date locales (I want to store in UTC)
             newRoundViewModel.insert(
-                    ArcherRound(
-                            0, Date(), 1, false, roundId = roundSelection.getSelectedRoundId(selectedRoundPosition),
-                            roundSubTypeId = roundSelection.getSelectedSubtypeId(selectedSubtypePosition)
-                    )
+                    ArcherRound(0, Date(), 1, false, roundId = roundId, roundSubTypeId = roundSubtypeId)
             )
             // Navigate to the round's input end screen navigating to the newly created round id (found using maxId)
         }

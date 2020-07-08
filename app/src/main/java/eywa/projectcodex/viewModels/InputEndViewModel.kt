@@ -5,8 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.database.entities.*
+import eywa.projectcodex.database.repositories.ArcherRoundsRepo
 import eywa.projectcodex.database.repositories.ArrowValuesRepo
+import eywa.projectcodex.database.repositories.RoundsRepo
 import kotlinx.coroutines.launch
 
 /**
@@ -18,19 +20,35 @@ import kotlinx.coroutines.launch
  * https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
  */
 class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidViewModel(application) {
-    private val repository: ArrowValuesRepo
-    val allArrows: LiveData<List<ArrowValue>>
+    private val arrowValueRepo: ArrowValuesRepo
+    private val roundsRepo: RoundsRepo
+    val arrows: LiveData<List<ArrowValue>>
+    val archerRound: LiveData<ArcherRound>
 
     init {
-        val arrowValueDao = ScoresRoomDatabase.getDatabase(application, viewModelScope).arrowValueDao()
-        repository = ArrowValuesRepo(arrowValueDao, archerRoundId)
-        allArrows = repository.arrowValuesForRound!!
+        val db = ScoresRoomDatabase.getDatabase(application, viewModelScope)
+        roundsRepo = RoundsRepo(db.roundDao(), db.roundArrowCountDao(), db.roundSubTypeDao(), db.roundDistanceDao())
+        arrowValueRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
+        arrows = arrowValueRepo.arrowValuesForRound!!
+        archerRound = ArcherRoundsRepo(db.archerRoundDao()).getArcherRound(archerRoundId)
+    }
+
+    fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
+        return roundsRepo.getArrowCountsForRound(roundId)
+    }
+
+    fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>> {
+        return roundsRepo.getDistancesForRound(roundId, subTypeId)
+    }
+
+    fun getRoundById(roundId: Int): LiveData<Round> {
+        return roundsRepo.getRoundById(roundId)
     }
 
     /**
      * Launching in this scope prevents blocking
      */
     fun insert(arrowValue: ArrowValue) = viewModelScope.launch {
-        repository.insert(arrowValue)
+        arrowValueRepo.insert(arrowValue)
     }
 }

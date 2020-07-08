@@ -2,10 +2,12 @@ package eywa.projectcodex.database.entities
 
 import androidx.room.Entity
 
+const val ROUND_DISTANCES_TABLE_NAME = "round_distances"
+
 /**
  * The actual distances for each round subtype
  */
-@Entity(tableName = "round_distances", primaryKeys = ["roundId", "distanceNumber", "subTypeId"])
+@Entity(tableName = ROUND_DISTANCES_TABLE_NAME, primaryKeys = ["roundId", "distanceNumber", "subTypeId"])
 data class RoundDistance(
         val roundId: Int,
         val distanceNumber: Int,

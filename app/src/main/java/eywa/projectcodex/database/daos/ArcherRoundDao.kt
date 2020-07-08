@@ -18,6 +18,9 @@ interface ArcherRoundDao {
     @Query("SELECT MAX(archerRoundId) FROM $ARCHER_ROUNDS_TABLE_NAME")
     fun getMaxId(): LiveData<Int>
 
+    @Query("SELECT * FROM $ARCHER_ROUNDS_TABLE_NAME WHERE archerRoundId = :id")
+    fun getArcherRoundById(id: Int): LiveData<ArcherRound>
+
     @Query(
             """
                 SELECT rounds.*

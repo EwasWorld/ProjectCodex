@@ -2,10 +2,12 @@ package eywa.projectcodex.database.entities
 
 import androidx.room.Entity
 
+const val ROUND_ARROW_COUNTS_TABLE_NAME = "round_arrow_counts"
+
 /**
  * The number of arrows and the face sizes for each distance
  */
-@Entity(tableName = "round_arrow_counts", primaryKeys = ["roundId", "distanceNumber"])
+@Entity(tableName = ROUND_ARROW_COUNTS_TABLE_NAME, primaryKeys = ["roundId", "distanceNumber"])
 data class RoundArrowCount(
         val roundId: Int,
         /**

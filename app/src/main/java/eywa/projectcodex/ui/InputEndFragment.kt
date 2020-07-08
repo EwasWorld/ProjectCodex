@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -16,6 +17,9 @@ import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.End
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.database.entities.RoundArrowCount
+import eywa.projectcodex.database.entities.RoundDistance
+import eywa.projectcodex.logic.getRemainingArrowsPerDistance
 import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_input_end.*
@@ -23,7 +27,10 @@ import kotlinx.android.synthetic.main.fragment_input_end.*
 class InputEndFragment : Fragment() {
     private val args: InputEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
-    private var allArrows = emptyList<ArrowValue>()
+    private var arrows = emptyList<ArrowValue>()
+    private var arrowCounts = emptyList<RoundArrowCount>()
+    private var distances = emptyList<RoundDistance>()
+    private var distanceUnit: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_input_end, container, false)
@@ -36,10 +43,28 @@ class InputEndFragment : Fragment() {
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
             InputEndViewModel(activity!!.application, args.archerRoundId)
         }).get(InputEndViewModel::class.java)
-        inputEndViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
+        inputEndViewModel.archerRound.observe(viewLifecycleOwner, Observer { archerRound ->
+            archerRound.roundId?.let { roundId ->
+                inputEndViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, Observer {
+                    arrowCounts = it
+                    updateRoundInfo(view)
+                })
+                inputEndViewModel.getDistancesForRound(roundId, archerRound.roundSubTypeId)
+                        .observe(viewLifecycleOwner, Observer {
+                            distances = it
+                            updateRoundInfo(view)
+                        })
+                inputEndViewModel.getRoundById(roundId).observe(viewLifecycleOwner, Observer {
+                    distanceUnit =
+                            getString(if (it.isMetric) R.string.units_meters_short else R.string.units_yards_short)
+                    updateRoundInfo(view)
+                })
+            }
+        })
+        inputEndViewModel.arrows.observe(viewLifecycleOwner, Observer { arrows ->
             arrows?.let {
-                allArrows = arrows
-                updateRoundTotals(view)
+                this.arrows = arrows
+                updateRoundInfo(view)
             }
         })
 
@@ -107,7 +132,7 @@ class InputEndFragment : Fragment() {
             try {
                 // Update database
                 var highestArrowNumber = 0
-                for (arrow in allArrows) {
+                for (arrow in arrows) {
                     if (arrow.arrowNumber > highestArrowNumber) {
                         highestArrowNumber = arrow.arrowNumber
                     }
@@ -132,14 +157,41 @@ class InputEndFragment : Fragment() {
         view.findViewById<TextView>(R.id.text_end_total).text = end.getScore().toString()
     }
 
-    private fun updateRoundTotals(view: View) {
+    private fun updateRoundInfo(view: View) {
         view.findViewById<TextView>(R.id.text_table_score_1).text = roundTotal().toString()
-        view.findViewById<TextView>(R.id.text_table_arrow_count_1).text = allArrows.size.toString()
+        view.findViewById<TextView>(R.id.text_table_arrow_count_1).text = arrows.size.toString()
+
+        val roundIndicatorSection = view.findViewById<LinearLayout>(R.id.layout_round_indicator)
+        if (args.showRemaining && distances.size == arrowCounts.size && distanceUnit.isNotBlank()) {
+            roundIndicatorSection.visibility = View.VISIBLE
+            val roundIndicators = getRemainingArrowsPerDistance(
+                    arrows.size, arrowCounts, distances, distanceUnit,
+                    view.resources.getString(R.string.input_end__round_indicator_at)
+            )
+            val label = view.findViewById<TextView>(R.id.text_round_indicator_label)
+            val large = view.findViewById<TextView>(R.id.text_round_indicator_large)
+            val small = view.findViewById<TextView>(R.id.text_round_indicator_small)
+            if (roundIndicators.first.isNotBlank()) {
+                label.text = view.resources.getString(R.string.input_end__round_indicator_label)
+                large.text = roundIndicators.first
+                small.text = roundIndicators.second
+                large.visibility = View.VISIBLE
+                small.visibility = View.VISIBLE
+            }
+            else {
+                label.text = view.resources.getString(R.string.input_end__round_indicator_complete)
+                large.visibility = View.GONE
+                small.visibility = View.GONE
+            }
+        }
+        else {
+            roundIndicatorSection.visibility = View.GONE
+        }
     }
 
     private fun roundTotal(): Int {
         var total = 0
-        for (arrow in allArrows) {
+        for (arrow in arrows) {
             total += arrow.score
         }
         return total

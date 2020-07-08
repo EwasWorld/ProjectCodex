@@ -25,6 +25,18 @@ class RoundsRepo(
     val roundSubTypes: LiveData<List<RoundSubType>> = roundSubTypeDao.getAllSubTypes()
     val roundDistances: LiveData<List<RoundDistance>> = roundDistanceDao.getAllDistances()
 
+    fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
+        return roundArrowCountDao.getArrowCountsForRound(roundId)
+    }
+
+    fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>> {
+        return roundDistanceDao.getDistancesForRound(roundId, subTypeId)
+    }
+
+    fun getRoundById(roundId: Int): LiveData<Round> {
+        return roundDao.getRoundById(roundId)
+    }
+
     /**
      * Updates rounds tables based on update items. WARNING: performs minimal checking for consistency.
      * Will make sure to delete everything when a Round is deleted

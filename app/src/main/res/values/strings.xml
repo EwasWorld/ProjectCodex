@@ -33,6 +33,9 @@
     <string name="input_end__backspace">Backspace</string>
     <string name="input_end__next_end">Next end</string>
     <string name="input_end__score_pad">Score Pad</string>
+    <string name="input_end__round_indicator_label">Remaining Arrows in Round:</string>
+    <string name="input_end__round_indicator_at">at</string>
+    <string name="input_end__round_indicator_complete">Round Complete</string>
     <string name="err_input_end__end_full">Arrows already added</string>
     <string name="err_input_end__end_empty">No arrows entered</string>
     <string name="err_input_end__end_not_full">Please enter all arrows for this end</string>
@@ -73,4 +76,15 @@
 
     <!-- Errors -->
     <string name="err_button__ok">OK</string>
+    <string name="placeholder_0">0</string>
+    <string name="input_end__arrow_value_1">1</string>
+    <string name="input_end__arrow_value_2">2</string>
+    <string name="input_end__arrow_value_3">3</string>
+    <string name="input_end__arrow_value_4">4</string>
+    <string name="input_end__arrow_value_5">5</string>
+    <string name="input_end__arrow_value_6">6</string>
+    <string name="input_end__arrow_value_7">7</string>
+    <string name="input_end__arrow_value_8">8</string>
+    <string name="input_end__arrow_value_9">9</string>
+    <string name="input_end__arrow_value_10">10</string>
 </resources>

@@ -19,6 +19,10 @@ class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
         return archerRoundDao.getRoundInfo(archerRoundId)
     }
 
+    fun getArcherRound(archerRoundId: Int): LiveData<ArcherRound> {
+        return archerRoundDao.getArcherRoundById(archerRoundId)
+    }
+
     suspend fun insert(archerRound: ArcherRound) {
         archerRoundDao.insert(archerRound)
     }

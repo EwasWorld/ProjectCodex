@@ -56,6 +56,7 @@ fun getAllArcherRoundsWithName(): LiveData<List<ArcherRoundWithName>>
 ## Parameters
 - Parameters should in general be defined in the order of constants, `val`, `var`
 - Constructor parameters should be in the order `val`, `var`, constructor-only
+- Lists from the database should only be named 'all' if they will contain all unfiltered rows from the specified table
 
 ## Braces
 - If statements should ALWAYS use braces unless they can be completely contained on one line e.g. val test = if (isAwesome) "yes" else "no"
@@ -72,3 +73,26 @@ fun getAllArcherRoundsWithName(): LiveData<List<ArcherRoundWithName>>
 ## TODOs
 - Should only be used when a specific piece of code needs to be highlighted for something that cannot be done now
 - There should always be a relevant card on the Trello so that the work is not missed
+
+## Linting
+This should be used only if absolutely necessary, in general the warning should be fixed not supressed
+
+```kotlin
+@SuppressLint("AndroidWarningId")
+fun methodWithWarning() { }
+
+@SuppressLint({"AndroidWarningId","Warning2"})
+fun methodWithTwoWarnings() { }
+
+fun anotherMethodWithWarning() {
+    //noinspection HardcodedText
+    var warning = "hardcodedString"
+}
+```
+
+xml warnings
+```xml
+<resources xmlns:tools="http://schemas.android.com/tools">
+     <dimen name="largeTextSize" tools:ignore="SpUsage">123dp</dimen>
+</resources>
+```

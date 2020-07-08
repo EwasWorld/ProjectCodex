@@ -3,10 +3,12 @@ package eywa.projectcodex.database.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+const val ROUND_TABLE_NAME = "rounds"
+
 /**
  * Main round information
  */
-@Entity(tableName = "rounds")
+@Entity(tableName = ROUND_TABLE_NAME)
 data class Round(
         @PrimaryKey(autoGenerate = true)
         val roundId: Int,

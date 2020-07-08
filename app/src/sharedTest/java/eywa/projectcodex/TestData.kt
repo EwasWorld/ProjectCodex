@@ -27,6 +27,7 @@ class TestData {
                 DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36),
                 DefaultRoundInfo.RoundInfoArrowCount(3, 60.0, 24)
         )
+        val MAX_ARROW_COUNT_ARROWS = 60
 
         private val CORE_ARROWS = arrayOf(ARROWS[5], ARROWS[11], ARROWS[0], ARROWS[10])
         private val CORE_ROUND_NAMES = arrayOf("WA 1440", "St. George", "National", "York/Hereford", "WA 70m")
@@ -229,8 +230,11 @@ class TestData {
         }
 
         /**
-         * @param sets the number of arrow count sets to create (each set contains [minSetSize]-[maxSetSize] arrow
-         * counts and has a unique roundId)
+         * Generates a set of arrow counts for roundIds 1 to [sets]
+         * @param sets the number rounds to create arrow count sets for
+         * @param minSetSize minimum number of arrow counts each round must have
+         * @param maxSetSize maximum number of arrow counts each round must have
+         * @see generateArrowCount
          */
         fun generateArrowCounts(sets: Int = 1, maxSetSize: Int = 3, minSetSize: Int = 0): List<RoundArrowCount> {
             require(sets >= 0)
@@ -264,8 +268,14 @@ class TestData {
             return arrowCounts
         }
 
+        /**
+         * Generates an arrow count for the given [roundId] and [distanceNumber] with a face size between 1 and 122 and
+         * an arrow count between 1 and [MAX_ARROW_COUNT_ARROWS]
+         */
         private fun generateArrowCount(roundId: Int, distanceNumber: Int): RoundArrowCount {
-            return RoundArrowCount(roundId, distanceNumber, Random.nextDouble(122.0), Random.nextInt(60))
+            return RoundArrowCount(
+                    roundId, distanceNumber, Random.nextDouble(122.0) + 1, Random.nextInt(MAX_ARROW_COUNT_ARROWS) + 1
+            )
         }
 
         /**

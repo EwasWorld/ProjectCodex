@@ -129,7 +129,8 @@ class RoundSelection(
     }
 
     /**
-     * @return the subtype ID at the given position, the only available subtype ID, or null
+     * @return the subtype ID at the given position, the only available subtype ID, or 1 (as is default in RoundDistance)
+     * @see RoundDistance
      */
     fun getSelectedSubtypeId(selectedSubtypePosition: Int?): Int? {
         if (selectedSubtypePosition != null) {
@@ -138,7 +139,7 @@ class RoundSelection(
         }
 
         if (selectedSubtypePosition == null) {
-            return if (availableSubtypes.size == 1) availableSubtypes[0] else null
+            return if (availableSubtypes.size == 1) availableSubtypes[0] else 1
         }
         return availableSubtypes[selectedSubtypePosition]
     }
