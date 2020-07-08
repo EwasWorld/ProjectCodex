@@ -39,17 +39,17 @@ class MainMenuFragment : Fragment() {
         mainMenuViewModel.roundSubTypes.observe(viewLifecycleOwner, Observer { it?.let { roundSubTypes = it } })
         mainMenuViewModel.roundDistances.observe(viewLifecycleOwner, Observer { it?.let { roundDistances = it } })
 
-        button_start_new_round.setOnClickListener {
+        button_main_menu__start_new_round.setOnClickListener {
             val action = MainMenuFragmentDirections.actionMainMenuFragmentToNewRoundFragment()
             view.findNavController().navigate(action)
         }
 
-        button_view_rounds.setOnClickListener {
+        button_main_menu__view_rounds.setOnClickListener {
             val action = MainMenuFragmentDirections.actionMainMenuFragmentToViewRoundsFragment()
             view.findNavController().navigate(action)
         }
 
-        button_update_default_rounds.setOnClickListener {
+        button_main_menu__update_default_rounds.setOnClickListener {
             val defaultRounds = roundsFromJson(
                     resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() })
             val updates = checkDefaultRounds(defaultRounds, rounds, roundArrowCounts, roundSubTypes, roundDistances)

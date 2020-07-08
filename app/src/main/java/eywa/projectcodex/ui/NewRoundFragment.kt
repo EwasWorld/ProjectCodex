@@ -56,14 +56,14 @@ class NewRoundFragment : Fragment() {
         val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
         // Update the spinners if the database updates (not sure why it would but whatever)
         newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer { _ ->
-            spinner_select_round.adapter = ArrayAdapter(
+            spinner_create_round__round.adapter = ArrayAdapter(
                     activity!!.applicationContext, R.layout.spinner_light_background,
                     roundSelection.getAvailableRounds()
             )
-            spinner_select_round.setSelection(noRoundPosition)
+            spinner_create_round__round.setSelection(noRoundPosition)
         })
 
-        button_create_round.setOnClickListener {
+        button_create_round__submit.setOnClickListener {
             val roundId = roundSelection.getSelectedRoundId(selectedRoundPosition)
             val roundSubtypeId =
                     if (roundId != null) roundSelection.getSelectedSubtypeId(selectedSubtypePosition) else null
@@ -74,7 +74,7 @@ class NewRoundFragment : Fragment() {
             // Navigate to the round's input end screen navigating to the newly created round id (found using maxId)
         }
 
-        spinner_select_round.onItemSelectedListener = object : OnItemSelectedListener {
+        spinner_create_round__round.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -89,15 +89,15 @@ class NewRoundFragment : Fragment() {
                 val roundSubtypes = roundSelection.getRoundSubtypes(position)
                 if (roundSubtypes.isNullOrEmpty()) {
                     selectedSubtypePosition = null
-                    layout_select_round_sub_type.visibility = View.GONE
-                    layout_select_round_arrow_count_indicator.visibility = View.GONE
-                    layout_select_round_distance_indicator.visibility = View.GONE
+                    layout_create_round__round_sub_type.visibility = View.GONE
+                    layout_create_round__arrow_count_indicator.visibility = View.GONE
+                    layout_create_round__distance_indicator.visibility = View.GONE
                     return
                 }
 
-                spinner_select_round_sub_type.adapter =
+                spinner_create_round__round_sub_type.adapter =
                         ArrayAdapter(activity!!.applicationContext, R.layout.spinner_light_background, roundSubtypes)
-                layout_select_round_sub_type.visibility = View.VISIBLE
+                layout_create_round__round_sub_type.visibility = View.VISIBLE
 
                 setDistanceIndicatorText(roundSelection)
 
@@ -106,16 +106,16 @@ class NewRoundFragment : Fragment() {
                  */
                 val arrowCountText = roundSelection.getArrowCountIndicatorText(position)
                 if (arrowCountText != null) {
-                    text_select_round_arrow_count_indicator.text = arrowCountText
-                    layout_select_round_arrow_count_indicator.visibility = View.VISIBLE
+                    text_create_round__arrow_count_indicator.text = arrowCountText
+                    layout_create_round__arrow_count_indicator.visibility = View.VISIBLE
                 }
                 else {
-                    layout_select_round_arrow_count_indicator.visibility = View.GONE
+                    layout_create_round__arrow_count_indicator.visibility = View.GONE
                 }
             }
         }
 
-        spinner_select_round_sub_type.onItemSelectedListener = object : OnItemSelectedListener {
+        spinner_create_round__round_sub_type.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -135,11 +135,11 @@ class NewRoundFragment : Fragment() {
     fun setDistanceIndicatorText(roundSelection: RoundSelection) {
         val distanceText = roundSelection.getDistanceIndicatorText(selectedRoundPosition, selectedSubtypePosition)
         if (distanceText != null) {
-            text_select_round_distance_indicator.text = distanceText
-            layout_select_round_distance_indicator.visibility = View.VISIBLE
+            text_create_round__distance_indicator.text = distanceText
+            layout_create_round__distance_indicator.visibility = View.VISIBLE
         }
         else {
-            layout_select_round_distance_indicator.visibility = View.GONE
+            layout_create_round__distance_indicator.visibility = View.GONE
         }
     }
 }

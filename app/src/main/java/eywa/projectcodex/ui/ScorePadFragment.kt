@@ -34,7 +34,7 @@ class ScorePadFragment : Fragment() {
         activity?.title = getString(R.string.score_pad__title)
 
         val tableAdapter = InfoTableViewAdapter(context!!)
-        val tableView = view.findViewById<TableView>(R.id.score_pad__table_view)
+        val tableView = view.findViewById<TableView>(R.id.table_view_score_pad)
         tableView.adapter = tableAdapter
         tableView.tableViewListener = ScorePadTableViewListener(tableView)
 

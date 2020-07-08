@@ -39,7 +39,7 @@ class ViewRoundsFragment : Fragment() {
         activity?.title = getString(R.string.view_round__title)
 
         val tableAdapter = InfoTableViewAdapter(context!!)
-        val tableView = view.findViewById<TableView>(R.id.view_round__table_view)
+        val tableView = view.findViewById<TableView>(R.id.table_view_view_rounds)
         tableView.adapter = tableAdapter
         tableView.rowHeaderWidth = 0
         tableView.tableViewListener = ViewRoundsTableViewListener(tableView)

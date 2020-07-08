@@ -84,8 +84,8 @@ class ViewRoundsInstrumentedTest {
     }
 
     private fun goToViewRoundsAndPopulateAdapter() {
-        R.id.button_view_rounds.click()
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.view_round__table_view).adapter!!
+        R.id.button_main_menu__view_rounds.click()
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_view_rounds).adapter!!
                 as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
     }
 
@@ -151,7 +151,7 @@ class ViewRoundsInstrumentedTest {
         onView(withText(uniqueScore.toString())).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
         onView(withText("Score Pad")).check(matches(isDisplayed()))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
                 as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
 
         // Check the last running total is the unique score
@@ -174,7 +174,7 @@ class ViewRoundsInstrumentedTest {
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
         // Delete second row (index 2 because header has the same text)
-        onView(withId((R.id.view_round__table_view))).perform(swipeLeft())
+        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
         onView(withIndex(withText("Delete"), 2)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {

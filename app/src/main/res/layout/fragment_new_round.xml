@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
@@ -20,12 +19,12 @@
         >
 
         <LinearLayout
-            android:id="@+id/layout_select_round"
+            android:id="@+id/layout_create_round__round"
             style="@style/CreateRoundLinearLayout"
             >
 
             <TextView
-                android:id="@+id/text_select_round"
+                android:id="@+id/text_create_round__round_label"
                 style="@style/GeneralText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,20 +32,19 @@
                 />
 
             <Spinner
-                android:id="@+id/spinner_select_round"
+                android:id="@+id/spinner_create_round__round"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_select_round_sub_type"
+            android:id="@+id/layout_create_round__round_sub_type"
             style="@style/CreateRoundLinearLayout"
-            android:visibility="gone"
             >
 
             <TextView
-                android:id="@+id/text_select_round_sub_type"
+                android:id="@+id/text_create_round__round_sub_type_label"
                 style="@style/GeneralText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -54,21 +52,20 @@
                 />
 
             <Spinner
-                android:id="@+id/spinner_select_round_sub_type"
+                android:id="@+id/spinner_create_round__round_sub_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_select_round_arrow_count_indicator"
+            android:id="@+id/layout_create_round__arrow_count_indicator"
             style="@style/CreateRoundLinearLayout"
             android:layout_marginBottom="5dp"
-            android:visibility="gone"
             >
 
             <TextView
-                android:id="@+id/label_select_round_arrow_count_indicator"
+                android:id="@+id/text_create_round__arrow_count_indicator_label"
                 style="@style/GeneralText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -78,7 +75,7 @@
                 />
 
             <TextView
-                android:id="@+id/text_select_round_arrow_count_indicator"
+                android:id="@+id/text_create_round__arrow_count_indicator"
                 style="@style/GeneralText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -86,14 +83,13 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_select_round_distance_indicator"
+            android:id="@+id/layout_create_round__distance_indicator"
             style="@style/CreateRoundLinearLayout"
             android:layout_marginTop="5dp"
-            android:visibility="gone"
             >
 
             <TextView
-                android:id="@+id/label_select_round_distance_indicator"
+                android:id="@+id/text_create_round__distance_indicator_label"
                 style="@style/GeneralText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -103,7 +99,7 @@
                 />
 
             <TextView
-                android:id="@+id/text_select_round_distance_indicator"
+                android:id="@+id/text_create_round__distance_indicator"
                 style="@style/GeneralText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -111,12 +107,11 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_submit"
             style="@style/CreateRoundLinearLayout"
             >
 
             <Button
-                android:id="@+id/button_create_round"
+                android:id="@+id/button_create_round__submit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/create_round__submit"

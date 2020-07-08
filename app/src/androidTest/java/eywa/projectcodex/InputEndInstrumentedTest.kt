@@ -80,7 +80,7 @@ class InputEndInstrumentedTest {
         /*
          * Navigate to create round screen
          */
-        R.id.button_start_new_round.click()
+        R.id.button_main_menu__start_new_round.click()
     }
 
     @After
@@ -91,21 +91,21 @@ class InputEndInstrumentedTest {
     @Test
     @Throws(Exception::class)
     fun testScoreButtonPressed() {
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
 
         val buttons = mapOf(
-                R.id.button_score_0 to "m",
-                R.id.button_score_1 to "1",
-                R.id.button_score_2 to "2",
-                R.id.button_score_3 to "3",
-                R.id.button_score_4 to "4",
-                R.id.button_score_5 to "5",
-                R.id.button_score_6 to "6",
-                R.id.button_score_7 to "7",
-                R.id.button_score_8 to "8",
-                R.id.button_score_9 to "9",
-                R.id.button_score_10 to "10",
-                R.id.button_score_x to "X"
+                R.id.button_input_end__score_0 to "m",
+                R.id.button_input_end__score_1 to "1",
+                R.id.button_input_end__score_2 to "2",
+                R.id.button_input_end__score_3 to "3",
+                R.id.button_input_end__score_4 to "4",
+                R.id.button_input_end__score_5 to "5",
+                R.id.button_input_end__score_6 to "6",
+                R.id.button_input_end__score_7 to "7",
+                R.id.button_input_end__score_8 to "8",
+                R.id.button_input_end__score_9 to "9",
+                R.id.button_input_end__score_10 to "10",
+                R.id.button_input_end__score_x to "X"
         )
 
         // Pressing each button
@@ -116,187 +116,187 @@ class InputEndInstrumentedTest {
                 else -> Integer.parseInt(button.value)
             }
             button.key.click()
-            R.id.text_arrow_scores.textEquals(button.value + emptyEnd.substring(1))
-            R.id.text_end_total.textEquals(expected.toString())
+            R.id.text_input_end__inputted_arrows.textEquals(button.value + emptyEnd.substring(1))
+            R.id.text_input_end__end_total.textEquals(expected.toString())
 
             button.key.click()
-            R.id.text_arrow_scores.textEquals(button.value + "-" + button.value + emptyEnd.substring(3))
-            R.id.text_end_total.textEquals((expected * 2).toString())
+            R.id.text_input_end__inputted_arrows.textEquals(button.value + "-" + button.value + emptyEnd.substring(3))
+            R.id.text_input_end__end_total.textEquals((expected * 2).toString())
 
-            R.id.button_clear_end.click()
-            R.id.text_arrow_scores.textEquals(emptyEnd)
-            R.id.text_end_total.textEquals("0")
+            R.id.button_input_end__clear.click()
+            R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+            R.id.text_input_end__end_total.textEquals("0")
         }
 
         // Filling an end
-        R.id.button_score_3.click()
-        R.id.button_score_7.click()
-        R.id.text_arrow_scores.textEquals("3-7-.-.-.-.")
-        R.id.text_end_total.textEquals("10")
-        R.id.button_score_3.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-.-.-.")
-        R.id.text_end_total.textEquals("13")
-        R.id.button_score_1.click()
-        R.id.button_score_1.click()
-        R.id.button_score_3.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
-        R.id.text_end_total.textEquals("18")
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_7.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-.-.-.-.")
+        R.id.text_input_end__end_total.textEquals("10")
+        R.id.button_input_end__score_3.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-.-.-.")
+        R.id.text_input_end__end_total.textEquals("13")
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_3.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-1-3")
+        R.id.text_input_end__end_total.textEquals("18")
 
         // Too many arrows
-        R.id.button_score_7.click()
+        R.id.button_input_end__score_7.click()
         activity containsToast "Arrows already added"
-        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
-        R.id.text_end_total.textEquals("18")
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-1-3")
+        R.id.text_input_end__end_total.textEquals("18")
     }
 
     @Test
     @Throws(Exception::class)
     fun testClearScore() {
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
 
         // Full score
-        R.id.button_score_3.click()
-        R.id.button_score_7.click()
-        R.id.button_score_3.click()
-        R.id.button_score_1.click()
-        R.id.button_score_1.click()
-        R.id.button_score_3.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
-        R.id.text_end_total.textEquals("18")
-        R.id.button_clear_end.click()
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_7.click()
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_3.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-1-3")
+        R.id.text_input_end__end_total.textEquals("18")
+        R.id.button_input_end__clear.click()
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
 
         // Partial score
-        R.id.button_score_3.click()
-        R.id.button_score_7.click()
-        R.id.button_score_3.click()
-        R.id.button_score_1.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-1-.-.")
-        R.id.text_end_total.textEquals("14")
-        R.id.button_clear_end.click()
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_7.click()
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_1.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-.-.")
+        R.id.text_input_end__end_total.textEquals("14")
+        R.id.button_input_end__clear.click()
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
 
         // No score
-        R.id.button_clear_end.click()
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.button_input_end__clear.click()
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
     }
 
     @Test
     @Throws(Exception::class)
     fun testBackSpace() {
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
 
         // Full score
-        R.id.button_score_3.click()
-        R.id.button_score_7.click()
-        R.id.button_score_3.click()
-        R.id.button_score_1.click()
-        R.id.button_score_1.click()
-        R.id.button_score_3.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
-        R.id.text_end_total.textEquals("18")
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_7.click()
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_3.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-1-3")
+        R.id.text_input_end__end_total.textEquals("18")
 
-        R.id.button_backspace.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-1-1-.")
-        R.id.text_end_total.textEquals("15")
+        R.id.button_input_end__backspace.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-1-.")
+        R.id.text_input_end__end_total.textEquals("15")
 
-        R.id.button_backspace.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-1-.-.")
-        R.id.text_end_total.textEquals("14")
+        R.id.button_input_end__backspace.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-.-.")
+        R.id.text_input_end__end_total.textEquals("14")
 
-        R.id.button_backspace.click()
-        R.id.button_backspace.click()
-        R.id.text_arrow_scores.textEquals("3-7-.-.-.-.")
-        R.id.text_end_total.textEquals("10")
+        R.id.button_input_end__backspace.click()
+        R.id.button_input_end__backspace.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-.-.-.-.")
+        R.id.text_input_end__end_total.textEquals("10")
 
-        R.id.button_backspace.click()
-        R.id.button_backspace.click()
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.button_input_end__backspace.click()
+        R.id.button_input_end__backspace.click()
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
 
-        R.id.button_backspace.click()
+        R.id.button_input_end__backspace.click()
         activity containsToast "No arrows entered"
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
     }
 
     @Test
     @Throws(Exception::class)
     fun testNextEnd() {
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
 
-        R.id.text_table_score_1.textEquals("0")
-        R.id.text_table_arrow_count_1.textEquals("0")
+        R.id.text_input_end__table_score_1.textEquals("0")
+        R.id.text_input_end__table_arrow_count_1.textEquals("0")
 
         // End 1
-        R.id.button_score_3.click()
-        R.id.button_score_7.click()
-        R.id.button_score_3.click()
-        R.id.button_score_1.click()
-        R.id.button_score_1.click()
-        R.id.button_score_3.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-1-1-3")
-        R.id.text_end_total.textEquals("18")
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_7.click()
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_1.click()
+        R.id.button_input_end__score_3.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-1-1-3")
+        R.id.text_input_end__end_total.textEquals("18")
 
-        R.id.button_next_end.click()
-        R.id.text_table_score_1.textEquals("18")
-        R.id.text_table_arrow_count_1.textEquals("6")
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.button_input_end__next_end.click()
+        R.id.text_input_end__table_score_1.textEquals("18")
+        R.id.text_input_end__table_arrow_count_1.textEquals("6")
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
 
         // End 2
-        R.id.button_score_3.click()
-        R.id.button_score_7.click()
-        R.id.button_score_3.click()
-        R.id.button_score_6.click()
-        R.id.button_score_6.click()
-        R.id.button_score_3.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-6-6-3")
-        R.id.text_end_total.textEquals("28")
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_7.click()
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_6.click()
+        R.id.button_input_end__score_6.click()
+        R.id.button_input_end__score_3.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-6-6-3")
+        R.id.text_input_end__end_total.textEquals("28")
 
-        R.id.button_next_end.click()
-        R.id.text_table_score_1.textEquals("46")
-        R.id.text_table_arrow_count_1.textEquals("12")
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.button_input_end__next_end.click()
+        R.id.text_input_end__table_score_1.textEquals("46")
+        R.id.text_input_end__table_arrow_count_1.textEquals("12")
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
 
         // No arrows
-        R.id.button_next_end.click()
+        R.id.button_input_end__next_end.click()
         activity containsToast "Please enter all arrows for this end"
-        R.id.text_table_score_1.textEquals("46")
-        R.id.text_table_arrow_count_1.textEquals("12")
-        R.id.text_arrow_scores.textEquals(emptyEnd)
-        R.id.text_end_total.textEquals("0")
+        R.id.text_input_end__table_score_1.textEquals("46")
+        R.id.text_input_end__table_arrow_count_1.textEquals("12")
+        R.id.text_input_end__inputted_arrows.textEquals(emptyEnd)
+        R.id.text_input_end__end_total.textEquals("0")
 
         // Some arrows
-        R.id.button_score_3.click()
-        R.id.button_score_7.click()
-        R.id.button_score_3.click()
-        R.id.button_score_6.click()
-        R.id.button_score_6.click()
-        R.id.text_arrow_scores.textEquals("3-7-3-6-6-.")
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_7.click()
+        R.id.button_input_end__score_3.click()
+        R.id.button_input_end__score_6.click()
+        R.id.button_input_end__score_6.click()
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-6-6-.")
 
-        R.id.button_next_end.click()
+        R.id.button_input_end__next_end.click()
         activity containsToast "Please enter all arrows for this end"
-        R.id.text_table_score_1.textEquals("46")
-        R.id.text_table_arrow_count_1.textEquals("12")
-        R.id.text_arrow_scores.textEquals("3-7-3-6-6-.")
+        R.id.text_input_end__table_score_1.textEquals("46")
+        R.id.text_input_end__table_arrow_count_1.textEquals("12")
+        R.id.text_input_end__inputted_arrows.textEquals("3-7-3-6-6-.")
     }
 
     @Test
     @Throws(Exception::class)
     fun testOpenScorePad() {
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
 
         for (i in 0.rangeTo(5)) {
-            R.id.button_score_1.click()
+            R.id.button_input_end__score_1.click()
         }
-        R.id.button_next_end.click()
-        R.id.button_score_pad.click()
-        val tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+        R.id.button_input_end__next_end.click()
+        R.id.button_input_end__score_pad.click()
+        val tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
                 as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
         assertEquals(2, tableViewAdapter.getCellColumnItems(0).size)
         assertEquals(5, tableViewAdapter.getCellRowItems(0)?.size)
@@ -304,39 +304,39 @@ class InputEndInstrumentedTest {
 
     @Test
     fun testRemainingArrowsIndicator() {
-        R.id.spinner_select_round.clickSpinnerItem(roundsInput[0].displayName)
-        R.id.button_create_round.click()
-        R.id.text_round_indicator_large.textEquals("12 at 90m")
-        R.id.text_round_indicator_small.textEquals("12 at 70m, 12 at 50m")
+        R.id.spinner_create_round__round.clickSpinnerItem(roundsInput[0].displayName)
+        R.id.button_create_round__submit.click()
+        R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 90m")
+        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
 
         completeEnd()
-        R.id.text_round_indicator_large.textEquals("6 at 90m")
-        R.id.text_round_indicator_small.textEquals("12 at 70m, 12 at 50m")
+        R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 90m")
+        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
 
         completeEnd()
-        R.id.text_round_indicator_large.textEquals("12 at 70m")
-        R.id.text_round_indicator_small.textEquals("12 at 50m")
+        R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 70m")
+        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 50m")
 
         completeEnd()
-        R.id.text_round_indicator_large.textEquals("6 at 70m")
-        R.id.text_round_indicator_small.textEquals("12 at 50m")
+        R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 70m")
+        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 50m")
 
         completeEnd()
-        R.id.text_round_indicator_large.textEquals("12 at 50m")
-        R.id.text_round_indicator_small.textEquals("")
+        R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 50m")
+        R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
 
         completeEnd()
-        R.id.text_round_indicator_large.textEquals("6 at 50m")
-        R.id.text_round_indicator_small.textEquals("")
+        R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 50m")
+        R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
 
         completeEnd()
-        R.id.text_round_indicator_label.textEquals("Round Complete")
+        R.id.text_input_end__remaining_arrows_label.textEquals("Round Complete")
     }
 
     private fun completeEnd() {
-        while (activity.activity.findViewById<TextView>(R.id.text_arrow_scores).text.contains('.')) {
-            R.id.button_score_1.click()
+        while (activity.activity.findViewById<TextView>(R.id.text_input_end__inputted_arrows).text.contains('.')) {
+            R.id.button_input_end__score_1.click()
         }
-        R.id.button_next_end.click()
+        R.id.button_input_end__next_end.click()
     }
 }

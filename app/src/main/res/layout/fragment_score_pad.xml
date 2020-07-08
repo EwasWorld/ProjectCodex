@@ -9,7 +9,7 @@
     >
 
     <com.evrencoskun.tableview.TableView
-        android:id="@+id/score_pad__table_view"
+        android:id="@+id/table_view_score_pad"
         style="@style/TableViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

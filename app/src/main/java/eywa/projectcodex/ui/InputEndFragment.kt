@@ -76,9 +76,9 @@ class InputEndFragment : Fragment() {
             )
 
         // Set the place holder text for the arrow scores
-        view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()
+        view.findViewById<TextView>(R.id.text_input_end__inputted_arrows).text = end.toString()
 
-        button_score_pad.setOnClickListener {
+        button_input_end__score_pad.setOnClickListener {
             val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(
                     end.arrowsPerEnd,
                     args.archerRoundId
@@ -88,18 +88,18 @@ class InputEndFragment : Fragment() {
 
         // TODO better way to do this? Tags?
         val scoreButtons = arrayOf(
-                button_score_0,
-                button_score_1,
-                button_score_2,
-                button_score_3,
-                button_score_4,
-                button_score_5,
-                button_score_6,
-                button_score_7,
-                button_score_8,
-                button_score_9,
-                button_score_10,
-                button_score_x
+                button_input_end__score_0,
+                button_input_end__score_1,
+                button_input_end__score_2,
+                button_input_end__score_3,
+                button_input_end__score_4,
+                button_input_end__score_5,
+                button_input_end__score_6,
+                button_input_end__score_7,
+                button_input_end__score_8,
+                button_input_end__score_9,
+                button_input_end__score_10,
+                button_input_end__score_x
         )
         for (button in scoreButtons) {
             button.setOnClickListener {
@@ -113,12 +113,12 @@ class InputEndFragment : Fragment() {
             }
         }
 
-        button_clear_end.setOnClickListener {
+        button_input_end__clear.setOnClickListener {
             end.clear()
             updateEndStringAndTotal(view, end)
         }
 
-        button_backspace.setOnClickListener {
+        button_input_end__backspace.setOnClickListener {
             try {
                 end.removeLastArrowFromEnd()
                 updateEndStringAndTotal(view, end)
@@ -128,7 +128,7 @@ class InputEndFragment : Fragment() {
             }
         }
 
-        button_next_end.setOnClickListener {
+        button_input_end__next_end.setOnClickListener {
             try {
                 // Update database
                 var highestArrowNumber = 0
@@ -153,24 +153,24 @@ class InputEndFragment : Fragment() {
     }
 
     private fun updateEndStringAndTotal(view: View, end: End) {
-        view.findViewById<TextView>(R.id.text_arrow_scores).text = end.toString()
-        view.findViewById<TextView>(R.id.text_end_total).text = end.getScore().toString()
+        view.findViewById<TextView>(R.id.text_input_end__inputted_arrows).text = end.toString()
+        view.findViewById<TextView>(R.id.text_input_end__end_total).text = end.getScore().toString()
     }
 
     private fun updateRoundInfo(view: View) {
-        view.findViewById<TextView>(R.id.text_table_score_1).text = roundTotal().toString()
-        view.findViewById<TextView>(R.id.text_table_arrow_count_1).text = arrows.size.toString()
+        view.findViewById<TextView>(R.id.text_input_end__table_score_1).text = roundTotal().toString()
+        view.findViewById<TextView>(R.id.text_input_end__table_arrow_count_1).text = arrows.size.toString()
 
-        val roundIndicatorSection = view.findViewById<LinearLayout>(R.id.layout_round_indicator)
+        val roundIndicatorSection = view.findViewById<LinearLayout>(R.id.layout_input_end__remaining_arrows)
         if (args.showRemaining && distances.size == arrowCounts.size && distanceUnit.isNotBlank()) {
             roundIndicatorSection.visibility = View.VISIBLE
             val roundIndicators = getRemainingArrowsPerDistance(
                     arrows.size, arrowCounts, distances, distanceUnit,
                     view.resources.getString(R.string.input_end__round_indicator_at)
             )
-            val label = view.findViewById<TextView>(R.id.text_round_indicator_label)
-            val large = view.findViewById<TextView>(R.id.text_round_indicator_large)
-            val small = view.findViewById<TextView>(R.id.text_round_indicator_small)
+            val label = view.findViewById<TextView>(R.id.text_input_end__remaining_arrows_label)
+            val large = view.findViewById<TextView>(R.id.text_input_end__remaining_arrows_current_distance)
+            val small = view.findViewById<TextView>(R.id.text_input_end__remaining_arrows_later_distances)
             if (roundIndicators.first.isNotBlank()) {
                 label.text = view.resources.getString(R.string.input_end__round_indicator_label)
                 large.text = roundIndicators.first

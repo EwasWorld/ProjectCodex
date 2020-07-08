@@ -83,7 +83,7 @@ class NewRoundInstrumentedTest {
         /*
          * Navigate to create round screen
          */
-        R.id.button_start_new_round.click()
+        R.id.button_main_menu__start_new_round.click()
     }
 
     @After
@@ -97,19 +97,18 @@ class NewRoundInstrumentedTest {
      */
     @Test
     fun addRoundNoType() {
-        R.id.button_start_new_round.click()
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
 
         assertEquals(1, currentArcherRounds.size)
         assertEquals(1, currentArcherRounds[0].archerRoundId)
 
         Espresso.pressBack()
-        R.id.button_start_new_round.click()
+        R.id.button_main_menu__start_new_round.click()
 
         val roundsBeforeCreate = currentArcherRounds
         assertEquals(1, roundsBeforeCreate.size)
 
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
         val roundsAfterCreate = currentArcherRounds.toMutableList()
         assertEquals(2, roundsAfterCreate.size)
 
@@ -129,17 +128,15 @@ class NewRoundInstrumentedTest {
      */
     @Test
     fun addRoundWithSubtype() {
-        R.id.button_start_new_round.click()
-
         val roundsBeforeCreate = currentArcherRounds
         assertEquals(0, roundsBeforeCreate.size)
 
         val selectedRound = roundsInput[1]
-        R.id.spinner_select_round.clickSpinnerItem(selectedRound.displayName)
+        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
         val selectedSubtype = subtypesInput.filter { it.roundId == selectedRound.roundId }[1]
-        R.id.spinner_select_round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
+        R.id.spinner_create_round__round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
 
-        R.id.button_create_round.click()
+        R.id.button_create_round__submit.click()
         val roundsAfterCreate = currentArcherRounds.toMutableList()
         assertEquals(1, roundsAfterCreate.size)
         assertEquals(selectedRound.roundId, roundsAfterCreate[0].roundId)
@@ -152,11 +149,10 @@ class NewRoundInstrumentedTest {
      */
     @Test
     fun roundsSpinner() {
-
         /*
          * Check spinner options
          */
-        val roundSpinner = activity.activity.findViewById<Spinner>(R.id.spinner_select_round)
+        val roundSpinner = activity.activity.findViewById<Spinner>(R.id.spinner_create_round__round)
         // + 1 for 'no rounds'
         assertEquals(roundsInput.size + 1, roundSpinner.count)
         for (i in roundsInput.indices) {
@@ -167,19 +163,19 @@ class NewRoundInstrumentedTest {
          * Select a round and check the output
          */
         val selectedRound = roundsInput[0]
-        R.id.spinner_select_round.clickSpinnerItem(selectedRound.displayName)
+        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
 
         val arrowCounts =
                 arrowCountsInput.filter { it.roundId == selectedRound.roundId }.sortedBy { it.distanceNumber }
                         .map { it.arrowCount / 12 }
-        R.id.text_select_round_arrow_count_indicator.textEquals(arrowCounts.joinToString(", "))
+        R.id.text_create_round__arrow_count_indicator.textEquals(arrowCounts.joinToString(", "))
 
         val unit = if (selectedRound.isMetric) "m" else "yd"
         val distances =
                 distancesInput.filter { it.roundId == selectedRound.roundId && it.subTypeId == 1 }
                         .sortedByDescending { it.distance }
                         .map { it.distance.toString() + unit }
-        R.id.text_select_round_distance_indicator.textEquals(distances.joinToString(", "))
+        R.id.text_create_round__distance_indicator.textEquals(distances.joinToString(", "))
     }
 
     /**
@@ -188,14 +184,13 @@ class NewRoundInstrumentedTest {
      */
     @Test
     fun subTypeSpinner() {
-        R.id.button_start_new_round.click()
-        val subtypeSpinner = activity.activity.findViewById<Spinner>(R.id.spinner_select_round_sub_type)
+        val subtypeSpinner = activity.activity.findViewById<Spinner>(R.id.spinner_create_round__round_sub_type)
 
         /*
          * Check spinner options
          */
         val selectedRound = roundsInput[0]
-        R.id.spinner_select_round.clickSpinnerItem(selectedRound.displayName)
+        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
         val availableRounds = subtypesInput.filter { it.roundId == selectedRound.roundId }
         assertEquals(availableRounds.size, subtypeSpinner.count)
         for (i in availableRounds.indices) {
@@ -206,18 +201,18 @@ class NewRoundInstrumentedTest {
          * Select a round and check the output
          */
         val selectedSubtype = subtypesInput[1]
-        R.id.spinner_select_round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
+        R.id.spinner_create_round__round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
 
         val arrowCounts =
                 arrowCountsInput.filter { it.roundId == selectedRound.roundId }.sortedBy { it.distanceNumber }
                         .map { it.arrowCount / 12 }
-        R.id.text_select_round_arrow_count_indicator.textEquals(arrowCounts.joinToString(", "))
+        R.id.text_create_round__arrow_count_indicator.textEquals(arrowCounts.joinToString(", "))
 
         val unit = if (selectedRound.isMetric) "m" else "yd"
         val distances =
                 distancesInput.filter { it.roundId == selectedRound.roundId && it.subTypeId == selectedSubtype.subTypeId }
                         .sortedByDescending { it.distance }
                         .map { it.distance.toString() + unit }
-        R.id.text_select_round_distance_indicator.textEquals(distances.joinToString(", "))
+        R.id.text_create_round__distance_indicator.textEquals(distances.joinToString(", "))
     }
 }

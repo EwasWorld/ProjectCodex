@@ -82,7 +82,7 @@ class ScorePadInstrumentedTest {
 
             override fun checkCondition(): Boolean {
                 return try {
-                    R.id.button_view_rounds.click()
+                    R.id.button_main_menu__view_rounds.click()
                     onView(withText(arrows.sumBy { it.score }.toString())).perform(click())
                     true
                 }
@@ -93,7 +93,7 @@ class ScorePadInstrumentedTest {
             }
         })
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view)?.adapter!!
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
                 as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
 
         val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, activity.activity.resources)
@@ -116,10 +116,10 @@ class ScorePadInstrumentedTest {
     @Test
     @Throws(Exception::class)
     fun testEmptyTable() {
-        R.id.button_start_new_round.click()
-        R.id.button_create_round.click()
-        R.id.button_score_pad.click()
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.score_pad__table_view).adapter!!
+        R.id.button_main_menu__start_new_round.click()
+        R.id.button_create_round__submit.click()
+        R.id.button_input_end__score_pad.click()
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
                 as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
         onView(withText("Input End")).check(matches(isDisplayed()))

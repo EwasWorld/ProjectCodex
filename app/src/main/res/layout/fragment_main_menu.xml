@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
@@ -10,7 +9,7 @@
     >
 
     <Button
-        android:id="@+id/button_start_new_round"
+        android:id="@+id/button_main_menu__start_new_round"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_menu__new_round"
@@ -21,17 +20,17 @@
         />
 
     <Button
-        android:id="@+id/button_view_rounds"
+        android:id="@+id/button_main_menu__view_rounds"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_menu__view_rounds"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_start_new_round"
+        app:layout_constraintTop_toBottomOf="@+id/button_main_menu__start_new_round"
         />
 
     <Button
-        android:id="@+id/button_update_default_rounds"
+        android:id="@+id/button_main_menu__update_default_rounds"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
