@@ -7,6 +7,9 @@ import eywa.projectcodex.End
 import eywa.projectcodex.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
+import eywa.projectcodex.database.entities.RoundArrowCount
+import eywa.projectcodex.database.entities.RoundDistance
+import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateScorePadTableData
 import org.junit.Assert
 import org.junit.Before
@@ -18,6 +21,7 @@ class CalculateScorePadDataTest {
     private val arrowPlaceHolder = "."
     private val arrowDeliminator = "-"
     private val grandTotal = "Grand total:"
+    private val runningTotalPlaceholder = "-"
 
     private val size = 36
     private val endSize = 6
@@ -33,6 +37,8 @@ class CalculateScorePadDataTest {
                 R.string.end_to_string_arrow_placeholder -> arrowPlaceHolder
                 R.string.end_to_string_arrow_deliminator -> arrowDeliminator
                 R.string.score_pad__grand_total -> grandTotal
+                R.string.score_pad__running_total_placeholder -> runningTotalPlaceholder
+                R.string.score_pad__distance_total -> "Total at %d%s"
                 else -> Assert.fail("Bad string passed to resources")
             }
         }
@@ -56,6 +62,96 @@ class CalculateScorePadDataTest {
     fun testDifferentGoldsTypes() {
         for (testGoldsType in GoldsType.values()) {
             checkScorePadData(size, endSize, testGoldsType)
+        }
+    }
+
+    @Test
+    fun testDistanceTotals() {
+        val arrows = listOf(
+                4, 0, 3, 6, 4, 7,
+                11, 10, 9, 8, 7, 6,
+                7, 8, 11, 6, 10, 9,
+                11, 10, 9, 8, 7, 6,
+                11, 10, 9, 8, 7, 6,
+                11, 10, 9, 8, 7, 6
+        ).mapIndexed { arrowNumber, arrowValue -> TestData.ARROWS[arrowValue].toArrowValue(1, arrowNumber) }
+        val arrowCounts = listOf(
+                RoundArrowCount(1, 1, 10.0, 12),
+                RoundArrowCount(1, 2, 10.0, 12),
+                RoundArrowCount(1, 3, 10.0, 12)
+        )
+        val distances = listOf(
+                RoundDistance(1, 1, 1, 60),
+                RoundDistance(1, 2, 1, 50),
+                RoundDistance(1, 3, 1, 40)
+        )
+
+        val otherRows = listOf(
+                InfoTableCell("X-10-9-8-7-6", "cell<row>0"),
+                InfoTableCell(6, "cell<row>1"),
+                InfoTableCell(50, "cell<row>2"),
+                InfoTableCell(2, "cell<row>3"),
+                InfoTableCell(-1, "cell<row>4")
+        )
+        val expectedRows = listOf(
+                listOf(
+                        InfoTableCell("7-6-4-4-3-m", "cell00"),
+                        InfoTableCell(5, "cell01"),
+                        InfoTableCell(24, "cell02"),
+                        InfoTableCell(0, "cell03"),
+                        InfoTableCell(24, "cell04")
+                ),
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 74 else it.content, it.id.replace("<row>", "1"))
+                },
+                listOf(
+                        InfoTableCell("Total at 60unit", "distanceTotal600"),
+                        InfoTableCell(11, "distanceTotal601"),
+                        InfoTableCell(74, "distanceTotal602"),
+                        InfoTableCell(2, "distanceTotal603"),
+                        InfoTableCell("-", "distanceTotal604")
+                ),
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 124 else it.content, it.id.replace("<row>", "3"))
+                },
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 174 else it.content, it.id.replace("<row>", "4"))
+                },
+                listOf(
+                        InfoTableCell("Total at 50unit", "distanceTotal500"),
+                        InfoTableCell(12, "distanceTotal501"),
+                        InfoTableCell(100, "distanceTotal502"),
+                        InfoTableCell(4, "distanceTotal503"),
+                        InfoTableCell("-", "distanceTotal504")
+                ),
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 224 else it.content, it.id.replace("<row>", "6"))
+                },
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 274 else it.content, it.id.replace("<row>", "7"))
+                },
+                listOf(
+                        InfoTableCell("Total at 40unit", "distanceTotal400"),
+                        InfoTableCell(12, "distanceTotal401"),
+                        InfoTableCell(100, "distanceTotal402"),
+                        InfoTableCell(4, "distanceTotal403"),
+                        InfoTableCell("-", "distanceTotal404")
+                ),
+                listOf(
+                        InfoTableCell("Grand total:", "grandTotal0"),
+                        InfoTableCell(35, "grandTotal1"),
+                        InfoTableCell(274, "grandTotal2"),
+                        InfoTableCell(10, "grandTotal3"),
+                        InfoTableCell("-", "grandTotal4")
+                )
+        )
+
+        val scorePadData =
+                calculateScorePadTableData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, distances, "unit")
+
+        Assert.assertEquals(expectedRows.size, scorePadData.size)
+        for (i in scorePadData.indices) {
+            Assert.assertEquals(expectedRows[i], scorePadData[i])
         }
     }
 

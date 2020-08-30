@@ -58,11 +58,13 @@
 
     <!-- Score Pad -->
     <string name="score_pad__title">Score Pad</string>
+    <string name="score_pad__running_total_placeholder">-</string>
     <string name="score_pad__end_string_header">E/T</string>
     <string name="score_pad__running_total_header">R/T</string>
     <string name="score_pad__grand_total">Grand total:</string>
     <string name="score_pad__grand_total_row_header">GT</string>
-    <string name="score_pad__total_row_header">T</string>
+    <string name="score_pad__distance_total">Total at %d%s</string> <!-- Total at 90m -->
+    <string name="score_pad__distance_total_row_header">T</string>
     <string name="err_score_pad__no_arrows">There are no arrows to show</string>
 
     <!-- Table View -->

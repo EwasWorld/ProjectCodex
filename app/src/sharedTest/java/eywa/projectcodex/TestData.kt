@@ -120,7 +120,7 @@ class TestData {
         /**
          * @return a valid date in the given year (will never return 31st of a month or 29th Feb), time 00:00
          */
-        private fun generateDate(year: Int = 2019): Date {
+        fun generateDate(year: Int = 2019): Date {
             val month = Random.nextInt(12) + 1
             var day = Random.nextInt(30) + 1
             if (month == 2 && day > 28) {

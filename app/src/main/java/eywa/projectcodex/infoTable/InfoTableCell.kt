@@ -37,4 +37,8 @@ class InfoTableCell(content: Any?, id: String) : ISortableModel {
         result = 31 * result + id.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return cellId + ":" + cellContent.toString()
+    }
 }

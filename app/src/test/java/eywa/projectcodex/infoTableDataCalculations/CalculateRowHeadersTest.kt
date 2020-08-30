@@ -4,6 +4,7 @@ import android.content.res.Resources
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import eywa.projectcodex.R
+import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
 import org.junit.Assert
 import org.junit.Before
@@ -11,9 +12,11 @@ import org.junit.Test
 import org.mockito.Mockito
 
 class CalculateRowHeadersTest {
-    private val totalRowHeader = "T"
-    private val grandTotalRowHeader = "GT"
-    private val size = listOf(24)
+    companion object {
+        private const val TOTAL_ROW_HEADER = "T"
+        private const val GRAND_TOTAL_ROW_HEADER = "GT"
+    }
+
     private lateinit var resources: Resources
     private var rowId = 0
 
@@ -22,8 +25,8 @@ class CalculateRowHeadersTest {
         resources = mock()
         Mockito.`when`(resources.getString(any())).thenAnswer { invocation ->
             when (invocation.getArgument<Int>(0)) {
-                R.string.score_pad__grand_total_row_header -> grandTotalRowHeader
-                R.string.score_pad__total_row_header -> totalRowHeader
+                R.string.score_pad__grand_total_row_header -> GRAND_TOTAL_ROW_HEADER
+                R.string.score_pad__distance_total_row_header -> TOTAL_ROW_HEADER
                 else -> Assert.fail("Bad string passed to resources")
             }
         }
@@ -33,57 +36,127 @@ class CalculateRowHeadersTest {
     @Test
     fun testNormalHeaders() {
         for (testSize in listOf(1, 6, 20)) {
-            val generated = generateNumberedRowHeaders(listOf(testSize))
-            Assert.assertEquals(testSize, generated.size)
-            rowId = 0
-            for (cell in generated) {
-                Assert.assertEquals((rowId + 1).toString(), cell.content)
-                Assert.assertEquals("row$rowId", cell.id)
-                rowId++
-            }
+            testRowHeaders(
+                    generateNumberedRowHeaders(listOf(testSize)),
+                    List(testSize) { Outputs.NUMBER }
+            )
         }
     }
 
     @Test
     fun testHeadersWithGrandTotal() {
-        val generated = generateNumberedRowHeaders(size, resources, true)
-        Assert.assertEquals(size[0] + 1, generated.size)
-        val grandTotalHeader = generated[generated.size - 1]
-        for (cell in generated.minus(grandTotalHeader)) {
-            Assert.assertEquals((rowId + 1).toString(), cell.content)
-            Assert.assertEquals("row$rowId", cell.id)
-            rowId++
-        }
-        Assert.assertEquals(grandTotalRowHeader, grandTotalHeader.content)
-        Assert.assertEquals("grandTotalHeader", grandTotalHeader.id)
+        testRowHeaders(
+                generateNumberedRowHeaders(
+                        listOf(5),
+                        null,
+                        resources,
+                        true
+                ),
+                listOf(
+                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER,
+                        Outputs.GRAND_TOTAL
+                )
+        )
     }
 
     @Test
     fun testHeadersWithDistanceTotal() {
-        for (distanceList in listOf(listOf(24), listOf(8, 8, 8), listOf(12, 8, 4), listOf(8, 8))) {
-            val generated = generateNumberedRowHeaders(distanceList, resources, true)
-            var expectedSize = distanceList.sum() + 1
-            if (distanceList.size > 1) {
-                expectedSize += distanceList.size
-            }
-            Assert.assertEquals(expectedSize, generated.size)
-            val grandTotal = generated[generated.size - 1]
-            var totalId = 0
-            rowId = 0
-            for (cell in generated.minus(grandTotal)) {
-                if (!cell.id.contains("total")) {
-                    Assert.assertEquals((rowId + 1).toString(), cell.content)
-                    Assert.assertEquals("row$rowId", cell.id)
-                    rowId++
+        testRowHeaders(
+                generateNumberedRowHeaders(
+                        listOf(3, 3),
+                        null,
+                        resources,
+                        false
+                ),
+                listOf(
+                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER,
+                        Outputs.NUMBER, Outputs.TOTAL
+                )
+        )
+        testRowHeaders(
+                generateNumberedRowHeaders(
+                        listOf(4, 2),
+                        null,
+                        resources,
+                        false
+                ),
+                listOf(
+                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER,
+                        Outputs.NUMBER, Outputs.TOTAL
+                )
+        )
+        testRowHeaders(
+                generateNumberedRowHeaders(
+                        listOf(2, 2, 2),
+                        null,
+                        resources,
+                        false
+                ),
+                listOf(
+                        Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL,
+                        Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL
+                )
+        )
+    }
+
+    @Test
+    fun testHeadersWithDistanceTotalAndArrowsComplete() {
+        testRowHeaders(
+                generateNumberedRowHeaders(
+                        listOf(5),
+                        3,
+                        resources,
+                        false
+                ),
+                listOf(Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER)
+        )
+        testRowHeaders(
+                generateNumberedRowHeaders(
+                        listOf(2, 4, 6),
+                        5,
+                        resources,
+                        false
+                ),
+                listOf(
+                        Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER,
+                        Outputs.TOTAL
+                )
+        )
+    }
+
+    private enum class Outputs { NUMBER, TOTAL, GRAND_TOTAL }
+
+    private fun testRowHeaders(actual: List<InfoTableCell>, expected: List<Outputs>) {
+        var maxNumberSeen = 0
+        var grandTotalSeen = false
+        for (i in actual.indices) {
+            if (grandTotalSeen) Assert.fail("Should not be anything after grand total")
+
+            val tableCell = actual[i]
+            tableCell.content?.let { content ->
+                if (content !is String) {
+                    Assert.fail("Non-string content")
                 }
-                else {
-                    Assert.assertEquals(totalRowHeader, cell.content)
-                    Assert.assertEquals("totalRow$totalId", cell.id)
-                    totalId++
+                when (expected[i]) {
+                    Outputs.NUMBER -> {
+                        if (!tableCell.id.contains("row")) Assert.fail("Incorrect rowId")
+                        val intContent = Integer.parseInt(content as String)
+                        if (intContent == maxNumberSeen + 1) maxNumberSeen = intContent
+                        else Assert.fail("Non-ascending row-headers")
+                    }
+                    Outputs.TOTAL -> {
+                        if (!tableCell.id.contains("totalRow")) Assert.fail("Incorrect rowId")
+                        if (!(content as String).contains(TOTAL_ROW_HEADER)) Assert.fail("Incorrect row header")
+                    }
+                    Outputs.GRAND_TOTAL -> {
+                        if (!tableCell.id.contains("grandTotalHeader")) Assert.fail("Incorrect rowId")
+                        if (!(content as String).contains(GRAND_TOTAL_ROW_HEADER)) Assert.fail(
+                                "Incorrect row header"
+                        )
+                        grandTotalSeen = true
+                    }
                 }
-            }
-            Assert.assertEquals(grandTotalRowHeader, grandTotal.content)
-            Assert.assertEquals("grandTotalHeader", grandTotal.id)
+            } ?: Assert.fail("No content")
         }
     }
 
