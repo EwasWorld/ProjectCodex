@@ -13,11 +13,15 @@ import eywa.projectcodex.database.entities.ArrowValue
  */
 class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, archerRoundId: Int? = null) {
     val arrowValuesForRound: LiveData<List<ArrowValue>>? =
-        archerRoundId?.let { arrowValueDao.getArrowValuesForRound(archerRoundId) }
+            archerRoundId?.let { arrowValueDao.getArrowValuesForRound(archerRoundId) }
     val allArrowValues: LiveData<List<ArrowValue>> = arrowValueDao.getAllArrowValues()
 
     suspend fun insert(arrowValue: ArrowValue) {
         arrowValueDao.insert(arrowValue)
+    }
+
+    fun update(arrowValue: ArrowValue) {
+        arrowValueDao.update(arrowValue)
     }
 
     suspend fun deleteAll() {

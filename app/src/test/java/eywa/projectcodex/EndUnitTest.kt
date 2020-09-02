@@ -4,13 +4,12 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.viewModels.InputEndViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
-import java.lang.IllegalArgumentException
 
 
 /**
@@ -19,13 +18,7 @@ import java.lang.IllegalArgumentException
  * https://github.com/Comcast/resourceprovider
  */
 class EndUnitTest {
-    private var end: End = End(6, ".", "-")
-    private var arrows = arrayOf(
-            Arrow(0, false), Arrow(1, false), Arrow(2, false),
-            Arrow(3, false), Arrow(4, false), Arrow(5, false),
-            Arrow(6, false), Arrow(7, false), Arrow(8, false),
-            Arrow(9, false), Arrow(10, false), Arrow(10, true)
-    )
+    private lateinit var end: End
 
     @Before
     fun setup() {
@@ -34,7 +27,7 @@ class EndUnitTest {
 
     @Test
     fun testCreateEndFromList() {
-        val arrowValues = arrows.map { ArrowValue(1, 1, it.score, it.isX) }
+        val arrowValues = TestData.ARROWS.map { ArrowValue(1, 1, it.score, it.isX) }
 
         val endArrows = mutableListOf(arrowValues[0], arrowValues[3], arrowValues[11])
         end = End(endArrows, 6, ".", "-")
@@ -98,18 +91,18 @@ class EndUnitTest {
 
     @Test
     fun testAddArrowValueToEnd() {
-        end.addArrowToEnd(arrows[1])
+        end.addArrowToEnd(TestData.ARROWS[1])
         assertEquals(1, end.getScore())
 
-        end.addArrowToEnd(arrows[0])
+        end.addArrowToEnd(TestData.ARROWS[0])
         assertEquals(1, end.getScore())
 
-        end.addArrowToEnd(arrows[11])
+        end.addArrowToEnd(TestData.ARROWS[11])
         assertEquals(11, end.getScore())
 
-        end.addArrowToEnd(arrows[3])
-        end.addArrowToEnd(arrows[3])
-        end.addArrowToEnd(arrows[3])
+        end.addArrowToEnd(TestData.ARROWS[3])
+        end.addArrowToEnd(TestData.ARROWS[3])
+        end.addArrowToEnd(TestData.ARROWS[3])
         assertEquals(20, end.getScore())
 
         assertEquals(20, end.getScore())
@@ -124,9 +117,9 @@ class EndUnitTest {
         catch (e: IllegalStateException) {
         }
 
-        end.addArrowToEnd(arrows[7])
-        end.addArrowToEnd(arrows[3])
-        end.addArrowToEnd(arrows[5])
+        end.addArrowToEnd(TestData.ARROWS[7])
+        end.addArrowToEnd(TestData.ARROWS[3])
+        end.addArrowToEnd(TestData.ARROWS[5])
         assertEquals(15, end.getScore())
 
         end.removeLastArrowFromEnd()
@@ -143,18 +136,18 @@ class EndUnitTest {
     fun testGetHits() {
         assertEquals(0, end.getHits())
 
-        end.addArrowToEnd(arrows[0])
+        end.addArrowToEnd(TestData.ARROWS[0])
         assertEquals(0, end.getHits())
 
-        end.addArrowToEnd(arrows[1])
+        end.addArrowToEnd(TestData.ARROWS[1])
         assertEquals(1, end.getHits())
 
-        end.addArrowToEnd(arrows[0])
+        end.addArrowToEnd(TestData.ARROWS[0])
         assertEquals(1, end.getHits())
 
-        end.addArrowToEnd(arrows[4])
-        end.addArrowToEnd(arrows[7])
-        end.addArrowToEnd(arrows[11])
+        end.addArrowToEnd(TestData.ARROWS[4])
+        end.addArrowToEnd(TestData.ARROWS[7])
+        end.addArrowToEnd(TestData.ARROWS[11])
         assertEquals(4, end.getHits())
     }
 
@@ -162,12 +155,12 @@ class EndUnitTest {
     fun testGetGolds() {
         assertEquals(0, end.getGolds(GoldsType.NINES))
 
-        end.addArrowToEnd(arrows[0])
-        end.addArrowToEnd(arrows[4])
+        end.addArrowToEnd(TestData.ARROWS[0])
+        end.addArrowToEnd(TestData.ARROWS[4])
         assertEquals(0, end.getGolds(GoldsType.NINES))
 
-        end.addArrowToEnd(arrows[10])
-        end.addArrowToEnd(arrows[11])
+        end.addArrowToEnd(TestData.ARROWS[10])
+        end.addArrowToEnd(TestData.ARROWS[11])
         assertEquals(2, end.getGolds(GoldsType.NINES))
     }
 
@@ -175,31 +168,31 @@ class EndUnitTest {
     fun testToString() {
         assertEquals(".-.-.-.-.-.", end.toString())
 
-        end.addArrowToEnd(arrows[1])
+        end.addArrowToEnd(TestData.ARROWS[1])
         assertEquals("1-.-.-.-.-.", end.toString())
 
-        end.addArrowToEnd(arrows[0])
-        end.addArrowToEnd(arrows[3])
-        end.addArrowToEnd(arrows[11])
+        end.addArrowToEnd(TestData.ARROWS[0])
+        end.addArrowToEnd(TestData.ARROWS[3])
+        end.addArrowToEnd(TestData.ARROWS[11])
         assertEquals("1-m-3-X-.-.", end.toString())
 
-        end.addArrowToEnd(arrows[7])
-        end.addArrowToEnd(arrows[7])
+        end.addArrowToEnd(TestData.ARROWS[7])
+        end.addArrowToEnd(TestData.ARROWS[7])
         assertEquals("1-m-3-X-7-7", end.toString())
     }
 
     @Test
     fun testReorderScores() {
-        end.addArrowToEnd(arrows[1])
+        end.addArrowToEnd(TestData.ARROWS[1])
         assertEquals("1-.-.-.-.-.", end.toString())
 
         end.reorderScores()
         assertEquals("1-.-.-.-.-.", end.toString())
 
-        end.addArrowToEnd(arrows[11])
-        end.addArrowToEnd(arrows[0])
-        end.addArrowToEnd(arrows[3])
-        end.addArrowToEnd(arrows[10])
+        end.addArrowToEnd(TestData.ARROWS[11])
+        end.addArrowToEnd(TestData.ARROWS[0])
+        end.addArrowToEnd(TestData.ARROWS[3])
+        end.addArrowToEnd(TestData.ARROWS[10])
         assertEquals("1-X-m-3-10-.", end.toString())
 
         end.reorderScores()
@@ -210,11 +203,11 @@ class EndUnitTest {
     fun testAddArrowsToDatabase() {
         val arrowScores = arrayOf(1, 3, 5, 6, 10, 10)
         for (arrow in arrowScores) {
-            end.addArrowToEnd(arrows[arrow])
+            end.addArrowToEnd(TestData.ARROWS[arrow])
         }
         // Swap the last arrow to an X
         end.removeLastArrowFromEnd()
-        end.addArrowToEnd(arrows[11])
+        end.addArrowToEnd(TestData.ARROWS[11])
         assertEquals(arrowScores.sum(), end.getScore())
 
         val viewModel = mock<InputEndViewModel>()
@@ -236,22 +229,59 @@ class EndUnitTest {
     }
 
     @Test
+    fun testAddArrowsToDatabaseEditEnd() {
+        val archerRoundId = 1
+        val oldArrows = listOf(
+                ArrowValue(archerRoundId, 4, 3, false),
+                ArrowValue(archerRoundId, 6, 6, false),
+                ArrowValue(archerRoundId, 7, 7, false),
+                ArrowValue(archerRoundId, 8, 10, true)
+        )
+        val arrowScores = listOf(1, 3, 5, 6, 10, 10)
+        val end = End(oldArrows, 6, "-", ".")
+        end.clear()
+        for (arrow in arrowScores) {
+            end.addArrowToEnd(TestData.ARROWS[arrow])
+        }
+
+        assertEquals(arrowScores.sum(), end.getScore())
+
+        val viewModel = mock<InputEndViewModel>()
+        val firstArrowNumber = 10
+        end.addArrowsToDatabase(archerRoundId, firstArrowNumber, viewModel)
+
+        argumentCaptor<ArrowValue>().apply {
+            verify(viewModel, times(4)).update(capture())
+            verify(viewModel, times(2)).insert(capture())
+            for (i in allValues.indices) {
+                assertEquals(archerRoundId, allValues[i].archerRoundId)
+                assertEquals(
+                        if (i < oldArrows.size) oldArrows[i].arrowNumber else i + firstArrowNumber - oldArrows.size,
+                        allValues[i].arrowNumber
+                )
+                assertEquals(arrowScores[i], allValues[i].score)
+                assertEquals(false, allValues[i].isX)
+            }
+        }
+    }
+
+    @Test
     fun testClear() {
         assertEquals(".-.-.-.-.-.", end.toString())
         end.clear()
         assertEquals(".-.-.-.-.-.", end.toString())
 
-        end.addArrowToEnd(arrows[1])
+        end.addArrowToEnd(TestData.ARROWS[1])
         assertEquals("1-.-.-.-.-.", end.toString())
         end.clear()
         assertEquals(".-.-.-.-.-.", end.toString())
 
-        end.addArrowToEnd(arrows[1])
-        end.addArrowToEnd(arrows[0])
-        end.addArrowToEnd(arrows[3])
-        end.addArrowToEnd(arrows[11])
-        end.addArrowToEnd(arrows[7])
-        end.addArrowToEnd(arrows[7])
+        end.addArrowToEnd(TestData.ARROWS[1])
+        end.addArrowToEnd(TestData.ARROWS[0])
+        end.addArrowToEnd(TestData.ARROWS[3])
+        end.addArrowToEnd(TestData.ARROWS[11])
+        end.addArrowToEnd(TestData.ARROWS[7])
+        end.addArrowToEnd(TestData.ARROWS[7])
         assertEquals("1-m-3-X-7-7", end.toString())
         end.clear()
         assertEquals(".-.-.-.-.-.", end.toString())

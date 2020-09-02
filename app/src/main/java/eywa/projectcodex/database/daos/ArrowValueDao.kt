@@ -1,16 +1,16 @@
 package eywa.projectcodex.database.daos
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import eywa.projectcodex.database.entities.ArrowValue
 
 @Dao
 interface ArrowValueDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(arrowValue: ArrowValue)
+
+    @Update
+    fun update(vararg arrowValue: ArrowValue)
 
     /**
      * When returning LiveData, suspend is not needed as LiveData is already async
