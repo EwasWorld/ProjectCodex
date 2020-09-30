@@ -7,6 +7,27 @@
     tools:context=".ui.inputEnd.ArrowInputsFragment10ZoneWithX"
     >
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_input_end__score_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:constraint_referenced_ids="
+            button_input_end__score_0,
+            button_input_end__score_1,
+            button_input_end__score_2,
+            button_input_end__score_3,
+            button_input_end__score_4,
+            button_input_end__score_5,
+            button_input_end__score_6,
+            button_input_end__score_6,
+            button_input_end__score_7,
+            button_input_end__score_8,
+            button_input_end__score_9,
+            button_input_end__score_10,
+            button_input_end__score_x
+        "
+        />
+
     <Button
         android:id="@+id/button_input_end__score_0"
         style="@style/InputArrowScoreButtons"

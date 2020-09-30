@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import eywa.projectcodex.R
@@ -23,24 +24,10 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // TODO better way to do this? Tags?
-        val scoreButtons = arrayOf(
-                button_input_end__score_0,
-                button_input_end__score_1,
-                button_input_end__score_2,
-                button_input_end__score_3,
-                button_input_end__score_4,
-                button_input_end__score_5,
-                button_input_end__score_6,
-                button_input_end__score_7,
-                button_input_end__score_8,
-                button_input_end__score_9,
-                button_input_end__score_10,
-                button_input_end__score_x
-        )
-        for (button in scoreButtons) {
+        for (buttonId in view.findViewById<Group>(R.id.group_input_end__score_buttons).referencedIds) {
+            val button = view.findViewById<Button>(buttonId)!!
             button.setOnClickListener {
-                listener?.onScoreButtonPressed(view.findViewById<Button>(button.id).text.toString())
+                listener?.onScoreButtonPressed(button.text.toString())
             }
         }
     }
