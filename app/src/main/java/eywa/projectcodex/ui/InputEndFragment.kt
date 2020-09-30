@@ -158,7 +158,7 @@ class InputEndFragment : Fragment() {
     }
 
     private fun updateRoundInfo(view: View) {
-        view.findViewById<TextView>(R.id.text_input_end__table_score_1).text = roundTotal().toString()
+        view.findViewById<TextView>(R.id.text_input_end__table_score_1).text = arrows.sumBy { it.score }.toString()
         view.findViewById<TextView>(R.id.text_input_end__table_arrow_count_1).text = arrows.size.toString()
 
         val roundIndicatorSection = view.findViewById<LinearLayout>(R.id.layout_input_end__remaining_arrows)
@@ -187,14 +187,6 @@ class InputEndFragment : Fragment() {
         else {
             roundIndicatorSection.visibility = View.GONE
         }
-    }
-
-    private fun roundTotal(): Int {
-        var total = 0
-        for (arrow in arrows) {
-            total += arrow.score
-        }
-        return total
     }
 }
 
