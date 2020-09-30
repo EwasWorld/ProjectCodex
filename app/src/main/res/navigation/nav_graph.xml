@@ -19,6 +19,10 @@
             android:id="@+id/actionMainMenuFragmentToViewRoundsFragment"
             app:destination="@id/viewRoundsFragment"
             />
+        <action
+            android:id="@+id/actionMainMenuFragmentToInputEndEndInputsFragment"
+            app:destination="@id/endInputsFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/viewRoundsFragment"
@@ -81,4 +85,10 @@
             app:argType="integer"
             />
     </fragment>
+    <fragment
+        android:id="@+id/endInputsFragment"
+        android:name="eywa.projectcodex.ui.inputEnd.EndInputsFragment"
+        android:label="input_end__end_inputs"
+        tools:layout="@layout/frag_end_inputs"
+        />
 </navigation>

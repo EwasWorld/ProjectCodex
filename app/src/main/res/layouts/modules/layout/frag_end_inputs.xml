@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".ui.inputEnd.EndInputsFragment"
+    >
+
+    <TextView
+        android:id="@+id/text_input_end__end_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/placeholder_0"
+        android:textColor="@color/inputEndText"
+        android:textSize="@dimen/large_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <!-- text is a placeholder than will be overwritten on load -->
+    <TextView
+        android:id="@+id/text_input_end__inputted_arrows"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:text="X-10-3-m-.-."
+        android:textColor="@color/inputEndText"
+        android:textSize="@dimen/large_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_input_end__end_total"
+        tools:ignore="HardcodedText"
+        />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment"
+        android:name="eywa.projectcodex.ui.inputEnd.ArrowInputsFragment10ZoneWithX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_input_end__inputted_arrows"
+        >
+
+        <!-- TODO Check this comment is true: -->
+        <!-- Used for preview purposes, doesn't show in actual layout -->
+        <!--        <fragment-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            tools:layout="@layout/frag_arrow_inputs_10_zone_with_x"-->
+        <!--            />-->
+    </androidx.fragment.app.FragmentContainerView>
+
+
+    <LinearLayout
+        android:id="@+id/layout_input_end__edit_inputted_arrows"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragment"
+        >
+
+        <Button
+            android:id="@+id/button_input_end__clear"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/input_end__clear"
+            />
+
+        <Button
+            android:id="@+id/button_input_end__backspace"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/input_end__backspace"
+            />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@ So I can call myself a liar when I don't follow my own decisions
 
 ## General
 - Max line length: 120 characters
-- Favour having as few indents as possible (for example, use `if (condition) return \n <do something>` over `if (!condition) <do something>`)
+- Favour having as few indents as possible (for example, use `if (condition) { return } \n <do something>` over `if (!condition) { do something }`)
 - Favour `nullableItem?.let { }` over `if nullableItem == null { }`. The advantage with let is that everywhere inside the braces the `nullableItem` will be of a non-nullable type, whereas with the if statement, if `nullableItem` is mutable, it will require the addition of many `!!` to ensure `nullableItem` is still not null
 
 ## Styling Tools
@@ -54,12 +54,20 @@ fun getAllArcherRoundsWithName(): LiveData<List<ArcherRoundWithName>>
 [2]: https://stackoverflow.com/questions/36262305/difference-between-list-and-array-types-in-kotlin
 
 ## Parameters
-- Parameters should in general be defined in the order of constants, `val`, `var`
-- Constructor parameters should be in the order `val`, `var`, constructor-only
+- All optional parameters should be at the end
+- Parameters should in general be defined in the order: constants, `val`, `var`
+- Constructor parameters should be in the order: `val`, `var`, constructor-only
 - Lists from the database should only be named 'all' if they will contain all unfiltered rows from the specified table
 
+## File names
+### Fragments
+- XML of a fragment representing a full and complete screen should be prefixed with 'fragment_'
+- XML of a fragment representing only part of a screen should be prefixed with 'frag_'
+- Classes should end in `Fragment`
+- Class name must mirror XML name (other than Fragment coming at the end)
+
 ## Braces
-- If statements should ALWAYS use braces unless they can be completely contained on one line e.g. val test = if (isAwesome) "yes" else "no"
+- If statements should ALWAYS use braces unless they can be completely contained on one line (including all else ifs and elses) e.g. val test = if (isAwesome) "yes" else "no"
 
 ## Comments
 - Classes, methods, and member fields should be commented using [KDoc][3] /** comments
@@ -75,7 +83,7 @@ fun getAllArcherRoundsWithName(): LiveData<List<ArcherRoundWithName>>
 - There should always be a relevant card on the Trello so that the work is not missed
 
 ## Linting
-This should be used only if absolutely necessary, in general the warning should be fixed not supressed
+Suppression of warnings should be used only if absolutely necessary, in general the warning should be fixed not supressed
 
 ```kotlin
 @SuppressLint("AndroidWarningId")

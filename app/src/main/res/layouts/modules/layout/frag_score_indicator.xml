@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <TableLayout
+        android:id="@+id/table_layout_input_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+        <TableRow>
+
+            <!-- Re-add when multiple archers are implemented -->
+            <!-- <TextView-->
+            <!-- android:id="@+id/text_input_end__archer_name_header"-->
+            <!-- style="@style/TableHeader"-->
+            <!-- android:background="@drawable/table_border"-->
+            <!-- android:text="@string/archer_name_header"-->
+            <!-- />-->
+
+            <TextView
+                android:id="@+id/text_input_end__score_header"
+                style="@style/InputEndTableHeader"
+                android:background="@drawable/table_border"
+                android:text="@string/input_end__archer_score_header"
+                />
+
+            <TextView
+                android:id="@+id/text_input_end__arrow_count_header"
+                style="@style/InputEndTableHeader"
+                android:background="@drawable/table_border"
+                android:text="@string/input_end__archer_arrows_count_header"
+                />
+        </TableRow>
+
+        <TableRow>
+
+            <!-- <TextView-->
+            <!-- android:id="@+id/text_input_end__table_name_1"-->
+            <!-- style="@style/TableItem"-->
+            <!-- android:background="@drawable/table_border"-->
+            <!-- android:text="Bob"-->
+            <!-- />-->
+
+            <TextView
+                android:id="@+id/text_input_end__table_score_1"
+                style="@style/InputEndTableItem"
+                android:background="@drawable/table_border"
+                android:text="@string/placeholder_0"
+                />
+
+            <TextView
+                android:id="@+id/text_input_end__table_arrow_count_1"
+                style="@style/InputEndTableItem"
+                android:background="@drawable/table_border"
+                android:text="@string/placeholder_0"
+                />
+        </TableRow>
+    </TableLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
