@@ -15,7 +15,11 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
     private lateinit var end: End
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.frag_end_inputs, container, false)
+        val view = inflater.inflate(R.layout.frag_end_inputs, container, false)
+        if (!view.isInEditMode) {
+            view.findViewById<View>(R.id.fragment_arrow_inputs_preview).visibility = View.GONE
+        }
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
