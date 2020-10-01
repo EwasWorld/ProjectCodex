@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import eywa.projectcodex.R
 import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.fragment_input_end.*
+import java.util.*
 
 
 class ArrowInputsFragment10ZoneWithX : Fragment() {
@@ -24,7 +24,7 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        for (buttonId in view.findViewById<Group>(R.id.group_input_end__score_buttons).referencedIds) {
+        for (buttonId in view.findViewById<Group>(R.id.group_arrow_inputs__score_buttons).referencedIds) {
             val button = view.findViewById<Button>(buttonId)!!
             button.setOnClickListener {
                 listener?.onScoreButtonPressed(button.text.toString())
@@ -38,13 +38,22 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        for (fragment in (context as FragmentActivity).nav_host_fragment.childFragmentManager.fragments) {
-            if (fragment is ScoreButtonPressedListener) {
-                listener = fragment
-                return
+        listener = findListener((context as FragmentActivity).nav_host_fragment)
+                   ?: throw ClassCastException("$context must implement ScoreButtonPressedListener")
+    }
+
+    /**
+     * Does a breadth-first search of **child** fragments of [root] searching for an instance of [T]
+     */
+    private inline fun <reified T> findListener(root: Fragment): T? {
+        val queue: Queue<Fragment>? = LinkedList(listOf(root))
+        while (queue!!.isNotEmpty()) {
+            for (fragment in queue.remove().childFragmentManager.fragments) {
+                if (fragment is T) return fragment
+                queue.offer(fragment)
             }
         }
-        throw ClassCastException("$context must implement ScoreButtonPressedListener")
+        return null
     }
 
     override fun onDetach() {

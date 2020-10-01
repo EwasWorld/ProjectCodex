@@ -6,7 +6,7 @@
     >
 
     <TableLayout
-        android:id="@+id/table_layout_input_end"
+        android:id="@+id/table_layout_scores_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,21 +18,21 @@
 
             <!-- Re-add when multiple archers are implemented -->
             <!-- <TextView-->
-            <!-- android:id="@+id/text_input_end__archer_name_header"-->
+            <!-- android:id="@+id/text_scores_indicator__archer_name_header"-->
             <!-- style="@style/TableHeader"-->
             <!-- android:background="@drawable/table_border"-->
             <!-- android:text="@string/archer_name_header"-->
             <!-- />-->
 
             <TextView
-                android:id="@+id/text_input_end__score_header"
+                android:id="@+id/text_scores_indicator__score_header"
                 style="@style/InputEndTableHeader"
                 android:background="@drawable/table_border"
                 android:text="@string/input_end__archer_score_header"
                 />
 
             <TextView
-                android:id="@+id/text_input_end__arrow_count_header"
+                android:id="@+id/text_scores_indicator__arrow_count_header"
                 style="@style/InputEndTableHeader"
                 android:background="@drawable/table_border"
                 android:text="@string/input_end__archer_arrows_count_header"
@@ -42,21 +42,21 @@
         <TableRow>
 
             <!-- <TextView-->
-            <!-- android:id="@+id/text_input_end__table_name_1"-->
+            <!-- android:id="@+id/text_scores_indicator__table_name_1"-->
             <!-- style="@style/TableItem"-->
             <!-- android:background="@drawable/table_border"-->
             <!-- android:text="Bob"-->
             <!-- />-->
 
             <TextView
-                android:id="@+id/text_input_end__table_score_1"
+                android:id="@+id/text_scores_indicator__table_score_1"
                 style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
                 android:text="@string/placeholder_0"
                 />
 
             <TextView
-                android:id="@+id/text_input_end__table_arrow_count_1"
+                android:id="@+id/text_scores_indicator__table_arrow_count_1"
                 style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
                 android:text="@string/placeholder_0"

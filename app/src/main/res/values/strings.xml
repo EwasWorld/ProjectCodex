@@ -27,8 +27,18 @@
     <!-- Arrow information -->
     <string name="end_to_string_arrow_deliminator">-</string>
     <string name="end_to_string_arrow_placeholder">.</string>
-    <string name="arrow_value_x">X</string>
     <string name="arrow_value_m">m</string>
+    <string name="arrow_value_1">1</string>
+    <string name="arrow_value_2">2</string>
+    <string name="arrow_value_3">3</string>
+    <string name="arrow_value_4">4</string>
+    <string name="arrow_value_5">5</string>
+    <string name="arrow_value_6">6</string>
+    <string name="arrow_value_7">7</string>
+    <string name="arrow_value_8">8</string>
+    <string name="arrow_value_9">9</string>
+    <string name="arrow_value_10">10</string>
+    <string name="arrow_value_x">X</string>
 
     <!-- Input end -->
     <string name="input_end__title">Input End</string>
@@ -79,15 +89,6 @@
 
     <!-- Errors -->
     <string name="err_button__ok">OK</string>
+
     <string name="placeholder_0">0</string>
-    <string name="input_end__arrow_value_1">1</string>
-    <string name="input_end__arrow_value_2">2</string>
-    <string name="input_end__arrow_value_3">3</string>
-    <string name="input_end__arrow_value_4">4</string>
-    <string name="input_end__arrow_value_5">5</string>
-    <string name="input_end__arrow_value_6">6</string>
-    <string name="input_end__arrow_value_7">7</string>
-    <string name="input_end__arrow_value_8">8</string>
-    <string name="input_end__arrow_value_9">9</string>
-    <string name="input_end__arrow_value_10">10</string>
 </resources>

@@ -9,7 +9,7 @@
     >
 
     <TextView
-        android:id="@+id/text_input_end__end_total"
+        android:id="@+id/text_end_inputs__end_total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/placeholder_0"
@@ -22,7 +22,7 @@
 
     <!-- text is a placeholder than will be overwritten on load -->
     <TextView
-        android:id="@+id/text_input_end__inputted_arrows"
+        android:id="@+id/text_end_inputs__inputted_arrows"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
@@ -31,22 +31,22 @@
         android:textSize="@dimen/large_text_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_input_end__end_total"
+        app:layout_constraintTop_toBottomOf="@id/text_end_inputs__end_total"
         tools:ignore="HardcodedText"
         />
 
     <LinearLayout
-        android:id="@+id/layout_arrow_inputs"
+        android:id="@+id/layout_end_inputs__arrow_inputs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_input_end__inputted_arrows"
+        app:layout_constraintTop_toBottomOf="@+id/text_end_inputs__inputted_arrows"
         >
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_arrow_inputs"
+            android:id="@+id/fragment_end_inputs__arrow_inputs"
             android:name="eywa.projectcodex.ui.inputEnd.ArrowInputsFragment10ZoneWithX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
 
         <!-- Preview only -->
         <fragment
-            android:id="@+id/fragment_arrow_inputs_preview"
+            android:id="@+id/fragment_end_inputs__arrow_inputs_preview"
             android:name="eywa.projectcodex.ui.inputEnd.ArrowInputsFragment10ZoneWithX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,18 +69,18 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/layout_input_end__edit_inputted_arrows"
+        android:id="@+id/layout_end_inputs__edit_inputted_arrows"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_arrow_inputs"
+        app:layout_constraintTop_toBottomOf="@+id/layout_end_inputs__arrow_inputs"
         >
 
         <Button
-            android:id="@+id/button_input_end__clear"
+            android:id="@+id/button_end_inputs__clear"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
             />
 
         <Button
-            android:id="@+id/button_input_end__backspace"
+            android:id="@+id/button_end_inputs__backspace"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

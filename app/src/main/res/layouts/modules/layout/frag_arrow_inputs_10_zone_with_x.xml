@@ -8,69 +8,69 @@
     >
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/group_input_end__score_buttons"
+        android:id="@+id/group_arrow_inputs__score_buttons"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:constraint_referenced_ids="
-            button_input_end__score_0,
-            button_input_end__score_1,
-            button_input_end__score_2,
-            button_input_end__score_3,
-            button_input_end__score_4,
-            button_input_end__score_5,
-            button_input_end__score_6,
-            button_input_end__score_6,
-            button_input_end__score_7,
-            button_input_end__score_8,
-            button_input_end__score_9,
-            button_input_end__score_10,
-            button_input_end__score_x
+            button_arrow_inputs__score_0,
+            button_arrow_inputs__score_1,
+            button_arrow_inputs__score_2,
+            button_arrow_inputs__score_3,
+            button_arrow_inputs__score_4,
+            button_arrow_inputs__score_5,
+            button_arrow_inputs__score_6,
+            button_arrow_inputs__score_6,
+            button_arrow_inputs__score_7,
+            button_arrow_inputs__score_8,
+            button_arrow_inputs__score_9,
+            button_arrow_inputs__score_10,
+            button_arrow_inputs__score_x
         "
         />
 
     <Button
-        android:id="@+id/button_input_end__score_0"
+        android:id="@+id/button_arrow_inputs__score_0"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGreen"
         android:text="@string/arrow_value_m"
-        app:layout_constraintBottom_toBottomOf="@+id/button_input_end__score_6"
-        app:layout_constraintEnd_toStartOf="@+id/button_input_end__score_1"
-        app:layout_constraintTop_toTopOf="@+id/button_input_end__score_1"
+        app:layout_constraintBottom_toBottomOf="@+id/button_arrow_inputs__score_6"
+        app:layout_constraintEnd_toStartOf="@+id/button_arrow_inputs__score_1"
+        app:layout_constraintTop_toTopOf="@+id/button_arrow_inputs__score_1"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_1"
+        android:id="@+id/button_arrow_inputs__score_1"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceWhite"
-        android:text="@string/input_end__arrow_value_1"
-        app:layout_constraintBottom_toBottomOf="@+id/button_input_end__score_2"
-        app:layout_constraintEnd_toStartOf="@+id/button_input_end__score_2"
-        app:layout_constraintTop_toTopOf="@+id/button_input_end__score_2"
+        android:text="@string/arrow_value_1"
+        app:layout_constraintBottom_toBottomOf="@+id/button_arrow_inputs__score_2"
+        app:layout_constraintEnd_toStartOf="@+id/button_arrow_inputs__score_2"
+        app:layout_constraintTop_toTopOf="@+id/button_arrow_inputs__score_2"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_2"
+        android:id="@+id/button_arrow_inputs__score_2"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceWhite"
-        android:text="@string/input_end__arrow_value_2"
-        app:layout_constraintBottom_toBottomOf="@+id/button_input_end__score_3"
-        app:layout_constraintEnd_toStartOf="@+id/button_input_end__score_3"
-        app:layout_constraintTop_toTopOf="@+id/button_input_end__score_3"
+        android:text="@string/arrow_value_2"
+        app:layout_constraintBottom_toBottomOf="@+id/button_arrow_inputs__score_3"
+        app:layout_constraintEnd_toStartOf="@+id/button_arrow_inputs__score_3"
+        app:layout_constraintTop_toTopOf="@+id/button_arrow_inputs__score_3"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_3"
+        android:id="@+id/button_arrow_inputs__score_3"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlack"
-        android:text="@string/input_end__arrow_value_3"
+        android:text="@string/arrow_value_3"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -78,95 +78,95 @@
         />
 
     <Button
-        android:id="@+id/button_input_end__score_4"
+        android:id="@+id/button_arrow_inputs__score_4"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlack"
-        android:text="@string/input_end__arrow_value_4"
+        android:text="@string/arrow_value_4"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/button_input_end__score_3"
-        app:layout_constraintStart_toEndOf="@+id/button_input_end__score_3"
-        app:layout_constraintTop_toTopOf="@+id/button_input_end__score_3"
+        app:layout_constraintBottom_toBottomOf="@+id/button_arrow_inputs__score_3"
+        app:layout_constraintStart_toEndOf="@+id/button_arrow_inputs__score_3"
+        app:layout_constraintTop_toTopOf="@+id/button_arrow_inputs__score_3"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_5"
+        android:id="@+id/button_arrow_inputs__score_5"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlue"
-        android:text="@string/input_end__arrow_value_5"
-        app:layout_constraintBottom_toBottomOf="@+id/button_input_end__score_4"
-        app:layout_constraintStart_toEndOf="@+id/button_input_end__score_4"
-        app:layout_constraintTop_toTopOf="@+id/button_input_end__score_4"
+        android:text="@string/arrow_value_5"
+        app:layout_constraintBottom_toBottomOf="@+id/button_arrow_inputs__score_4"
+        app:layout_constraintStart_toEndOf="@+id/button_arrow_inputs__score_4"
+        app:layout_constraintTop_toTopOf="@+id/button_arrow_inputs__score_4"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_6"
+        android:id="@+id/button_arrow_inputs__score_6"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceBlue"
-        android:text="@string/input_end__arrow_value_6"
-        app:layout_constraintEnd_toStartOf="@+id/button_input_end__score_7"
-        app:layout_constraintTop_toBottomOf="@+id/button_input_end__score_1"
+        android:text="@string/arrow_value_6"
+        app:layout_constraintEnd_toStartOf="@+id/button_arrow_inputs__score_7"
+        app:layout_constraintTop_toBottomOf="@+id/button_arrow_inputs__score_1"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_7"
+        android:id="@+id/button_arrow_inputs__score_7"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceRed"
-        android:text="@string/input_end__arrow_value_7"
-        app:layout_constraintEnd_toStartOf="@+id/button_input_end__score_8"
-        app:layout_constraintTop_toBottomOf="@+id/button_input_end__score_2"
+        android:text="@string/arrow_value_7"
+        app:layout_constraintEnd_toStartOf="@+id/button_arrow_inputs__score_8"
+        app:layout_constraintTop_toBottomOf="@+id/button_arrow_inputs__score_2"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_8"
+        android:id="@+id/button_arrow_inputs__score_8"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceRed"
-        android:text="@string/input_end__arrow_value_8"
+        android:text="@string/arrow_value_8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_input_end__score_3"
+        app:layout_constraintTop_toBottomOf="@+id/button_arrow_inputs__score_3"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_9"
+        android:id="@+id/button_arrow_inputs__score_9"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGold"
-        android:text="@string/input_end__arrow_value_9"
-        app:layout_constraintStart_toEndOf="@+id/button_input_end__score_8"
-        app:layout_constraintTop_toBottomOf="@+id/button_input_end__score_4"
+        android:text="@string/arrow_value_9"
+        app:layout_constraintStart_toEndOf="@+id/button_arrow_inputs__score_8"
+        app:layout_constraintTop_toBottomOf="@+id/button_arrow_inputs__score_4"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_10"
+        android:id="@+id/button_arrow_inputs__score_10"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGold"
-        android:text="@string/input_end__arrow_value_10"
-        app:layout_constraintStart_toEndOf="@+id/button_input_end__score_9"
-        app:layout_constraintTop_toBottomOf="@+id/button_input_end__score_5"
+        android:text="@string/arrow_value_10"
+        app:layout_constraintStart_toEndOf="@+id/button_arrow_inputs__score_9"
+        app:layout_constraintTop_toBottomOf="@+id/button_arrow_inputs__score_5"
         />
 
     <Button
-        android:id="@+id/button_input_end__score_x"
+        android:id="@+id/button_arrow_inputs__score_x"
         style="@style/InputArrowScoreButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/targetFaceGold"
         android:text="@string/arrow_value_x"
-        app:layout_constraintBottom_toBottomOf="@+id/button_input_end__score_10"
-        app:layout_constraintStart_toEndOf="@+id/button_input_end__score_5"
-        app:layout_constraintTop_toTopOf="@+id/button_input_end__score_5"
+        app:layout_constraintBottom_toBottomOf="@+id/button_arrow_inputs__score_10"
+        app:layout_constraintStart_toEndOf="@+id/button_arrow_inputs__score_5"
+        app:layout_constraintTop_toTopOf="@+id/button_arrow_inputs__score_5"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

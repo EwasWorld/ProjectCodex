@@ -49,11 +49,6 @@ class MainMenuFragment : Fragment() {
             view.findNavController().navigate(action)
         }
 
-        button_main_menu__test.setOnClickListener {
-            val action = MainMenuFragmentDirections.actionMainMenuFragmentToInputEndEndInputsFragment()
-            view.findNavController().navigate(action)
-        }
-
         button_main_menu__update_default_rounds.setOnClickListener {
             val defaultRounds = roundsFromJson(
                     resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() })
