@@ -13,7 +13,8 @@ import kotlinx.android.synthetic.main.frag_end_inputs.*
 
 
 class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButtonPressedListener {
-    private lateinit var end: End
+    lateinit var end: End
+        private set
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.frag_end_inputs, container, false)!!
@@ -33,8 +34,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
         updateEndStringAndTotal()
 
         button_end_inputs__clear.setOnClickListener {
-            end.clear()
-            updateEndStringAndTotal()
+            clearEnd()
         }
         button_end_inputs__backspace.setOnClickListener {
             try {
@@ -45,6 +45,11 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                 Toast.makeText(context, getString(R.string.err_input_end__end_empty), Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun clearEnd() {
+        end.clear()
+        updateEndStringAndTotal()
     }
 
     override fun onScoreButtonPressed(score: String) {

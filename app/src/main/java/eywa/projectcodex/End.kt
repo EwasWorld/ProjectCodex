@@ -1,6 +1,7 @@
 package eywa.projectcodex
 
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.viewModels.InputEndViewModel
 
 class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private val arrowDeliminator: String) {
@@ -116,33 +117,56 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
      * @param firstArrowId the arrow number to assign to the first arrow in the end, subsequent arrows increment on
      * this. Not required if [originalEnd].size == [arrowsPerEnd]
      * @param inputEndViewModel the database accessor
-     * @throws IllegalStateException if the end is not full
+     * @throws UserException if the end is not full
+     * @throws IllegalStateException if [archerRoundId] or [firstArrowId] is invalid
      */
     fun addArrowsToDatabase(archerRoundId: Int?, firstArrowId: Int?, inputEndViewModel: InputEndViewModel) {
-        check(arrows.size == arrowsPerEnd) { "End not full" }
-        check((firstArrowId != null && archerRoundId != null) || originalEnd?.size == arrowsPerEnd) {
-            "Must provide archerRoundId and firstArrowId (end was not created sufficiently)"
-        }
         val origArcherRoundIds = originalEnd?.map { it.archerRoundId }?.distinct()
-        check(archerRoundId == null || (origArcherRoundIds != null && archerRoundId == origArcherRoundIds[0])) {
-            "archerRoundId doesn't match those in the database"
+        val finalArcherRoundId = origArcherRoundIds?.get(0) ?: archerRoundId
+        check(finalArcherRoundId != null) { "Must provide archerRoundId" }
+
+        // TODO Make sure these requirements are thoroughly unit tested
+        if (arrows.size != arrowsPerEnd) throw UserException(R.string.err_input_end__end_not_full)
+        if (originalEnd == null) {
+            check(firstArrowId != null) { "Must provide firstArrowId" }
+        }
+        else {
+            val originalEnd = originalEnd!!
+            check(origArcherRoundIds!!.size == 1) { "originalEnd contains arrow values from multiple rounds" }
+            check(archerRoundId == finalArcherRoundId) { "archerRoundId doesn't match those in the database" }
+
+            check(originalEnd.size == arrows.size || firstArrowId != null) {
+                "Must provide firstArrowId or match the original end size"
+            }
+
+            // Impossible at the moment as the constructor prevents this, will become possible if
+            //    a user is allowed to change the end size after starting to edit an end
+            if (originalEnd.size > arrowsPerEnd) {
+                throw UserException(R.string.err_input_end__incompatible_end_size, arrowsPerEnd, originalEnd.size)
+            }
+            // Impossible at the moment as arrows.size == arrowsPerEnd, will become possible if allowing a user to
+            //    edit an end of size 4, increase the input end to 6, but still only want to edit the 4 arrows
+            //    rather than inputting all 6 (resulting in two new arrows)
+            if (originalEnd.size > arrows.size) {
+                throw UserException(R.string.err_input_end__not_enough_arrows, originalEnd.size)
+            }
         }
 
         var arrowsToAdd = arrows
         /*
          * Overwrite the scores that were in the originalEnd
          */
-        originalEnd?.let { end ->
-            if (end.isNotEmpty()) {
-                for (i in end.indices) {
-                    inputEndViewModel.update(
-                            ArrowValue(
-                                    end[i].archerRoundId, end[i].arrowNumber, arrowsToAdd[i].score, arrowsToAdd[i].isX
-                            )
-                    )
-                }
-                arrowsToAdd = arrowsToAdd.subList(end.size, arrowsToAdd.size)
+        if (!originalEnd.isNullOrEmpty()) {
+            val originalEnd = originalEnd!!
+            for (i in originalEnd.indices) {
+                inputEndViewModel.update(
+                        ArrowValue(
+                                originalEnd[i].archerRoundId, originalEnd[i].arrowNumber,
+                                arrowsToAdd[i].score, arrowsToAdd[i].isX
+                        )
+                )
             }
+            arrowsToAdd = arrowsToAdd.subList(originalEnd.size, arrowsToAdd.size)
         }
         if (arrowsToAdd.isNotEmpty()) {
             /*
@@ -155,7 +179,7 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
              */
             var arrowID = firstArrowId!!
             for (arrow in arrowsToAdd) {
-                inputEndViewModel.insert(arrow.toArrowValue(archerRoundId!!, arrowID++))
+                inputEndViewModel.insert(arrow.toArrowValue(finalArcherRoundId, arrowID++))
             }
         }
         clear()

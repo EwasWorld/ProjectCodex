@@ -10,8 +10,8 @@ import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import eywa.projectcodex.R
+import eywa.projectcodex.ui.findInstanceOf
 import kotlinx.android.synthetic.main.content_main.*
-import java.util.*
 
 
 class ArrowInputsFragment10ZoneWithX : Fragment() {
@@ -38,22 +38,8 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        listener = findListener((context as FragmentActivity).nav_host_fragment)
+        listener = findInstanceOf((context as FragmentActivity).nav_host_fragment)
                    ?: throw ClassCastException("$context must implement ScoreButtonPressedListener")
-    }
-
-    /**
-     * Does a breadth-first search of **child** fragments of [root] searching for an instance of [T]
-     */
-    private inline fun <reified T> findListener(root: Fragment): T? {
-        val queue: Queue<Fragment>? = LinkedList(listOf(root))
-        while (queue!!.isNotEmpty()) {
-            for (fragment in queue.remove().childFragmentManager.fragments) {
-                if (fragment is T) return fragment
-                queue.offer(fragment)
-            }
-        }
-        return null
     }
 
     override fun onDetach() {

@@ -19,7 +19,7 @@ So I can call myself a liar when I don't follow my own decisions
 ## Naming Conventions
 - Packages: camelCase
 - Classes, Enums, Interfaces: PascalCase
-- Methods, variables: camelCase
+- Methods, variables: camelCase (shadowed variable names are only acceptable is shadowing a nullable `val` with the identical not-null `val` - note both are immutable)
 - XML and resource files: snake_case
 - XML IDs: formatted snake_case: <element_type>_<file_ref>__<element_identifier> note double underscore between file_ref and element_identifier (this ensures a unique name for all elements so that fragments can be reused without worrying about a name clash)
 - Lists from the database should only be named 'all' if they will contain all unfiltered rows from the specified table

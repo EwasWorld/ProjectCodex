@@ -5,6 +5,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/mainMenuFragment"
     >
+    <!-- TODO Find out what the label attribute is -->
     <fragment
         android:id="@+id/mainMenuFragment"
         android:name="eywa.projectcodex.ui.MainMenuFragment"
@@ -39,14 +40,14 @@
         >
         <action
             android:id="@+id/actionNewRoundFragmentToInputEndFragment"
-            app:destination="@id/testInputEndFragment"
+            app:destination="@id/inputEndFragment"
             />
     </fragment>
     <fragment
         android:id="@+id/inputEndFragment"
-        android:name="eywa.projectcodex.ui.InputEndFragment"
-        android:label="activity_add_end"
-        tools:layout="@layout/fragment_input_end"
+        android:name="eywa.projectcodex.ui.inputEnd.TestInputEndFragment"
+        android:label="fragment_test_input_end"
+        tools:layout="@layout/fragment_test_input_end"
         >
         <action
             android:id="@+id/actionInputEndFragmentToScorePadFragment"
@@ -79,22 +80,6 @@
         <argument
             android:name="archerRoundId"
             app:argType="integer"
-            />
-    </fragment>
-    <fragment
-        android:id="@+id/testInputEndFragment"
-        android:name="eywa.projectcodex.ui.inputEnd.TestInputEndFragment"
-        android:label="fragment_test_input_end"
-        tools:layout="@layout/fragment_test_input_end"
-        >
-        <argument
-            android:name="archerRoundId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="showRemaining"
-            android:defaultValue="false"
-            app:argType="boolean"
             />
     </fragment>
 </navigation>
