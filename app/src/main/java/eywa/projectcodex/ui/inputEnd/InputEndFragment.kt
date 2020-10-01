@@ -21,11 +21,11 @@ import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.logic.getRemainingArrowsPerDistance
 import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
-import kotlinx.android.synthetic.main.fragment_test_input_end.*
+import kotlinx.android.synthetic.main.fragment_input_end.*
 
 
-class TestInputEndFragment : Fragment() {
-    private val args: TestInputEndFragmentArgs by navArgs()
+class InputEndFragment : Fragment() {
+    private val args: InputEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
     private var arrows = emptyList<ArrowValue>()
     private var arrowCounts = emptyList<RoundArrowCount>()
@@ -33,7 +33,7 @@ class TestInputEndFragment : Fragment() {
     private var distanceUnit: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_test_input_end, container, false)
+        val view = inflater.inflate(R.layout.fragment_input_end, container, false)
         if (!view.isInEditMode) {
             view.findViewById<View>(R.id.fragment_input_end__end_inputs_preview).visibility = View.GONE
             view.findViewById<View>(R.id.fragment_input_end__score_indicator_preview).visibility = View.GONE
@@ -80,7 +80,7 @@ class TestInputEndFragment : Fragment() {
                 childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment
 
         button_input_end__score_pad.setOnClickListener {
-            val action = TestInputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(
+            val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(
                     endInputsFragment.end.arrowsPerEnd,
                     args.archerRoundId
             )
@@ -110,7 +110,7 @@ class TestInputEndFragment : Fragment() {
         }
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            val action = TestInputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
+            val action = InputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
             view.findNavController().navigate(action)
         }
         callback.isEnabled = true

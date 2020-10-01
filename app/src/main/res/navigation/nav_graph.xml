@@ -45,9 +45,9 @@
     </fragment>
     <fragment
         android:id="@+id/inputEndFragment"
-        android:name="eywa.projectcodex.ui.inputEnd.TestInputEndFragment"
-        android:label="fragment_test_input_end"
-        tools:layout="@layout/fragment_test_input_end"
+        android:name="eywa.projectcodex.ui.inputEnd.InputEndFragment"
+        android:label="fragment_input_end"
+        tools:layout="@layout/fragment_input_end"
         >
         <action
             android:id="@+id/actionInputEndFragmentToScorePadFragment"
