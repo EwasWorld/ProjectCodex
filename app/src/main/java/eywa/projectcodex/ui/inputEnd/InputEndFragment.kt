@@ -33,12 +33,7 @@ class InputEndFragment : Fragment() {
     private var distanceUnit: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_input_end, container, false)
-        if (!view.isInEditMode) {
-            view.findViewById<View>(R.id.fragment_input_end__end_inputs_preview).visibility = View.GONE
-            view.findViewById<View>(R.id.fragment_input_end__score_indicator_preview).visibility = View.GONE
-        }
-        return view
+        return inflater.inflate(R.layout.fragment_input_end, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -46,7 +41,7 @@ class InputEndFragment : Fragment() {
         activity?.title = getString(R.string.input_end__title)
 
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
-            InputEndViewModel(activity!!.application, args.archerRoundId)
+            InputEndViewModel(requireActivity().application, args.archerRoundId)
         }).get(InputEndViewModel::class.java)
         inputEndViewModel.archerRound.observe(viewLifecycleOwner, Observer { archerRound ->
             archerRound.roundId?.let { roundId ->

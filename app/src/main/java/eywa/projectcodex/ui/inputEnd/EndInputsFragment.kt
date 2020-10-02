@@ -18,10 +18,6 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.frag_end_inputs, container, false)!!
-        if (!view.isInEditMode) {
-            view.findViewById<View>(R.id.fragment_end_inputs__arrow_inputs_preview).visibility = View.GONE
-        }
-
         end = End(
                 6, getString(R.string.end_to_string_arrow_placeholder),
                 getString(R.string.end_to_string_arrow_deliminator)
