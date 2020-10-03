@@ -80,11 +80,22 @@
         >
 
         <Button
+            android:id="@+id/button_end_inputs__reset"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_end__reset"
+            android:minWidth="0dp"
+            android:visibility="gone"
+            />
+
+        <Button
             android:id="@+id/button_end_inputs__clear"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/input_end__clear"
+            android:minWidth="0dp"
             />
 
         <Button
@@ -93,6 +104,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/input_end__backspace"
+            android:minWidth="0dp"
             />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

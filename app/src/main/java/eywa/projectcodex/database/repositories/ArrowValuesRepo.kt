@@ -20,7 +20,7 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, archerRoundId: I
         arrowValueDao.insert(arrowValue)
     }
 
-    fun update(arrowValue: ArrowValue) {
+    suspend fun update(arrowValue: ArrowValue) {
         arrowValueDao.update(arrowValue)
     }
 

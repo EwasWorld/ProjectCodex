@@ -108,6 +108,11 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
         arrows = mutableListOf()
     }
 
+    fun reset() {
+        check(originalEnd != null) { "No original end state was provided" }
+        arrows = originalEnd!!.map { Arrow(it.score, it.isX) }.toMutableList()
+    }
+
     /**
      * Updates the archer-round ID and arrow IDs for all arrows in the end then adds them to the database and clears the
      * end

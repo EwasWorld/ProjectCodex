@@ -10,7 +10,7 @@ interface ArrowValueDao {
     suspend fun insert(arrowValue: ArrowValue)
 
     @Update
-    fun update(vararg arrowValue: ArrowValue)
+    suspend fun update(vararg arrowValue: ArrowValue)
 
     /**
      * When returning LiveData, suspend is not needed as LiveData is already async

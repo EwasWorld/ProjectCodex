@@ -81,5 +81,28 @@
             android:name="archerRoundId"
             app:argType="integer"
             />
+        <action
+            android:id="@+id/actionScorePadFragmentToEditEndFragment"
+            app:destination="@id/editEndFragment"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/editEndFragment"
+        android:name="eywa.projectcodex.ui.inputEnd.EditEndFragment"
+        android:label="EditEndFragment"
+        tools:layout="@layout/fragment_edit_end"
+        >
+        <argument
+            android:name="endSize"
+            app:argType="integer"
+            />
+        <argument
+            android:name="archerRoundId"
+            app:argType="integer"
+            />
+        <argument
+            android:name="firstArrowId"
+            app:argType="integer"
+            />
     </fragment>
 </navigation>

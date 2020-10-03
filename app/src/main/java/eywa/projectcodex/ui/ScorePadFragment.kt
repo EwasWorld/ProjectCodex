@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
@@ -31,6 +32,7 @@ class ScorePadFragment : Fragment() {
     private var distances = listOf<RoundDistance>()
     private var distanceUnit: String? = null
     private var arrows = listOf<ArrowValue>()
+    private lateinit var tableAdapter: InfoTableViewAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_score_pad, container, false)
@@ -40,7 +42,7 @@ class ScorePadFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.score_pad__title)
 
-        val tableAdapter = InfoTableViewAdapter(context!!)
+        tableAdapter = InfoTableViewAdapter(context!!)
         val tableView = view.findViewById<TableView>(R.id.table_view_score_pad)
         tableView.adapter = tableAdapter
         tableView.tableViewListener = ScorePadTableViewListener(tableView)
@@ -50,43 +52,41 @@ class ScorePadFragment : Fragment() {
         }).get(ScorePadViewModel::class.java)
 
         // Get arrow counts and distances
-        scorePadViewModel.archerRound.observe(viewLifecycleOwner, Observer { ar ->
-            ar?.let { archerRound ->
-                archerRound.roundId?.let { roundId ->
-                    scorePadViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, Observer {
-                        arrowCounts = it
-                        updateTable(tableAdapter)
-                    })
-                    scorePadViewModel.getDistancesForRound(roundId, archerRound.roundSubTypeId)
-                            .observe(viewLifecycleOwner, Observer {
-                                distances = it
-                                updateTable(tableAdapter)
-                            })
-                }
+        scorePadViewModel.archerRound.observe(viewLifecycleOwner, Observer { archerRound ->
+            if (archerRound == null) return@Observer
+            archerRound.roundId?.let { roundId ->
+                scorePadViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, Observer {
+                    arrowCounts = it
+                    updateTable()
+                })
+                scorePadViewModel.getDistancesForRound(roundId, archerRound.roundSubTypeId)
+                        .observe(viewLifecycleOwner, Observer {
+                            distances = it
+                            updateTable()
+                        })
             }
         })
 
         // Get golds type and distance unit
-        scorePadViewModel.roundInfo.observe(viewLifecycleOwner, Observer {
-            it?.let { round ->
-                goldsType = getGoldsType(round.isOutdoor, round.isMetric)
-                distanceUnit =
-                        getString(if (round.isMetric) R.string.units_meters_short else R.string.units_yards_short)
-            }
-            updateTable(tableAdapter)
+        scorePadViewModel.roundInfo.observe(viewLifecycleOwner, Observer { round ->
+            if (round == null) return@Observer
+            goldsType = getGoldsType(round.isOutdoor, round.isMetric)
+            distanceUnit = getString(if (round.isMetric) R.string.units_meters_short else R.string.units_yards_short)
+            updateTable()
         })
 
         // Get arrows
-        scorePadViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer {
-            if (it != null) arrows = it
-            updateTable(tableAdapter)
+        scorePadViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer { arrowValues ->
+            if (arrowValues == null) return@Observer
+            arrows = arrowValues
+            updateTable()
         })
     }
 
     /**
      * Does nothing if the requirements to make a valid table are not met
      */
-    private fun updateTable(tableAdapter: InfoTableViewAdapter) {
+    private fun updateTable() {
         if (arrows.isNullOrEmpty() || arrowCounts.size != distances.size
             || (arrowCounts.isNotEmpty() && distanceUnit == null)) {
             return
@@ -126,7 +126,15 @@ class ScorePadFragment : Fragment() {
     }
 
     inner class ScorePadTableViewListener(private val tableView: TableView) : ITableViewListener {
-        override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
+        override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
+            // Note arrows are counted from 1
+            val firstArrowId = row * args.endSize + 1
+
+            val action = ScorePadFragmentDirections.actionScorePadFragmentToEditEndFragment(
+                    args.endSize, args.archerRoundId, firstArrowId
+            )
+            view?.findNavController()?.navigate(action)
+        }
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
 
