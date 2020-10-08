@@ -78,6 +78,22 @@ fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName:
 }
 
 /**
+ * Wait for a set amount of time (non blocking)
+ */
+fun waitFor(milli: Long): Instruction {
+    return object : Instruction() {
+        override fun checkCondition(): Boolean {
+            Thread.sleep(milli)
+            return true
+        }
+
+        override fun getDescription(): String {
+            return "Wait for a given length of time"
+        }
+    }
+}
+
+/**
  * If the matcher matches multiple elements, get the element with the specified index
  */
 fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {

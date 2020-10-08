@@ -28,52 +28,42 @@ class ScorePadFragment : Fragment() {
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
     private lateinit var tableAdapter: InfoTableViewAdapter
-
-    /**
-     * Used to prevent the table from messing itself up from too many refreshes
-     */
-    private var hasTableDataChanged = false
+    private var dialog: AlertDialog? = null
 
     // TODO Is there a way to make these setters common?
     private var goldsType = GoldsType.TENS
         set(value) {
             if (value == field) return
-            hasTableDataChanged = true
             field = value
             updateTable()
         }
     private var arrowCounts = listOf<RoundArrowCount>()
         set(value) {
             if (value.isNullOrEmpty() || value == field) return
-            if (!field.isNullOrEmpty()) hasTableDataChanged = true
             field = value
             updateTable()
         }
     private var distances = listOf<RoundDistance>()
         set(value) {
             if (value.isNullOrEmpty() || value == field) return
-            if (!field.isNullOrEmpty()) hasTableDataChanged = true
             field = value
             updateTable()
         }
     private var distanceUnit: String? = null
         set(value) {
             if (value.isNullOrEmpty() || value == field) return
-            if (!field.isNullOrEmpty()) hasTableDataChanged = true
             field = value
             updateTable()
         }
     private var arrows = listOf<ArrowValue>()
         set(value) {
             if (value.isNullOrEmpty() || value == field) return
-            if (!field.isNullOrEmpty()) hasTableDataChanged = true
             field = value
             updateTable()
         }
     private var endSize: Int? = null
         set(value) {
             if (value == null || value < 1 || value == field) return
-            hasTableDataChanged = true
             field = value
             updateTable()
         }
@@ -88,7 +78,6 @@ class ScorePadFragment : Fragment() {
 
         tableAdapter = InfoTableViewAdapter(context!!)
         if (endSize == null) endSize = args.endSize
-        hasTableDataChanged = true
         val tableView = view.findViewById<TableView>(R.id.table_view_score_pad)
         tableView.adapter = tableAdapter
         tableView.tableViewListener = ScorePadTableViewListener(tableView)
@@ -122,6 +111,10 @@ class ScorePadFragment : Fragment() {
         // Get arrows
         scorePadViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer { arrowValues ->
             if (arrowValues == null) return@Observer
+            if (arrowValues.isNullOrEmpty()) {
+                displayError()
+                return@Observer
+            }
             arrows = arrowValues
         })
     }
@@ -131,7 +124,7 @@ class ScorePadFragment : Fragment() {
      */
     private fun updateTable() {
         if (endSize == null || arrows.isNullOrEmpty() || arrowCounts.size != distances.size ||
-            (distances.isNotEmpty() && distanceUnit.isNullOrBlank()) || !hasTableDataChanged) {
+            (distances.isNotEmpty() && distanceUnit.isNullOrBlank())) {
             return
         }
 
@@ -155,18 +148,26 @@ class ScorePadFragment : Fragment() {
                     ),
                     tableData
             )
-            hasTableDataChanged = false
         }
         catch (e: IllegalArgumentException) {
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(R.string.err_table_view__no_data)
-            builder.setMessage(R.string.err_score_pad__no_arrows)
-            builder.setPositiveButton(R.string.err_button__ok) { _, _ ->
-                activity?.onBackPressed()
-            }
-            val dialog: AlertDialog = builder.create()
-            dialog.show()
+            displayError()
         }
+    }
+
+    private fun displayError() {
+        if (dialog != null) {
+            return
+        }
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(R.string.err_table_view__no_data)
+        builder.setMessage(R.string.err_score_pad__no_arrows)
+        builder.setPositiveButton(R.string.err_button__ok) { dialogInterface, _ ->
+            activity?.onBackPressed()
+            dialogInterface.cancel()
+            dialog = null
+        }
+        dialog = builder.create()
+        dialog!!.show()
     }
 
     inner class ScorePadTableViewListener(private val tableView: TableView) : ITableViewListener {
