@@ -20,6 +20,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
             field = value
             updateEndStringAndTotal()
         }
+    var showResetButton = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.frag_end_inputs, container, false)!!
@@ -27,6 +28,8 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                 6, getString(R.string.end_to_string_arrow_placeholder),
                 getString(R.string.end_to_string_arrow_deliminator)
         )
+        view.findViewById<Button>(R.id.button_end_inputs__reset).visibility =
+                if (showResetButton) View.VISIBLE else View.GONE
         return view
     }
 
@@ -54,10 +57,6 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
     fun clearEnd() {
         end.clear()
         updateEndStringAndTotal()
-    }
-
-    fun showResetButton(value: Boolean) {
-        view?.findViewById<Button>(R.id.button_end_inputs__reset)?.visibility = if (value) View.VISIBLE else View.GONE
     }
 
     override fun onScoreButtonPressed(score: String) {

@@ -37,7 +37,7 @@ class EditEndFragment : Fragment() {
 
         endInputsFragment =
                 childFragmentManager.findFragmentById(R.id.fragment_edit_end__end_inputs)!! as EndInputsFragment
-        endInputsFragment.showResetButton(true)
+        endInputsFragment.showResetButton = true
 
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
             InputEndViewModel(requireActivity().application, args.archerRoundId)
