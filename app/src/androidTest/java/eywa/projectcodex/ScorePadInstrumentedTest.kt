@@ -237,4 +237,53 @@ class ScorePadInstrumentedTest {
             assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
         }
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testEditEndCancel() {
+        generateArrowsAndAddToDb()
+        ConditionWatcher.waitForCondition(openScorePadInstruction)
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
+                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+        while (tableViewAdapter.getCellRowItems(0) == null) {
+            println("Waiting for score pad entries to load")
+        }
+
+        /*
+         * Edit an end
+         */
+        val firstEnd = End(arrows.subList(0, 6), 6, ".", "-")
+        firstEnd.reorderScores()
+        onView(withText(firstEnd.toString())).perform(click())
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(EditEndFragment::class.java.name))
+
+        /*
+         * Cancel edit
+         */
+        onView(withId(R.id.button_edit_end__cancel)).perform(click())
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        ConditionWatcher.waitForCondition(waitFor(200))
+        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
+                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+        while (tableViewAdapter.getCellRowItems(0) == null) {
+            println("Waiting for score pad entries to load")
+        }
+
+        val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, activity.activity.resources)
+        for (i in expectedCells.indices) {
+            assertEquals(expectedCells[i], tableViewAdapter.getCellRowItems(i))
+        }
+
+        var col = 0
+        val expectedColumnHeaders = listOf("E/T", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
+        for (i in expectedColumnHeaders.indices) {
+            assertEquals(expectedColumnHeaders[i], tableViewAdapter.getColumnHeaderItem(i))
+        }
+
+        val expectedRowHeaders = generateNumberedRowHeaders(6, null, activity.activity.resources, true)
+        for (i in expectedRowHeaders.indices) {
+            assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
+        }
+    }
 }

@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.End
 import eywa.projectcodex.Log
@@ -63,9 +64,12 @@ class EditEndFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.input_end__title)
+        val action = EditEndFragmentDirections.actionEditEndFragmentToScorePadFragment(
+                args.endSize, args.archerRoundId
+        )
 
         button_edit_end__cancel.setOnClickListener {
-            activity?.onBackPressed()
+            view.findNavController().navigate(action)
         }
 
         button_edit_end__complete.setOnClickListener {
@@ -80,7 +84,9 @@ class EditEndFragment : Fragment() {
                 endInputsFragment.end.addArrowsToDatabase(
                         args.archerRoundId, highestArrowNumber + 1, inputEndViewModel
                 )
-                activity?.onBackPressed()
+                // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
+                //    with the table refreshing bug (above as well)
+                view.findNavController().navigate(action)
             }
             catch (e: UserException) {
                 Toast.makeText(context, e.getMessage(resources), Toast.LENGTH_SHORT).show()

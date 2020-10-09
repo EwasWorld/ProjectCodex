@@ -30,6 +30,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
         )
         view.findViewById<Button>(R.id.button_end_inputs__reset).visibility =
                 if (showResetButton) View.VISIBLE else View.GONE
+        updateEndStringAndTotal(view)
         return view
     }
 
@@ -69,10 +70,10 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
         }
     }
 
-    private fun updateEndStringAndTotal() {
-        view?.let { view ->
-            view.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text = end.toString()
-            view.findViewById<TextView>(R.id.text_end_inputs__end_total).text = end.getScore().toString()
+    private fun updateEndStringAndTotal(view: View? = this.view) {
+        view?.let { requiredView ->
+            requiredView.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text = end.toString()
+            requiredView.findViewById<TextView>(R.id.text_end_inputs__end_total).text = end.getScore().toString()
         }
     }
 }

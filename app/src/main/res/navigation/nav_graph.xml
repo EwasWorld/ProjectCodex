@@ -104,5 +104,9 @@
             android:name="firstArrowId"
             app:argType="integer"
             />
+        <action
+            android:id="@+id/actionEditEndFragmentToScorePadFragment"
+            app:destination="@id/scorePadFragment"
+            />
     </fragment>
 </navigation>
