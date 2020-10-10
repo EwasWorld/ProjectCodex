@@ -8,14 +8,15 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import eywa.projectcodex.End
+import eywa.projectcodex.logic.End
 import eywa.projectcodex.R
 import kotlinx.android.synthetic.main.frag_end_inputs.*
 
 
 class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButtonPressedListener {
     // This assignment should always be overwritten, just can't have a lateinit with a custom setter :rolling_eyes:
-    var end: End = End(6, ".", "-")
+    var end: End =
+            End(6, ".", "-")
         set(value) {
             field = value
             updateEndStringAndTotal()

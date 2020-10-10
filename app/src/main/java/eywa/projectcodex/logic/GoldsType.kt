@@ -1,5 +1,6 @@
-package eywa.projectcodex
+package eywa.projectcodex.logic
 
+import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 
 /**
@@ -17,7 +18,10 @@ fun getGoldsType(isOutdoor: Boolean, isMetric: Boolean): GoldsType {
  * The minimum arrow value to be counted as a gold
  */
 enum class GoldsType(private val score: Int, private val isX: Boolean, val colHeaderStringId: Int) {
-    NINES(9, false, R.string.table_golds_nines_header), TENS(10, false, R.string.table_golds_tens_header),
+    NINES(9, false, R.string.table_golds_nines_header), TENS(
+            10, false,
+            R.string.table_golds_tens_header
+    ),
     XS(10, true, R.string.table_golds_xs_header);
 
     fun isGold(arrow: Arrow): Boolean {

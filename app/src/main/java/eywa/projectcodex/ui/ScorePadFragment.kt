@@ -13,12 +13,12 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
-import eywa.projectcodex.GoldsType
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.getGoldsType
+import eywa.projectcodex.logic.getGoldsType
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.viewModels.ScorePadViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory

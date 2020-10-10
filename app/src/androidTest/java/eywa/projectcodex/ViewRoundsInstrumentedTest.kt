@@ -18,6 +18,7 @@ import eywa.projectcodex.database.entities.*
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.ui.MainActivity
 import eywa.projectcodex.ui.ScorePadFragment
 import kotlinx.coroutines.GlobalScope

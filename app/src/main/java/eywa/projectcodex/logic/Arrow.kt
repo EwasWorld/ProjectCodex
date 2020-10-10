@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.logic
 
 import eywa.projectcodex.database.entities.ArrowValue
 
@@ -29,7 +29,10 @@ fun isX(arrowScore: String): Boolean {
 }
 
 class Arrow(val score: Int, val isX: Boolean) {
-    constructor(scoreString: String) : this(getArrowScore(scoreString), isX(scoreString))
+    constructor(scoreString: String) : this(
+            getArrowScore(scoreString),
+            isX(scoreString)
+    )
 
     override fun toString(): String {
         // TODO Hardcoded string

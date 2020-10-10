@@ -18,6 +18,8 @@ import eywa.projectcodex.database.entities.*
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateScorePadTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
+import eywa.projectcodex.logic.End
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.ui.MainActivity
 import eywa.projectcodex.ui.ScorePadFragment
 import eywa.projectcodex.ui.inputEnd.EditEndFragment

@@ -1,6 +1,9 @@
 package eywa.projectcodex
 
 import eywa.projectcodex.database.entities.*
+import eywa.projectcodex.logic.Arrow
+import eywa.projectcodex.logic.DefaultRoundInfo
+import eywa.projectcodex.logic.formatNameString
 import org.junit.Assert
 import java.sql.Date
 import kotlin.math.max
@@ -14,8 +17,18 @@ class TestData {
                 Archer(2, "Jeff")
         )
         val ARROWS = arrayOf(
-                Arrow(0, false), Arrow(1, false), Arrow(2, false), Arrow(3, false), Arrow(4, false), Arrow(5, false),
-                Arrow(6, false), Arrow(7, false), Arrow(8, false), Arrow(9, false), Arrow(10, false), Arrow(10, true)
+                Arrow(0, false),
+                Arrow(1, false),
+                Arrow(2, false),
+                Arrow(3, false),
+                Arrow(4, false),
+                Arrow(5, false),
+                Arrow(6, false),
+                Arrow(7, false),
+                Arrow(8, false),
+                Arrow(9, false),
+                Arrow(10, false),
+                Arrow(10, true)
         )
         val ROUND_SUB_TYPES = listOf(
                 DefaultRoundInfo.RoundInfoSubType(1, "1", null, null),
@@ -143,35 +156,40 @@ class TestData {
             var roundId = 1
             rounds.add(
                     Round(
-                            roundId, formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            roundId,
+                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             true, false, listOf(), false, false
                     )
             )
             roundId++
             rounds.add(
                     Round(
-                            roundId, formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            roundId,
+                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             true, true, listOf(), false, false
                     )
             )
             roundId++
             rounds.add(
                     Round(
-                            roundId, formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            roundId,
+                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             false, false, listOf(), false, false
                     )
             )
             roundId++
             rounds.add(
                     Round(
-                            roundId, formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            roundId,
+                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             false, true, listOf(), true, false
                     )
             )
             roundId++
             rounds.add(
                     Round(
-                            roundId, formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            roundId,
+                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             false, true, listOf(), true, true
                     )
             )

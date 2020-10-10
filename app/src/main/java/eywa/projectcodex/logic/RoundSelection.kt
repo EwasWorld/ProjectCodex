@@ -1,8 +1,9 @@
-package eywa.projectcodex
+package eywa.projectcodex.logic
 
 import android.content.res.Resources
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
@@ -56,7 +57,11 @@ class RoundSelection(
             listOf(resources.getString(R.string.create_round__no_rounds_found))
         }
         else {
-            availableRounds.map { it?.displayName ?: resources.getString(R.string.create_round__no_round) }
+            availableRounds.map {
+                it?.displayName ?: resources.getString(
+                        R.string.create_round__no_round
+                )
+            }
         }
     }
 

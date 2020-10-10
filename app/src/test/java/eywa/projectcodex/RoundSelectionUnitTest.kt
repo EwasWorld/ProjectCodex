@@ -10,6 +10,7 @@ import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
+import eywa.projectcodex.logic.RoundSelection
 import eywa.projectcodex.viewModels.NewRoundViewModel
 import org.junit.Assert
 import org.junit.Before

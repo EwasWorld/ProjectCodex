@@ -1,6 +1,7 @@
-package eywa.projectcodex
+package eywa.projectcodex.logic
 
 import com.beust.klaxon.*
+import eywa.projectcodex.Log
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
@@ -17,7 +18,9 @@ private const val defaultRoundMinimumId = 5
  * @throws ClassCastException for invalid type for any given object
  */
 fun roundsFromJson(objectJson: String): List<DefaultRoundInfo> {
-    return Klaxon().converter(ParsedRoundsConverter()).parse<ParsedRounds>(objectJson)!!.defaultRoundInfo
+    return Klaxon().converter(
+            ParsedRoundsConverter()
+    ).parse<ParsedRounds>(objectJson)!!.defaultRoundInfo
 }
 
 /**
@@ -55,7 +58,9 @@ fun checkDefaultRounds(
 ): Map<Any, UpdateType> {
     require(defaultRounds.isNotEmpty()) { "No default rounds given" }
     if (allDbRounds.isEmpty()) {
-        Log.i(ROUND_CHECKER_LOG_TAG, "No database rounds given")
+        Log.i(
+                ROUND_CHECKER_LOG_TAG, "No database rounds given"
+        )
     }
 
     val returnMap = mutableMapOf<Any, UpdateType>()
@@ -75,9 +80,15 @@ fun checkDefaultRounds(
     /*
      * Delete any rounds that no longer exist in defaultRounds
      */
-    Log.d(ROUND_CHECKER_LOG_TAG, "deleting rounds")
+    Log.d(
+            ROUND_CHECKER_LOG_TAG, "deleting rounds"
+    )
     val deletedDbRounds = dbRounds.filter { dbRound ->
-        !defaultRounds.map { formatNameString(it.displayName) }.contains(dbRound.name)
+        !defaultRounds.map {
+            formatNameString(
+                    it.displayName
+            )
+        }.contains(dbRound.name)
     }
     returnMap.putAll(deletedDbRounds.map { it to UpdateType.DELETE })
 
@@ -85,15 +96,24 @@ fun checkDefaultRounds(
      * Check details of each default round
      */
     for (defaultRoundInfo in defaultRounds) {
-        Log.i(ROUND_CHECKER_LOG_TAG, "Checking round: ${defaultRoundInfo.displayName}")
-        val dbRound = dbRounds.find { it.name == formatNameString(defaultRoundInfo.displayName) }
+        Log.i(
+                ROUND_CHECKER_LOG_TAG,
+                "Checking round: ${defaultRoundInfo.displayName}"
+        )
+        val dbRound = dbRounds.find {
+            it.name == formatNameString(
+                    defaultRoundInfo.displayName
+            )
+        }
         var roundId: Int
 
         /*
          * Add new round if doesn't exist in DB already
          */
         if (dbRound == null) {
-            Log.d(ROUND_CHECKER_LOG_TAG, "round is new")
+            Log.d(
+                    ROUND_CHECKER_LOG_TAG, "round is new"
+            )
             roundId = -1
             /*
              * Note: new round ids should not clash with any existing round ids, even if the round will be deleted.
@@ -102,7 +122,7 @@ fun checkDefaultRounds(
             val dbDefaultMax = dbRounds.map { it.roundId }.max()
             if (dbDefaultMax != null) {
                 var defaultRange =
-                    defaultRoundMinimumId.rangeTo(dbDefaultMax).filter { !currentDefaultIds.contains(it) }
+                        defaultRoundMinimumId.rangeTo(dbDefaultMax).filter { !currentDefaultIds.contains(it) }
 
                 if (defaultRange.isNotEmpty()) {
                     roundId = defaultRange[0]
@@ -142,7 +162,9 @@ fun checkDefaultRounds(
         /*
          * Check arrow counts
          */
-        Log.d(ROUND_CHECKER_LOG_TAG, "checking arrow counts")
+        Log.d(
+                ROUND_CHECKER_LOG_TAG, "checking arrow counts"
+        )
         val dbArrowCounts = allDbArrowCounts.filter { it.roundId == roundId }.toSet()
         val defaultArrowCounts = defaultRoundInfo.getRoundArrowCounts(roundId).toSet()
         if (dbArrowCounts != defaultArrowCounts) {
@@ -174,7 +196,9 @@ fun checkDefaultRounds(
         /*
          * Check subtypes
          */
-        Log.d(ROUND_CHECKER_LOG_TAG, "checking sub types")
+        Log.d(
+                ROUND_CHECKER_LOG_TAG, "checking sub types"
+        )
         val dbSubTypes = allDbSubTypes.filter { it.roundId == roundId }.toSet()
         val defaultSubTypes = defaultRoundInfo.getRoundSubTypes(roundId).toSet()
         if (dbSubTypes !== defaultSubTypes) {
@@ -206,7 +230,9 @@ fun checkDefaultRounds(
         /*
          * Check distances
          */
-        Log.d(ROUND_CHECKER_LOG_TAG, "checking distances")
+        Log.d(
+                ROUND_CHECKER_LOG_TAG, "checking distances"
+        )
         val dbDistances = allDbDistances.filter { it.roundId == roundId }.toSet()
         val defaultDistances = defaultRoundInfo.getRoundDistances(roundId).toSet()
         if (dbDistances != defaultDistances) {
@@ -216,7 +242,7 @@ fun checkDefaultRounds(
             for (dbDistance in dbDistances) {
                 if (defaultDistances.find {
                             it.distanceNumber == dbDistance.distanceNumber
-                                    && it.subTypeId == dbDistance.subTypeId
+                            && it.subTypeId == dbDistance.subTypeId
                         } == null) {
                     returnMap[dbDistance] = UpdateType.DELETE
                 }
@@ -277,11 +303,15 @@ class DefaultRoundInfo(
         require(roundArrowCounts.size == roundArrowCounts.distinctBy { it.distanceNumber }.size) { "Duplicate distanceNumber in $displayName" }
 
         // Check distances
-        val subTypeList = if (roundSubTypes.isNotEmpty()) roundSubTypes else listOf(RoundInfoSubType(1, "", null, null))
+        val subTypeList = if (roundSubTypes.isNotEmpty()) roundSubTypes
+        else listOf(
+                RoundInfoSubType(1, "", null, null)
+        )
         for (subType in subTypeList) {
             val distances = roundDistances.filter { subTypeCount -> subTypeCount.roundSubTypeId == subType.id }
             require(distances.size == distances.distinctBy { it.distance }.size) { "Duplicate distance in $displayName for subType: ${subType.id}" }
-            require(roundArrowCounts.map { it.distanceNumber }.toSet() == distances.map { it.distanceNumber }.toSet()) { "Mismatched distanceNumbers in $displayName for subType: ${subType.id}" }
+            require(roundArrowCounts.map { it.distanceNumber }.toSet() == distances.map { it.distanceNumber }
+                    .toSet()) { "Mismatched distanceNumbers in $displayName for subType: ${subType.id}" }
             require(distances.sortedByDescending { it.distance } == distances.sortedBy { it.distanceNumber }) { "Distances in $displayName are not non-ascending subType: ${subType.id}" }
         }
 
@@ -375,7 +405,9 @@ private class ParsedRoundsConverter : Converter {
         val all = mutableListOf<DefaultRoundInfo>()
         for (jsonRoundObject in jsonRoundObjects) {
             val roundName = parseObject<String>(jsonRoundObject, "roundName")
-            Log.i(CONVERTER_LOG_TAG, roundName)
+            Log.i(
+                    CONVERTER_LOG_TAG, roundName
+            )
             val isOutdoor = parseObject<Boolean>(jsonRoundObject, "outdoor")
             val isMetric = parseObject<Boolean>(jsonRoundObject, "isMetric")
             val fiveArrowEnd = parseObject<Boolean>(jsonRoundObject, "fiveArrowEnd")

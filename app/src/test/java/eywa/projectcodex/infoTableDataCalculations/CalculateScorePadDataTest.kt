@@ -3,8 +3,8 @@ package eywa.projectcodex.infoTableDataCalculations
 import android.content.res.Resources
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import eywa.projectcodex.End
-import eywa.projectcodex.GoldsType
+import eywa.projectcodex.logic.End
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.entities.RoundArrowCount
@@ -182,7 +182,9 @@ class CalculateScorePadDataTest {
             val data = scorePadData[i]
             Assert.assertEquals(5, data.size)
 
-            val end = End(chunkedArrows[i], endSize, arrowPlaceHolder, arrowDeliminator)
+            val end = End(
+                    chunkedArrows[i], endSize, arrowPlaceHolder, arrowDeliminator
+            )
             end.reorderScores()
             runningTotal += end.getScore()
             val expected = listOf(end.toString(), end.getHits(), end.getScore(), end.getGolds(goldsType), runningTotal)

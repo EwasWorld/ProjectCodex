@@ -1,14 +1,24 @@
 package eywa.projectcodex
 
+import eywa.projectcodex.logic.Arrow
+import eywa.projectcodex.logic.GoldsType
 import org.junit.Test
 import org.junit.Assert.assertFalse
 
 class GoldsTypeUnitTest {
     private var arrows = arrayOf(
-            Arrow(0, false), Arrow(1, false), Arrow(2, false),
-            Arrow(3, false), Arrow(4, false), Arrow(5, false),
-            Arrow(6, false), Arrow(7, false), Arrow(8, false),
-            Arrow(9, false), Arrow(10, false), Arrow(10, true)
+            Arrow(0, false),
+            Arrow(1, false),
+            Arrow(2, false),
+            Arrow(3, false),
+            Arrow(4, false),
+            Arrow(5, false),
+            Arrow(6, false),
+            Arrow(7, false),
+            Arrow(8, false),
+            Arrow(9, false),
+            Arrow(10, false),
+            Arrow(10, true)
     )
 
     @Test

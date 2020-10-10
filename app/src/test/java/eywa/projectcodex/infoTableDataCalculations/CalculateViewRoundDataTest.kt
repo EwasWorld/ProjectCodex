@@ -3,13 +3,13 @@ package eywa.projectcodex.infoTableDataCalculations
 import android.content.res.Resources
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import eywa.projectcodex.GoldsType
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.Round
-import eywa.projectcodex.getGoldsType
+import eywa.projectcodex.logic.getGoldsType
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import org.junit.Assert
 import org.junit.Before
@@ -114,7 +114,11 @@ class CalculateViewRoundDataTest {
             expected.add(arrows.count { it.score != 0 })
             expected.add(arrows.sumBy { it.score })
             val expectedGoldsType =
-                    rounds[i % rounds.size]?.let { getGoldsType(it.isOutdoor, it.isMetric) } ?: goldsType
+                    rounds[i % rounds.size]?.let {
+                        getGoldsType(
+                                it.isOutdoor, it.isMetric
+                        )
+                    } ?: goldsType
             expected.add(arrows.count { expectedGoldsType.isGold(it) })
             expected.add(if (archerRound.countsTowardsHandicap) yes else no)
 

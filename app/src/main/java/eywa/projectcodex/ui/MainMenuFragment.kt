@@ -9,12 +9,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.checkDefaultRounds
+import eywa.projectcodex.logic.checkDefaultRounds
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
-import eywa.projectcodex.roundsFromJson
+import eywa.projectcodex.logic.roundsFromJson
 import eywa.projectcodex.viewModels.MainMenuViewModel
 import kotlinx.android.synthetic.main.fragment_main_menu.*
 
@@ -52,7 +52,9 @@ class MainMenuFragment : Fragment() {
         button_main_menu__update_default_rounds.setOnClickListener {
             val defaultRounds = roundsFromJson(
                     resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() })
-            val updates = checkDefaultRounds(defaultRounds, rounds, roundArrowCounts, roundSubTypes, roundDistances)
+            val updates = checkDefaultRounds(
+                    defaultRounds, rounds, roundArrowCounts, roundSubTypes, roundDistances
+            )
             mainMenuViewModel.updateRounds(updates)
         }
     }

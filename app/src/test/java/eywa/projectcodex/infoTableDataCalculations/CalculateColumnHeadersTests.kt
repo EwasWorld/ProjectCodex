@@ -5,7 +5,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import eywa.projectcodex.GoldsType
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.infoTable.getColumnHeadersForTable
 import org.junit.Assert

@@ -1,5 +1,8 @@
 package eywa.projectcodex
 
+import eywa.projectcodex.logic.Arrow
+import eywa.projectcodex.logic.getArrowScore
+import eywa.projectcodex.logic.isX
 import org.junit.Assert
 import org.junit.Test
 import java.lang.NumberFormatException

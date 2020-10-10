@@ -6,6 +6,9 @@ import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
+import eywa.projectcodex.logic.DefaultRoundInfo
+import eywa.projectcodex.logic.checkDefaultRounds
+import eywa.projectcodex.logic.roundsFromJson
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -622,8 +625,12 @@ class DefaultRoundInfoUnitTest {
         private val defaultRound = DefaultRoundInfo(
                 "York", true, true, true, listOf("Boop"),
                 listOf(
-                        DefaultRoundInfo.RoundInfoSubType(1, "one", null, null),
-                        DefaultRoundInfo.RoundInfoSubType(2, "two", null, null)
+                        DefaultRoundInfo.RoundInfoSubType(
+                                1, "one", null, null
+                        ),
+                        DefaultRoundInfo.RoundInfoSubType(
+                                2, "two", null, null
+                        )
                 ),
                 listOf(
                         DefaultRoundInfo.RoundInfoArrowCount(1, 122.0, 36),
@@ -678,7 +685,9 @@ class DefaultRoundInfoUnitTest {
          */
         @Test
         fun newRound() {
-            val response = checkDefaultRounds(listOf(defaultRound), listOf(), listOf(), listOf(), listOf())
+            val response = checkDefaultRounds(
+                    listOf(defaultRound), listOf(), listOf(), listOf(), listOf()
+            )
             // Round + 2 subtypes + 2 arrow counts + 4 distances
             assertEquals(9, response.size)
             assertEquals(1, response.filter { it.key is Round }.size)
@@ -706,12 +715,20 @@ class DefaultRoundInfoUnitTest {
             val defaultRound2 = DefaultRoundInfo(
                     "St. George", true, true, true, listOf("Boop"),
                     listOf(
-                            DefaultRoundInfo.RoundInfoSubType(1, "one", null, null),
-                            DefaultRoundInfo.RoundInfoSubType(2, "two", null, null)
+                            DefaultRoundInfo.RoundInfoSubType(
+                                    1, "one", null, null
+                            ),
+                            DefaultRoundInfo.RoundInfoSubType(
+                                    2, "two", null, null
+                            )
                     ),
                     listOf(
-                            DefaultRoundInfo.RoundInfoArrowCount(1, 122.0, 36),
-                            DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36)
+                            DefaultRoundInfo.RoundInfoArrowCount(
+                                    1, 122.0, 36
+                            ),
+                            DefaultRoundInfo.RoundInfoArrowCount(
+                                    2, 122.0, 36
+                            )
                     ),
                     listOf(
                             DefaultRoundInfo.RoundInfoDistance(1, 1, 100),

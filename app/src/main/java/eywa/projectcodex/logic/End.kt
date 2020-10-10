@@ -1,5 +1,6 @@
-package eywa.projectcodex
+package eywa.projectcodex.logic
 
+import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.viewModels.InputEndViewModel
@@ -131,7 +132,9 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
         check(finalArcherRoundId != null) { "Must provide archerRoundId" }
 
         // TODO Make sure these requirements are thoroughly unit tested
-        if (arrows.size != arrowsPerEnd) throw UserException(R.string.err_input_end__end_not_full)
+        if (arrows.size != arrowsPerEnd) throw UserException(
+                R.string.err_input_end__end_not_full
+        )
         if (originalEnd == null) {
             check(firstArrowId != null) { "Must provide firstArrowId" }
         }

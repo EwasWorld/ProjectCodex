@@ -12,7 +12,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
-import eywa.projectcodex.GoldsType
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue

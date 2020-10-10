@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.RoundSelection
+import eywa.projectcodex.logic.RoundSelection
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.viewModels.NewRoundViewModel
 import kotlinx.android.synthetic.main.fragment_new_round.*
@@ -53,7 +53,9 @@ class NewRoundFragment : Fragment() {
             }
         })
 
-        val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
+        val roundSelection = RoundSelection(
+                resources, newRoundViewModel, viewLifecycleOwner
+        )
         // Update the spinners if the database updates (not sure why it would but whatever)
         newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer { _ ->
             spinner_create_round__round.adapter = ArrayAdapter(

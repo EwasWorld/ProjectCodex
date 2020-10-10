@@ -1,14 +1,14 @@
 package eywa.projectcodex.infoTable
 
 import android.content.res.Resources
-import eywa.projectcodex.End
-import eywa.projectcodex.GoldsType
+import eywa.projectcodex.logic.End
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.getGoldsType
+import eywa.projectcodex.logic.getGoldsType
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -178,11 +178,15 @@ fun calculateViewRoundsTableData(
         val relevantArrows = arrows.filter { arrow -> arrow.archerRoundId == archerRound.archerRoundId }
         rowData.add(relevantArrows.count { it.score != 0 })
         rowData.add(relevantArrows.sumBy { it.score })
-        val goldsType = archerRoundInfo.round?.let { getGoldsType(it.isOutdoor, it.isMetric) } ?: defaultGoldsType
+        val goldsType = archerRoundInfo.round?.let {
+            getGoldsType(
+                    it.isOutdoor, it.isMetric
+            )
+        } ?: defaultGoldsType
         rowData.add(relevantArrows.count { goldsType.isGold(it) })
 
         val countsToHandicap =
-            if (archerRound.countsTowardsHandicap) R.string.short_boolean_true else R.string.short_boolean_false
+                if (archerRound.countsTowardsHandicap) R.string.short_boolean_true else R.string.short_boolean_false
         rowData.add(resources.getString(countsToHandicap))
 
         val rowCells = toCells(rowData, tableData.size)

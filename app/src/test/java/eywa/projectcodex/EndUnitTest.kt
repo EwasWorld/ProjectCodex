@@ -5,6 +5,8 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.logic.End
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.viewModels.InputEndViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail

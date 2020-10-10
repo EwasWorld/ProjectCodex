@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import eywa.projectcodex.End
+import eywa.projectcodex.logic.End
 import eywa.projectcodex.Log
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
