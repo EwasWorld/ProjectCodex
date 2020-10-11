@@ -1,17 +1,12 @@
 package eywa.projectcodex.databaseTests
 
-import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.daos.*
-import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.retrieveValue
-import eywa.projectcodex.testDatabaseName
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -33,9 +28,6 @@ class GeneralDatabaseTests {
 
     private lateinit var db: ScoresRoomDatabase
 
-    private lateinit var archerDao: ArcherDao
-    private lateinit var archerRoundDao: ArcherRoundDao
-    private lateinit var arrowValueDao: ArrowValueDao
     private lateinit var roundDao: RoundDao
     private lateinit var roundArrowCountDao: RoundArrowCountDao
     private lateinit var roundSubTypeDao: RoundSubTypeDao
@@ -44,9 +36,6 @@ class GeneralDatabaseTests {
     @Before
     fun createDb() {
         db = DatabaseSuite.createDatabase()
-        archerDao = db.archerDao()
-        archerRoundDao = db.archerRoundDao()
-        arrowValueDao = db.arrowValueDao()
         roundDao = db.roundDao()
         roundArrowCountDao = db.roundArrowCountDao()
         roundSubTypeDao = db.roundSubTypeDao()
@@ -57,43 +46,6 @@ class GeneralDatabaseTests {
     @Throws(IOException::class)
     fun closeDb() {
         db.close()
-    }
-
-    /**
-     * Check getArrowsForRound returns only that round's arrows
-     * Check inserted values are the same as retrieved
-     */
-    @Test
-    @Throws(Exception::class)
-    fun arrowValuesTest() {
-        val arrows1 = TestData.generateArrowValues(6, 1)
-        val arrows2 = TestData.generateArrowValues(12, 2)
-
-        /*
-         * Add and retrieve
-         */
-        for (arrow in arrows1.plus(arrows2)) {
-            runBlocking {
-                arrowValueDao.insert(arrow)
-            }
-        }
-        var retrievedArrows1 = arrowValueDao.getArrowValuesForRound(1).retrieveValue()!!
-        var retrievedArrows2 = arrowValueDao.getArrowValuesForRound(2).retrieveValue()!!
-
-        assertEquals(arrows1.toSet(), retrievedArrows1.toSet())
-        assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
-
-        /*
-         * Delete
-         */
-        runBlocking {
-            arrowValueDao.deleteRoundsArrows(1)
-        }
-
-        retrievedArrows1 = arrowValueDao.getArrowValuesForRound(1).retrieveValue()!!
-        retrievedArrows2 = arrowValueDao.getArrowValuesForRound(2).retrieveValue()!!
-        assert(retrievedArrows1.isEmpty())
-        assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
     }
 
     /**

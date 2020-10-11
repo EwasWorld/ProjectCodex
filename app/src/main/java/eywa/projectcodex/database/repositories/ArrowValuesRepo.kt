@@ -11,7 +11,7 @@ import eywa.projectcodex.database.entities.ArrowValue
  *
  *  If DAOs have just one or two methods then repositories are often combined
  */
-class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, archerRoundId: Int? = null) {
+class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val archerRoundId: Int? = null) {
     val arrowValuesForRound: LiveData<List<ArrowValue>>? =
             archerRoundId?.let { arrowValueDao.getArrowValuesForRound(archerRoundId) }
     val allArrowValues: LiveData<List<ArrowValue>> = arrowValueDao.getAllArrowValues()
@@ -30,5 +30,35 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, archerRoundId: I
 
     suspend fun deleteRoundsArrows(archerRoundId: Int) {
         arrowValueDao.deleteRoundsArrows(archerRoundId)
+    }
+
+    /**
+     * Update [firstArrowToDelete] to end's arrow values to be that of [firstArrowToDelete] - [numberToDelete]. This
+     * will overwrite the arrows to be deleted. Then delete [numberToDelete] off the end (as they're now duplicated)
+     * @throws IllegalArgumentException if allArrows is null or empty, or if [firstArrowToDelete] and [numberToDelete]
+     * results in an out of range arrowNumber
+     * @throws IllegalStateException if this repo was created without an archerRoundId
+     */
+    suspend fun deleteEnd(allArrows: List<ArrowValue>, firstArrowToDelete: Int, numberToDelete: Int) {
+        check(archerRoundId != null) { "Must provide an archerRoundId" }
+        require(allArrows.size > numberToDelete) { "allArrows must be larger than numberToDelete" }
+        require(firstArrowToDelete >= 0 && numberToDelete > 0) {
+            "Either firstArrowToDelete is too high or numberToDelete is too low"
+        }
+        val sortedArrows = allArrows.sortedBy { it.arrowNumber }
+        val maxArrowNumber = sortedArrows.last().arrowNumber
+        // e.g. firstArrow 0 + deleteCount 6 - 1 == maxNumber 5
+        require(firstArrowToDelete + numberToDelete - 1 <= maxArrowNumber) {
+            "Either firstArrowToDelete is too high or numberToDelete is too high"
+        }
+
+        var arrowsToUpdate = sortedArrows.filter { it.arrowNumber >= firstArrowToDelete }
+        arrowsToUpdate = arrowsToUpdate.subList(numberToDelete, arrowsToUpdate.size)
+                .map { ArrowValue(it.archerRoundId, it.arrowNumber - numberToDelete, it.score, it.isX) }
+        arrowValueDao.update(*arrowsToUpdate.toTypedArray())
+
+        // Deleting the LAST arrows because all arrows have been shifted down and last arrows are now duplicates
+        // e.g. FROM: max 5 - deleteCount 6 + 1
+        arrowValueDao.deleteArrowsBetween(archerRoundId, maxArrowNumber - numberToDelete + 1, maxArrowNumber + 1)
     }
 }

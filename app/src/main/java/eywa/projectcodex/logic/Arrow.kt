@@ -28,6 +28,15 @@ fun isX(arrowScore: String): Boolean {
     return arrowScore == "X" || arrowScore == "x"
 }
 
+fun getArrowValueString(score: Int, isX: Boolean): String {
+    // TODO Hardcoded string
+    return when {
+        score == 10 && isX -> "X"
+        score == 0 -> "m"
+        else -> score.toString()
+    }
+}
+
 class Arrow(val score: Int, val isX: Boolean) {
     constructor(scoreString: String) : this(
             getArrowScore(scoreString),
@@ -35,12 +44,7 @@ class Arrow(val score: Int, val isX: Boolean) {
     )
 
     override fun toString(): String {
-        // TODO Hardcoded string
-        return when {
-            score == 10 && isX -> "X"
-            score == 0 -> "m"
-            else -> score.toString()
-        }
+        return getArrowValueString(score, isX)
     }
 
     fun toArrowValue(archerRoundId: Int, arrowNumber: Int): ArrowValue {
