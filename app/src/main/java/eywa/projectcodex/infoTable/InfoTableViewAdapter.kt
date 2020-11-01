@@ -44,7 +44,7 @@ class InfoTableViewAdapter(private val context: Context) :
     }
 
     private fun setBoldIfTotal(cellId: String, cellTextView: TextView) {
-        if (cellId.toLowerCase(Locale.ROOT).contains("total")) {
+        if (cellId.toLowerCase(Locale.ROOT).contains(TOTAL_CELL_ID.toLowerCase(Locale.ROOT))) {
             cellTextView.setTypeface(cellTextView.typeface, Typeface.BOLD)
         }
     }

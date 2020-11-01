@@ -12,11 +12,11 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
-import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.infoTable.*
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.viewModels.ViewRoundsViewModel
 
 class ViewRoundsFragment : Fragment() {
@@ -105,7 +105,7 @@ class ViewRoundsFragment : Fragment() {
     inner class ViewRoundsTableViewListener(private val tableView: TableView) : ITableViewListener {
         override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
             val roundId = hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdRow)].content as Int
-            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains("delete")) {
+            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains(DELETE_CELL_ID_PREFIX)) {
                 viewRoundsViewModel.deleteRound(roundId)
             }
             else {
@@ -116,9 +116,7 @@ class ViewRoundsFragment : Fragment() {
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
 
-        override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {
-            tableView.remeasureColumnWidth(column)
-        }
+        override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
 
         override fun onColumnHeaderLongPressed(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
 

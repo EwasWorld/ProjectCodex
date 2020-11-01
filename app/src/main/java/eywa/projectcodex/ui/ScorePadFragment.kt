@@ -180,7 +180,7 @@ class ScorePadFragment : Fragment() {
             // Note arrows are counted from 1
             val firstArrowId = row * args.endSize + 1
 
-            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains("delete")) {
+            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains(DELETE_CELL_ID_PREFIX)) {
                 // -1 because this is an index not an ID
                 scorePadViewModel.deleteArrows(firstArrowId - 1, args.endSize)
             }

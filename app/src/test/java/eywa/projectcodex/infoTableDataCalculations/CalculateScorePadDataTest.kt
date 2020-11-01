@@ -3,14 +3,15 @@ package eywa.projectcodex.infoTableDataCalculations
 import android.content.res.Resources
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import eywa.projectcodex.logic.End
-import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateScorePadTableData
+import eywa.projectcodex.infoTable.scorePadColumnHeaderIds
+import eywa.projectcodex.logic.End
+import eywa.projectcodex.logic.GoldsType
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -39,6 +40,7 @@ class CalculateScorePadDataTest {
                 R.string.score_pad__grand_total -> grandTotal
                 R.string.score_pad__running_total_placeholder -> runningTotalPlaceholder
                 R.string.score_pad__distance_total -> "Total at %d%s"
+                R.string.table_delete -> "Delete"
                 else -> Assert.fail("Bad string passed to resources")
             }
         }
@@ -91,7 +93,8 @@ class CalculateScorePadDataTest {
                 InfoTableCell(6, "cell<row>1"),
                 InfoTableCell(50, "cell<row>2"),
                 InfoTableCell(2, "cell<row>3"),
-                InfoTableCell(-1, "cell<row>4")
+                InfoTableCell(-1, "cell<row>4"),
+                InfoTableCell("Delete", "delete<row>")
         )
         val expectedRows = listOf(
                 listOf(
@@ -99,7 +102,8 @@ class CalculateScorePadDataTest {
                         InfoTableCell(5, "cell01"),
                         InfoTableCell(24, "cell02"),
                         InfoTableCell(0, "cell03"),
-                        InfoTableCell(24, "cell04")
+                        InfoTableCell(24, "cell04"),
+                        InfoTableCell("Delete", "delete0")
                 ),
                 otherRows.map {
                     InfoTableCell(if (it.content == -1) 74 else it.content, it.id.replace("<row>", "1"))
@@ -109,7 +113,8 @@ class CalculateScorePadDataTest {
                         InfoTableCell(11, "distanceTotal601"),
                         InfoTableCell(74, "distanceTotal602"),
                         InfoTableCell(2, "distanceTotal603"),
-                        InfoTableCell("-", "distanceTotal604")
+                        InfoTableCell("-", "distanceTotal604"),
+                        InfoTableCell("", "distanceTotal605")
                 ),
                 otherRows.map {
                     InfoTableCell(if (it.content == -1) 124 else it.content, it.id.replace("<row>", "3"))
@@ -122,7 +127,8 @@ class CalculateScorePadDataTest {
                         InfoTableCell(12, "distanceTotal501"),
                         InfoTableCell(100, "distanceTotal502"),
                         InfoTableCell(4, "distanceTotal503"),
-                        InfoTableCell("-", "distanceTotal504")
+                        InfoTableCell("-", "distanceTotal504"),
+                        InfoTableCell("", "distanceTotal505")
                 ),
                 otherRows.map {
                     InfoTableCell(if (it.content == -1) 224 else it.content, it.id.replace("<row>", "6"))
@@ -135,14 +141,16 @@ class CalculateScorePadDataTest {
                         InfoTableCell(12, "distanceTotal401"),
                         InfoTableCell(100, "distanceTotal402"),
                         InfoTableCell(4, "distanceTotal403"),
-                        InfoTableCell("-", "distanceTotal404")
+                        InfoTableCell("-", "distanceTotal404"),
+                        InfoTableCell("", "distanceTotal405")
                 ),
                 listOf(
                         InfoTableCell("Grand total:", "grandTotal0"),
                         InfoTableCell(35, "grandTotal1"),
                         InfoTableCell(274, "grandTotal2"),
                         InfoTableCell(10, "grandTotal3"),
-                        InfoTableCell("-", "grandTotal4")
+                        InfoTableCell("-", "grandTotal4"),
+                        InfoTableCell("", "grandTotal5")
                 )
         )
 
@@ -180,15 +188,22 @@ class CalculateScorePadDataTest {
         var runningTotal = 0
         for (i in chunkedArrows.indices) {
             val data = scorePadData[i]
-            Assert.assertEquals(5, data.size)
+            Assert.assertEquals(scorePadColumnHeaderIds.size, data.size)
 
             val end = End(
                     chunkedArrows[i], endSize, arrowPlaceHolder, arrowDeliminator
             )
             end.reorderScores()
             runningTotal += end.getScore()
-            val expected = listOf(end.toString(), end.getHits(), end.getScore(), end.getGolds(goldsType), runningTotal)
+            val deleteVal = "Delete"
+            val expected = listOf(
+                    end.toString(), end.getHits(), end.getScore(), end.getGolds(goldsType), runningTotal, deleteVal
+            )
             for (j in data.indices) {
+                if (data[j].content?.equals(deleteVal) == true) {
+                    Assert.assertEquals("delete$i", data[j].id)
+                    continue
+                }
                 Assert.assertEquals("cell$i$j", data[j].id)
                 Assert.assertEquals(expected[j], data[j].content)
             }
@@ -201,7 +216,8 @@ class CalculateScorePadDataTest {
                 generatedArrows.count { it.score != 0 },
                 generatedArrows.sumBy { it.score },
                 generatedArrows.count { goldsType.isGold(it) },
-                "-"
+                "-",
+                ""
         )
         for (i in totalRow.indices) {
             Assert.assertEquals("grandTotal$i", totalRow[i].id)

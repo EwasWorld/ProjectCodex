@@ -139,19 +139,25 @@ class CalculateRowHeadersTest {
                 }
                 when (expected[i]) {
                     Outputs.NUMBER -> {
-                        if (!tableCell.id.contains("row")) Assert.fail("Incorrect rowId")
+                        if (!tableCell.id.contains("row")) Assert.fail("Incorrect rowId: ${tableCell.id}")
                         val intContent = Integer.parseInt(content as String)
                         if (intContent == maxNumberSeen + 1) maxNumberSeen = intContent
                         else Assert.fail("Non-ascending row-headers")
                     }
                     Outputs.TOTAL -> {
-                        if (!tableCell.id.contains("totalRow")) Assert.fail("Incorrect rowId")
-                        if (!(content as String).contains(TOTAL_ROW_HEADER)) Assert.fail("Incorrect row header")
+                        if (!tableCell.id.contains("distanceTotal")) Assert.fail(
+                                "Incorrect rowId: ${tableCell.id}"
+                        )
+                        if (!(content as String).contains(TOTAL_ROW_HEADER)) Assert.fail(
+                                "Incorrect row header: ${tableCell.content}"
+                        )
                     }
                     Outputs.GRAND_TOTAL -> {
-                        if (!tableCell.id.contains("grandTotalHeader")) Assert.fail("Incorrect rowId")
+                        if (!tableCell.id.contains("grandTotalHeader")) Assert.fail(
+                                "Incorrect rowId: ${tableCell.id}"
+                        )
                         if (!(content as String).contains(GRAND_TOTAL_ROW_HEADER)) Assert.fail(
-                                "Incorrect row header"
+                                "Incorrect row header: ${tableCell.content}"
                         )
                         grandTotalSeen = true
                     }
