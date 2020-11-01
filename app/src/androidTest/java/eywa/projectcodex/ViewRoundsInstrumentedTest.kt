@@ -14,7 +14,10 @@ import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.*
+import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
+import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.database.entities.Round
+import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
@@ -174,8 +177,8 @@ class ViewRoundsInstrumentedTest {
             calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, activity.activity.resources)
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
-        // Delete second row (index 2 because header has the same text)
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        // Delete second row (index 2 because header has the same text)
         onView(withIndex(withText("Delete"), 2)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {

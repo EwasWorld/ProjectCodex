@@ -13,13 +13,13 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
-import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.logic.getGoldsType
 import eywa.projectcodex.infoTable.*
+import eywa.projectcodex.logic.GoldsType
+import eywa.projectcodex.logic.getGoldsType
 import eywa.projectcodex.viewModels.ScorePadViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlin.math.ceil
@@ -27,7 +27,6 @@ import kotlin.math.ceil
 class ScorePadFragment : Fragment() {
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
-    private lateinit var tableAdapter: InfoTableViewAdapter
     private var dialog: AlertDialog? = null
 
     // TODO Is there a way to make these setters common?
@@ -76,11 +75,7 @@ class ScorePadFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.score_pad__title)
 
-        tableAdapter = InfoTableViewAdapter(context!!)
         if (endSize == null) endSize = args.endSize
-        val tableView = view.findViewById<TableView>(R.id.table_view_score_pad)
-        tableView.adapter = tableAdapter
-        tableView.tableViewListener = ScorePadTableViewListener(tableView)
 
         scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
             ScorePadViewModel(activity!!.application, args.archerRoundId)
@@ -129,6 +124,16 @@ class ScorePadFragment : Fragment() {
         }
 
         try {
+            /*
+             * For some unknown reason not creating a new table adapter every time causes major display issues. Chiefly:
+             *  - On deletion of a row, column sizes go crazy and column headers no longer horizontally align with data
+             *  - On setAllItems it will randomly bold some rows and headers and truncate data in random places
+             */
+            val tableAdapter = InfoTableViewAdapter(context!!)
+            val tableView = view!!.findViewById<TableView>(R.id.table_view_score_pad)
+            tableView.adapter = tableAdapter
+            tableView.tableViewListener = ScorePadTableViewListener(tableView)
+
             val tableData = calculateScorePadTableData(
                     arrows, endSize!!, goldsType, resources, arrowCounts, distances, distanceUnit
             )
@@ -176,7 +181,8 @@ class ScorePadFragment : Fragment() {
             val firstArrowId = row * args.endSize + 1
 
             if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains("delete")) {
-                scorePadViewModel.deleteEnd(firstArrowId, args.endSize)
+                // -1 because this is an index not an ID
+                scorePadViewModel.deleteArrows(firstArrowId - 1, args.endSize)
             }
             else {
                 val action = ScorePadFragmentDirections.actionScorePadFragmentToEditEndFragment(

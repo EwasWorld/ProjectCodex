@@ -39,7 +39,10 @@ class ScorePadViewModel(application: Application, archerRoundId: Int) : AndroidV
         return roundsRepo.getDistancesForRound(roundId, subTypeId)
     }
 
-    fun deleteEnd(from: Int, count: Int) = viewModelScope.launch {
+    /**
+     * @param from zero indexed
+     */
+    fun deleteArrows(from: Int, count: Int) = viewModelScope.launch {
         arrowsForRound.value?.let { arrows ->
             arrowValueRepo.deleteEnd(arrows, from, count)
         }

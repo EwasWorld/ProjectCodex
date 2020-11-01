@@ -3,6 +3,7 @@ package eywa.projectcodex
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -45,7 +46,6 @@ class ScorePadInstrumentedTest {
 
     private lateinit var db: ScoresRoomDatabase
     private lateinit var arrows: List<ArrowValue>
-    private lateinit var tableViewAdapter: AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
 
     private val openScorePadInstruction = object : Instruction() {
         override fun getDescription(): String {
@@ -101,27 +101,24 @@ class ScorePadInstrumentedTest {
         generateArrowsAndAddToDb()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-
-        while (tableViewAdapter.getCellRowItems(0) == null) {
+        while (getTableAdapter().getCellRowItems(0) == null) {
             println("Waiting for score pad entries to load")
         }
 
         val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, activity.activity.resources)
         for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], tableViewAdapter.getCellRowItems(i))
+            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
         }
 
         var col = 0
-        val expectedColumnHeaders = listOf("E/T", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
+        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
         for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], tableViewAdapter.getColumnHeaderItem(i))
+            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
         }
 
         val expectedRowHeaders = generateNumberedRowHeaders(6, null, activity.activity.resources, true)
         for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
+            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
         }
     }
 
@@ -147,10 +144,7 @@ class ScorePadInstrumentedTest {
 
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-
-        while (tableViewAdapter.getCellRowItems(8) == null) {
+        while (getTableAdapter().getCellRowItems(8) == null) {
             println("Waiting for score pad entries to load")
         }
 
@@ -158,18 +152,18 @@ class ScorePadInstrumentedTest {
                 arrows, 6, GoldsType.XS, activity.activity.resources, arrowCounts, roundDistances, "m"
         )
         for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], tableViewAdapter.getCellRowItems(i))
+            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
         }
 
         var col = 0
-        val expectedColumnHeaders = listOf("E/T", "H", "S", "X", "R/T").map { InfoTableCell(it, "col" + col++) }
+        val expectedColumnHeaders = listOf("Arrows", "H", "S", "X", "R/T").map { InfoTableCell(it, "col" + col++) }
         for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], tableViewAdapter.getColumnHeaderItem(i))
+            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
         }
 
         val expectedRowHeaders = generateNumberedRowHeaders(listOf(3, 3), null, activity.activity.resources, true)
         for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
+            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
         }
     }
 
@@ -179,8 +173,6 @@ class ScorePadInstrumentedTest {
         R.id.button_main_menu__start_new_round.click()
         R.id.button_create_round__submit.click()
         R.id.button_input_end__score_pad.click()
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
         onView(withText("Input End")).check(matches(isDisplayed()))
     }
@@ -198,9 +190,7 @@ class ScorePadInstrumentedTest {
         addArrowsToDatabase()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-        while (tableViewAdapter.getCellRowItems(2) == null) {
+        while (getTableAdapter().getCellRowItems(2) == null) {
             println("Waiting for score pad entries to load")
         }
 
@@ -215,9 +205,7 @@ class ScorePadInstrumentedTest {
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
         ConditionWatcher.waitForCondition(waitFor(200))
 
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-        while (tableViewAdapter.getCellRowItems(2) == null) {
+        while (getTableAdapter().getCellRowItems(2) == null) {
             println("Waiting for score pad entries to load")
         }
 
@@ -225,18 +213,18 @@ class ScorePadInstrumentedTest {
                 .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
         val expectedCells = calculateScorePadTableData(newArrows, 6, GoldsType.TENS, activity.activity.resources)
         for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], tableViewAdapter.getCellRowItems(i))
+            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
         }
 
         var col = 0
-        val expectedColumnHeaders = listOf("E/T", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
+        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
         for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], tableViewAdapter.getColumnHeaderItem(i))
+            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
         }
 
         val expectedRowHeaders = generateNumberedRowHeaders(2, null, activity.activity.resources, true)
         for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
+            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
         }
     }
 
@@ -246,9 +234,7 @@ class ScorePadInstrumentedTest {
         generateArrowsAndAddToDb()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-        while (tableViewAdapter.getCellRowItems(0) == null) {
+        while (getTableAdapter().getCellRowItems(0) == null) {
             println("Waiting for score pad entries to load")
         }
 
@@ -266,26 +252,82 @@ class ScorePadInstrumentedTest {
         onView(withId(R.id.button_edit_end__cancel)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
         ConditionWatcher.waitForCondition(waitFor(200))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-        while (tableViewAdapter.getCellRowItems(0) == null) {
+        while (getTableAdapter().getCellRowItems(0) == null) {
             println("Waiting for score pad entries to load")
         }
 
         val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, activity.activity.resources)
         for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], tableViewAdapter.getCellRowItems(i))
+            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
         }
 
         var col = 0
-        val expectedColumnHeaders = listOf("E/T", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
+        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
         for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], tableViewAdapter.getColumnHeaderItem(i))
+            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
         }
 
         val expectedRowHeaders = generateNumberedRowHeaders(6, null, activity.activity.resources, true)
         for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], tableViewAdapter.getRowHeaderItem(i))
+            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
+        }
+    }
+
+    // TODO Edit end back button test
+
+    /**
+     * Helper function as the adapter changes whenever the table is updated so cannot store a reference to it
+     */
+    private fun getTableAdapter(): AbstractTableAdapter<*, *, *> {
+        return activity.activity.findViewById<TableView>(R.id.table_view_score_pad)?.adapter!!
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeleteEnd() {
+        generateArrowsAndAddToDb()
+        ConditionWatcher.waitForCondition(openScorePadInstruction)
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        while (getTableAdapter().getCellRowItems(0) == null) {
+            println("Waiting for score pad entries to load")
+        }
+
+        onView(withId((R.id.table_view_score_pad))).perform(ViewActions.swipeLeft())
+        // Delete second row (index 2 because header has the same text)
+        onView(withIndex(withText("Delete"), 2)).perform(click())
+
+        val endSize = 6
+        val expectedCells =
+                calculateScorePadTableData(
+                        arrows.filterIndexed { i, _ -> i < endSize || i >= endSize * 2 },
+                        endSize,
+                        GoldsType.TENS,
+                        activity.activity.resources
+                )
+
+        ConditionWatcher.waitForCondition(object : Instruction() {
+            override fun getDescription(): String {
+                return "wait for row to be removed"
+            }
+
+            override fun checkCondition(): Boolean {
+                return getTableAdapter().getCellColumnItems(2).size == expectedCells.size
+            }
+        })
+
+        for (i in expectedCells.indices) {
+            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
+        }
+
+        var col = 0
+        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
+        for (i in expectedColumnHeaders.indices) {
+            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
+        }
+
+        val expectedRowHeaders = generateNumberedRowHeaders(5, null, activity.activity.resources, true)
+        for (i in expectedRowHeaders.indices) {
+            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
         }
     }
 }
