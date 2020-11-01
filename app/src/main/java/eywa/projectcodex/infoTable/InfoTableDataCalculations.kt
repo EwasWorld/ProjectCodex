@@ -1,13 +1,13 @@
 package eywa.projectcodex.infoTable
 
 import android.content.res.Resources
-import eywa.projectcodex.logic.End
-import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
+import eywa.projectcodex.logic.End
+import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.logic.getGoldsType
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,14 +22,16 @@ val viewRoundsColumnHeaderIds = listOf(
         R.string.table_hits_header,
         R.string.table_score_header,
         R.string.table_golds_header,
-        R.string.view_round__counts_to_hc_header
+        R.string.view_round__counts_to_hc_header,
+        R.string.table_delete
 )
 val scorePadColumnHeaderIds = listOf(
         R.string.score_pad__end_string_header,
         R.string.table_hits_header,
         R.string.table_score_header,
         GOLDS_HEADER_PLACE_HOLDER,
-        R.string.score_pad__running_total_header
+        R.string.score_pad__running_total_header,
+        R.string.table_delete
 )
 
 /**
@@ -39,8 +41,7 @@ val scorePadColumnHeaderIds = listOf(
 fun getColumnHeadersForTable(
         headerStringIds: List<Int>,
         resources: Resources,
-        goldsType: GoldsType? = null,
-        deleteColumn: Boolean = false
+        goldsType: GoldsType? = null
 ): List<InfoTableCell> {
     require(headerStringIds.isNotEmpty()) { "No headers provided" }
     require(!headerStringIds.contains(GOLDS_HEADER_PLACE_HOLDER) || goldsType != null) {
@@ -54,9 +55,6 @@ fun getColumnHeadersForTable(
             resources.getString(it)
         }
     }.toMutableList()
-    if (deleteColumn) {
-        stringsList.add(resources.getString(R.string.table_delete))
-    }
     return toCellsHeader(stringsList, true)
 }
 
@@ -111,7 +109,12 @@ fun calculateScorePadTableData(
         endRowData.add(arrows.subList(0, runningArrowCount).sumBy { arrow -> arrow.score })
 
         // Add row
-        tableData.add(toCells(endRowData, tableData.size))
+        val rowCells = toCells(endRowData, tableData.size)
+        rowCells.add(
+                scorePadColumnHeaderIds.indexOf(R.string.table_delete), createDeleteCell(resources, tableData.size)
+        )
+        check(rowCells.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
+        tableData.add(rowCells)
 
         /*
          * Distance total
@@ -128,6 +131,8 @@ fun calculateScorePadTableData(
             distanceRowData.add(distanceSubset.sumBy { it.score })
             distanceRowData.add(distanceSubset.count { goldsType.isGold(it) })
             distanceRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
+            distanceRowData.add("")
+            check(distanceRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
             // Having 'total' in the id makes it bold - see InfoTableViewAdapter.setBoldIfTotal
             tableData.add(toCells(distanceRowData, distancesSorted[0], "distanceTotal"))
 
@@ -146,6 +151,8 @@ fun calculateScorePadTableData(
     grandTotalRowData.add(arrows.sumBy { it.score })
     grandTotalRowData.add(arrows.count { goldsType.isGold(it) })
     grandTotalRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
+    grandTotalRowData.add("")
+    check(grandTotalRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
     // Having 'total' in the id makes it bold - see InfoTableViewAdapter.setBoldIfTotal
     tableData.add(toCells(grandTotalRowData, null, "grandTotal"))
 
@@ -190,8 +197,9 @@ fun calculateViewRoundsTableData(
         rowData.add(resources.getString(countsToHandicap))
 
         val rowCells = toCells(rowData, tableData.size)
-        rowCells.add(createDeleteCell(resources, tableData.size))
-
+        rowCells.add(
+                viewRoundsColumnHeaderIds.indexOf(R.string.table_delete), createDeleteCell(resources, tableData.size)
+        )
         tableData.add(rowCells)
     }
     return tableData

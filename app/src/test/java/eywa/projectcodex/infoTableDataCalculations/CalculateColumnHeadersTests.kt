@@ -49,24 +49,6 @@ class CalculateColumnHeadersTests {
         getColumnHeadersForTable(listOf(1), resources)
     }
 
-    @Test
-    fun testDeleteColumn() {
-        // Delete column added
-        getColumnHeadersForTable(headerIds, resources, goldsType, true)
-        val expectedHeaderIds = headerIds.plus(R.string.table_delete)
-        argumentCaptor<Int>().apply {
-            verify(resources, times(6)).getString(capture())
-            for (i in allValues.indices) {
-                if (expectedHeaderIds[i] == -1) {
-                    Assert.assertEquals(goldsType.colHeaderStringId, allValues[i])
-                }
-                else {
-                    Assert.assertEquals(expectedHeaderIds[i], allValues[i])
-                }
-            }
-        }
-    }
-
     @Test(expected = IllegalArgumentException::class)
     fun testNoData() {
         getColumnHeadersForTable(listOf(), resources, goldsType)

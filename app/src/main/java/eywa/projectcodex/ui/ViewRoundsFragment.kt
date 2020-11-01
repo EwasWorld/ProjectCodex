@@ -76,7 +76,7 @@ class ViewRoundsFragment : Fragment() {
                 displayTableData.add(row.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) }.toMutableList())
             }
 
-            val colHeaders = getColumnHeadersForTable(viewRoundsColumnHeaderIds, resources, goldsType, true)
+            val colHeaders = getColumnHeadersForTable(viewRoundsColumnHeaderIds, resources, goldsType)
             tableAdapter.setAllItems(
                     colHeaders.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) || i == colHeaders.size - 1 },
                     generateNumberedRowHeaders(tableData.size),

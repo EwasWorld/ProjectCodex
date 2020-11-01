@@ -55,10 +55,15 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
         var arrowsToUpdate = sortedArrows.filter { it.arrowNumber >= firstArrowToDelete }
         arrowsToUpdate = arrowsToUpdate.subList(numberToDelete, arrowsToUpdate.size)
                 .map { ArrowValue(it.archerRoundId, it.arrowNumber - numberToDelete, it.score, it.isX) }
-        arrowValueDao.update(*arrowsToUpdate.toTypedArray())
 
         // Deleting the LAST arrows because all arrows have been shifted down and last arrows are now duplicates
-        // e.g. FROM: max 5 - deleteCount 6 + 1
-        arrowValueDao.deleteArrowsBetween(archerRoundId, maxArrowNumber - numberToDelete + 1, maxArrowNumber + 1)
+        arrowValueDao.deleteEndTransaction(
+                /* Delete */
+                archerRoundId,
+                maxArrowNumber - numberToDelete + 1, // e.g. delete all 6 arrows: 5 - 6 + 1
+                maxArrowNumber + 1, // e.g. delete all 6 arrows: 5 + 1
+                /* Update */
+                *arrowsToUpdate.toTypedArray()
+        )
     }
 }

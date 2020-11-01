@@ -175,10 +175,15 @@ class ScorePadFragment : Fragment() {
             // Note arrows are counted from 1
             val firstArrowId = row * args.endSize + 1
 
-            val action = ScorePadFragmentDirections.actionScorePadFragmentToEditEndFragment(
-                    args.endSize, args.archerRoundId, firstArrowId
-            )
-            view?.findNavController()?.navigate(action)
+            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains("delete")) {
+                scorePadViewModel.deleteEnd(firstArrowId, args.endSize)
+            }
+            else {
+                val action = ScorePadFragmentDirections.actionScorePadFragmentToEditEndFragment(
+                        args.endSize, args.archerRoundId, firstArrowId
+                )
+                view?.findNavController()?.navigate(action)
+            }
         }
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}

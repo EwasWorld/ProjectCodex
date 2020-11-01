@@ -31,6 +31,30 @@ interface ArrowValueDao {
      * @param fromArrowNumber inclusive
      * @param toArrowNumber exclusive
      */
-    @Query("DELETE FROM arrow_values WHERE archerRoundId = :archerRoundId AND arrowNumber >= :fromArrowNumber AND arrowNumber < :toArrowNumber")
+    @Query(
+            """
+            DELETE FROM arrow_values 
+            WHERE archerRoundId = :archerRoundId 
+                AND arrowNumber >= :fromArrowNumber
+                AND arrowNumber < :toArrowNumber
+            """
+    )
     suspend fun deleteArrowsBetween(archerRoundId: Int, fromArrowNumber: Int, toArrowNumber: Int)
+
+    /**
+     * Calls update then deleteArrowsBetween as a single transaction
+     * @param delArcherRoundId passed to deleteArrowsBetween
+     * @param delFromArrowNumber passed to deleteArrowsBetween
+     * @param delToArrowNumber passed to deleteArrowsBetween
+     * @param updateArrowValue passed to update
+     * @see update
+     * @see deleteArrowsBetween
+     */
+    @Transaction
+    suspend fun deleteEndTransaction(
+            delArcherRoundId: Int, delFromArrowNumber: Int, delToArrowNumber: Int, vararg updateArrowValue: ArrowValue
+    ) {
+        update(*updateArrowValue)
+        deleteArrowsBetween(delArcherRoundId, delFromArrowNumber, delToArrowNumber)
+    }
 }
