@@ -91,7 +91,7 @@ class ViewRoundsFragment : Fragment() {
                 val builder = AlertDialog.Builder(activity)
                 builder.setTitle(R.string.err_table_view__no_data)
                 builder.setMessage(R.string.err_view_round__no_rounds)
-                builder.setPositiveButton(R.string.err_button__ok) { _, _ ->
+                builder.setPositiveButton(R.string.button_ok) { _, _ ->
                     activity?.onBackPressed()
                 }
                 dialog = builder.create()

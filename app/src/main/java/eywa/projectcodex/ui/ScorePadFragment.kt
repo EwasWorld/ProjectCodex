@@ -166,7 +166,7 @@ class ScorePadFragment : Fragment() {
         val builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.err_table_view__no_data)
         builder.setMessage(R.string.err_score_pad__no_arrows)
-        builder.setPositiveButton(R.string.err_button__ok) { dialogInterface, _ ->
+        builder.setPositiveButton(R.string.button_ok) { dialogInterface, _ ->
             activity?.onBackPressed()
             dialogInterface.cancel()
             dialog = null

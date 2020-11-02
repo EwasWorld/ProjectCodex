@@ -49,15 +49,14 @@
     <string name="input_end__round_indicator_label">Remaining Arrows in Round:</string>
     <string name="input_end__round_indicator_at">at</string>
     <string name="input_end__round_indicator_complete">Round Complete</string>
+    <string name="input_end__change_end_size_dialog_title">End size</string>
     <string name="edit_end__reset">Reset</string>
     <string name="edit_end__complete_edit">Complete</string>
-    <string name="edit_end__cancel_edit">Cancel</string>
     <string name="edit_end__edit_info">Editing end %d</string>
     <string name="err_input_end__end_full">Arrows already added</string>
     <string name="err_input_end__end_empty">No arrows entered</string>
     <string name="err_input_end__end_not_full">Please enter all arrows for this end</string>
-    <string name="err_input_end__not_enough_arrows">Please enter at least %d arrows</string>
-    <string name="err_input_end__incompatible_end_size">Current end size (%d) is incompatible with the end you\'re trying to edit, please use an end size of at least %d arrows</string>
+    <string name="err_input_end__cannot_edit_end_size">Cannot change the end size when editing an end</string>
 
     <!-- Input end mini table -->
     <string name="input_end__archer_name_header">Archer</string>
@@ -93,8 +92,9 @@
     <string name="table_delete">Delete</string>
     <string name="err_table_view__no_data">Table is empty</string>
 
-    <!-- Errors -->
-    <string name="err_button__ok">OK</string>
+    <!-- General -->
+    <string name="button_ok">OK</string>
+    <string name="button_cancel">Cancel</string>
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__internal_error">Internal error occurred</string>
 

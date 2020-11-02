@@ -4,9 +4,11 @@ import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.viewModels.InputEndViewModel
+import kotlin.math.min
 
-class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private val arrowDeliminator: String) {
+class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val arrowDeliminator: String) {
     private var arrows = mutableListOf<Arrow>()
+    var endSize = arrowsPerEnd
 
     /**
      * Used if the end is already represented in the database. This stores the arrows as they are in the database so
@@ -25,6 +27,36 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
             addArrowToEnd(Arrow(arrow.score, arrow.isX))
         }
         originalEnd = arrowsList
+    }
+
+    /**
+     * @param deleteContents if true, will truncate [arrows] if necessary before updating [endSize]. If false, will
+     * throw an IllegalArgumentException
+     * @throws UserException if [originalEnd] != null
+     * @throws IllegalArgumentException if [value] < [arrows].size (unless [deleteContents] is true)
+     */
+    fun updateEndSize(value: Int, deleteContents: Boolean) {
+        if (originalEnd != null) {
+            throw UserException(R.string.err_input_end__cannot_edit_end_size)
+        }
+        if (deleteContents) {
+            endSize = value
+            if (arrows.isNotEmpty()) {
+                arrows = arrows.subList(0, min(arrows.size, endSize))
+            }
+            return
+        }
+
+        if (arrows.size >= value) {
+            endSize = value
+        }
+        else {
+            throw IllegalArgumentException("New end size is too small for arrows currently added to the end")
+        }
+    }
+
+    fun isEditEnd(): Boolean {
+        return originalEnd != null
     }
 
     /**
@@ -54,7 +86,7 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
      * @throws IllegalStateException if the end is full
      */
     fun addArrowToEnd(arrow: Arrow) {
-        check(arrows.size != arrowsPerEnd) { "End full" }
+        check(arrows.size != endSize) { "End full" }
         arrows.add(arrow)
     }
 
@@ -99,7 +131,7 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
             arrowStrings.add(arrow.toString())
         }
         // Fill end
-        while (arrowStrings.size < arrowsPerEnd) {
+        while (arrowStrings.size < endSize) {
             arrowStrings.add(arrowPlaceholder)
         }
         return arrowStrings.joinToString(arrowDeliminator)
@@ -119,9 +151,9 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
      * end
      *
      * @param archerRoundId the archer-round ID to assign to each arrow. Not required if [originalEnd].size ==
-     * [arrowsPerEnd]
+     * [endSize]
      * @param firstArrowId the arrow number to assign to the first arrow in the end, subsequent arrows increment on
-     * this. Not required if [originalEnd].size == [arrowsPerEnd]
+     * this. Not required if [originalEnd].size == [endSize]
      * @param inputEndViewModel the database accessor
      * @throws UserException if the end is not full
      * @throws IllegalStateException if [archerRoundId] or [firstArrowId] is invalid
@@ -132,7 +164,7 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
         check(finalArcherRoundId != null) { "Must provide archerRoundId" }
 
         // TODO Make sure these requirements are thoroughly unit tested
-        if (arrows.size != arrowsPerEnd) throw UserException(
+        if (arrows.size != endSize) throw UserException(
                 R.string.err_input_end__end_not_full
         )
         if (originalEnd == null) {
@@ -146,21 +178,8 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
             check(originalEnd.size == arrows.size || firstArrowId != null) {
                 "Must provide firstArrowId or match the original end size"
             }
-
-            // Impossible at the moment as the constructor prevents this, will become possible if
-            //    a user is allowed to change the end size after starting to edit an end
-            if (originalEnd.size > arrowsPerEnd) {
-                throw UserException(R.string.err_input_end__incompatible_end_size, arrowsPerEnd, originalEnd.size)
-            }
-            // Impossible at the moment as arrows.size == arrowsPerEnd, will become possible if allowing a user to
-            //    edit an end of size 4, increase the input end to 6, but still only want to edit the 4 arrows
-            //    rather than inputting all 6 (resulting in two new arrows)
-            if (originalEnd.size > arrows.size) {
-                throw UserException(R.string.err_input_end__not_enough_arrows, originalEnd.size)
-            }
         }
 
-        var arrowsToAdd = arrows
         /*
          * Overwrite the scores that were in the originalEnd
          */
@@ -169,24 +188,17 @@ class End(val arrowsPerEnd: Int, private val arrowPlaceholder: String, private v
             for (i in originalEnd.indices) {
                 inputEndViewModel.update(
                         ArrowValue(
-                                originalEnd[i].archerRoundId, originalEnd[i].arrowNumber,
-                                arrowsToAdd[i].score, arrowsToAdd[i].isX
+                                originalEnd[i].archerRoundId, originalEnd[i].arrowNumber, arrows[i].score, arrows[i].isX
                         )
                 )
             }
-            arrowsToAdd = arrowsToAdd.subList(originalEnd.size, arrowsToAdd.size)
         }
-        if (arrowsToAdd.isNotEmpty()) {
-            /*
-             * Some or all arrows are to be newly added meaning archerRoundId && firstArrowId != null
-             *
-             * As adding arrows to the database requires a full end, it should only be possible for *some* arrows to be
-             *   added like this if it's the last end being edited and arrowsPerEnd has changed from when the arrows
-             *   were originally added to the database. e.g. if arrowsPerEnd is 3s then it's changed to 6s but the
-             *   current number of arrows is not divisible by 6, you'll update 3 above and then add 3 here
-             */
+        /*
+         * Else add the new arrows
+         */
+        else {
             var arrowID = firstArrowId!!
-            for (arrow in arrowsToAdd) {
+            for (arrow in arrows) {
                 inputEndViewModel.insert(arrow.toArrowValue(finalArcherRoundId, arrowID++))
             }
         }

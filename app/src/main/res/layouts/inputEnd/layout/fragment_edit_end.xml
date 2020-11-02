@@ -84,7 +84,7 @@
             style="@style/Widget.AppCompat.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/edit_end__cancel_edit"
+            android:text="@string/button_cancel"
             />
 
         <Button
