@@ -16,7 +16,14 @@ import kotlinx.android.synthetic.main.frag_end_inputs.*
 
 
 class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButtonPressedListener {
+    var usualEndSize: Int? = null
     var remainingArrows: Int? = null
+        set(value) {
+            val original = field
+            field = value
+            // Update the endSize in case this should be used instead
+            if (value != original) endSize = endSize
+        }
     var showResetButton = false
 
     /**
@@ -26,7 +33,18 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
     var endSize = 6
         set(value) {
             val useRemaining = remainingArrows != null && remainingArrows!! < value
-            val newEndSize = if (useRemaining) remainingArrows!! else value
+            val newEndSize: Int
+            when {
+                useRemaining -> {
+                    usualEndSize = field
+                    newEndSize = remainingArrows!!
+                }
+                usualEndSize != null -> {
+                    newEndSize = usualEndSize!!
+                    usualEndSize = null
+                }
+                else -> newEndSize = value
+            }
             end.updateEndSize(newEndSize, true)
             field = newEndSize
             updateEndStringAndTotal()

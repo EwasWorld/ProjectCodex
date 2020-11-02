@@ -18,7 +18,7 @@ import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.exceptions.UserException
-import eywa.projectcodex.logic.getRemainingArrowsPerDistance
+import eywa.projectcodex.logic.RemainingArrows
 import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_input_end.*
@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.fragment_input_end.*
 class InputEndFragment : Fragment() {
     private val args: InputEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
+    private lateinit var endInputsFragment: EndInputsFragment
     private var arrows = emptyList<ArrowValue>()
     private var arrowCounts = emptyList<RoundArrowCount>()
     private var distances = emptyList<RoundDistance>()
@@ -69,12 +70,12 @@ class InputEndFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.input_end__title)
-        val endInputsFragment =
+        endInputsFragment =
                 childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment
 
         button_input_end__score_pad.setOnClickListener {
             val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(
-                    endInputsFragment.end.arrowsPerEnd,
+                    endInputsFragment.end.endSize,
                     args.archerRoundId
             )
             view.findNavController().navigate(action)
@@ -112,6 +113,7 @@ class InputEndFragment : Fragment() {
     /**
      * Updates round indicators (72 arrows left at 100yd, etc.)
      * Updates the scores indicator table (current score, arrow count, etc.)
+     * Updates the remaining arrows in [endInputsFragment]
      */
     private fun updateRoundInfo(view: View) {
         /*
@@ -132,10 +134,10 @@ class InputEndFragment : Fragment() {
         }
 
         roundIndicatorSection.visibility = View.VISIBLE
-        val roundIndicators = getRemainingArrowsPerDistance(
-                arrows.size, arrowCounts, distances, distanceUnit,
-                view.resources.getString(R.string.input_end__round_indicator_at)
-        )
+        val remainingArrows = RemainingArrows(arrows.size, arrowCounts, distances, distanceUnit)
+        endInputsFragment.remainingArrows = remainingArrows.getFirstRemainingArrowCount()
+        val roundIndicators =
+                remainingArrows.toString(view.resources.getString(R.string.input_end__round_indicator_at))
         val label = view.findViewById<TextView>(R.id.text_input_end__remaining_arrows_label)
         val large = view.findViewById<TextView>(R.id.text_input_end__remaining_arrows_current_distance)
         val small = view.findViewById<TextView>(R.id.text_input_end__remaining_arrows_later_distances)

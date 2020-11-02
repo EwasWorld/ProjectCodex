@@ -3,11 +3,11 @@ package eywa.projectcodex
 import eywa.projectcodex.TestData.Companion.MAX_ARROW_COUNT_ARROWS
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.logic.getRemainingArrowsPerDistance
+import eywa.projectcodex.logic.RemainingArrows
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class RemainingArrowCalculationsUnitTest {
+class RemainingArrowUnitTest {
     private val arrowsPerArrowCount = 10
     private val arrowCounts = listOf(
             RoundArrowCount(1, 1, 1.0, arrowsPerArrowCount),
@@ -41,7 +41,7 @@ class RemainingArrowCalculationsUnitTest {
 
     @Test
     fun getRemainingArrowsPerDistance_NoArrows() {
-        val returned = getRemainingArrowsPerDistance(0, listOf(), listOf(), "foo", "bar")
+        val returned = RemainingArrows(0, listOf(), listOf(), "foo").toString("bar")
         assertEquals(Pair("", ""), returned)
     }
 
@@ -51,7 +51,7 @@ class RemainingArrowCalculationsUnitTest {
         val arrowCounts = TestData.generateArrowCounts(1, size, size)
         val distances = TestData.generateDistances(1, size, size)
 
-        val returned = getRemainingArrowsPerDistance(MAX_ARROW_COUNT_ARROWS + 10, arrowCounts, distances, "foo", "bar")
+        val returned = RemainingArrows(MAX_ARROW_COUNT_ARROWS + 10, arrowCounts, distances, "foo").toString("bar")
         assertEquals(Pair("", ""), returned)
     }
 
@@ -61,7 +61,7 @@ class RemainingArrowCalculationsUnitTest {
         val at = "foo"
         val unit = "bar"
 
-        val returned = getRemainingArrowsPerDistance(currentArrowCount, arrowCounts, distances, unit, at)
+        val returned = RemainingArrows(currentArrowCount, arrowCounts, distances, unit).toString(at)
 
         var total = 0
         val strings = mutableListOf<String>()
