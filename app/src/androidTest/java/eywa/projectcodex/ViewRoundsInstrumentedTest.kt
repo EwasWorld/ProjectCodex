@@ -99,7 +99,6 @@ class ViewRoundsInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testTableValues() {
         addDataToDatabase()
         goToViewRoundsAndPopulateAdapter()
@@ -126,7 +125,6 @@ class ViewRoundsInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testEmptyTable() {
         goToViewRoundsAndPopulateAdapter()
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
@@ -134,7 +132,6 @@ class ViewRoundsInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testOpenScorePad() {
         // Generate rounds until there is a unique score
         var uniqueScore: Int? = null
@@ -169,7 +166,6 @@ class ViewRoundsInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDeleteRow() {
         addDataToDatabase()
         goToViewRoundsAndPopulateAdapter()

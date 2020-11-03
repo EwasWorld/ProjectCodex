@@ -6,12 +6,10 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.evrencoskun.tableview.TableView
-import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -89,7 +87,6 @@ class InputEndInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testScoreButtonPressed() {
         R.id.button_create_round__submit.click()
 
@@ -150,7 +147,6 @@ class InputEndInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testClearScore() {
         R.id.button_create_round__submit.click()
 
@@ -185,7 +181,6 @@ class InputEndInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testBackSpace() {
         R.id.button_create_round__submit.click()
 
@@ -224,7 +219,6 @@ class InputEndInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testNextEnd() {
         R.id.button_create_round__submit.click()
 
@@ -287,7 +281,6 @@ class InputEndInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testOpenScorePad() {
         R.id.button_create_round__submit.click()
 

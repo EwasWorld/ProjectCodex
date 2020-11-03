@@ -4,7 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.daos.*
+import eywa.projectcodex.database.daos.RoundArrowCountDao
+import eywa.projectcodex.database.daos.RoundDao
+import eywa.projectcodex.database.daos.RoundDistanceDao
+import eywa.projectcodex.database.daos.RoundSubTypeDao
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.retrieveValue
 import kotlinx.coroutines.runBlocking
@@ -52,7 +55,6 @@ class GeneralDatabaseTests {
      * Test add, retrieve, update (existent and non-existent record), and remove
      */
     @Test
-    @Throws(Exception::class)
     fun roundsTest() {
         val retrievedRounds = roundDao.getAllRounds()
 
@@ -122,7 +124,6 @@ class GeneralDatabaseTests {
      * Tests adding, retrieving, deleting one entry, and deleting a round's entries
      */
     @Test
-    @Throws(Exception::class)
     fun roundArrowCountsTest() {
         val retrievedArrowCounts = roundArrowCountDao.getAllArrowCounts()
 
@@ -161,7 +162,6 @@ class GeneralDatabaseTests {
      * Tests adding, retrieving, deleting one entry, and deleting a round's entries
      */
     @Test
-    @Throws(Exception::class)
     fun roundSubTypesTest() {
         val retrievedSubTypes = roundSubTypeDao.getAllSubTypes()
 
@@ -200,7 +200,6 @@ class GeneralDatabaseTests {
      * Tests adding, retrieving, deleting one entry, and deleting a round's entries
      */
     @Test
-    @Throws(Exception::class)
     fun roundDistancesTest() {
         val retrievedDistances = roundDistanceDao.getAllDistances()
 

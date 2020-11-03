@@ -96,7 +96,6 @@ class ScorePadInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testTableValues() {
         generateArrowsAndAddToDb()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
@@ -123,7 +122,6 @@ class ScorePadInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testTableValuesWithTotals() {
         generateArrowsAndAddToDb()
         val arrowCounts = listOf(
@@ -168,7 +166,6 @@ class ScorePadInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testEmptyTable() {
         R.id.button_main_menu__start_new_round.click()
         R.id.button_create_round__submit.click()
@@ -178,7 +175,6 @@ class ScorePadInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testEditEnd() {
         val firstArrows = listOf(
                 TestData.ARROWS[11], TestData.ARROWS[9], TestData.ARROWS[9],
@@ -229,7 +225,6 @@ class ScorePadInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testEditEndCancel() {
         generateArrowsAndAddToDb()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
@@ -241,7 +236,7 @@ class ScorePadInstrumentedTest {
         /*
          * Edit an end
          */
-        val firstEnd = End(arrows.subList(0, 6), 6, ".", "-")
+        val firstEnd = End(arrows.subList(0, 6), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         firstEnd.reorderScores()
         onView(withText(firstEnd.toString())).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(EditEndFragment::class.java.name))
@@ -283,7 +278,6 @@ class ScorePadInstrumentedTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDeleteEnd() {
         generateArrowsAndAddToDb()
         ConditionWatcher.waitForCondition(openScorePadInstruction)

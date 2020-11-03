@@ -38,7 +38,6 @@ class ArrowValueTest {
      * Check inserted values are the same as retrieved
      */
     @Test
-    @Throws(Exception::class)
     fun basicTest() {
         val arrows1 = TestData.generateArrowValues(6, 1)
         val arrows2 = TestData.generateArrowValues(12, 2)
@@ -71,7 +70,6 @@ class ArrowValueTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun deleteSpecificArrowNumbersTest() {
         val arrows1 = TestData.generateArrowValues(18, 1)
         val arrows2 = TestData.generateArrowValues(18, 2)
@@ -103,7 +101,6 @@ class ArrowValueTest {
      * For no apparent reason, I can't run this test on its own when its called `deleteEndRepoTest` -Ewa Oct 2020
      */
     @Test
-    @Throws(Exception::class)
     fun deleteEndRepoTst() {
         val archerRoundId = 1
         val arrowValuesRepo = ArrowValuesRepo(arrowValueDao, archerRoundId)
