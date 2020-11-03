@@ -1,10 +1,13 @@
 package eywa.projectcodex
 
 import android.view.View
+import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
@@ -108,6 +111,23 @@ fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
 
         override fun matchesSafely(view: View): Boolean {
             return matcher.matches(view) && currentIndex++ == index
+        }
+    }
+}
+
+fun setNumberPickerValue(value: Int): ViewAction? {
+    return object : ViewAction {
+        override fun perform(uiController: UiController?, view: View) {
+            check(view is NumberPicker) { "View must be a number picker to use this" }
+            view.value = value
+        }
+
+        override fun getDescription(): String {
+            return "Set the passed number into the NumberPicker"
+        }
+
+        override fun getConstraints(): Matcher<View> {
+            return ViewMatchers.isAssignableFrom(NumberPicker::class.java)
         }
     }
 }

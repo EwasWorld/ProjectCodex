@@ -2,7 +2,12 @@ package eywa.projectcodex
 
 import android.os.Handler
 import android.os.Looper
+import android.widget.NumberPicker
 import android.widget.TextView
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.ViewMatchers.withClassName
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.evrencoskun.tableview.TableView
@@ -13,6 +18,7 @@ import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -325,10 +331,32 @@ class InputEndInstrumentedTest {
         R.id.text_input_end__remaining_arrows_label.textEquals("Round Complete")
     }
 
+    /**
+     * Fills the end by pressing the '1' button then presses 'next end'
+     */
     private fun completeEnd() {
         while (activity.activity.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')) {
             R.id.button_arrow_inputs__score_1.click()
         }
         R.id.button_input_end__next_end.click()
+    }
+
+    @Test
+    fun testOddEndSize() {
+        R.id.spinner_create_round__round.clickSpinnerItem(roundsInput[0].displayName)
+        R.id.button_create_round__submit.click()
+
+        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
+        R.id.text_end_inputs__inputted_arrows.click()
+        onView(withClassName(Matchers.equalTo(NumberPicker::class.java.name))).perform(setNumberPickerValue(5))
+        onView(withText("OK")).perform(click())
+
+        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
+        completeEnd()
+        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
+        completeEnd()
+        R.id.text_end_inputs__inputted_arrows.textEquals(".-.")
+        completeEnd()
+        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
     }
 }
