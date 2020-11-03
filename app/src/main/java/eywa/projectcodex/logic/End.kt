@@ -17,11 +17,10 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
     private var originalEnd: List<ArrowValue>? = null
 
     /**
-     * @param arrowsList size must be <= [arrowsPerEnd] and must all belong to the same archerRound
+     * @param arrowsList must all belong to the same archerRound
      */
-    constructor(arrowsList: List<ArrowValue>, arrowsPerEnd: Int, arrowPlaceholder: String, arrowDeliminator: String) :
-            this(arrowsPerEnd, arrowPlaceholder, arrowDeliminator) {
-        require(arrowsList.size <= arrowsPerEnd) { "Too many arrows provided" }
+    constructor(arrowsList: List<ArrowValue>, arrowPlaceholder: String, arrowDeliminator: String) :
+            this(arrowsList.size, arrowPlaceholder, arrowDeliminator) {
         require(arrowsList.map { it.archerRoundId }.distinct().size == 1) { "Arrows must be from the same round" }
         for (arrow in arrowsList) {
             addArrowToEnd(Arrow(arrow.score, arrow.isX))
@@ -30,12 +29,12 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
     }
 
     /**
-     * @param deleteContents if true, will truncate [arrows] if necessary before updating [endSize]. If false, will
-     * throw an IllegalArgumentException
+     * @param deleteContents True: truncate [arrows] if necessary before updating [endSize]. False: throw an
+     * IllegalArgumentException
      * @throws UserException if [originalEnd] != null
      * @throws IllegalArgumentException if [value] < [arrows].size (unless [deleteContents] is true)
      */
-    fun updateEndSize(value: Int, deleteContents: Boolean) {
+    fun updateEndSize(value: Int, deleteContents: Boolean = true) {
         if (originalEnd != null) {
             throw UserException(R.string.err_input_end__cannot_edit_end_size)
         }
@@ -47,7 +46,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
             return
         }
 
-        if (arrows.size >= value) {
+        if (arrows.size < value) {
             endSize = value
         }
         else {

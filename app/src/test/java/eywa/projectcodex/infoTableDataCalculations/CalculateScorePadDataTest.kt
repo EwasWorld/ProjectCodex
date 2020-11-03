@@ -191,7 +191,7 @@ class CalculateScorePadDataTest {
             Assert.assertEquals(scorePadColumnHeaderIds.size, data.size)
 
             val end = End(
-                    chunkedArrows[i], endSize, arrowPlaceHolder, arrowDeliminator
+                    chunkedArrows[i], arrowPlaceHolder, arrowDeliminator
             )
             end.reorderScores()
             runningTotal += end.getScore()

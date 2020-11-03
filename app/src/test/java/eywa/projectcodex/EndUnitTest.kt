@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.logic.End
 import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.viewModels.InputEndViewModel
@@ -21,10 +22,12 @@ import org.junit.Test
  */
 class EndUnitTest {
     private lateinit var end: End
+    private val endSize = 6
+    val archerRoundId = 1
 
     @Before
     fun setup() {
-        end = End(6, ".", "-")
+        end = End(endSize, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
     }
 
     @Test
@@ -32,23 +35,15 @@ class EndUnitTest {
         val arrowValues = TestData.ARROWS.map { ArrowValue(1, 1, it.score, it.isX) }
 
         val endArrows = mutableListOf(arrowValues[0], arrowValues[3], arrowValues[11])
-        end = End(endArrows, 6, ".", "-")
+        end = End(endArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         assertEquals(13, end.getScore())
         assertEquals(1, end.getGolds(GoldsType.XS))
 
         endArrows.add(arrowValues[1])
         endArrows.add(arrowValues[1])
         endArrows.add(arrowValues[1])
-        end = End(endArrows, 6, ".", "-")
+        end = End(endArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         assertEquals(16, end.getScore())
-
-        try {
-            endArrows.add(arrowValues[1])
-            end = End(endArrows, 6, ".", "-")
-            fail("Too many arrows")
-        }
-        catch (e: IllegalArgumentException) {
-        }
     }
 
     @Test
@@ -213,12 +208,11 @@ class EndUnitTest {
         assertEquals(arrowScores.sum(), end.getScore())
 
         val viewModel = mock<InputEndViewModel>()
-        val archerRoundId = 1
         var arrowNumber = 1
         end.addArrowsToDatabase(archerRoundId, arrowNumber, viewModel)
 
         argumentCaptor<ArrowValue>().apply {
-            verify(viewModel, times(6)).insert(capture())
+            verify(viewModel, times(endSize)).insert(capture())
             for (arrow in allValues) {
                 assertEquals(archerRoundId, arrow.archerRoundId)
                 assertEquals(arrowNumber, arrow.arrowNumber)
@@ -232,20 +226,18 @@ class EndUnitTest {
 
     @Test
     fun testAddArrowsToDatabaseEditEnd() {
-        val archerRoundId = 1
         val oldArrows = listOf(
                 ArrowValue(archerRoundId, 4, 3, false),
                 ArrowValue(archerRoundId, 6, 6, false),
                 ArrowValue(archerRoundId, 7, 7, false),
                 ArrowValue(archerRoundId, 8, 10, true)
         )
-        val arrowScores = listOf(1, 3, 5, 6, 10, 10)
-        val end = End(oldArrows, 6, "-", ".")
+        val arrowScores = listOf(1, 5, 6, 10)
+        val end = End(oldArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         end.clear()
         for (arrow in arrowScores) {
             end.addArrowToEnd(TestData.ARROWS[arrow])
         }
-
         assertEquals(arrowScores.sum(), end.getScore())
 
         val viewModel = mock<InputEndViewModel>()
@@ -254,7 +246,6 @@ class EndUnitTest {
 
         argumentCaptor<ArrowValue>().apply {
             verify(viewModel, times(4)).update(capture())
-            verify(viewModel, times(2)).insert(capture())
             for (i in allValues.indices) {
                 assertEquals(archerRoundId, allValues[i].archerRoundId)
                 assertEquals(
@@ -287,5 +278,82 @@ class EndUnitTest {
         assertEquals("1-m-3-X-7-7", end.toString())
         end.clear()
         assertEquals(".-.-.-.-.-.", end.toString())
+    }
+
+    /**
+     * Test reduce end size when the new size is valid based on current arrows (do not delete extra arrows)
+     */
+    @Test
+    fun testReduceEndSize() {
+        for (i in 0 until 2) {
+            end.addArrowToEnd(TestData.ARROWS[i])
+        }
+        end.updateEndSize(4, false)
+        assertEquals(4, end.endSize)
+        assertEquals("m-1-.-.", end.toString())
+    }
+
+    /**
+     * Test reduce end size when the new size is too small based on current arrows (do not delete extra arrows)
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun testReduceEndSizeTooSmall() {
+        for (i in 0 until endSize) {
+            end.addArrowToEnd(TestData.ARROWS[0])
+        }
+        end.updateEndSize(4, false)
+    }
+
+    /**
+     * Test not allowed to change the end size when editing an end
+     */
+    @Test(expected = UserException::class)
+    fun testReduceEndSizeEditEnd() {
+        val oldArrows = listOf(
+                ArrowValue(archerRoundId, 1, 3, false),
+                ArrowValue(archerRoundId, 2, 3, false),
+                ArrowValue(archerRoundId, 3, 3, false),
+                ArrowValue(archerRoundId, 4, 6, false),
+                ArrowValue(archerRoundId, 5, 7, false),
+                ArrowValue(archerRoundId, 6, 10, true)
+        )
+        end = End(oldArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
+        end.updateEndSize(12, false)
+    }
+
+    /**
+     * Test reduce end size when the new size is valid based on current arrows (empty end - delete extra arrows)
+     */
+    @Test
+    fun testReduceEndSizeDeleteContentsEmptyEnd() {
+        end.updateEndSize(4, true)
+        assertEquals(4, end.endSize)
+        assertEquals(".-.-.-.", end.toString())
+    }
+
+    /**
+     * Test reduce end size when the new size is valid based on current arrows (small end - delete extra arrows)
+     */
+    @Test
+    fun testReduceEndSizeDeleteContentsSmallEnd() {
+        for (i in 0 until 2) {
+            end.addArrowToEnd(TestData.ARROWS[i])
+        }
+        end.updateEndSize(4, true)
+        assertEquals(4, end.endSize)
+        assertEquals("m-1-.-.", end.toString())
+    }
+
+    /**
+     * Test reduce end size when the new size is too small based on current arrows (delete extra arrows)
+     */
+    @Test
+    fun testReduceEndSizeDeleteContentsLargeEnd() {
+        for (i in 0 until endSize) {
+            end.addArrowToEnd(TestData.ARROWS[i])
+        }
+        end.updateEndSize(4, true)
+        assertEquals(4, end.endSize)
+        assertEquals("m-1-2-3", end.toString())
     }
 }

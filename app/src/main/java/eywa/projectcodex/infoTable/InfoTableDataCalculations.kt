@@ -114,7 +114,6 @@ fun calculateScorePadTableData(
             val endRowData = mutableListOf<Any>()
             val end = End(
                     endArrows,
-                    endSize,
                     resources.getString(R.string.end_to_string_arrow_placeholder),
                     resources.getString(R.string.end_to_string_arrow_deliminator)
             )

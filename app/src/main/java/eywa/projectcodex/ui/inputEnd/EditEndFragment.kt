@@ -11,11 +11,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import eywa.projectcodex.logic.End
 import eywa.projectcodex.Log
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.exceptions.UserException
+import eywa.projectcodex.logic.End
 import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_edit_end.*
@@ -51,7 +51,7 @@ class EditEndFragment : Fragment() {
                     it.arrowNumber >= args.firstArrowId && it.arrowNumber < args.firstArrowId + args.endSize
                 }
                 endInputsFragment.end = End(
-                        originalEnd, args.endSize,
+                        originalEnd,
                         getString(R.string.end_to_string_arrow_placeholder),
                         getString(R.string.end_to_string_arrow_deliminator)
                 )

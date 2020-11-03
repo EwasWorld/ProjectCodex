@@ -12,6 +12,9 @@ import kotlin.random.Random
 
 class TestData {
     companion object {
+        const val ARROW_PLACEHOLDER = "."
+        const val ARROW_DELIMINATOR = "-"
+
         val ARCHERS = arrayOf(
                 Archer(1, "Tony"),
                 Archer(2, "Jeff")
