@@ -17,6 +17,24 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
     private var originalEnd: List<ArrowValue>? = null
 
     /**
+     * When a temporary end size is being used, store the usual end size
+     */
+    private var usualEndSize: Int? = null
+
+    /**
+     * Remaining arrows left at the given distance (used to temporarily shorten an end at a distance change or at the
+     * end of a round)
+     */
+    var distanceRemainingArrows: Int? = null
+        set(value) {
+            val original = field
+            field = value
+            // Update the endSize in case this should be used instead
+            if (value != original) updateEndSize(endSize)
+        }
+    var updateEndSizeListener: UpdateEndSizeListener? = null
+
+    /**
      * @param arrowsList must all belong to the same archerRound
      */
     constructor(arrowsList: List<ArrowValue>, arrowPlaceholder: String, arrowDeliminator: String) :
@@ -35,23 +53,41 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
      * @throws IllegalArgumentException if [value] < [arrows].size (unless [deleteContents] is true)
      */
     fun updateEndSize(value: Int, deleteContents: Boolean = true) {
+        require(updateEndSizeListener != null) { "No updateEndSizeListener given" }
         if (originalEnd != null) {
             throw UserException(R.string.err_input_end__cannot_edit_end_size)
         }
+
+        val useRemaining = distanceRemainingArrows != null && distanceRemainingArrows!! < value
+        val newEndSize: Int
+        when {
+            useRemaining -> {
+                usualEndSize = endSize
+                newEndSize = distanceRemainingArrows!!
+            }
+            usualEndSize != null -> {
+                newEndSize = usualEndSize!!
+                usualEndSize = null
+            }
+            endSize == value -> return
+            else -> newEndSize = value
+        }
+
         if (deleteContents) {
-            endSize = value
+            endSize = newEndSize
             if (arrows.isNotEmpty()) {
                 arrows = arrows.subList(0, min(arrows.size, endSize))
             }
+            updateEndSizeListener!!.onEndSizeUpdated()
             return
         }
 
-        if (arrows.size < value) {
-            endSize = value
-        }
-        else {
+        if (arrows.size > newEndSize) {
             throw IllegalArgumentException("New end size is too small for arrows currently added to the end")
         }
+
+        endSize = newEndSize
+        updateEndSizeListener!!.onEndSizeUpdated()
     }
 
     fun isEditEnd(): Boolean {
@@ -197,10 +233,12 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
          */
         else {
             var arrowID = firstArrowId!!
-            for (arrow in arrows) {
-                inputEndViewModel.insert(arrow.toArrowValue(finalArcherRoundId, arrowID++))
-            }
+            inputEndViewModel.insert(*arrows.map { it.toArrowValue(finalArcherRoundId, arrowID++) }.toTypedArray())
         }
         clear()
+    }
+
+    interface UpdateEndSizeListener {
+        fun onEndSizeUpdated()
     }
 }

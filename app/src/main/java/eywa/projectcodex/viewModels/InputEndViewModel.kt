@@ -48,8 +48,8 @@ class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidV
     /**
      * Launching in this scope prevents blocking
      */
-    fun insert(arrowValue: ArrowValue) = viewModelScope.launch {
-        arrowValueRepo.insert(arrowValue)
+    fun insert(vararg arrowValues: ArrowValue) = viewModelScope.launch {
+        arrowValueRepo.insert(*arrowValues)
     }
 
     fun update(arrowValue: ArrowValue) = viewModelScope.launch {

@@ -135,7 +135,7 @@ class InputEndFragment : Fragment() {
 
         roundIndicatorSection.visibility = View.VISIBLE
         val remainingArrows = RemainingArrows(arrows.size, arrowCounts, distances, distanceUnit)
-        endInputsFragment.remainingArrows = remainingArrows.getFirstRemainingArrowCount()
+        endInputsFragment.end.distanceRemainingArrows = remainingArrows.getFirstRemainingArrowCount()
         val roundIndicators =
                 remainingArrows.toString(view.resources.getString(R.string.input_end__round_indicator_at))
         val label = view.findViewById<TextView>(R.id.text_input_end__remaining_arrows_label)

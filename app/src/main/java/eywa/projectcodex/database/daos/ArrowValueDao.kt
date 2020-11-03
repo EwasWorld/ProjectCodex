@@ -9,8 +9,15 @@ interface ArrowValueDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(arrowValue: ArrowValue)
 
+    @Transaction
+    suspend fun insert(vararg arrowValues: ArrowValue) {
+        for (arrow in arrowValues) {
+            insert(arrow)
+        }
+    }
+
     @Update
-    suspend fun update(vararg arrowValue: ArrowValue)
+    suspend fun update(vararg arrowValues: ArrowValue)
 
     /**
      * When returning LiveData, suspend is not needed as LiveData is already async

@@ -16,43 +16,11 @@ import kotlinx.android.synthetic.main.frag_end_inputs.*
 
 
 class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButtonPressedListener {
-    var usualEndSize: Int? = null
-    var remainingArrows: Int? = null
-        set(value) {
-            val original = field
-            field = value
-            // Update the endSize in case this should be used instead
-            if (value != original) endSize = endSize
-        }
+    private val defaultStartingEndSize = 6
     var showResetButton = false
 
-    /**
-     * @throws UserException in setter
-     * @see End.updateEndSize
-     */
-    var endSize = 6
-        set(value) {
-            val useRemaining = remainingArrows != null && remainingArrows!! < value
-            val newEndSize: Int
-            when {
-                useRemaining -> {
-                    usualEndSize = field
-                    newEndSize = remainingArrows!!
-                }
-                usualEndSize != null -> {
-                    newEndSize = usualEndSize!!
-                    usualEndSize = null
-                }
-                else -> newEndSize = value
-            }
-            end.updateEndSize(newEndSize, true)
-            field = newEndSize
-            updateEndStringAndTotal()
-        }
-
     // This assignment will always be overwritten, just can't have a lateinit with a custom setter :rolling_eyes:
-    var end: End =
-            End(endSize, ".", "-")
+    var end: End = End(defaultStartingEndSize, ".", "-")
         set(value) {
             field = value
             updateEndStringAndTotal()
@@ -70,7 +38,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
             val okListener = object : NumberPickerDialog.OnSelectListener {
                 override fun onSelect(value: Int) {
                     try {
-                        endSize = value
+                        end.updateEndSize(value)
                     }
                     catch (e: UserException) {
                         Toast.makeText(context, e.getMessage(resources), Toast.LENGTH_SHORT).show()
@@ -79,7 +47,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
             }
             numberPickerDialog = NumberPickerDialog(
                     resources.getString(R.string.input_end__change_end_size_dialog_title),
-                    null, 12, 2, endSize, okListener
+                    null, 12, 2, end.endSize, okListener
             )
             @Suppress("RecursivePropertyAccessor")
             return numberPickerDialog
@@ -88,10 +56,15 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.frag_end_inputs, container, false)!!
         end = End(
-                endSize,
+                defaultStartingEndSize,
                 getString(R.string.end_to_string_arrow_placeholder),
                 getString(R.string.end_to_string_arrow_deliminator)
         )
+        end.updateEndSizeListener = object : End.UpdateEndSizeListener {
+            override fun onEndSizeUpdated() {
+                updateEndStringAndTotal(view)
+            }
+        }
         view.findViewById<Button>(R.id.button_end_inputs__reset).visibility =
                 if (showResetButton) View.VISIBLE else View.GONE
         updateEndStringAndTotal(view)

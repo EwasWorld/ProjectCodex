@@ -16,8 +16,8 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
             archerRoundId?.let { arrowValueDao.getArrowValuesForRound(archerRoundId) }
     val allArrowValues: LiveData<List<ArrowValue>> = arrowValueDao.getAllArrowValues()
 
-    suspend fun insert(arrowValue: ArrowValue) {
-        arrowValueDao.insert(arrowValue)
+    suspend fun insert(vararg arrowValues: ArrowValue) {
+        arrowValueDao.insert(*arrowValues)
     }
 
     suspend fun update(arrowValue: ArrowValue) {
