@@ -12,8 +12,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.logic.RoundSelection
 import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.logic.RoundSelection
 import eywa.projectcodex.viewModels.NewRoundViewModel
 import kotlinx.android.synthetic.main.fragment_new_round.*
 import java.util.*
@@ -53,9 +53,7 @@ class NewRoundFragment : Fragment() {
             }
         })
 
-        val roundSelection = RoundSelection(
-                resources, newRoundViewModel, viewLifecycleOwner
-        )
+        val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
         // Update the spinners if the database updates (not sure why it would but whatever)
         newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer { _ ->
             spinner_create_round__round.adapter = ArrayAdapter(
@@ -88,8 +86,7 @@ class NewRoundFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedRoundPosition = position
 
-                val roundSubtypes = roundSelection.getRoundSubtypes(position)
-                if (roundSubtypes.isNullOrEmpty()) {
+                if (selectedRoundPosition == noRoundPosition) {
                     selectedSubtypePosition = null
                     layout_create_round__round_sub_type.visibility = View.GONE
                     layout_create_round__arrow_count_indicator.visibility = View.GONE
@@ -97,9 +94,17 @@ class NewRoundFragment : Fragment() {
                     return
                 }
 
-                spinner_create_round__round_sub_type.adapter =
-                        ArrayAdapter(activity!!.applicationContext, R.layout.spinner_light_background, roundSubtypes)
-                layout_create_round__round_sub_type.visibility = View.VISIBLE
+                val roundSubtypes = roundSelection.getRoundSubtypes(position)
+                if (roundSubtypes.isNullOrEmpty()) {
+                    selectedSubtypePosition = null
+                    layout_create_round__round_sub_type.visibility = View.GONE
+                }
+                else {
+                    spinner_create_round__round_sub_type.adapter = ArrayAdapter(
+                            activity!!.applicationContext, R.layout.spinner_light_background, roundSubtypes
+                    )
+                    layout_create_round__round_sub_type.visibility = View.VISIBLE
+                }
 
                 setDistanceIndicatorText(roundSelection)
 

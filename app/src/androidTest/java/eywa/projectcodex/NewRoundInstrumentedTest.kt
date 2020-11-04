@@ -5,10 +5,12 @@ import android.os.Looper
 import android.widget.Spinner
 import androidx.lifecycle.Observer
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -33,13 +35,21 @@ class NewRoundInstrumentedTest {
 
     private lateinit var db: ScoresRoomDatabase
     private var currentArcherRounds: List<ArcherRound> = listOf()
+    private val noRoundDisplayName = "No Round"
     private val roundsListSizes = 3
     private val roundsInput = TestData.generateRounds(roundsListSizes)
-    private val subtypesInput = TestData.generateSubTypes(roundsListSizes, roundsListSizes, roundsListSizes)
+    private val subtypesInput = TestData.generateSubTypes(roundsListSizes - 1, roundsListSizes, roundsListSizes)
     private val arrowCountsInput = TestData.generateArrowCounts(roundsListSizes, roundsListSizes, roundsListSizes)
 
     // Distances should always be the largest
-    private val distancesInput = TestData.generateDistances(roundsListSizes, roundsListSizes, roundsListSizes)
+    private val distancesInput = TestData.generateDistances(roundsListSizes - 1, roundsListSizes, roundsListSizes)
+            .plus(
+                    listOf(
+                            RoundDistance(roundsListSizes, 1, 1, 70),
+                            RoundDistance(roundsListSizes, 2, 1, 60),
+                            RoundDistance(roundsListSizes, 3, 1, 50)
+                    )
+            )
 
     /**
      * Set up database and navigate to create rounds screen
@@ -146,6 +156,7 @@ class NewRoundInstrumentedTest {
     /**
      * Test round select spinner options are correct
      * Test round info indicators are correct
+     * Test spinners and info indicators show and hide correctly
      */
     @Test
     fun roundsSpinner() {
@@ -159,23 +170,61 @@ class NewRoundInstrumentedTest {
             assertEquals(roundsInput[i].displayName, roundSpinner.getItemAtPosition(i + 1) as String)
         }
 
+        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
+        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
+        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
+
         /*
-         * Select a round and check the output
+         * Check switches correctly and indicators are correct
          */
-        val selectedRound = roundsInput[0]
+        val subTypedRound = roundsInput[0]
+        val unSubTypedRound = roundsInput[roundsListSizes - 1]
+
+        // no round -> subtype
+        var selectedRound = subTypedRound
         R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
+        R.id.text_create_round__arrow_count_indicator.textEquals(expectedArrowCounts(selectedRound.roundId))
+        R.id.text_create_round__distance_indicator.textEquals(
+                expectedDistances(selectedRound.roundId, 1, selectedRound.isMetric)
+        )
+        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.VISIBLE)
 
-        val arrowCounts =
-                arrowCountsInput.filter { it.roundId == selectedRound.roundId }.sortedBy { it.distanceNumber }
-                        .map { it.arrowCount / 12 }
-        R.id.text_create_round__arrow_count_indicator.textEquals(arrowCounts.joinToString(", "))
+        // subtype -> no subtype
+        selectedRound = unSubTypedRound
+        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
+        R.id.text_create_round__arrow_count_indicator.textEquals(expectedArrowCounts(selectedRound.roundId))
+        R.id.text_create_round__distance_indicator.textEquals(
+                expectedDistances(selectedRound.roundId, 1, selectedRound.isMetric)
+        )
+        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
 
-        val unit = if (selectedRound.isMetric) "m" else "yd"
-        val distances =
-                distancesInput.filter { it.roundId == selectedRound.roundId && it.subTypeId == 1 }
-                        .sortedByDescending { it.distance }
-                        .map { it.distance.toString() + unit }
-        R.id.text_create_round__distance_indicator.textEquals(distances.joinToString(", "))
+        // no subtype -> no round
+        R.id.spinner_create_round__round.clickSpinnerItem(noRoundDisplayName)
+        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
+        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
+        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
+
+        // no round -> no subtype
+        R.id.spinner_create_round__round.clickSpinnerItem(unSubTypedRound.displayName)
+        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
+
+        // no subtype -> subtype
+        R.id.spinner_create_round__round.clickSpinnerItem(subTypedRound.displayName)
+        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.VISIBLE)
+
+        // subtype -> no round
+        R.id.spinner_create_round__round.clickSpinnerItem(noRoundDisplayName)
+        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
+        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
+        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
     }
 
     /**
@@ -202,17 +251,21 @@ class NewRoundInstrumentedTest {
          */
         val selectedSubtype = subtypesInput[1]
         R.id.spinner_create_round__round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
+        R.id.text_create_round__arrow_count_indicator.textEquals(expectedArrowCounts(selectedRound.roundId))
+        R.id.text_create_round__distance_indicator.textEquals(
+                expectedDistances(selectedRound.roundId, selectedSubtype.subTypeId, selectedRound.isMetric)
+        )
+    }
 
-        val arrowCounts =
-                arrowCountsInput.filter { it.roundId == selectedRound.roundId }.sortedBy { it.distanceNumber }
-                        .map { it.arrowCount / 12 }
-        R.id.text_create_round__arrow_count_indicator.textEquals(arrowCounts.joinToString(", "))
+    private fun expectedArrowCounts(roundId: Int): String {
+        // `/12` because it's in dozens
+        return arrowCountsInput.filter { it.roundId == roundId }.sortedBy { it.distanceNumber }
+                .map { it.arrowCount / 12 }.joinToString(", ")
+    }
 
-        val unit = if (selectedRound.isMetric) "m" else "yd"
-        val distances =
-                distancesInput.filter { it.roundId == selectedRound.roundId && it.subTypeId == selectedSubtype.subTypeId }
-                        .sortedByDescending { it.distance }
-                        .map { it.distance.toString() + unit }
-        R.id.text_create_round__distance_indicator.textEquals(distances.joinToString(", "))
+    private fun expectedDistances(roundId: Int, subTypeId: Int, isMetric: Boolean): String {
+        val unit = if (isMetric) "m" else "yd"
+        return distancesInput.filter { it.roundId == roundId && it.subTypeId == subTypeId }
+                .sortedByDescending { it.distance }.joinToString(", ") { it.distance.toString() + unit }
     }
 }

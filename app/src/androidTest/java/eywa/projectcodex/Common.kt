@@ -29,6 +29,10 @@ fun Int.textEquals(text: String) = Espresso.onView(ViewMatchers.withId(this)).ch
         ViewAssertions.matches(ViewMatchers.withText(text))
 )!!
 
+fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = Espresso.onView(ViewMatchers.withId(this)).check(
+        ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(visibility))
+)!!
+
 fun Int.clickSpinnerItem(text: String) = this.run {
     Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())
     Espresso.onData(Matchers.hasToString(text)).perform(ViewActions.click())
