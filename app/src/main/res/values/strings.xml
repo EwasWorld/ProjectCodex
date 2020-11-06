@@ -16,6 +16,7 @@
     <string name="create_round__title">Create Round</string>
     <string name="create_round__submit">Create Round</string>
     <string name="create_round__imperial_metric">Imperial</string>
+    <string name="create_round__date">Date:</string>
     <string name="create_round__round">Round:</string>
     <string name="create_round__round_sub_type">Round Subtype:</string>
     <string name="create_round__no_round">No Round</string>
@@ -23,6 +24,8 @@
     <string name="create_round__arrow_count_indicator">Arrows per distance (doz):</string>
     <string name="create_round__distance_indicator">Distances:</string>
     <string name="create_round__arrows_per_end">Arrows per End</string>
+    <string name="create_round__date_shot_date_picker_title">Date shot</string>
+    <string name="create_round__time_shot_time_picker_title">Time shot</string>
 
     <!-- Arrow information -->
     <string name="end_to_string_arrow_deliminator">-</string>
@@ -49,7 +52,7 @@
     <string name="input_end__round_indicator_label">Remaining Arrows in Round:</string>
     <string name="input_end__round_indicator_at">at</string>
     <string name="input_end__round_indicator_complete">Round Complete</string>
-    <string name="input_end__change_end_size_dialog_title">End size</string>
+    <string name="input_end__change_end_size_dialog_title">Change end size</string>
     <string name="edit_end__reset">Reset</string>
     <string name="edit_end__complete_edit">Complete</string>
     <string name="edit_end__edit_info">Editing end %d</string>

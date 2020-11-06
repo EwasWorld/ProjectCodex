@@ -19,6 +19,46 @@
         >
 
         <LinearLayout
+            android:id="@+id/layout_create_round__date"
+            style="@style/CreateRoundLinearLayout"
+            >
+
+            <TextView
+                android:id="@+id/text_create_round__date_label"
+                style="@style/GeneralText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_round__date"
+                android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"
+                />
+
+            <!-- Placeholder text -->
+            <TextView
+                android:id="@+id/text_create_round__time"
+                style="@style/GeneralText"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="17:40"
+                tools:ignore="HardcodedText"
+                android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"
+                />
+
+            <!-- Placeholder text -->
+            <TextView
+                android:id="@+id/text_create_round__date"
+                style="@style/GeneralText"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="22/3/2020"
+                tools:ignore="HardcodedText"
+                />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/layout_create_round__round"
             style="@style/CreateRoundLinearLayout"
             >
@@ -33,6 +73,7 @@
 
             <Spinner
                 android:id="@+id/spinner_create_round__round"
+                style="@style/Spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
@@ -54,6 +95,7 @@
 
             <Spinner
                 android:id="@+id/spinner_create_round__round_sub_type"
+                style="@style/Spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />

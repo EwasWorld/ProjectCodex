@@ -96,7 +96,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                         .show()
                 return@setOnClickListener
             }
-            numberPickerDialog!!.show(childFragmentManager, "time picker")
+            numberPickerDialog!!.show(childFragmentManager, "end size picker")
         }
     }
 

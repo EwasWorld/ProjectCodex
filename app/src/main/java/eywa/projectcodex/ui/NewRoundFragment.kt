@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,13 +15,14 @@ import androidx.navigation.findNavController
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.logic.RoundSelection
+import eywa.projectcodex.ui.commonElements.DatePickerDialog
 import eywa.projectcodex.viewModels.NewRoundViewModel
 import kotlinx.android.synthetic.main.fragment_new_round.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class NewRoundFragment : Fragment() {
     private lateinit var newRoundViewModel: NewRoundViewModel
-    private var initialId: Boolean = true
 
     /**
      * Used to find the round that was just created
@@ -29,6 +31,37 @@ class NewRoundFragment : Fragment() {
     private val noRoundPosition = 0
     private var selectedRoundPosition: Int = noRoundPosition
     private var selectedSubtypePosition: Int? = null
+    private var date: Calendar = Calendar.getInstance()
+
+    // TODO Date/time format
+    private val dateFormat = SimpleDateFormat("dd MMM yy")
+    private val timeFormat = SimpleDateFormat("HH:mm")
+
+    /**
+     * Lazy loaded
+     */
+    private var datePickerDialog: DatePickerDialog? = null
+        get() {
+            if (field != null) {
+                return field
+            }
+            val okListener = object : DatePickerDialog.OnSelectListener {
+                override fun onSelect(value: Calendar) {
+                    date = value
+                    updateDateTime()
+                }
+            }
+            datePickerDialog = DatePickerDialog(
+                    getString(R.string.create_round__date_shot_date_picker_title), null, null, null, date, okListener
+            )
+            @Suppress("RecursivePropertyAccessor")
+            return datePickerDialog
+        }
+
+    private fun updateDateTime() {
+        view!!.findViewById<TextView>(R.id.text_create_round__date).text = dateFormat.format(date.time)
+        view!!.findViewById<TextView>(R.id.text_create_round__time).text = timeFormat.format(date.time)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_new_round, container, false)
@@ -38,6 +71,7 @@ class NewRoundFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.create_round__title)
 
+        var initialId = true
         newRoundViewModel = ViewModelProvider(this).get(NewRoundViewModel::class.java)
         newRoundViewModel.maxId.observe(viewLifecycleOwner, Observer { id ->
             if (initialId) {
@@ -52,6 +86,14 @@ class NewRoundFragment : Fragment() {
                 view.findNavController().navigate(action)
             }
         })
+
+        updateDateTime()
+        text_create_round__date.setOnClickListener {
+            datePickerDialog!!.show(childFragmentManager, "date picker")
+        }
+        text_create_round__time.setOnClickListener {
+
+        }
 
         val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
         // Update the spinners if the database updates (not sure why it would but whatever)
@@ -69,7 +111,7 @@ class NewRoundFragment : Fragment() {
                     if (roundId != null) roundSelection.getSelectedSubtypeId(selectedSubtypePosition) else null
             // TODO Check date locales (I want to store in UTC)
             newRoundViewModel.insert(
-                    ArcherRound(0, Date(), 1, false, roundId = roundId, roundSubTypeId = roundSubtypeId)
+                    ArcherRound(0, date.time, 1, false, roundId = roundId, roundSubTypeId = roundSubtypeId)
             )
             // Navigate to the round's input end screen navigating to the newly created round id (found using maxId)
         }
