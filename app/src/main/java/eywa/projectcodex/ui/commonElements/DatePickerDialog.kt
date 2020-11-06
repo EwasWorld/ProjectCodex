@@ -1,43 +1,33 @@
 package eywa.projectcodex.ui.commonElements
 
-import android.app.AlertDialog
-import android.app.Dialog
-import android.os.Bundle
+import android.view.View
 import android.widget.DatePicker
-import androidx.fragment.app.DialogFragment
-import eywa.projectcodex.R
 import java.util.*
 
 class DatePickerDialog(
-        private val title: String, private val message: String?, private val maxDate: Long?, private val minDate: Long?,
-        private val startDate: Calendar, private val okListener: OnSelectListener
-) : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val calendar = startDate
-        val datePicker = DatePicker(activity)
+        title: String, message: String?, private val maxDate: Long?, private val minDate: Long?, startDate: Calendar,
+        private val okListener: OnOkListener
+) : CustomDialog(title, message) {
+    private val date = startDate
+    private lateinit var datePicker: DatePicker
+
+    override fun getDialogView(): View {
+        datePicker = DatePicker(context)
         if (maxDate != null) datePicker.maxDate = maxDate
         if (minDate != null) datePicker.maxDate = minDate
-        datePicker.updateDate(
-                startDate.get(Calendar.YEAR), startDate.get(Calendar.DAY_OF_MONTH), startDate.get(Calendar.MONTH)
-        )
+        datePicker.updateDate(date.get(Calendar.YEAR), date.get(Calendar.DAY_OF_MONTH), date.get(Calendar.MONTH))
+        // It will try to show both a spinner and calendar if this is not done. Cannot find an alternative to this
+        //     deprecated function, possibly due to the API level
         datePicker.calendarViewShown = false
-
-        val dialogBuilder = AlertDialog.Builder(activity)
-        dialogBuilder.setTitle(title)
-        if (message != null) {
-            dialogBuilder.setMessage(message)
-        }
-        dialogBuilder.setView(datePicker)
-        dialogBuilder.setPositiveButton(resources.getString(R.string.button_ok)) { dialog, _ ->
-            calendar.set(datePicker.year, datePicker.month, datePicker.dayOfMonth)
-            okListener.onSelect(calendar)
-            dialog.dismiss()
-        }
-        dialogBuilder.setNegativeButton(resources.getString(R.string.button_cancel)) { dialog, _ -> dialog.dismiss() }
-        return dialogBuilder.create()
+        return datePicker
     }
 
-    interface OnSelectListener {
+    override fun okFunction() {
+        date.set(datePicker.year, datePicker.month, datePicker.dayOfMonth)
+        okListener.onSelect(date)
+    }
+
+    interface OnOkListener {
         fun onSelect(value: Calendar)
     }
 }

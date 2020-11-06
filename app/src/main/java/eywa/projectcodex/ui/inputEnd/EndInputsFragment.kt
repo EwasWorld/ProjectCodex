@@ -35,7 +35,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                 return field
             }
 
-            val okListener = object : NumberPickerDialog.OnSelectListener {
+            val okListener = object : NumberPickerDialog.OnOkListener {
                 override fun onSelect(value: Int) {
                     try {
                         end.updateEndSize(value)

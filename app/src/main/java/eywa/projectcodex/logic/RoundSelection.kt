@@ -12,6 +12,7 @@ import eywa.projectcodex.viewModels.NewRoundViewModel
 
 /**
  * Helper class for selecting a round on the create round screen
+ * @param newRoundViewModel used to fetch rounds and sub-types form the database
  */
 class RoundSelection(
         val resources: Resources, newRoundViewModel: NewRoundViewModel, viewLifecycleOwner: LifecycleOwner

@@ -16,6 +16,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.logic.RoundSelection
 import eywa.projectcodex.ui.commonElements.DatePickerDialog
+import eywa.projectcodex.ui.commonElements.TimePickerDialog
 import eywa.projectcodex.viewModels.NewRoundViewModel
 import kotlinx.android.synthetic.main.fragment_new_round.*
 import java.text.SimpleDateFormat
@@ -37,15 +38,19 @@ class NewRoundFragment : Fragment() {
     private val dateFormat = SimpleDateFormat("dd MMM yy")
     private val timeFormat = SimpleDateFormat("HH:mm")
 
+    // Lowercase h for 12 hour
+    private val is24HourTime = timeFormat.toPattern().contains("HH")
+
     /**
      * Lazy loaded
+     * TODO Does onCreateDialog actually get called until show() is called? If not this is not necessary
      */
     private var datePickerDialog: DatePickerDialog? = null
         get() {
             if (field != null) {
                 return field
             }
-            val okListener = object : DatePickerDialog.OnSelectListener {
+            val okListener = object : DatePickerDialog.OnOkListener {
                 override fun onSelect(value: Calendar) {
                     date = value
                     updateDateTime()
@@ -56,6 +61,29 @@ class NewRoundFragment : Fragment() {
             )
             @Suppress("RecursivePropertyAccessor")
             return datePickerDialog
+        }
+
+    /**
+     * Lazy loaded
+     */
+    private var timePickerDialog: TimePickerDialog? = null
+        get() {
+            if (field != null) {
+                return field
+            }
+            val okListener = object : TimePickerDialog.OnOkListener {
+                override fun onSelect(hours: Int, minutes: Int) {
+                    date.set(Calendar.MINUTE, minutes)
+                    date.set(Calendar.HOUR_OF_DAY, hours)
+                    updateDateTime()
+                }
+            }
+            timePickerDialog = TimePickerDialog(
+                    getString(R.string.create_round__time_shot_time_picker_title), null, date.get(Calendar.HOUR_OF_DAY),
+                    date.get(Calendar.MINUTE), is24HourTime, okListener
+            )
+            @Suppress("RecursivePropertyAccessor")
+            return timePickerDialog
         }
 
     private fun updateDateTime() {
@@ -92,11 +120,11 @@ class NewRoundFragment : Fragment() {
             datePickerDialog!!.show(childFragmentManager, "date picker")
         }
         text_create_round__time.setOnClickListener {
-
+            timePickerDialog!!.show(childFragmentManager, "time picker")
         }
 
         val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
-        // Update the spinners if the database updates (not sure why it would but whatever)
+        // Update the spinners if the database updates (spinners don't display correctly at the start without this)
         newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer { _ ->
             spinner_create_round__round.adapter = ArrayAdapter(
                     activity!!.applicationContext, R.layout.spinner_light_background,
