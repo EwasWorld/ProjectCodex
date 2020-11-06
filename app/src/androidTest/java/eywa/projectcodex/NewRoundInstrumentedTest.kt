@@ -2,9 +2,12 @@ package eywa.projectcodex
 
 import android.os.Handler
 import android.os.Looper
+import android.widget.DatePicker
 import android.widget.Spinner
+import android.widget.TimePicker
 import androidx.lifecycle.Observer
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
@@ -20,6 +23,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
@@ -267,5 +271,36 @@ class NewRoundInstrumentedTest {
         val unit = if (isMetric) "m" else "yd"
         return distancesInput.filter { it.roundId == roundId && it.subTypeId == subTypeId }
                 .sortedByDescending { it.distance }.joinToString(", ") { it.distance.toString() + unit }
+    }
+
+    @Test
+    fun testCustomDateTime() {
+        R.id.text_create_round__time.click()
+        onView(TimePicker::class.java).perform(setTimePickerValue(20, 22))
+        onView("OK").perform(ViewActions.click())
+
+        R.id.text_create_round__date.click()
+        val calendar = Calendar.getInstance()
+        // Use a different hour/minute to ensure it's not overwriting the time
+        calendar.set(2040, 9, 30, 13, 15, 0)
+        onView(DatePicker::class.java).perform(setDatePickerValue(calendar))
+        onView("OK").perform(ViewActions.click())
+
+        R.id.text_create_round__time.textEquals("20:22")
+        R.id.text_create_round__date.textEquals("30 Oct 40")
+
+        val roundsBeforeCreate = currentArcherRounds.toMutableList()
+        R.id.button_create_round__submit.click()
+        val roundsAfterCreate = currentArcherRounds.toMutableList()
+
+        for (round in roundsAfterCreate) {
+            if (roundsBeforeCreate.contains(round)) continue
+            // Date returns year -1900
+            assertEquals(140, round.dateShot.year)
+            assertEquals(9, round.dateShot.month)
+            assertEquals(30, round.dateShot.date)
+            assertEquals(20, round.dateShot.hours)
+            assertEquals(22, round.dateShot.minutes)
+        }
     }
 }

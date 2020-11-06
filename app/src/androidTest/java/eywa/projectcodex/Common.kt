@@ -1,13 +1,16 @@
 package eywa.projectcodex
 
 import android.view.View
+import android.widget.DatePicker
 import android.widget.NumberPicker
+import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
+import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
@@ -17,6 +20,7 @@ import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.android.synthetic.main.content_main.*
 import org.hamcrest.*
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -37,6 +41,14 @@ fun Int.clickSpinnerItem(text: String) = this.run {
     Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())
     Espresso.onData(Matchers.hasToString(text)).perform(ViewActions.click())
 }!!
+
+fun onView(text: String): ViewInteraction {
+    return Espresso.onView(ViewMatchers.withText(text))!!
+}
+
+fun <T> onView(clazz: Class<T>): ViewInteraction {
+    return Espresso.onView(ViewMatchers.withClassName(Matchers.equalTo(clazz.name)))!!
+}
 
 infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
         Espresso.onView(ViewMatchers.withText(message))
@@ -127,11 +139,46 @@ fun setNumberPickerValue(value: Int): ViewAction? {
         }
 
         override fun getDescription(): String {
-            return "Set the passed number into the NumberPicker"
+            return "Set the NumberPicker value"
         }
 
         override fun getConstraints(): Matcher<View> {
             return ViewMatchers.isAssignableFrom(NumberPicker::class.java)
+        }
+    }
+}
+
+fun setDatePickerValue(value: Calendar): ViewAction? {
+    return object : ViewAction {
+        override fun perform(uiController: UiController?, view: View) {
+            check(view is DatePicker) { "View must be a date picker to use this" }
+            view.updateDate(value.get(Calendar.YEAR), value.get(Calendar.MONTH), value.get(Calendar.DAY_OF_MONTH))
+        }
+
+        override fun getDescription(): String {
+            return "Set the DatePicker value"
+        }
+
+        override fun getConstraints(): Matcher<View> {
+            return ViewMatchers.isAssignableFrom(DatePicker::class.java)
+        }
+    }
+}
+
+fun setTimePickerValue(hours: Int, minutes: Int): ViewAction? {
+    return object : ViewAction {
+        override fun perform(uiController: UiController?, view: View) {
+            check(view is TimePicker) { "View must be a time picker to use this" }
+            view.currentHour = hours
+            view.currentMinute = minutes
+        }
+
+        override fun getDescription(): String {
+            return "Set the TimePicker value"
+        }
+
+        override fun getConstraints(): Matcher<View> {
+            return ViewMatchers.isAssignableFrom(TimePicker::class.java)
         }
     }
 }

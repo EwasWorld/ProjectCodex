@@ -4,10 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.NumberPicker
 import android.widget.TextView
-import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withClassName
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.evrencoskun.tableview.TableView
@@ -18,7 +15,6 @@ import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -348,8 +344,9 @@ class InputEndInstrumentedTest {
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
         R.id.text_end_inputs__inputted_arrows.click()
-        onView(withClassName(Matchers.equalTo(NumberPicker::class.java.name))).perform(setNumberPickerValue(5))
-        onView(withText("OK")).perform(click())
+
+        onView(NumberPicker::class.java).perform(setNumberPickerValue(5))
+        onView("OK").perform(click())
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
         completeEnd()
