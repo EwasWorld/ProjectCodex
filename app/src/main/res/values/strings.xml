@@ -84,6 +84,9 @@
     <string name="score_pad__distance_total">Total at %d%s</string> <!-- Total at 90m -->
     <string name="score_pad__distance_total_row_header">T</string>
     <string name="err_score_pad__no_arrows">There are no arrows to show</string>
+    <string name="score_pad_menu__edit">Edit end</string>
+    <string name="score_pad_menu__insert">Insert end above</string>
+    <string name="score_pad_menu__delete">Delete end</string>
 
     <!-- Table View -->
     <string name="table_hits_header">H</string>

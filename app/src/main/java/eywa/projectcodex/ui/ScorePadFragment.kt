@@ -2,9 +2,7 @@ package eywa.projectcodex.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -28,6 +26,7 @@ class ScorePadFragment : Fragment() {
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
     private var dialog: AlertDialog? = null
+    private var selectedRow = 0
 
     // TODO Is there a way to make these setters common?
     private var goldsType = GoldsType.TENS
@@ -133,6 +132,7 @@ class ScorePadFragment : Fragment() {
             val tableView = view!!.findViewById<TableView>(R.id.table_view_score_pad)
             tableView.adapter = tableAdapter
             tableView.tableViewListener = ScorePadTableViewListener(tableView)
+            registerForContextMenu(tableView.cellRecyclerView)
 
             val tableData = calculateScorePadTableData(
                     arrows, endSize!!, goldsType, resources, arrowCounts, distances, distanceUnit
@@ -175,24 +175,46 @@ class ScorePadFragment : Fragment() {
         dialog!!.show()
     }
 
-    inner class ScorePadTableViewListener(private val tableView: TableView) : ITableViewListener {
-        override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
-            // Note arrows are counted from 1
-            val firstArrowId = row * args.endSize + 1
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        activity!!.menuInflater.inflate(R.menu.score_pad_item_menu, menu)
+    }
 
-            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains(DELETE_CELL_ID_PREFIX)) {
-                // -1 because this is an index not an ID
-                scorePadViewModel.deleteArrows(firstArrowId - 1, args.endSize)
-            }
-            else {
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        // Note arrows are counted from 1
+        val firstArrowId = selectedRow * args.endSize + 1
+
+        return when (item.itemId) {
+            R.id.button_score_pad_menu__edit -> {
                 val action = ScorePadFragmentDirections.actionScorePadFragmentToEditEndFragment(
                         args.endSize, args.archerRoundId, firstArrowId
                 )
                 view?.findNavController()?.navigate(action)
+                true
             }
+            R.id.button_score_pad_menu__insert -> {
+                // TODO
+                true
+            }
+            R.id.button_score_pad_menu__delete -> {
+                // TODO Remove delete column
+                // -1 because this is an index not an ID
+                scorePadViewModel.deleteArrows(firstArrowId - 1, args.endSize)
+                true
+            }
+            else -> super.onContextItemSelected(item)
+        }
+    }
+
+    inner class ScorePadTableViewListener(private val tableView: TableView) : ITableViewListener {
+        override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
+            // TODO make the popup menu work from a click too
+            selectedRow = row
         }
 
-        override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
+        override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
+            selectedRow = row
+        }
 
         override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
 

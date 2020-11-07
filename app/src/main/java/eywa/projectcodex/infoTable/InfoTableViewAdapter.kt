@@ -2,6 +2,7 @@ package eywa.projectcodex.infoTable
 
 import android.content.Context
 import android.graphics.Typeface
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +15,15 @@ import java.util.*
 
 class InfoTableViewAdapter(private val context: Context) :
         AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>() {
-    class InfoTableCellViewHolder(itemView: View) : AbstractViewHolder(itemView) {
+    class InfoTableCellViewHolder(itemView: View) : AbstractViewHolder(itemView), View.OnCreateContextMenuListener {
         val cellTextView: TextView
             get() = itemView.findViewById(R.id.text_info_table_cell_data)
+
+        init {
+            itemView.setOnCreateContextMenuListener(this)
+        }
+
+        override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {}
     }
 
     class InfoTableColumnHeaderViewHolder(itemView: View) : AbstractViewHolder(itemView) {
