@@ -96,10 +96,6 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
         val updateArrows = allArrowsReady.filter { currentArrowNumbers.contains(it.arrowNumber) }
         val insertArrows = allArrowsReady.filter { !currentArrowNumbers.contains(it.arrowNumber) }
 
-//        arrowValueDao.update(*updateArrows.toTypedArray())
-//        arrowValueDao.insert(*insertArrows.toTypedArray())
-
-        // TODO Delete this
         arrowValueDao.updateAndInsert(updateArrows, insertArrows)
     }
 }

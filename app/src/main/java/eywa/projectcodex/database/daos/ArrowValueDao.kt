@@ -61,11 +61,8 @@ interface ArrowValueDao {
         deleteArrowsBetween(delArcherRoundId, delFromArrowNumber, delToArrowNumber)
     }
 
-    // TODO Delete this
     /**
      * Updates THEN inserts
-     * No particular reason why [insert] is an iterable and [update] is a vararg other than being unable to have two
-     * varargs
      *
      * @see update
      * @see insert

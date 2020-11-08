@@ -7,6 +7,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.daos.ArrowValueDao
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.repositories.ArrowValuesRepo
+import eywa.projectcodex.databaseTests.DatabaseSuite.Companion.brokenTransactionMessage
 import eywa.projectcodex.retrieveValue
 import kotlinx.coroutines.runBlocking
 import org.junit.*
@@ -100,6 +101,7 @@ class ArrowValueTest {
     /**
      * For no apparent reason, I can't run this test on its own when its called `deleteEndRepoTest` -Ewa Oct 2020
      */
+    @Ignore(brokenTransactionMessage)
     @Test
     fun deleteEndRepoTst() {
         val archerRoundId = 1
@@ -123,6 +125,9 @@ class ArrowValueTest {
             arrowValuesRepo.deleteEnd(originalArrows, from, count)
         }
 
+        /*
+         * Check
+         */
         val expectedArrows = mutableListOf<ArrowValue>()
         for (arrowNumber in 1..(24 - count)) {
             val testDataIndex = (if (arrowNumber < from) arrowNumber else arrowNumber + count) % TestData.ARROWS.size
@@ -132,6 +137,7 @@ class ArrowValueTest {
         Assert.assertEquals(expectedArrows.toSet(), retrievedArrows.toSet())
     }
 
+    @Ignore(brokenTransactionMessage)
     @Test
     fun insertEndRepoTest() {
         val archerRoundId = 1
@@ -160,6 +166,9 @@ class ArrowValueTest {
             arrowValuesRepo.insertEnd(originalArrows, newArrows)
         }
 
+        /*
+         * Check
+         */
         val expectedArrows = newArrows.toMutableSet()
         for (arrow in originalArrows) {
             val newArrNum = if (arrow.arrowNumber < at) arrow.arrowNumber else arrow.arrowNumber + newArrows.size

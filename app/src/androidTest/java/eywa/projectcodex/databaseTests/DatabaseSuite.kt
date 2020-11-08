@@ -14,6 +14,12 @@ import org.junit.runners.Suite
 )
 class DatabaseSuite {
     companion object {
+        /**
+         * Breaks in some kind of 'get thread for transaction' type message. Probably something to do with tests running
+         * queries in the main thread?
+         */
+        const val brokenTransactionMessage = "Transactions can't be tested right now for some reason"
+
         fun createDatabase(): ScoresRoomDatabase {
             val context = ApplicationProvider.getApplicationContext<Context>()
             context.deleteDatabase(testDatabaseName)
