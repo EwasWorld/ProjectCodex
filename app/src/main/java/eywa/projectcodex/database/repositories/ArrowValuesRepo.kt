@@ -66,4 +66,40 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
                 *arrowsToUpdate.toTypedArray()
         )
     }
+
+    suspend fun insertEnd(allArrows: List<ArrowValue>, toInsert: List<ArrowValue>) {
+        check(archerRoundId != null) { "Must provide an archerRoundId" }
+        if (toInsert.isNullOrEmpty()) return
+        require(allArrows.isNotEmpty()) { "Must provide arrows to shift" }
+        require(toInsert.none { it.archerRoundId != archerRoundId }) { "All arrows must match the Repo's roundId" }
+
+        /*
+         * Check arrow numbers
+         */
+        val minArrowNumber = toInsert.map { it.arrowNumber }.min()!!
+        require(minArrowNumber >= 1) { "Arrow numbers must be >= 1" }
+        require(minArrowNumber < allArrows.maxBy { it.arrowNumber }!!.arrowNumber) {
+            "Insert must start within existing arrows indices"
+        }
+        require(
+                (minArrowNumber until minArrowNumber + toInsert.size).toSet()
+                        == toInsert.map { it.arrowNumber }.toSet()
+        ) { "Arrow numbers for the arrows to insert must be consecutive" }
+
+        // Shift other arrowNumbers to make space for inserted ones
+        val allArrowsReady =
+                toInsert.plus(allArrows.filter { it.arrowNumber >= minArrowNumber }.map {
+                    ArrowValue(archerRoundId, it.arrowNumber + toInsert.size, it.score, it.isX)
+                })
+
+        val currentArrowNumbers = allArrows.map { it.arrowNumber }
+        val updateArrows = allArrowsReady.filter { currentArrowNumbers.contains(it.arrowNumber) }
+        val insertArrows = allArrowsReady.filter { !currentArrowNumbers.contains(it.arrowNumber) }
+
+//        arrowValueDao.update(*updateArrows.toTypedArray())
+//        arrowValueDao.insert(*insertArrows.toTypedArray())
+
+        // TODO Delete this
+        arrowValueDao.updateAndInsert(updateArrows, insertArrows)
+    }
 }

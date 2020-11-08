@@ -9,12 +9,8 @@ interface ArrowValueDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(arrowValue: ArrowValue)
 
-    @Transaction
-    suspend fun insert(vararg arrowValues: ArrowValue) {
-        for (arrow in arrowValues) {
-            insert(arrow)
-        }
-    }
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(vararg arrowValue: ArrowValue)
 
     @Update
     suspend fun update(vararg arrowValues: ArrowValue)
@@ -63,5 +59,20 @@ interface ArrowValueDao {
     ) {
         update(*updateArrowValue)
         deleteArrowsBetween(delArcherRoundId, delFromArrowNumber, delToArrowNumber)
+    }
+
+    // TODO Delete this
+    /**
+     * Updates THEN inserts
+     * No particular reason why [insert] is an iterable and [update] is a vararg other than being unable to have two
+     * varargs
+     *
+     * @see update
+     * @see insert
+     */
+    @Transaction
+    suspend fun updateAndInsert(update: List<ArrowValue>, insert: List<ArrowValue>) {
+        update(*update.toTypedArray())
+        insert(*insert.toTypedArray())
     }
 }
