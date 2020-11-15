@@ -238,6 +238,11 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         clear()
     }
 
+    fun toArrowValues(archerRoundId: Int, firstArrowId: Int): List<ArrowValue> {
+        var arrowNumber = firstArrowId
+        return arrows.map { ArrowValue(archerRoundId, arrowNumber++, it.score, it.isX) }
+    }
+
     interface UpdateEndSizeListener {
         fun onEndSizeUpdated()
     }

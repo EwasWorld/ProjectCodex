@@ -85,6 +85,10 @@
             android:id="@+id/actionScorePadFragmentToEditEndFragment"
             app:destination="@id/editEndFragment"
             />
+        <action
+            android:id="@+id/actionScorePadFragmentToInsertEndFragment"
+            app:destination="@id/insertEndFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/editEndFragment"
@@ -106,6 +110,29 @@
             />
         <action
             android:id="@+id/actionEditEndFragmentToScorePadFragment"
+            app:destination="@id/scorePadFragment"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/insertEndFragment"
+        android:name="eywa.projectcodex.ui.inputEnd.InsertEndFragment"
+        android:label="fragment_insert_end"
+        tools:layout="@layout/fragment_insert_end"
+        >
+        <argument
+            android:name="endSize"
+            app:argType="integer"
+            />
+        <argument
+            android:name="archerRoundId"
+            app:argType="integer"
+            />
+        <argument
+            android:name="firstArrowId"
+            app:argType="integer"
+            />
+        <action
+            android:id="@+id/actionInsertEndFragmentToScorePadFragment"
             app:destination="@id/scorePadFragment"
             />
     </fragment>

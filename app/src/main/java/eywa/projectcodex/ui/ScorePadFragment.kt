@@ -193,7 +193,10 @@ class ScorePadFragment : Fragment() {
                 true
             }
             R.id.button_score_pad_menu__insert -> {
-                // TODO
+                val action = ScorePadFragmentDirections.actionScorePadFragmentToInsertEndFragment(
+                        args.endSize, args.archerRoundId, firstArrowId
+                )
+                view?.findNavController()?.navigate(action)
                 true
             }
             R.id.button_score_pad_menu__delete -> {

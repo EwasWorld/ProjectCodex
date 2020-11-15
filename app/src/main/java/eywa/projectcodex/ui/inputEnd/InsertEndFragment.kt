@@ -19,26 +19,32 @@ import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.logic.End
 import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
-import kotlinx.android.synthetic.main.fragment_edit_end.*
+import kotlinx.android.synthetic.main.fragment_insert_end.*
 
 
-class EditEndFragment : Fragment() {
-    private val args: EditEndFragmentArgs by navArgs()
+class InsertEndFragment : Fragment() {
+    private val args: InsertEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
     private lateinit var endInputsFragment: EndInputsFragment
     private var arrows = emptyList<ArrowValue>()
 
     companion object {
-        private const val LOG_TAG = "EditEndFragment"
+        private const val LOG_TAG = "InsertEndFragment"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_edit_end, container, false)
-        view.findViewById<TextView>(R.id.text_edit_end__title).text =
-                getString(R.string.edit_end__edit_info).format((args.firstArrowId - 1) / args.endSize + 1)
+        val view = inflater.inflate(R.layout.fragment_insert_end, container, false)
+        val insertEndAt = (args.firstArrowId - 1) / args.endSize + 1
+        view.findViewById<TextView>(R.id.text_insert_end__title).text =
+                if (insertEndAt == 1) {
+                    getString(R.string.insert_end__info_at_start)
+                }
+                else {
+                    getString(R.string.insert_end__info).format(insertEndAt - 1, insertEndAt)
+                }
 
         endInputsFragment =
-                childFragmentManager.findFragmentById(R.id.fragment_edit_end__end_inputs)!! as EndInputsFragment
+                childFragmentManager.findFragmentById(R.id.fragment_insert_end__end_inputs)!! as EndInputsFragment
         endInputsFragment.showResetButton = true
 
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
@@ -48,11 +54,8 @@ class EditEndFragment : Fragment() {
             arrowsJava?.let { arrows ->
                 this.arrows = arrows
 
-                val originalEnd = this.arrows.filter {
-                    it.arrowNumber >= args.firstArrowId && it.arrowNumber < args.firstArrowId + args.endSize
-                }
                 endInputsFragment.end = End(
-                        originalEnd,
+                        args.endSize,
                         getString(R.string.end_to_string_arrow_placeholder),
                         getString(R.string.end_to_string_arrow_deliminator)
                 )
@@ -64,27 +67,20 @@ class EditEndFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.title = getString(R.string.edit_end__title)
-        val action = EditEndFragmentDirections.actionEditEndFragmentToScorePadFragment(
+        activity?.title = getString(R.string.insert_end__title)
+        val action = InsertEndFragmentDirections.actionInsertEndFragmentToScorePadFragment(
                 args.endSize, args.archerRoundId
         )
 
-        button_edit_end__cancel.setOnClickListener {
+        button_insert_end__cancel.setOnClickListener {
             view.findNavController().navigate(action)
         }
 
-        button_edit_end__complete.setOnClickListener {
+        button_insert_end__complete.setOnClickListener {
             try {
-                // Update database
-                var highestArrowNumber = 0
-                for (arrow in arrows) {
-                    if (arrow.arrowNumber > highestArrowNumber) {
-                        highestArrowNumber = arrow.arrowNumber
-                    }
-                }
-                endInputsFragment.end.addArrowsToDatabase(
-                        args.archerRoundId, highestArrowNumber + 1, inputEndViewModel
-                )
+                val arrowValues = endInputsFragment.end.toArrowValues(args.archerRoundId, args.firstArrowId)
+                inputEndViewModel.insertEnd(arrows, arrowValues)
+
                 // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
                 //    with the table refreshing bug (above as well)
                 view.findNavController().navigate(action)
