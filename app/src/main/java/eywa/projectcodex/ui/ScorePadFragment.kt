@@ -211,8 +211,8 @@ class ScorePadFragment : Fragment() {
 
     inner class ScorePadTableViewListener(private val tableView: TableView) : ITableViewListener {
         override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
-            // TODO make the popup menu work from a click too
             selectedRow = row
+            tableView.showContextMenuForChild(cellView.itemView)
         }
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
