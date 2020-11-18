@@ -200,7 +200,6 @@ class ScorePadFragment : Fragment() {
                 true
             }
             R.id.button_score_pad_menu__delete -> {
-                // TODO Remove delete column
                 // -1 because this is an index not an ID
                 scorePadViewModel.deleteArrows(firstArrowId - 1, args.endSize)
                 true

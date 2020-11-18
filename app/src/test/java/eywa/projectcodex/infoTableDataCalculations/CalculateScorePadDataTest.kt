@@ -93,8 +93,7 @@ class CalculateScorePadDataTest {
                 InfoTableCell(6, "cell<row>1"),
                 InfoTableCell(50, "cell<row>2"),
                 InfoTableCell(2, "cell<row>3"),
-                InfoTableCell(-1, "cell<row>4"),
-                InfoTableCell("Delete", "delete<row>")
+                InfoTableCell(-1, "cell<row>4")
         )
         val expectedRows = listOf(
                 listOf(
@@ -102,8 +101,7 @@ class CalculateScorePadDataTest {
                         InfoTableCell(5, "cell01"),
                         InfoTableCell(24, "cell02"),
                         InfoTableCell(0, "cell03"),
-                        InfoTableCell(24, "cell04"),
-                        InfoTableCell("Delete", "delete0")
+                        InfoTableCell(24, "cell04")
                 ),
                 otherRows.map {
                     InfoTableCell(if (it.content == -1) 74 else it.content, it.id.replace("<row>", "1"))
@@ -113,8 +111,7 @@ class CalculateScorePadDataTest {
                         InfoTableCell(11, "distanceTotal601"),
                         InfoTableCell(74, "distanceTotal602"),
                         InfoTableCell(2, "distanceTotal603"),
-                        InfoTableCell("-", "distanceTotal604"),
-                        InfoTableCell("", "distanceTotal605")
+                        InfoTableCell("-", "distanceTotal604")
                 ),
                 otherRows.map {
                     InfoTableCell(if (it.content == -1) 124 else it.content, it.id.replace("<row>", "3"))
@@ -127,8 +124,7 @@ class CalculateScorePadDataTest {
                         InfoTableCell(12, "distanceTotal501"),
                         InfoTableCell(100, "distanceTotal502"),
                         InfoTableCell(4, "distanceTotal503"),
-                        InfoTableCell("-", "distanceTotal504"),
-                        InfoTableCell("", "distanceTotal505")
+                        InfoTableCell("-", "distanceTotal504")
                 ),
                 otherRows.map {
                     InfoTableCell(if (it.content == -1) 224 else it.content, it.id.replace("<row>", "6"))
@@ -141,16 +137,14 @@ class CalculateScorePadDataTest {
                         InfoTableCell(12, "distanceTotal401"),
                         InfoTableCell(100, "distanceTotal402"),
                         InfoTableCell(4, "distanceTotal403"),
-                        InfoTableCell("-", "distanceTotal404"),
-                        InfoTableCell("", "distanceTotal405")
+                        InfoTableCell("-", "distanceTotal404")
                 ),
                 listOf(
                         InfoTableCell("Grand total:", "grandTotal0"),
                         InfoTableCell(35, "grandTotal1"),
                         InfoTableCell(274, "grandTotal2"),
                         InfoTableCell(10, "grandTotal3"),
-                        InfoTableCell("-", "grandTotal4"),
-                        InfoTableCell("", "grandTotal5")
+                        InfoTableCell("-", "grandTotal4")
                 )
         )
 

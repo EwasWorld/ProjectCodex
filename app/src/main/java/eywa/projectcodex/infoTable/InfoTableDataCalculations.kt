@@ -36,8 +36,7 @@ val scorePadColumnHeaderIds = listOf(
         R.string.table_hits_header,
         R.string.table_score_header,
         GOLDS_HEADER_PLACE_HOLDER,
-        R.string.score_pad__running_total_header,
-        R.string.table_delete
+        R.string.score_pad__running_total_header
 )
 
 /**
@@ -129,9 +128,6 @@ fun calculateScorePadTableData(
 
             // Add row
             val rowCells = toCells(endRowData, tableData.size)
-            rowCells.add(
-                    scorePadColumnHeaderIds.indexOf(R.string.table_delete), createDeleteCell(resources, tableData.size)
-            )
             check(rowCells.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
             tableData.add(rowCells)
         }
@@ -150,7 +146,6 @@ fun calculateScorePadTableData(
             distanceRowData.add(distanceArrows.sumBy { it.score })
             distanceRowData.add(distanceArrows.count { goldsType.isGold(it) })
             distanceRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
-            distanceRowData.add("")
             check(distanceRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
             // Having 'total' in the id makes it bold - see InfoTableViewAdapter.setBoldIfTotal
             tableData.add(toCells(distanceRowData, distance, DISTANCE_TOTAL_CELL_ID_PREFIX))
@@ -166,7 +161,6 @@ fun calculateScorePadTableData(
     grandTotalRowData.add(arrows.sumBy { it.score })
     grandTotalRowData.add(arrows.count { goldsType.isGold(it) })
     grandTotalRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
-    grandTotalRowData.add("")
     check(grandTotalRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
     // Having 'total' in the id makes it bold - see InfoTableViewAdapter.setBoldIfTotal
     tableData.add(toCells(grandTotalRowData, null, GRAND_TOTAL_CELL_ID_PREFIX))

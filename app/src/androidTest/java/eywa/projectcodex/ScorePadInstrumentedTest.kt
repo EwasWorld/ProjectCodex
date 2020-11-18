@@ -3,6 +3,7 @@ package eywa.projectcodex
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -28,6 +29,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +46,7 @@ class ScorePadInstrumentedTest {
     @get:Rule
     val activity = ActivityTestRule(MainActivity::class.java)
 
+    private val endSize = 6
     private val menuButtonInsert = "Insert end above"
     private val menuButtonDelete = "Delete end"
     private val menuButtonEdit = "Edit end"
@@ -59,6 +62,7 @@ class ScorePadInstrumentedTest {
         override fun checkCondition(): Boolean {
             return try {
                 R.id.button_main_menu__view_rounds.click()
+                onView(withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
                 onView(withText(arrows.sumBy { it.score }.toString())).perform(click())
                 true
             }
@@ -66,6 +70,35 @@ class ScorePadInstrumentedTest {
                 pressBack()
                 false
             }
+        }
+    }
+
+    private fun checkColumnHeaders(goldsHeader: String = "10") {
+        var col = 0
+        val expectedColumnHeaders =
+                listOf("Arrows", "H", "S", goldsHeader, "R/T").map { InfoTableCell(it, "col" + col++) }
+        for (i in expectedColumnHeaders.indices) {
+            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
+        }
+        assertNull(getTableAdapter().getColumnHeaderItem(expectedColumnHeaders.size))
+    }
+
+    private fun checkRowsHeaders(rowsPerDistance: Int) {
+        checkRowsHeaders(listOf(rowsPerDistance))
+    }
+
+    private fun checkRowsHeaders(rowsPerDistance: List<Int>) {
+        val expectedRowHeaders = generateNumberedRowHeaders(rowsPerDistance, null, activity.activity.resources, true)
+        for (i in expectedRowHeaders.indices) {
+            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
+        }
+        assertNull(getTableAdapter().getRowHeaderItem(expectedRowHeaders.size))
+    }
+
+    private fun checkCells(arrows: List<ArrowValue>) {
+        val expectedCells = calculateScorePadTableData(arrows, endSize, GoldsType.TENS, activity.activity.resources)
+        for (i in expectedCells.indices) {
+            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
         }
     }
 
@@ -108,21 +141,9 @@ class ScorePadInstrumentedTest {
             println("Waiting for score pad entries to load")
         }
 
-        val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, activity.activity.resources)
-        for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
-        }
-
-        var col = 0
-        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
-        for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
-        }
-
-        val expectedRowHeaders = generateNumberedRowHeaders(6, null, activity.activity.resources, true)
-        for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
-        }
+        checkCells(arrows)
+        checkColumnHeaders()
+        checkRowsHeaders(6)
     }
 
     @Test
@@ -151,22 +172,14 @@ class ScorePadInstrumentedTest {
         }
 
         val expectedCells = calculateScorePadTableData(
-                arrows, 6, GoldsType.XS, activity.activity.resources, arrowCounts, roundDistances, "m"
+                arrows, endSize, GoldsType.XS, activity.activity.resources, arrowCounts, roundDistances, "m"
         )
         for (i in expectedCells.indices) {
             assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
         }
 
-        var col = 0
-        val expectedColumnHeaders = listOf("Arrows", "H", "S", "X", "R/T").map { InfoTableCell(it, "col" + col++) }
-        for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
-        }
-
-        val expectedRowHeaders = generateNumberedRowHeaders(listOf(3, 3), null, activity.activity.resources, true)
-        for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
-        }
+        checkColumnHeaders("X")
+        checkRowsHeaders(listOf(3, 3))
     }
 
     @Test
@@ -184,7 +197,7 @@ class ScorePadInstrumentedTest {
                 TestData.ARROWS[11], TestData.ARROWS[9], TestData.ARROWS[9],
                 TestData.ARROWS[9], TestData.ARROWS[7], TestData.ARROWS[6]
         )
-        val nextArrows = List(6) { TestData.ARROWS[1] }
+        val nextArrows = List(endSize) { TestData.ARROWS[1] }
         arrows = listOf(firstArrows, nextArrows).flatten()
                 .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
         addArrowsToDatabase()
@@ -199,7 +212,7 @@ class ScorePadInstrumentedTest {
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(EditEndFragment::class.java.name))
         onView(withId(R.id.button_end_inputs__clear)).perform(click())
         val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
-        for (i in 0 until 6) {
+        for (i in 0 until endSize) {
             scoreButton.perform(click())
         }
         onView(withId(R.id.button_edit_end__complete)).perform(click())
@@ -210,23 +223,12 @@ class ScorePadInstrumentedTest {
             println("Waiting for score pad entries to load")
         }
 
-        val newArrows = listOf(List(6) { TestData.ARROWS[2] }, nextArrows).flatten()
+        val newArrows = listOf(List(endSize) { TestData.ARROWS[2] }, nextArrows).flatten()
                 .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
-        val expectedCells = calculateScorePadTableData(newArrows, 6, GoldsType.TENS, activity.activity.resources)
-        for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
-        }
 
-        var col = 0
-        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
-        for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
-        }
-
-        val expectedRowHeaders = generateNumberedRowHeaders(2, null, activity.activity.resources, true)
-        for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
-        }
+        checkCells(newArrows)
+        checkColumnHeaders()
+        checkRowsHeaders(2)
     }
 
     @Test
@@ -268,21 +270,9 @@ class ScorePadInstrumentedTest {
             println("Waiting for score pad entries to load")
         }
 
-        val expectedCells = calculateScorePadTableData(arrows, 6, GoldsType.TENS, activity.activity.resources)
-        for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
-        }
-
-        var col = 0
-        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
-        for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
-        }
-
-        val expectedRowHeaders = generateNumberedRowHeaders(6, null, activity.activity.resources, true)
-        for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
-        }
+        checkCells(arrows)
+        checkColumnHeaders()
+        checkRowsHeaders(6)
     }
 
     /**
@@ -301,20 +291,11 @@ class ScorePadInstrumentedTest {
             println("Waiting for score pad entries to load")
         }
 
-        val endSize = 6
         val endToClick =
                 End(arrows.subList(endSize, endSize * 2), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         endToClick.reorderScores()
         onView(endToClick.toString()).perform(click())
         onView(withText(menuButtonDelete)).perform(click())
-
-        val expectedCells =
-                calculateScorePadTableData(
-                        arrows.filterIndexed { i, _ -> i < endSize || i >= endSize * 2 },
-                        endSize,
-                        GoldsType.TENS,
-                        activity.activity.resources
-                )
 
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
@@ -322,24 +303,14 @@ class ScorePadInstrumentedTest {
             }
 
             override fun checkCondition(): Boolean {
-                return getTableAdapter().getCellColumnItems(2).size == expectedCells.size
+                // arrows.size (-1 for deleted row) (+1 for grand total)
+                return getTableAdapter().getCellColumnItems(2).size == arrows.size / endSize
             }
         })
 
-        for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
-        }
-
-        var col = 0
-        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
-        for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
-        }
-
-        val expectedRowHeaders = generateNumberedRowHeaders(5, null, activity.activity.resources, true)
-        for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
-        }
+        checkCells(arrows.filterIndexed { i, _ -> i < endSize || i >= endSize * 2 })
+        checkColumnHeaders()
+        checkRowsHeaders(5)
     }
 
     @Test
@@ -349,9 +320,9 @@ class ScorePadInstrumentedTest {
                 TestData.ARROWS[9], TestData.ARROWS[7], TestData.ARROWS[6]
         )
         arrows = listOf(
-                List(6) { TestData.ARROWS[1] },
+                List(endSize) { TestData.ARROWS[1] },
                 firstArrows,
-                List(12) { TestData.ARROWS[1] }
+                List(endSize * 2) { TestData.ARROWS[1] }
         ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
         addArrowsToDatabase()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
@@ -378,25 +349,14 @@ class ScorePadInstrumentedTest {
         }
 
         val newArrows = listOf(
-                List(6) { TestData.ARROWS[1] },
-                List(6) { TestData.ARROWS[2] }, /* New end */
+                List(endSize) { TestData.ARROWS[1] },
+                List(endSize) { TestData.ARROWS[2] }, /* New end */
                 firstArrows, /* Clicked end */
-                List(12) { TestData.ARROWS[1] }
+                List(endSize * 2) { TestData.ARROWS[1] }
         ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
-        val expectedCells = calculateScorePadTableData(newArrows, 6, GoldsType.TENS, activity.activity.resources)
-        for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], getTableAdapter().getCellRowItems(i))
-        }
 
-        var col = 0
-        val expectedColumnHeaders = listOf("Arrows", "H", "S", "10", "R/T").map { InfoTableCell(it, "col" + col++) }
-        for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], getTableAdapter().getColumnHeaderItem(i))
-        }
-
-        val expectedRowHeaders = generateNumberedRowHeaders(5, null, activity.activity.resources, true)
-        for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], getTableAdapter().getRowHeaderItem(i))
-        }
+        checkCells(newArrows)
+        checkColumnHeaders()
+        checkRowsHeaders(5)
     }
 }
