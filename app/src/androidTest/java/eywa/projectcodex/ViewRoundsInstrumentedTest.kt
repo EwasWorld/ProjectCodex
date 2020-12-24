@@ -3,8 +3,7 @@ package eywa.projectcodex
 import android.os.Handler
 import android.os.Looper
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -28,6 +27,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,6 +41,9 @@ class ViewRoundsInstrumentedTest {
 
     @get:Rule
     val activity = ActivityTestRule(MainActivity::class.java)
+
+    private val menuButtonScorePad = "Show score pad"
+    private val menuButtonDelete = "Delete round"
 
     // RoundId and handicap
     private val removedColumnIndexes = listOf(0, 6)
@@ -149,7 +152,9 @@ class ViewRoundsInstrumentedTest {
         goToViewRoundsAndPopulateAdapter()
 
         // Click on that unique score
-        onView(withText(uniqueScore.toString())).perform(click())
+        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        onView(withText(uniqueScore.toString())).perform(longClick())
+        onView(withText(menuButtonScorePad)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
         onView(withText("Score Pad")).check(matches(isDisplayed()))
         tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
@@ -170,12 +175,19 @@ class ViewRoundsInstrumentedTest {
         addDataToDatabase()
         goToViewRoundsAndPopulateAdapter()
         var expected: List<List<InfoTableCell>> =
-            calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, activity.activity.resources)
+                calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, activity.activity.resources)
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
-        // Delete second row (index 2 because header has the same text)
-        onView(withIndex(withText("Delete"), 2)).perform(click())
+
+        // Which row to delete
+        val deleteIndex = 1
+        val archerRoundsByDate = archerRounds.map { it.archerRound }.sortedByDescending { it.dateShot }
+        val deleteRound = arrows.find { it[0].archerRoundId == archerRoundsByDate[deleteIndex].archerRoundId }
+        if (deleteRound == null) fail("Round to delete not found")
+
+        onView(deleteRound!!.sumBy { it.score }.toString()).perform(longClick())
+        onView(withText(menuButtonDelete)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
                 return "wait for row to be removed"
@@ -188,7 +200,7 @@ class ViewRoundsInstrumentedTest {
         assertEquals(expected.size - 1, tableViewAdapter.getCellColumnItems(2).size)
 
         // Only check contents as the ids will have changed when the table recalculated itself
-        expected = expected.minusElement(expected[1])
+        expected = expected.minusElement(expected[deleteIndex])
         for (i in expected.indices) {
             assertEquals(
                     expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) }.map { it.content },

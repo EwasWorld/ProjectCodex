@@ -2,9 +2,7 @@ package eywa.projectcodex.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +22,7 @@ class ViewRoundsFragment : Fragment() {
     private var allArrows: List<ArrowValue> = listOf()
     private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
     private val goldsType = GoldsType.TENS
+    private var selectedArcherRoundId = -1
     private var dialog: AlertDialog? = null
     private val archerRoundIdRow = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)
     private val countsToHcRow = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__counts_to_hc_header)
@@ -42,7 +41,8 @@ class ViewRoundsFragment : Fragment() {
         val tableView = view.findViewById<TableView>(R.id.table_view_view_rounds)
         tableView.adapter = tableAdapter
         tableView.rowHeaderWidth = 0
-        tableView.tableViewListener = ViewRoundsTableViewListener(tableView)
+        tableView.tableViewListener = ViewRoundsTableViewListener()
+        registerForContextMenu(tableView.cellRecyclerView)
 
         viewRoundsViewModel = ViewModelProvider(this).get(ViewRoundsViewModel::class.java)
         viewRoundsViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
@@ -102,19 +102,48 @@ class ViewRoundsFragment : Fragment() {
         }
     }
 
-    inner class ViewRoundsTableViewListener(private val tableView: TableView) : ITableViewListener {
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        activity!!.menuInflater.inflate(R.menu.view_rounds_item_menu, menu)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        check(selectedArcherRoundId != -1) { "No round id selected" }
+
+        return when (item.itemId) {
+            R.id.button_view_rounds_menu__score_pad -> {
+                openScorePad()
+                true
+            }
+            R.id.button_view_rounds_menu__delete -> {
+                viewRoundsViewModel.deleteRound(selectedArcherRoundId)
+                true
+            }
+            else -> super.onContextItemSelected(item)
+        }
+    }
+
+    private fun openScorePad() {
+        val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(
+                6, selectedArcherRoundId
+        )
+        view?.findNavController()?.navigate(action)
+    }
+
+    private fun getArcherRoundId(row: Int): Int {
+        return hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdRow)].content as Int
+    }
+
+    inner class ViewRoundsTableViewListener : ITableViewListener {
         override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
-            val roundId = hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdRow)].content as Int
-            if ((tableView.adapter!!.getCellItem(column, row) as InfoTableCell).id.contains(DELETE_CELL_ID_PREFIX)) {
-                viewRoundsViewModel.deleteRound(roundId)
-            }
-            else {
-                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(6, roundId)
-                view?.findNavController()?.navigate(action)
-            }
+            selectedArcherRoundId = getArcherRoundId(row)
+            openScorePad()
         }
 
-        override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {}
+        override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
+            // Set the round id for the context menu to use
+            selectedArcherRoundId = getArcherRoundId(row)
+        }
 
         override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}
 
