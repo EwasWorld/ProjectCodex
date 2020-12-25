@@ -40,7 +40,6 @@ class CalculateScorePadDataTest {
                 R.string.score_pad__grand_total -> grandTotal
                 R.string.score_pad__running_total_placeholder -> runningTotalPlaceholder
                 R.string.score_pad__distance_total -> "Total at %d%s"
-                R.string.table_delete -> "Delete"
                 else -> Assert.fail("Bad string passed to resources")
             }
         }

@@ -100,7 +100,6 @@
     <string name="table_golds_nines_header">G</string>
     <string name="table_golds_tens_header">10</string>
     <string name="table_golds_xs_header">X</string>
-    <string name="table_delete">Delete</string>
     <string name="err_table_view__no_data">Table is empty</string>
 
     <!-- General -->

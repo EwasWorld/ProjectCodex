@@ -19,7 +19,6 @@ private const val GOLDS_HEADER_PLACE_HOLDER = -1
 const val TOTAL_CELL_ID = "Total"
 private const val DISTANCE_TOTAL_CELL_ID_PREFIX = "distance$TOTAL_CELL_ID"
 private const val GRAND_TOTAL_CELL_ID_PREFIX = "grand$TOTAL_CELL_ID"
-const val DELETE_CELL_ID_PREFIX = "delete"
 
 val viewRoundsColumnHeaderIds = listOf(
         R.string.view_round__id_header,
@@ -28,8 +27,7 @@ val viewRoundsColumnHeaderIds = listOf(
         R.string.table_hits_header,
         R.string.table_score_header,
         R.string.table_golds_header,
-        R.string.view_round__counts_to_hc_header,
-        R.string.table_delete
+        R.string.view_round__counts_to_hc_header
 )
 val scorePadColumnHeaderIds = listOf(
         R.string.score_pad__end_string_header,
@@ -205,11 +203,7 @@ fun calculateViewRoundsTableData(
                 if (archerRound.countsTowardsHandicap) R.string.short_boolean_true else R.string.short_boolean_false
         rowData.add(resources.getString(countsToHandicap))
 
-        val rowCells = toCells(rowData, tableData.size)
-        rowCells.add(
-                viewRoundsColumnHeaderIds.indexOf(R.string.table_delete), createDeleteCell(resources, tableData.size)
-        )
-        tableData.add(rowCells)
+        tableData.add(toCells(rowData, tableData.size))
     }
     return tableData
 }
@@ -335,8 +329,4 @@ fun generateNumberedRowHeaders(
         grandTotal: Boolean = false
 ): List<InfoTableCell> {
     return generateNumberedRowHeaders(listOf(rowsPerDistance), rowsCompleted, resources, grandTotal)
-}
-
-private fun createDeleteCell(resources: Resources, rowId: Int): InfoTableCell {
-    return InfoTableCell(resources.getString(R.string.table_delete), "$DELETE_CELL_ID_PREFIX$rowId")
 }

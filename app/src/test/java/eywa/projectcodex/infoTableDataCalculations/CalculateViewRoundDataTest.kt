@@ -3,14 +3,14 @@ package eywa.projectcodex.infoTableDataCalculations
 import android.content.res.Resources
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.Round
-import eywa.projectcodex.logic.getGoldsType
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
+import eywa.projectcodex.logic.GoldsType
+import eywa.projectcodex.logic.getGoldsType
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +32,6 @@ class CalculateViewRoundDataTest {
             when (invocation.getArgument<Int>(0)) {
                 R.string.short_boolean_true -> yes
                 R.string.short_boolean_false -> no
-                R.string.table_delete -> delete
                 else -> Assert.fail("Bad string passed to resources")
             }
         }
@@ -97,15 +96,7 @@ class CalculateViewRoundDataTest {
             val archerRound = sortedGenArcherRounds[i].archerRound
             val arrows = generatedArrows[i]
             val data = viewRoundsData[i]
-
-            // Check delete column if it's there
-            if (data.size != 8) {
-                Assert.assertEquals(7, data.size)
-            }
-            else {
-                Assert.assertEquals("delete$i", data[7].id)
-                Assert.assertEquals(delete, data[7].content)
-            }
+            Assert.assertEquals(7, data.size)
 
             val expected = mutableListOf<Any>()
             expected.add(archerRound.archerRoundId)

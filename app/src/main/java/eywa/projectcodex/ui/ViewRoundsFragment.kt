@@ -78,9 +78,9 @@ class ViewRoundsFragment : Fragment() {
 
             val colHeaders = getColumnHeadersForTable(viewRoundsColumnHeaderIds, resources, goldsType)
             tableAdapter.setAllItems(
-                    colHeaders.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) || i == colHeaders.size - 1 },
-                    generateNumberedRowHeaders(tableData.size),
-                    displayTableData
+                colHeaders.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) },
+                generateNumberedRowHeaders(tableData.size),
+                displayTableData
             )
             if (dialog?.isShowing == true) {
                 dialog!!.dismiss()
