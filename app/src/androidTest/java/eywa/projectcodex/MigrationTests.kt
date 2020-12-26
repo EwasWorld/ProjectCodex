@@ -13,7 +13,6 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
 
 // TODO It is recommended you make a test that goes through of all migrations (i.e. from version 1 through to the current versions)
 /**
@@ -21,7 +20,9 @@ import java.io.IOException
  */
 @RunWith(AndroidJUnit4::class)
 class MigrationTests {
-    private val TEST_DB = "migration-test"
+    companion object {
+        private const val TEST_DB_NAME = "migration-test"
+    }
 
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
@@ -31,16 +32,14 @@ class MigrationTests {
     )
 
     @Ignore("Version 3 appears to be inconsistent and not working")
-    @Throws(IOException::class)
     fun migrate2To3() {
-        helper.createDatabase(TEST_DB, 2).apply {
+        helper.createDatabase(TEST_DB_NAME, 2).apply {
             close()
         }
-        helper.runMigrationsAndValidate(TEST_DB, 3, true, ScoresRoomDatabase.MIGRATION_2_3)
+        helper.runMigrationsAndValidate(TEST_DB_NAME, 3, true, ScoresRoomDatabase.MIGRATION_2_3)
     }
 
     @Test
-    @Throws(IOException::class)
     fun migrate2To4() {
         val values = ContentValues().apply {
             put("archerRoundId", 1)
@@ -54,13 +53,14 @@ class MigrationTests {
             put("countsTowardsHandicap", 0)
         }
 
-        helper.createDatabase(TEST_DB, 2).apply {
+        helper.createDatabase(TEST_DB_NAME, 2).apply {
             insert("archer_rounds", SQLiteDatabase.CONFLICT_IGNORE, values)
             close()
         }
 
         val db = helper.runMigrationsAndValidate(
-                TEST_DB, 4, true, ScoresRoomDatabase.MIGRATION_2_3, ScoresRoomDatabase.MIGRATION_3_4
+                TEST_DB_NAME, 4, true, ScoresRoomDatabase.MIGRATION_2_3,
+                ScoresRoomDatabase.MIGRATION_3_4
         )
 
         // Verify data migrated properly

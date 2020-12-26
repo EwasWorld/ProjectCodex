@@ -98,7 +98,7 @@ class ViewRoundsInstrumentedTest {
 
     @After
     fun afterEach() {
-        activity.activity.applicationContext.deleteDatabase(testDatabaseName)
+        ScoresRoomDatabase.clearInstance(activity.activity)
     }
 
     @Test

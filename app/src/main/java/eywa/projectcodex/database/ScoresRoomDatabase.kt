@@ -1,5 +1,6 @@
 package eywa.projectcodex.database
 
+import android.app.Activity
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.room.*
@@ -267,6 +268,9 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration template from which others can be made
+         */
         @VisibleForTesting
         val MIGRATION_BLANK = object : Migration(1, 1) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -274,6 +278,15 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
 
                 executeMigrations(sqlStrings, database, startVersion, endVersion)
             }
+        }
+
+        /**
+         * Delete the database and clear the instance
+         */
+        @VisibleForTesting
+        fun clearInstance(activity: Activity) {
+            activity.applicationContext.deleteDatabase(DATABASE_NAME)
+            INSTANCE = null
         }
 
         private fun executeMigrations(

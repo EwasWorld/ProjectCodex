@@ -102,7 +102,7 @@ class NewRoundInstrumentedTest {
 
     @After
     fun afterEach() {
-        activity.activity.applicationContext.deleteDatabase(testDatabaseName)
+        ScoresRoomDatabase.clearInstance(activity.activity)
     }
 
     /**
@@ -130,7 +130,7 @@ class NewRoundInstrumentedTest {
         assertEquals(1, roundsAfterCreate.size)
         assert(
                 roundsAfterCreate[0].archerRoundId
-                > roundsBeforeCreate.maxBy { round -> round.archerId }!!.archerRoundId
+                        > roundsBeforeCreate.maxBy { round -> round.archerId }!!.archerRoundId
         )
         assertEquals(null, roundsAfterCreate[0].roundId)
         assertEquals(null, roundsAfterCreate[0].roundSubTypeId)
