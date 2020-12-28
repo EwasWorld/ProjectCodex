@@ -4,16 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.logic.checkDefaultRounds
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
+import eywa.projectcodex.logic.checkDefaultRounds
 import eywa.projectcodex.logic.roundsFromJson
 import eywa.projectcodex.viewModels.MainMenuViewModel
 import kotlinx.android.synthetic.main.fragment_main_menu.*
@@ -57,5 +58,10 @@ class MainMenuFragment : Fragment() {
             )
             mainMenuViewModel.updateRounds(updates)
         }
+
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            // Do nothing
+        }
+        callback.isEnabled = true
     }
 }
