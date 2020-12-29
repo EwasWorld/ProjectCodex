@@ -31,6 +31,10 @@
             android:id="@+id/actionViewRoundsFragmentToScorePadFragment"
             app:destination="@id/scorePadFragment"
             />
+        <action
+            android:id="@+id/actionViewRoundsFragmentToInputEndFragment"
+            app:destination="@id/inputEndFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/newRoundFragment"

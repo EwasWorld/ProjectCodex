@@ -78,9 +78,9 @@ class ViewRoundsFragment : Fragment() {
 
             val colHeaders = getColumnHeadersForTable(viewRoundsColumnHeaderIds, resources, goldsType)
             tableAdapter.setAllItems(
-                colHeaders.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) },
-                generateNumberedRowHeaders(tableData.size),
-                displayTableData
+                    colHeaders.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) },
+                    generateNumberedRowHeaders(tableData.size),
+                    displayTableData
             )
             if (dialog?.isShowing == true) {
                 dialog!!.dismiss()
@@ -113,6 +113,16 @@ class ViewRoundsFragment : Fragment() {
         return when (item.itemId) {
             R.id.button_view_rounds_menu__score_pad -> {
                 openScorePad()
+                true
+            }
+            R.id.button_view_rounds_menu__continue -> {
+                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
+                        selectedArcherRoundId,
+                        // If the archerRound has a round, show remaining arrows
+                        allArcherRoundsWithNames.find { it.archerRound.archerRoundId == selectedArcherRoundId }
+                                ?.round != null ?: false
+                )
+                view?.findNavController()?.navigate(action)
                 true
             }
             R.id.button_view_rounds_menu__delete -> {

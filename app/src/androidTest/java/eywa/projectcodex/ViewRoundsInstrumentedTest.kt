@@ -23,6 +23,7 @@ import eywa.projectcodex.infoTable.generateNumberedRowHeaders
 import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.ui.MainActivity
 import eywa.projectcodex.ui.ScorePadFragment
+import eywa.projectcodex.ui.inputEnd.InputEndFragment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -43,6 +44,7 @@ class ViewRoundsInstrumentedTest {
     val activity = ActivityTestRule(MainActivity::class.java)
 
     private val menuButtonScorePad = "Show score pad"
+    private val menuButtonContinue = "Continue round"
     private val menuButtonDelete = "Delete round"
 
     // RoundId and handicap
@@ -107,7 +109,12 @@ class ViewRoundsInstrumentedTest {
         goToViewRoundsAndPopulateAdapter()
 
         val expected =
-            calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, activity.activity.resources)
+                calculateViewRoundsTableData(
+                        archerRounds,
+                        arrows.flatten(),
+                        GoldsType.TENS,
+                        activity.activity.resources
+                )
         for (i in expected.indices) {
             assertEquals(
                     expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) },
@@ -117,7 +124,7 @@ class ViewRoundsInstrumentedTest {
         var col = 0
         val expectedColumns =
                 listOf("ID", "Date", "Round", "H", "S", "G", "HC").map { InfoTableCell(it, "col" + col++) }
-                .filterIndexed { i, _ -> !removedColumnIndexes.contains(i) }
+                        .filterIndexed { i, _ -> !removedColumnIndexes.contains(i) }
         for (i in expectedColumns.indices) {
             assertEquals(expectedColumns[i], tableViewAdapter.getColumnHeaderItem(i))
         }
@@ -175,18 +182,18 @@ class ViewRoundsInstrumentedTest {
         addDataToDatabase()
         goToViewRoundsAndPopulateAdapter()
         var expected: List<List<InfoTableCell>> =
-                calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, activity.activity.resources)
+                calculateViewRoundsTableData(
+                        archerRounds,
+                        arrows.flatten(),
+                        GoldsType.TENS,
+                        activity.activity.resources
+                )
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
 
-        // Which row to delete
         val deleteIndex = 1
-        val archerRoundsByDate = archerRounds.map { it.archerRound }.sortedByDescending { it.dateShot }
-        val deleteRound = arrows.find { it[0].archerRoundId == archerRoundsByDate[deleteIndex].archerRoundId }
-        if (deleteRound == null) fail("Round to delete not found")
-
-        onView(deleteRound!!.sumBy { it.score }.toString()).perform(longClick())
+        onView(findRoundArrows(deleteIndex).sumBy { it.score }.toString()).perform(longClick())
         onView(withText(menuButtonDelete)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
@@ -206,6 +213,36 @@ class ViewRoundsInstrumentedTest {
                     expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) }.map { it.content },
                     (tableViewAdapter.getCellRowItems(i) as List<InfoTableCell>).map { it.content }
             )
+        }
+    }
+
+    @Test
+    fun testContinueRound() {
+        addDataToDatabase()
+        goToViewRoundsAndPopulateAdapter()
+        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+
+        val continueRound = findRoundArrows(1)
+        onView(continueRound.sumBy { it.score }.toString()).perform(longClick())
+        onView(withText(menuButtonContinue)).perform(click())
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InputEndFragment::class.java.name))
+
+        R.id.text_scores_indicator__table_score_1.textEquals(continueRound.sumBy { it.score }.toString())
+        R.id.text_scores_indicator__table_arrow_count_1.textEquals(continueRound.size.toString())
+    }
+
+    /**
+     * Get the arrow list of the Nth item shown in the table
+     */
+    private fun findRoundArrows(index: Int): List<ArrowValue> {
+        val archerRoundsByDate = archerRounds.map { it.archerRound }.sortedByDescending { it.dateShot }
+        val foundRound = arrows.find { it[0].archerRoundId == archerRoundsByDate[index].archerRoundId }
+        return if (foundRound == null) {
+            fail("Round not found")
+            listOf()
+        }
+        else {
+            foundRound
         }
     }
 }
