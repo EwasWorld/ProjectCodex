@@ -28,7 +28,7 @@ class ScorePadViewModel(application: Application, archerRoundId: Int) : AndroidV
         val archerRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
         archerRound = archerRoundsRepo.getArcherRound(archerRoundId)
         roundInfo = archerRoundsRepo.getRoundInfo(archerRoundId)
-        roundsRepo = RoundsRepo(db.roundDao(), db.roundArrowCountDao(), db.roundSubTypeDao(), db.roundDistanceDao())
+        roundsRepo = RoundsRepo(db)
     }
 
     fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {

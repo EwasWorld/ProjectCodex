@@ -27,7 +27,7 @@ class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidV
 
     init {
         val db = ScoresRoomDatabase.getDatabase(application, viewModelScope)
-        roundsRepo = RoundsRepo(db.roundDao(), db.roundArrowCountDao(), db.roundSubTypeDao(), db.roundDistanceDao())
+        roundsRepo = RoundsRepo(db)
         arrowValueRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
         arrows = arrowValueRepo.arrowValuesForRound!!
         archerRound = ArcherRoundsRepo(db.archerRoundDao()).getArcherRound(archerRoundId)

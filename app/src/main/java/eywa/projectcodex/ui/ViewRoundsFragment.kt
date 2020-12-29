@@ -1,6 +1,7 @@
 package eywa.projectcodex.ui
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -13,6 +14,7 @@ import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.viewModels.ViewRoundsViewModel
@@ -21,12 +23,14 @@ class ViewRoundsFragment : Fragment() {
     private lateinit var viewRoundsViewModel: ViewRoundsViewModel
     private var allArrows: List<ArrowValue> = listOf()
     private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
+    private var allArrowCounts: List<RoundArrowCount> = listOf()
     private val goldsType = GoldsType.TENS
     private var selectedArcherRoundId = -1
-    private var dialog: AlertDialog? = null
-    private val archerRoundIdRow = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)
-    private val countsToHcRow = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__counts_to_hc_header)
-    private val hiddenColumnIndexes = listOf(archerRoundIdRow, countsToHcRow).sorted()
+    private var emptyDialog: AlertDialog? = null
+    private var roundCompleteDialog: AlertDialog? = null
+    private val archerRoundIdColumn = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)
+    private val countsToHcColumn = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__counts_to_hc_header)
+    private val hiddenColumnIndexes = listOf(archerRoundIdColumn, countsToHcColumn).sorted()
     private lateinit var hiddenColumns: MutableList<MutableList<InfoTableCell>>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -57,6 +61,9 @@ class ViewRoundsFragment : Fragment() {
                 populateTable(tableAdapter)
             }
         })
+        viewRoundsViewModel.allArrowCounts.observe(viewLifecycleOwner, Observer { arrowCounts ->
+            arrowCounts?.let { allArrowCounts = arrowCounts }
+        })
     }
 
     private fun populateTable(tableAdapter: InfoTableViewAdapter) {
@@ -82,22 +89,22 @@ class ViewRoundsFragment : Fragment() {
                     generateNumberedRowHeaders(tableData.size),
                     displayTableData
             )
-            if (dialog?.isShowing == true) {
-                dialog!!.dismiss()
+            if (emptyDialog?.isShowing == true) {
+                emptyDialog!!.dismiss()
             }
         }
         catch (e: IllegalArgumentException) {
-            if (dialog == null) {
+            if (emptyDialog == null) {
                 val builder = AlertDialog.Builder(activity)
                 builder.setTitle(R.string.err_table_view__no_data)
                 builder.setMessage(R.string.err_view_round__no_rounds)
                 builder.setPositiveButton(R.string.button_ok) { _, _ ->
                     activity?.onBackPressed()
                 }
-                dialog = builder.create()
+                emptyDialog = builder.create()
             }
-            if (!dialog!!.isShowing) {
-                dialog!!.show()
+            if (!emptyDialog!!.isShowing) {
+                emptyDialog!!.show()
             }
         }
     }
@@ -116,11 +123,42 @@ class ViewRoundsFragment : Fragment() {
                 true
             }
             R.id.button_view_rounds_menu__continue -> {
-                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
-                        selectedArcherRoundId,
-                        // If the archerRound has a round, show remaining arrows
+                val selectedArcherRound =
                         allArcherRoundsWithNames.find { it.archerRound.archerRoundId == selectedArcherRoundId }
-                                ?.round != null ?: false
+                val hasRound = selectedArcherRound?.round != null ?: false
+                if (hasRound) {
+                    /*
+                     * Check whether the round is completed (full with arrows)
+                     */
+                    val arrowsShot = allArrows.filter { it.archerRoundId == selectedArcherRoundId }.count()
+                    val arrowsInRound = allArrowCounts.filter { it.roundId == selectedArcherRound?.round?.roundId }
+                            .sumBy { it.arrowCount }
+                    if (arrowsShot >= arrowsInRound) {
+                        /*
+                         * Warn the user they're about to add arrows to a completed round
+                         */
+                        if (roundCompleteDialog == null) {
+                            val okListener = DialogInterface.OnClickListener { _, _ ->
+                                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
+                                        selectedArcherRoundId, false
+                                )
+                                view?.findNavController()?.navigate(action)
+                            }
+                            val builder = AlertDialog.Builder(activity)
+                            builder.setTitle(R.string.err_view_round__round_already_complete_title)
+                            builder.setMessage(R.string.err_view_round__round_already_complete)
+                            builder.setPositiveButton(R.string.button_continue, okListener)
+                            builder.setNegativeButton(R.string.button_cancel) { _, _ -> }
+                            roundCompleteDialog = builder.create()
+                        }
+                        if (!roundCompleteDialog!!.isShowing) {
+                            roundCompleteDialog!!.show()
+                        }
+                        return true
+                    }
+                }
+                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
+                        selectedArcherRoundId, hasRound
                 )
                 view?.findNavController()?.navigate(action)
                 true
@@ -141,7 +179,7 @@ class ViewRoundsFragment : Fragment() {
     }
 
     private fun getArcherRoundId(row: Int): Int {
-        return hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdRow)].content as Int
+        return hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdColumn)].content as Int
     }
 
     inner class ViewRoundsTableViewListener : ITableViewListener {

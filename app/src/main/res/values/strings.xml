@@ -79,6 +79,8 @@
     <string name="view_rounds_menu__continue">Continue round</string>
     <string name="view_rounds_menu__delete">Delete round</string>
     <string name="err_view_round__no_rounds">There are no rounds to show</string>
+    <string name="err_view_round__round_already_complete_title">Warning: Round Complete</string>
+    <string name="err_view_round__round_already_complete">This round is complete. Are you sure you want to add more arrows to it?</string>
 
     <!-- Score Pad -->
     <string name="score_pad__title">Score Pad</string>
@@ -107,6 +109,7 @@
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_complete">Complete</string>
+    <string name="button_continue">Continue</string>
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__internal_error">Internal error occurred</string>
 

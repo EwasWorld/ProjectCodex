@@ -13,10 +13,7 @@ import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.ArcherRoundWithRoundInfoAndName
-import eywa.projectcodex.database.entities.ArrowValue
-import eywa.projectcodex.database.entities.Round
-import eywa.projectcodex.database.entities.RoundSubType
+import eywa.projectcodex.database.entities.*
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
@@ -229,6 +226,41 @@ class ViewRoundsInstrumentedTest {
 
         R.id.text_scores_indicator__table_score_1.textEquals(continueRound.sumBy { it.score }.toString())
         R.id.text_scores_indicator__table_arrow_count_1.textEquals(continueRound.size.toString())
+    }
+
+    @Test
+    fun testContinueCompletedRound() {
+        val round = Round(1, "test", "test", true, true, listOf())
+        val roundArrowCount = RoundArrowCount(1, 1, 1.0, 6)
+        val roundDistance = RoundDistance(1, 1, 1, 10)
+        val archerRound = ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1)
+        val arrowValues = TestData.ARROWS.take(6).mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) }
+
+        val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
+        Handler(Looper.getMainLooper()).post {
+            runBlocking {
+                db.roundDao().insert(round)
+                db.roundArrowCountDao().insert(roundArrowCount)
+                db.roundDistanceDao().insert(roundDistance)
+                db.archerRoundDao().insert(archerRound)
+            }
+            for (arrow in arrowValues) {
+                runBlocking {
+                    db.arrowValueDao().insert(arrow)
+                }
+            }
+        }
+
+        goToViewRoundsAndPopulateAdapter()
+        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        onView(arrowValues.sumBy { it.score }.toString()).perform(longClick())
+        onView(withText(menuButtonContinue)).perform(click())
+
+        onView(withText("Continue")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InputEndFragment::class.java.name))
+
+        R.id.text_scores_indicator__table_score_1.textEquals(arrowValues.sumBy { it.score }.toString())
+        R.id.text_scores_indicator__table_arrow_count_1.textEquals(arrowValues.size.toString())
     }
 
     /**

@@ -26,7 +26,7 @@ class MainMenuViewModel(application: Application) : AndroidViewModel(application
     init {
         val db = ScoresRoomDatabase.getDatabase(application, viewModelScope)
 
-        repository = RoundsRepo(db.roundDao(), db.roundArrowCountDao(), db.roundSubTypeDao(), db.roundDistanceDao())
+        repository = RoundsRepo(db)
         rounds = repository.rounds
         roundArrowCounts = repository.roundArrowCounts
         roundDistances = repository.roundDistances

@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.repositories
 
 import androidx.lifecycle.LiveData
+import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.daos.RoundArrowCountDao
 import eywa.projectcodex.database.daos.RoundDao
@@ -8,8 +9,8 @@ import eywa.projectcodex.database.daos.RoundDistanceDao
 import eywa.projectcodex.database.daos.RoundSubTypeDao
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
-import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.database.entities.RoundDistance
+import eywa.projectcodex.database.entities.RoundSubType
 
 /**
  * @see ArrowValuesRepo
@@ -24,6 +25,13 @@ class RoundsRepo(
     val roundArrowCounts: LiveData<List<RoundArrowCount>> = roundArrowCountDao.getAllArrowCounts()
     val roundSubTypes: LiveData<List<RoundSubType>> = roundSubTypeDao.getAllSubTypes()
     val roundDistances: LiveData<List<RoundDistance>> = roundDistanceDao.getAllDistances()
+
+    constructor(db: ScoresRoomDatabase) : this(
+            db.roundDao(),
+            db.roundArrowCountDao(),
+            db.roundSubTypeDao(),
+            db.roundDistanceDao()
+    )
 
     fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
         return roundArrowCountDao.getArrowCountsForRound(roundId)
@@ -48,8 +56,10 @@ class RoundsRepo(
     suspend fun updateRounds(updateItems: Map<Any, UpdateType>) {
         val newRounds = updateItems.filter { it.value == UpdateType.NEW && it.key is Round }
         for (newRound in newRounds) {
-            require(updateItems.filter { it.value == UpdateType.NEW && it.key is RoundArrowCount }.isNotEmpty()) { "$newRound doesn't have any arrow counts" }
-            require(updateItems.filter { it.value == UpdateType.NEW && it.key is RoundDistance }.isNotEmpty()) { "$newRound doesn't have any distances" }
+            require(updateItems.filter { it.value == UpdateType.NEW && it.key is RoundArrowCount }
+                    .isNotEmpty()) { "$newRound doesn't have any arrow counts" }
+            require(updateItems.filter { it.value == UpdateType.NEW && it.key is RoundDistance }
+                    .isNotEmpty()) { "$newRound doesn't have any distances" }
         }
 
         for (item in updateItems) {
