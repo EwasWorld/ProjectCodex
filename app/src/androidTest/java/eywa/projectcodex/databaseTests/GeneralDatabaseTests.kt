@@ -68,8 +68,7 @@ class GeneralDatabaseTests {
                 roundDao.insert(round)
             }
         }
-        // Not sure why this one isn't working with the normal assertEquals (the expected and actuals look the same)
-        TestData.assertEquals(rounds, retrievedRounds.retrieveValue()!!)
+        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
 
         /*
          * Update (existing)
@@ -91,12 +90,12 @@ class GeneralDatabaseTests {
         rounds.add(0, updatedRound1)
 
         runBlocking {
-            roundDao.update(round1)
+            roundDao.update(updatedRound1)
         }
         runBlocking {
-            roundDao.update(round2)
+            roundDao.update(updatedRound2)
         }
-        TestData.assertEquals(rounds, retrievedRounds.retrieveValue()!!)
+        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
 
         /*
          * Update (doesn't exist)
@@ -108,7 +107,7 @@ class GeneralDatabaseTests {
         runBlocking {
             roundDao.update(nonExistentUpdatedRound)
         }
-        TestData.assertEquals(rounds, retrievedRounds.retrieveValue()!!)
+        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
 
         /*
          * Delete
@@ -117,7 +116,7 @@ class GeneralDatabaseTests {
         runBlocking {
             roundDao.delete(round1.roundId)
         }
-        TestData.assertEquals(rounds, retrievedRounds.retrieveValue()!!)
+        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
     }
 
     /**
@@ -154,8 +153,7 @@ class GeneralDatabaseTests {
         runBlocking {
             roundArrowCountDao.deleteAll(2)
         }
-        arrowCounts.removeIf { it.roundId == 2 }
-        assertEquals(arrowCounts.toSet(), retrievedArrowCounts.retrieveValue()!!.toSet())
+        assertEquals(arrowCounts.filterNot { it.roundId == 2 }.toSet(), retrievedArrowCounts.retrieveValue()!!.toSet())
     }
 
     /**
@@ -192,8 +190,7 @@ class GeneralDatabaseTests {
         runBlocking {
             roundSubTypeDao.deleteAll(2)
         }
-        subTypes.removeIf { it.roundId == 2 }
-        assertEquals(subTypes.toSet(), retrievedSubTypes.retrieveValue()!!.toSet())
+        assertEquals(subTypes.filterNot { it.roundId == 2 }.toSet(), retrievedSubTypes.retrieveValue()!!.toSet())
     }
 
     /**
@@ -232,8 +229,7 @@ class GeneralDatabaseTests {
         runBlocking {
             roundDistanceDao.deleteAll(2)
         }
-        distances.removeIf { it.roundId == 2 }
-        assertEquals(distances.toSet(), retrievedDistances.retrieveValue()!!.toSet())
+        assertEquals(distances.filterNot { it.roundId == 2 }.toSet(), retrievedDistances.retrieveValue()!!.toSet())
     }
 
 }

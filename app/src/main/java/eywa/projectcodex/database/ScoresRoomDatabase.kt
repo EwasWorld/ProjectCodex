@@ -327,6 +327,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
 
         @TypeConverter
         fun toStringList(value: String): List<String> {
+            if (value.isEmpty()) return listOf()
             return value.split(':')
         }
 

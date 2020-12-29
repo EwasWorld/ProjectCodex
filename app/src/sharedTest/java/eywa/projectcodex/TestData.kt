@@ -4,7 +4,6 @@ import eywa.projectcodex.database.entities.*
 import eywa.projectcodex.logic.Arrow
 import eywa.projectcodex.logic.DefaultRoundInfo
 import eywa.projectcodex.logic.formatNameString
-import org.junit.Assert
 import java.sql.Date
 import kotlin.math.max
 import kotlin.math.min
@@ -257,18 +256,17 @@ class TestData {
          * @param maxSetSize maximum number of arrow counts each round must have
          * @see generateArrowCount
          */
-        fun generateArrowCounts(sets: Int = 1, maxSetSize: Int = 3, minSetSize: Int = 0): List<RoundArrowCount> {
+        fun generateArrowCounts(sets: Int = 1, maxSetSize: Int = 3, minSetSize: Int = 1): List<RoundArrowCount> {
             require(sets >= 0)
             if (sets == 0) {
                 return listOf()
             }
 
-            require(maxSetSize > 0)
-            require(minSetSize >= 0)
+            require(minSetSize > 0)
             require(maxSetSize >= minSetSize)
             val arrowCounts =
                 ROUND_ARROW_COUNTS.map { it.toRoundArrowCount(1) }.subList(0, min(ROUND_ARROW_COUNTS.size, maxSetSize))
-                        .toMutableList()
+                    .toMutableList()
             while (arrowCounts.size < minSetSize) {
                 arrowCounts.add(generateArrowCount(1, arrowCounts.size))
             }
@@ -285,7 +283,8 @@ class TestData {
                 check(arrowCounts.filter { it.roundId == set }.size == subsets) { "Arrow counts set size incorrect" }
             }
 
-            check(arrowCounts.map { it.roundId }.distinct().size == sets) { "Arrow counts size incorrect" }
+            val createdSets = arrowCounts.map { it.roundId }.distinct().size
+            check(createdSets == sets) { "Arrow counts size incorrect. Expected: $sets, Actual: $createdSets" }
             return arrowCounts
         }
 
@@ -378,11 +377,6 @@ class TestData {
 
             check(distances.map { it.roundId }.distinct().size == sets) { "Distances size incorrect" }
             return distances
-        }
-
-        fun assertEquals(one: List<Any>, two: List<Any>) {
-            assert(one.toSet().containsAll(two.toSet()))
-            Assert.assertEquals(one.size, two.size)
         }
     }
 }
