@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import eywa.projectcodex.Log
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.exceptions.UserException
@@ -89,7 +89,7 @@ class InsertEndFragment : Fragment() {
                 Toast.makeText(context, e.getMessage(resources), Toast.LENGTH_SHORT).show()
             }
             catch (e: Exception) {
-                if (!e.message.isNullOrBlank()) Log.e(LOG_TAG, e.message!!)
+                if (!e.message.isNullOrBlank()) CustomLogger.e(LOG_TAG, e.message!!)
                 Toast.makeText(context, getString(R.string.err__internal_error), Toast.LENGTH_SHORT).show()
             }
         }

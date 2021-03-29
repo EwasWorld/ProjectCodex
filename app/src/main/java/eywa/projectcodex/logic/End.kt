@@ -1,5 +1,6 @@
 package eywa.projectcodex.logic
 
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.exceptions.UserException
@@ -7,6 +8,10 @@ import eywa.projectcodex.viewModels.InputEndViewModel
 import kotlin.math.min
 
 class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val arrowDeliminator: String) {
+    companion object {
+        private const val LOG_TAG = "End"
+    }
+
     private var arrows = mutableListOf<Arrow>()
     var endSize = arrowsPerEnd
 
@@ -219,19 +224,21 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
          * Overwrite the scores that were in the originalEnd
          */
         if (!originalEnd.isNullOrEmpty()) {
-            val originalEnd = originalEnd!!
-            for (i in originalEnd.indices) {
-                inputEndViewModel.update(
-                        ArrowValue(
-                                originalEnd[i].archerRoundId, originalEnd[i].arrowNumber, arrows[i].score, arrows[i].isX
-                        )
+            CustomLogger.i(LOG_TAG, "Updating end " + originalEnd.toString() + " " + toString())
+            inputEndViewModel.update(*originalEnd!!.mapIndexed { i, originalValue ->
+                ArrowValue(
+                        originalValue.archerRoundId,
+                        originalValue.arrowNumber,
+                        arrows[i].score,
+                        arrows[i].isX
                 )
-            }
+            }.toTypedArray())
         }
         /*
          * Else add the new arrows
          */
         else {
+            CustomLogger.i(LOG_TAG, "Adding new end")
             var arrowID = firstArrowId!!
             inputEndViewModel.insert(*arrows.map { it.toArrowValue(finalArcherRoundId, arrowID++) }.toTypedArray())
         }

@@ -6,7 +6,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import eywa.projectcodex.Log
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.database.daos.*
 import eywa.projectcodex.database.entities.*
 import kotlinx.coroutines.CoroutineScope
@@ -293,7 +293,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                 sqlStrings: List<String>, database: SupportSQLiteDatabase,
                 startVersion: Int, endVersion: Int
         ) {
-            Log.i(MIGRATION_LOG_TAG, "migrating from $startVersion to $endVersion")
+            CustomLogger.i(MIGRATION_LOG_TAG, "migrating from $startVersion to $endVersion")
             for (sqlStatement in sqlStrings) {
                 database.execSQL(sqlStatement.trimIndent().replace("\\n", ""))
             }

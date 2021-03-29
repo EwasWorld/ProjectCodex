@@ -20,8 +20,8 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
         arrowValueDao.insert(*arrowValues)
     }
 
-    suspend fun update(arrowValue: ArrowValue) {
-        arrowValueDao.update(arrowValue)
+    suspend fun update(vararg arrowValues: ArrowValue) {
+        arrowValueDao.update(*arrowValues)
     }
 
     suspend fun deleteAll() {

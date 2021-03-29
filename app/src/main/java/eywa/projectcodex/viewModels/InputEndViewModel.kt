@@ -52,8 +52,8 @@ class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidV
         arrowValueRepo.insert(*arrowValues)
     }
 
-    fun update(arrowValue: ArrowValue) = viewModelScope.launch {
-        arrowValueRepo.update(arrowValue)
+    fun update(vararg arrowValues: ArrowValue) = viewModelScope.launch {
+        arrowValueRepo.update(*arrowValues)
     }
 
     fun insertEnd(allArrows: List<ArrowValue>, toInsert: List<ArrowValue>) = viewModelScope.launch {

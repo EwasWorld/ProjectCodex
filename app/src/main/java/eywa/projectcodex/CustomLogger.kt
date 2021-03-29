@@ -1,0 +1,32 @@
+package eywa.projectcodex
+
+import android.util.Log
+
+/**
+ * Ensures all message tags are prepended with a master tag for easy searching
+ */
+class CustomLogger {
+    companion object {
+        private const val MASTER_TAG = "ProjCoLog"
+
+        fun d(tag: String, msg: String): Int {
+            return Log.d(formatTag(tag), msg)
+        }
+
+        fun i(tag: String, msg: String): Int {
+            return Log.i(formatTag(tag), msg)
+        }
+
+        fun w(tag: String, msg: String): Int {
+            return Log.w(formatTag(tag), msg)
+        }
+
+        fun e(tag: String, msg: String): Int {
+            return Log.w(formatTag(tag), msg)
+        }
+
+        private fun formatTag(tag: String): String {
+            return "${MASTER_TAG}_$tag"
+        }
+    }
+}
