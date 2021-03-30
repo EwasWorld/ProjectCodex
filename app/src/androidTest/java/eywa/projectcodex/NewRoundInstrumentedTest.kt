@@ -296,11 +296,12 @@ class NewRoundInstrumentedTest {
         for (round in roundsAfterCreate) {
             if (roundsBeforeCreate.contains(round)) continue
             // Date returns year -1900
-            assertEquals(140, round.dateShot.year)
-            assertEquals(9, round.dateShot.month)
-            assertEquals(30, round.dateShot.date)
-            assertEquals(20, round.dateShot.hours)
-            assertEquals(22, round.dateShot.minutes)
+            val dateShot = Calendar.Builder().setInstant(round.dateShot).build()
+            assertEquals(140, dateShot.get(Calendar.YEAR))
+            assertEquals(9, dateShot.get(Calendar.MONTH))
+            assertEquals(30, dateShot.get(Calendar.DATE))
+            assertEquals(20, dateShot.get(Calendar.HOUR))
+            assertEquals(22, dateShot.get(Calendar.MINUTE))
         }
     }
 }

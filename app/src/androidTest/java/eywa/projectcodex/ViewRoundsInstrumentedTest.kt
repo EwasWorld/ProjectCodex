@@ -51,10 +51,12 @@ class ViewRoundsInstrumentedTest {
     private lateinit var archerRounds: List<ArcherRoundWithRoundInfoAndName>
     private lateinit var round: Round
     private lateinit var roundSubType: RoundSubType
+    private lateinit var roundArrowCount: RoundArrowCount
     private var arrows: MutableList<List<ArrowValue>> = mutableListOf()
 
     @Before
     fun beforeEach() {
+        ScoresRoomDatabase.clearInstance(activity.activity)
         activity.activity.supportFragmentManager.beginTransaction()
     }
 
@@ -62,6 +64,7 @@ class ViewRoundsInstrumentedTest {
         val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
         round = TestData.generateRounds(1)[0]
         roundSubType = TestData.generateSubTypes(1)[0]
+        roundArrowCount = TestData.generateArrowCounts(1)[0]
         archerRounds = TestData.generateArcherRounds(5, 1, listOf(1, 1, null), listOf(1, null, null))
                 .mapIndexed { i, archerRound ->
                     val roundInfo = if (i % 3 == 0 || i % 3 == 1) round else null
@@ -69,7 +72,7 @@ class ViewRoundsInstrumentedTest {
                     ArcherRoundWithRoundInfoAndName(archerRound, roundInfo, roundSubTypeName)
                 }
         for (round in archerRounds) {
-            arrows.add(TestData.generateArrowValues(36, round.archerRound.archerRoundId))
+            arrows.add(TestData.generateArrowValues(30, round.archerRound.archerRoundId))
         }
         Handler(Looper.getMainLooper()).post {
             for (archerRound in archerRounds) {
@@ -85,6 +88,7 @@ class ViewRoundsInstrumentedTest {
             runBlocking {
                 db.roundDao().insert(round)
                 db.roundSubTypeDao().insert(roundSubType)
+                db.roundArrowCountDao().insert(roundArrowCount)
             }
         }
     }

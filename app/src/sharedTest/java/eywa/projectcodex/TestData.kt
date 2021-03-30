@@ -42,6 +42,7 @@ class TestData {
                 DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36),
                 DefaultRoundInfo.RoundInfoArrowCount(3, 60.0, 24)
         )
+        val MIN_ARROW_COUNT_ARROWS = 36
         val MAX_ARROW_COUNT_ARROWS = 60
 
         private val CORE_ARROWS = arrayOf(ARROWS[5], ARROWS[11], ARROWS[0], ARROWS[10])
@@ -265,8 +266,9 @@ class TestData {
             require(minSetSize > 0)
             require(maxSetSize >= minSetSize)
             val arrowCounts =
-                ROUND_ARROW_COUNTS.map { it.toRoundArrowCount(1) }.subList(0, min(ROUND_ARROW_COUNTS.size, maxSetSize))
-                    .toMutableList()
+                    ROUND_ARROW_COUNTS.map { it.toRoundArrowCount(1) }
+                            .subList(0, min(ROUND_ARROW_COUNTS.size, maxSetSize))
+                            .toMutableList()
             while (arrowCounts.size < minSetSize) {
                 arrowCounts.add(generateArrowCount(1, arrowCounts.size))
             }
@@ -290,11 +292,14 @@ class TestData {
 
         /**
          * Generates an arrow count for the given [roundId] and [distanceNumber] with a face size between 1 and 122 and
-         * an arrow count between 1 and [MAX_ARROW_COUNT_ARROWS]
+         * an arrow count between [MIN_ARROW_COUNT_ARROWS] and [MAX_ARROW_COUNT_ARROWS]
          */
         private fun generateArrowCount(roundId: Int, distanceNumber: Int): RoundArrowCount {
             return RoundArrowCount(
-                    roundId, distanceNumber, Random.nextDouble(122.0) + 1, Random.nextInt(MAX_ARROW_COUNT_ARROWS) + 1
+                    roundId,
+                    distanceNumber,
+                    Random.nextDouble(122.0) + 1,
+                    Random.nextInt(MIN_ARROW_COUNT_ARROWS, MAX_ARROW_COUNT_ARROWS) + 1
             )
         }
 
@@ -312,8 +317,8 @@ class TestData {
             require(minSetSize > 0)
             require(maxSetSize >= minSetSize)
             val subTypes =
-                ROUND_SUB_TYPES.map { it.toRoundSubType(1) }.subList(0, min(ROUND_SUB_TYPES.size, maxSetSize))
-                        .toMutableList()
+                    ROUND_SUB_TYPES.map { it.toRoundSubType(1) }.subList(0, min(ROUND_SUB_TYPES.size, maxSetSize))
+                            .toMutableList()
             while (subTypes.size < minSetSize) {
                 subTypes.add(generateSubType(1, subTypes.size, subTypes))
             }

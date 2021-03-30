@@ -17,6 +17,7 @@ import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.Instruction
+import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.android.synthetic.main.content_main.*
 import org.hamcrest.*
@@ -92,6 +93,27 @@ fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName:
 
         override fun getDescription(): String {
             return "Wait for $fragmentClassName to appear"
+        }
+    }
+}
+
+/**
+ * Wait for a particular table row to appear
+ */
+fun AbstractTableAdapter<*, *, *>.waitForRowToAppear(rowIndex: Int): Instruction {
+    return object : Instruction() {
+        override fun checkCondition(): Boolean {
+            try {
+                return getCellRowItems(rowIndex) != null
+            }
+            catch (e: NullPointerException) {
+                println("Waiting for score pad entries to load")
+            }
+            return false
+        }
+
+        override fun getDescription(): String {
+            return "Waiting for row $rowIndex to load"
         }
     }
 }

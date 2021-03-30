@@ -104,6 +104,7 @@ class ScorePadInstrumentedTest {
 
     @Before
     fun beforeEach() {
+//        ScoresRoomDatabase.clearInstance(activity.activity)
         activity.activity.supportFragmentManager.beginTransaction()
         db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
     }
@@ -167,9 +168,7 @@ class ScorePadInstrumentedTest {
 
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        while (getTableAdapter().getCellRowItems(8) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(8))
 
         val expectedCells = calculateScorePadTableData(
                 arrows, endSize, GoldsType.XS, activity.activity.resources, arrowCounts, roundDistances, "m"
@@ -203,11 +202,10 @@ class ScorePadInstrumentedTest {
         addArrowsToDatabase()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        while (getTableAdapter().getCellRowItems(2) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(2))
 
         onView(withText("X-9-9-9-7-6")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(200))
         onView(withText(menuButtonEdit)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(EditEndFragment::class.java.name))
         onView(withId(R.id.button_end_inputs__clear)).perform(click())
@@ -217,11 +215,7 @@ class ScorePadInstrumentedTest {
         }
         onView(withId(R.id.button_edit_end__complete)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        ConditionWatcher.waitForCondition(waitFor(200))
-
-        while (getTableAdapter().getCellRowItems(2) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(2))
 
         val newArrows = listOf(List(endSize) { TestData.ARROWS[2] }, nextArrows).flatten()
                 .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
@@ -249,9 +243,7 @@ class ScorePadInstrumentedTest {
         generateArrowsAndAddToDb()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        while (getTableAdapter().getCellRowItems(0) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(0))
 
         /*
          * Edit an end
@@ -259,16 +251,14 @@ class ScorePadInstrumentedTest {
         val firstEnd = End(arrows.subList(0, 6), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         firstEnd.reorderScores()
         onView(withText(firstEnd.toString())).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(200))
         onView(withText(menuButtonEdit)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(EditEndFragment::class.java.name))
     }
 
     private fun checkEditEndCancelledCorrectly() {
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        ConditionWatcher.waitForCondition(waitFor(200))
-        while (getTableAdapter().getCellRowItems(0) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(0))
 
         checkCells(arrows)
         checkColumnHeaders()
@@ -287,14 +277,13 @@ class ScorePadInstrumentedTest {
         generateArrowsAndAddToDb()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        while (getTableAdapter().getCellRowItems(0) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(0))
 
         val endToClick =
                 End(arrows.subList(endSize, endSize * 2), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         endToClick.reorderScores()
         onView(endToClick.toString()).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(200))
         onView(withText(menuButtonDelete)).perform(click())
 
         ConditionWatcher.waitForCondition(object : Instruction() {
@@ -327,11 +316,10 @@ class ScorePadInstrumentedTest {
         addArrowsToDatabase()
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        while (getTableAdapter().getCellRowItems(4) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(4))
 
         onView(withText("X-9-9-9-7-6")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(200))
         onView(withText(menuButtonInsert)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InsertEndFragment::class.java.name))
 
@@ -342,11 +330,7 @@ class ScorePadInstrumentedTest {
         }
         onView(withId(R.id.button_insert_end__complete)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        ConditionWatcher.waitForCondition(waitFor(200))
-
-        while (getTableAdapter().getCellRowItems(5) == null) {
-            println("Waiting for score pad entries to load")
-        }
+        ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(5))
 
         val newArrows = listOf(
                 List(endSize) { TestData.ARROWS[1] },
