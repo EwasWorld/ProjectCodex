@@ -93,7 +93,7 @@ class EditEndFragment : Fragment() {
                 Toast.makeText(context, e.getMessage(resources), Toast.LENGTH_SHORT).show()
             }
             catch (e: Exception) {
-                if (!e.message.isNullOrBlank()) CustomLogger.e(LOG_TAG, e.message!!)
+                if (!e.message.isNullOrBlank()) CustomLogger.customLogger.e(LOG_TAG, e.message!!)
                 Toast.makeText(context, getString(R.string.err__internal_error), Toast.LENGTH_SHORT).show()
             }
         }

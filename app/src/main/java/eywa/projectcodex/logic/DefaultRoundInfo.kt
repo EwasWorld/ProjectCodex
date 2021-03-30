@@ -58,7 +58,7 @@ fun checkDefaultRounds(
 ): Map<Any, UpdateType> {
     require(defaultRounds.isNotEmpty()) { "No default rounds given" }
     if (allDbRounds.isEmpty()) {
-        CustomLogger.i(ROUND_CHECKER_LOG_TAG, "No database rounds given")
+        CustomLogger.customLogger.i(ROUND_CHECKER_LOG_TAG, "No database rounds given")
     }
 
     val returnMap = mutableMapOf<Any, UpdateType>()
@@ -78,7 +78,7 @@ fun checkDefaultRounds(
     /*
      * Delete any rounds that no longer exist in defaultRounds
      */
-    CustomLogger.d(ROUND_CHECKER_LOG_TAG, "Deleting rounds")
+    CustomLogger.customLogger.d(ROUND_CHECKER_LOG_TAG, "Deleting rounds")
     val deletedDbRounds = dbRounds.filter { dbRound ->
         !defaultRounds.map {
             formatNameString(
@@ -92,7 +92,7 @@ fun checkDefaultRounds(
      * Check details of each default round
      */
     for (defaultRoundInfo in defaultRounds) {
-        CustomLogger.i(ROUND_CHECKER_LOG_TAG, "Checking round: ${defaultRoundInfo.displayName}")
+        CustomLogger.customLogger.i(ROUND_CHECKER_LOG_TAG, "Checking round: ${defaultRoundInfo.displayName}")
         val dbRound = dbRounds.find {
             it.name == formatNameString(
                     defaultRoundInfo.displayName
@@ -104,7 +104,7 @@ fun checkDefaultRounds(
          * Add new round if doesn't exist in DB already
          */
         if (dbRound == null) {
-            CustomLogger.d(ROUND_CHECKER_LOG_TAG, "Round is new")
+            CustomLogger.customLogger.d(ROUND_CHECKER_LOG_TAG, "Round is new")
             roundId = -1
             /*
              * Note: new round ids should not clash with any existing round ids, even if the round will be deleted.
@@ -153,7 +153,7 @@ fun checkDefaultRounds(
         /*
          * Check arrow counts
          */
-        CustomLogger.d(ROUND_CHECKER_LOG_TAG, "Checking arrow counts")
+        CustomLogger.customLogger.d(ROUND_CHECKER_LOG_TAG, "Checking arrow counts")
         val dbArrowCounts = allDbArrowCounts.filter { it.roundId == roundId }.toSet()
         val defaultArrowCounts = defaultRoundInfo.getRoundArrowCounts(roundId).toSet()
         if (dbArrowCounts != defaultArrowCounts) {
@@ -185,7 +185,7 @@ fun checkDefaultRounds(
         /*
          * Check subtypes
          */
-        CustomLogger.d(ROUND_CHECKER_LOG_TAG, "Checking sub types")
+        CustomLogger.customLogger.d(ROUND_CHECKER_LOG_TAG, "Checking sub types")
         val dbSubTypes = allDbSubTypes.filter { it.roundId == roundId }.toSet()
         val defaultSubTypes = defaultRoundInfo.getRoundSubTypes(roundId).toSet()
         if (dbSubTypes !== defaultSubTypes) {
@@ -217,7 +217,7 @@ fun checkDefaultRounds(
         /*
          * Check distances
          */
-        CustomLogger.d(ROUND_CHECKER_LOG_TAG, "Checking distances")
+        CustomLogger.customLogger.d(ROUND_CHECKER_LOG_TAG, "Checking distances")
         val dbDistances = allDbDistances.filter { it.roundId == roundId }.toSet()
         val defaultDistances = defaultRoundInfo.getRoundDistances(roundId).toSet()
         if (dbDistances != defaultDistances) {
@@ -390,7 +390,7 @@ private class ParsedRoundsConverter : Converter {
         val all = mutableListOf<DefaultRoundInfo>()
         for (jsonRoundObject in jsonRoundObjects) {
             val roundName = parseObject<String>(jsonRoundObject, "roundName")
-            CustomLogger.i(CONVERTER_LOG_TAG, roundName)
+            CustomLogger.customLogger.i(CONVERTER_LOG_TAG, roundName)
             val isOutdoor = parseObject<Boolean>(jsonRoundObject, "outdoor")
             val isMetric = parseObject<Boolean>(jsonRoundObject, "isMetric")
             val fiveArrowEnd = parseObject<Boolean>(jsonRoundObject, "fiveArrowEnd")

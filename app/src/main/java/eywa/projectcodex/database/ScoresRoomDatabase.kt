@@ -293,7 +293,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                 sqlStrings: List<String>, database: SupportSQLiteDatabase,
                 startVersion: Int, endVersion: Int
         ) {
-            CustomLogger.i(MIGRATION_LOG_TAG, "migrating from $startVersion to $endVersion")
+            CustomLogger.customLogger.i(MIGRATION_LOG_TAG, "migrating from $startVersion to $endVersion")
             for (sqlStatement in sqlStrings) {
                 database.execSQL(sqlStatement.trimIndent().replace("\\n", ""))
             }

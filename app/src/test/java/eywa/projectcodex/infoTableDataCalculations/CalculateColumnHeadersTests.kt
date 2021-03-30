@@ -1,16 +1,13 @@
 package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import eywa.projectcodex.logic.GoldsType
-import eywa.projectcodex.R
 import eywa.projectcodex.infoTable.getColumnHeadersForTable
+import eywa.projectcodex.logic.GoldsType
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.*
 
 class CalculateColumnHeadersTests {
     private val goldsType = GoldsType.TENS
@@ -19,23 +16,22 @@ class CalculateColumnHeadersTests {
 
     @Before
     fun setUp() {
-        resources = mock()
+        resources = mock(Resources::class.java)
     }
 
     @Test
     fun testGetStandardHeaders() {
         for (testGoldsType in GoldsType.values()) {
-            val resources = mock<Resources>()
+            reset(resources)
             getColumnHeadersForTable(headerIds, resources, testGoldsType)
-            argumentCaptor<Int>().apply {
-                verify(resources, times(5)).getString(capture())
-                for (i in allValues.indices) {
-                    if (headerIds[i] == -1) {
-                        Assert.assertEquals(testGoldsType.colHeaderStringId, allValues[i])
-                    }
-                    else {
-                        Assert.assertEquals(headerIds[i], allValues[i])
-                    }
+            val captor = ArgumentCaptor.forClass(Int::class.java)
+            verify(resources, times(5)).getString(captor.capture())
+            for (i in captor.allValues.indices) {
+                if (headerIds[i] == -1) {
+                    Assert.assertEquals(testGoldsType.colHeaderStringId, captor.allValues[i])
+                }
+                else {
+                    Assert.assertEquals(headerIds[i], captor.allValues[i])
                 }
             }
         }

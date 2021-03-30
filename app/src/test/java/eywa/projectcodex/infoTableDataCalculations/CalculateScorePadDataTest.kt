@@ -1,8 +1,6 @@
 package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.entities.RoundArrowCount
@@ -15,7 +13,7 @@ import eywa.projectcodex.logic.GoldsType
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
+import org.mockito.Mockito.*
 import kotlin.math.ceil
 
 class CalculateScorePadDataTest {
@@ -32,8 +30,8 @@ class CalculateScorePadDataTest {
 
     @Before
     fun setUp() {
-        resources = mock()
-        Mockito.`when`(resources.getString(any())).thenAnswer { invocation ->
+        resources = mock(Resources::class.java)
+        `when`(resources.getString(anyInt())).thenAnswer { invocation ->
             when (invocation.getArgument<Int>(0)) {
                 R.string.end_to_string_arrow_placeholder -> arrowPlaceHolder
                 R.string.end_to_string_arrow_deliminator -> arrowDeliminator

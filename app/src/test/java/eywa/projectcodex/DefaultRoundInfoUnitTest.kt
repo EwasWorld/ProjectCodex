@@ -10,9 +10,11 @@ import eywa.projectcodex.logic.DefaultRoundInfo
 import eywa.projectcodex.logic.checkDefaultRounds
 import eywa.projectcodex.logic.roundsFromJson
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
+import org.mockito.Mockito.mock
 import java.io.File
 
 @RunWith(Suite::class)
@@ -180,6 +182,11 @@ class DefaultRoundInfoUnitTest {
             }
             """
             }
+        }
+
+        @Before
+        fun setup() {
+            CustomLogger.customLogger = mock(CustomLogger::class.java)
         }
 
         /**

@@ -1,9 +1,5 @@
 package eywa.projectcodex
 
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.logic.End
@@ -13,6 +9,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentCaptor
+import org.mockito.Captor
+import org.mockito.Mockito.*
 
 
 /**
@@ -25,8 +24,12 @@ class EndUnitTest {
     private val endSize = 6
     val archerRoundId = 1
 
+    @Captor
+    private lateinit var arrowValueCaptor: ArgumentCaptor<ArrowValue>
+
     @Before
     fun setup() {
+        CustomLogger.customLogger = mock(CustomLogger::class.java)
         end = End(endSize, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
     }
 
@@ -207,20 +210,19 @@ class EndUnitTest {
         end.addArrowToEnd(TestData.ARROWS[11])
         assertEquals(arrowScores.sum(), end.getScore())
 
-        val viewModel = mock<InputEndViewModel>()
+        val viewModel = mock(InputEndViewModel::class.java)
         var arrowNumber = 1
         end.addArrowsToDatabase(archerRoundId, arrowNumber, viewModel)
 
-        argumentCaptor<ArrowValue>().apply {
-            verify(viewModel, times(1)).insert(capture())
-            for (arrow in allValues) {
-                assertEquals(archerRoundId, arrow.archerRoundId)
-                assertEquals(arrowNumber, arrow.arrowNumber)
-                assertEquals(arrowScores[arrowNumber - 1], arrow.score)
-                // Only the last arrow, 6, should be an X
-                assertEquals(arrowNumber == 6, arrow.isX)
-                arrowNumber++
-            }
+        arrowValueCaptor = ArgumentCaptor.forClass(ArrowValue::class.java)
+        verify(viewModel, times(1)).insert(TestUtils.capture(arrowValueCaptor))
+        for (arrow in arrowValueCaptor.allValues) {
+            assertEquals(archerRoundId, arrow.archerRoundId)
+            assertEquals(arrowNumber, arrow.arrowNumber)
+            assertEquals(arrowScores[arrowNumber - 1], arrow.score)
+            // Only the last arrow, 6, should be an X
+            assertEquals(arrowNumber == 6, arrow.isX)
+            arrowNumber++
         }
     }
 
@@ -240,21 +242,20 @@ class EndUnitTest {
         }
         assertEquals(arrowScores.sum(), end.getScore())
 
-        val viewModel = mock<InputEndViewModel>()
+        val viewModel = mock(InputEndViewModel::class.java)
         val firstArrowNumber = 10
         end.addArrowsToDatabase(archerRoundId, firstArrowNumber, viewModel)
 
-        argumentCaptor<ArrowValue>().apply {
-            verify(viewModel, times(4)).update(capture())
-            for (i in allValues.indices) {
-                assertEquals(archerRoundId, allValues[i].archerRoundId)
-                assertEquals(
-                        if (i < oldArrows.size) oldArrows[i].arrowNumber else i + firstArrowNumber - oldArrows.size,
-                        allValues[i].arrowNumber
-                )
-                assertEquals(arrowScores[i], allValues[i].score)
-                assertEquals(false, allValues[i].isX)
-            }
+        arrowValueCaptor = ArgumentCaptor.forClass(ArrowValue::class.java)
+        verify(viewModel, times(1)).update(TestUtils.capture(arrowValueCaptor))
+        for (i in arrowValueCaptor.allValues.indices) {
+            assertEquals(archerRoundId, arrowValueCaptor.allValues[i].archerRoundId)
+            assertEquals(
+                    if (i < oldArrows.size) oldArrows[i].arrowNumber else i + firstArrowNumber - oldArrows.size,
+                    arrowValueCaptor.allValues[i].arrowNumber
+            )
+            assertEquals(arrowScores[i], arrowValueCaptor.allValues[i].score)
+            assertEquals(false, arrowValueCaptor.allValues[i].isX)
         }
     }
 
@@ -288,7 +289,7 @@ class EndUnitTest {
         for (i in 0 until 2) {
             end.addArrowToEnd(TestData.ARROWS[i])
         }
-        val listener = mock<End.UpdateEndSizeListener>()
+        val listener = mock(End.UpdateEndSizeListener::class.java)
         end.updateEndSizeListener = listener
 
         end.updateEndSize(4, false)
@@ -303,7 +304,7 @@ class EndUnitTest {
      */
     @Test(expected = IllegalArgumentException::class)
     fun testReduceEndSizeTooSmall() {
-        val listener = mock<End.UpdateEndSizeListener>()
+        val listener = mock(End.UpdateEndSizeListener::class.java)
         end.updateEndSizeListener = listener
         for (i in 0 until endSize) {
             end.addArrowToEnd(TestData.ARROWS[0])
@@ -326,7 +327,7 @@ class EndUnitTest {
                 ArrowValue(archerRoundId, 6, 10, true)
         )
         end = End(oldArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
-        val listener = mock<End.UpdateEndSizeListener>()
+        val listener = mock(End.UpdateEndSizeListener::class.java)
         end.updateEndSizeListener = listener
 
         end.updateEndSize(12, false)
@@ -337,7 +338,7 @@ class EndUnitTest {
      */
     @Test
     fun testReduceEndSizeDeleteContentsEmptyEnd() {
-        val listener = mock<End.UpdateEndSizeListener>()
+        val listener = mock(End.UpdateEndSizeListener::class.java)
         end.updateEndSizeListener = listener
 
         end.updateEndSize(4, true)
@@ -355,7 +356,7 @@ class EndUnitTest {
         for (i in 0 until 2) {
             end.addArrowToEnd(TestData.ARROWS[i])
         }
-        val listener = mock<End.UpdateEndSizeListener>()
+        val listener = mock(End.UpdateEndSizeListener::class.java)
         end.updateEndSizeListener = listener
 
         end.updateEndSize(4, true)
@@ -373,7 +374,7 @@ class EndUnitTest {
         for (i in 0 until endSize) {
             end.addArrowToEnd(TestData.ARROWS[i])
         }
-        val listener = mock<End.UpdateEndSizeListener>()
+        val listener = mock(End.UpdateEndSizeListener::class.java)
         end.updateEndSizeListener = listener
 
         end.updateEndSize(4, true)
@@ -388,7 +389,7 @@ class EndUnitTest {
         for (i in 0 until endSize) {
             end.addArrowToEnd(TestData.ARROWS[i])
         }
-        val listener = mock<End.UpdateEndSizeListener>()
+        val listener = mock(End.UpdateEndSizeListener::class.java)
         end.updateEndSizeListener = listener
 
         end.distanceRemainingArrows = 4

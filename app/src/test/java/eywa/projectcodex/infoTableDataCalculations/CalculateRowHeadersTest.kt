@@ -1,15 +1,13 @@
 package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
 import eywa.projectcodex.R
 import eywa.projectcodex.infoTable.InfoTableCell
 import eywa.projectcodex.infoTable.generateNumberedRowHeaders
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
+import org.mockito.Mockito.*
 
 class CalculateRowHeadersTest {
     companion object {
@@ -22,8 +20,8 @@ class CalculateRowHeadersTest {
 
     @Before
     fun setUp() {
-        resources = mock()
-        Mockito.`when`(resources.getString(any())).thenAnswer { invocation ->
+        resources = mock(Resources::class.java)
+        `when`(resources.getString(anyInt())).thenAnswer { invocation ->
             when (invocation.getArgument<Int>(0)) {
                 R.string.score_pad__grand_total_row_header -> GRAND_TOTAL_ROW_HEADER
                 R.string.score_pad__distance_total_row_header -> TOTAL_ROW_HEADER

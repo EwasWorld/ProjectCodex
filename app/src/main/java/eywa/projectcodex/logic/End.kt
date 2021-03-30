@@ -224,7 +224,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
          * Overwrite the scores that were in the originalEnd
          */
         if (!originalEnd.isNullOrEmpty()) {
-            CustomLogger.i(LOG_TAG, "Updating end " + originalEnd.toString() + " " + toString())
+            CustomLogger.customLogger.i(LOG_TAG, "Updating end " + originalEnd.toString() + " " + toString())
             inputEndViewModel.update(*originalEnd!!.mapIndexed { i, originalValue ->
                 ArrowValue(
                         originalValue.archerRoundId,
@@ -238,7 +238,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
          * Else add the new arrows
          */
         else {
-            CustomLogger.i(LOG_TAG, "Adding new end")
+            CustomLogger.customLogger.i(LOG_TAG, "Adding new end")
             var arrowID = firstArrowId!!
             inputEndViewModel.insert(*arrows.map { it.toArrowValue(finalArcherRoundId, arrowID++) }.toTypedArray())
         }

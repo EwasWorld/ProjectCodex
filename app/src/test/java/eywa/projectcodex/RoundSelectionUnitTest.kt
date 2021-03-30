@@ -4,8 +4,6 @@ import android.content.res.Resources
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
@@ -15,29 +13,29 @@ import eywa.projectcodex.viewModels.NewRoundViewModel
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
+import org.mockito.Mockito.*
 
 class RoundSelectionUnitTest {
-    private val lifecycleOwner = mock<LifecycleOwner>()
-    private val viewModel = mock<NewRoundViewModel>()
+    private val lifecycleOwner = mock(LifecycleOwner::class.java)
+    private val viewModel = mock(NewRoundViewModel::class.java)
     private lateinit var resources: Resources
-    private lateinit var allRounds: LiveData<LiveData<List<Round>>>
-    private lateinit var allRoundSubTypes: LiveData<List<RoundSubType>>
-    private lateinit var allRoundArrowCounts: LiveData<List<RoundArrowCount>>
-    private lateinit var allRoundDistances: LiveData<List<RoundDistance>>
+    private lateinit var allRounds: LiveData<*>
+    private lateinit var allRoundSubTypes: LiveData<*>
+    private lateinit var allRoundArrowCounts: LiveData<*>
+    private lateinit var allRoundDistances: LiveData<*>
 
     @Before
     fun before() {
-        resources = mock()
+        resources = mock(Resources::class.java)
 
-        allRounds = mock()
-        allRoundSubTypes = mock()
-        allRoundArrowCounts = mock()
-        allRoundDistances = mock()
-        Mockito.`when`(viewModel.allRounds).thenAnswer { allRounds }
-        Mockito.`when`(viewModel.allRoundSubTypes).thenAnswer { allRoundSubTypes }
-        Mockito.`when`(viewModel.allRoundArrowCounts).thenAnswer { allRoundArrowCounts }
-        Mockito.`when`(viewModel.allRoundDistances).thenAnswer { allRoundDistances }
+        allRounds = mock(LiveData::class.java)
+        allRoundSubTypes = mock(LiveData::class.java)
+        allRoundArrowCounts = mock(LiveData::class.java)
+        allRoundDistances = mock(LiveData::class.java)
+        `when`(viewModel.allRounds).thenAnswer { allRounds }
+        `when`(viewModel.allRoundSubTypes).thenAnswer { allRoundSubTypes }
+        `when`(viewModel.allRoundArrowCounts).thenAnswer { allRoundArrowCounts }
+        `when`(viewModel.allRoundDistances).thenAnswer { allRoundDistances }
     }
 
     @Test
@@ -230,7 +228,7 @@ class RoundSelectionUnitTest {
         /*
          * Set up strings
          */
-        Mockito.`when`(resources.getString(any())).thenAnswer { invocation ->
+        `when`(resources.getString(anyInt())).thenAnswer { invocation ->
             val str = strings[invocation.getArgument(0)]
             if (str == null) {
                 Assert.fail("Bad string passed to resources")
@@ -241,16 +239,16 @@ class RoundSelectionUnitTest {
         /*
          * Set up observations
          */
-        Mockito.`when`(allRounds.observe(any(), any())).thenAnswer { invocation ->
+        `when`(allRounds.observe(any(), any())).thenAnswer { invocation ->
             invocation.getArgument<Observer<List<Round>>>(1).onChanged(rounds)
         }
-        Mockito.`when`(allRoundSubTypes.observe(any(), any())).thenAnswer { invocation ->
+        `when`(allRoundSubTypes.observe(any(), any())).thenAnswer { invocation ->
             invocation.getArgument<Observer<List<RoundSubType>>>(1).onChanged(subtypes)
         }
-        Mockito.`when`(allRoundArrowCounts.observe(any(), any())).thenAnswer { invocation ->
+        `when`(allRoundArrowCounts.observe(any(), any())).thenAnswer { invocation ->
             invocation.getArgument<Observer<List<RoundArrowCount>>>(1).onChanged(arrows)
         }
-        Mockito.`when`(allRoundDistances.observe(any(), any())).thenAnswer { invocation ->
+        `when`(allRoundDistances.observe(any(), any())).thenAnswer { invocation ->
             invocation.getArgument<Observer<List<RoundDistance>>>(1).onChanged(distances)
         }
 
