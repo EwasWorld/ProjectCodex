@@ -12,9 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup"
+        android:name="androidx.multidex.MultiDexApplication"
         >
         <activity
-            android:name=".ui.MainActivity"
+            android:name="eywa.projectcodex.ui.MainActivity"
             android:label="@string/app_name"
             >
             <intent-filter>
