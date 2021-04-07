@@ -1,13 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.eywa.fragmentstest.MainActivity"
     >
+    <!-- Note: action bar actions are implemented in MainActivity -->
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_bar__help"
         android:orderInCategory="100"
-        android:title="test"
-        app:showAsAction="never"
+        android:title="@string/action_bar__help"
+        android:icon="@drawable/ic_help_icon"
+        app:showAsAction="ifRoom"
         />
-    <!-- android:title="@string/action_settings" -->
 </menu>

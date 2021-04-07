@@ -19,12 +19,13 @@ import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.logic.RemainingArrows
+import eywa.projectcodex.ui.commonElements.ActionBarHelp
 import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_input_end.*
 
 
-class InputEndFragment : Fragment() {
+class InputEndFragment : Fragment(), ActionBarHelp {
     private val args: InputEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
     private lateinit var endInputsFragment: EndInputsFragment
@@ -153,5 +154,13 @@ class InputEndFragment : Fragment() {
             large.visibility = View.GONE
             small.visibility = View.GONE
         }
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getHelpPriority(): Int? {
+        TODO("Not yet implemented")
     }
 }

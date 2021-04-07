@@ -64,7 +64,7 @@ android {
     sourceSets {
         main {
             res {
-                srcDirs 'src/main/res', 'src/main/res/layouts/inputEnd'
+                srcDirs 'src/main/res', 'src/main/res/layouts/inputEnd', 'src/main/res/layouts/iconAssets'
             }
         }
     }
@@ -84,9 +84,7 @@ dependencies {
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
     testImplementation "junit:junit:4.12"
 
-    implementation("org.mockito:mockito-core:3.8.0")
-    androidTestImplementation "org.mockito:mockito-android:3.8.0"
-
+    // Testing
     androidTestImplementation "androidx.test.ext:junit:1.1.1"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
     androidTestImplementation "androidx.test:runner:1.2.0"
@@ -94,8 +92,13 @@ dependencies {
     implementation "com.xfinity:resourceprovider-library:1.2.1"
     kapt "com.xfinity:resourceprovider-compiler:1.2.1"
     testImplementation "com.xfinity:resourceprovider-testutils:1.2.1"
+    def mockito_version = "3.8.0"
+    implementation("org.mockito:mockito-core:$mockito_version")
+    androidTestImplementation "org.mockito:mockito-android:$mockito_version"
 
-    // Room components
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+
+    // Database components
     implementation "androidx.room:room-runtime:2.2.1"
     implementation "androidx.room:room-ktx:2.2.1"
     kapt "androidx.room:room-compiler:2.2.1"
@@ -114,9 +117,6 @@ dependencies {
 
     // UI
     implementation "com.google.android.material:material:1.0.0"
-
-    // Testing
-    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
 
     // Nav Graph
     def nav_version = "2.1.0"
@@ -142,11 +142,12 @@ dependencies {
 
     // Source: https://stackoverflow.com/a/60311131
     implementation 'com.android.support:multidex:1.0.3'
+
+    implementation 'com.github.amlcurran.showcaseview:library:5.4.3' // Highlighting UI elements to the user
 }
 
-// Source: https://stackoverflow.com/a/64181442
 allprojects {
     configurations.all {
-        resolutionStrategy.force 'org.objenesis:objenesis:2.6'
+        resolutionStrategy.force 'org.objenesis:objenesis:2.6' // Source: https://stackoverflow.com/a/64181442
     }
 }

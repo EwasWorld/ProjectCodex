@@ -16,10 +16,11 @@ import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.logic.checkDefaultRounds
 import eywa.projectcodex.logic.roundsFromJson
+import eywa.projectcodex.ui.commonElements.ActionBarHelp
 import eywa.projectcodex.viewModels.MainMenuViewModel
 import kotlinx.android.synthetic.main.fragment_main_menu.*
 
-class MainMenuFragment : Fragment() {
+class MainMenuFragment : Fragment(), ActionBarHelp {
     private lateinit var mainMenuViewModel: MainMenuViewModel
     private var rounds: List<Round> = listOf()
     private var roundArrowCounts: List<RoundArrowCount> = listOf()
@@ -63,5 +64,25 @@ class MainMenuFragment : Fragment() {
             // Do nothing
         }
         callback.isEnabled = true
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        // TODO Replace test showcase with actual information
+        return listOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_main_menu__start_new_round,
+                        "Title 1",
+                        "Text 1"
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_main_menu__view_rounds,
+                        "Title 2",
+                        "Text 2"
+                )
+        )
+    }
+
+    override fun getHelpPriority(): Int? {
+        return null
     }
 }

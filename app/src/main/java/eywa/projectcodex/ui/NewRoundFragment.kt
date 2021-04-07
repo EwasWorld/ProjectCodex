@@ -15,6 +15,7 @@ import androidx.navigation.findNavController
 import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.logic.RoundSelection
+import eywa.projectcodex.ui.commonElements.ActionBarHelp
 import eywa.projectcodex.ui.commonElements.DatePickerDialog
 import eywa.projectcodex.ui.commonElements.TimePickerDialog
 import eywa.projectcodex.viewModels.NewRoundViewModel
@@ -22,7 +23,7 @@ import kotlinx.android.synthetic.main.fragment_new_round.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NewRoundFragment : Fragment() {
+class NewRoundFragment : Fragment(), ActionBarHelp {
     private lateinit var newRoundViewModel: NewRoundViewModel
 
     /**
@@ -218,5 +219,13 @@ class NewRoundFragment : Fragment() {
         else {
             layout_create_round__distance_indicator.visibility = View.GONE
         }
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getHelpPriority(): Int? {
+        TODO("Not yet implemented")
     }
 }

@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.NavHostFragment
 import eywa.projectcodex.R
+import eywa.projectcodex.ui.commonElements.ActionBarHelp
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,7 +26,15 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_bar__help -> {
+                val hostFragment = supportFragmentManager.fragments.find { it is NavHostFragment }
+                        ?: throw IllegalStateException("No help info found")
+                ActionBarHelp.executeHelpPressed(
+                        hostFragment.childFragmentManager.fragments.filterIsInstance(ActionBarHelp::class.java),
+                        this
+                )
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

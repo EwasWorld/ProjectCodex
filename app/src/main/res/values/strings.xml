@@ -6,6 +6,9 @@
     <string name="units_meters_short">m</string>
     <string name="units_yards_short">yd</string>
 
+    <!-- Action bar -->
+    <string name="action_bar__help">help</string>
+
     <!-- Main menu -->
     <string name="main_menu__title">Main Menu</string>
     <string name="main_menu__new_round">Start New Round</string>
@@ -110,6 +113,8 @@
     <string name="button_cancel">Cancel</string>
     <string name="button_complete">Complete</string>
     <string name="button_continue">Continue</string>
+    <string name="button_next">Next</string>
+    <string name="button_finish">Finish</string>
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__internal_error">Internal error occurred</string>
 

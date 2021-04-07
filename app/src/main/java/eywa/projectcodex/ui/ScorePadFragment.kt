@@ -18,11 +18,12 @@ import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.logic.getGoldsType
+import eywa.projectcodex.ui.commonElements.ActionBarHelp
 import eywa.projectcodex.viewModels.ScorePadViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlin.math.ceil
 
-class ScorePadFragment : Fragment() {
+class ScorePadFragment : Fragment(), ActionBarHelp {
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
     private var dialog: AlertDialog? = null
@@ -225,5 +226,13 @@ class ScorePadFragment : Fragment() {
         override fun onRowHeaderClicked(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
 
         override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getHelpPriority(): Int? {
+        TODO("Not yet implemented")
     }
 }

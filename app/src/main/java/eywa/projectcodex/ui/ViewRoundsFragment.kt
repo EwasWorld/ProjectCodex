@@ -17,9 +17,10 @@ import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.logic.GoldsType
+import eywa.projectcodex.ui.commonElements.ActionBarHelp
 import eywa.projectcodex.viewModels.ViewRoundsViewModel
 
-class ViewRoundsFragment : Fragment() {
+class ViewRoundsFragment : Fragment(), ActionBarHelp {
     private lateinit var viewRoundsViewModel: ViewRoundsViewModel
     private var allArrows: List<ArrowValue> = listOf()
     private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
@@ -200,5 +201,13 @@ class ViewRoundsFragment : Fragment() {
         override fun onRowHeaderClicked(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
 
         override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getHelpPriority(): Int? {
+        TODO("Not yet implemented")
     }
 }

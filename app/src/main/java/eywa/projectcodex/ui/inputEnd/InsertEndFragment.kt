@@ -17,12 +17,13 @@ import eywa.projectcodex.R
 import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.logic.End
+import eywa.projectcodex.ui.commonElements.ActionBarHelp
 import eywa.projectcodex.viewModels.InputEndViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_insert_end.*
 
 
-class InsertEndFragment : Fragment() {
+class InsertEndFragment : Fragment(), ActionBarHelp {
     private val args: InsertEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
     private lateinit var endInputsFragment: EndInputsFragment
@@ -98,5 +99,13 @@ class InsertEndFragment : Fragment() {
             view.findNavController().navigate(action)
         }
         callback.isEnabled = true
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getHelpPriority(): Int? {
+        TODO("Not yet implemented")
     }
 }
