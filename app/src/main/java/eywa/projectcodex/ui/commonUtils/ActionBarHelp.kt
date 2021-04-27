@@ -2,9 +2,13 @@ package eywa.projectcodex.ui.commonUtils
 
 import android.app.Activity
 import android.graphics.*
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.view.children
 import eywa.projectcodex.R
 import eywa.projectcodex.ui.getColourResource
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
@@ -69,10 +73,15 @@ interface ActionBarHelp {
     ) : Comparable<HelpShowcaseItem> {
         companion object {
             private const val DEFAULT_HELP_PRIORITY = 0
+            private var endSequenceOnDismiss = false
 
             /**
-             * Turns the next [HelpShowcaseItem] in [remainingItems] into a [ShowcaseView] and shows it. Dismissing it
-             * will trigger the next item in [remainingItems] to be shown. Pressing anywhere else will end the showcase
+             * Turns the next [HelpShowcaseItem] in [remainingItems] into a [MaterialShowcaseView] and shows it.
+             * Dismissing it will trigger the next item in [remainingItems] to be shown. Pressing anywhere else will end
+             * the showcase
+             *
+             * Note cannot use [MaterialShowcaseSequence] as when it sets the config for each item, colours represented
+             * using negatives are not accepted (even though that is the standard way to represent colours...)
              */
             fun showNext(activity: Activity, remainingItems: PriorityQueue<HelpShowcaseItem>?) {
                 val itemToShow = remainingItems?.poll()
@@ -83,9 +92,12 @@ interface ActionBarHelp {
                     return
                 }
 
+                endSequenceOnDismiss = false
+                val dismissText = activity.getString(R.string.button_next)
+                val skipText = activity.getString(R.string.button_cancel)
                 val showcaseBuilder = MaterialShowcaseView.Builder(activity)
                         .setTarget(activity.findViewById(itemToShow.viewId))
-                        .setDismissText("Got it")
+                        .setDismissText(dismissText)
                         .setTitleText(itemToShow.helpTitle)
                         .setContentText(itemToShow.helpBody)
                         .setMaskColour(
@@ -93,15 +105,28 @@ interface ActionBarHelp {
                                         activity.resources, R.color.colorPrimaryDarkTransparent, activity.theme
                                 )
                         )
-                        .setTitleTextColor(getColourResource(activity.resources, R.color.white, activity.theme))
+                        .setTitleTextColor(
+                                getColourResource(
+                                        activity.resources, R.color.colorLightAccent, activity.theme
+                                )
+                        )
                         .setContentTextColor(getColourResource(activity.resources, R.color.white, activity.theme))
                         .setDismissTextColor(getColourResource(activity.resources, R.color.white, activity.theme))
+                        .setDismissOnTouch(true)
+                        .setSkipText(skipText)
                         .setListener(object : IShowcaseListener {
                             override fun onShowcaseDisplayed(showcaseView: MaterialShowcaseView?) {
                             }
 
                             override fun onShowcaseDismissed(showcaseView: MaterialShowcaseView?) {
-                                showNext(activity, remainingItems)
+                                if (endSequenceOnDismiss) {
+                                    synchronized(showcaseInProgressLock) {
+                                        showcaseInProgress = false
+                                    }
+                                }
+                                else {
+                                    showNext(activity, remainingItems)
+                                }
                             }
                         })
                 when (itemToShow.shape) {
@@ -109,7 +134,16 @@ interface ActionBarHelp {
                     ShowcaseShape.OVAL -> showcaseBuilder.withOvalShape()
                     ShowcaseShape.RECTANGLE -> showcaseBuilder.withRectangleShape()
                 }
-                showcaseBuilder.show()
+
+                // Set the skip button listener (done awkwardly since the library doesn't provide an easy way to do this
+                val scView = showcaseBuilder.build()
+                scView.children.first { it is LinearLayout }.touchables.first {
+                    (it as TextView).text.toString().equals(skipText, ignoreCase = true)
+                }.setOnClickListener {
+                    endSequenceOnDismiss = true
+                    scView.animateOut() // Triggers onShowcaseDismissed
+                }
+                scView.show(activity)
             }
         }
 
