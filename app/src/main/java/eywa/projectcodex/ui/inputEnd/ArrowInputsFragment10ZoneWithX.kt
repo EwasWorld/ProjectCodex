@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import eywa.projectcodex.R
-import eywa.projectcodex.ui.findInstanceOf
+import eywa.projectcodex.ui.commonUtils.findInstanceOf
 import kotlinx.android.synthetic.main.content_main.*
 
 

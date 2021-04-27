@@ -6,7 +6,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
 import eywa.projectcodex.R
-import eywa.projectcodex.ui.getColourResource
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView

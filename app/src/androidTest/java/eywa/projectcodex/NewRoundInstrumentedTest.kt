@@ -297,10 +297,10 @@ class NewRoundInstrumentedTest {
             if (roundsBeforeCreate.contains(round)) continue
             // Date returns year -1900
             val dateShot = Calendar.Builder().setInstant(round.dateShot).build()
-            assertEquals(140, dateShot.get(Calendar.YEAR))
+            assertEquals(2040, dateShot.get(Calendar.YEAR))
             assertEquals(9, dateShot.get(Calendar.MONTH))
             assertEquals(30, dateShot.get(Calendar.DATE))
-            assertEquals(20, dateShot.get(Calendar.HOUR))
+            assertEquals(20, dateShot.get(Calendar.HOUR_OF_DAY))
             assertEquals(22, dateShot.get(Calendar.MINUTE))
         }
     }

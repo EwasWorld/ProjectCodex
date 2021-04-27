@@ -34,7 +34,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     companion object {
         private const val MIGRATION_LOG_TAG = "DatabaseMigration"
 
-        @VisibleForTesting
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         var DATABASE_NAME = "scores_database"
         // Singleton prevents multiple instances of database opening at the same time.
         @Volatile
@@ -113,7 +113,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
             }
         }
 
-        @VisibleForTesting
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 val sqlStrings = mutableListOf<String>()
@@ -176,7 +176,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
             }
         }
 
-        @VisibleForTesting
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 val sqlStrings = mutableListOf<String>()
@@ -271,7 +271,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
         /**
          * Migration template from which others can be made
          */
-        @VisibleForTesting
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val MIGRATION_BLANK = object : Migration(1, 1) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 val sqlStrings = mutableListOf<String>()
@@ -283,7 +283,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
         /**
          * Delete the database and clear the instance
          */
-        @VisibleForTesting
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         fun clearInstance(activity: Activity) {
             activity.applicationContext.deleteDatabase(DATABASE_NAME)
             INSTANCE = null

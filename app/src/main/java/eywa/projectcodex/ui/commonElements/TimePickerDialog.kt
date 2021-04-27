@@ -14,8 +14,10 @@ class TimePickerDialog(
 
     override fun getDialogView(): View {
         timePicker = TimePicker(context)
-        // Must use deprecated function as API level is not high enough for replacement
+        // TODO_MINSDK Must use deprecated function as API level is not high enough for replacement
+        @Suppress("DEPRECATION")
         timePicker.currentHour = startHour
+        @Suppress("DEPRECATION")
         timePicker.currentMinute = startMinute
         timePicker.setIs24HourView(is24hr)
         return timePicker

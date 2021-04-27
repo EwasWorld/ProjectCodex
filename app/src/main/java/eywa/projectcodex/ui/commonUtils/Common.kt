@@ -1,4 +1,4 @@
-package eywa.projectcodex.ui
+package eywa.projectcodex.ui.commonUtils
 
 import android.content.res.Resources
 import androidx.core.content.res.ResourcesCompat
