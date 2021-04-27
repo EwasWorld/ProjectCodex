@@ -4,8 +4,11 @@
     <color name="colorLightAccent">#CCF1FF</color>
     <color name="colorAccent">#5FEFB3</color>
     <color name="colorPrimaryDark">#14248F</color>
+    <color name="colorPrimaryDarkTransparent">#8514248F</color>
     <color name="colorAccentDark">#317882</color>
     <color name="colorTertiary">#59D6C1</color>
+
+    <color name="colorPrimaryPink">#FF69FC</color>
 
     <color name="black">#000000</color>
     <color name="offBlack">#242424</color>

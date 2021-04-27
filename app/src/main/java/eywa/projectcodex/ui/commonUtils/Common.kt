@@ -1,5 +1,7 @@
 package eywa.projectcodex.ui
 
+import android.content.res.Resources
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import java.util.*
 
@@ -16,4 +18,13 @@ inline fun <reified T> findInstanceOf(root: Fragment): T? {
         }
     }
     return null
+}
+
+fun getColourResource(resources: Resources, colourResourceId: Int, theme: Resources.Theme): Int {
+    return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        resources.getColor(colourResourceId, theme)
+    }
+    else {
+        ResourcesCompat.getColor(resources, colourResourceId, theme)
+    }
 }

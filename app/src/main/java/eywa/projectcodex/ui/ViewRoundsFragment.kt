@@ -17,7 +17,7 @@ import eywa.projectcodex.database.entities.ArrowValue
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.logic.GoldsType
-import eywa.projectcodex.ui.commonElements.ActionBarHelp
+import eywa.projectcodex.ui.commonUtils.ActionBarHelp
 import eywa.projectcodex.viewModels.ViewRoundsViewModel
 
 class ViewRoundsFragment : Fragment(), ActionBarHelp {

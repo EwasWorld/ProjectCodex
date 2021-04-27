@@ -6,7 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import eywa.projectcodex.R
-import eywa.projectcodex.ui.commonElements.ActionBarHelp
+import eywa.projectcodex.ui.commonUtils.ActionBarHelp
 
 class MainActivity : AppCompatActivity() {
 

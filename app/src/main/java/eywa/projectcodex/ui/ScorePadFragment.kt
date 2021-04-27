@@ -18,7 +18,7 @@ import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.infoTable.*
 import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.logic.getGoldsType
-import eywa.projectcodex.ui.commonElements.ActionBarHelp
+import eywa.projectcodex.ui.commonUtils.ActionBarHelp
 import eywa.projectcodex.viewModels.ScorePadViewModel
 import eywa.projectcodex.viewModels.ViewModelFactory
 import kotlin.math.ceil

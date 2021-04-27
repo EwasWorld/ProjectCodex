@@ -16,7 +16,7 @@ import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.logic.checkDefaultRounds
 import eywa.projectcodex.logic.roundsFromJson
-import eywa.projectcodex.ui.commonElements.ActionBarHelp
+import eywa.projectcodex.ui.commonUtils.ActionBarHelp
 import eywa.projectcodex.viewModels.MainMenuViewModel
 import kotlinx.android.synthetic.main.fragment_main_menu.*
 
