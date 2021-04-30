@@ -26,17 +26,42 @@
         android:text="@string/main_menu__view_rounds"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_main_menu__start_new_round"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/button_main_menu__start_new_round" />
 
-    <Button
-        android:id="@+id/button_main_menu__update_default_rounds"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="@string/main_menu__update_default_rounds"
+        android:orientation="vertical"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        />
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:id="@+id/label_main_menu__update_default_rounds_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SmallText"
+            android:text="@string/main_menu__update_default_rounds_progress_label" />
+
+        <TextView
+            android:id="@+id/text_main_menu__update_default_rounds_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SmallText"
+            android:text="@string/main_menu__update_default_rounds_progress_init" />
+
+        <Button
+            android:id="@+id/button_main_menu__update_default_rounds_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_cancel" />
+
+        <Button
+            android:id="@+id/button_main_menu__update_default_rounds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_menu__update_default_rounds" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

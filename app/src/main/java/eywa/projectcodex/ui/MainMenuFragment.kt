@@ -14,8 +14,6 @@ import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
-import eywa.projectcodex.logic.checkDefaultRounds
-import eywa.projectcodex.logic.roundsFromJson
 import eywa.projectcodex.ui.commonUtils.ActionBarHelp
 import eywa.projectcodex.viewModels.MainMenuViewModel
 import kotlinx.android.synthetic.main.fragment_main_menu.*
@@ -41,6 +39,26 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         mainMenuViewModel.roundSubTypes.observe(viewLifecycleOwner, Observer { it?.let { roundSubTypes = it } })
         mainMenuViewModel.roundDistances.observe(viewLifecycleOwner, Observer { it?.let { roundDistances = it } })
 
+        mainMenuViewModel.updateDefaultRoundsProgress.observe(viewLifecycleOwner, Observer { progressString ->
+            fun getVisibility(show: Boolean) = if (show) View.VISIBLE else View.GONE
+            val progressText: String
+            val updateHappening: Boolean
+            if (progressString == null) {
+                progressText = getString(R.string.main_menu__update_default_rounds_progress_init)
+                updateHappening = false
+            }
+            else {
+                progressText = progressString
+                updateHappening = true
+            }
+            text_main_menu__update_default_rounds_progress.text = progressText
+            button_main_menu__update_default_rounds.visibility = getVisibility(!updateHappening)
+            label_main_menu__update_default_rounds_progress.visibility = getVisibility(updateHappening)
+            text_main_menu__update_default_rounds_progress.visibility = getVisibility(updateHappening)
+            button_main_menu__update_default_rounds_cancel.visibility = getVisibility(updateHappening)
+            // TODO Some completion indication (otherwise it just goes back to the start button
+        })
+
         button_main_menu__start_new_round.setOnClickListener {
             val action = MainMenuFragmentDirections.actionMainMenuFragmentToNewRoundFragment()
             view.findNavController().navigate(action)
@@ -52,12 +70,11 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         }
 
         button_main_menu__update_default_rounds.setOnClickListener {
-            val defaultRounds = roundsFromJson(
-                    resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() })
-            val updates = checkDefaultRounds(
-                    defaultRounds, rounds, roundArrowCounts, roundSubTypes, roundDistances
-            )
-            mainMenuViewModel.updateRounds(updates)
+            mainMenuViewModel.updateDefaultRounds(resources)
+        }
+
+        button_main_menu__update_default_rounds_cancel.setOnClickListener {
+            mainMenuViewModel.cancelUpdateDefaultRounds()
         }
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {

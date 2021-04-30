@@ -28,3 +28,15 @@ fun getColourResource(resources: Resources, colourResourceId: Int, theme: Resour
         ResourcesCompat.getColor(resources, colourResourceId, theme)
     }
 }
+
+/**
+ * For each entry in [replacements], [resourceString].replace("{$key}", "value"). If no instance of "{$key}" is found,
+ * nothing is replaced
+ */
+fun resourceStringReplace(resourceString: String, replacements: Map<String, String>): String {
+    var newString = resourceString
+    for (entry in replacements.entries) {
+        newString = newString.replace("{${entry.key}}", entry.value)
+    }
+    return newString
+}
