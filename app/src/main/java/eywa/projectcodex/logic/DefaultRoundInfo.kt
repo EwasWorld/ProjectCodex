@@ -1,24 +1,29 @@
 package eywa.projectcodex.logic
 
+import android.content.Context
 import android.content.res.Resources
+import android.os.Handler
+import android.os.Looper
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.beust.klaxon.*
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.database.repositories.RoundsRepo
+import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.ui.commonUtils.resourceStringReplace
 import eywa.projectcodex.viewModels.OnToken
 import eywa.projectcodex.viewModels.TaskRunner
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-
-private const val CONVERTER_LOG_TAG = "CustomJsonConverter"
-private const val ROUND_CHECKER_LOG_TAG = "DefaultRoundChecker"
-private const val defaultRoundMinimumId = 5
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * @see Round
@@ -33,9 +38,13 @@ class DefaultRoundInfo(
         private val roundArrowCounts: List<RoundInfoArrowCount>,
         private val roundDistances: List<RoundInfoDistance>
 ) {
+    companion object {
+        internal const val defaultRoundMinimumId = 5
+    }
+
     /**
      * Validation
-     * TODO Make a builder omg
+     * TODO_CURRENT Make a builder omg
      */
     init {
         // Lengths
@@ -155,18 +164,6 @@ class DefaultRoundInfoHelper {
         }
 
         /**
-         * @return a unique round ID
-         * TODO_THREAD_UNSAFE Can cause clashes if multiple things are accessing the database
-         */
-        private fun getNewRoundId(existingRoundIds: List<Int>): Int {
-            val dbDefaultMax = existingRoundIds.max() ?: return defaultRoundMinimumId
-
-            // Check if there are any unused IDs to fill in
-            val filteredIds = defaultRoundMinimumId.rangeTo(dbDefaultMax).filter { !existingRoundIds.contains(it) }
-            return if (filteredIds.isEmpty()) dbDefaultMax + 1 else filteredIds.min()!!
-        }
-
-        /**
          * Compares [readData] to [dbData] based on [equalityMeasures]
          * - Marks any items in [dbData] not in [readData] for deletion
          * - Marks any items in [readData] not in [dbData] as new
@@ -210,13 +207,16 @@ class DefaultRoundInfoHelper {
 
         /**
          * TODO_THREAD_UNSAFE Can cause clashes if multiple things are accessing the database
+         * @param nextRoundId the roundId to use if a new round is created.
+         * This is used instead of [allDbRounds].max() + 1 because [allDbRounds] is not updated as new rounds are added
          */
         fun getUpdates(
                 readRoundInfo: DefaultRoundInfo,
                 allDbRounds: List<Round>,
                 allDbArrowCounts: List<RoundArrowCount>,
                 allDbSubTypes: List<RoundSubType>,
-                allDbDistances: List<RoundDistance>
+                allDbDistances: List<RoundDistance>,
+                nextRoundId: Int
         ): Map<Any, UpdateType> {
             // Maps a db data item to an update type
             val dbUpdateItems = mutableMapOf<Any, UpdateType>()
@@ -256,11 +256,10 @@ class DefaultRoundInfoHelper {
                 /*
                  * Create new round
                  */
-                val roundId = getNewRoundId(allDbRounds.map { it.roundId })
-                dbUpdateItems[readRoundInfo.getRound(roundId)] = UpdateType.NEW
-                dbUpdateItems.putAll(readRoundInfo.getRoundArrowCounts(roundId).map { it to UpdateType.NEW })
-                dbUpdateItems.putAll(readRoundInfo.getRoundSubTypes(roundId).map { it to UpdateType.NEW })
-                dbUpdateItems.putAll(readRoundInfo.getRoundDistances(roundId).map { it to UpdateType.NEW })
+                dbUpdateItems[readRoundInfo.getRound(nextRoundId)] = UpdateType.NEW
+                dbUpdateItems.putAll(readRoundInfo.getRoundArrowCounts(nextRoundId).map { it to UpdateType.NEW })
+                dbUpdateItems.putAll(readRoundInfo.getRoundSubTypes(nextRoundId).map { it to UpdateType.NEW })
+                dbUpdateItems.putAll(readRoundInfo.getRoundDistances(nextRoundId).map { it to UpdateType.NEW })
             }
 
             // Sanity check to make sure no defaultRoundInfo snuck in
@@ -274,126 +273,257 @@ class DefaultRoundInfoHelper {
 
 /**
  * This task will update the default rounds in the repository
- * TODO Passing the view model scope is almost certainly wrong
  */
-class UpdateDefaultRounds(
-        private val repository: RoundsRepo,
-        private val resources: Resources,
-        private val coroutineScope: CoroutineScope
-) : TaskRunner.ProgressTask<String, Void?>() {
+class UpdateDefaultRounds {
     companion object {
-        const val LOG_TAG = "UpdateDefaultTask"
+        private const val LOG_TAG = "UpdateDefaultRounds"
+        private val taskExecutor = TaskRunner()
+        private var currentTask: TaskRunner.ProgressTask<String, Void?>? = null
+        private val state = MutableLiveData<UpdateTaskState>(UpdateTaskState.NOT_STARTED)
+        private val progressMessage = MutableLiveData<String?>(null)
+
+        fun getState(): LiveData<UpdateTaskState> {
+            return state
+        }
+
+        fun getProgressMessage(): LiveData<String?> {
+            return progressMessage
+        }
+
+        /**
+         * Begins an [UpdateDefaultRoundsTask] if one isn't already in progress
+         */
+        fun runUpdate(context: Context, resources: Resources) {
+            synchronized(state) {
+                if (state.value == UpdateTaskState.IN_PROGRESS) return
+                state.postValue(UpdateTaskState.IN_PROGRESS)
+            }
+            progressMessage.postValue(
+                    resources.getString(R.string.main_menu__update_default_rounds_progress_init)
+            )
+            val db = ScoresRoomDatabase.getDatabase(context)
+            currentTask = UpdateDefaultRoundsTask(RoundsRepo(db), resources)
+            taskExecutor.executeProgressTask(
+                    currentTask!!,
+                    onProgress = { progress -> progressMessage.postValue(progress) },
+                    onComplete = {
+                        currentTask = null
+                        state.postValue(UpdateTaskState.COMPLETE)
+                    },
+                    onError = { exception ->
+                        CustomLogger.customLogger.e(
+                                LOG_TAG,
+                                "Update default rounds task failed with exception: " + exception.toString()
+                                        + "\nlast progress token was " + progressMessage.value
+                        )
+                        val message = when (exception) {
+                            is UserException -> exception.getUserMessage(resources)
+                            else -> resources.getString(R.string.err__internal_error)
+                        }
+                        currentTask = null
+                        progressMessage.postValue(message)
+                        state.postValue(UpdateTaskState.ERROR)
+                    }
+            )
+        }
+
+        fun cancelUpdateDefaultRounds() {
+            currentTask?.isSoftCancelled = true
+        }
+
+        /**
+         * If the current task is complete, reset the state to not started
+         */
+        fun resetState() {
+            synchronized(state) {
+                val currentState = state.value
+                if (currentState == UpdateTaskState.COMPLETE || currentState == UpdateTaskState.ERROR) {
+                    state.postValue(UpdateTaskState.NOT_STARTED)
+                    progressMessage.postValue(null)
+                }
+            }
+        }
     }
 
-    override fun runTask(progressToken: OnToken<String>): Void? {
-        progressToken(resources.getString(R.string.main_menu__update_default_rounds_progress_init))
-        val readRoundsStrings = JsonArrayToListConverter.convert(
-                resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() })
-        val readRounds = mutableListOf<DefaultRoundInfo>()
+    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, COMPLETE, ERROR }
 
-        /*
-         * Check read rounds
-         */
-        val progressTokenRawString = resources.getString(R.string.main_menu__update_default_rounds_progress_item)
-        val progressTokenTotalReplacer = Pair("total", readRoundsStrings.size.toString())
-        for (readRound in readRoundsStrings.withIndex()) {
-            progressToken(
-                    resourceStringReplace(
-                            progressTokenRawString,
-                            mapOf(progressTokenTotalReplacer, Pair("current", (readRound.index + 1).toString()))
-                    )
-            )
-            val readRoundInfo = DefaultRoundInfoConverter.convert(readRound.value)
-            readRounds.add(readRoundInfo)
-            val dbUpdateItems = DefaultRoundInfoHelper.getUpdates(
-                    readRoundInfo, repository.rounds.value!!, repository.roundArrowCounts.value!!,
-                    repository.roundSubTypes.value!!, repository.roundDistances.value!!
-            )
+    private class UpdateDefaultRoundsTask(private val repository: RoundsRepo, private val resources: Resources) :
+            TaskRunner.ProgressTask<String, Void?>() {
+        companion object {
+            const val LOG_TAG = "UpdateDefaultRoundsTask"
+        }
+
+        override fun runTask(progressToken: OnToken<String>): Void? {
+            // Make sure we can acquire the lock before processing
+            // (holds the lock for longer but saves wasting time if the db isn't free)
+            val acquiredLock = repository.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS)
+            if (!acquiredLock) {
+                throw UserException(R.string.err_main_menu__update_default_rounds_no_lock)
+            }
+
             /*
-             * Update database
+             * Get db info
              */
-            coroutineScope.launch {
-                repository.updateRounds(dbUpdateItems)
+            val latch = CountDownLatch(4) // Rounds, ArrowCounts, SubTypes, Distances
+            var dbRounds: List<Round>? = null
+            val dbRoundsObserver = Observer<List<Round>> {
+                dbRounds = it
+                latch.countDown()
             }
-            if (isSoftCancelled) {
-                CustomLogger.customLogger.i(LOG_TAG, "Task cancelled at ${readRound.index} or ${readRounds.size}")
-                return null
+            var dbArrowCounts: List<RoundArrowCount>? = null
+            val dbArrowCountsObserver = Observer<List<RoundArrowCount>> {
+                dbArrowCounts = it
+                latch.countDown()
             }
+            var dbSubTypes: List<RoundSubType>? = null
+            val dbSubTypesObserver = Observer<List<RoundSubType>> {
+                dbSubTypes = it
+                latch.countDown()
+            }
+            var dbDistances: List<RoundDistance>? = null
+            val dbDistancesObserver = Observer<List<RoundDistance>> {
+                dbDistances = it
+                latch.countDown()
+            }
+            Handler(Looper.getMainLooper()).post {
+                repository.rounds.observeForever(dbRoundsObserver)
+                repository.roundArrowCounts.observeForever(dbArrowCountsObserver)
+                repository.roundSubTypes.observeForever(dbSubTypesObserver)
+                repository.roundDistances.observeForever(dbDistancesObserver)
+            }
+            var nextRoundId: Int? = null
+            val dbInfoRetrieved by lazy {
+                check(latch.await(1, TimeUnit.SECONDS)) { "Failed to retrieve db information" }
+                nextRoundId = dbRounds!!.map { it.roundId }.max()?.plus(1) ?: DefaultRoundInfo.defaultRoundMinimumId
+                Handler(Looper.getMainLooper()).post {
+                    repository.rounds.removeObserver(dbRoundsObserver)
+                    repository.roundArrowCounts.removeObserver(dbArrowCountsObserver)
+                    repository.roundSubTypes.removeObserver(dbSubTypesObserver)
+                    repository.roundDistances.removeObserver(dbDistancesObserver)
+                }
+                true
+            }
+
+            /*
+             * Read default rounds data from file and make a list of strings
+             */
+            progressToken(resources.getString(R.string.main_menu__update_default_rounds_progress_init))
+            val klaxon = Klaxon().converter(RoundsList.RoundsListJsonConverter())
+            val rawString = resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
+            val readRoundsStrings = klaxon.parse<RoundsList>(rawString)?.rounds
+                    ?: throw IllegalStateException("Failed to parse default rounds file")
+            val readRoundNames = mutableListOf<String>()
+
+            /*
+             * Check each read rounds
+             */
+            klaxon.converter(DefaultRoundInfoJsonConverter())
+            val progressTokenRawString = resources.getString(R.string.main_menu__update_default_rounds_progress_item)
+            val progressTokenTotalReplacer = Pair("total", readRoundsStrings.size.toString())
+            for (readRound in readRoundsStrings.withIndex()) {
+                progressToken(
+                        resourceStringReplace(
+                                progressTokenRawString,
+                                mapOf(progressTokenTotalReplacer, Pair("current", (readRound.index + 1).toString()))
+                        )
+                )
+                val readRoundInfo = klaxon.parse<DefaultRoundInfo>(readRound.value)
+                        ?: throw IllegalStateException("Failed to parse default round info. Index ${readRound.index}")
+
+                /*
+                 * Check name
+                 */
+                val readRoundName = DefaultRoundInfoHelper.formatNameString(readRoundInfo.displayName)
+                require(!readRoundNames.contains(readRoundName)) { "Duplicate name in default rounds file" }
+                readRoundNames.add(readRoundName)
+
+                /*
+                 * Compare and update db
+                 */
+                check(dbInfoRetrieved) { "Failed to retrieve db information" }
+                // Should not be null as empty database will return an empty list
+                val dbUpdateItems = DefaultRoundInfoHelper.getUpdates(
+                        readRoundInfo, dbRounds!!, dbArrowCounts!!, dbSubTypes!!, dbDistances!!, nextRoundId!!
+                )
+                if (dbUpdateItems.containsValue(UpdateType.NEW)) {
+                    nextRoundId = nextRoundId!! + 1
+                }
+                runBlocking {
+                    repository.updateRounds(dbUpdateItems)
+                }
+
+                if (isSoftCancelled) {
+                    repository.repositoryWriteLock.unlock()
+                    CustomLogger.customLogger.i(
+                            LOG_TAG,
+                            "Task cancelled at ${readRound.index} of ${readRoundNames.size}"
+                    )
+                    progressToken(resources.getString(R.string.general_cancelled))
+                    return null
+                }
+            }
+
+            /*
+             * Remove rounds and related objects from the database that are not in readRounds
+             */
+            progressToken(resources.getString(R.string.main_menu__update_default_rounds_progress_delete))
+            val roundsToDelete = repository.rounds.value!!.filter { dbRound -> !readRoundNames.contains(dbRound.name) }
+
+            val itemsToDelete = roundsToDelete.map { it as Any }.toMutableList()
+            val idsOfRoundsToDelete = roundsToDelete.map { it.roundId }
+            itemsToDelete.addAll(repository.roundArrowCounts.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
+            itemsToDelete.addAll(repository.roundSubTypes.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
+            itemsToDelete.addAll(repository.roundDistances.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
+
+            val updateItems = mapOf(*roundsToDelete.map { it as Any to UpdateType.DELETE }.toTypedArray())
+            runBlocking {
+                repository.updateRounds(updateItems)
+            }
+
+            /*
+             * Complete
+             */
+            progressToken(resources.getString(R.string.button_complete))
+            repository.repositoryWriteLock.unlock()
+            return null
         }
-
-        /*
-         * Remove rounds and related objects from the database that are not in readRounds
-         */
-        progressToken(resources.getString(R.string.main_menu__update_default_rounds_progress_delete))
-        val roundsToDelete = repository.rounds.value!!.filter { dbRound ->
-            !readRounds.map { DefaultRoundInfoHelper.formatNameString(it.displayName) }.contains(dbRound.name)
-        }
-
-        val itemsToDelete = roundsToDelete.map { it as Any }.toMutableList()
-        val idsOfRoundsToDelete = roundsToDelete.map { it.roundId }
-        itemsToDelete.addAll(repository.roundArrowCounts.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
-        itemsToDelete.addAll(repository.roundSubTypes.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
-        itemsToDelete.addAll(repository.roundDistances.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
-
-        val updateItems = mapOf(*roundsToDelete.map { it as Any to UpdateType.DELETE }.toTypedArray())
-        coroutineScope.launch {
-            repository.updateRounds(updateItems)
-        }
-
-
-        progressToken(resources.getString(R.string.button_complete))
-        return null
     }
 }
 
-// TODO Can I put this into a superclass?
-private inline fun <reified T> convert(converter: Converter, jsonString: String): T? =
-        Klaxon().converter(converter).parse<T>(jsonString)
-
-/**
- * Splits a json string in the format {"rounds": [...]} into a list of strings
- */
-class JsonArrayToListConverter : Converter {
-    companion object {
-        fun convert(objectJson: String): List<String> {
-            return convert<List<String>>(JsonArrayToListConverter(), objectJson)!!
-        }
-    }
-
-    override fun canConvert(cls: Class<*>): Boolean {
-        return List::class.java.isAssignableFrom(cls)
-    }
-
-    override fun fromJson(jv: JsonValue): Any {
-        val jsonObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")
-        val jsonRoundObjects = jsonObject["rounds"] as JsonArray<JsonObject>
-        return jsonRoundObjects.toList().map { it.toJsonString() }
-    }
-
+class RoundsList(val rounds: List<String>) {
     /**
-     * Not currently used
+     * Splits a json string in the format {"rounds": [...]} into a list of strings
      */
-    override fun toJson(value: Any): String {
-        throw NotImplementedError()
+    class RoundsListJsonConverter : Converter {
+        override fun canConvert(cls: Class<*>): Boolean {
+            return RoundsList::class.java.isAssignableFrom(cls)
+        }
+
+        override fun fromJson(jv: JsonValue): Any {
+            val jsonObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")
+            val jsonRoundObjects = jsonObject["rounds"] as JsonArray<JsonObject>
+            return RoundsList(jsonRoundObjects.toList().map { it.toJsonString() })
+        }
+
+        /**
+         * Not currently used
+         */
+        override fun toJson(value: Any): String {
+            throw NotImplementedError()
+        }
     }
 }
 
 /**
  * Converts a json string into a [DefaultRoundInfo] object
  */
-class DefaultRoundInfoConverter : Converter {
+private class DefaultRoundInfoJsonConverter : Converter {
     companion object {
-        /**
-         * @throws KlaxonException for invalid Json
-         * @throws ClassCastException for invalid type for any given object
-         */
-        fun convert(objectJson: String): DefaultRoundInfo {
-            return convert<DefaultRoundInfo>(DefaultRoundInfoConverter(), objectJson)!!
-        }
+        private const val CONVERTER_LOG_TAG = "CustomJsonConverter"
     }
 
     override fun canConvert(cls: Class<*>): Boolean {
-        return cls == DefaultRoundInfo::class.java
+        return DefaultRoundInfo::class.java.isAssignableFrom(cls)
     }
 
     override fun fromJson(jv: JsonValue): Any {

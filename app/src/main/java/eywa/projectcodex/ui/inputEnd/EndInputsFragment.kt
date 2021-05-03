@@ -41,7 +41,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                         end.updateEndSize(value)
                     }
                     catch (e: UserException) {
-                        Toast.makeText(context, e.getMessage(resources), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()
                     }
                 }
             }

@@ -97,7 +97,7 @@ class InputEndFragment : Fragment(), ActionBarHelp {
                 endInputsFragment.clearEnd()
             }
             catch (e: UserException) {
-                Toast.makeText(context, e.getMessage(resources), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()
             }
             catch (e: Exception) {
                 Toast.makeText(context, getString(R.string.err__internal_error), Toast.LENGTH_SHORT).show()

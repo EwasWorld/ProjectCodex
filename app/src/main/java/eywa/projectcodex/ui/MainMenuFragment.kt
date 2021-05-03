@@ -10,20 +10,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.database.entities.Round
-import eywa.projectcodex.database.entities.RoundArrowCount
-import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.database.entities.RoundSubType
+import eywa.projectcodex.logic.UpdateDefaultRounds
 import eywa.projectcodex.ui.commonUtils.ActionBarHelp
 import eywa.projectcodex.viewModels.MainMenuViewModel
 import kotlinx.android.synthetic.main.fragment_main_menu.*
 
 class MainMenuFragment : Fragment(), ActionBarHelp {
     private lateinit var mainMenuViewModel: MainMenuViewModel
-    private var rounds: List<Round> = listOf()
-    private var roundArrowCounts: List<RoundArrowCount> = listOf()
-    private var roundSubTypes: List<RoundSubType> = listOf()
-    private var roundDistances: List<RoundDistance> = listOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main_menu, container, false)
@@ -34,29 +27,22 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         activity?.title = getString(R.string.main_menu__title)
 
         mainMenuViewModel = ViewModelProvider(this).get(MainMenuViewModel::class.java)
-        mainMenuViewModel.rounds.observe(viewLifecycleOwner, Observer { it?.let { rounds = it } })
-        mainMenuViewModel.roundArrowCounts.observe(viewLifecycleOwner, Observer { it?.let { roundArrowCounts = it } })
-        mainMenuViewModel.roundSubTypes.observe(viewLifecycleOwner, Observer { it?.let { roundSubTypes = it } })
-        mainMenuViewModel.roundDistances.observe(viewLifecycleOwner, Observer { it?.let { roundDistances = it } })
-
-        mainMenuViewModel.updateDefaultRoundsProgress.observe(viewLifecycleOwner, Observer { progressString ->
+        mainMenuViewModel.updateDefaultRoundsState.observe(viewLifecycleOwner, Observer { state ->
             fun getVisibility(show: Boolean) = if (show) View.VISIBLE else View.GONE
-            val progressText: String
-            val updateHappening: Boolean
-            if (progressString == null) {
-                progressText = getString(R.string.main_menu__update_default_rounds_progress_init)
-                updateHappening = false
-            }
-            else {
-                progressText = progressString
-                updateHappening = true
-            }
-            text_main_menu__update_default_rounds_progress.text = progressText
+            val updateHappening = state == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS
+            val updateNotStarted = state == UpdateDefaultRounds.UpdateTaskState.NOT_STARTED
+
+            // Switch between start/cancel buttons
             button_main_menu__update_default_rounds.visibility = getVisibility(!updateHappening)
-            label_main_menu__update_default_rounds_progress.visibility = getVisibility(updateHappening)
-            text_main_menu__update_default_rounds_progress.visibility = getVisibility(updateHappening)
             button_main_menu__update_default_rounds_cancel.visibility = getVisibility(updateHappening)
-            // TODO Some completion indication (otherwise it just goes back to the start button
+
+            // Display status information if not in the NOT_STARTED state
+            label_main_menu__update_default_rounds_progress.visibility = getVisibility(!updateNotStarted)
+            text_main_menu__update_default_rounds_progress.visibility = getVisibility(!updateNotStarted)
+        })
+        mainMenuViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, Observer { message ->
+            val progressText = message ?: getString(R.string.main_menu__update_default_rounds_progress_init)
+            text_main_menu__update_default_rounds_progress.text = progressText
         })
 
         button_main_menu__start_new_round.setOnClickListener {
@@ -81,6 +67,11 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
             // Do nothing
         }
         callback.isEnabled = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mainMenuViewModel.resetUpdateDefaultRoundsStateIfComplete()
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {

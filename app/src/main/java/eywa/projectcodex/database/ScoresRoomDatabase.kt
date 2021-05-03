@@ -9,7 +9,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.database.daos.*
 import eywa.projectcodex.database.entities.*
-import kotlinx.coroutines.CoroutineScope
 import java.util.*
 
 @Database(
@@ -299,15 +298,15 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
             }
         }
 
-        fun getDatabase(context: Context, scope: CoroutineScope): ScoresRoomDatabase {
+        fun getDatabase(context: Context): ScoresRoomDatabase {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
                 return tempInstance
             }
             synchronized(this) {
                 val instance =
-                    Room.databaseBuilder(context.applicationContext, ScoresRoomDatabase::class.java, DATABASE_NAME)
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
+                        Room.databaseBuilder(context.applicationContext, ScoresRoomDatabase::class.java, DATABASE_NAME)
+                                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
                 INSTANCE = instance
                 return instance
             }

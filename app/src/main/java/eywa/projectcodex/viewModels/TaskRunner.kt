@@ -65,7 +65,6 @@ class TaskRunner {
                 }
             }
             catch (e: Exception) {
-                // TODO Test whether this try/catch catches errors in onProgress or onComplete
                 handler.post { onError(e) }
             }
         }

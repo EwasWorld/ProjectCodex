@@ -15,9 +15,10 @@
     <string name="main_menu__view_rounds">View Rounds</string>
     <string name="main_menu__update_default_rounds">Update Default Rounds</string>
     <string name="main_menu__update_default_rounds_progress_label">Updating default rounds:</string>
-    <string name="main_menu__update_default_rounds_progress_init">Initialising</string>
-    <string name="main_menu__update_default_rounds_progress_item">Processing {current} of {total} default rounds</string>
+    <string name="main_menu__update_default_rounds_progress_init">Initialising…</string>
+    <string name="main_menu__update_default_rounds_progress_item">Processing round {current} of {total}</string>
     <string name="main_menu__update_default_rounds_progress_delete">Cleaning stale default rounds</string>
+    <string name="err_main_menu__update_default_rounds_no_lock">Update default rounds failed.<br />Database is currently in use, try again later</string>
 
     <!-- Create round -->
     <string name="create_round__title">Create Round</string>
@@ -115,6 +116,7 @@
     <!-- General -->
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
+    <string name="general_cancelled">Cancelled</string>
     <string name="button_complete">Complete</string>
     <string name="button_continue">Continue</string>
     <string name="button_next">Next</string>

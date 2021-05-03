@@ -22,7 +22,7 @@ class ScorePadViewModel(application: Application, archerRoundId: Int) : AndroidV
     val archerRound: LiveData<ArcherRound>
 
     init {
-        val db = ScoresRoomDatabase.getDatabase(application, viewModelScope)
+        val db = ScoresRoomDatabase.getDatabase(application)
         arrowValueRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
         arrowsForRound = arrowValueRepo.arrowValuesForRound!!
         val archerRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())

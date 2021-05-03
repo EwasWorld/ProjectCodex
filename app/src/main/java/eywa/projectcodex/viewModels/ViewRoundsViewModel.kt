@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
  * @see InputEndViewModel
  */
 class ViewRoundsViewModel(application: Application) : AndroidViewModel(application) {
-    private val db = ScoresRoomDatabase.getDatabase(application, viewModelScope)
+    private val db = ScoresRoomDatabase.getDatabase(application)
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val roundsRepo: RoundsRepo = RoundsRepo(db)

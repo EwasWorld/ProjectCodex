@@ -91,7 +91,7 @@ class EditEndFragment : Fragment(), ActionBarHelp {
                 view.findNavController().navigate(action)
             }
             catch (e: UserException) {
-                Toast.makeText(context, e.getMessage(resources), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()
             }
             catch (e: Exception) {
                 if (!e.message.isNullOrBlank()) CustomLogger.customLogger.e(LOG_TAG, e.message!!)

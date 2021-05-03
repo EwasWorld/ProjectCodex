@@ -21,7 +21,7 @@ class NewRoundViewModel(application: Application) : AndroidViewModel(application
     val allRoundDistances: LiveData<List<RoundDistance>>
 
     init {
-        val db = ScoresRoomDatabase.getDatabase(application, viewModelScope)
+        val db = ScoresRoomDatabase.getDatabase(application)
         archerRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
         maxId = archerRoundsRepo.maxId
         allRounds = db.roundDao().getAllRounds()

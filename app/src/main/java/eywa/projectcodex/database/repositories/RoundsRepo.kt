@@ -11,9 +11,11 @@ import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * @see ArrowValuesRepo
+ * TODO_CURRENT If a round is deleted, all archerRounds associated with it should also be stripped of their round info
  */
 class RoundsRepo(
         private val roundDao: RoundDao,
@@ -21,6 +23,7 @@ class RoundsRepo(
         private val roundSubTypeDao: RoundSubTypeDao,
         private val roundDistanceDao: RoundDistanceDao
 ) {
+    val repositoryWriteLock = ReentrantLock()
     val rounds: LiveData<List<Round>> = roundDao.getAllRounds()
     val roundArrowCounts: LiveData<List<RoundArrowCount>> = roundArrowCountDao.getAllArrowCounts()
     val roundSubTypes: LiveData<List<RoundSubType>> = roundSubTypeDao.getAllSubTypes()
@@ -54,6 +57,8 @@ class RoundsRepo(
      * Distances were given
      */
     suspend fun updateRounds(updateItems: Map<Any, UpdateType>) {
+        check(repositoryWriteLock.isHeldByCurrentThread) { "Repository write lock not acquired" }
+
         val newRounds = updateItems.filter { it.value == UpdateType.NEW && it.key is Round }
         for (newRound in newRounds) {
             require(updateItems.filter { it.value == UpdateType.NEW && it.key is RoundArrowCount }
@@ -62,7 +67,7 @@ class RoundsRepo(
                     .isNotEmpty()) { "$newRound doesn't have any distances" }
         }
 
-        for (item in updateItems) {
+        for (item in updateItems.entries.toList().sortedWith(UpdateRoundsComparator())) {
             when (item.value) {
                 UpdateType.NEW -> {
                     when (item.key::class) {
@@ -105,41 +110,70 @@ class RoundsRepo(
         }
     }
 
-    suspend fun insertRound(
-            round: Round,
-            roundArrowCount: RoundArrowCount,
-            roundSubType: RoundSubType,
-            roundDistance: RoundDistance
-    ) {
-        roundDao.insert(round)
-        roundArrowCountDao.insert(roundArrowCount)
-        roundSubTypeDao.insert(roundSubType)
-        roundDistanceDao.insert(roundDistance)
-    }
-
     /**
      * Deletes all data associated with the given round ID
      */
     suspend fun deleteRound(roundId: Int) {
+        check(repositoryWriteLock.isHeldByCurrentThread) { "Repository write lock not acquired" }
+
         roundDao.delete(roundId)
         roundArrowCountDao.deleteAll(roundId)
         roundSubTypeDao.deleteAll(roundId)
         roundDistanceDao.deleteAll(roundId)
     }
 
-    suspend fun updateRounds(vararg rounds: Round) {
-        roundDao.update(*rounds)
-    }
+    /**
+     * Sort first by roundId then put Round at the start if [UpdateType] is [UpdateType.DELETE] or the end if not
+     */
+    private class UpdateRoundsComparator : Comparator<Map.Entry<Any, UpdateType>> {
+        override fun compare(o1: Map.Entry<Any, UpdateType>?, o2: Map.Entry<Any, UpdateType>?): Int {
+            // Simple nulls
+            if (o1 == null && o2 == null) {
+                return 0
+            }
+            if (o1 == null) {
+                return -1
+            }
+            if (o2 == null) {
+                return 1
+            }
 
-    suspend fun updateRoundArrowCount(vararg roundArrowCounts: RoundArrowCount) {
-        roundArrowCountDao.update(*roundArrowCounts)
-    }
+            // Compare roundId
+            val roundIdComparison = getRoundId(o1.key).compareTo(getRoundId(o2.key))
+            if (roundIdComparison != 0) {
+                return roundIdComparison
+            }
 
-    suspend fun updateRoundSubType(vararg roundSubTypes: RoundSubType) {
-        roundSubTypeDao.update(*roundSubTypes)
-    }
+            // Compare class
+            if (o1.key !is Round && o2.key !is Round) {
+                return 0
+            }
+            if (o1.key is Round && o2.key is Round) {
+                throw IllegalStateException("Should only be updating each round once")
+            }
 
-    suspend fun updateRoundDistance(vararg roundDistances: RoundDistance) {
-        roundDistanceDao.update(*roundDistances)
+            // If Round, move delete to start, others to end
+            if (o1.key is Round) {
+                if (o1.value == UpdateType.DELETE) {
+                    return -1
+                }
+                return 1
+            }
+            // o2 is Round
+            if (o2.value == UpdateType.DELETE) {
+                return 1
+            }
+            return -1
+        }
+
+        fun getRoundId(item: Any): Int {
+            return when (item::class) {
+                Round::class -> (item as Round).roundId
+                RoundArrowCount::class -> (item as RoundArrowCount).roundId
+                RoundSubType::class -> (item as RoundSubType).roundId
+                RoundDistance::class -> (item as RoundDistance).roundId
+                else -> throw IllegalArgumentException("Not a round object")
+            }
+        }
     }
 }
