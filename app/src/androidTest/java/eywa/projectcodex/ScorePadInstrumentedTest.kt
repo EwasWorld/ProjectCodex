@@ -25,7 +25,6 @@ import eywa.projectcodex.ui.MainActivity
 import eywa.projectcodex.ui.ScorePadFragment
 import eywa.projectcodex.ui.inputEnd.EditEndFragment
 import eywa.projectcodex.ui.inputEnd.InsertEndFragment
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -106,7 +105,7 @@ class ScorePadInstrumentedTest {
     fun beforeEach() {
 //        ScoresRoomDatabase.clearInstance(activity.activity)
         activity.activity.supportFragmentManager.beginTransaction()
-        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
+        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
     }
 
     private fun generateArrowsAndAddToDb() {

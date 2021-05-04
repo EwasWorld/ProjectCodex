@@ -1,4 +1,4 @@
-package eywa.projectcodex.viewModels
+package eywa.projectcodex.logic
 
 import android.os.Handler
 import android.os.Looper
@@ -14,7 +14,7 @@ class TaskRunner {
     }
 
     private val executor = Executors.newSingleThreadExecutor()
-    private val handler = Handler(Looper.getMainLooper())
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     abstract class ProgressTask<P, R> {
         /**

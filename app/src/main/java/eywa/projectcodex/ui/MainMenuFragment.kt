@@ -41,7 +41,7 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
             text_main_menu__update_default_rounds_progress.visibility = getVisibility(!updateNotStarted)
         })
         mainMenuViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, Observer { message ->
-            val progressText = message ?: getString(R.string.main_menu__update_default_rounds_progress_init)
+            val progressText = message ?: getString(R.string.main_menu__update_default_rounds_initialising)
             text_main_menu__update_default_rounds_progress.text = progressText
         })
 

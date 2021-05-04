@@ -96,7 +96,9 @@ dependencies {
     implementation("org.mockito:mockito-core:$mockito_version")
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"
 
-    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+    def archTestingVersion = "2.1.0"
+    testImplementation "android.arch.core:core-testing:$archTestingVersion"
+    androidTestImplementation "androidx.arch.core:core-testing:$archTestingVersion"
 
     // Database components
     implementation "androidx.room:room-runtime:2.2.1"

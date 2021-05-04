@@ -70,7 +70,7 @@
             android:id="@+id/button_main_menu__update_default_rounds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/main_menu__update_default_rounds"
+            android:text="@string/main_menu__update_default_rounds_button"
             />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

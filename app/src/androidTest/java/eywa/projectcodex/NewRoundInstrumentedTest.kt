@@ -15,7 +15,6 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.entities.ArcherRound
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.ui.MainActivity
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -61,7 +60,7 @@ class NewRoundInstrumentedTest {
     @Before
     fun roundsBeforeCreateEach() {
         activity.activity.supportFragmentManager.beginTransaction()
-        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
+        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
 
         /*
          * Observe created rounds

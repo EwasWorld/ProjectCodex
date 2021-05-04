@@ -21,7 +21,6 @@ import eywa.projectcodex.logic.GoldsType
 import eywa.projectcodex.ui.MainActivity
 import eywa.projectcodex.ui.ScorePadFragment
 import eywa.projectcodex.ui.inputEnd.InputEndFragment
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -61,7 +60,7 @@ class ViewRoundsInstrumentedTest {
     }
 
     private fun addDataToDatabase() {
-        val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
+        val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
         round = TestData.generateRounds(1)[0]
         roundSubType = TestData.generateSubTypes(1)[0]
         roundArrowCount = TestData.generateArrowCounts(1)[0]
@@ -240,7 +239,7 @@ class ViewRoundsInstrumentedTest {
         val archerRound = ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1)
         val arrowValues = TestData.ARROWS.take(6).mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) }
 
-        val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
+        val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
         Handler(Looper.getMainLooper()).post {
             runBlocking {
                 db.roundDao().insert(round)

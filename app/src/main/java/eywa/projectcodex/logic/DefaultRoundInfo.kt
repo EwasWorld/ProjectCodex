@@ -1,6 +1,5 @@
 package eywa.projectcodex.logic
 
-import android.content.Context
 import android.content.res.Resources
 import android.os.Handler
 import android.os.Looper
@@ -19,8 +18,6 @@ import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.database.repositories.RoundsRepo
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.ui.commonUtils.resourceStringReplace
-import eywa.projectcodex.viewModels.OnToken
-import eywa.projectcodex.viewModels.TaskRunner
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -153,6 +150,7 @@ class DefaultRoundInfo(
     }
 }
 
+// TODO Make this private
 class DefaultRoundInfoHelper {
     companion object {
         /**
@@ -293,15 +291,14 @@ class UpdateDefaultRounds {
         /**
          * Begins an [UpdateDefaultRoundsTask] if one isn't already in progress
          */
-        fun runUpdate(context: Context, resources: Resources) {
+        fun runUpdate(db: ScoresRoomDatabase, resources: Resources) {
             synchronized(state) {
                 if (state.value == UpdateTaskState.IN_PROGRESS) return
                 state.postValue(UpdateTaskState.IN_PROGRESS)
             }
             progressMessage.postValue(
-                    resources.getString(R.string.main_menu__update_default_rounds_progress_init)
+                    resources.getString(R.string.main_menu__update_default_rounds_initialising)
             )
-            val db = ScoresRoomDatabase.getDatabase(context)
             currentTask = UpdateDefaultRoundsTask(RoundsRepo(db), resources)
             taskExecutor.executeProgressTask(
                     currentTask!!,
@@ -354,6 +351,8 @@ class UpdateDefaultRounds {
         }
 
         override fun runTask(progressToken: OnToken<String>): Void? {
+            progressToken(resources.getString(R.string.main_menu__update_default_rounds_initialising))
+
             // Make sure we can acquire the lock before processing
             // (holds the lock for longer but saves wasting time if the db isn't free)
             val acquiredLock = repository.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS)
@@ -393,7 +392,7 @@ class UpdateDefaultRounds {
             }
             var nextRoundId: Int? = null
             val dbInfoRetrieved by lazy {
-                check(latch.await(1, TimeUnit.SECONDS)) { "Failed to retrieve db information" }
+                check(latch.await(10, TimeUnit.SECONDS)) { "Failed to retrieve db information" }
                 nextRoundId = dbRounds!!.map { it.roundId }.max()?.plus(1) ?: DefaultRoundInfo.defaultRoundMinimumId
                 Handler(Looper.getMainLooper()).post {
                     repository.rounds.removeObserver(dbRoundsObserver)
@@ -407,7 +406,6 @@ class UpdateDefaultRounds {
             /*
              * Read default rounds data from file and make a list of strings
              */
-            progressToken(resources.getString(R.string.main_menu__update_default_rounds_progress_init))
             val klaxon = Klaxon().converter(RoundsList.RoundsListJsonConverter())
             val rawString = resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
             val readRoundsStrings = klaxon.parse<RoundsList>(rawString)?.rounds
@@ -418,7 +416,7 @@ class UpdateDefaultRounds {
              * Check each read rounds
              */
             klaxon.converter(DefaultRoundInfoJsonConverter())
-            val progressTokenRawString = resources.getString(R.string.main_menu__update_default_rounds_progress_item)
+            val progressTokenRawString = resources.getString(R.string.main_menu__update_default_rounds_progress)
             val progressTokenTotalReplacer = Pair("total", readRoundsStrings.size.toString())
             for (readRound in readRoundsStrings.withIndex()) {
                 progressToken(
@@ -466,7 +464,7 @@ class UpdateDefaultRounds {
             /*
              * Remove rounds and related objects from the database that are not in readRounds
              */
-            progressToken(resources.getString(R.string.main_menu__update_default_rounds_progress_delete))
+            progressToken(resources.getString(R.string.main_menu__update_default_rounds_deleting))
             val roundsToDelete = repository.rounds.value!!.filter { dbRound -> !readRoundNames.contains(dbRound.name) }
 
             val itemsToDelete = roundsToDelete.map { it as Any }.toMutableList()
@@ -490,7 +488,7 @@ class UpdateDefaultRounds {
     }
 }
 
-class RoundsList(val rounds: List<String>) {
+private class RoundsList(val rounds: List<String>) {
     /**
      * Splits a json string in the format {"rounds": [...]} into a list of strings
      */
@@ -517,7 +515,7 @@ class RoundsList(val rounds: List<String>) {
 /**
  * Converts a json string into a [DefaultRoundInfo] object
  */
-private class DefaultRoundInfoJsonConverter : Converter {
+class DefaultRoundInfoJsonConverter : Converter {
     companion object {
         private const val CONVERTER_LOG_TAG = "CustomJsonConverter"
     }

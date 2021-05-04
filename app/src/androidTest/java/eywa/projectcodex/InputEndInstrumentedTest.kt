@@ -13,7 +13,6 @@ import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.ui.MainActivity
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -56,7 +55,7 @@ class InputEndInstrumentedTest {
     @Before
     fun beforeEach() {
         activity.activity.supportFragmentManager.beginTransaction()
-        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext, GlobalScope)
+        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
 
         /*
          * Fill default rounds
