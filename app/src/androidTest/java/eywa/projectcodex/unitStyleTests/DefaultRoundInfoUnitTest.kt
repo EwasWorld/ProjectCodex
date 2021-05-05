@@ -17,6 +17,7 @@ import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.logic.UpdateDefaultRounds
+import org.junit.After
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -35,11 +36,176 @@ import kotlin.math.roundToLong
 
 @RunWith(AndroidJUnit4::class)
 class DefaultRoundInfoUnitTest {
+    private class TestData {
+        companion object {
+            const val START = """{"rounds": ["""
+            const val END = """]}"""
+            const val YORK_MAIN = """
+              "roundName": "York",
+              "outdoor": true,
+              "isMetric": false,
+              "fiveArrowEnd": false,
+              "permittedFaces": []
+            """
+            const val YORK_SUB_TYPES = """
+              "roundSubTypes": [
+                {
+                  "roundSubTypeId": 1,
+                  "subTypeName": "York",
+                  "gentsUnder": null,
+                  "ladiesUnder": null
+                },
+                {
+                  "roundSubTypeId": 2,
+                  "subTypeName": "Hereford (Bristol I)",
+                  "gentsUnder": 18,
+                  "ladiesUnder": null
+                },
+                {
+                  "roundSubTypeId": 3,
+                  "subTypeName": "Bristol II",
+                  "gentsUnder": 16,
+                  "ladiesUnder": 18
+                },
+                {
+                  "roundSubTypeId": 4,
+                  "subTypeName": "Bristol V",
+                  "gentsUnder": 0,
+                  "ladiesUnder": 12
+                }
+              ]
+            """
+            const val YORK_ARROW_COUNTS = """
+              "roundArrowCounts": [
+                {
+                  "distanceNumber": 1,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 72
+                },
+                {
+                  "distanceNumber": 2,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 48
+                }
+              ]
+            """
+            const val YORK_DISTANCES = """
+              "roundDistances": [
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 1,
+                  "distance": 100
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 1,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 2,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 2,
+                  "distance": 60
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 3,
+                  "distance": 60
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 3,
+                  "distance": 50
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 4,
+                  "distance": 30
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 4,
+                  "distance": 20
+                }
+              ]
+            """
+            const val ST_GEORGE = """
+            {
+              "roundName": "St. George",
+              "outdoor": true,
+              "isMetric": true,
+              "fiveArrowEnd": true,
+              "permittedFaces": [
+                "NO_TRIPLE",
+                "FIVE_CENTRE"
+              ],
+              "roundSubTypes": [
+                {
+                  "roundSubTypeId": 1,
+                  "subTypeName": "St. George",
+                  "gentsUnder": null,
+                  "ladiesUnder": null
+                },
+                {
+                  "roundSubTypeId": 2,
+                  "subTypeName": "Albion",
+                  "gentsUnder": null,
+                  "ladiesUnder": null
+                }
+              ],
+              "roundArrowCounts": [
+                {
+                  "distanceNumber": 1,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 36
+                },
+                {
+                  "distanceNumber": 2,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 36
+                }
+              ],
+              "roundDistances": [
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 1,
+                  "distance": 100
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 1,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 2,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 2,
+                  "distance": 60
+                }
+              ]
+            }
+            """
+        }
+    }
+
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @After
+    fun teardown() {
+        UpdateDefaultRounds.hardResetState()
+    }
+
     /**
-     * Check that the current default round data is valid and parsable
+     * Check that the current default round data is parsable
      * Log the time taken to complete
      */
     @Test
@@ -51,18 +217,13 @@ class DefaultRoundInfoUnitTest {
         /*
          * Observe state
          */
-        val updateLatch = CountDownLatch(1)
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
         var currentIndex: Int? = null
         var timeCurrentStarted: Date? = null
         val itemCompletionTimes = mutableListOf<Long>()
-        val observerMap = LiveDataObserver(
-                stateObserver = Observer { state ->
-                    when (state) {
-                        UpdateDefaultRounds.UpdateTaskState.COMPLETE -> updateLatch.countDown()
-                        UpdateDefaultRounds.UpdateTaskState.ERROR -> Assert.fail("Update error")
-                    }
-                },
-                messageObserver = Observer { msg ->
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(Observer { msg ->
                     println(msg)
                     msg?.let { message ->
                         if (message.contains(" of ")) {
@@ -90,9 +251,9 @@ class DefaultRoundInfoUnitTest {
                             timeCurrentStarted = currentTime
                         }
                     }
-                }
-        )
-        observerMap.startObserving()
+                })
+                .build()
+        observer.startObserving()
 
         /*
          * Run test
@@ -101,7 +262,7 @@ class DefaultRoundInfoUnitTest {
         UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
 
         // Wait for the async task to finish
-        if (!updateLatch.await(5, TimeUnit.MINUTES)) {
+        if (!simpleStateObserver.updateLatch.await(5, TimeUnit.MINUTES)) {
             Assert.fail("Latch wait timeout")
         }
         val endTime = Date()
@@ -113,13 +274,57 @@ class DefaultRoundInfoUnitTest {
                             " Each completed in ${itemCompletionTimes.average().roundToLong()} seconds on average"
             )
         }
-        observerMap.finishObserving()
+        observer.finishObserving()
     }
 
-    class LiveDataObserver(
-            private val stateObserver: Observer<UpdateDefaultRounds.UpdateTaskState>? = null,
-            private val messageObserver: Observer<String?>? = null
-    ) {
+    /**
+     * Testing json for two correct rounds produces correct database objects
+     */
+    @Test
+    fun testCorrectRounds() {
+        val json = """
+            ${TestData.START}
+                {
+                    ${TestData.YORK_MAIN},
+                    ${TestData.YORK_SUB_TYPES},
+                    ${TestData.YORK_ARROW_COUNTS},
+                    ${TestData.YORK_DISTANCES}
+                },
+                ${TestData.ST_GEORGE}
+            ${TestData.END}
+        """
+        val mockInfo = MockInfo(json.byteInputStream())
+
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        "1 of 2",
+                                        "2 of 2",
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.button_complete]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        if (!simpleStateObserver.updateLatch.await(10, TimeUnit.SECONDS)) {
+            Assert.fail("Latch wait timeout")
+        }
+        observer.finishObserving()
+
+        // TODO Check output
+    }
+
+    class LiveDataObserver private constructor() {
+        private var stateObserver: Observer<UpdateDefaultRounds.UpdateTaskState>? = null
+        private var messageObserver: Observer<String?>? = null
         private val state = UpdateDefaultRounds.getState()
         private val message = UpdateDefaultRounds.getProgressMessage()
 
@@ -131,6 +336,53 @@ class DefaultRoundInfoUnitTest {
         fun finishObserving() {
             stateObserver?.let { state.removeObserver(it) }
             messageObserver?.let { message.removeObserver(it) }
+        }
+
+        class Builder {
+            private val liveDataObserver = LiveDataObserver()
+
+            fun setStateObserver(observer: Observer<UpdateDefaultRounds.UpdateTaskState>): Builder {
+                liveDataObserver.stateObserver = observer
+                return this
+            }
+
+            fun setMessageObserver(observer: Observer<String?>): Builder {
+                liveDataObserver.messageObserver = observer
+                return this
+            }
+
+            fun setMessageObserver(messageTracker: MessageTracker): Builder {
+                liveDataObserver.messageObserver = Observer { message ->
+                    println(message)
+                    messageTracker.checkMessage(message)
+                }
+                return this
+            }
+
+            fun build(): LiveDataObserver {
+                return liveDataObserver
+            }
+        }
+
+        class MessageTracker(private val expectedMessages: List<String?>, private val checkNulls: Boolean = false) {
+            private var currentMessageNumber = 0
+
+            fun checkMessage(message: String?) {
+                if (message != null || checkNulls) {
+                    Assert.assertEquals(expectedMessages[currentMessageNumber++], message)
+                }
+            }
+        }
+
+        class SimpleStateObserver {
+            val updateLatch = CountDownLatch(1)
+            val observer = Observer<UpdateDefaultRounds.UpdateTaskState> { state ->
+                @Suppress("NON_EXHAUSTIVE_WHEN")
+                when (state) {
+                    UpdateDefaultRounds.UpdateTaskState.COMPLETE -> updateLatch.countDown()
+                    UpdateDefaultRounds.UpdateTaskState.ERROR -> Assert.fail("Update error")
+                }
+            }
         }
     }
 

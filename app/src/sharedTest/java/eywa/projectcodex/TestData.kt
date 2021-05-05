@@ -3,7 +3,7 @@ package eywa.projectcodex
 import eywa.projectcodex.database.entities.*
 import eywa.projectcodex.logic.Arrow
 import eywa.projectcodex.logic.DefaultRoundInfo
-import eywa.projectcodex.logic.formatNameString
+import eywa.projectcodex.logic.DefaultRoundInfoHelper.Companion.formatNameString
 import java.sql.Date
 import kotlin.math.max
 import kotlin.math.min

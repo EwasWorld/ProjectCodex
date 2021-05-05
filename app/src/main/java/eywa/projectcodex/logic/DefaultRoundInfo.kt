@@ -3,6 +3,7 @@ package eywa.projectcodex.logic
 import android.content.res.Resources
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -338,6 +339,17 @@ class UpdateDefaultRounds {
                     state.postValue(UpdateTaskState.NOT_STARTED)
                     progressMessage.postValue(null)
                 }
+            }
+        }
+
+        /**
+         * Force the state value back to not started with a null message
+         */
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+        fun hardResetState() {
+            synchronized(state) {
+                state.postValue(UpdateTaskState.NOT_STARTED)
+                progressMessage.postValue(null)
             }
         }
     }
