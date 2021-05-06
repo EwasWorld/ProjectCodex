@@ -6,9 +6,9 @@ import eywa.projectcodex.database.entities.ROUND_TABLE_NAME
 import eywa.projectcodex.database.entities.Round
 
 @Dao
-interface RoundDao {
+interface RoundDao : RoundTypeDao<Round> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(round: Round)
+    override suspend fun insert(round: Round)
 
     @Query("SELECT * FROM $ROUND_TABLE_NAME WHERE name = :uniqueName")
     fun getRoundByName(uniqueName: String): LiveData<List<Round>>
@@ -21,6 +21,9 @@ interface RoundDao {
 
     @Query("SELECT MAX(roundId) FROM $ROUND_TABLE_NAME")
     fun getMaxRoundId(): LiveData<Int>
+
+    @Update
+    override fun updateSingle(updateItem: Round)
 
     @Update
     fun update(vararg rounds: Round)

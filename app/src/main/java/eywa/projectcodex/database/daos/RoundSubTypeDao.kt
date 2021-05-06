@@ -5,12 +5,15 @@ import androidx.room.*
 import eywa.projectcodex.database.entities.RoundSubType
 
 @Dao
-interface RoundSubTypeDao {
+interface RoundSubTypeDao : RoundTypeDao<RoundSubType> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(roundSubType: RoundSubType)
+    override suspend fun insert(roundSubType: RoundSubType)
 
     @Query("SELECT * FROM round_sub_types")
     fun getAllSubTypes(): LiveData<List<RoundSubType>>
+
+    @Update
+    override fun updateSingle(updateItem: RoundSubType)
 
     @Update
     fun update(vararg roundSubTypes: RoundSubType)

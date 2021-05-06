@@ -7,20 +7,15 @@ import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.logic.DefaultRoundInfo
-import eywa.projectcodex.logic.checkDefaultRounds
-import eywa.projectcodex.logic.roundsFromJson
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
-import org.mockito.Mockito.mock
-import java.io.File
+import org.mockito.Mockito.*
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
-        DefaultRoundInfoUnitTest.RoundsFromJsonUnitTests::class,
-        DefaultRoundInfoUnitTest.CheckDefaultRoundsUnitTests::class
 )
 class DefaultRoundInfoUnitTest {
     class RoundsFromJsonUnitTests {
@@ -190,15 +185,6 @@ class DefaultRoundInfoUnitTest {
         }
 
         /**
-         * Testing that there are no errors when parsing the default rounds resource file
-         */
-        @Test
-        fun defaultRoundsFileTest() {
-            val json = File("src/main/res/raw/default_rounds_data.json").readText()
-            roundsFromJson(json)
-        }
-
-        /**
          * Testing two correct rounds give the correct RoundInfo, which produces correct database objects
          */
         @Test
@@ -336,7 +322,7 @@ class DefaultRoundInfoUnitTest {
                             "roundSubTypeId": 1,
                             "distance": 100
                         }
-                    ]  
+                    ]
                 }
             ${TestData.END}
         """

@@ -6,9 +6,9 @@ import eywa.projectcodex.database.entities.ROUND_ARROW_COUNTS_TABLE_NAME
 import eywa.projectcodex.database.entities.RoundArrowCount
 
 @Dao
-interface RoundArrowCountDao {
+interface RoundArrowCountDao : RoundTypeDao<RoundArrowCount> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(roundArrowCount: RoundArrowCount)
+    override suspend fun insert(insertItem: RoundArrowCount)
 
     @Query("SELECT * FROM $ROUND_ARROW_COUNTS_TABLE_NAME")
     fun getAllArrowCounts(): LiveData<List<RoundArrowCount>>
@@ -17,7 +17,10 @@ interface RoundArrowCountDao {
     fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>>
 
     @Update
-    fun update(vararg roundArrowCounts: RoundArrowCount)
+    override fun updateSingle(updateItem: RoundArrowCount)
+
+    @Update
+    fun update(vararg updateItems: RoundArrowCount)
 
     @Query("DELETE FROM $ROUND_ARROW_COUNTS_TABLE_NAME WHERE roundId = :roundId")
     suspend fun deleteAll(roundId: Int)

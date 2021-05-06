@@ -7,47 +7,50 @@ import androidx.lifecycle.Observer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import eywa.projectcodex.R
+import eywa.projectcodex.TestUtils
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.daos.RoundArrowCountDao
-import eywa.projectcodex.database.daos.RoundDao
-import eywa.projectcodex.database.daos.RoundDistanceDao
-import eywa.projectcodex.database.daos.RoundSubTypeDao
+import eywa.projectcodex.database.UpdateType
+import eywa.projectcodex.database.daos.*
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
 import eywa.projectcodex.logic.UpdateDefaultRounds
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.anyInt
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
+import org.mockito.Captor
+import org.mockito.Mockito.*
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import java.io.InputStream
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
+import kotlin.reflect.KClass
 
 @RunWith(AndroidJUnit4::class)
 class DefaultRoundInfoUnitTest {
     private class TestData {
         companion object {
-            const val START = """{"rounds": ["""
-            const val END = """]}"""
-            const val YORK_MAIN = """
+            const val START_JSON = """{"rounds": ["""
+            const val END_JSON = """]}"""
+            const val YORK_MAIN_JSON = """
               "roundName": "York",
               "outdoor": true,
               "isMetric": false,
               "fiveArrowEnd": false,
               "permittedFaces": []
             """
-            const val YORK_SUB_TYPES = """
+            const val YORK_SUB_TYPES_JSON = """
               "roundSubTypes": [
                 {
                   "roundSubTypeId": 1,
@@ -75,7 +78,7 @@ class DefaultRoundInfoUnitTest {
                 }
               ]
             """
-            const val YORK_ARROW_COUNTS = """
+            const val YORK_ARROW_COUNTS_JSON = """
               "roundArrowCounts": [
                 {
                   "distanceNumber": 1,
@@ -89,7 +92,7 @@ class DefaultRoundInfoUnitTest {
                 }
               ]
             """
-            const val YORK_DISTANCES = """
+            const val YORK_DISTANCES_JSON = """
               "roundDistances": [
                 {
                   "distanceNumber": 1,
@@ -133,10 +136,10 @@ class DefaultRoundInfoUnitTest {
                 }
               ]
             """
-            const val ST_GEORGE = """
+            const val ST_GEORGE_JSON = """
             {
               "roundName": "St. George",
-              "outdoor": true,
+              "outdoor": false,
               "isMetric": true,
               "fiveArrowEnd": true,
               "permittedFaces": [
@@ -193,6 +196,51 @@ class DefaultRoundInfoUnitTest {
               ]
             }
             """
+            val YORK_ROUND_OBJECTS = listOf(
+                    Round(
+                            5,
+                            "york",
+                            "York",
+                            true,
+                            false, listOf(),
+                            true,
+                            false
+                    ),
+                    RoundSubType(5, 1, "York"),
+                    RoundSubType(5, 2, "Hereford (Bristol I)", 18),
+                    RoundSubType(5, 3, "Bristol II", 16, 18),
+                    RoundSubType(5, 4, "Bristol V", 0, 12),
+                    RoundArrowCount(5, 1, 122.0, 72),
+                    RoundArrowCount(5, 2, 122.0, 48),
+                    RoundDistance(5, 1, 1, 100),
+                    RoundDistance(5, 2, 1, 80),
+                    RoundDistance(5, 1, 2, 80),
+                    RoundDistance(5, 2, 2, 60),
+                    RoundDistance(5, 1, 3, 60),
+                    RoundDistance(5, 2, 3, 50),
+                    RoundDistance(5, 1, 4, 30),
+                    RoundDistance(5, 2, 4, 20)
+            )
+            val ST_GEORGE_ROUND_OBJECTS = listOf(
+                    Round(
+                            6,
+                            "stgeorge",
+                            "St. George",
+                            false,
+                            true,
+                            listOf("NO_TRIPLE", "FIVE_CENTRE"),
+                            true,
+                            true
+                    ),
+                    RoundSubType(6, 1, "St. George"),
+                    RoundSubType(6, 2, "Albion"),
+                    RoundArrowCount(6, 1, 122.0, 36),
+                    RoundArrowCount(6, 2, 122.0, 36),
+                    RoundDistance(6, 1, 1, 100),
+                    RoundDistance(6, 2, 1, 80),
+                    RoundDistance(6, 1, 2, 80),
+                    RoundDistance(6, 2, 2, 60)
+            )
         }
     }
 
@@ -278,20 +326,20 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Testing json for two correct rounds produces correct database objects
+     * Testing json for two correct rounds results in the correct database calls
      */
     @Test
-    fun testCorrectRounds() {
+    fun testNewRounds() {
         val json = """
-            ${TestData.START}
+            ${TestData.START_JSON}
                 {
-                    ${TestData.YORK_MAIN},
-                    ${TestData.YORK_SUB_TYPES},
-                    ${TestData.YORK_ARROW_COUNTS},
-                    ${TestData.YORK_DISTANCES}
+                    ${TestData.YORK_MAIN_JSON},
+                    ${TestData.YORK_SUB_TYPES_JSON},
+                    ${TestData.YORK_ARROW_COUNTS_JSON},
+                    ${TestData.YORK_DISTANCES_JSON}
                 },
-                ${TestData.ST_GEORGE}
-            ${TestData.END}
+                ${TestData.ST_GEORGE_JSON}
+            ${TestData.END_JSON}
         """
         val mockInfo = MockInfo(json.byteInputStream())
 
@@ -319,7 +367,10 @@ class DefaultRoundInfoUnitTest {
         }
         observer.finishObserving()
 
-        // TODO Check output
+        mockInfo.verifyUpdate(
+                TestData.YORK_ROUND_OBJECTS.plus(TestData.ST_GEORGE_ROUND_OBJECTS)
+                        .map { it to UpdateType.NEW }.toMap()
+        )
     }
 
     class LiveDataObserver private constructor() {
@@ -399,12 +450,12 @@ class DefaultRoundInfoUnitTest {
             )
         }
 
-        val db: ScoresRoomDatabase = Mockito.mock(ScoresRoomDatabase::class.java)
-        val roundDao: RoundDao = Mockito.mock(RoundDao::class.java)
-        val roundArrowCountDao: RoundArrowCountDao = Mockito.mock(RoundArrowCountDao::class.java)
-        val roundSubTypeDao: RoundSubTypeDao = Mockito.mock(RoundSubTypeDao::class.java)
-        val roundDistanceDao: RoundDistanceDao = Mockito.mock(RoundDistanceDao::class.java)
-        val resourcesMock: Resources = Mockito.mock(Resources::class.java)
+        val db: ScoresRoomDatabase = mock(ScoresRoomDatabase::class.java)
+        private val roundDao: RoundDao = mock(RoundDao::class.java)
+        private val roundArrowCountDao: RoundArrowCountDao = mock(RoundArrowCountDao::class.java)
+        private val roundSubTypeDao: RoundSubTypeDao = mock(RoundSubTypeDao::class.java)
+        private val roundDistanceDao: RoundDistanceDao = mock(RoundDistanceDao::class.java)
+        val resourcesMock: Resources = mock(Resources::class.java)
 
         init {
             check(resourceMap.values.union(defaultMap.values).size == resourceMap.size + defaultMap.size) {
@@ -434,6 +485,161 @@ class DefaultRoundInfoUnitTest {
                     throw NotImplementedError("Mock resource mapping not created")
                 }
             })
+        }
+
+        /**
+         * Verifies:
+         * - dao mock objects received the correct number of calls of each type
+         * - dao mock methods were called with the correct arguments
+         * - order of calls for each dao/method independently (i.e. will check roundDao.insert was called with round X
+         *   then round Y but not that roundDao.insert(X) was called before/after roundDistanceDao.insert(Z))
+         */
+        fun verifyUpdate(expectedUpdates: Map<Any, UpdateType>) {
+            val dbObjects = listOf(
+                    DbObjects(
+                            Round::class, roundDao,
+                            ArgumentCaptor.forClass(Round::class.java),
+                            listOf(ArgumentCaptor.forClass(Int::class.java))
+                    ),
+                    DbObjects(
+                            RoundArrowCount::class, roundArrowCountDao,
+                            ArgumentCaptor.forClass(RoundArrowCount::class.java),
+                            listOf(ArgumentCaptor.forClass(Int::class.java), ArgumentCaptor.forClass(Int::class.java))
+                    ),
+                    DbObjects(
+                            RoundSubType::class, roundSubTypeDao,
+                            ArgumentCaptor.forClass(RoundSubType::class.java),
+                            listOf(ArgumentCaptor.forClass(Int::class.java), ArgumentCaptor.forClass(Int::class.java))
+                    ),
+                    DbObjects(
+                            RoundDistance::class, roundDistanceDao,
+                            ArgumentCaptor.forClass(RoundDistance::class.java),
+                            listOf(
+                                    ArgumentCaptor.forClass(Int::class.java),
+                                    ArgumentCaptor.forClass(Int::class.java),
+                                    ArgumentCaptor.forClass(Int::class.java)
+                            )
+                    )
+            ).map {
+                @Suppress("UNCHECKED_CAST")
+                it.clazz to (it as DbObjects<Any>)
+            }.toMap()
+
+            /*
+             * Set up captors and verify times called
+             */
+            for (dbObject in dbObjects.values) {
+                runBlocking {
+                    verify(
+                            dbObject.dao,
+                            times(expectedUpdates.count { it.key::class == dbObject.clazz && it.value == UpdateType.NEW })
+                    ).insert(TestUtils.capture(dbObject.captor))
+                    verify(
+                            dbObject.dao,
+                            times(expectedUpdates.count { it.key::class == dbObject.clazz && it.value == UpdateType.UPDATE })
+                    ).updateSingle(TestUtils.capture(dbObject.captor))
+                }
+            }
+            runBlocking {
+                val expectedDeletes = expectedUpdates.filter { it.value == UpdateType.DELETE }
+
+                val roundDbObject = dbObjects[Round::class]!!
+                verify(roundDao, times(expectedDeletes.count { it.key::class == roundDbObject.clazz }))
+                        .delete(TestUtils.capture(roundDbObject.deleteCaptors[0]))
+                val arrowCountDbObject = dbObjects[RoundArrowCount::class]!!
+                verify(roundArrowCountDao, times(expectedDeletes.count { it.key::class == arrowCountDbObject.clazz }))
+                        .delete(
+                                TestUtils.capture(arrowCountDbObject.deleteCaptors[0]),
+                                TestUtils.capture(arrowCountDbObject.deleteCaptors[1])
+                        )
+                val subTypeDbObject = dbObjects[RoundSubType::class]!!
+                verify(roundSubTypeDao, times(expectedDeletes.count { it.key::class == subTypeDbObject.clazz }))
+                        .delete(
+                                TestUtils.capture(subTypeDbObject.deleteCaptors[0]),
+                                TestUtils.capture(subTypeDbObject.deleteCaptors[1])
+                        )
+                val distanceDbObject = dbObjects[RoundDistance::class]!!
+                verify(roundDistanceDao, times(expectedDeletes.count { it.key::class == distanceDbObject.clazz }))
+                        .delete(
+                                TestUtils.capture(distanceDbObject.deleteCaptors[0]),
+                                TestUtils.capture(distanceDbObject.deleteCaptors[1]),
+                                TestUtils.capture(distanceDbObject.deleteCaptors[2])
+                        )
+            }
+
+            /*
+             * Check call arguments
+             */
+            for (expectedUpdate in expectedUpdates) {
+                val expectedItem = expectedUpdate.key
+                val dbInfo = dbObjects[expectedItem::class]!!
+
+                // Delete Type
+                if (expectedUpdate.value == UpdateType.DELETE) {
+                    val checkList = when (expectedUpdate.key::class) {
+                        Round::class -> listOf((expectedItem as Round).roundId)
+                        RoundArrowCount::class -> {
+                            val arrowCount = (expectedItem as RoundArrowCount)
+                            listOf(arrowCount.roundId, arrowCount.distanceNumber)
+                        }
+                        RoundSubType::class -> {
+                            val subType = (expectedItem as RoundSubType)
+                            listOf(subType.roundId, subType.subTypeId)
+                        }
+                        RoundDistance::class -> {
+                            val distance = (expectedItem as RoundDistance)
+                            listOf(distance.roundId, distance.distanceNumber, distance.subTypeId)
+                        }
+                        else -> throw IllegalStateException("Invalid expected type")
+                    }
+                    Assert.assertEquals(checkList, dbInfo.removeNextDeleteCapturedValue())
+                }
+                // Other types
+                else {
+                    Assert.assertEquals(expectedItem, dbInfo.removeNextMainCaptorVal())
+                }
+            }
+        }
+
+        /**
+         * Helper class for [MockInfo.verifyUpdate]
+         */
+        private class DbObjects<T : Any>(
+                val clazz: KClass<T>,
+                val dao: RoundTypeDao<T>,
+                @Captor val captor: ArgumentCaptor<T>,
+                val deleteCaptors: List<ArgumentCaptor<Int>>
+        ) {
+            /**
+             * Lazy because captors haven't been used yet so captor.allValues will throw an error
+             * Stores the captured items left to be checked (earliest captured items first)
+             */
+            private val mainCaptorValues by lazy {
+                ArrayBlockingQueue<T>(captor.allValues.size, false, captor.allValues)
+            }
+
+            /**
+             * @see mainCaptorValues
+             */
+            private val deleteCaptorValues by lazy {
+                val allItems = deleteCaptors.map { it.allValues }
+                val totalItems = allItems[0].size
+                val field = ArrayBlockingQueue<List<Int>>(totalItems)
+                for (i in allItems[0].indices) {
+                    if (!field.offer(allItems.map { it[i] })) {
+                        throw IllegalStateException("Queue failed to add")
+                    }
+                }
+                field
+            }
+
+            fun removeNextDeleteCapturedValue(): List<Int> {
+                return deleteCaptorValues.poll()!!
+            }
+
+            fun removeNextMainCaptorVal(): T {
+                return mainCaptorValues.poll()!!
+            }
         }
     }
 }

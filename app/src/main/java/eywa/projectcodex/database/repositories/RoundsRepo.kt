@@ -3,10 +3,7 @@ package eywa.projectcodex.database.repositories
 import androidx.lifecycle.LiveData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
-import eywa.projectcodex.database.daos.RoundArrowCountDao
-import eywa.projectcodex.database.daos.RoundDao
-import eywa.projectcodex.database.daos.RoundDistanceDao
-import eywa.projectcodex.database.daos.RoundSubTypeDao
+import eywa.projectcodex.database.daos.*
 import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
@@ -68,43 +65,41 @@ class RoundsRepo(
         }
 
         for (item in updateItems.entries.toList().sortedWith(UpdateRoundsComparator())) {
-            when (item.value) {
-                UpdateType.NEW -> {
-                    when (item.key::class) {
-                        Round::class -> roundDao.insert(item.key as Round)
-                        RoundArrowCount::class -> roundArrowCountDao.insert(item.key as RoundArrowCount)
-                        RoundSubType::class -> roundSubTypeDao.insert(item.key as RoundSubType)
-                        RoundDistance::class -> roundDistanceDao.insert(item.key as RoundDistance)
+            if (item.value == UpdateType.DELETE) {
+                when (item.key::class) {
+                    Round::class -> deleteRound((item.key as Round).roundId)
+                    RoundArrowCount::class -> {
+                        val arrowCount = item.key as RoundArrowCount
+                        roundArrowCountDao.delete(arrowCount.roundId, arrowCount.distanceNumber)
+                    }
+                    RoundSubType::class -> {
+                        val subType = item.key as RoundSubType
+                        roundSubTypeDao.delete(subType.roundId, subType.subTypeId)
+                    }
+                    RoundDistance::class -> {
+                        val distance = item.key as RoundDistance
+                        roundDistanceDao.delete(
+                                distance.roundId,
+                                distance.distanceNumber,
+                                distance.subTypeId
+                        )
                     }
                 }
-                UpdateType.UPDATE -> {
-                    when (item.key::class) {
-                        Round::class -> roundDao.update(item.key as Round)
-                        RoundArrowCount::class -> roundArrowCountDao.update(item.key as RoundArrowCount)
-                        RoundSubType::class -> roundSubTypeDao.update(item.key as RoundSubType)
-                        RoundDistance::class -> roundDistanceDao.update(item.key as RoundDistance)
-                    }
+            }
+            else {
+                @Suppress("UNCHECKED_CAST")
+                val dao = when (item.key::class) {
+                    Round::class -> roundDao
+                    RoundArrowCount::class -> roundArrowCountDao
+                    RoundSubType::class -> roundSubTypeDao
+                    RoundDistance::class -> roundDistanceDao
+                    else -> throw IllegalArgumentException("Unknown type")
+                } as RoundTypeDao<Any>
+                if (item.value == UpdateType.NEW) {
+                    dao.insert(item.key)
                 }
-                UpdateType.DELETE -> {
-                    when (item.key::class) {
-                        Round::class -> deleteRound((item.key as Round).roundId)
-                        RoundArrowCount::class -> {
-                            val arrowCount = item.key as RoundArrowCount
-                            roundArrowCountDao.delete(arrowCount.roundId, arrowCount.distanceNumber)
-                        }
-                        RoundSubType::class -> {
-                            val subType = item.key as RoundSubType
-                            roundSubTypeDao.delete(subType.roundId, subType.subTypeId)
-                        }
-                        RoundDistance::class -> {
-                            val distance = item.key as RoundDistance
-                            roundDistanceDao.delete(
-                                    distance.roundId,
-                                    distance.distanceNumber,
-                                    distance.subTypeId
-                            )
-                        }
-                    }
+                else if (item.value == UpdateType.UPDATE) {
+                    dao.updateSingle(item.key)
                 }
             }
         }

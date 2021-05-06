@@ -6,15 +6,18 @@ import eywa.projectcodex.database.entities.ROUND_DISTANCES_TABLE_NAME
 import eywa.projectcodex.database.entities.RoundDistance
 
 @Dao
-interface RoundDistanceDao {
+interface RoundDistanceDao : RoundTypeDao<RoundDistance> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(roundDistance: RoundDistance)
+    override suspend fun insert(roundDistance: RoundDistance)
 
     @Query("SELECT * FROM $ROUND_DISTANCES_TABLE_NAME")
     fun getAllDistances(): LiveData<List<RoundDistance>>
 
     @Query("SELECT * FROM $ROUND_DISTANCES_TABLE_NAME WHERE roundId = :roundId AND subTypeId = :subTypeId")
     fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>>
+
+    @Update
+    override fun updateSingle(updateItem: RoundDistance)
 
     @Update
     fun update(vararg roundDistances: RoundDistance)
