@@ -366,135 +366,140 @@ class UpdateDefaultRounds {
             progressToken(resources.getString(R.string.main_menu__update_default_rounds_initialising))
 
             // Make sure we can acquire the lock before processing
-            // (holds the lock for longer but saves wasting time if the db isn't free)
-            val acquiredLock = repository.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS)
+            // (holds the lock for longer but doesn't waste time if the db isn't free)
+            val acquiredLock = RoundsRepo.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS)
             if (!acquiredLock) {
                 throw UserException(R.string.err_main_menu__update_default_rounds_no_lock)
             }
 
-            /*
-             * Get db info
-             */
-            val latch = CountDownLatch(4) // Rounds, ArrowCounts, SubTypes, Distances
-            var dbRounds: List<Round>? = null
-            val dbRoundsObserver = Observer<List<Round>> {
-                dbRounds = it
-                latch.countDown()
-            }
-            var dbArrowCounts: List<RoundArrowCount>? = null
-            val dbArrowCountsObserver = Observer<List<RoundArrowCount>> {
-                dbArrowCounts = it
-                latch.countDown()
-            }
-            var dbSubTypes: List<RoundSubType>? = null
-            val dbSubTypesObserver = Observer<List<RoundSubType>> {
-                dbSubTypes = it
-                latch.countDown()
-            }
-            var dbDistances: List<RoundDistance>? = null
-            val dbDistancesObserver = Observer<List<RoundDistance>> {
-                dbDistances = it
-                latch.countDown()
-            }
-            Handler(Looper.getMainLooper()).post {
-                repository.rounds.observeForever(dbRoundsObserver)
-                repository.roundArrowCounts.observeForever(dbArrowCountsObserver)
-                repository.roundSubTypes.observeForever(dbSubTypesObserver)
-                repository.roundDistances.observeForever(dbDistancesObserver)
-            }
-            var nextRoundId: Int? = null
-            val dbInfoRetrieved by lazy {
-                check(latch.await(10, TimeUnit.SECONDS)) { "Failed to retrieve db information" }
-                nextRoundId = dbRounds!!.map { it.roundId }.max()?.plus(1) ?: DefaultRoundInfo.defaultRoundMinimumId
+            try {
+                /*
+                 * Get db info
+                 */
+                val latch = CountDownLatch(4) // Rounds, ArrowCounts, SubTypes, Distances
+                var dbRounds: List<Round>? = null
+                val dbRoundsObserver = Observer<List<Round>> {
+                    dbRounds = it
+                    latch.countDown()
+                }
+                var dbArrowCounts: List<RoundArrowCount>? = null
+                val dbArrowCountsObserver = Observer<List<RoundArrowCount>> {
+                    dbArrowCounts = it
+                    latch.countDown()
+                }
+                var dbSubTypes: List<RoundSubType>? = null
+                val dbSubTypesObserver = Observer<List<RoundSubType>> {
+                    dbSubTypes = it
+                    latch.countDown()
+                }
+                var dbDistances: List<RoundDistance>? = null
+                val dbDistancesObserver = Observer<List<RoundDistance>> {
+                    dbDistances = it
+                    latch.countDown()
+                }
                 Handler(Looper.getMainLooper()).post {
-                    repository.rounds.removeObserver(dbRoundsObserver)
-                    repository.roundArrowCounts.removeObserver(dbArrowCountsObserver)
-                    repository.roundSubTypes.removeObserver(dbSubTypesObserver)
-                    repository.roundDistances.removeObserver(dbDistancesObserver)
+                    repository.rounds.observeForever(dbRoundsObserver)
+                    repository.roundArrowCounts.observeForever(dbArrowCountsObserver)
+                    repository.roundSubTypes.observeForever(dbSubTypesObserver)
+                    repository.roundDistances.observeForever(dbDistancesObserver)
                 }
-                true
-            }
-
-            /*
-             * Read default rounds data from file and make a list of strings
-             */
-            val klaxon = Klaxon().converter(RoundsList.RoundsListJsonConverter())
-            val rawString = resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
-            val readRoundsStrings = klaxon.parse<RoundsList>(rawString)?.rounds
-                    ?: throw IllegalStateException("Failed to parse default rounds file")
-            val readRoundNames = mutableListOf<String>()
-
-            /*
-             * Check each read rounds
-             */
-            klaxon.converter(DefaultRoundInfoJsonConverter())
-            val progressTokenRawString = resources.getString(R.string.main_menu__update_default_rounds_progress)
-            val progressTokenTotalReplacer = Pair("total", readRoundsStrings.size.toString())
-            for (readRound in readRoundsStrings.withIndex()) {
-                progressToken(
-                        resourceStringReplace(
-                                progressTokenRawString,
-                                mapOf(progressTokenTotalReplacer, Pair("current", (readRound.index + 1).toString()))
-                        )
-                )
-                val readRoundInfo = klaxon.parse<DefaultRoundInfo>(readRound.value)
-                        ?: throw IllegalStateException("Failed to parse default round info. Index ${readRound.index}")
+                var nextRoundId: Int? = null
+                val dbInfoRetrieved by lazy {
+                    check(latch.await(10, TimeUnit.SECONDS)) { "Failed to retrieve db information" }
+                    nextRoundId = dbRounds!!.map { it.roundId }.max()?.plus(1) ?: DefaultRoundInfo.defaultRoundMinimumId
+                    Handler(Looper.getMainLooper()).post {
+                        repository.rounds.removeObserver(dbRoundsObserver)
+                        repository.roundArrowCounts.removeObserver(dbArrowCountsObserver)
+                        repository.roundSubTypes.removeObserver(dbSubTypesObserver)
+                        repository.roundDistances.removeObserver(dbDistancesObserver)
+                    }
+                    true
+                }
 
                 /*
-                 * Check name
+                 * Read default rounds data from file and make a list of strings
                  */
-                val readRoundName = DefaultRoundInfoHelper.formatNameString(readRoundInfo.displayName)
-                require(!readRoundNames.contains(readRoundName)) { "Duplicate name in default rounds file" }
-                readRoundNames.add(readRoundName)
+                val klaxon = Klaxon().converter(RoundsList.RoundsListJsonConverter())
+                val rawString =
+                        resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
+                val readRoundsStrings = klaxon.parse<RoundsList>(rawString)?.rounds
+                        ?: throw IllegalStateException("Failed to parse default rounds file")
+                val readRoundNames = mutableListOf<String>()
 
                 /*
-                 * Compare and update db
+                 * Check each read rounds
                  */
-                check(dbInfoRetrieved) { "Failed to retrieve db information" }
-                // Should not be null as empty database will return an empty list
-                val dbUpdateItems = DefaultRoundInfoHelper.getUpdates(
-                        readRoundInfo, dbRounds!!, dbArrowCounts!!, dbSubTypes!!, dbDistances!!, nextRoundId!!
-                )
-                if (dbUpdateItems.containsValue(UpdateType.NEW)) {
-                    nextRoundId = nextRoundId!! + 1
-                }
-                runBlocking {
-                    repository.updateRounds(dbUpdateItems)
-                }
-
-                if (isSoftCancelled) {
-                    repository.repositoryWriteLock.unlock()
-                    CustomLogger.customLogger.i(
-                            LOG_TAG,
-                            "Task cancelled at ${readRound.index} of ${readRoundNames.size}"
+                klaxon.converter(DefaultRoundInfoJsonConverter())
+                val progressTokenRawString = resources.getString(R.string.main_menu__update_default_rounds_progress)
+                val progressTokenTotalReplacer = Pair("total", readRoundsStrings.size.toString())
+                for (readRound in readRoundsStrings.withIndex()) {
+                    progressToken(
+                            resourceStringReplace(
+                                    progressTokenRawString,
+                                    mapOf(progressTokenTotalReplacer, Pair("current", (readRound.index + 1).toString()))
+                            )
                     )
-                    progressToken(resources.getString(R.string.general_cancelled))
-                    return null
+                    val readRoundInfo = klaxon.parse<DefaultRoundInfo>(readRound.value)
+                            ?: throw IllegalStateException("Failed to parse default round info. Index ${readRound.index}")
+
+                    /*
+                     * Check name
+                     */
+                    val readRoundName = DefaultRoundInfoHelper.formatNameString(readRoundInfo.displayName)
+                    require(!readRoundNames.contains(readRoundName)) { "Duplicate name in default rounds file" }
+                    readRoundNames.add(readRoundName)
+
+                    /*
+                     * Compare and update db
+                     */
+                    check(dbInfoRetrieved) { "Failed to retrieve db information" }
+                    // Should not be null as empty database will return an empty list
+                    val dbUpdateItems = DefaultRoundInfoHelper.getUpdates(
+                            readRoundInfo, dbRounds!!, dbArrowCounts!!, dbSubTypes!!, dbDistances!!, nextRoundId!!
+                    )
+                    if (dbUpdateItems.containsValue(UpdateType.NEW)) {
+                        nextRoundId = nextRoundId!! + 1
+                    }
+                    runBlocking {
+                        repository.updateRounds(dbUpdateItems)
+                    }
+
+                    if (isSoftCancelled) {
+                        CustomLogger.customLogger.i(
+                                LOG_TAG,
+                                "Task cancelled at ${readRound.index} of ${readRoundNames.size}"
+                        )
+                        progressToken(resources.getString(R.string.general_cancelled))
+                        return null
+                    }
                 }
+
+                /*
+                 * Remove rounds and related objects from the database that are not in readRounds
+                 */
+                progressToken(resources.getString(R.string.main_menu__update_default_rounds_deleting))
+                val roundsToDelete =
+                        repository.rounds.value!!.filter { dbRound -> !readRoundNames.contains(dbRound.name) }
+
+                val delItems = roundsToDelete.map { it as Any }.toMutableList()
+                val idsOfRoundsToDelete = roundsToDelete.map { it.roundId }
+                delItems.addAll(repository.roundArrowCounts.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
+                delItems.addAll(repository.roundSubTypes.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
+                delItems.addAll(repository.roundDistances.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
+
+                val deleteItems = delItems.map { it to UpdateType.DELETE }.toMap()
+                runBlocking {
+                    repository.updateRounds(deleteItems)
+                }
+
+                /*
+                 * Complete
+                 */
+                progressToken(resources.getString(R.string.button_complete))
             }
-
-            /*
-             * Remove rounds and related objects from the database that are not in readRounds
-             */
-            progressToken(resources.getString(R.string.main_menu__update_default_rounds_deleting))
-            val roundsToDelete = repository.rounds.value!!.filter { dbRound -> !readRoundNames.contains(dbRound.name) }
-
-            val itemsToDelete = roundsToDelete.map { it as Any }.toMutableList()
-            val idsOfRoundsToDelete = roundsToDelete.map { it.roundId }
-            itemsToDelete.addAll(repository.roundArrowCounts.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
-            itemsToDelete.addAll(repository.roundSubTypes.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
-            itemsToDelete.addAll(repository.roundDistances.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
-
-            val updateItems = itemsToDelete.map { it to UpdateType.DELETE }.toMap()
-            runBlocking {
-                repository.updateRounds(updateItems)
+            finally {
+                RoundsRepo.repositoryWriteLock.unlock()
             }
-
-            /*
-             * Complete
-             */
-            progressToken(resources.getString(R.string.button_complete))
-            repository.repositoryWriteLock.unlock()
             return null
         }
     }

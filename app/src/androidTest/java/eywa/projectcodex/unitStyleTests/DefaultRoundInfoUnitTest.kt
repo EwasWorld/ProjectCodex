@@ -16,6 +16,7 @@ import eywa.projectcodex.database.entities.Round
 import eywa.projectcodex.database.entities.RoundArrowCount
 import eywa.projectcodex.database.entities.RoundDistance
 import eywa.projectcodex.database.entities.RoundSubType
+import eywa.projectcodex.database.repositories.RoundsRepo
 import eywa.projectcodex.logic.UpdateDefaultRounds
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -38,10 +39,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
 import kotlin.reflect.KClass
 
-/*
- * TODO:
- *      Test state transitions
- */
 @RunWith(AndroidJUnit4::class)
 class DefaultRoundInfoUnitTest {
     companion object {
@@ -279,7 +276,190 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if any rounds have a duplicate/equivalent names in the JSON
+     * Test [UpdateDefaultRounds.getState] transitions as expected from not started to complete
+     */
+    @Test
+    fun testWorkingStateTransitions() {
+        val json = "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}"
+        val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
+
+        val latch = CountDownLatch(1)
+        val expectedStates = mutableListOf(
+                UpdateDefaultRounds.UpdateTaskState.NOT_STARTED,
+                UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS,
+                UpdateDefaultRounds.UpdateTaskState.COMPLETE
+        )
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(Observer { state ->
+                    if (expectedStates.isEmpty()) {
+                        Assert.fail("No more states expected but state changed to $state")
+                    }
+                    Assert.assertEquals(expectedStates.removeAt(0), state)
+                    if (expectedStates.isEmpty()) {
+                        latch.countDown()
+                    }
+                })
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        "1 of 1",
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.button_complete]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        if (!latch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
+            Assert.fail("Latch await failed")
+        }
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
+    }
+
+    /**
+     * Test [UpdateDefaultRounds.getState] transitions as expected from not started to error
+     */
+    @Test
+    fun testErrorStateTransitions() {
+        // Invalid json syntax
+        val json = "${TestData.START_JSON}{{{${TestData.YORK_JSON}${TestData.END_JSON}"
+        val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
+
+        val latch = CountDownLatch(1)
+        val expectedStates = mutableListOf(
+                UpdateDefaultRounds.UpdateTaskState.NOT_STARTED,
+                UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS,
+                UpdateDefaultRounds.UpdateTaskState.ERROR
+        )
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(Observer { state ->
+                    if (expectedStates.isEmpty()) {
+                        Assert.fail("No more states expected but state changed to $state")
+                    }
+                    Assert.assertEquals(expectedStates.removeAt(0), state)
+                    if (expectedStates.isEmpty()) {
+                        latch.countDown()
+                    }
+                })
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.err__internal_error]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        if (!latch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
+            Assert.fail("Latch await failed")
+        }
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(mapOf())
+    }
+
+    /**
+     * Test that a cancelled task will stop processing after the next item
+     */
+    @Test
+    fun testCancel() {
+        val json = "${TestData.START_JSON}${TestData.YORK_JSON},${TestData.ST_GEORGE_JSON}${TestData.END_JSON}"
+        val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
+
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        "1 of 2",
+                                        MockInfo.defaultMap[R.string.general_cancelled]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        UpdateDefaultRounds.cancelUpdateDefaultRounds()
+        simpleStateObserver.await()
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
+    }
+
+    /**
+     * Test that an error is thrown if [RoundsRepo.repositoryWriteLock] is already locked. Ensure the hold count remains
+     *    correct
+     */
+    @Test
+    fun testRepoAlreadyLocked() {
+        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
+        Assert.assertTrue(RoundsRepo.repositoryWriteLock.tryLock())
+        Assert.assertEquals(1, RoundsRepo.repositoryWriteLock.holdCount)
+        checkErrorState("", listOf(), R.string.err_main_menu__update_default_rounds_no_lock)
+        Assert.assertEquals(1, RoundsRepo.repositoryWriteLock.holdCount)
+        RoundsRepo.repositoryWriteLock.unlock()
+        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
+    }
+
+    /**
+     * Test that [RoundsRepo.repositoryWriteLock] is properly released after updating default rounds
+     */
+    @Test
+    fun testLockedIsReleasedOnSuccess() {
+        val json = "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}"
+        val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
+
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        "1 of 1",
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.button_complete]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        simpleStateObserver.await()
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
+
+        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
+        Assert.assertTrue(RoundsRepo.repositoryWriteLock.tryLock())
+        RoundsRepo.repositoryWriteLock.unlock()
+    }
+
+    /**
+     * Test that [RoundsRepo.repositoryWriteLock] is properly released when an error is thrown
+     */
+    @Test
+    fun testLockedIsReleasedOnError() {
+        checkErrorState("", listOf())
+        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
+        Assert.assertTrue(RoundsRepo.repositoryWriteLock.tryLock())
+        RoundsRepo.repositoryWriteLock.unlock()
+    }
+
+    /**
+     * Test that an error is thrown if any rounds have a duplicate/equivalent names in the JSON
      */
     @Test
     fun testDuplicateRoundNameDb() {
@@ -326,7 +506,7 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if invalid JSON syntax
+     * Test that an error is thrown if invalid JSON syntax
      */
     @Test
     fun testInvalidJson() {
@@ -346,7 +526,7 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if the size of a roundDistances != subTypes * arrowCounts
+     * Test that an error is thrown if the size of a roundDistances != subTypes * arrowCounts
      */
     @Test
     fun testBadDistancesSize() {
@@ -371,7 +551,7 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if any round's sub types have a duplicate/equivalent names in the JSON
+     * Test that an error is thrown if any round's sub types have a duplicate/equivalent names in the JSON
      */
     @Test
     fun testDuplicateSubTypeName() {
@@ -415,7 +595,7 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if any round's sub types have a duplicate/equivalent ids in the JSON
+     * Test that an error is thrown if any round's sub types have a duplicate/equivalent ids in the JSON
      */
     @Test
     fun testDuplicateSubTypeIds() {
@@ -459,7 +639,7 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if any round's arrow counts have a identical distance numbers in the JSON
+     * Test that an error is thrown if any round's arrow counts have a identical distance numbers in the JSON
      */
     @Test
     fun testDuplicateArrowCountDistanceNumbers() {
@@ -489,7 +669,8 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if any round's distances have an identical distance number and sub type id in the JSON
+     * Test that an error is thrown if any round's distances have an identical distance number and sub type id in the
+     *    JSON
      */
     @Test
     fun testDuplicateDistanceKeys() {
@@ -549,7 +730,8 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if one of the keys in roundDistances doesn't match those of of subTypes or arrowCounts
+     * Test that an error is thrown if one of the keys in roundDistances doesn't match those of of subTypes or
+     *    arrowCounts
      */
     @Test
     fun testDistanceKeysMismatch() {
@@ -609,8 +791,8 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Throw an error if a later distance entry with a higher actual distance (e.g. first distance is 100 yards,
-     *   second distance is 200 yards)
+     * Test that an error is thrown if a later distance entry with a higher actual distance (e.g. first distance is 100
+     *    yards, second distance is 200 yards)
      */
     @Test
     fun testNonDescendingDistances() {
@@ -670,15 +852,64 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
+     * Test that an error is thrown if a round has no arrow counts
+     */
+    @Test
+    fun testNoArrowCountsInput() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            "roundDistances": [
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 1,
+                                    "distance": 100
+                                }
+                            ]
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Test that an error is thrown if a round has no distances
+     */
+    @Test
+    fun testNoDistancesInput() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            "roundArrowCounts": [
+                                {
+                                    "distanceNumber": 1,
+                                    "faceSizeInCm": 122,
+                                    "arrowCount": 72
+                                }
+                            ]
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
      * Common test for invalid json. Checks that no calls were made on the database and that the UpdateTaskState was set
      *   to ERROR
      * @param json json to test
      * @param extraMessages any messages that should come between the first initialising messages and the error message
+     * @param errorMessageId resource ID of the expected error message to be printed out (default: internal error)
      */
-    private fun checkErrorState(json: String, extraMessages: List<String> = listOf("1 of 1")) {
-        val mockInfo = MockInfo.Builder(json.byteInputStream())
-                .build()
-
+    private fun checkErrorState(
+            json: String,
+            extraMessages: List<String> = listOf("1 of 1"),
+            errorMessageId: Int = R.string.err__internal_error
+    ) {
+        val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
         val simpleStateObserver = LiveDataObserver.SimpleStateObserver(UpdateDefaultRounds.UpdateTaskState.ERROR)
         val observer = LiveDataObserver.Builder()
                 .setStateObserver(simpleStateObserver.observer)
@@ -688,7 +919,7 @@ class DefaultRoundInfoUnitTest {
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         *extraMessages.toTypedArray(),
-                                        MockInfo.defaultMap[R.string.err__internal_error]
+                                        MockInfo.defaultMap[errorMessageId]
                                 )
                         )
                 ).build()
@@ -701,7 +932,7 @@ class DefaultRoundInfoUnitTest {
         mockInfo.verifyUpdate(mapOf())
     }
 
-    class LiveDataObserver private constructor() {
+    private class LiveDataObserver private constructor() {
         private var stateObserver: Observer<UpdateDefaultRounds.UpdateTaskState>? = null
         private var messageObserver: Observer<String?>? = null
         private val state = UpdateDefaultRounds.getState()
@@ -761,6 +992,9 @@ class DefaultRoundInfoUnitTest {
 
             fun checkMessage(message: String?) {
                 if (message != null || checkNulls) {
+                    if (remainingMessages() == 0) {
+                        Assert.fail("No more messages expected, but message was set to $message")
+                    }
                     Assert.assertEquals(expectedMessages[currentMessageNumber++], message)
                 }
             }
@@ -802,6 +1036,7 @@ class DefaultRoundInfoUnitTest {
                     Pair(R.string.main_menu__update_default_rounds_deleting, "deleting"),
                     Pair(R.string.general_cancelled, "cancelled"),
                     Pair(R.string.button_complete, "complete"),
+                    Pair(R.string.err_main_menu__update_default_rounds_no_lock, "no lock"),
                     Pair(R.string.err__internal_error, "internal error")
             )
         }

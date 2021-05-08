@@ -20,7 +20,10 @@ class RoundsRepo(
         private val roundSubTypeDao: RoundSubTypeDao,
         private val roundDistanceDao: RoundDistanceDao
 ) {
-    val repositoryWriteLock = ReentrantLock()
+    companion object {
+        val repositoryWriteLock = ReentrantLock()
+    }
+
     val rounds: LiveData<List<Round>> = roundDao.getAllRounds()
     val roundArrowCounts: LiveData<List<RoundArrowCount>> = roundArrowCountDao.getAllArrowCounts()
     val roundSubTypes: LiveData<List<RoundSubType>> = roundSubTypeDao.getAllSubTypes()
