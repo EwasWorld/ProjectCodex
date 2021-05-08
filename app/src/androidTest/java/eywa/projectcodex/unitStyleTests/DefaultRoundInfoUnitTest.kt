@@ -1,6 +1,7 @@
 package eywa.projectcodex.unitStyleTests
 
 import android.content.res.Resources
+import android.os.Debug
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -37,219 +38,18 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
 import kotlin.reflect.KClass
 
+/*
+ * TODO:
+ *      Test state transitions
+ */
 @RunWith(AndroidJUnit4::class)
 class DefaultRoundInfoUnitTest {
-    private class TestData {
-        companion object {
-            const val START_JSON = """{"rounds": ["""
-            const val END_JSON = """]}"""
-            const val YORK_MAIN_JSON = """
-              "roundName": "York",
-              "outdoor": true,
-              "isMetric": false,
-              "fiveArrowEnd": false,
-              "permittedFaces": []
-            """
-            const val YORK_SUB_TYPES_JSON = """
-              "roundSubTypes": [
-                {
-                  "roundSubTypeId": 1,
-                  "subTypeName": "York",
-                  "gentsUnder": null,
-                  "ladiesUnder": null
-                },
-                {
-                  "roundSubTypeId": 2,
-                  "subTypeName": "Hereford (Bristol I)",
-                  "gentsUnder": 18,
-                  "ladiesUnder": null
-                },
-                {
-                  "roundSubTypeId": 3,
-                  "subTypeName": "Bristol II",
-                  "gentsUnder": 16,
-                  "ladiesUnder": 18
-                },
-                {
-                  "roundSubTypeId": 4,
-                  "subTypeName": "Bristol V",
-                  "gentsUnder": 0,
-                  "ladiesUnder": 12
-                }
-              ]
-            """
-            const val YORK_ARROW_COUNTS_JSON = """
-              "roundArrowCounts": [
-                {
-                  "distanceNumber": 1,
-                  "faceSizeInCm": 122,
-                  "arrowCount": 72
-                },
-                {
-                  "distanceNumber": 2,
-                  "faceSizeInCm": 122,
-                  "arrowCount": 48
-                }
-              ]
-            """
-            const val YORK_DISTANCES_JSON = """
-              "roundDistances": [
-                {
-                  "distanceNumber": 1,
-                  "roundSubTypeId": 1,
-                  "distance": 100
-                },
-                {
-                  "distanceNumber": 2,
-                  "roundSubTypeId": 1,
-                  "distance": 80
-                },
-                {
-                  "distanceNumber": 1,
-                  "roundSubTypeId": 2,
-                  "distance": 80
-                },
-                {
-                  "distanceNumber": 2,
-                  "roundSubTypeId": 2,
-                  "distance": 60
-                },
-                {
-                  "distanceNumber": 1,
-                  "roundSubTypeId": 3,
-                  "distance": 60
-                },
-                {
-                  "distanceNumber": 2,
-                  "roundSubTypeId": 3,
-                  "distance": 50
-                },
-                {
-                  "distanceNumber": 1,
-                  "roundSubTypeId": 4,
-                  "distance": 30
-                },
-                {
-                  "distanceNumber": 2,
-                  "roundSubTypeId": 4,
-                  "distance": 20
-                }
-              ]
-            """
-            const val YORK_JSON = """
-                {
-                    ${YORK_MAIN_JSON},
-                    ${YORK_SUB_TYPES_JSON},
-                    ${YORK_ARROW_COUNTS_JSON},
-                    ${YORK_DISTANCES_JSON}
-                },
-            """
-            const val ST_GEORGE_JSON = """
-            {
-              "roundName": "St. George",
-              "outdoor": false,
-              "isMetric": true,
-              "fiveArrowEnd": true,
-              "permittedFaces": [
-                "NO_TRIPLE",
-                "FIVE_CENTRE"
-              ],
-              "roundSubTypes": [
-                {
-                  "roundSubTypeId": 1,
-                  "subTypeName": "St. George",
-                  "gentsUnder": null,
-                  "ladiesUnder": null
-                },
-                {
-                  "roundSubTypeId": 2,
-                  "subTypeName": "Albion",
-                  "gentsUnder": null,
-                  "ladiesUnder": null
-                }
-              ],
-              "roundArrowCounts": [
-                {
-                  "distanceNumber": 1,
-                  "faceSizeInCm": 122,
-                  "arrowCount": 36
-                },
-                {
-                  "distanceNumber": 2,
-                  "faceSizeInCm": 122,
-                  "arrowCount": 36
-                }
-              ],
-              "roundDistances": [
-                {
-                  "distanceNumber": 1,
-                  "roundSubTypeId": 1,
-                  "distance": 100
-                },
-                {
-                  "distanceNumber": 2,
-                  "roundSubTypeId": 1,
-                  "distance": 80
-                },
-                {
-                  "distanceNumber": 1,
-                  "roundSubTypeId": 2,
-                  "distance": 80
-                },
-                {
-                  "distanceNumber": 2,
-                  "roundSubTypeId": 2,
-                  "distance": 60
-                }
-              ]
-            }
-            """
-            val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, listOf(), true, false)
-            val YORK_ARROW_COUNT_OBJECTS = listOf(
-                    RoundArrowCount(5, 1, 122.0, 72),
-                    RoundArrowCount(5, 2, 122.0, 48)
-            )
-            val YORK_SUB_TYPE_OBJECTS = listOf(
-                    RoundSubType(5, 1, "York"),
-                    RoundSubType(5, 2, "Hereford (Bristol I)", 18),
-                    RoundSubType(5, 3, "Bristol II", 16, 18),
-                    RoundSubType(5, 4, "Bristol V", 0, 12)
-            )
-            val YORK_DISTANCE_OBJECTS = listOf(
-                    RoundDistance(5, 1, 1, 100),
-                    RoundDistance(5, 2, 1, 80),
-                    RoundDistance(5, 1, 2, 80),
-                    RoundDistance(5, 2, 2, 60),
-                    RoundDistance(5, 1, 3, 60),
-                    RoundDistance(5, 2, 3, 50),
-                    RoundDistance(5, 1, 4, 30),
-                    RoundDistance(5, 2, 4, 20)
-            )
-
-            val YORK_ALL_ROUND_OBJECTS = listOf(
-                    listOf(YORK_ROUND_OBJECT), YORK_ARROW_COUNT_OBJECTS, YORK_SUB_TYPE_OBJECTS, YORK_DISTANCE_OBJECTS
-            ).flatten()
-            val ST_GEORGE_ROUND_OBJECTS = listOf(
-                    Round(
-                            6,
-                            "stgeorge",
-                            "St. George",
-                            false,
-                            true,
-                            listOf("NO_TRIPLE", "FIVE_CENTRE"),
-                            true,
-                            true
-                    ),
-                    RoundSubType(6, 1, "St. George"),
-                    RoundSubType(6, 2, "Albion"),
-                    RoundArrowCount(6, 1, 122.0, 36),
-                    RoundArrowCount(6, 2, 122.0, 36),
-                    RoundDistance(6, 1, 1, 100),
-                    RoundDistance(6, 2, 1, 80),
-                    RoundDistance(6, 1, 2, 80),
-                    RoundDistance(6, 2, 2, 60)
-            )
-        }
+    companion object {
+        /**
+         * Increases latch wait times when debugging so that it doesn't time out while debugging
+         */
+        private val latchAwaitTimeSeconds = if (Debug.isDebuggerConnected()) 60L * 60 else 10L
+        private val latchAwaitTimeUnit = TimeUnit.SECONDS
     }
 
     @get:Rule
@@ -320,9 +120,7 @@ class DefaultRoundInfoUnitTest {
         UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
 
         // Wait for the async task to finish
-        if (!simpleStateObserver.updateLatch.await(5, TimeUnit.MINUTES)) {
-            Assert.fail("Latch wait timeout")
-        }
+        simpleStateObserver.await(5, TimeUnit.MINUTES)
         val endTime = Date()
         val duration = startTime.toInstant().until(endTime.toInstant(), ChronoUnit.SECONDS)
         println("Time took to complete: $duration seconds")
@@ -360,15 +158,12 @@ class DefaultRoundInfoUnitTest {
                 ).build()
 
         observer.startObserving()
-
         UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
-        if (!simpleStateObserver.updateLatch.await(10, TimeUnit.SECONDS)) {
-            Assert.fail("Latch wait timeout")
-        }
+        simpleStateObserver.await()
         observer.finishObserving()
 
         mockInfo.verifyUpdate(
-                TestData.YORK_ALL_ROUND_OBJECTS.plus(TestData.ST_GEORGE_ROUND_OBJECTS)
+                TestData.YORK_ALL_ROUND_OBJECTS.plus(TestData.ST_GEORGE_ALL_ROUND_OBJECTS)
                         .map { it to UpdateType.NEW }.toMap()
         )
     }
@@ -378,6 +173,7 @@ class DefaultRoundInfoUnitTest {
      */
     @Test
     fun testUpdateRounds() {
+        val json = "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}"
         /*
          * Change the objects the DB will return so they're different from the json given
          */
@@ -408,22 +204,16 @@ class DefaultRoundInfoUnitTest {
                 TestData.YORK_DISTANCE_OBJECTS[0].subTypeId,
                 TestData.YORK_DISTANCE_OBJECTS[0].distance + 20
         )
-        val json = "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}"
         val mockInfo = MockInfo.Builder(json.byteInputStream())
-                .setDbRoundsData(listOf(updatedRound))
-                .setDbArrowCountsData(
-                        listOf(updatedArrowCount).plus(
-                                TestData.YORK_ARROW_COUNT_OBJECTS.subList(1, TestData.YORK_ARROW_COUNT_OBJECTS.size)
-                        )
+                .setDbData(
+                        listOf(
+                                listOf(updatedRound, updatedArrowCount, updatedSubType, updatedDistance),
+                                TestData.YORK_ARROW_COUNT_OBJECTS.subList(1, TestData.YORK_ARROW_COUNT_OBJECTS.size),
+                                TestData.YORK_SUB_TYPE_OBJECTS.subList(1, TestData.YORK_SUB_TYPE_OBJECTS.size),
+                                TestData.YORK_DISTANCE_OBJECTS.subList(1, TestData.YORK_DISTANCE_OBJECTS.size)
+                        ).flatten()
                 )
-                .setDbSubTypeData(
-                        listOf(updatedSubType)
-                                .plus(TestData.YORK_SUB_TYPE_OBJECTS.subList(1, TestData.YORK_SUB_TYPE_OBJECTS.size))
-                )
-                .setDbDistanceData(
-                        listOf(updatedDistance)
-                                .plus(TestData.YORK_DISTANCE_OBJECTS.subList(1, TestData.YORK_DISTANCE_OBJECTS.size))
-                ).build()
+                .build()
 
         val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
         val observer = LiveDataObserver.Builder()
@@ -441,11 +231,8 @@ class DefaultRoundInfoUnitTest {
                 ).build()
 
         observer.startObserving()
-
         UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
-        if (!simpleStateObserver.updateLatch.await(10, TimeUnit.SECONDS)) {
-            Assert.fail("Latch wait timeout")
-        }
+        simpleStateObserver.await()
         observer.finishObserving()
 
         mockInfo.verifyUpdate(
@@ -464,19 +251,9 @@ class DefaultRoundInfoUnitTest {
     @Test
     fun testDeleteRounds() {
         val json = "${TestData.START_JSON}${TestData.ST_GEORGE_JSON}${TestData.END_JSON}"
-        val mockInfo = MockInfo.Builder(json.byteInputStream()).setDbRoundsData(
-                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(Round::class.java)
-                        .plus(TestData.YORK_ROUND_OBJECT)
-        ).setDbArrowCountsData(
-                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(RoundArrowCount::class.java)
-                        .plus(TestData.YORK_ARROW_COUNT_OBJECTS)
-        ).setDbSubTypeData(
-                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(RoundSubType::class.java)
-                        .plus(TestData.YORK_SUB_TYPE_OBJECTS)
-        ).setDbDistanceData(
-                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(RoundDistance::class.java)
-                        .plus(TestData.YORK_DISTANCE_OBJECTS)
-        ).build()
+        val mockInfo = MockInfo.Builder(json.byteInputStream())
+                .setDbData(TestData.ST_GEORGE_ALL_ROUND_OBJECTS.plus(TestData.YORK_ALL_ROUND_OBJECTS))
+                .build()
 
         val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
         val observer = LiveDataObserver.Builder()
@@ -494,14 +271,434 @@ class DefaultRoundInfoUnitTest {
                 ).build()
 
         observer.startObserving()
-
         UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
-        if (!simpleStateObserver.updateLatch.await(10, TimeUnit.SECONDS)) {
-            Assert.fail("Latch wait timeout")
-        }
+        simpleStateObserver.await()
         observer.finishObserving()
 
         mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.DELETE }.toMap())
+    }
+
+    /**
+     * Throw an error if any rounds have a duplicate/equivalent names in the JSON
+     */
+    @Test
+    fun testDuplicateRoundNameDb() {
+        val json = """
+            ${TestData.START_JSON}
+                ${TestData.ST_GEORGE_JSON},
+                {
+                   "roundName": "stgeoRge.",
+                   "outdoor": true,
+                   "isMetric": false,
+                   "fiveArrowEnd": false,
+                   "permittedFaces": [],
+                    ${TestData.YORK_SUB_TYPES_JSON},
+                    ${TestData.YORK_ARROW_COUNTS_JSON},
+                    ${TestData.YORK_DISTANCES_JSON}
+                }
+            ${TestData.END_JSON}
+        """
+        val mockInfo = MockInfo.Builder(json.byteInputStream())
+                .setDbData(TestData.YORK_ALL_ROUND_OBJECTS)
+                .build()
+
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver(UpdateDefaultRounds.UpdateTaskState.ERROR)
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        "1 of 2",
+                                        "2 of 2",
+                                        MockInfo.defaultMap[R.string.err__internal_error]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        simpleStateObserver.await()
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(TestData.ST_GEORGE_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
+    }
+
+    /**
+     * Throw an error if invalid JSON syntax
+     */
+    @Test
+    fun testInvalidJson() {
+        // Missing { for round
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                            ${TestData.YORK_MAIN_JSON},
+                            ${TestData.YORK_SUB_TYPES_JSON},
+                            ${TestData.YORK_ARROW_COUNTS_JSON},
+                            ${TestData.YORK_DISTANCES_JSON}
+                        }
+                    ${TestData.END_JSON}
+                """,
+                listOf()
+        )
+    }
+
+    /**
+     * Throw an error if the size of a roundDistances != subTypes * arrowCounts
+     */
+    @Test
+    fun testBadDistancesSize() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            ${TestData.YORK_SUB_TYPES_JSON},
+                            ${TestData.YORK_ARROW_COUNTS_JSON},
+                            "roundDistances": [
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 1,
+                                    "distance": 100
+                                }
+                            ]
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Throw an error if any round's sub types have a duplicate/equivalent names in the JSON
+     */
+    @Test
+    fun testDuplicateSubTypeName() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            "roundSubTypes": [
+                                {
+                                    "roundSubTypeId": 1,
+                                    "subTypeName": "York",
+                                    "gentsUnder": null,
+                                    "ladiesUnder": null
+                                },
+                                {
+                                    "roundSubTypeId": 2,
+                                    "subTypeName": "york!",
+                                    "gentsUnder": 18,
+                                    "ladiesUnder": null
+                                },
+                                {
+                                    "roundSubTypeId": 3,
+                                    "subTypeName": "Bristol II",
+                                    "gentsUnder": 16,
+                                    "ladiesUnder": 18
+                                },
+                                {
+                                    "roundSubTypeId": 4,
+                                    "subTypeName": "Bristol V",
+                                    "gentsUnder": 0,
+                                    "ladiesUnder": 12
+                                }
+                            ],
+                            ${TestData.YORK_ARROW_COUNTS_JSON},
+                            ${TestData.YORK_DISTANCES_JSON}
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Throw an error if any round's sub types have a duplicate/equivalent ids in the JSON
+     */
+    @Test
+    fun testDuplicateSubTypeIds() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            "roundSubTypes": [
+                                {
+                                    "roundSubTypeId": 1,
+                                    "subTypeName": "York",
+                                    "gentsUnder": null,
+                                    "ladiesUnder": null
+                                },
+                                {
+                                    "roundSubTypeId": 1,
+                                    "subTypeName": "Hereford (Bristol I)",
+                                    "gentsUnder": 18,
+                                    "ladiesUnder": null
+                                },
+                                {
+                                    "roundSubTypeId": 3,
+                                    "subTypeName": "Bristol II",
+                                    "gentsUnder": 16,
+                                    "ladiesUnder": 18
+                                },
+                                {
+                                    "roundSubTypeId": 4,
+                                    "subTypeName": "Bristol V",
+                                    "gentsUnder": 0,
+                                    "ladiesUnder": 12
+                                }
+                            ],
+                            ${TestData.YORK_ARROW_COUNTS_JSON},
+                            ${TestData.YORK_DISTANCES_JSON}
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Throw an error if any round's arrow counts have a identical distance numbers in the JSON
+     */
+    @Test
+    fun testDuplicateArrowCountDistanceNumbers() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            ${TestData.YORK_SUB_TYPES_JSON},
+                            "roundArrowCounts": [
+                                {
+                                    "distanceNumber": 1,
+                                    "faceSizeInCm": 122,
+                                    "arrowCount": 72
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "faceSizeInCm": 122,
+                                    "arrowCount": 48
+                                }
+                            ],
+                            ${TestData.YORK_DISTANCES_JSON}
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Throw an error if any round's distances have an identical distance number and sub type id in the JSON
+     */
+    @Test
+    fun testDuplicateDistanceKeys() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            ${TestData.YORK_SUB_TYPES_JSON},
+                            ${TestData.YORK_ARROW_COUNTS_JSON},
+                            "roundDistances": [
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 1,
+                                    "distance": 100
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 1,
+                                    "distance": 80
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 2,
+                                    "distance": 80
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 2,
+                                    "distance": 60
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 3,
+                                    "distance": 60
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 3,
+                                    "distance": 50
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 4,
+                                    "distance": 30
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 4,
+                                    "distance": 20
+                                }
+                            ]
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Throw an error if one of the keys in roundDistances doesn't match those of of subTypes or arrowCounts
+     */
+    @Test
+    fun testDistanceKeysMismatch() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            ${TestData.YORK_SUB_TYPES_JSON},
+                            ${TestData.YORK_ARROW_COUNTS_JSON},
+                            "roundDistances": [
+                                {
+                                    "distanceNumber": 17,
+                                    "roundSubTypeId": 1,
+                                    "distance": 100
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 17,
+                                    "distance": 80
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 2,
+                                    "distance": 80
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 2,
+                                    "distance": 60
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 3,
+                                    "distance": 60
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 3,
+                                    "distance": 50
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 4,
+                                    "distance": 30
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 4,
+                                    "distance": 20
+                                }
+                            ]
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Throw an error if a later distance entry with a higher actual distance (e.g. first distance is 100 yards,
+     *   second distance is 200 yards)
+     */
+    @Test
+    fun testNonDescendingDistances() {
+        checkErrorState(
+                """
+                    ${TestData.START_JSON}
+                        {
+                            ${TestData.YORK_MAIN_JSON},
+                            ${TestData.YORK_SUB_TYPES_JSON},
+                            ${TestData.YORK_ARROW_COUNTS_JSON},
+                            "roundDistances": [
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 1,
+                                    "distance": 100
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 1,
+                                    "distance": 80
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 2,
+                                    "distance": 80
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 2,
+                                    "distance": 60
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 3,
+                                    "distance": 60
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 3,
+                                    "distance": 50
+                                },
+                                {
+                                    "distanceNumber": 1,
+                                    "roundSubTypeId": 4,
+                                    "distance": 30
+                                },
+                                {
+                                    "distanceNumber": 2,
+                                    "roundSubTypeId": 4,
+                                    "distance": 120
+                                }
+                            ]
+                        }
+                    ${TestData.END_JSON}
+                """
+        )
+    }
+
+    /**
+     * Common test for invalid json. Checks that no calls were made on the database and that the UpdateTaskState was set
+     *   to ERROR
+     * @param json json to test
+     * @param extraMessages any messages that should come between the first initialising messages and the error message
+     */
+    private fun checkErrorState(json: String, extraMessages: List<String> = listOf("1 of 1")) {
+        val mockInfo = MockInfo.Builder(json.byteInputStream())
+                .build()
+
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver(UpdateDefaultRounds.UpdateTaskState.ERROR)
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        *extraMessages.toTypedArray(),
+                                        MockInfo.defaultMap[R.string.err__internal_error]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        simpleStateObserver.await()
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(mapOf())
     }
 
     class LiveDataObserver private constructor() {
@@ -509,6 +706,7 @@ class DefaultRoundInfoUnitTest {
         private var messageObserver: Observer<String?>? = null
         private val state = UpdateDefaultRounds.getState()
         private val message = UpdateDefaultRounds.getProgressMessage()
+        private var messageTracker: MessageTracker? = null
 
         fun startObserving() {
             stateObserver?.let { state.observeForever(it) }
@@ -518,6 +716,12 @@ class DefaultRoundInfoUnitTest {
         fun finishObserving() {
             stateObserver?.let { state.removeObserver(it) }
             messageObserver?.let { message.removeObserver(it) }
+            if (messageTracker != null) {
+                val remaining = messageTracker!!.remainingMessages()
+                if (remaining > 0) {
+                    Assert.fail("Not all messages in the message tracker were consumed. $remaining messages left")
+                }
+            }
         }
 
         class Builder {
@@ -537,6 +741,7 @@ class DefaultRoundInfoUnitTest {
             }
 
             fun setMessageObserver(messageTracker: MessageTracker): Builder {
+                liveDataObserver!!.messageTracker = messageTracker
                 liveDataObserver!!.messageObserver = Observer { message ->
                     println(message)
                     messageTracker.checkMessage(message)
@@ -559,21 +764,36 @@ class DefaultRoundInfoUnitTest {
                     Assert.assertEquals(expectedMessages[currentMessageNumber++], message)
                 }
             }
+
+            fun remainingMessages(): Int {
+                return expectedMessages.size - currentMessageNumber
+            }
         }
 
-        class SimpleStateObserver {
-            val updateLatch = CountDownLatch(1)
+        class SimpleStateObserver(
+                desiredState: UpdateDefaultRounds.UpdateTaskState = UpdateDefaultRounds.UpdateTaskState.COMPLETE
+        ) {
+            private val updateLatch = CountDownLatch(1)
             val observer = Observer<UpdateDefaultRounds.UpdateTaskState> { state ->
                 @Suppress("NON_EXHAUSTIVE_WHEN")
                 when (state) {
-                    UpdateDefaultRounds.UpdateTaskState.COMPLETE -> updateLatch.countDown()
+                    desiredState -> updateLatch.countDown()
                     UpdateDefaultRounds.UpdateTaskState.ERROR -> Assert.fail("Update error")
+                }
+            }
+
+            /**
+             * Await up to the specified time for the state to reach the desired state
+             */
+            fun await(timeout: Long = latchAwaitTimeSeconds, timeoutUnit: TimeUnit = latchAwaitTimeUnit) {
+                if (!updateLatch.await(timeout, timeoutUnit)) {
+                    Assert.fail("Latch wait timeout")
                 }
             }
         }
     }
 
-    class MockInfo private constructor(rawData: InputStream) {
+    private class MockInfo private constructor(rawData: InputStream) {
         companion object {
             val defaultMap = mapOf(
                     Pair(R.string.main_menu__update_default_rounds_initialising, "init"),
@@ -787,6 +1007,18 @@ class DefaultRoundInfoUnitTest {
              */
             private var mockInfo: MockInfo? = MockInfo(rawData)
 
+            @Suppress("UNCHECKED_CAST")
+            fun setDbData(data: List<Any>): Builder {
+                val dataGrouped = data.groupBy { it::class }
+                dataGrouped[Round::class]?.let { dbData -> setDbRoundsData(dbData as List<Round>) }
+                dataGrouped[RoundArrowCount::class]?.let { dbData ->
+                    setDbArrowCountsData(dbData as List<RoundArrowCount>)
+                }
+                dataGrouped[RoundSubType::class]?.let { dbData -> setDbSubTypeData(dbData as List<RoundSubType>) }
+                dataGrouped[RoundDistance::class]?.let { dbData -> setDbDistanceData(dbData as List<RoundDistance>) }
+                return this
+            }
+
             fun setDbRoundsData(rounds: List<Round>): Builder {
                 mockInfo!!.allRounds = MutableLiveData(rounds)
                 return this
@@ -813,6 +1045,226 @@ class DefaultRoundInfoUnitTest {
                 mi.initialise()
                 return mi
             }
+        }
+    }
+
+    private class TestData {
+        companion object {
+            const val START_JSON = """{"rounds": ["""
+            const val END_JSON = """]}"""
+
+            /*
+             * York
+             */
+            const val YORK_MAIN_JSON = """
+              "roundName": "York",
+              "outdoor": true,
+              "isMetric": false,
+              "fiveArrowEnd": false,
+              "permittedFaces": []
+            """
+            const val YORK_SUB_TYPES_JSON = """
+              "roundSubTypes": [
+                {
+                  "roundSubTypeId": 1,
+                  "subTypeName": "York",
+                  "gentsUnder": null,
+                  "ladiesUnder": null
+                },
+                {
+                  "roundSubTypeId": 2,
+                  "subTypeName": "Hereford (Bristol I)",
+                  "gentsUnder": 18,
+                  "ladiesUnder": null
+                },
+                {
+                  "roundSubTypeId": 3,
+                  "subTypeName": "Bristol II",
+                  "gentsUnder": 16,
+                  "ladiesUnder": 18
+                },
+                {
+                  "roundSubTypeId": 4,
+                  "subTypeName": "Bristol V",
+                  "gentsUnder": 0,
+                  "ladiesUnder": 12
+                }
+              ]
+            """
+            const val YORK_ARROW_COUNTS_JSON = """
+              "roundArrowCounts": [
+                {
+                  "distanceNumber": 1,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 72
+                },
+                {
+                  "distanceNumber": 2,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 48
+                }
+              ]
+            """
+            const val YORK_DISTANCES_JSON = """
+              "roundDistances": [
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 1,
+                  "distance": 100
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 1,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 2,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 2,
+                  "distance": 60
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 3,
+                  "distance": 60
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 3,
+                  "distance": 50
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 4,
+                  "distance": 30
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 4,
+                  "distance": 20
+                }
+              ]
+            """
+            const val YORK_JSON = """
+                {
+                    $YORK_MAIN_JSON,
+                    $YORK_SUB_TYPES_JSON,
+                    $YORK_ARROW_COUNTS_JSON,
+                    $YORK_DISTANCES_JSON
+                },
+            """
+            val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, listOf(), true, false)
+            val YORK_ARROW_COUNT_OBJECTS = listOf(
+                    RoundArrowCount(5, 1, 122.0, 72),
+                    RoundArrowCount(5, 2, 122.0, 48)
+            )
+            val YORK_SUB_TYPE_OBJECTS = listOf(
+                    RoundSubType(5, 1, "York"),
+                    RoundSubType(5, 2, "Hereford (Bristol I)", 18),
+                    RoundSubType(5, 3, "Bristol II", 16, 18),
+                    RoundSubType(5, 4, "Bristol V", 0, 12)
+            )
+            val YORK_DISTANCE_OBJECTS = listOf(
+                    RoundDistance(5, 1, 1, 100),
+                    RoundDistance(5, 2, 1, 80),
+                    RoundDistance(5, 1, 2, 80),
+                    RoundDistance(5, 2, 2, 60),
+                    RoundDistance(5, 1, 3, 60),
+                    RoundDistance(5, 2, 3, 50),
+                    RoundDistance(5, 1, 4, 30),
+                    RoundDistance(5, 2, 4, 20)
+            )
+            val YORK_ALL_ROUND_OBJECTS = listOf(
+                    listOf(YORK_ROUND_OBJECT), YORK_ARROW_COUNT_OBJECTS, YORK_SUB_TYPE_OBJECTS, YORK_DISTANCE_OBJECTS
+            ).flatten()
+
+            /*
+             * St. George
+             */
+            const val ST_GEORGE_JSON = """
+            {
+              "roundName": "St. George",
+              "outdoor": false,
+              "isMetric": true,
+              "fiveArrowEnd": true,
+              "permittedFaces": [
+                "NO_TRIPLE",
+                "FIVE_CENTRE"
+              ],
+              "roundSubTypes": [
+                {
+                  "roundSubTypeId": 1,
+                  "subTypeName": "St. George",
+                  "gentsUnder": null,
+                  "ladiesUnder": null
+                },
+                {
+                  "roundSubTypeId": 2,
+                  "subTypeName": "Albion",
+                  "gentsUnder": null,
+                  "ladiesUnder": null
+                }
+              ],
+              "roundArrowCounts": [
+                {
+                  "distanceNumber": 1,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 36
+                },
+                {
+                  "distanceNumber": 2,
+                  "faceSizeInCm": 122,
+                  "arrowCount": 36
+                }
+              ],
+              "roundDistances": [
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 1,
+                  "distance": 100
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 1,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 1,
+                  "roundSubTypeId": 2,
+                  "distance": 80
+                },
+                {
+                  "distanceNumber": 2,
+                  "roundSubTypeId": 2,
+                  "distance": 60
+                }
+              ]
+            }
+            """
+            val ST_GEORGE_ALL_ROUND_OBJECTS = listOf(
+                    Round(
+                            6,
+                            "stgeorge",
+                            "St. George",
+                            false,
+                            true,
+                            listOf("NO_TRIPLE", "FIVE_CENTRE"),
+                            true,
+                            true
+                    ),
+                    RoundSubType(6, 1, "St. George"),
+                    RoundSubType(6, 2, "Albion"),
+                    RoundArrowCount(6, 1, 122.0, 36),
+                    RoundArrowCount(6, 2, 122.0, 36),
+                    RoundDistance(6, 1, 1, 100),
+                    RoundDistance(6, 2, 1, 80),
+                    RoundDistance(6, 1, 2, 80),
+                    RoundDistance(6, 2, 2, 60)
+            )
         }
     }
 }
