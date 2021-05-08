@@ -485,7 +485,7 @@ class UpdateDefaultRounds {
             itemsToDelete.addAll(repository.roundSubTypes.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
             itemsToDelete.addAll(repository.roundDistances.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
 
-            val updateItems = mapOf(*roundsToDelete.map { it as Any to UpdateType.DELETE }.toTypedArray())
+            val updateItems = itemsToDelete.map { it to UpdateType.DELETE }.toMap()
             runBlocking {
                 repository.updateRounds(updateItems)
             }

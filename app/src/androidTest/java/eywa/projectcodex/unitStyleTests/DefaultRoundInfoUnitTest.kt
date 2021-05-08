@@ -136,6 +136,14 @@ class DefaultRoundInfoUnitTest {
                 }
               ]
             """
+            const val YORK_JSON = """
+                {
+                    ${YORK_MAIN_JSON},
+                    ${YORK_SUB_TYPES_JSON},
+                    ${YORK_ARROW_COUNTS_JSON},
+                    ${YORK_DISTANCES_JSON}
+                },
+            """
             const val ST_GEORGE_JSON = """
             {
               "roundName": "St. George",
@@ -196,22 +204,18 @@ class DefaultRoundInfoUnitTest {
               ]
             }
             """
-            val YORK_ROUND_OBJECTS = listOf(
-                    Round(
-                            5,
-                            "york",
-                            "York",
-                            true,
-                            false, listOf(),
-                            true,
-                            false
-                    ),
+            val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, listOf(), true, false)
+            val YORK_ARROW_COUNT_OBJECTS = listOf(
+                    RoundArrowCount(5, 1, 122.0, 72),
+                    RoundArrowCount(5, 2, 122.0, 48)
+            )
+            val YORK_SUB_TYPE_OBJECTS = listOf(
                     RoundSubType(5, 1, "York"),
                     RoundSubType(5, 2, "Hereford (Bristol I)", 18),
                     RoundSubType(5, 3, "Bristol II", 16, 18),
-                    RoundSubType(5, 4, "Bristol V", 0, 12),
-                    RoundArrowCount(5, 1, 122.0, 72),
-                    RoundArrowCount(5, 2, 122.0, 48),
+                    RoundSubType(5, 4, "Bristol V", 0, 12)
+            )
+            val YORK_DISTANCE_OBJECTS = listOf(
                     RoundDistance(5, 1, 1, 100),
                     RoundDistance(5, 2, 1, 80),
                     RoundDistance(5, 1, 2, 80),
@@ -221,6 +225,10 @@ class DefaultRoundInfoUnitTest {
                     RoundDistance(5, 1, 4, 30),
                     RoundDistance(5, 2, 4, 20)
             )
+
+            val YORK_ALL_ROUND_OBJECTS = listOf(
+                    listOf(YORK_ROUND_OBJECT), YORK_ARROW_COUNT_OBJECTS, YORK_SUB_TYPE_OBJECTS, YORK_DISTANCE_OBJECTS
+            ).flatten()
             val ST_GEORGE_ROUND_OBJECTS = listOf(
                     Round(
                             6,
@@ -260,7 +268,9 @@ class DefaultRoundInfoUnitTest {
     fun testCurrentDefaultRoundInfoFile() {
         // TODO Swap back to unit test and use file directly
         // val mockInfo = MockInfo(FileInputStream("src/main/res/raw/default_rounds_data.json"))
-        val mockInfo = MockInfo(getInstrumentation().targetContext.resources.openRawResource(R.raw.default_rounds_data))
+        val mockInfo = MockInfo.Builder(
+                getInstrumentation().targetContext.resources.openRawResource(R.raw.default_rounds_data)
+        ).build()
 
         /*
          * Observe state
@@ -326,22 +336,12 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Testing json for two correct rounds results in the correct database calls
+     * Testing json for two correct rounds results in the correct insert database calls
      */
     @Test
     fun testNewRounds() {
-        val json = """
-            ${TestData.START_JSON}
-                {
-                    ${TestData.YORK_MAIN_JSON},
-                    ${TestData.YORK_SUB_TYPES_JSON},
-                    ${TestData.YORK_ARROW_COUNTS_JSON},
-                    ${TestData.YORK_DISTANCES_JSON}
-                },
-                ${TestData.ST_GEORGE_JSON}
-            ${TestData.END_JSON}
-        """
-        val mockInfo = MockInfo(json.byteInputStream())
+        val json = "${TestData.START_JSON}${TestData.YORK_JSON},${TestData.ST_GEORGE_JSON}${TestData.END_JSON}"
+        val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
 
         val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
         val observer = LiveDataObserver.Builder()
@@ -368,9 +368,140 @@ class DefaultRoundInfoUnitTest {
         observer.finishObserving()
 
         mockInfo.verifyUpdate(
-                TestData.YORK_ROUND_OBJECTS.plus(TestData.ST_GEORGE_ROUND_OBJECTS)
+                TestData.YORK_ALL_ROUND_OBJECTS.plus(TestData.ST_GEORGE_ROUND_OBJECTS)
                         .map { it to UpdateType.NEW }.toMap()
         )
+    }
+
+    /**
+     * Testing that round objects in the database that differ from the provided JSON are updated with the JSON values
+     */
+    @Test
+    fun testUpdateRounds() {
+        /*
+         * Change the objects the DB will return so they're different from the json given
+         */
+        val updatedRound = Round(
+                TestData.YORK_ROUND_OBJECT.roundId,
+                TestData.YORK_ROUND_OBJECT.name,
+                TestData.YORK_ROUND_OBJECT.displayName,
+                !TestData.YORK_ROUND_OBJECT.isOutdoor,
+                TestData.YORK_ROUND_OBJECT.isMetric,
+                TestData.YORK_ROUND_OBJECT.permittedFaces,
+                TestData.YORK_ROUND_OBJECT.isDefaultRound,
+                TestData.YORK_ROUND_OBJECT.fiveArrowEnd
+        )
+        val updatedArrowCount = RoundArrowCount(
+                TestData.YORK_ARROW_COUNT_OBJECTS[0].roundId,
+                TestData.YORK_ARROW_COUNT_OBJECTS[0].distanceNumber,
+                TestData.YORK_ARROW_COUNT_OBJECTS[0].faceSizeInCm + 20,
+                TestData.YORK_ARROW_COUNT_OBJECTS[0].arrowCount + 30
+        )
+        val updatedSubType = RoundSubType(
+                TestData.YORK_SUB_TYPE_OBJECTS[0].roundId,
+                TestData.YORK_SUB_TYPE_OBJECTS[0].subTypeId,
+                TestData.YORK_SUB_TYPE_OBJECTS[0].name + "update"
+        )
+        val updatedDistance = RoundDistance(
+                TestData.YORK_DISTANCE_OBJECTS[0].roundId,
+                TestData.YORK_DISTANCE_OBJECTS[0].distanceNumber,
+                TestData.YORK_DISTANCE_OBJECTS[0].subTypeId,
+                TestData.YORK_DISTANCE_OBJECTS[0].distance + 20
+        )
+        val json = "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}"
+        val mockInfo = MockInfo.Builder(json.byteInputStream())
+                .setDbRoundsData(listOf(updatedRound))
+                .setDbArrowCountsData(
+                        listOf(updatedArrowCount).plus(
+                                TestData.YORK_ARROW_COUNT_OBJECTS.subList(1, TestData.YORK_ARROW_COUNT_OBJECTS.size)
+                        )
+                )
+                .setDbSubTypeData(
+                        listOf(updatedSubType)
+                                .plus(TestData.YORK_SUB_TYPE_OBJECTS.subList(1, TestData.YORK_SUB_TYPE_OBJECTS.size))
+                )
+                .setDbDistanceData(
+                        listOf(updatedDistance)
+                                .plus(TestData.YORK_DISTANCE_OBJECTS.subList(1, TestData.YORK_DISTANCE_OBJECTS.size))
+                ).build()
+
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        "1 of 1",
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.button_complete]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        if (!simpleStateObserver.updateLatch.await(10, TimeUnit.SECONDS)) {
+            Assert.fail("Latch wait timeout")
+        }
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(
+                listOf(
+                        TestData.YORK_ROUND_OBJECT,
+                        TestData.YORK_ARROW_COUNT_OBJECTS[0],
+                        TestData.YORK_SUB_TYPE_OBJECTS[0],
+                        TestData.YORK_DISTANCE_OBJECTS[0]
+                ).map { it to UpdateType.UPDATE }.toMap()
+        )
+    }
+
+    /**
+     * Testing that round objects in the database that don't exist in the provided JSON are deleted
+     */
+    @Test
+    fun testDeleteRounds() {
+        val json = "${TestData.START_JSON}${TestData.ST_GEORGE_JSON}${TestData.END_JSON}"
+        val mockInfo = MockInfo.Builder(json.byteInputStream()).setDbRoundsData(
+                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(Round::class.java)
+                        .plus(TestData.YORK_ROUND_OBJECT)
+        ).setDbArrowCountsData(
+                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(RoundArrowCount::class.java)
+                        .plus(TestData.YORK_ARROW_COUNT_OBJECTS)
+        ).setDbSubTypeData(
+                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(RoundSubType::class.java)
+                        .plus(TestData.YORK_SUB_TYPE_OBJECTS)
+        ).setDbDistanceData(
+                TestData.ST_GEORGE_ROUND_OBJECTS.filterIsInstance(RoundDistance::class.java)
+                        .plus(TestData.YORK_DISTANCE_OBJECTS)
+        ).build()
+
+        val simpleStateObserver = LiveDataObserver.SimpleStateObserver()
+        val observer = LiveDataObserver.Builder()
+                .setStateObserver(simpleStateObserver.observer)
+                .setMessageObserver(
+                        LiveDataObserver.MessageTracker(
+                                listOf(
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        "1 of 1",
+                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.button_complete]
+                                )
+                        )
+                ).build()
+
+        observer.startObserving()
+
+        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
+        if (!simpleStateObserver.updateLatch.await(10, TimeUnit.SECONDS)) {
+            Assert.fail("Latch wait timeout")
+        }
+        observer.finishObserving()
+
+        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.DELETE }.toMap())
     }
 
     class LiveDataObserver private constructor() {
@@ -390,20 +521,23 @@ class DefaultRoundInfoUnitTest {
         }
 
         class Builder {
-            private val liveDataObserver = LiveDataObserver()
+            /**
+             * Will be set to null after building to prevent tampering
+             */
+            private var liveDataObserver: LiveDataObserver? = LiveDataObserver()
 
             fun setStateObserver(observer: Observer<UpdateDefaultRounds.UpdateTaskState>): Builder {
-                liveDataObserver.stateObserver = observer
+                liveDataObserver!!.stateObserver = observer
                 return this
             }
 
             fun setMessageObserver(observer: Observer<String?>): Builder {
-                liveDataObserver.messageObserver = observer
+                liveDataObserver!!.messageObserver = observer
                 return this
             }
 
             fun setMessageObserver(messageTracker: MessageTracker): Builder {
-                liveDataObserver.messageObserver = Observer { message ->
+                liveDataObserver!!.messageObserver = Observer { message ->
                     println(message)
                     messageTracker.checkMessage(message)
                 }
@@ -411,7 +545,9 @@ class DefaultRoundInfoUnitTest {
             }
 
             fun build(): LiveDataObserver {
-                return liveDataObserver
+                val ldo = liveDataObserver!!
+                liveDataObserver = null
+                return ldo
             }
         }
 
@@ -437,7 +573,7 @@ class DefaultRoundInfoUnitTest {
         }
     }
 
-    class MockInfo(rawData: InputStream, resourceMap: Map<Int, String> = mapOf()) {
+    class MockInfo private constructor(rawData: InputStream) {
         companion object {
             val defaultMap = mapOf(
                     Pair(R.string.main_menu__update_default_rounds_initialising, "init"),
@@ -450,29 +586,32 @@ class DefaultRoundInfoUnitTest {
             )
         }
 
+        val resourcesMock: Resources = mock(Resources::class.java)
         val db: ScoresRoomDatabase = mock(ScoresRoomDatabase::class.java)
         private val roundDao: RoundDao = mock(RoundDao::class.java)
         private val roundArrowCountDao: RoundArrowCountDao = mock(RoundArrowCountDao::class.java)
         private val roundSubTypeDao: RoundSubTypeDao = mock(RoundSubTypeDao::class.java)
         private val roundDistanceDao: RoundDistanceDao = mock(RoundDistanceDao::class.java)
-        val resourcesMock: Resources = mock(Resources::class.java)
+        private var resourceMap = defaultMap
+        private var allRounds = MutableLiveData<List<Round>>(listOf())
+        private var allArrowCounts = MutableLiveData<List<RoundArrowCount>>(listOf())
+        private var allSubTypes = MutableLiveData<List<RoundSubType>>(listOf())
+        private var allDistances = MutableLiveData<List<RoundDistance>>(listOf())
 
         init {
-            check(resourceMap.values.union(defaultMap.values).size == resourceMap.size + defaultMap.size) {
-                "Resource map values contain duplicates"
-            }
             `when`(db.roundDao()).thenReturn(roundDao)
             `when`(db.roundArrowCountDao()).thenReturn(roundArrowCountDao)
             `when`(db.roundSubTypeDao()).thenReturn(roundSubTypeDao)
             `when`(db.roundDistanceDao()).thenReturn(roundDistanceDao)
-            `when`(db.roundDistanceDao()).thenReturn(roundDistanceDao)
-
-            `when`(roundDao.getAllRounds()).thenReturn(MutableLiveData<List<Round>>(listOf()))
-            `when`(roundArrowCountDao.getAllArrowCounts()).thenReturn(MutableLiveData<List<RoundArrowCount>>(listOf()))
-            `when`(roundSubTypeDao.getAllSubTypes()).thenReturn(MutableLiveData<List<RoundSubType>>(listOf()))
-            `when`(roundDistanceDao.getAllDistances()).thenReturn(MutableLiveData<List<RoundDistance>>(listOf()))
-
             `when`(resourcesMock.openRawResource(anyInt())).thenReturn(rawData)
+        }
+
+        private fun initialise() {
+            `when`(roundDao.getAllRounds()).thenReturn(allRounds)
+            `when`(roundArrowCountDao.getAllArrowCounts()).thenReturn(allArrowCounts)
+            `when`(roundSubTypeDao.getAllSubTypes()).thenReturn(allSubTypes)
+            `when`(roundDistanceDao.getAllDistances()).thenReturn(allDistances)
+
             `when`(resourcesMock.getString(anyInt())).thenAnswer(object : Answer<String> {
                 override fun answer(invocation: InvocationOnMock?): String {
                     val key = invocation!!.arguments[0]
@@ -639,6 +778,40 @@ class DefaultRoundInfoUnitTest {
 
             fun removeNextMainCaptorVal(): T {
                 return mainCaptorValues.poll()!!
+            }
+        }
+
+        class Builder(rawData: InputStream) {
+            /**
+             * Will be set to null after building to prevent tampering
+             */
+            private var mockInfo: MockInfo? = MockInfo(rawData)
+
+            fun setDbRoundsData(rounds: List<Round>): Builder {
+                mockInfo!!.allRounds = MutableLiveData(rounds)
+                return this
+            }
+
+            fun setDbArrowCountsData(arrowCounts: List<RoundArrowCount>): Builder {
+                mockInfo!!.allArrowCounts = MutableLiveData(arrowCounts)
+                return this
+            }
+
+            fun setDbSubTypeData(subTypes: List<RoundSubType>): Builder {
+                mockInfo!!.allSubTypes = MutableLiveData(subTypes)
+                return this
+            }
+
+            fun setDbDistanceData(distances: List<RoundDistance>): Builder {
+                mockInfo!!.allDistances = MutableLiveData(distances)
+                return this
+            }
+
+            fun build(): MockInfo {
+                val mi = mockInfo!!
+                mockInfo = null
+                mi.initialise()
+                return mi
             }
         }
     }
