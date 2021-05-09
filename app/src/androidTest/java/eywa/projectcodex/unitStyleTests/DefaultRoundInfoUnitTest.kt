@@ -9,15 +9,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import eywa.projectcodex.R
 import eywa.projectcodex.TestUtils
+import eywa.projectcodex.components.mainMenu.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
-import eywa.projectcodex.database.daos.*
-import eywa.projectcodex.database.entities.Round
-import eywa.projectcodex.database.entities.RoundArrowCount
-import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.database.entities.RoundSubType
-import eywa.projectcodex.database.repositories.RoundsRepo
-import eywa.projectcodex.logic.UpdateDefaultRounds
+import eywa.projectcodex.database.rounds.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -397,22 +392,22 @@ class DefaultRoundInfoUnitTest {
     }
 
     /**
-     * Test that an error is thrown if [RoundsRepo.repositoryWriteLock] is already locked. Ensure the hold count remains
+     * Test that an error is thrown if [RoundRepo.repositoryWriteLock] is already locked. Ensure the hold count remains
      *    correct
      */
     @Test
     fun testRepoAlreadyLocked() {
-        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
-        Assert.assertTrue(RoundsRepo.repositoryWriteLock.tryLock())
-        Assert.assertEquals(1, RoundsRepo.repositoryWriteLock.holdCount)
+        Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
+        Assert.assertTrue(RoundRepo.repositoryWriteLock.tryLock())
+        Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
         checkErrorState("", listOf(), R.string.err_main_menu__update_default_rounds_no_lock)
-        Assert.assertEquals(1, RoundsRepo.repositoryWriteLock.holdCount)
-        RoundsRepo.repositoryWriteLock.unlock()
-        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
+        Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
+        RoundRepo.repositoryWriteLock.unlock()
+        Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
     }
 
     /**
-     * Test that [RoundsRepo.repositoryWriteLock] is properly released after updating default rounds
+     * Test that [RoundRepo.repositoryWriteLock] is properly released after updating default rounds
      */
     @Test
     fun testLockedIsReleasedOnSuccess() {
@@ -441,20 +436,20 @@ class DefaultRoundInfoUnitTest {
 
         mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
 
-        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
-        Assert.assertTrue(RoundsRepo.repositoryWriteLock.tryLock())
-        RoundsRepo.repositoryWriteLock.unlock()
+        Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
+        Assert.assertTrue(RoundRepo.repositoryWriteLock.tryLock())
+        RoundRepo.repositoryWriteLock.unlock()
     }
 
     /**
-     * Test that [RoundsRepo.repositoryWriteLock] is properly released when an error is thrown
+     * Test that [RoundRepo.repositoryWriteLock] is properly released when an error is thrown
      */
     @Test
     fun testLockedIsReleasedOnError() {
         checkErrorState("", listOf())
-        Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
-        Assert.assertTrue(RoundsRepo.repositoryWriteLock.tryLock())
-        RoundsRepo.repositoryWriteLock.unlock()
+        Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
+        Assert.assertTrue(RoundRepo.repositoryWriteLock.tryLock())
+        RoundRepo.repositoryWriteLock.unlock()
     }
 
     /**

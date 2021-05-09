@@ -11,10 +11,10 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.ArcherRound
-import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.ui.MainActivity
+import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals

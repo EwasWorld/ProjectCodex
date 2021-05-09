@@ -8,11 +8,11 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.evrencoskun.tableview.TableView
+import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.entities.Round
-import eywa.projectcodex.database.entities.RoundArrowCount
-import eywa.projectcodex.database.entities.RoundDistance
-import eywa.projectcodex.ui.MainActivity
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals

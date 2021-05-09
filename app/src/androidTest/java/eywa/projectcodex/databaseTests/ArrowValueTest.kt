@@ -4,9 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.daos.ArrowValueDao
-import eywa.projectcodex.database.entities.ArrowValue
-import eywa.projectcodex.database.repositories.ArrowValuesRepo
+import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.databaseTests.DatabaseSuite.Companion.brokenTransactionMessage
 import eywa.projectcodex.retrieveValue
 import kotlinx.coroutines.runBlocking

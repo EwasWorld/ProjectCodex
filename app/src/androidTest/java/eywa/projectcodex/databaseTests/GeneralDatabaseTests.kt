@@ -4,11 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.daos.RoundArrowCountDao
-import eywa.projectcodex.database.daos.RoundDao
-import eywa.projectcodex.database.daos.RoundDistanceDao
-import eywa.projectcodex.database.daos.RoundSubTypeDao
-import eywa.projectcodex.database.entities.Round
+import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.retrieveValue
 import kotlinx.coroutines.runBlocking
 import org.junit.After

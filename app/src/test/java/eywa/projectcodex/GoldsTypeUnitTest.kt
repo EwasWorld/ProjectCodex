@@ -1,9 +1,9 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.logic.Arrow
-import eywa.projectcodex.logic.GoldsType
-import org.junit.Test
+import eywa.projectcodex.components.archeryObjects.Arrow
+import eywa.projectcodex.components.archeryObjects.GoldsType
 import org.junit.Assert.assertFalse
+import org.junit.Test
 
 class GoldsTypeUnitTest {
     private var arrows = arrayOf(

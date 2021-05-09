@@ -1,11 +1,10 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.logic.Arrow
-import eywa.projectcodex.logic.getArrowScore
-import eywa.projectcodex.logic.isX
+import eywa.projectcodex.components.archeryObjects.Arrow
+import eywa.projectcodex.components.archeryObjects.getArrowScore
+import eywa.projectcodex.components.archeryObjects.isX
 import org.junit.Assert
 import org.junit.Test
-import java.lang.NumberFormatException
 
 
 class ArrowUnitTest {

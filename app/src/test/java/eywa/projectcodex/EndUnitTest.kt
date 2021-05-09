@@ -1,10 +1,10 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.database.entities.ArrowValue
+import eywa.projectcodex.components.archeryObjects.End
+import eywa.projectcodex.components.archeryObjects.GoldsType
+import eywa.projectcodex.components.inputEnd.InputEndViewModel
+import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
-import eywa.projectcodex.logic.End
-import eywa.projectcodex.logic.GoldsType
-import eywa.projectcodex.viewModels.InputEndViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Before

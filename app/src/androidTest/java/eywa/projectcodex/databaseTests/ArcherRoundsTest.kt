@@ -4,10 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.TestData
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.daos.ArcherRoundDao
-import eywa.projectcodex.database.daos.RoundDao
-import eywa.projectcodex.database.daos.RoundSubTypeDao
-import eywa.projectcodex.database.entities.ArcherRound
+import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.ArcherRoundDao
+import eywa.projectcodex.database.rounds.RoundDao
+import eywa.projectcodex.database.rounds.RoundSubTypeDao
 import eywa.projectcodex.retrieveValue
 import kotlinx.coroutines.runBlocking
 import org.junit.After

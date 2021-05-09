@@ -1,9 +1,15 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.database.entities.*
-import eywa.projectcodex.logic.Arrow
-import eywa.projectcodex.logic.DefaultRoundInfo
-import eywa.projectcodex.logic.DefaultRoundInfoHelper.Companion.formatNameString
+import eywa.projectcodex.components.archeryObjects.Arrow
+import eywa.projectcodex.components.mainMenu.DefaultRoundInfo
+import eywa.projectcodex.components.mainMenu.DefaultRoundInfoHelper.Companion.formatNameString
+import eywa.projectcodex.database.archer.Archer
+import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.RoundSubType
 import java.sql.Date
 import kotlin.math.max
 import kotlin.math.min

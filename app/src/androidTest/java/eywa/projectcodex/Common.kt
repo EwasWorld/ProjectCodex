@@ -18,7 +18,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
-import eywa.projectcodex.ui.MainActivity
+import eywa.projectcodex.components.MainActivity
 import kotlinx.android.synthetic.main.content_main.*
 import org.hamcrest.*
 import org.hamcrest.CoreMatchers.containsString

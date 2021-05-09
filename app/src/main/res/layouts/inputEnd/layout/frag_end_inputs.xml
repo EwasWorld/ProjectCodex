@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".ui.inputEnd.EndInputsFragment"
+    tools:context=".components.inputEnd.subFragments.EndInputsFragment"
     >
 
     <TextView
@@ -47,7 +47,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_end_inputs__arrow_inputs"
-            android:name="eywa.projectcodex.ui.inputEnd.ArrowInputsFragment10ZoneWithX"
+            android:name="eywa.projectcodex.components.inputEnd.subFragments.ArrowInputsFragment10ZoneWithX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -58,7 +58,7 @@
         <!-- TODO Remove quick preview when Android Studio 4.2 is available (FragmentContainerView will show up in preview). Cannot be uncommented as it can cause id clashes -->
         <!--<fragment
             android:id="@+id/fragment_end_inputs__arrow_inputs_preview"
-            android:name="eywa.projectcodex.ui.inputEnd.ArrowInputsFragment10ZoneWithX"
+            android:name="eywa.projectcodex.components.inputEnd.subFragments.ArrowInputsFragment10ZoneWithX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"

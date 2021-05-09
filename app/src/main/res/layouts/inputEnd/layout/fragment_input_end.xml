@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".ui.inputEnd.InputEndFragment"
+    tools:context=".components.inputEnd.InputEndFragment"
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +30,7 @@
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragment_input_end__score_indicator"
-                android:name="eywa.projectcodex.ui.inputEnd.ScoreIndicatorFragment"
+                android:name="eywa.projectcodex.components.inputEnd.subFragments.ScoreIndicatorFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +41,7 @@
             <!-- TODO Remove quick preview when Android Studio 4.2 is available (FragmentContainerView will show up in preview). Cannot be uncommented as it can cause id clashes -->
             <!--<fragment
                 android:id="@+id/fragment_input_end__score_indicator_preview"
-                android:name="eywa.projectcodex.ui.inputEnd.ScoreIndicatorFragment"
+                android:name="eywa.projectcodex.components.inputEnd.subFragments.ScoreIndicatorFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -110,7 +110,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_input_end__end_inputs"
-            android:name="eywa.projectcodex.ui.inputEnd.EndInputsFragment"
+            android:name="eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -121,7 +121,7 @@
         <!-- TODO Remove quick preview when Android Studio 4.2 is available (FragmentContainerView will show up in preview). Cannot be uncommented as it can cause id clashes -->
         <!--<fragment
             android:id="@+id/fragment_input_end__end_inputs_preview"
-            android:name="eywa.projectcodex.ui.inputEnd.EndInputsFragment"
+            android:name="eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"

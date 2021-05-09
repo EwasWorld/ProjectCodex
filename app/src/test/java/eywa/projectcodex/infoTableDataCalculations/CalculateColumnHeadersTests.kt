@@ -1,8 +1,8 @@
 package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
-import eywa.projectcodex.infoTable.getColumnHeadersForTable
-import eywa.projectcodex.logic.GoldsType
+import eywa.projectcodex.components.archeryObjects.GoldsType
+import eywa.projectcodex.components.infoTable.getColumnHeadersForTable
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

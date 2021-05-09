@@ -8,7 +8,7 @@
     <!-- TODO Find out what the label attribute is -->
     <fragment
         android:id="@+id/mainMenuFragment"
-        android:name="eywa.projectcodex.ui.MainMenuFragment"
+        android:name="eywa.projectcodex.components.mainMenu.MainMenuFragment"
         android:label="fragment_main_menu"
         tools:layout="@layout/fragment_main_menu"
         >
@@ -23,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/viewRoundsFragment"
-        android:name="eywa.projectcodex.ui.ViewRoundsFragment"
+        android:name="eywa.projectcodex.components.viewRounds.ViewRoundsFragment"
         android:label="fragment_view_rounds"
         tools:layout="@layout/fragment_view_rounds"
         >
@@ -38,7 +38,7 @@
     </fragment>
     <fragment
         android:id="@+id/newRoundFragment"
-        android:name="eywa.projectcodex.ui.NewRoundFragment"
+        android:name="eywa.projectcodex.components.newRound.NewRoundFragment"
         android:label="fragment_new_round"
         tools:layout="@layout/fragment_new_round"
         >
@@ -49,7 +49,7 @@
     </fragment>
     <fragment
         android:id="@+id/inputEndFragment"
-        android:name="eywa.projectcodex.ui.inputEnd.InputEndFragment"
+        android:name="eywa.projectcodex.components.inputEnd.InputEndFragment"
         android:label="fragment_input_end"
         tools:layout="@layout/fragment_input_end"
         >
@@ -73,7 +73,7 @@
     </fragment>
     <fragment
         android:id="@+id/scorePadFragment"
-        android:name="eywa.projectcodex.ui.ScorePadFragment"
+        android:name="eywa.projectcodex.components.scorePad.ScorePadFragment"
         android:label="activity_view_scores"
         tools:layout="@layout/fragment_score_pad"
         >
@@ -96,7 +96,7 @@
     </fragment>
     <fragment
         android:id="@+id/editEndFragment"
-        android:name="eywa.projectcodex.ui.inputEnd.EditEndFragment"
+        android:name="eywa.projectcodex.components.inputEnd.EditEndFragment"
         android:label="EditEndFragment"
         tools:layout="@layout/fragment_edit_end"
         >
@@ -121,7 +121,7 @@
     </fragment>
     <fragment
         android:id="@+id/insertEndFragment"
-        android:name="eywa.projectcodex.ui.inputEnd.InsertEndFragment"
+        android:name="eywa.projectcodex.components.inputEnd.InsertEndFragment"
         android:label="fragment_insert_end"
         tools:layout="@layout/fragment_insert_end"
         >

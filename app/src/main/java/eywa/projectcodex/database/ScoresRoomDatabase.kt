@@ -6,8 +6,13 @@ import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import eywa.projectcodex.CustomLogger
-import eywa.projectcodex.database.daos.*
-import eywa.projectcodex.database.entities.*
+import eywa.projectcodex.database.archer.Archer
+import eywa.projectcodex.database.archer.ArcherDao
+import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.ArcherRoundDao
+import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.database.rounds.*
 import java.util.*
 
 @Database(

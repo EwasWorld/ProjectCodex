@@ -7,9 +7,9 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
+import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.repositories.RoundsRepo
-import eywa.projectcodex.ui.MainMenuFragment
+import eywa.projectcodex.database.rounds.RoundRepo
 import org.junit.After
 import org.junit.Assert
 import org.junit.Test
@@ -115,9 +115,9 @@ class UpdateDefaultRoundsInstrumentedTests {
             var complete = false
 
             override fun run() {
-                Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
-                Assert.assertTrue(RoundsRepo.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS))
-                Assert.assertEquals(1, RoundsRepo.repositoryWriteLock.holdCount)
+                Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
+                Assert.assertTrue(RoundRepo.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS))
+                Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
 
                 ConditionWatcher.waitForCondition(object : Instruction() {
                     override fun getDescription(): String {
@@ -129,9 +129,9 @@ class UpdateDefaultRoundsInstrumentedTests {
                     }
                 })
 
-                Assert.assertEquals(1, RoundsRepo.repositoryWriteLock.holdCount)
-                RoundsRepo.repositoryWriteLock.unlock()
-                Assert.assertEquals(0, RoundsRepo.repositoryWriteLock.holdCount)
+                Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
+                RoundRepo.repositoryWriteLock.unlock()
+                Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
                 complete = true
             }
         }
