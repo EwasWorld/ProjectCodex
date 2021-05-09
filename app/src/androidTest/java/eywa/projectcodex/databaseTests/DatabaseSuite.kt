@@ -10,7 +10,7 @@ import org.junit.runners.Suite
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
-        GeneralDatabaseTests::class, ArcherRoundsTest::class, ArrowValueTest::class
+        GeneralDatabaseTests::class, ArcherRoundsTest::class, ArrowValueTest::class, MigrationTests::class
 )
 class DatabaseSuite {
     companion object {

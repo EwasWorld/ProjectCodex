@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.databaseTests
 
 import android.content.ContentValues
 import android.database.Cursor

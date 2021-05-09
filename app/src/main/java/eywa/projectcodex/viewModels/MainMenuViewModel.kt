@@ -24,8 +24,8 @@ class MainMenuViewModel(application: Application) : AndroidViewModel(application
     /**
      * @see UpdateDefaultRounds.cancelUpdateDefaultRounds
      */
-    fun cancelUpdateDefaultRounds() {
-        UpdateDefaultRounds.cancelUpdateDefaultRounds()
+    fun cancelUpdateDefaultRounds(resources: Resources) {
+        UpdateDefaultRounds.cancelUpdateDefaultRounds(resources)
     }
 
     /**

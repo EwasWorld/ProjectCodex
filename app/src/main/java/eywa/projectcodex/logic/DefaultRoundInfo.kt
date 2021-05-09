@@ -277,7 +277,7 @@ class UpdateDefaultRounds {
     companion object {
         private const val LOG_TAG = "UpdateDefaultRounds"
         private val taskExecutor = TaskRunner()
-        private var currentTask: TaskRunner.ProgressTask<String, Void?>? = null
+        private var currentTask: TaskRunner.ProgressTask<String, String>? = null
         private val state = MutableLiveData<UpdateTaskState>(UpdateTaskState.NOT_STARTED)
         private val progressMessage = MutableLiveData<String?>(null)
 
@@ -297,15 +297,21 @@ class UpdateDefaultRounds {
                 if (state.value == UpdateTaskState.IN_PROGRESS) return
                 state.postValue(UpdateTaskState.IN_PROGRESS)
             }
-            progressMessage.postValue(
-                    resources.getString(R.string.main_menu__update_default_rounds_initialising)
-            )
+            progressMessage.postValue(resources.getString(R.string.main_menu__update_default_rounds_initialising))
             currentTask = UpdateDefaultRoundsTask(RoundsRepo(db), resources)
             taskExecutor.executeProgressTask(
                     currentTask!!,
-                    onProgress = { progress -> progressMessage.postValue(progress) },
-                    onComplete = {
+                    onProgress = { progress ->
+                        if (state.value == UpdateTaskState.CANCELLING) {
+                            CustomLogger.customLogger.i(LOG_TAG, "Ignored message while cancelling: $progress")
+                        }
+                        else {
+                            progressMessage.postValue(progress)
+                        }
+                    },
+                    onComplete = { message ->
                         currentTask = null
+                        progressMessage.postValue(message)
                         state.postValue(UpdateTaskState.COMPLETE)
                     },
                     onError = { exception ->
@@ -325,8 +331,12 @@ class UpdateDefaultRounds {
             )
         }
 
-        fun cancelUpdateDefaultRounds() {
-            currentTask?.isSoftCancelled = true
+        fun cancelUpdateDefaultRounds(resources: Resources) {
+            synchronized(state) {
+                state.postValue(UpdateTaskState.CANCELLING)
+                progressMessage.postValue(resources.getString(R.string.general_cancelling))
+                currentTask?.isSoftCancelled = true
+            }
         }
 
         /**
@@ -354,15 +364,15 @@ class UpdateDefaultRounds {
         }
     }
 
-    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, COMPLETE, ERROR }
+    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, CANCELLING, COMPLETE, ERROR }
 
     private class UpdateDefaultRoundsTask(private val repository: RoundsRepo, private val resources: Resources) :
-            TaskRunner.ProgressTask<String, Void?>() {
+            TaskRunner.ProgressTask<String, String>() {
         companion object {
             const val LOG_TAG = "UpdateDefaultRoundsTask"
         }
 
-        override fun runTask(progressToken: OnToken<String>): Void? {
+        override fun runTask(progressToken: OnToken<String>): String {
             progressToken(resources.getString(R.string.main_menu__update_default_rounds_initialising))
 
             // Make sure we can acquire the lock before processing
@@ -469,8 +479,7 @@ class UpdateDefaultRounds {
                                 LOG_TAG,
                                 "Task cancelled at ${readRound.index} of ${readRoundNames.size}"
                         )
-                        progressToken(resources.getString(R.string.general_cancelled))
-                        return null
+                        return resources.getString(R.string.general_cancelled)
                     }
                 }
 
@@ -491,16 +500,11 @@ class UpdateDefaultRounds {
                 runBlocking {
                     repository.updateRounds(deleteItems)
                 }
-
-                /*
-                 * Complete
-                 */
-                progressToken(resources.getString(R.string.button_complete))
+                return resources.getString(R.string.button_complete)
             }
             finally {
                 RoundsRepo.repositoryWriteLock.unlock()
             }
-            return null
         }
     }
 }

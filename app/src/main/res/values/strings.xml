@@ -116,6 +116,7 @@
     <!-- General -->
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
+    <string name="general_cancelling">Cancelling</string>
     <string name="general_cancelled">Cancelled</string>
     <string name="button_complete">Complete</string>
     <string name="button_continue">Continue</string>

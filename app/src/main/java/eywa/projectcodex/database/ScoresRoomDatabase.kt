@@ -1,6 +1,5 @@
 package eywa.projectcodex.database
 
-import android.app.Activity
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.room.*
@@ -283,8 +282,8 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
          * Delete the database and clear the instance
          */
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        fun clearInstance(activity: Activity) {
-            activity.applicationContext.deleteDatabase(DATABASE_NAME)
+        fun clearInstance(context: Context) {
+            context.deleteDatabase(DATABASE_NAME)
             INSTANCE = null
         }
 

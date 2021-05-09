@@ -21,6 +21,7 @@ import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.ui.MainActivity
 import kotlinx.android.synthetic.main.content_main.*
 import org.hamcrest.*
+import org.hamcrest.CoreMatchers.containsString
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -32,6 +33,10 @@ fun Int.click() = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions
 fun Int.write(text: String) = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.typeText(text))!!
 fun Int.textEquals(text: String) = Espresso.onView(ViewMatchers.withId(this)).check(
         ViewAssertions.matches(ViewMatchers.withText(text))
+)!!
+
+fun Int.textContains(text: String) = Espresso.onView(ViewMatchers.withId(this)).check(
+        ViewAssertions.matches(ViewMatchers.withText(containsString(text)))
 )!!
 
 fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = Espresso.onView(ViewMatchers.withId(this)).check(

@@ -381,8 +381,7 @@ class DefaultRoundInfoUnitTest {
                         LiveDataObserver.MessageTracker(
                                 listOf(
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        "1 of 2",
+                                        MockInfo.defaultMap[R.string.general_cancelling],
                                         MockInfo.defaultMap[R.string.general_cancelled]
                                 )
                         )
@@ -390,7 +389,7 @@ class DefaultRoundInfoUnitTest {
 
         observer.startObserving()
         UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock)
-        UpdateDefaultRounds.cancelUpdateDefaultRounds()
+        UpdateDefaultRounds.cancelUpdateDefaultRounds(mockInfo.resourcesMock)
         simpleStateObserver.await()
         observer.finishObserving()
 
@@ -995,7 +994,11 @@ class DefaultRoundInfoUnitTest {
                     if (remainingMessages() == 0) {
                         Assert.fail("No more messages expected, but message was set to $message")
                     }
-                    Assert.assertEquals(expectedMessages[currentMessageNumber++], message)
+                    Assert.assertEquals(
+                            "Message number $currentMessageNumber",
+                            expectedMessages[currentMessageNumber++],
+                            message
+                    )
                 }
             }
 
@@ -1035,6 +1038,7 @@ class DefaultRoundInfoUnitTest {
                     Pair(R.string.main_menu__update_default_rounds_progress, "{current} of {total}"),
                     Pair(R.string.main_menu__update_default_rounds_deleting, "deleting"),
                     Pair(R.string.general_cancelled, "cancelled"),
+                    Pair(R.string.general_cancelling, "cancelling"),
                     Pair(R.string.button_complete, "complete"),
                     Pair(R.string.err_main_menu__update_default_rounds_no_lock, "no lock"),
                     Pair(R.string.err__internal_error, "internal error")

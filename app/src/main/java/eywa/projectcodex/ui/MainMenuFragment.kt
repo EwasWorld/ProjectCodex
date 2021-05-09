@@ -34,7 +34,9 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
 
             // Switch between start/cancel buttons
             button_main_menu__update_default_rounds.visibility = getVisibility(!updateHappening)
-            button_main_menu__update_default_rounds_cancel.visibility = getVisibility(updateHappening)
+            button_main_menu__update_default_rounds_cancel.visibility = getVisibility(
+                    updateHappening && state != UpdateDefaultRounds.UpdateTaskState.CANCELLING
+            )
 
             // Display status information if not in the NOT_STARTED state
             label_main_menu__update_default_rounds_progress.visibility = getVisibility(!updateNotStarted)
@@ -60,7 +62,7 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         }
 
         button_main_menu__update_default_rounds_cancel.setOnClickListener {
-            mainMenuViewModel.cancelUpdateDefaultRounds()
+            mainMenuViewModel.cancelUpdateDefaultRounds(resources)
         }
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
