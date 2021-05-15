@@ -5,6 +5,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.inputEnd.InputEndViewModel
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
+import kotlinx.coroutines.CompletionHandler
+import kotlinx.coroutines.Job
 import kotlin.math.min
 
 class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val arrowDeliminator: String) {
@@ -198,7 +200,12 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
      * @throws UserException if the end is not full
      * @throws IllegalStateException if [archerRoundId] or [firstArrowId] is invalid
      */
-    fun addArrowsToDatabase(archerRoundId: Int?, firstArrowId: Int?, inputEndViewModel: InputEndViewModel) {
+    fun addArrowsToDatabase(
+            archerRoundId: Int?,
+            firstArrowId: Int?,
+            inputEndViewModel: InputEndViewModel,
+            callback: CompletionHandler? = null
+    ) {
         val origArcherRoundIds = originalEnd?.map { it.archerRoundId }?.distinct()
         val finalArcherRoundId = origArcherRoundIds?.get(0) ?: archerRoundId
         check(finalArcherRoundId != null) { "Must provide archerRoundId" }
@@ -223,15 +230,11 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         /*
          * Overwrite the scores that were in the originalEnd
          */
+        val job: Job?
         if (!originalEnd.isNullOrEmpty()) {
             CustomLogger.customLogger.i(LOG_TAG, "Updating end " + originalEnd.toString() + " " + toString())
-            inputEndViewModel.update(*originalEnd!!.mapIndexed { i, originalValue ->
-                ArrowValue(
-                        originalValue.archerRoundId,
-                        originalValue.arrowNumber,
-                        arrows[i].score,
-                        arrows[i].isX
-                )
+            job = inputEndViewModel.update(*originalEnd!!.mapIndexed { i, originalValue ->
+                ArrowValue(originalValue.archerRoundId, originalValue.arrowNumber, arrows[i].score, arrows[i].isX)
             }.toTypedArray())
         }
         /*
@@ -240,9 +243,13 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         else {
             CustomLogger.customLogger.i(LOG_TAG, "Adding new end")
             var arrowID = firstArrowId!!
-            inputEndViewModel.insert(*arrows.map { it.toArrowValue(finalArcherRoundId, arrowID++) }.toTypedArray())
+            job = inputEndViewModel
+                    .insert(*arrows.map { it.toArrowValue(finalArcherRoundId, arrowID++) }.toTypedArray())
         }
-        clear()
+        job.invokeOnCompletion {
+            clear()
+            if (callback != null) callback(it)
+        }
     }
 
     fun toArrowValues(archerRoundId: Int, firstArrowId: Int): List<ArrowValue> {

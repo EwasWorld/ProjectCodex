@@ -212,17 +212,17 @@ class EndUnitTest {
 
         val viewModel = mock(InputEndViewModel::class.java)
         var arrowNumber = 1
-        end.addArrowsToDatabase(archerRoundId, arrowNumber, viewModel)
-
-        arrowValueCaptor = ArgumentCaptor.forClass(ArrowValue::class.java)
-        verify(viewModel, times(1)).insert(TestUtils.capture(arrowValueCaptor))
-        for (arrow in arrowValueCaptor.allValues) {
-            assertEquals(archerRoundId, arrow.archerRoundId)
-            assertEquals(arrowNumber, arrow.arrowNumber)
-            assertEquals(arrowScores[arrowNumber - 1], arrow.score)
-            // Only the last arrow, 6, should be an X
-            assertEquals(arrowNumber == 6, arrow.isX)
-            arrowNumber++
+        end.addArrowsToDatabase(archerRoundId, arrowNumber, viewModel) {
+            arrowValueCaptor = ArgumentCaptor.forClass(ArrowValue::class.java)
+            verify(viewModel, times(1)).insert(TestUtils.capture(arrowValueCaptor))
+            for (arrow in arrowValueCaptor.allValues) {
+                assertEquals(archerRoundId, arrow.archerRoundId)
+                assertEquals(arrowNumber, arrow.arrowNumber)
+                assertEquals(arrowScores[arrowNumber - 1], arrow.score)
+                // Only the last arrow, 6, should be an X
+                assertEquals(arrowNumber == 6, arrow.isX)
+                arrowNumber++
+            }
         }
     }
 
@@ -244,18 +244,18 @@ class EndUnitTest {
 
         val viewModel = mock(InputEndViewModel::class.java)
         val firstArrowNumber = 10
-        end.addArrowsToDatabase(archerRoundId, firstArrowNumber, viewModel)
-
-        arrowValueCaptor = ArgumentCaptor.forClass(ArrowValue::class.java)
-        verify(viewModel, times(1)).update(TestUtils.capture(arrowValueCaptor))
-        for (i in arrowValueCaptor.allValues.indices) {
-            assertEquals(archerRoundId, arrowValueCaptor.allValues[i].archerRoundId)
-            assertEquals(
-                    if (i < oldArrows.size) oldArrows[i].arrowNumber else i + firstArrowNumber - oldArrows.size,
-                    arrowValueCaptor.allValues[i].arrowNumber
-            )
-            assertEquals(arrowScores[i], arrowValueCaptor.allValues[i].score)
-            assertEquals(false, arrowValueCaptor.allValues[i].isX)
+        end.addArrowsToDatabase(archerRoundId, firstArrowNumber, viewModel) {
+            arrowValueCaptor = ArgumentCaptor.forClass(ArrowValue::class.java)
+            verify(viewModel, times(1)).update(TestUtils.capture(arrowValueCaptor))
+            for (i in arrowValueCaptor.allValues.indices) {
+                assertEquals(archerRoundId, arrowValueCaptor.allValues[i].archerRoundId)
+                assertEquals(
+                        if (i < oldArrows.size) oldArrows[i].arrowNumber else i + firstArrowNumber - oldArrows.size,
+                        arrowValueCaptor.allValues[i].arrowNumber
+                )
+                assertEquals(arrowScores[i], arrowValueCaptor.allValues[i].score)
+                assertEquals(false, arrowValueCaptor.allValues[i].isX)
+            }
         }
     }
 

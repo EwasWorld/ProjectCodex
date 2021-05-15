@@ -93,8 +93,7 @@ class InputEndFragment : Fragment(), ActionBarHelp {
                 }
                 endInputsFragment.end.addArrowsToDatabase(
                         args.archerRoundId, highestArrowNumber + 1, inputEndViewModel
-                )
-                endInputsFragment.clearEnd()
+                ) { endInputsFragment.clearEnd() }
             }
             catch (e: UserException) {
                 Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()

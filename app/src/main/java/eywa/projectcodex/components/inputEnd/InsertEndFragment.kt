@@ -80,11 +80,11 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
         button_insert_end__complete.setOnClickListener {
             try {
                 val arrowValues = endInputsFragment.end.toArrowValues(args.archerRoundId, args.firstArrowId)
-                inputEndViewModel.insertEnd(arrows, arrowValues)
-
-                // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
-                //    with the table refreshing bug (above as well)
-                view.findNavController().navigate(action)
+                inputEndViewModel.insertEnd(arrows, arrowValues).invokeOnCompletion {
+                    // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
+                    //    with the table refreshing bug (above as well)
+                    view.findNavController().navigate(action)
+                }
             }
             catch (e: UserException) {
                 Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()

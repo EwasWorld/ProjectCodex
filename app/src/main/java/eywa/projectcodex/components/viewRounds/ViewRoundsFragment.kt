@@ -125,7 +125,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
             R.id.button_view_rounds_menu__continue -> {
                 val selectedArcherRound =
                         allArcherRoundsWithNames.find { it.archerRound.archerRoundId == selectedArcherRoundId }
-                val hasRound = selectedArcherRound?.round != null ?: false
+                val hasRound = selectedArcherRound?.round != null
                 if (hasRound) {
                     /*
                      * Check whether the round is completed (full with arrows)

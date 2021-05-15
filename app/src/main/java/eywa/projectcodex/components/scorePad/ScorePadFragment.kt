@@ -200,8 +200,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
                 true
             }
             R.id.button_score_pad_menu__delete -> {
-                // -1 because this is an index not an ID
-                scorePadViewModel.deleteArrows(firstArrowId - 1, args.endSize)
+                scorePadViewModel.deleteArrows(firstArrowId, args.endSize)
                 true
             }
             else -> super.onContextItemSelected(item)

@@ -77,18 +77,11 @@ class EditEndFragment : Fragment(), ActionBarHelp {
         button_edit_end__complete.setOnClickListener {
             try {
                 // Update database
-                var highestArrowNumber = 0
-                for (arrow in arrows) {
-                    if (arrow.arrowNumber > highestArrowNumber) {
-                        highestArrowNumber = arrow.arrowNumber
-                    }
+                endInputsFragment.end.addArrowsToDatabase(args.archerRoundId, null, inputEndViewModel) {
+                    // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
+                    //    with the table refreshing bug (above as well)
+                    view.findNavController().navigate(action)
                 }
-                endInputsFragment.end.addArrowsToDatabase(
-                        args.archerRoundId, highestArrowNumber + 1, inputEndViewModel
-                )
-                // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
-                //    with the table refreshing bug (above as well)
-                view.findNavController().navigate(action)
             }
             catch (e: UserException) {
                 Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()

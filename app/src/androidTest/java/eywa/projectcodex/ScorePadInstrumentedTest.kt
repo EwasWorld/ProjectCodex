@@ -277,13 +277,20 @@ class ScorePadInstrumentedTest {
 
     @Test
     fun testDeleteEnd() {
-        generateArrowsAndAddToDb()
+        var genArrowNumber = 1
+        val expectedArrowsGrouped = List(6) { index ->
+            List(endSize) { TestData.ARROWS[index].toArrowValue(1, genArrowNumber++) }
+        }
+        arrows = expectedArrowsGrouped.flatten()
+        addArrowsToDatabase()
+
         ConditionWatcher.waitForCondition(openScorePadInstruction)
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
         ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(0))
 
+        val deleteEndIndex = 1
         val endToClick =
-                End(arrows.subList(endSize, endSize * 2), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
+                End(expectedArrowsGrouped[deleteEndIndex], TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         endToClick.reorderScores()
         onView(endToClick.toString()).perform(click())
         ConditionWatcher.waitForCondition(waitFor(200))
@@ -300,7 +307,9 @@ class ScorePadInstrumentedTest {
             }
         })
 
-        checkCells(arrows.filterIndexed { i, _ -> i < endSize || i >= endSize * 2 })
+        checkCells(expectedArrowsGrouped.filterIndexed { index, _ ->
+            index != deleteEndIndex
+        }.flatten())
         checkColumnHeaders()
         checkRowsHeaders(5)
     }
