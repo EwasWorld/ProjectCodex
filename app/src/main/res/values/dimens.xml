@@ -11,7 +11,7 @@
     <dimen name="info_table__main_margins">10dp</dimen>
     <dimen name="info_table__cell_height">40dp</dimen>
     <dimen name="info_table__column_header_height">30dp</dimen>
-    <dimen name="info_table__row_header_width">45dp</dimen>
+    <dimen name="info_table__row_header_width">50dp</dimen>
     <dimen name="info_table__text_size">20sp</dimen>
     <dimen name="info_table__cell_margins">5dp</dimen>
     <dimen name="info_table__padding">5dp</dimen>

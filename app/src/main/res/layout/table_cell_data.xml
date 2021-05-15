@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_info_table_cell_container"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/info_table__cell_height"
     android:gravity="center"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     >
 
     <TextView
@@ -21,4 +22,4 @@
         android:textColor="@color/scorePadText"
         android:textSize="@dimen/info_table__text_size"
         />
-</RelativeLayout>
+</LinearLayout>

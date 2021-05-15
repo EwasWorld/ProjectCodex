@@ -74,7 +74,8 @@ class InputEndFragment : Fragment(), ActionBarHelp {
         endInputsFragment =
                 childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment
 
-        button_input_end__score_pad.setOnClickListener {
+        (childFragmentManager.findFragmentById(R.id.fragment_input_end__score_indicator)!! as ScoreIndicatorFragment)
+                .onClickListener = View.OnClickListener {
             val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(
                     endInputsFragment.end.endSize,
                     args.archerRoundId

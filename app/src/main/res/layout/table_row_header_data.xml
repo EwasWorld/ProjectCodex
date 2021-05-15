@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
+    android:id="@+id/layout_info_table_row_header_container"
     android:layout_width="@dimen/info_table__row_header_width"
     android:layout_height="@dimen/info_table__cell_height"
     android:gravity="center"
@@ -9,7 +9,7 @@
     >
 
     <TextView
-        android:id="@+id/text_info_table_row_header"
+        android:id="@+id/text_info_table_row_header_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
