@@ -17,6 +17,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
+import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
@@ -35,8 +36,10 @@ class EditEndFragment : Fragment(), ActionBarHelp {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_edit_end, container, false)
-        view.findViewById<TextView>(R.id.text_edit_end__title).text =
-                getString(R.string.edit_end__edit_info).format((args.firstArrowId - 1) / args.endSize + 1)
+        view.findViewById<TextView>(R.id.text_edit_end__title).text = resourceStringReplace(
+                getString(R.string.edit_end__edit_info),
+                mapOf("end number" to ((args.firstArrowId - 1) / args.endSize + 1).toString())
+        )
 
         endInputsFragment =
                 childFragmentManager.findFragmentById(R.id.fragment_edit_end__end_inputs)!! as EndInputsFragment

@@ -17,6 +17,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
+import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
@@ -41,7 +42,10 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
                     getString(R.string.insert_end__info_at_start)
                 }
                 else {
-                    getString(R.string.insert_end__info).format(insertEndAt - 1, insertEndAt)
+                    resourceStringReplace(
+                            getString(R.string.insert_end__info),
+                            mapOf("end before" to (insertEndAt - 1).toString(), "end after" to insertEndAt.toString())
+                    )
                 }
 
         endInputsFragment =

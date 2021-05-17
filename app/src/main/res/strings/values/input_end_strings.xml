@@ -18,11 +18,11 @@
     <!-- Edit end -->
     <string name="edit_end__title">Edit End</string>
     <string name="edit_end__reset">Reset</string>
-    <string name="edit_end__edit_info">Editing end %d</string>
+    <string name="edit_end__edit_info">Editing end {end number}</string>
 
     <!-- Insert end -->
     <string name="insert_end__title">Insert End</string>
-    <string name="insert_end__info">Inserting end\nbetween ends %d and %d</string>
+    <string name="insert_end__info">Inserting end\nbetween ends {end before} and {end after}</string>
     <string name="insert_end__info_at_start">Inserting end\nat the beginning</string>
 
     <!-- Errors -->

@@ -5,6 +5,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
+import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -136,8 +137,9 @@ fun calculateScorePadTableData(
         if (arrowCounts.size > 1) {
             val distanceRowData = mutableListOf<Any>()
             distanceRowData.add(
-                    String.format(
-                            resources.getString(R.string.score_pad__distance_total), distance, distanceUnit
+                    resourceStringReplace(
+                            resources.getString(R.string.score_pad__distance_total),
+                            mapOf("distance" to distance.toString(), "unit" to distanceUnit.toString())
                     )
             )
             distanceRowData.add(distanceArrows.count { it.score != 0 })
