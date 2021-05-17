@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="input_end__title">Input End</string>
+    <string name="input_end__change_end_size_dialog_title">Change end size</string>
+
+    <string name="input_end__clear">Clear</string>
+    <string name="input_end__backspace">Backspace</string>
+    <string name="input_end__next_end">Next end</string>
+
+    <!-- Extra info -->
+    <string name="input_end__round_indicator_label">Remaining Arrows in Round:</string>
+    <string name="input_end__round_indicator_at">at</string>
+    <string name="input_end__round_indicator_complete">Round Complete</string>
+    <string name="input_end__archer_name_header">Archer</string>
+    <string name="input_end__archer_score_header">Score</string>
+    <string name="input_end__archer_arrows_count_header">Arrows</string>
+
+    <!-- Edit end -->
+    <string name="edit_end__title">Edit End</string>
+    <string name="edit_end__reset">Reset</string>
+    <string name="edit_end__edit_info">Editing end %d</string>
+
+    <!-- Insert end -->
+    <string name="insert_end__title">Insert End</string>
+    <string name="insert_end__info">Inserting end\nbetween ends %d and %d</string>
+    <string name="insert_end__info_at_start">Inserting end\nat the beginning</string>
+
+    <!-- Errors -->
+    <string name="err_input_end__end_full">Arrows already added</string>
+    <string name="err_input_end__end_empty">No arrows entered</string>
+    <string name="err_input_end__end_not_full">Please enter all arrows for this end</string>
+    <string name="err_input_end__cannot_edit_end_size">Cannot change the end size when editing an end</string>
+
+    <!-- Help -->
+    <string name="help_input_end__arrow_inputs_title">Input arrow scores</string>
+    <string name="help_input_end__arrow_inputs_body">Use the number buttons to input a score for an end</string>
+
+    <string name="help_input_end__end_inputs_total_title">End total</string>
+    <string name="help_input_end__end_inputs_total_body">The score for the current end</string>
+    <string name="help_input_end__end_inputs_arrows_title">End</string>
+    <string name="help_input_end__end_inputs_arrows_body">Individual arrow values for the current end</string>
+    <string name="help_input_end__end_inputs_clear_title">Clear</string>
+    <string name="help_input_end__end_inputs_clear_body">Removes all arrows from the current end</string>
+    <string name="help_input_end__end_inputs_backspace_title">Backspace</string>
+    <string name="help_input_end__end_inputs_backspace_body">Deletes the last arrow inputted on the current end</string>
+    <string name="help_input_end__end_inputs_reset_title">Reset</string>
+    <string name="help_input_end__end_inputs_reset_body">Resets all edits to the current end</string>
+
+    <string name="help_input_end__indicator_title">Current score</string>
+    <string name="help_input_end__indicator_body">Click to open the score pad. Displays running totals for the current round. Does not include the end currently being inputted</string>
+
+    <string name="help_input_end__remaining_arrows_title">Round information</string>
+    <string name="help_input_end__remaining_arrows_body">Shows how many arrows remain for each distance in the current round</string>
+    <string name="help_input_end__next_end_title">Next end</string>
+    <string name="help_input_end__next_end_body">Saves the currently inputted end and moves on to the next end</string>
+
+    <!-- Note: used for both insert and edit -->
+    <string name="help_edit_end__complete_title">Complete</string>
+    <string name="help_edit_end__complete_body">Saves the changes and returns to the score pad</string>
+    <string name="help_edit_end__cancel_title">Cancel</string>
+    <string name="help_edit_end__cancel_body">Returns to the score pad without saving changes</string>
+</resources>

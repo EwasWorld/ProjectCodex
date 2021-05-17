@@ -75,17 +75,21 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        // TODO Replace test showcase with actual information
         return listOf(
                 ActionBarHelp.HelpShowcaseItem(
                         R.id.button_main_menu__start_new_round,
-                        "Title 1",
-                        "Text 1"
+                        getString(R.string.help_main_menu__new_round_title),
+                        getString(R.string.help_main_menu__new_round_body)
                 ),
                 ActionBarHelp.HelpShowcaseItem(
                         R.id.button_main_menu__view_rounds,
-                        "Title 2",
-                        "Text 2"
+                        getString(R.string.help_main_menu__view_rounds_title),
+                        getString(R.string.help_main_menu__view_rounds_body)
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_main_menu__update_default_rounds,
+                        getString(R.string.help_main_menu__update_default_title),
+                        getString(R.string.help_main_menu__update_default_body)
                 )
         )
     }

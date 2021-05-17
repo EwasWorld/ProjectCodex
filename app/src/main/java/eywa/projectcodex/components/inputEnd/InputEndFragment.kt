@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -157,10 +158,27 @@ class InputEndFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        TODO("Not yet implemented")
+        val main = mutableListOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_input_end__next_end,
+                        getString(R.string.help_input_end__next_end_title),
+                        getString(R.string.help_input_end__next_end_body)
+                )
+        )
+        if (view!!.findViewById<TextView>(R.id.layout_input_end__remaining_arrows).isVisible) {
+            main.add(
+                    ActionBarHelp.HelpShowcaseItem(
+                            R.id.layout_input_end__remaining_arrows,
+                            getString(R.string.help_input_end__remaining_arrows_title),
+                            getString(R.string.help_input_end__remaining_arrows_body),
+                            priority = 20
+                    )
+            )
+        }
+        return main
     }
 
     override fun getHelpPriority(): Int? {
-        TODO("Not yet implemented")
+        return null
     }
 }

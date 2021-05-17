@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="view_round__title">All Rounds</string>
+    <string name="view_round__date_header">Date</string>
+    <string name="view_round__round_name_header">Round</string>
+    <string name="view_round__counts_to_hc_header">HC</string>
+    <string name="view_round__id_header">ID</string>
+    <string name="view_rounds_menu__score_pad">Show score pad</string>
+    <string name="view_rounds_menu__continue">Continue round</string>
+    <string name="view_rounds_menu__delete">Delete round</string>
+    <string name="err_view_round__no_rounds">There are no rounds to show</string>
+    <string name="err_view_round__round_already_complete_title">Warning: Round Complete</string>
+    <string name="err_view_round__round_already_complete">This round is complete. Are you sure you want to add more arrows to it?</string>
+
+    <string name="help_view_round__main_title">Score details and edit</string>
+    <string name="help_view_round__main_body">Click on a score to see the score pad containing further information. {edit help}</string>
+</resources>

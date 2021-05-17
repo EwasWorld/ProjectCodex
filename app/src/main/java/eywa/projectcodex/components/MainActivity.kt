@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -25,17 +26,37 @@ class MainActivity : AppCompatActivity() {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        @Suppress("UNCHECKED_CAST")
         return when (item.itemId) {
             R.id.action_bar__help -> {
-                val hostFragment = supportFragmentManager.fragments.find { it is NavHostFragment }
-                        ?: throw IllegalStateException("No help info found")
                 ActionBarHelp.executeHelpPressed(
-                        hostFragment.childFragmentManager.fragments.filterIsInstance(ActionBarHelp::class.java),
+                        findAllActionBarChildFragments(
+                                supportFragmentManager.fragments.find { it is NavHostFragment }
+                                        ?: throw IllegalStateException("No help info found")
+                        ),
                         this
                 )
                 return true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    /**
+     * @return all visible children of [fragment] that are instances of [ActionBarHelp]. Includes all children of
+     * children. Does not include [fragment] itself
+     */
+    private fun findAllActionBarChildFragments(fragment: Fragment): List<ActionBarHelp> {
+        val allFragments = mutableListOf<ActionBarHelp>()
+        for (childFragment in fragment.childFragmentManager.fragments) {
+            if (childFragment == null || !childFragment.isVisible) {
+                continue
+            }
+            if (childFragment is ActionBarHelp) {
+                allFragments.add(childFragment)
+            }
+            allFragments.addAll(findAllActionBarChildFragments(childFragment))
+        }
+        return allFragments
     }
 }

@@ -166,7 +166,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
         val builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.err_table_view__no_data)
         builder.setMessage(R.string.err_score_pad__no_arrows)
-        builder.setPositiveButton(R.string.button_ok) { dialogInterface, _ ->
+        builder.setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
             activity?.onBackPressed()
             dialogInterface.cancel()
             dialog = null
@@ -227,10 +227,16 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        TODO("Not yet implemented")
+        return listOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        null,
+                        getString(R.string.help_score_pad__open_menu_title),
+                        getString(R.string.help_table_open_menu_body)
+                )
+        )
     }
 
     override fun getHelpPriority(): Int? {
-        TODO("Not yet implemented")
+        return null
     }
 }

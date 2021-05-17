@@ -38,6 +38,9 @@ fun getColourResource(resources: Resources, colourResourceId: Int, theme: Resour
 fun resourceStringReplace(resourceString: String, replacements: Map<String, String>): String {
     var newString = resourceString
     for (entry in replacements.entries) {
+        if (entry.key.contains(Regex("[{}]+"))) {
+            throw IllegalArgumentException("Items given to resource string replace should not contain { or }")
+        }
         newString = newString.replace("{${entry.key}}", entry.value)
     }
     return newString

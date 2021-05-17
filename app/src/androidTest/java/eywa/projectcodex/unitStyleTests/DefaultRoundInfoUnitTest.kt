@@ -144,7 +144,7 @@ class DefaultRoundInfoUnitTest {
                                         "1 of 2",
                                         "2 of 2",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
-                                        MockInfo.defaultMap[R.string.button_complete]
+                                        MockInfo.defaultMap[R.string.general_complete]
                                 )
                         )
                 ).build()
@@ -217,7 +217,7 @@ class DefaultRoundInfoUnitTest {
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
-                                        MockInfo.defaultMap[R.string.button_complete]
+                                        MockInfo.defaultMap[R.string.general_complete]
                                 )
                         )
                 ).build()
@@ -257,7 +257,7 @@ class DefaultRoundInfoUnitTest {
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
-                                        MockInfo.defaultMap[R.string.button_complete]
+                                        MockInfo.defaultMap[R.string.general_complete]
                                 )
                         )
                 ).build()
@@ -301,7 +301,7 @@ class DefaultRoundInfoUnitTest {
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
-                                        MockInfo.defaultMap[R.string.button_complete]
+                                        MockInfo.defaultMap[R.string.general_complete]
                                 )
                         )
                 ).build()
@@ -424,7 +424,7 @@ class DefaultRoundInfoUnitTest {
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
-                                        MockInfo.defaultMap[R.string.button_complete]
+                                        MockInfo.defaultMap[R.string.general_complete]
                                 )
                         )
                 ).build()
@@ -1034,7 +1034,7 @@ class DefaultRoundInfoUnitTest {
                     Pair(R.string.main_menu__update_default_rounds_deleting, "deleting"),
                     Pair(R.string.general_cancelled, "cancelled"),
                     Pair(R.string.general_cancelling, "cancelling"),
-                    Pair(R.string.button_complete, "complete"),
+                    Pair(R.string.general_complete, "complete"),
                     Pair(R.string.err_main_menu__update_default_rounds_no_lock, "no lock"),
                     Pair(R.string.err__internal_error, "internal error")
             )

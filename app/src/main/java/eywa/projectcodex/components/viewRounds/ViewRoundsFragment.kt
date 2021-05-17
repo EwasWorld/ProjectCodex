@@ -14,6 +14,7 @@ import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.components.infoTable.*
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -98,7 +99,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                 val builder = AlertDialog.Builder(activity)
                 builder.setTitle(R.string.err_table_view__no_data)
                 builder.setMessage(R.string.err_view_round__no_rounds)
-                builder.setPositiveButton(R.string.button_ok) { _, _ ->
+                builder.setPositiveButton(R.string.general_ok) { _, _ ->
                     activity?.onBackPressed()
                 }
                 emptyDialog = builder.create()
@@ -147,8 +148,8 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                             val builder = AlertDialog.Builder(activity)
                             builder.setTitle(R.string.err_view_round__round_already_complete_title)
                             builder.setMessage(R.string.err_view_round__round_already_complete)
-                            builder.setPositiveButton(R.string.button_continue, okListener)
-                            builder.setNegativeButton(R.string.button_cancel) { _, _ -> }
+                            builder.setPositiveButton(R.string.general_continue, okListener)
+                            builder.setNegativeButton(R.string.general_cancel) { _, _ -> }
                             roundCompleteDialog = builder.create()
                         }
                         if (!roundCompleteDialog!!.isShowing) {
@@ -203,10 +204,19 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        TODO("Not yet implemented")
+        return listOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        null,
+                        getString(R.string.help_view_round__main_title),
+                        resourceStringReplace(
+                                getString(R.string.help_view_round__main_body),
+                                mapOf(Pair("edit help", getString(R.string.help_table_open_menu_body)))
+                        )
+                )
+        )
     }
 
     override fun getHelpPriority(): Int? {
-        TODO("Not yet implemented")
+        return null
     }
 }

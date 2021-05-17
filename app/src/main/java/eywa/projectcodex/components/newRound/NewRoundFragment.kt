@@ -220,10 +220,61 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        TODO("Not yet implemented")
+        val mainList = mutableListOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.layout_create_round__date,
+                        getString(R.string.help_create_round__date_title),
+                        getString(R.string.help_create_round__date_body),
+                        shape = ActionBarHelp.ShowcaseShape.OVAL,
+                        shapePadding = 0
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.layout_create_round__round,
+                        getString(R.string.help_create_round__round_title),
+                        getString(R.string.help_create_round__round_body),
+                        shape = ActionBarHelp.ShowcaseShape.OVAL,
+                        shapePadding = 0
+                )
+        )
+        if (layout_create_round__round_sub_type.visibility == View.VISIBLE) {
+            mainList.addAll(
+                    listOf(
+                            ActionBarHelp.HelpShowcaseItem(
+                                    R.id.layout_create_round__round_sub_type,
+                                    getString(R.string.help_create_round__sub_round_title),
+                                    getString(R.string.help_create_round__sub_round_body),
+                                    shape = ActionBarHelp.ShowcaseShape.OVAL,
+                                    shapePadding = 0
+                            ),
+                            ActionBarHelp.HelpShowcaseItem(
+                                    R.id.layout_create_round__arrow_count_indicator,
+                                    getString(R.string.help_create_round__arrow_count_indicator_title),
+                                    getString(R.string.help_create_round__arrow_count_indicator_body),
+                                    shape = ActionBarHelp.ShowcaseShape.OVAL,
+                                    shapePadding = 0
+                            ),
+                            ActionBarHelp.HelpShowcaseItem(
+                                    R.id.layout_create_round__distance_indicator,
+                                    getString(R.string.help_create_round__distance_indicator_title),
+                                    getString(R.string.help_create_round__distance_indicator_body),
+                                    shape = ActionBarHelp.ShowcaseShape.OVAL,
+                                    shapePadding = 0
+                            )
+                    )
+            )
+        }
+        mainList.add(
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_create_round__submit,
+                        getString(R.string.help_create_round__submit_title),
+                        getString(R.string.help_create_round__submit_body),
+                        shape = ActionBarHelp.ShowcaseShape.OVAL
+                )
+        )
+        return mainList
     }
 
     override fun getHelpPriority(): Int? {
-        TODO("Not yet implemented")
+        return null
     }
 }

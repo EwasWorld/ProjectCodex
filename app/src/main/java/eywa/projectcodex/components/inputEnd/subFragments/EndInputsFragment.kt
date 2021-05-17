@@ -11,11 +11,12 @@ import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonElements.NumberPickerDialog
+import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.android.synthetic.main.frag_end_inputs.*
 
 
-class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButtonPressedListener {
+class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButtonPressedListener, ActionBarHelp {
     private val defaultStartingEndSize = 6
     var showResetButton = false
 
@@ -120,5 +121,53 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
             requiredView.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text = end.toString()
             requiredView.findViewById<TextView>(R.id.text_end_inputs__end_total).text = end.getScore().toString()
         }
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        val helpItems = mutableListOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.fragment_end_inputs__arrow_inputs,
+                        getString(R.string.help_input_end__arrow_inputs_title),
+                        getString(R.string.help_input_end__arrow_inputs_body),
+                        shape = ActionBarHelp.ShowcaseShape.OVAL
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.text_end_inputs__inputted_arrows,
+                        getString(R.string.help_input_end__end_inputs_arrows_title),
+                        getString(R.string.help_input_end__end_inputs_arrows_body),
+                        shape = ActionBarHelp.ShowcaseShape.OVAL
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.text_end_inputs__end_total,
+                        getString(R.string.help_input_end__end_inputs_total_title),
+                        getString(R.string.help_input_end__end_inputs_total_body),
+                        shape = ActionBarHelp.ShowcaseShape.CIRCLE,
+                        shapePadding = 85
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_end_inputs__backspace,
+                        getString(R.string.help_input_end__end_inputs_backspace_title),
+                        getString(R.string.help_input_end__end_inputs_backspace_body)
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_end_inputs__clear,
+                        getString(R.string.help_input_end__end_inputs_clear_title),
+                        getString(R.string.help_input_end__end_inputs_clear_body)
+                )
+        )
+        if (showResetButton) {
+            helpItems.add(
+                    ActionBarHelp.HelpShowcaseItem(
+                            R.id.button_end_inputs__reset,
+                            getString(R.string.help_input_end__end_inputs_reset_title),
+                            getString(R.string.help_input_end__end_inputs_reset_body)
+                    )
+            )
+        }
+        return helpItems
+    }
+
+    override fun getHelpPriority(): Int {
+        return -2
     }
 }

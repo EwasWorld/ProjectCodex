@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_round__title">New Score</string>
+    <string name="create_round__submit">Start Scoring</string>
+    <string name="create_round__imperial_metric">Imperial</string>
+    <string name="create_round__date">Date:</string>
+    <string name="create_round__round">Round:</string>
+    <string name="create_round__round_sub_type">Round Subtype:</string>
+    <string name="create_round__no_round">No Round</string>
+    <string name="create_round__no_rounds_found">No round found in database</string>
+    <string name="create_round__arrow_count_indicator">Arrows per distance (doz):</string>
+    <string name="create_round__distance_indicator">Distances:</string>
+    <string name="create_round__arrows_per_end">Arrows per End</string>
+    <string name="create_round__date_shot_date_picker_title">Date shot</string>
+    <string name="create_round__time_shot_time_picker_title">Time shot</string>
+
+    <string name="help_create_round__date_title">Date and Time</string>
+    <string name="help_create_round__date_body">The date and time that this round was shot</string>
+    <string name="help_create_round__round_title">Round</string>
+    <string name="help_create_round__round_body">Select the round being shot (or no round)</string>
+    <string name="help_create_round__sub_round_title">Round Subtype</string>
+    <string name="help_create_round__sub_round_body">Select which distance is being shot</string>
+    <string name="help_create_round__arrow_count_indicator_title">Arrows to be shot</string>
+    <string name="help_create_round__arrow_count_indicator_body">Number of arrows to be shot in dozens at each distance (beginning from the farthest distance) given the selected round</string>
+    <string name="help_create_round__distance_indicator_title">Distances</string>
+    <string name="help_create_round__distance_indicator_body">The distances to be shot given the selected round</string>
+    <string name="help_create_round__submit_title">Start scoring</string>
+    <string name="help_create_round__submit_body">Create the new score and begin adding arrows</string>
+</resources>

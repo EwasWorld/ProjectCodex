@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="score_pad__title">Score Pad</string>
+    <string name="score_pad__running_total_placeholder">-</string>
+    <string name="score_pad__end_string_header">Arrows</string>
+    <string name="score_pad__running_total_header">R/T</string>
+    <string name="score_pad__grand_total">Grand total:</string>
+    <string name="score_pad__grand_total_row_header">GT</string>
+    <string name="score_pad__distance_total">Total at %d%s</string> <!-- Total at 90m -->
+    <string name="score_pad__distance_total_row_header">T</string>
+    <string name="err_score_pad__no_arrows">There are no arrows to show</string>
+    <string name="score_pad_menu__edit">Edit end</string>
+    <string name="score_pad_menu__insert">Insert end above</string>
+    <string name="score_pad_menu__delete">Delete end</string>
+
+    <string name="help_score_pad__open_menu_title">Edit</string>
+</resources>

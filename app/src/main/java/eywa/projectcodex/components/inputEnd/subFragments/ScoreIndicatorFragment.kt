@@ -7,11 +7,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
+import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import kotlinx.android.synthetic.main.frag_score_indicator.*
 
 
-class ScoreIndicatorFragment : Fragment() {
+class ScoreIndicatorFragment : Fragment(), ActionBarHelp {
     var onClickListener: View.OnClickListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -35,5 +36,19 @@ class ScoreIndicatorFragment : Fragment() {
                     arrows.sumBy { it.score }.toString()
             view.findViewById<TextView>(R.id.text_scores_indicator__table_arrow_count_1).text = arrows.size.toString()
         }
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        return listOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.table_layout_scores_indicator,
+                        getString(R.string.help_input_end__indicator_title),
+                        getString(R.string.help_input_end__indicator_body)
+                )
+        )
+    }
+
+    override fun getHelpPriority(): Int {
+        return 10
     }
 }

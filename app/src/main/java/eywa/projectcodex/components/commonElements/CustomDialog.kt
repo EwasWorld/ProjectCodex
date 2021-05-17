@@ -15,11 +15,11 @@ abstract class CustomDialog(private val title: String, private val message: Stri
             dialogBuilder.setMessage(message)
         }
         dialogBuilder.setView(getDialogView())
-        dialogBuilder.setPositiveButton(resources.getString(R.string.button_ok)) { dialog, _ ->
+        dialogBuilder.setPositiveButton(resources.getString(R.string.general_ok)) { dialog, _ ->
             okFunction()
             dialog.dismiss()
         }
-        dialogBuilder.setNegativeButton(resources.getString(R.string.button_cancel)) { dialog, _ -> dialog.dismiss() }
+        dialogBuilder.setNegativeButton(resources.getString(R.string.general_cancel)) { dialog, _ -> dialog.dismiss() }
         return dialogBuilder.create()
     }
 

@@ -498,7 +498,7 @@ class UpdateDefaultRounds {
                 runBlocking {
                     repository.updateRounds(deleteItems)
                 }
-                return resources.getString(R.string.button_complete)
+                return resources.getString(R.string.general_complete)
             }
             finally {
                 RoundRepo.repositoryWriteLock.unlock()

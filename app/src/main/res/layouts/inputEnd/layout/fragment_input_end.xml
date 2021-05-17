@@ -53,7 +53,7 @@
 
         <LinearLayout
             android:id="@+id/layout_input_end__remaining_arrows"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
@@ -142,14 +142,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         >
-
-        <Button
-            android:id="@+id/button_input_end__score_pad"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/input_end__score_pad"
-            />
 
         <Button
             android:id="@+id/button_input_end__next_end"

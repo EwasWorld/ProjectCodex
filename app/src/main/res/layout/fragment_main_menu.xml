@@ -62,7 +62,7 @@
             android:id="@+id/button_main_menu__update_default_rounds_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_cancel"
+            android:text="@string/general_cancel"
             android:visibility="gone"
             />
 

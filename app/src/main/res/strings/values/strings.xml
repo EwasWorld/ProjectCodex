@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Project Codex</string>
+
+    <string name="short_boolean_true">Y</string>
+    <string name="short_boolean_false">N</string>
+    <string name="units_meters_short">m</string>
+    <string name="units_yards_short">yd</string>
+
+    <!-- Action bar -->
+    <string name="action_bar__help">help</string>
+    <string name="action_bar__close_help">Close help</string>
+
+    <!-- Arrow information -->
+    <string name="end_to_string_arrow_deliminator">-</string>
+    <string name="end_to_string_arrow_placeholder">.</string>
+    <string name="arrow_value_m">m</string>
+    <string name="arrow_value_1">1</string>
+    <string name="arrow_value_2">2</string>
+    <string name="arrow_value_3">3</string>
+    <string name="arrow_value_4">4</string>
+    <string name="arrow_value_5">5</string>
+    <string name="arrow_value_6">6</string>
+    <string name="arrow_value_7">7</string>
+    <string name="arrow_value_8">8</string>
+    <string name="arrow_value_9">9</string>
+    <string name="arrow_value_10">10</string>
+    <string name="arrow_value_x">X</string>
+
+    <!-- Table View -->
+    <string name="table_hits_header">H</string>
+    <string name="table_score_header">S</string>
+    <string name="table_golds_header">G</string>
+    <string name="table_golds_nines_header">G</string>
+    <string name="table_golds_tens_header">10</string>
+    <string name="table_golds_xs_header">X</string>
+    <string name="err_table_view__no_data">Table is empty</string>
+    <string name="help_table_open_menu_body">Long press on a row for more options</string>
+
+    <!-- General -->
+    <string name="general_ok">OK</string>
+    <string name="general_cancel">Cancel</string>
+    <string name="general_cancelling">Cancelling</string>
+    <string name="general_cancelled">Cancelled</string>
+    <string name="general_complete">Complete</string>
+    <string name="general_continue">Continue</string>
+    <string name="general_next">Next</string>
+    <!-- TODO Make a more informative message on what to do next -->
+    <string name="err__internal_error">Internal error occurred</string>
+
+    <string name="placeholder_0">0</string>
+</resources>

@@ -99,10 +99,21 @@ class EditEndFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        TODO("Not yet implemented")
+        return listOf(
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_edit_end__complete,
+                        getString(R.string.help_edit_end__complete_title),
+                        getString(R.string.help_edit_end__complete_body)
+                ),
+                ActionBarHelp.HelpShowcaseItem(
+                        R.id.button_edit_end__cancel,
+                        getString(R.string.help_edit_end__cancel_title),
+                        getString(R.string.help_edit_end__cancel_body)
+                )
+        )
     }
 
     override fun getHelpPriority(): Int? {
-        TODO("Not yet implemented")
+        return null
     }
 }
