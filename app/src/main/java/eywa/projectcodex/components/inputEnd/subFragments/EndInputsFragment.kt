@@ -27,34 +27,24 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
             updateEndStringAndTotal()
         }
 
-    /**
-     * Lazy loaded
-     */
-    private var numberPickerDialog: NumberPickerDialog? = null
-        get() {
-            if (field != null) {
-                return field
-            }
-
-            val okListener = object : NumberPickerDialog.OnOkListener {
-                override fun onSelect(value: Int) {
-                    try {
-                        end.updateEndSize(value)
-                    }
-                    catch (e: UserException) {
-                        Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()
-                    }
+    private val numberPickerDialog: NumberPickerDialog by lazy {
+        val okListener = object : NumberPickerDialog.OnOkListener {
+            override fun onSelect(value: Int) {
+                try {
+                    end.updateEndSize(value)
+                }
+                catch (e: UserException) {
+                    Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()
                 }
             }
-            numberPickerDialog = NumberPickerDialog(
-                    resources.getString(R.string.input_end__change_end_size_dialog_title),
-                    null, 12, 2, end.endSize, okListener
-            )
-            @Suppress("RecursivePropertyAccessor")
-            return numberPickerDialog
         }
+        NumberPickerDialog(
+                resources.getString(R.string.input_end__change_end_size_dialog_title),
+                null, 12, 2, end.endSize, okListener
+        )
+    }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.frag_end_inputs, container, false)!!
         end = End(
                 defaultStartingEndSize,
@@ -97,7 +87,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                         .show()
                 return@setOnClickListener
             }
-            numberPickerDialog!!.show(childFragmentManager, "end size picker")
+            numberPickerDialog.show(childFragmentManager, "end size picker")
         }
     }
 

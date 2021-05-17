@@ -40,50 +40,31 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
     // Lowercase h for 12 hour
     private val is24HourTime = timeFormat.toPattern().contains("HH")
 
-    /**
-     * Lazy loaded
-     * TODO Does onCreateDialog actually get called until show() is called? If not this is not necessary
-     */
-    private var datePickerDialog: DatePickerDialog? = null
-        get() {
-            if (field != null) {
-                return field
+    private val datePickerDialog: DatePickerDialog by lazy {
+        val okListener = object : DatePickerDialog.OnOkListener {
+            override fun onSelect(value: Calendar) {
+                date = value
+                updateDateTime()
             }
-            val okListener = object : DatePickerDialog.OnOkListener {
-                override fun onSelect(value: Calendar) {
-                    date = value
-                    updateDateTime()
-                }
-            }
-            datePickerDialog = DatePickerDialog(
-                    getString(R.string.create_round__date_shot_date_picker_title), null, null, null, date, okListener
-            )
-            @Suppress("RecursivePropertyAccessor")
-            return datePickerDialog
         }
+        DatePickerDialog(
+                getString(R.string.create_round__date_shot_date_picker_title), null, null, null, date, okListener
+        )
+    }
 
-    /**
-     * Lazy loaded
-     */
-    private var timePickerDialog: TimePickerDialog? = null
-        get() {
-            if (field != null) {
-                return field
+    private val timePickerDialog: TimePickerDialog by lazy {
+        val okListener = object : TimePickerDialog.OnOkListener {
+            override fun onSelect(hours: Int, minutes: Int) {
+                date.set(Calendar.MINUTE, minutes)
+                date.set(Calendar.HOUR_OF_DAY, hours)
+                updateDateTime()
             }
-            val okListener = object : TimePickerDialog.OnOkListener {
-                override fun onSelect(hours: Int, minutes: Int) {
-                    date.set(Calendar.MINUTE, minutes)
-                    date.set(Calendar.HOUR_OF_DAY, hours)
-                    updateDateTime()
-                }
-            }
-            timePickerDialog = TimePickerDialog(
-                    getString(R.string.create_round__time_shot_time_picker_title), null, date.get(Calendar.HOUR_OF_DAY),
-                    date.get(Calendar.MINUTE), is24HourTime, okListener
-            )
-            @Suppress("RecursivePropertyAccessor")
-            return timePickerDialog
         }
+        TimePickerDialog(
+                getString(R.string.create_round__time_shot_time_picker_title), null, date.get(Calendar.HOUR_OF_DAY),
+                date.get(Calendar.MINUTE), is24HourTime, okListener
+        )
+    }
 
     private fun updateDateTime() {
         view!!.findViewById<TextView>(R.id.text_create_round__date).text = dateFormat.format(date.time)
@@ -116,15 +97,15 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
 
         updateDateTime()
         text_create_round__date.setOnClickListener {
-            datePickerDialog!!.show(childFragmentManager, "date picker")
+            datePickerDialog.show(childFragmentManager, "date picker")
         }
         text_create_round__time.setOnClickListener {
-            timePickerDialog!!.show(childFragmentManager, "time picker")
+            timePickerDialog.show(childFragmentManager, "time picker")
         }
 
         val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
         // Update the spinners if the database updates (spinners don't display correctly at the start without this)
-        newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer { _ ->
+        newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer {
             spinner_create_round__round.adapter = ArrayAdapter(
                     activity!!.applicationContext, R.layout.spinner_light_background,
                     roundSelection.getAvailableRounds()
