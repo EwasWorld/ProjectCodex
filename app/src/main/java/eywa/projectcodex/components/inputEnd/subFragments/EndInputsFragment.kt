@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonElements.NumberPickerDialog
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.android.synthetic.main.frag_end_inputs.*
 
@@ -34,7 +34,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                     end.updateEndSize(value)
                 }
                 catch (e: UserException) {
-                    Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()
+                    ToastSpamPrevention.displayToast(requireContext(), e.getUserMessage(resources))
                 }
             }
         }
@@ -74,7 +74,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                 updateEndStringAndTotal()
             }
             catch (e: IllegalStateException) {
-                Toast.makeText(context, getString(R.string.err_input_end__end_empty), Toast.LENGTH_SHORT).show()
+                ToastSpamPrevention.displayToast(requireContext(), getString(R.string.err_input_end__end_empty))
             }
         }
         button_end_inputs__reset.setOnClickListener {
@@ -83,8 +83,10 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
         }
         text_end_inputs__inputted_arrows.setOnClickListener {
             if (end.isEditEnd()) {
-                Toast.makeText(context, getString(R.string.err_input_end__cannot_edit_end_size), Toast.LENGTH_SHORT)
-                        .show()
+                ToastSpamPrevention.displayToast(
+                        requireContext(),
+                        getString(R.string.err_input_end__cannot_edit_end_size)
+                )
                 return@setOnClickListener
             }
             numberPickerDialog.show(childFragmentManager, "end size picker")
@@ -102,7 +104,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
             updateEndStringAndTotal()
         }
         catch (e: IllegalStateException) {
-            Toast.makeText(context, getString(R.string.err_input_end__end_full), Toast.LENGTH_SHORT).show()
+            ToastSpamPrevention.displayToast(requireContext(), getString(R.string.err_input_end__end_full))
         }
     }
 

@@ -1,8 +1,6 @@
 package eywa.projectcodex.components.commonUtils
 
-import android.content.Context
 import android.content.res.Resources
-import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import java.util.*
@@ -44,8 +42,4 @@ fun resourceStringReplace(resourceString: String, replacements: Map<String, Stri
         newString = newString.replace("{${entry.key}}", entry.value)
     }
     return newString
-}
-
-fun displayToast(context: Context, message: String) {
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

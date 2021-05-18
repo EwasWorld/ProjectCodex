@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -16,6 +15,7 @@ import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment
@@ -87,11 +87,11 @@ class EditEndFragment : Fragment(), ActionBarHelp {
                 }
             }
             catch (e: UserException) {
-                Toast.makeText(context, e.getUserMessage(resources), Toast.LENGTH_SHORT).show()
+                ToastSpamPrevention.displayToast(requireContext(), e.getUserMessage(resources))
             }
             catch (e: Exception) {
                 if (!e.message.isNullOrBlank()) CustomLogger.customLogger.e(LOG_TAG, e.message!!)
-                Toast.makeText(context, getString(R.string.err__internal_error), Toast.LENGTH_SHORT).show()
+                ToastSpamPrevention.displayToast(requireContext(), getString(R.string.err__internal_error))
             }
         }
 
