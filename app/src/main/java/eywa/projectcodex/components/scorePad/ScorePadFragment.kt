@@ -209,12 +209,21 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
 
     inner class ScorePadTableViewListener(private val tableView: TableView) : ITableViewListener {
         override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
+            if ((cellView as InfoTableViewAdapter.InfoTableViewHolder).isTotalCell) {
+                return
+            }
+
             selectedRow = row
-            tableView.showContextMenuForChild(cellView.itemView)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                cellView.itemView.showContextMenu(cellView.itemView.pivotX, cellView.itemView.pivotY)
+            }
+            else {
+                cellView.itemView.showContextMenu()
+            }
         }
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
-            selectedRow = row
+            onCellClicked(cellView, column, row)
         }
 
         override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}

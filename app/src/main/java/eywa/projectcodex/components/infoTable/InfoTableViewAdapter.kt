@@ -2,7 +2,6 @@ package eywa.projectcodex.components.infoTable
 
 import android.content.Context
 import android.graphics.Typeface
-import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +20,7 @@ class InfoTableViewAdapter(private val context: Context) :
     override fun getRowHeaderItemViewType(row: Int): Int = ItemViewType.ROW_HEADER.ordinal
 
     override fun onBindCellViewHolder(holder: AbstractViewHolder, cell: InfoTableCell?, column: Int, row: Int) {
-        (holder as InfoTableCellViewHolder).setCell(cell)
+        (holder as InfoTableViewHolder).setCell(cell)
     }
 
     override fun onBindColumnHeaderViewHolder(holder: AbstractViewHolder, colHeaderCell: InfoTableCell?, column: Int) {
@@ -38,7 +37,7 @@ class InfoTableViewAdapter(private val context: Context) :
                 parent,
                 false
         )
-        return InfoTableCellViewHolder(cellView, viewType)
+        return InfoTableViewHolder(cellView, viewType)
     }
 
     override fun onCreateColumnHeaderViewHolder(parent: ViewGroup, viewType: Int): AbstractViewHolder {
@@ -72,6 +71,8 @@ class InfoTableViewAdapter(private val context: Context) :
     open class InfoTableViewHolder(itemView: View, private val viewType: Int) : AbstractViewHolder(itemView) {
         private val cellContainer: LinearLayout
         private val cellTextView: TextView
+        var isTotalCell = false
+            private set
 
         init {
             val itemViewType = ItemViewType.values()[viewType]
@@ -84,6 +85,7 @@ class InfoTableViewAdapter(private val context: Context) :
 
             if (viewType != ItemViewType.COLUMN_HEADER.ordinal && cell?.id != null) {
                 if (cell.id.toLowerCase(Locale.ROOT).contains(TOTAL_CELL_ID.toLowerCase(Locale.ROOT))) {
+                    isTotalCell = true
                     cellTextView.setTypeface(cellTextView.typeface, Typeface.BOLD)
                 }
             }
@@ -95,14 +97,5 @@ class InfoTableViewAdapter(private val context: Context) :
                 cellTextView.requestLayout()
             }
         }
-    }
-
-    class InfoTableCellViewHolder(itemView: View, viewType: Int) : InfoTableViewHolder(itemView, viewType),
-            View.OnCreateContextMenuListener {
-        init {
-            itemView.setOnCreateContextMenuListener(this)
-        }
-
-        override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {}
     }
 }
