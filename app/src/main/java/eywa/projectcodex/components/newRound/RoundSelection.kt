@@ -4,6 +4,7 @@ import android.content.res.Resources
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import eywa.projectcodex.R
+import eywa.projectcodex.components.commonUtils.roundToPrecision
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -96,7 +97,9 @@ class RoundSelection(
         val roundInfo = availableRounds[selectedRoundPosition] ?: return null
         val relevantCounts = allRoundArrowCounts.filter { it.roundId == roundInfo.roundId }
         if (relevantCounts.isEmpty()) return null
-        return relevantCounts.sortedBy { it.distanceNumber }.map { it.arrowCount / 12 }.joinToString(", ")
+        return relevantCounts.sortedBy { it.distanceNumber }.map {
+            roundToPrecision(it.arrowCount / 12.0, 1)
+        }.joinToString(", ")
     }
 
     /**

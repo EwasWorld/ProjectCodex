@@ -4,6 +4,8 @@ import android.content.res.Resources
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import java.util.*
+import kotlin.math.pow
+import kotlin.math.roundToLong
 
 
 /**
@@ -42,4 +44,13 @@ fun resourceStringReplace(resourceString: String, replacements: Map<String, Stri
         newString = newString.replace("{${entry.key}}", entry.value)
     }
     return newString
+}
+
+/**
+ * Round [number] to [precision] decimal places
+ */
+fun roundToPrecision(number: Double, precision: Int): Double {
+    check(precision > 0) { "Precision must be >0" }
+    val multiplier = 10.0.pow(precision)
+    return (number * multiplier).roundToLong() / multiplier
 }
