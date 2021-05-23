@@ -80,12 +80,19 @@ fun calculateScorePadTableData(
     require(arrowCounts.size == distances.size) { "Must have the same number of arrow counts as distances" }
     require(arrowCounts.isEmpty() || !distanceUnit.isNullOrEmpty()) { "Must provide a unit for distance totals" }
 
-    val distancesInfo = if (arrowCounts.isNotEmpty()) {
-        arrowCounts.sortedBy { it.distanceNumber }.map { it.arrowCount }
-                .mapIndexed { i, arrowCount -> arrowCount to distances.sortedBy { it.distanceNumber }[i].distance }
+    // Maps arrow count for distance to distance (e.g. 36 arrows at 70yds)
+    val distancesInfo: MutableList<Pair<Int, Int?>>
+    if (arrowCounts.isNotEmpty()) {
+        distancesInfo = arrowCounts.sortedBy { it.distanceNumber }.map { it.arrowCount }
+                .zip(distances.sortedBy { it.distanceNumber }.map { it.distance }).toMutableList()
+        // If shot beyond the end of a round
+        val arrowsLeft = arrows.size - arrowCounts.sumBy { it.arrowCount }
+        if (arrowsLeft > 0) {
+            distancesInfo.add(arrowsLeft to null)
+        }
     }
     else {
-        mutableListOf(arrows.size to null)
+        distancesInfo = mutableListOf(arrows.size to null)
     }
 
     /*
@@ -134,13 +141,18 @@ fun calculateScorePadTableData(
         /*
          * Distance total
          */
-        if (arrowCounts.size > 1) {
+        if (distancesInfo.size > 1) {
             val distanceRowData = mutableListOf<Any>()
             distanceRowData.add(
-                    resourceStringReplace(
-                            resources.getString(R.string.score_pad__distance_total),
-                            mapOf("distance" to distance.toString(), "unit" to distanceUnit.toString())
-                    )
+                    if (distance != null) {
+                        resourceStringReplace(
+                                resources.getString(R.string.score_pad__distance_total),
+                                mapOf("distance" to distance.toString(), "unit" to distanceUnit.toString())
+                        )
+                    }
+                    else {
+                        resources.getString(R.string.score_pad__surplus_total)
+                    }
             )
             distanceRowData.add(distanceArrows.count { it.score != 0 })
             distanceRowData.add(distanceArrows.sumBy { it.score })
@@ -261,7 +273,7 @@ fun generateNumberedRowHeaders(
      * Cut down rowsPerDistance if necessary
      */
     var rowsPerDistanceCompleted: MutableList<Int>? = null
-    if (rowsPerDistance.size > 1) {
+    if (rowsPerDistance.size > 1 || (rowsCompleted != null && rowsCompleted > rowsPerDistance.sum())) {
         if (rowsCompleted == null) {
             rowsPerDistanceCompleted = rowsPerDistance.toMutableList()
         }
@@ -306,6 +318,15 @@ fun generateNumberedRowHeaders(
             )
             // Account for the row that's just been added
             nextLocation++
+        }
+        // Surplus total
+        if (!headers.last().id.contains(DISTANCE_TOTAL_CELL_ID_PREFIX)) {
+            headers.add(
+                    InfoTableCell(
+                            resources!!.getString(R.string.score_pad__distance_total_row_header),
+                            "${DISTANCE_TOTAL_CELL_ID_PREFIX}SurplusHeader"
+                    )
+            )
         }
     }
 
