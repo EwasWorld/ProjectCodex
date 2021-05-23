@@ -4,11 +4,11 @@ import android.content.res.Resources
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import eywa.projectcodex.R
-import eywa.projectcodex.components.commonUtils.roundToPrecision
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import java.text.DecimalFormat
 
 /**
  * Helper class for selecting a round on the create round screen
@@ -97,9 +97,10 @@ class RoundSelection(
         val roundInfo = availableRounds[selectedRoundPosition] ?: return null
         val relevantCounts = allRoundArrowCounts.filter { it.roundId == roundInfo.roundId }
         if (relevantCounts.isEmpty()) return null
-        return relevantCounts.sortedBy { it.distanceNumber }.map {
-            roundToPrecision(it.arrowCount / 12.0, 1)
-        }.joinToString(", ")
+        return relevantCounts.sortedBy { it.distanceNumber }.joinToString(", ") {
+            // Ensure only a single decimal place of precision
+            DecimalFormat("0.#").format(it.arrowCount / 12.0)
+        }
     }
 
     /**
