@@ -15,6 +15,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
+import eywa.projectcodex.components.commonUtils.showContextMenuOnCentreOfView
 import eywa.projectcodex.components.infoTable.*
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -192,6 +193,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {
             // Set the round id for the context menu to use
             selectedArcherRoundId = getArcherRoundId(row)
+            showContextMenuOnCentreOfView(cellView.itemView)
         }
 
         override fun onColumnHeaderClicked(columnHeaderView: RecyclerView.ViewHolder, column: Int) {}

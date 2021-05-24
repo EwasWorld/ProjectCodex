@@ -53,6 +53,7 @@ class ScorePadInstrumentedTest {
     private val menuButtonInsert = "Insert end above"
     private val menuButtonDelete = "Delete end"
     private val menuButtonEdit = "Edit end"
+    private val waitForMenuMs = 500L
 
     private lateinit var db: ScoresRoomDatabase
     private lateinit var arrows: List<ArrowValue>
@@ -188,7 +189,7 @@ class ScorePadInstrumentedTest {
     fun testEmptyTable() {
         R.id.button_main_menu__start_new_round.click()
         R.id.button_create_round__submit.click()
-        R.id.button_input_end__score_pad.click()
+        R.id.fragment_input_end__score_indicator.click()
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
         onView(withText("Input End")).check(matches(isDisplayed()))
     }
@@ -208,7 +209,7 @@ class ScorePadInstrumentedTest {
         ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(2))
 
         onView(withText("X-9-9-9-7-6")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(200))
+        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
         onView(withText(menuButtonEdit)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(EditEndFragment::class.java.name))
         onView(withId(R.id.button_end_inputs__clear)).perform(click())
@@ -254,7 +255,7 @@ class ScorePadInstrumentedTest {
         val firstEnd = End(arrows.subList(0, 6), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         firstEnd.reorderScores()
         onView(withText(firstEnd.toString())).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(200))
+        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
         onView(withText(menuButtonEdit)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(EditEndFragment::class.java.name))
     }
@@ -293,7 +294,7 @@ class ScorePadInstrumentedTest {
                 End(expectedArrowsGrouped[deleteEndIndex], TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         endToClick.reorderScores()
         onView(endToClick.toString()).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(200))
+        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
         onView(withText(menuButtonDelete)).perform(click())
 
         ConditionWatcher.waitForCondition(object : Instruction() {
@@ -331,7 +332,7 @@ class ScorePadInstrumentedTest {
         ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(4))
 
         onView(withText("X-9-9-9-7-6")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(200))
+        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
         onView(withText(menuButtonInsert)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InsertEndFragment::class.java.name))
 

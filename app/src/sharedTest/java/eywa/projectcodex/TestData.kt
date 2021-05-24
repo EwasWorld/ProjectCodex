@@ -15,6 +15,9 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
+/**
+ * TODO Stop generating so much random data, make it fixed
+ */
 class TestData {
     companion object {
         const val ARROW_PLACEHOLDER = "."
@@ -43,10 +46,21 @@ class TestData {
                 DefaultRoundInfo.RoundInfoSubType(2, "2", 0, 0),
                 DefaultRoundInfo.RoundInfoSubType(3, "3", 12, 14)
         )
-        val ROUND_ARROW_COUNTS = listOf(
+        private val ROUND_ARROW_COUNTS_OLD = listOf(
                 DefaultRoundInfo.RoundInfoArrowCount(1, 122.0, 48),
                 DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36),
                 DefaultRoundInfo.RoundInfoArrowCount(3, 60.0, 24)
+        )
+        val ROUND_ARROW_COUNTS = listOf(
+                RoundArrowCount(1, 1, 122.0, 48),
+                RoundArrowCount(1, 2, 122.0, 36),
+                RoundArrowCount(1, 3, 60.0, 24),
+                RoundArrowCount(2, 1, 922.0, 60),
+                RoundArrowCount(2, 2, 922.0, 48),
+                RoundArrowCount(2, 3, 90.0, 36),
+                RoundArrowCount(3, 1, 822.0, 70),
+                RoundArrowCount(3, 2, 822.0, 60),
+                RoundArrowCount(3, 3, 80.0, 50)
         )
         val MIN_ARROW_COUNT_ARROWS = 36
         val MAX_ARROW_COUNT_ARROWS = 60
@@ -272,8 +286,8 @@ class TestData {
             require(minSetSize > 0)
             require(maxSetSize >= minSetSize)
             val arrowCounts =
-                    ROUND_ARROW_COUNTS.map { it.toRoundArrowCount(1) }
-                            .subList(0, min(ROUND_ARROW_COUNTS.size, maxSetSize))
+                    ROUND_ARROW_COUNTS_OLD.map { it.toRoundArrowCount(1) }
+                            .subList(0, min(ROUND_ARROW_COUNTS_OLD.size, maxSetSize))
                             .toMutableList()
             while (arrowCounts.size < minSetSize) {
                 arrowCounts.add(generateArrowCount(1, arrowCounts.size))

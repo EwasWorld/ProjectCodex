@@ -16,6 +16,7 @@ import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
+import eywa.projectcodex.components.commonUtils.showContextMenuOnCentreOfView
 import eywa.projectcodex.components.infoTable.*
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -214,12 +215,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
             }
 
             selectedRow = row
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                cellView.itemView.showContextMenu(cellView.itemView.pivotX, cellView.itemView.pivotY)
-            }
-            else {
-                cellView.itemView.showContextMenu()
-            }
+            showContextMenuOnCentreOfView(cellView.itemView)
         }
 
         override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int) {

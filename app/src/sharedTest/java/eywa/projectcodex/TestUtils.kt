@@ -1,6 +1,7 @@
 package eywa.projectcodex
 
 import org.mockito.ArgumentCaptor
+import org.mockito.Mockito
 
 class TestUtils {
     companion object {
@@ -15,5 +16,14 @@ class TestUtils {
          * returned
          */
         fun <T> capture(argumentCaptor: ArgumentCaptor<T>): T = argumentCaptor.capture()
+
+        /**
+         * Source: https://github.com/mockito/mockito-kotlin/blob/main/mockito-kotlin/src/main/kotlin/org/mockito/kotlin/internal/CreateInstance.kt
+         * TODO Use kotlin mockito library ^^
+         */
+        fun <T> anyMatcher(): T = Mockito.any() ?: castNull()
+
+        @Suppress("UNCHECKED_CAST")
+        private fun <T> castNull(): T = null as T
     }
 }

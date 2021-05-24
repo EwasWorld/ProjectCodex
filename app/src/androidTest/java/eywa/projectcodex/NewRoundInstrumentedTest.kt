@@ -42,7 +42,7 @@ class NewRoundInstrumentedTest {
     private val roundsListSizes = 3
     private val roundsInput = TestData.generateRounds(roundsListSizes)
     private val subtypesInput = TestData.generateSubTypes(roundsListSizes - 1, roundsListSizes, roundsListSizes)
-    private val arrowCountsInput = TestData.generateArrowCounts(roundsListSizes, roundsListSizes, roundsListSizes)
+    private val arrowCountsInput = TestData.ROUND_ARROW_COUNTS
 
     // Distances should always be the largest
     private val distancesInput = TestData.generateDistances(roundsListSizes - 1, roundsListSizes, roundsListSizes)
@@ -197,7 +197,7 @@ class NewRoundInstrumentedTest {
         // subtype -> no subtype
         selectedRound = unSubTypedRound
         R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
-        R.id.text_create_round__arrow_count_indicator.textEquals(expectedArrowCounts(selectedRound.roundId))
+        R.id.text_create_round__arrow_count_indicator.textEquals("5.8, 5, 4.2")
         R.id.text_create_round__distance_indicator.textEquals(
                 expectedDistances(selectedRound.roundId, 1, selectedRound.isMetric)
         )

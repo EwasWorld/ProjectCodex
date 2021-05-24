@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.commonUtils
 
 import android.content.res.Resources
+import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import java.util.*
@@ -42,4 +43,13 @@ fun resourceStringReplace(resourceString: String, replacements: Map<String, Stri
         newString = newString.replace("{${entry.key}}", entry.value)
     }
     return newString
+}
+
+fun showContextMenuOnCentreOfView(view: View) {
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        view.showContextMenu(view.pivotX, view.pivotY)
+    }
+    else {
+        view.showContextMenu()
+    }
 }

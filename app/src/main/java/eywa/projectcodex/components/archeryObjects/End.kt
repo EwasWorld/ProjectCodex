@@ -230,7 +230,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         /*
          * Overwrite the scores that were in the originalEnd
          */
-        val job: Job?
+        val job: Job
         if (!originalEnd.isNullOrEmpty()) {
             CustomLogger.customLogger.i(LOG_TAG, "Updating end " + originalEnd.toString() + " " + toString())
             job = inputEndViewModel.update(*originalEnd!!.mapIndexed { i, originalValue ->
