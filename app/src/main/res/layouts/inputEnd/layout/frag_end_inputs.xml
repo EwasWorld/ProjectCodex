@@ -55,20 +55,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent"
-            />
-
-        <!-- TODO Remove quick preview when Android Studio 4.2 is available (FragmentContainerView will show up in preview). Cannot be uncommented as it can cause id clashes -->
-        <!--<fragment
-            android:id="@+id/fragment_end_inputs__arrow_inputs_preview"
-            android:name="eywa.projectcodex.components.inputEnd.subFragments.ArrowInputsFragment10ZoneWithX"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="3dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
             tools:layout="@layout/frag_arrow_inputs_10_zone_with_x"
-            />-->
+            />
     </LinearLayout>
 
     <LinearLayout
