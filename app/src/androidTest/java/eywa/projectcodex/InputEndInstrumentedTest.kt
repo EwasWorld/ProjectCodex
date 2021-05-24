@@ -7,8 +7,10 @@ import android.widget.TextView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -289,14 +291,14 @@ class InputEndInstrumentedTest {
             R.id.button_arrow_inputs__score_1.click()
         }
         R.id.button_input_end__next_end.click()
-        R.id.button_input_end__score_pad.click()
+        R.id.fragment_input_end__score_indicator.click()
         val tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
         assertEquals(2, tableViewAdapter.getCellColumnItems(0).size)
         assertEquals(5, tableViewAdapter.getCellRowItems(0)?.size)
     }
 
     @Test
-    fun testRemainingArrowsIndicator() {
+    fun testRemainingArrowsIndicatorAndCompleteRound() {
         R.id.spinner_create_round__round.clickSpinnerItem(roundsInput[0].displayName)
         R.id.button_create_round__submit.click()
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 90m")
@@ -323,7 +325,8 @@ class InputEndInstrumentedTest {
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
 
         completeEnd()
-        R.id.text_input_end__remaining_arrows_label.textEquals("Round Complete")
+        onView("OK").perform(click())
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(MainMenuFragment::class.java.name))
     }
 
     /**

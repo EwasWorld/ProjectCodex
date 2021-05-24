@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.inputEnd
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -106,8 +107,7 @@ class InputEndFragment : Fragment(), ActionBarHelp {
         }
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            val action = InputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
-            view.findNavController().navigate(action)
+            returnToMainMenu(view)
         }
         callback.isEnabled = true
     }
@@ -121,9 +121,8 @@ class InputEndFragment : Fragment(), ActionBarHelp {
         /*
          * Scores indicator table
          */
-        val scoreIndicatorFragment =
-                childFragmentManager.findFragmentById(R.id.fragment_input_end__score_indicator)!!
-                        as ScoreIndicatorFragment
+        val scoreIndicatorFragment = childFragmentManager.findFragmentById(R.id.fragment_input_end__score_indicator)!!
+                as ScoreIndicatorFragment
         scoreIndicatorFragment.update(arrows)
 
         /*
@@ -151,10 +150,23 @@ class InputEndFragment : Fragment(), ActionBarHelp {
             small.visibility = View.VISIBLE
         }
         else {
-            label.text = view.resources.getString(R.string.input_end__round_indicator_complete)
+            label.text = view.resources.getString(R.string.input_end__round_complete)
             large.visibility = View.GONE
             small.visibility = View.GONE
+
+            AlertDialog.Builder(view.context)
+                    .setTitle(R.string.input_end__round_complete)
+                    .setMessage(R.string.input_end__return_to_main_menu)
+                    .setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
+                        dialogInterface.cancel()
+                        returnToMainMenu(view)
+                    }.show()
         }
+    }
+
+    private fun returnToMainMenu(view: View) {
+        val action = InputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
+        view.findNavController().navigate(action)
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
