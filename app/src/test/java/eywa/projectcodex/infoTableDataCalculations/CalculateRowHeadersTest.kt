@@ -122,6 +122,22 @@ class CalculateRowHeadersTest {
         )
     }
 
+    @Test
+    fun testArrowsInputBeyondEndOfRound() {
+        testRowHeaders(
+                generateNumberedRowHeaders(
+                        listOf(3),
+                        5,
+                        resources,
+                        false
+                ),
+                listOf(
+                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER,
+                        Outputs.TOTAL
+                )
+        )
+    }
+
     private enum class Outputs { NUMBER, TOTAL, GRAND_TOTAL }
 
     private fun testRowHeaders(actual: List<InfoTableCell>, expected: List<Outputs>) {

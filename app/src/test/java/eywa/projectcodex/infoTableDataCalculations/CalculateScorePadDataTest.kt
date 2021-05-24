@@ -38,6 +38,7 @@ class CalculateScorePadDataTest {
                 R.string.score_pad__grand_total -> grandTotal
                 R.string.score_pad__running_total_placeholder -> runningTotalPlaceholder
                 R.string.score_pad__distance_total -> "Total at {distance}{unit}"
+                R.string.score_pad__surplus_total -> "Surplus Total"
                 else -> Assert.fail("Bad string passed to resources")
             }
         }
@@ -147,6 +148,69 @@ class CalculateScorePadDataTest {
 
         val scorePadData =
                 calculateScorePadTableData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, distances, "unit")
+
+        Assert.assertEquals(expectedRows.size, scorePadData.size)
+        for (i in scorePadData.indices) {
+            Assert.assertEquals(expectedRows[i], scorePadData[i])
+        }
+    }
+
+    @Test
+    fun testArrowsInputBeyondRoundEnd() {
+        val arrows = listOf(
+                11, 10, 9, 8, 7, 6,
+                11, 10, 9, 8, 7, 6,
+                11, 10, 9, 8, 7, 6
+        ).mapIndexed { arrowNumber, arrowValue -> TestData.ARROWS[arrowValue].toArrowValue(1, arrowNumber) }
+        val arrowCounts = listOf(
+                RoundArrowCount(1, 1, 10.0, 12)
+        )
+        val distances = listOf(
+                RoundDistance(1, 1, 1, 60)
+        )
+
+        val scorePadData =
+                calculateScorePadTableData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, distances, "unit")
+
+        val otherRows = listOf(
+                InfoTableCell("X-10-9-8-7-6", "cell<row>0"),
+                InfoTableCell(6, "cell<row>1"),
+                InfoTableCell(50, "cell<row>2"),
+                InfoTableCell(2, "cell<row>3"),
+                InfoTableCell(-1, "cell<row>4")
+        )
+        val expectedRows = listOf(
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 50 else it.content, it.id.replace("<row>", "0"))
+                },
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 100 else it.content, it.id.replace("<row>", "1"))
+                },
+                listOf(
+                        InfoTableCell("Total at 60unit", "distanceTotal600"),
+                        InfoTableCell(12, "distanceTotal601"),
+                        InfoTableCell(100, "distanceTotal602"),
+                        InfoTableCell(4, "distanceTotal603"),
+                        InfoTableCell("-", "distanceTotal604")
+                ),
+                otherRows.map {
+                    InfoTableCell(if (it.content == -1) 150 else it.content, it.id.replace("<row>", "3"))
+                },
+                listOf(
+                        InfoTableCell("Surplus Total", "distanceTotal0"),
+                        InfoTableCell(6, "distanceTotal1"),
+                        InfoTableCell(50, "distanceTotal2"),
+                        InfoTableCell(2, "distanceTotal3"),
+                        InfoTableCell("-", "distanceTotal4")
+                ),
+                listOf(
+                        InfoTableCell("Grand total:", "grandTotal0"),
+                        InfoTableCell(18, "grandTotal1"),
+                        InfoTableCell(150, "grandTotal2"),
+                        InfoTableCell(6, "grandTotal3"),
+                        InfoTableCell("-", "grandTotal4")
+                )
+        )
 
         Assert.assertEquals(expectedRows.size, scorePadData.size)
         for (i in scorePadData.indices) {
