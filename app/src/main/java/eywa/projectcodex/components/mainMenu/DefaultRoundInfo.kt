@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.mainMenu
 
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Handler
 import android.os.Looper
@@ -11,6 +12,7 @@ import com.beust.klaxon.*
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.OnToken
+import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.TaskRunner
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -35,6 +37,8 @@ class DefaultRoundInfo(
         private val roundDistances: List<RoundInfoDistance>
 ) {
     companion object {
+        // TODO Store this in the JSON and read it in
+        const val CURRENT_DEFAULT_ROUNDS_VERSION = 1
         internal const val defaultRoundMinimumId = 5
     }
 
@@ -276,63 +280,53 @@ class UpdateDefaultRounds {
         private const val LOG_TAG = "UpdateDefaultRounds"
         private val taskExecutor = TaskRunner()
         private var currentTask: TaskRunner.ProgressTask<String, String>? = null
-        private val state = MutableLiveData<UpdateTaskState>(UpdateTaskState.NOT_STARTED)
-        private val progressMessage = MutableLiveData<String?>(null)
-
-        fun getState(): LiveData<UpdateTaskState> {
-            return state
-        }
-
-        fun getProgressMessage(): LiveData<String?> {
-            return progressMessage
-        }
+        val taskProgress = TaskProgress()
 
         /**
          * Begins an [UpdateDefaultRoundsTask] if one isn't already in progress
          */
-        fun runUpdate(db: ScoresRoomDatabase, resources: Resources) {
-            synchronized(state) {
-                if (state.value == UpdateTaskState.IN_PROGRESS) return
-                state.postValue(UpdateTaskState.IN_PROGRESS)
+        fun runUpdate(db: ScoresRoomDatabase, resources: Resources, sharedPreferences: SharedPreferences) {
+            synchronized(taskProgress) {
+                if (taskProgress.getState().value == UpdateTaskState.IN_PROGRESS) return
+                taskProgress.update(
+                        UpdateTaskState.IN_PROGRESS,
+                        resources.getString(R.string.main_menu__update_default_rounds_initialising)
+                )
             }
-            progressMessage.postValue(resources.getString(R.string.main_menu__update_default_rounds_initialising))
-            currentTask = UpdateDefaultRoundsTask(RoundRepo(db), resources)
+            currentTask = UpdateDefaultRoundsTask(RoundRepo(db), resources, sharedPreferences)
             taskExecutor.executeProgressTask(
                     currentTask!!,
                     onProgress = { progress ->
-                        if (state.value == UpdateTaskState.CANCELLING) {
+                        if (taskProgress.getState().value == UpdateTaskState.CANCELLING) {
                             CustomLogger.customLogger.i(LOG_TAG, "Ignored message while cancelling: $progress")
                         }
                         else {
-                            progressMessage.postValue(progress)
+                            taskProgress.update(newMessage = progress)
                         }
                     },
                     onComplete = { message ->
                         currentTask = null
-                        progressMessage.postValue(message)
-                        state.postValue(UpdateTaskState.COMPLETE)
+                        taskProgress.update(UpdateTaskState.COMPLETE, message)
                     },
                     onError = { exception ->
                         CustomLogger.customLogger.e(
                                 LOG_TAG,
                                 "Update default rounds task failed with exception: " + exception.toString()
-                                        + "\nlast progress token was " + progressMessage.value
+                                        + "\nlast progress token was " + taskProgress.getMessage().value
                         )
                         val message = when (exception) {
                             is UserException -> exception.getUserMessage(resources)
                             else -> resources.getString(R.string.err__internal_error)
                         }
                         currentTask = null
-                        progressMessage.postValue(message)
-                        state.postValue(UpdateTaskState.ERROR)
+                        taskProgress.update(UpdateTaskState.ERROR, message)
                     }
             )
         }
 
         fun cancelUpdateDefaultRounds(resources: Resources) {
-            synchronized(state) {
-                state.postValue(UpdateTaskState.CANCELLING)
-                progressMessage.postValue(resources.getString(R.string.general_cancelling))
+            synchronized(taskProgress) {
+                taskProgress.update(UpdateTaskState.CANCELLING, resources.getString(R.string.general_cancelling))
                 currentTask?.isSoftCancelled = true
             }
         }
@@ -341,11 +335,13 @@ class UpdateDefaultRounds {
          * If the current task is complete, reset the state to not started
          */
         fun resetState() {
-            synchronized(state) {
-                val currentState = state.value
-                if (currentState == UpdateTaskState.COMPLETE || currentState == UpdateTaskState.ERROR) {
-                    state.postValue(UpdateTaskState.NOT_STARTED)
-                    progressMessage.postValue(null)
+            synchronized(taskProgress) {
+                val currentState = taskProgress.getState().value
+                if (currentState == UpdateTaskState.COMPLETE) {
+                    taskProgress.update(UpdateTaskState.UP_TO_DATE)
+                }
+                else if (currentState == UpdateTaskState.ERROR) {
+                    taskProgress.update(UpdateTaskState.NOT_STARTED)
                 }
             }
         }
@@ -355,16 +351,45 @@ class UpdateDefaultRounds {
          */
         @VisibleForTesting(otherwise = VisibleForTesting.NONE)
         fun hardResetState() {
-            synchronized(state) {
-                state.postValue(UpdateTaskState.NOT_STARTED)
-                progressMessage.postValue(null)
+            synchronized(taskProgress) {
+                taskProgress.update(UpdateTaskState.NOT_STARTED)
             }
         }
     }
 
-    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, CANCELLING, COMPLETE, ERROR }
+    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, CANCELLING, COMPLETE, ERROR, UP_TO_DATE }
 
-    private class UpdateDefaultRoundsTask(private val repository: RoundRepo, private val resources: Resources) :
+    /**
+     * Used to enforce ordering when updating the state and message
+     */
+    class TaskProgress {
+        private val state = MutableLiveData<UpdateTaskState>(UpdateTaskState.NOT_STARTED)
+        private val message = MutableLiveData<String?>(null)
+
+        fun getState(): LiveData<UpdateTaskState> {
+            return state
+        }
+
+        fun getMessage(): LiveData<String?> {
+            return message
+        }
+
+        /**
+         * Posts the [newState] if one is provided, then always posts the [newMessage]
+         */
+        internal fun update(newState: UpdateTaskState? = null, newMessage: String? = null) {
+            if (newState != null) {
+                state.postValue(newState)
+            }
+            message.postValue(newMessage)
+        }
+    }
+
+    private class UpdateDefaultRoundsTask(
+            private val repository: RoundRepo,
+            private val resources: Resources,
+            private val sharedPreferences: SharedPreferences
+    ) :
             TaskRunner.ProgressTask<String, String>() {
         companion object {
             const val LOG_TAG = "UpdateDefaultRoundsTask"
@@ -373,8 +398,19 @@ class UpdateDefaultRounds {
         override fun runTask(progressToken: OnToken<String>): String {
             progressToken(resources.getString(R.string.main_menu__update_default_rounds_initialising))
 
-            // Make sure we can acquire the lock before processing
-            // (holds the lock for longer but doesn't waste time if the db isn't free)
+            /*
+             * Check if an update is needed
+             * TODO Read from the json file rather than using CURRENT_VERSION constant
+             */
+            val currentVersion = sharedPreferences.getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
+            if (currentVersion >= DefaultRoundInfo.CURRENT_DEFAULT_ROUNDS_VERSION) {
+                return resources.getString(R.string.main_menu__update_default_rounds_up_to_date)
+            }
+
+            /*
+             * Make sure we can acquire the lock before processing
+             *   (holds the lock for longer but doesn't waste time if the db isn't free)
+             */
             val acquiredLock = RoundRepo.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS)
             if (!acquiredLock) {
                 throw UserException(R.string.err_main_menu__update_default_rounds_no_lock)
@@ -498,6 +534,13 @@ class UpdateDefaultRounds {
                 runBlocking {
                     repository.updateRounds(deleteItems)
                 }
+
+                /*
+                 * Update the version so that we only update if necessary
+                 */
+                val editor = sharedPreferences.edit()
+                editor.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, DefaultRoundInfo.CURRENT_DEFAULT_ROUNDS_VERSION)
+                editor.apply()
                 return resources.getString(R.string.general_complete)
             }
             finally {

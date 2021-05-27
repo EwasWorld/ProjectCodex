@@ -11,10 +11,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.SharedPrefs
+import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
 import kotlinx.android.synthetic.main.fragment_main_menu.*
 
 class MainMenuFragment : Fragment(), ActionBarHelp {
     private lateinit var mainMenuViewModel: MainMenuViewModel
+    private var defaultRoundsVersion = -1
+    private var defaultRoundsState = UpdateDefaultRounds.UpdateTaskState.NOT_STARTED
+    private val sharedPreferences by lazy { requireActivity().getSharedPreferences() }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main_menu, container, false)
@@ -26,14 +31,17 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
 
         mainMenuViewModel = ViewModelProvider(this).get(MainMenuViewModel::class.java)
         mainMenuViewModel.updateDefaultRoundsState.observe(viewLifecycleOwner, Observer { state ->
+            this.defaultRoundsState = state
             fun getVisibility(show: Boolean) = if (show) View.VISIBLE else View.GONE
             val updateHappening = state == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS
             val updateNotStarted = state == UpdateDefaultRounds.UpdateTaskState.NOT_STARTED
+            val updateComplete = state == UpdateDefaultRounds.UpdateTaskState.COMPLETE
+                    || state == UpdateDefaultRounds.UpdateTaskState.UP_TO_DATE
 
             // Switch between start/cancel buttons
-            button_main_menu__update_default_rounds.visibility = getVisibility(!updateHappening)
+            button_main_menu__update_default_rounds.visibility = getVisibility(!updateHappening && !updateComplete)
             button_main_menu__update_default_rounds_cancel.visibility = getVisibility(
-                    updateHappening && state != UpdateDefaultRounds.UpdateTaskState.CANCELLING
+                    updateHappening && state != UpdateDefaultRounds.UpdateTaskState.CANCELLING && !updateComplete
             )
 
             // Display status information if not in the NOT_STARTED state
@@ -41,7 +49,10 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
             text_main_menu__update_default_rounds_progress.visibility = getVisibility(!updateNotStarted)
         })
         mainMenuViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, Observer { message ->
-            val progressText = message ?: getString(R.string.main_menu__update_default_rounds_initialising)
+            var progressText = message ?: getString(R.string.main_menu__update_default_rounds_initialising)
+            if (defaultRoundsState == UpdateDefaultRounds.UpdateTaskState.UP_TO_DATE) {
+                progressText = resources.getString(R.string.main_menu__update_default_rounds_up_to_date)
+            }
             text_main_menu__update_default_rounds_progress.text = progressText
         })
 
@@ -56,7 +67,7 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         }
 
         button_main_menu__update_default_rounds.setOnClickListener {
-            mainMenuViewModel.updateDefaultRounds(resources)
+            mainMenuViewModel.updateDefaultRounds(resources, sharedPreferences)
         }
 
         button_main_menu__update_default_rounds_cancel.setOnClickListener {
@@ -67,10 +78,30 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
             // Do nothing
         }
         callback.isEnabled = true
+
+        firstLaunch()
+    }
+
+    /**
+     * Actions to be completed when the app is first launched
+     */
+    private fun firstLaunch() {
+        // Check whether default rounds have been loaded in
+        if (defaultRoundsVersion < 0) {
+            defaultRoundsVersion = sharedPreferences.getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
+            if (defaultRoundsVersion < 0) {
+                mainMenuViewModel.updateDefaultRounds(resources, sharedPreferences)
+            }
+        }
     }
 
     override fun onStop() {
         super.onStop()
+        mainMenuViewModel.resetUpdateDefaultRoundsStateIfComplete()
+    }
+
+    override fun onPause() {
+        super.onPause()
         mainMenuViewModel.resetUpdateDefaultRoundsStateIfComplete()
     }
 

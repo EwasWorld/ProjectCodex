@@ -8,6 +8,7 @@
     <string name="main_menu__update_default_rounds_initialising">Initialising…</string>
     <string name="main_menu__update_default_rounds_progress">Processing round {current} of {total}</string>
     <string name="main_menu__update_default_rounds_deleting">Cleaning stale default rounds</string>
+    <string name="main_menu__update_default_rounds_up_to_date">Already up to date</string>
 
     <string name="err_main_menu__update_default_rounds_no_lock">Update default rounds failed.<br />Database is currently in use, try again later</string>
 

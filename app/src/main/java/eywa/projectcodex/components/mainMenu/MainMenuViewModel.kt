@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.mainMenu
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.lifecycle.AndroidViewModel
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -10,14 +11,14 @@ import eywa.projectcodex.database.ScoresRoomDatabase
  */
 class MainMenuViewModel(application: Application) : AndroidViewModel(application) {
     private val db = ScoresRoomDatabase.getDatabase(application)
-    val updateDefaultRoundsState = UpdateDefaultRounds.getState()
-    val updateDefaultRoundsProgressMessage = UpdateDefaultRounds.getProgressMessage()
+    val updateDefaultRoundsState = UpdateDefaultRounds.taskProgress.getState()
+    val updateDefaultRoundsProgressMessage = UpdateDefaultRounds.taskProgress.getMessage()
 
     /**
      * @see UpdateDefaultRounds.runUpdate
      */
-    fun updateDefaultRounds(resources: Resources) {
-        UpdateDefaultRounds.runUpdate(db, resources)
+    fun updateDefaultRounds(resources: Resources, sharedPreferences: SharedPreferences) {
+        UpdateDefaultRounds.runUpdate(db, resources, sharedPreferences)
     }
 
     /**
