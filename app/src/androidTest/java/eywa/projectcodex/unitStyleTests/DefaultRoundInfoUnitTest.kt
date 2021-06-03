@@ -58,10 +58,7 @@ class DefaultRoundInfoUnitTest {
      * Create a shared preferences mock that will return [currentVersion] when [SharedPrefs.DEFAULT_ROUNDS_VERSION]
      * is requested
      */
-    private fun getSharedPreferencesMock(
-            currentVersion: Int = -1,
-            newVersion: Int = 1
-    ): Pair<SharedPreferences, SharedPreferences.Editor> {
+    private fun getSharedPreferencesMock(currentVersion: Int = -1): Pair<SharedPreferences, SharedPreferences.Editor> {
         val sharedPreferences = mock(SharedPreferences::class.java)
         val sharedPreferencesEditor = mock(SharedPreferences.Editor::class.java)
         `when`(sharedPreferences.getInt(eq(SharedPrefs.DEFAULT_ROUNDS_VERSION.key), anyInt()))
@@ -90,8 +87,9 @@ class DefaultRoundInfoUnitTest {
         var currentIndex: Int? = null
         var timeCurrentStarted: Date? = null
         val itemCompletionTimes = mutableListOf<Long>()
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver())
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
                 .setMessageObserver(Observer { msg ->
                     println(msg)
                     msg?.let { message ->
@@ -120,7 +118,7 @@ class DefaultRoundInfoUnitTest {
                             timeCurrentStarted = currentTime
                         }
                     }
-                }, CountDownLatch(0)) // Doesn't matter how many messages are called, this is tested later
+                }, 0) // Doesn't matter how many messages are called, this is tested later
                 .build()
         observer.startObserving()
 
@@ -153,8 +151,9 @@ class DefaultRoundInfoUnitTest {
         val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
         val sharedPref = getSharedPreferencesMock()
 
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver())
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
@@ -164,7 +163,7 @@ class DefaultRoundInfoUnitTest {
                                         "2 of 2",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
-                                )
+                                ), observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -227,8 +226,9 @@ class DefaultRoundInfoUnitTest {
                 )
                 .build()
 
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver())
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
@@ -237,7 +237,8 @@ class DefaultRoundInfoUnitTest {
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -266,8 +267,9 @@ class DefaultRoundInfoUnitTest {
                 .setDbData(TestData.ST_GEORGE_ALL_ROUND_OBJECTS.plus(TestData.YORK_ALL_ROUND_OBJECTS))
                 .build()
 
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver())
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
@@ -276,7 +278,8 @@ class DefaultRoundInfoUnitTest {
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -296,22 +299,22 @@ class DefaultRoundInfoUnitTest {
         val json = "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}"
         val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
 
-        val stateLatch = CountDownLatch(1)
         val expectedStates = mutableListOf(
                 UpdateDefaultRounds.UpdateTaskState.NOT_STARTED,
                 UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS,
                 UpdateDefaultRounds.UpdateTaskState.COMPLETE
         )
-        val observer = LiveDataObserver.Builder()
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
                 .setStateObserver(Observer { state ->
                     if (expectedStates.isEmpty()) {
                         Assert.fail("No more states expected but state changed to $state")
                     }
                     Assert.assertEquals(expectedStates.removeAt(0), state)
                     if (expectedStates.isEmpty()) {
-                        stateLatch.countDown()
+                        observerBuilder.latchCountDownFunction()()
                     }
-                }, stateLatch)
+                }, 1)
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
@@ -320,7 +323,8 @@ class DefaultRoundInfoUnitTest {
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -341,29 +345,30 @@ class DefaultRoundInfoUnitTest {
         val json = "${TestData.START_JSON}{{{${TestData.YORK_JSON}${TestData.END_JSON}"
         val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
 
-        val stateLatch = CountDownLatch(1)
         val expectedStates = mutableListOf(
                 UpdateDefaultRounds.UpdateTaskState.NOT_STARTED,
                 UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS,
                 UpdateDefaultRounds.UpdateTaskState.ERROR
         )
-        val observer = LiveDataObserver.Builder()
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
                 .setStateObserver(Observer { state ->
                     if (expectedStates.isEmpty()) {
                         Assert.fail("No more states expected but state changed to $state")
                     }
                     Assert.assertEquals(expectedStates.removeAt(0), state)
                     if (expectedStates.isEmpty()) {
-                        stateLatch.countDown()
+                        observerBuilder.latchCountDownFunction()()
                     }
-                }, stateLatch)
+                }, 1)
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         MockInfo.defaultMap[R.string.err__internal_error]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -384,15 +389,17 @@ class DefaultRoundInfoUnitTest {
         val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
         val sharedPref = getSharedPreferencesMock()
 
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver())
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         MockInfo.defaultMap[R.string.general_cancelling],
                                         MockInfo.defaultMap[R.string.general_cancelled]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -415,15 +422,22 @@ class DefaultRoundInfoUnitTest {
         val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
         val sharedPref = getSharedPreferencesMock(1)
 
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver(UpdateDefaultRounds.UpdateTaskState.COMPLETE))
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(
+                        LiveDataObserver.SimpleStateObserver(
+                                observerBuilder.latchCountDownFunction(),
+                                UpdateDefaultRounds.UpdateTaskState.COMPLETE
+                        )
+                )
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_up_to_date]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -459,8 +473,9 @@ class DefaultRoundInfoUnitTest {
         val json = "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}"
         val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
 
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver())
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
@@ -469,7 +484,8 @@ class DefaultRoundInfoUnitTest {
                                         "1 of 1",
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -520,8 +536,14 @@ class DefaultRoundInfoUnitTest {
                 .setDbData(TestData.YORK_ALL_ROUND_OBJECTS)
                 .build()
 
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver(UpdateDefaultRounds.UpdateTaskState.ERROR))
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(
+                        LiveDataObserver.SimpleStateObserver(
+                                observerBuilder.latchCountDownFunction(),
+                                UpdateDefaultRounds.UpdateTaskState.ERROR
+                        )
+                )
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
@@ -530,7 +552,8 @@ class DefaultRoundInfoUnitTest {
                                         "1 of 2",
                                         "2 of 2",
                                         MockInfo.defaultMap[R.string.err__internal_error]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -947,8 +970,14 @@ class DefaultRoundInfoUnitTest {
             errorMessageId: Int = R.string.err__internal_error
     ) {
         val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
-        val observer = LiveDataObserver.Builder()
-                .setStateObserver(LiveDataObserver.SimpleStateObserver(UpdateDefaultRounds.UpdateTaskState.ERROR))
+        val observerBuilder = LiveDataObserver.Builder()
+        val observer = observerBuilder
+                .setStateObserver(
+                        LiveDataObserver.SimpleStateObserver(
+                                observerBuilder.latchCountDownFunction(),
+                                UpdateDefaultRounds.UpdateTaskState.ERROR
+                        )
+                )
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
@@ -956,7 +985,8 @@ class DefaultRoundInfoUnitTest {
                                         MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
                                         *extraMessages.toTypedArray(),
                                         MockInfo.defaultMap[errorMessageId]
-                                )
+                                ),
+                                observerBuilder.latchCountDownFunction()
                         )
                 ).build()
 
@@ -974,8 +1004,7 @@ class DefaultRoundInfoUnitTest {
         private val state = UpdateDefaultRounds.taskProgress.getState()
         private val message = UpdateDefaultRounds.taskProgress.getMessage()
         private var messageTracker: MessageTracker? = null
-        private lateinit var messagesLatch: CountDownLatch
-        private lateinit var stateLatch: CountDownLatch
+        private lateinit var latch: CountDownLatch
 
         fun startObserving() {
             stateObserver?.let { state.observeForever(it) }
@@ -994,13 +1023,10 @@ class DefaultRoundInfoUnitTest {
         }
 
         /**
-         * Await up to the specified time for state and messages to complete
+         * Await up to the specified time for latch to hit zero
          */
         fun awaitCompletion(timeout: Long = latchAwaitTimeSeconds, timeoutUnit: TimeUnit = latchAwaitTimeUnit) {
-            if (!stateLatch.await(timeout, timeoutUnit)) {
-                Assert.fail("Latch wait timeout")
-            }
-            if (!messagesLatch.await(timeout, timeoutUnit)) {
+            if (!latch.await(timeout, timeoutUnit)) {
                 Assert.fail("Latch wait timeout")
             }
         }
@@ -1009,33 +1035,52 @@ class DefaultRoundInfoUnitTest {
             /**
              * Will be set to null after building to prevent tampering
              */
-            private var liveDataObserver: LiveDataObserver? = LiveDataObserver()
+            private val liveDataObserver = LiveDataObserver()
+            private var isBuilt = false
+            private var stateLatchSize = 0
+            private var messageLatchSize = 0
+
+            /**
+             * Counts down the LiveDataObserver. Can only be called after being built
+             */
+            fun latchCountDownFunction(): () -> Unit = {
+                check(isBuilt) { "Object not yet built" }
+                liveDataObserver.latch.countDown()
+            }
 
             fun setStateObserver(
                     observer: Observer<UpdateDefaultRounds.UpdateTaskState>,
-                    stateLatch: CountDownLatch
+                    expectedLatchCountdowns: Int
             ): Builder {
-                liveDataObserver!!.stateObserver = observer
-                liveDataObserver!!.stateLatch = stateLatch
+                check(!isBuilt) { "Object has already been built" }
+
+                liveDataObserver.stateObserver = observer
+                stateLatchSize = expectedLatchCountdowns
                 return this
             }
 
             fun setStateObserver(observer: SimpleStateObserver): Builder {
-                liveDataObserver!!.stateObserver = observer.observer
-                liveDataObserver!!.stateLatch = observer.stateLatch
+                check(!isBuilt) { "Object has already been built" }
+
+                liveDataObserver.stateObserver = observer.observer
+                stateLatchSize = 1
                 return this
             }
 
-            fun setMessageObserver(observer: Observer<String?>, messagesLatch: CountDownLatch): Builder {
-                liveDataObserver!!.messageObserver = observer
-                liveDataObserver!!.messagesLatch = messagesLatch
+            fun setMessageObserver(observer: Observer<String?>, expectedLatchCountdowns: Int): Builder {
+                check(!isBuilt) { "Object has already been built" }
+
+                liveDataObserver.messageObserver = observer
+                messageLatchSize = expectedLatchCountdowns
                 return this
             }
 
             fun setMessageObserver(messageTracker: MessageTracker): Builder {
-                liveDataObserver!!.messageTracker = messageTracker
-                liveDataObserver!!.messagesLatch = messageTracker.messagesLatch
-                liveDataObserver!!.messageObserver = Observer { message ->
+                check(!isBuilt) { "Object has already been built" }
+
+                liveDataObserver.messageTracker = messageTracker
+                messageLatchSize = messageTracker.remainingMessages()
+                liveDataObserver.messageObserver = Observer { message ->
                     println(message)
                     messageTracker.checkMessage(message)
                 }
@@ -1043,15 +1088,18 @@ class DefaultRoundInfoUnitTest {
             }
 
             fun build(): LiveDataObserver {
-                val ldo = liveDataObserver!!
-                liveDataObserver = null
-                return ldo
+                isBuilt = true
+                liveDataObserver.latch = CountDownLatch(stateLatchSize + messageLatchSize)
+                return liveDataObserver
             }
         }
 
-        class MessageTracker(private val expectedMessages: List<String?>, private val checkNulls: Boolean = false) {
+        class MessageTracker(
+                private val expectedMessages: List<String?>,
+                private val latchCountDown: () -> Unit,
+                private val checkNulls: Boolean = false
+        ) {
             private var currentMessageNumber = 0
-            internal val messagesLatch = CountDownLatch(expectedMessages.size)
 
             fun checkMessage(message: String?) {
                 if (message != null || checkNulls) {
@@ -1063,7 +1111,7 @@ class DefaultRoundInfoUnitTest {
                             expectedMessages[currentMessageNumber++],
                             message
                     )
-                    messagesLatch.countDown()
+                    latchCountDown()
                 }
             }
 
@@ -1073,13 +1121,13 @@ class DefaultRoundInfoUnitTest {
         }
 
         class SimpleStateObserver(
+                latchCountDown: () -> Unit,
                 desiredState: UpdateDefaultRounds.UpdateTaskState = UpdateDefaultRounds.UpdateTaskState.COMPLETE
         ) {
-            internal val stateLatch = CountDownLatch(1)
             val observer = Observer<UpdateDefaultRounds.UpdateTaskState> { state ->
                 @Suppress("NON_EXHAUSTIVE_WHEN")
                 when (state) {
-                    desiredState -> stateLatch.countDown()
+                    desiredState -> latchCountDown()
                     UpdateDefaultRounds.UpdateTaskState.ERROR -> Assert.fail("Update error - unexpected state: $state")
                 }
             }
