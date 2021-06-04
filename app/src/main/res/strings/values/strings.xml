@@ -8,7 +8,10 @@
 
     <!-- Action bar -->
     <string name="action_bar__help">help</string>
+    <string name="action_bar__about">about</string>
     <string name="action_bar__close_help">Close help</string>
+    <string name="err__no_help_info">No help info available for this page</string>
+    <string name="err__about_already_displayed">About page is already displayed</string>
 
     <!-- Arrow information -->
     <string name="end_to_string_arrow_deliminator">-</string>
@@ -44,6 +47,7 @@
     <string name="general_complete">Complete</string>
     <string name="general_continue">Continue</string>
     <string name="general_next">Next</string>
+
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__internal_error">Internal error occurred</string>
 

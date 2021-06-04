@@ -64,7 +64,7 @@ android {
     sourceSets {
         main {
             res {
-                srcDirs 'src/main/res', 'src/main/res/layouts/inputEnd', 'src/main/res/layouts/iconAssets', 'src/main/res/strings'
+                srcDirs 'src/main/res', 'src/main/res/layouts/inputEnd', 'src/main/res/layouts/fragments', 'src/main/res/layouts/iconAssets', 'src/main/res/strings'
             }
         }
     }

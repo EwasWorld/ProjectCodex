@@ -3,19 +3,9 @@
     <string name="main_menu__title">Main Menu</string>
     <string name="main_menu__new_round">Begin New Score</string>
     <string name="main_menu__view_rounds">View Scores</string>
-    <string name="main_menu__update_default_rounds_button">Update Default Rounds</string>
-    <string name="main_menu__update_default_rounds_progress_label">Updating default rounds:</string>
-    <string name="main_menu__update_default_rounds_initialising">Initialising…</string>
-    <string name="main_menu__update_default_rounds_progress">Processing round {current} of {total}</string>
-    <string name="main_menu__update_default_rounds_deleting">Cleaning stale default rounds</string>
-    <string name="main_menu__update_default_rounds_up_to_date">Already up to date</string>
-
-    <string name="err_main_menu__update_default_rounds_no_lock">Update default rounds failed.<br />Database is currently in use, try again later</string>
 
     <string name="help_main_menu__new_round_title">New score</string>
     <string name="help_main_menu__new_round_body">Start inputting a new score</string>
     <string name="help_main_menu__view_rounds_title">View scores</string>
     <string name="help_main_menu__view_rounds_body">View, edit, and continue existing scores</string>
-    <string name="help_main_menu__update_default_title">Update default rounds</string>
-    <string name="help_main_menu__update_default_body">Updates the list of rounds available on the new score screen</string>
 </resources>

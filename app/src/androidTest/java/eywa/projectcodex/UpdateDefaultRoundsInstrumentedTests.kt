@@ -1,19 +1,21 @@
 package eywa.projectcodex
 
-import android.widget.TextView
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.lifecycle.Observer
+import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
+import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.commonUtils.SharedPrefs
+import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
 import org.junit.After
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
@@ -21,87 +23,40 @@ class UpdateDefaultRoundsInstrumentedTests {
     companion object {
         init {
             ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
+            SharedPrefs.sharedPreferencesCustomName = testSharedPrefsName
         }
 
-        private lateinit var scenario: FragmentScenario<MainMenuFragment>
+        private lateinit var scenario: ActivityScenario<MainActivity>
     }
-
 
     @After
     fun afterEach() {
-        scenario.onFragment {
-            it.context?.let { context -> ScoresRoomDatabase.clearInstance(context) }
+        setSharedPrefs(scenario)
+        scenario.close()
+    }
+
+    /**
+     * Test that an UpdateDefaultRounds task is started when the activity is started
+     */
+    @Test
+    fun testUpdateIsCalledOnActivityStart() {
+        scenario = ActivityScenario.launch(MainActivity::class.java)
+        val state = UpdateDefaultRounds.taskProgress.getState()
+        val latch = CountDownLatch(1)
+        val observer = Observer { taskState: UpdateDefaultRounds.UpdateTaskState ->
+            if (taskState != UpdateDefaultRounds.UpdateTaskState.NOT_STARTED) {
+                latch.countDown()
+            }
         }
-    }
-
-    /**
-     * Test that the default rounds can import successfully and that buttons are shown/hidden as desired
-     */
-    @Test
-    fun testDefaultRounds() {
-        scenario = launchFragmentInContainer<MainMenuFragment>()
-
-        R.id.button_main_menu__update_default_rounds.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.text_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.label_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.button_main_menu__update_default_rounds_cancel.visibilityIs(ViewMatchers.Visibility.GONE)
-
-        R.id.button_main_menu__update_default_rounds.click()
-
-        R.id.button_main_menu__update_default_rounds.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.text_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.label_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.button_main_menu__update_default_rounds_cancel.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-
-        ConditionWatcher.waitForCondition(WaitForMessageInstruction("complete"))
-
-        R.id.button_main_menu__update_default_rounds.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.text_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.label_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.button_main_menu__update_default_rounds_cancel.visibilityIs(ViewMatchers.Visibility.GONE)
-    }
-
-    /**
-     * Test that the default rounds process can be cancelled
-     */
-    @Test
-    fun testDefaultRoundsCancel() {
-        scenario = launchFragmentInContainer<MainMenuFragment>()
-        R.id.button_main_menu__update_default_rounds.click()
-        // Give it a second to change the buttons
-        Thread.sleep(500)
-
-        R.id.button_main_menu__update_default_rounds_cancel.click()
-        ConditionWatcher.waitForCondition(WaitForMessageInstruction("Cancelled"))
-
-        R.id.button_main_menu__update_default_rounds_cancel.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.button_main_menu__update_default_rounds.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-    }
-
-    /**
-     * Test that when navigating away from the fragment, the process continues in the background and displays the
-     * correct values
-     */
-    @Test
-    fun testFragmentStateTransitions() {
-        scenario = launchFragmentInContainer<MainMenuFragment>()
-        R.id.button_main_menu__update_default_rounds.click()
-
-        // Returning to the fragment while still in progress should display status and cancel button
-        scenario.recreate()
-        R.id.button_main_menu__update_default_rounds.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.text_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.label_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.button_main_menu__update_default_rounds_cancel.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-
-        ConditionWatcher.waitForCondition(WaitForMessageInstruction("complete"))
-
-        // Destroying the fragment after completion should reset to just the start button
-        scenario.recreate()
-        R.id.button_main_menu__update_default_rounds.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.text_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.label_main_menu__update_default_rounds_progress.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.button_main_menu__update_default_rounds_cancel.visibilityIs(ViewMatchers.Visibility.GONE)
+        scenario.onActivity {
+            state.observeForever(observer)
+        }
+        if (!latch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
+            Assert.fail("Did not move out of not_started state")
+        }
+        scenario.onActivity {
+            state.removeObserver(observer)
+        }
     }
 
     /**
@@ -109,7 +64,9 @@ class UpdateDefaultRoundsInstrumentedTests {
      */
     @Test
     fun testDatabaseIsLocked() {
-        scenario = launchFragmentInContainer<MainMenuFragment>()
+        /*
+         * Set up thread to hold lock
+         */
         val lockHolderThread = object : Runnable {
             var isRunning = true
             var complete = false
@@ -136,10 +93,38 @@ class UpdateDefaultRoundsInstrumentedTests {
             }
         }
         Thread(lockHolderThread).start()
-        R.id.button_main_menu__update_default_rounds.click()
-        ConditionWatcher.waitForCondition(WaitForMessageInstruction("database"))
-        lockHolderThread.isRunning = false
 
+        /*
+         * Set up observer to wait for desired message
+         */
+        val state = UpdateDefaultRounds.taskProgress.getMessage()
+        val latch = CountDownLatch(1)
+        val observer = Observer { message: String? ->
+            if (message != null && message.contains("database", ignoreCase = true)) {
+                latch.countDown()
+            }
+        }
+
+        /*
+         * Start activity and wait for message
+         */
+        ActivityScenarioRule(MainActivity::class.java)
+        scenario = ActivityScenario.launch(MainActivity::class.java)
+        R.id.action_bar__about.click()
+        scenario.onActivity {
+            state.observeForever(observer)
+        }
+        if (!latch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
+            Assert.fail("Did not show error message about database")
+        }
+        scenario.onActivity {
+            state.removeObserver(observer)
+        }
+
+        /*
+         * Clean-up
+         */
+        lockHolderThread.isRunning = false
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
                 return "Waiting for thread to complete"
@@ -149,27 +134,5 @@ class UpdateDefaultRoundsInstrumentedTests {
                 return lockHolderThread.complete
             }
         })
-    }
-
-    /**
-     * Waits for main menu to show a message containing [message]. Waits for 1 second if message is not spotted to
-     *   prevent clogging up the main thread
-     */
-    private class WaitForMessageInstruction(private val message: String) : Instruction() {
-        override fun checkCondition(): Boolean {
-            var result = false
-            scenario.onFragment {
-                result = it.activity!!.findViewById<TextView>(R.id.text_main_menu__update_default_rounds_progress).text
-                        .contains(message, ignoreCase = true)
-            }
-            if (!result) {
-                Thread.sleep(1000)
-            }
-            return result
-        }
-
-        override fun getDescription(): String {
-            return "Wait for a message to appear in the status of update task"
-        }
     }
 }

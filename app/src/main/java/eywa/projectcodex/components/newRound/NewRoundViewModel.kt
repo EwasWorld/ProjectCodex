@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -23,6 +24,8 @@ class NewRoundViewModel(application: Application) : AndroidViewModel(application
     val allRoundSubTypes: LiveData<List<RoundSubType>>
     val allRoundArrowCounts: LiveData<List<RoundArrowCount>>
     val allRoundDistances: LiveData<List<RoundDistance>>
+    val updateDefaultRoundsState = UpdateDefaultRounds.taskProgress.getState()
+    val updateDefaultRoundsProgressMessage = UpdateDefaultRounds.taskProgress.getMessage()
 
     init {
         val db = ScoresRoomDatabase.getDatabase(application)

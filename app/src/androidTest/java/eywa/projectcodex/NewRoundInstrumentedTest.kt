@@ -11,6 +11,7 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import com.azimolabs.conditionwatcher.ConditionWatcher
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -97,6 +98,7 @@ class NewRoundInstrumentedTest {
          * Navigate to create round screen
          */
         R.id.button_main_menu__start_new_round.click()
+        ConditionWatcher.waitForCondition(waitForRoundUpdateTaskToFinishInstruction())
     }
 
     @After

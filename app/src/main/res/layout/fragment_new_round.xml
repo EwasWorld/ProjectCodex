@@ -82,6 +82,45 @@
                 />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/text_create_round__default_rounds_updating_warning"
+            style="@style/GeneralText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="0dp"
+            android:text="@string/create_round__default_rounds_updating_warning"
+            android:layout_marginHorizontal="@dimen/text_box_margins"
+            />
+
+        <LinearLayout
+            android:id="@+id/layout_create_round__default_rounds_updating_status"
+            style="@style/CreateRoundLinearLayout"
+            android:layout_width="wrap_content"
+            android:paddingTop="0dp"
+            >
+
+            <TextView
+                android:id="@+id/text_create_round__default_rounds_updating_status_label"
+                style="@style/GeneralText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"
+                android:paddingTop="0dp"
+                android:text="@string/create_round__default_rounds_updating_warning_status"
+                />
+
+            <TextView
+                android:id="@+id/text_create_round__default_rounds_updating_status"
+                style="@style/GeneralText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="0dp"
+
+                android:text="@string/about__update_default_rounds_not_started"
+                />
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/layout_create_round__round_sub_type"
             style="@style/CreateRoundLinearLayout"

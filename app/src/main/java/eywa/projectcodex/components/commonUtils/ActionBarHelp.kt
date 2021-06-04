@@ -4,6 +4,7 @@ import android.app.Activity
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
@@ -15,6 +16,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
  */
 interface ActionBarHelp {
     companion object {
+        private const val LOG_TAG = "ActionBarHelp"
         private val showcaseInProgressLock = Object()
         protected var showcaseInProgress = false
 
@@ -24,12 +26,17 @@ interface ActionBarHelp {
          * @param fragments fragments current shown which implement [ActionBarHelp]
          */
         fun executeHelpPressed(fragments: List<ActionBarHelp>, activity: Activity) {
+            if (fragments.isEmpty()) {
+                CustomLogger.customLogger.i(LOG_TAG, "No help information defined")
+                ToastSpamPrevention.displayToast(
+                        activity.applicationContext,
+                        activity.resources.getString(R.string.err__no_help_info)
+                )
+                return
+            }
             synchronized(showcaseInProgressLock) {
                 if (showcaseInProgress) return
                 showcaseInProgress = true
-            }
-            if (fragments.isEmpty()) {
-                throw IllegalStateException("No help information defined")
             }
             // Using a list over a priority queue as a priority queue is not stable
             //     (if elements are equal, order is not preserved)

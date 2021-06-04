@@ -16,6 +16,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.commonElements.DatePickerDialog
 import eywa.projectcodex.components.commonElements.TimePickerDialog
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.archerRound.ArcherRound
 import kotlinx.android.synthetic.main.fragment_new_round.*
 import java.text.SimpleDateFormat
@@ -32,6 +33,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
     private var selectedRoundPosition: Int = noRoundPosition
     private var selectedSubtypePosition: Int? = null
     private var date: Calendar = Calendar.getInstance()
+    private var defaultRoundsState = UpdateDefaultRounds.UpdateTaskState.NOT_STARTED
 
     // TODO Date/time format
     private val dateFormat = SimpleDateFormat("dd MMM yy")
@@ -102,6 +104,25 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         text_create_round__time.setOnClickListener {
             timePickerDialog.show(childFragmentManager, "time picker")
         }
+
+        // Hide the round spinner if rounds are being updated
+        newRoundViewModel.updateDefaultRoundsState.observe(viewLifecycleOwner, Observer { state ->
+            defaultRoundsState = state
+            val isInProgress = defaultRoundsState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS
+            fun getVisibility(isShown: Boolean) = if (isShown) View.VISIBLE else View.GONE
+            text_create_round__default_rounds_updating_warning.visibility = getVisibility(isInProgress)
+            layout_create_round__default_rounds_updating_status.visibility = getVisibility(isInProgress)
+            layout_create_round__round.visibility = getVisibility(!isInProgress)
+        })
+        newRoundViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, Observer { message ->
+            text_create_round__default_rounds_updating_status.text = when {
+                message != null -> message
+                defaultRoundsState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS -> {
+                    resources.getString(R.string.about__update_default_rounds_in_progress)
+                }
+                else -> ""
+            }
+        })
 
         val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
         // Update the spinners if the database updates (spinners don't display correctly at the start without this)

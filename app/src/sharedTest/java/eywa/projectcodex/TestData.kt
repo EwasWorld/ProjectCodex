@@ -1,8 +1,8 @@
 package eywa.projectcodex
 
 import eywa.projectcodex.components.archeryObjects.Arrow
-import eywa.projectcodex.components.mainMenu.DefaultRoundInfo
-import eywa.projectcodex.components.mainMenu.DefaultRoundInfoHelper.Companion.formatNameString
+import eywa.projectcodex.components.commonUtils.DefaultRoundInfo
+import eywa.projectcodex.components.commonUtils.DefaultRoundInfoHelper.Companion.formatNameString
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue

@@ -9,4 +9,11 @@
         android:icon="@drawable/ic_help_icon"
         app:showAsAction="ifRoom"
         />
+    <item
+        android:id="@+id/action_bar__about"
+        android:orderInCategory="200"
+        android:title="@string/action_bar__about"
+        android:icon="@drawable/ic_about_icon"
+        app:showAsAction="ifRoom"
+        />
 </menu>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about__title">About</string>
+    <string name="about__main_text">Contact:\ncaldeikeycodes@gmail.com\n\nFeel free to send feedback, feature requests, bug reports, or anything else</string>
+    <string name="about__rounds_version_label">Rounds Version:</string>
+    <string name="about__app_version_label">App Version:</string>
+    <string name="about__update_default_rounds_progress_label">Rounds status:</string>
+    <string name="about__update_default_rounds_initialising">Initialising…</string>
+    <string name="about__update_default_rounds_progress">Processing round {current} of {total}</string>
+    <string name="about__update_default_rounds_deleting">Cleaning stale rounds</string>
+    <string name="about__update_default_rounds_up_to_date">Already up to date</string>
+    <string name="about__update_default_rounds_not_started">Not started</string>
+    <string name="about__update_default_rounds_in_progress">In progress</string>
+
+    <string name="err_about__update_default_rounds_no_lock">Update default rounds failed.<br />Database is currently in use, try again later</string>
+</resources>

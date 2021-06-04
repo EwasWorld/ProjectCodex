@@ -1,5 +1,8 @@
 package eywa.projectcodex
 
+import android.os.Debug
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.DatePicker
 import android.widget.NumberPicker
@@ -7,6 +10,7 @@ import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
@@ -19,15 +23,27 @@ import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.commonUtils.SharedPrefs
+import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
+import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
+import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.android.synthetic.main.content_main.*
 import org.hamcrest.*
 import org.hamcrest.CoreMatchers.containsString
+import org.junit.Assert
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 
+/**
+ * Increases latch wait times when debugging so that it doesn't time out while debugging
+ */
+val latchAwaitTimeSeconds = if (Debug.isDebuggerConnected()) 60L * 60 else 10L
+val latchAwaitTimeUnit = TimeUnit.SECONDS
+
 const val testDatabaseName = "test_database"
+const val testSharedPrefsName = "test_prefs"
 
 fun Int.click() = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())!!
 fun Int.write(text: String) = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.typeText(text))!!
@@ -206,6 +222,37 @@ fun setTimePickerValue(hours: Int, minutes: Int): ViewAction? {
 
         override fun getConstraints(): Matcher<View> {
             return ViewMatchers.isAssignableFrom(TimePicker::class.java)
+        }
+    }
+}
+
+fun setSharedPrefs(scenario: ActivityScenario<MainActivity>, value: Int = -1) {
+    scenario.onActivity { activity ->
+        val prefs = activity.getSharedPreferences().edit()
+        prefs.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, value)
+        prefs.apply()
+        ScoresRoomDatabase.clearInstance(activity)
+    }
+}
+
+fun waitForRoundUpdateTaskToFinishInstruction(): Instruction {
+    return object : Instruction() {
+        override fun getDescription(): String {
+            return "Wait for update to finish"
+        }
+
+        override fun checkCondition(): Boolean {
+            var currentValue: UpdateDefaultRounds.UpdateTaskState? = null
+            val latch = CountDownLatch(1)
+            Handler(Looper.getMainLooper()).post {
+                currentValue = UpdateDefaultRounds.taskProgress.getState().retrieveValue()!!
+                latch.countDown()
+            }
+            if (!latch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
+                Assert.fail("Failed to retrieve state")
+            }
+            return currentValue == UpdateDefaultRounds.UpdateTaskState.UP_TO_DATE
+                    || currentValue == UpdateDefaultRounds.UpdateTaskState.COMPLETE
         }
     }
 }

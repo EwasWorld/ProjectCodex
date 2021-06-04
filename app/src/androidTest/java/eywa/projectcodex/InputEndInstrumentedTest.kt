@@ -10,6 +10,7 @@ import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.Round
@@ -34,6 +35,7 @@ class InputEndInstrumentedTest {
     companion object {
         init {
             ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
+            SharedPrefs.sharedPreferencesCustomName = testSharedPrefsName
         }
     }
 

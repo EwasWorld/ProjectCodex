@@ -2,7 +2,6 @@ package eywa.projectcodex.unitStyleTests
 
 import android.content.SharedPreferences
 import android.content.res.Resources
-import android.os.Debug
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -11,10 +10,12 @@ import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import eywa.projectcodex.R
 import eywa.projectcodex.TestUtils
 import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.mainMenu.UpdateDefaultRounds
+import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.latchAwaitTimeSeconds
+import eywa.projectcodex.latchAwaitTimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -38,14 +39,6 @@ import kotlin.reflect.KClass
 
 @RunWith(AndroidJUnit4::class)
 class DefaultRoundInfoUnitTest {
-    companion object {
-        /**
-         * Increases latch wait times when debugging so that it doesn't time out while debugging
-         */
-        private val latchAwaitTimeSeconds = if (Debug.isDebuggerConnected()) 60L * 60 else 10L
-        private val latchAwaitTimeUnit = TimeUnit.SECONDS
-    }
-
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -157,11 +150,11 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         "1 of 2",
                                         "2 of 2",
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
                                 ), observerBuilder.latchCountDownFunction()
                         )
@@ -232,10 +225,10 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         "1 of 1",
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
                                 ),
                                 observerBuilder.latchCountDownFunction()
@@ -273,10 +266,10 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         "1 of 1",
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
                                 ),
                                 observerBuilder.latchCountDownFunction()
@@ -318,10 +311,10 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         "1 of 1",
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
                                 ),
                                 observerBuilder.latchCountDownFunction()
@@ -364,8 +357,8 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         MockInfo.defaultMap[R.string.err__internal_error]
                                 ),
                                 observerBuilder.latchCountDownFunction()
@@ -378,39 +371,6 @@ class DefaultRoundInfoUnitTest {
         observer.finishObserving()
 
         mockInfo.verifyUpdate(mapOf())
-    }
-
-    /**
-     * Test that a cancelled task will stop processing after the next item and that SharedPreferences are not updated
-     */
-    @Test
-    fun testCancel() {
-        val json = "${TestData.START_JSON}${TestData.YORK_JSON},${TestData.ST_GEORGE_JSON}${TestData.END_JSON}"
-        val mockInfo = MockInfo.Builder(json.byteInputStream()).build()
-        val sharedPref = getSharedPreferencesMock()
-
-        val observerBuilder = LiveDataObserver.Builder()
-        val observer = observerBuilder
-                .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
-                .setMessageObserver(
-                        LiveDataObserver.MessageTracker(
-                                listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.general_cancelling],
-                                        MockInfo.defaultMap[R.string.general_cancelled]
-                                ),
-                                observerBuilder.latchCountDownFunction()
-                        )
-                ).build()
-
-        observer.startObserving()
-        UpdateDefaultRounds.runUpdate(mockInfo.db, mockInfo.resourcesMock, sharedPref.first)
-        UpdateDefaultRounds.cancelUpdateDefaultRounds(mockInfo.resourcesMock)
-        observer.awaitCompletion()
-        observer.finishObserving()
-
-        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
-        verify(sharedPref.second, times(0)).putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, 1)
     }
 
     /**
@@ -433,9 +393,9 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_up_to_date]
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_up_to_date]
                                 ),
                                 observerBuilder.latchCountDownFunction()
                         )
@@ -459,7 +419,7 @@ class DefaultRoundInfoUnitTest {
         Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
         Assert.assertTrue(RoundRepo.repositoryWriteLock.tryLock())
         Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
-        checkErrorState("", listOf(), R.string.err_main_menu__update_default_rounds_no_lock)
+        checkErrorState("", listOf(), R.string.err_about__update_default_rounds_no_lock)
         Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
         RoundRepo.repositoryWriteLock.unlock()
         Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
@@ -479,10 +439,10 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         "1 of 1",
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_deleting],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_deleting],
                                         MockInfo.defaultMap[R.string.general_complete]
                                 ),
                                 observerBuilder.latchCountDownFunction()
@@ -547,8 +507,8 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         "1 of 2",
                                         "2 of 2",
                                         MockInfo.defaultMap[R.string.err__internal_error]
@@ -981,8 +941,8 @@ class DefaultRoundInfoUnitTest {
                 .setMessageObserver(
                         LiveDataObserver.MessageTracker(
                                 listOf(
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
-                                        MockInfo.defaultMap[R.string.main_menu__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
+                                        MockInfo.defaultMap[R.string.about__update_default_rounds_initialising],
                                         *extraMessages.toTypedArray(),
                                         MockInfo.defaultMap[errorMessageId]
                                 ),
@@ -1025,7 +985,10 @@ class DefaultRoundInfoUnitTest {
         /**
          * Await up to the specified time for latch to hit zero
          */
-        fun awaitCompletion(timeout: Long = latchAwaitTimeSeconds, timeoutUnit: TimeUnit = latchAwaitTimeUnit) {
+        fun awaitCompletion(
+                timeout: Long = latchAwaitTimeSeconds,
+                timeoutUnit: TimeUnit = latchAwaitTimeUnit
+        ) {
             if (!latch.await(timeout, timeoutUnit)) {
                 Assert.fail("Latch wait timeout")
             }
@@ -1137,16 +1100,15 @@ class DefaultRoundInfoUnitTest {
     private class MockInfo private constructor(rawData: InputStream) {
         companion object {
             val defaultMap = mapOf(
-                    Pair(R.string.main_menu__update_default_rounds_initialising, "init"),
-                    Pair(R.string.main_menu__update_default_rounds_progress_label, "updating"),
-                    Pair(R.string.main_menu__update_default_rounds_progress, "{current} of {total}"),
-                    Pair(R.string.main_menu__update_default_rounds_deleting, "deleting"),
+                    Pair(R.string.about__update_default_rounds_initialising, "init"),
+                    Pair(R.string.about__update_default_rounds_progress, "{current} of {total}"),
+                    Pair(R.string.about__update_default_rounds_deleting, "deleting"),
                     Pair(R.string.general_cancelled, "cancelled"),
                     Pair(R.string.general_cancelling, "cancelling"),
                     Pair(R.string.general_complete, "complete"),
-                    Pair(R.string.err_main_menu__update_default_rounds_no_lock, "no lock"),
+                    Pair(R.string.err_about__update_default_rounds_no_lock, "no lock"),
                     Pair(R.string.err__internal_error, "internal error"),
-                    Pair(R.string.main_menu__update_default_rounds_up_to_date, "up to date")
+                    Pair(R.string.about__update_default_rounds_up_to_date, "up to date")
             )
         }
 

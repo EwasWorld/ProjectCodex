@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.mainMenu
+package eywa.projectcodex.components.commonUtils
 
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -11,10 +11,6 @@ import androidx.lifecycle.Observer
 import com.beust.klaxon.*
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
-import eywa.projectcodex.components.commonUtils.OnToken
-import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.commonUtils.TaskRunner
-import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
@@ -37,8 +33,6 @@ class DefaultRoundInfo(
         private val roundDistances: List<RoundInfoDistance>
 ) {
     companion object {
-        // TODO Store this in the JSON and read it in
-        const val CURRENT_DEFAULT_ROUNDS_VERSION = 1
         internal const val defaultRoundMinimumId = 5
     }
 
@@ -269,6 +263,18 @@ class DefaultRoundInfoHelper {
             }
             return dbUpdateItems
         }
+
+        /**
+         * @return the value the specified key maps to in the jsonObject
+         */
+        internal inline fun <reified T> parseObject(jsonObject: JsonObject, key: String): T {
+            val retrievedObject = jsonObject[key]
+                    ?: throw KlaxonException("Cannot parse $key from: $jsonObject")
+            if (retrievedObject !is T) {
+                throw ClassCastException("$key is not of type ${T::class.java.name}")
+            }
+            return retrievedObject
+        }
     }
 }
 
@@ -290,20 +296,13 @@ class UpdateDefaultRounds {
                 if (taskProgress.getState().value == UpdateTaskState.IN_PROGRESS) return
                 taskProgress.update(
                         UpdateTaskState.IN_PROGRESS,
-                        resources.getString(R.string.main_menu__update_default_rounds_initialising)
+                        resources.getString(R.string.about__update_default_rounds_initialising)
                 )
             }
             currentTask = UpdateDefaultRoundsTask(RoundRepo(db), resources, sharedPreferences)
             taskExecutor.executeProgressTask(
                     currentTask!!,
-                    onProgress = { progress ->
-                        if (taskProgress.getState().value == UpdateTaskState.CANCELLING) {
-                            CustomLogger.customLogger.i(LOG_TAG, "Ignored message while cancelling: $progress")
-                        }
-                        else {
-                            taskProgress.update(newMessage = progress)
-                        }
-                    },
+                    onProgress = { progress -> taskProgress.update(newMessage = progress) },
                     onComplete = { message ->
                         currentTask = null
                         taskProgress.update(UpdateTaskState.COMPLETE, message)
@@ -324,28 +323,6 @@ class UpdateDefaultRounds {
             )
         }
 
-        fun cancelUpdateDefaultRounds(resources: Resources) {
-            synchronized(taskProgress) {
-                taskProgress.update(UpdateTaskState.CANCELLING, resources.getString(R.string.general_cancelling))
-                currentTask?.isSoftCancelled = true
-            }
-        }
-
-        /**
-         * If the current task is complete, reset the state to not started
-         */
-        fun resetState() {
-            synchronized(taskProgress) {
-                val currentState = taskProgress.getState().value
-                if (currentState == UpdateTaskState.COMPLETE) {
-                    taskProgress.update(UpdateTaskState.UP_TO_DATE)
-                }
-                else if (currentState == UpdateTaskState.ERROR) {
-                    taskProgress.update(UpdateTaskState.NOT_STARTED)
-                }
-            }
-        }
-
         /**
          * Force the state value back to not started with a null message
          */
@@ -357,7 +334,7 @@ class UpdateDefaultRounds {
         }
     }
 
-    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, CANCELLING, COMPLETE, ERROR, UP_TO_DATE }
+    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, COMPLETE, ERROR, UP_TO_DATE }
 
     /**
      * Used to enforce ordering when updating the state and message
@@ -396,15 +373,20 @@ class UpdateDefaultRounds {
         }
 
         override fun runTask(progressToken: OnToken<String>): String {
-            progressToken(resources.getString(R.string.main_menu__update_default_rounds_initialising))
+            progressToken(resources.getString(R.string.about__update_default_rounds_initialising))
 
             /*
              * Check if an update is needed
              * TODO Read from the json file rather than using CURRENT_VERSION constant
              */
+            val rawString =
+                    resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
+            val klaxon = Klaxon().converter(RoundsVersion.RoundsVersionJsonConverter())
+            val dataVersion = klaxon.parse<RoundsVersion>(rawString)?.version
+                    ?: throw IllegalStateException("Failed to parse default rounds file")
             val currentVersion = sharedPreferences.getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
-            if (currentVersion >= DefaultRoundInfo.CURRENT_DEFAULT_ROUNDS_VERSION) {
-                return resources.getString(R.string.main_menu__update_default_rounds_up_to_date)
+            if (currentVersion >= dataVersion) {
+                return resources.getString(R.string.about__update_default_rounds_up_to_date)
             }
 
             /*
@@ -413,7 +395,7 @@ class UpdateDefaultRounds {
              */
             val acquiredLock = RoundRepo.repositoryWriteLock.tryLock(1, TimeUnit.SECONDS)
             if (!acquiredLock) {
-                throw UserException(R.string.err_main_menu__update_default_rounds_no_lock)
+                throw UserException(R.string.err_about__update_default_rounds_no_lock)
             }
 
             try {
@@ -463,9 +445,7 @@ class UpdateDefaultRounds {
                 /*
                  * Read default rounds data from file and make a list of strings
                  */
-                val klaxon = Klaxon().converter(RoundsList.RoundsListJsonConverter())
-                val rawString =
-                        resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
+                klaxon.converter(RoundsList.RoundsListJsonConverter())
                 val readRoundsStrings = klaxon.parse<RoundsList>(rawString)?.rounds
                         ?: throw IllegalStateException("Failed to parse default rounds file")
                 val readRoundNames = mutableListOf<String>()
@@ -474,7 +454,7 @@ class UpdateDefaultRounds {
                  * Check each read rounds
                  */
                 klaxon.converter(DefaultRoundInfoJsonConverter())
-                val progressTokenRawString = resources.getString(R.string.main_menu__update_default_rounds_progress)
+                val progressTokenRawString = resources.getString(R.string.about__update_default_rounds_progress)
                 val progressTokenTotalReplacer = Pair("total", readRoundsStrings.size.toString())
                 for (readRound in readRoundsStrings.withIndex()) {
                     progressToken(
@@ -507,20 +487,12 @@ class UpdateDefaultRounds {
                     runBlocking {
                         repository.updateRounds(dbUpdateItems)
                     }
-
-                    if (isSoftCancelled) {
-                        CustomLogger.customLogger.i(
-                                LOG_TAG,
-                                "Task cancelled at ${readRound.index} of ${readRoundNames.size}"
-                        )
-                        return resources.getString(R.string.general_cancelled)
-                    }
                 }
 
                 /*
                  * Remove rounds and related objects from the database that are not in readRounds
                  */
-                progressToken(resources.getString(R.string.main_menu__update_default_rounds_deleting))
+                progressToken(resources.getString(R.string.about__update_default_rounds_deleting))
                 val roundsToDelete =
                         repository.rounds.value!!.filter { dbRound -> !readRoundNames.contains(dbRound.name) }
 
@@ -539,7 +511,7 @@ class UpdateDefaultRounds {
                  * Update the version so that we only update if necessary
                  */
                 val editor = sharedPreferences.edit()
-                editor.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, DefaultRoundInfo.CURRENT_DEFAULT_ROUNDS_VERSION)
+                editor.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, dataVersion)
                 editor.apply()
                 return resources.getString(R.string.general_complete)
             }
@@ -550,10 +522,33 @@ class UpdateDefaultRounds {
     }
 }
 
+/**
+ * Reads the 'version' property from the given object as an int {"version": 000, ...}
+ */
+private class RoundsVersion(val version: Int) {
+    class RoundsVersionJsonConverter : Converter {
+        override fun canConvert(cls: Class<*>): Boolean {
+            return RoundsVersion::class.java.isAssignableFrom(cls)
+        }
+
+        override fun fromJson(jv: JsonValue): Any {
+            val jsonObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")
+            return RoundsVersion(DefaultRoundInfoHelper.parseObject<Int>(jsonObject, "version"))
+        }
+
+        /**
+         * Not currently used
+         */
+        override fun toJson(value: Any): String {
+            throw NotImplementedError()
+        }
+    }
+}
+
+/**
+ * Reads the 'rounds' property from the given object as an array of strings {"rounds": [...], ...}
+ */
 private class RoundsList(val rounds: List<String>) {
-    /**
-     * Splits a json string in the format {"rounds": [...]} into a list of strings
-     */
     class RoundsListJsonConverter : Converter {
         override fun canConvert(cls: Class<*>): Boolean {
             return RoundsList::class.java.isAssignableFrom(cls)
@@ -590,11 +585,11 @@ class DefaultRoundInfoJsonConverter : Converter {
         val klaxon = Klaxon()
         val jsonRoundObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")
 
-        val roundName = parseObject<String>(jsonRoundObject, "roundName")
+        val roundName = DefaultRoundInfoHelper.parseObject<String>(jsonRoundObject, "roundName")
         CustomLogger.customLogger.i(CONVERTER_LOG_TAG, roundName)
-        val isOutdoor = parseObject<Boolean>(jsonRoundObject, "outdoor")
-        val isMetric = parseObject<Boolean>(jsonRoundObject, "isMetric")
-        val fiveArrowEnd = parseObject<Boolean>(jsonRoundObject, "fiveArrowEnd")
+        val isOutdoor = DefaultRoundInfoHelper.parseObject<Boolean>(jsonRoundObject, "outdoor")
+        val isMetric = DefaultRoundInfoHelper.parseObject<Boolean>(jsonRoundObject, "isMetric")
+        val fiveArrowEnd = DefaultRoundInfoHelper.parseObject<Boolean>(jsonRoundObject, "fiveArrowEnd")
 
         val permittedFaces = (jsonRoundObject["permittedFaces"] as JsonArray<String>).value
 
@@ -634,18 +629,6 @@ class DefaultRoundInfoJsonConverter : Converter {
                 roundName, isOutdoor, isMetric, fiveArrowEnd, permittedFaces,
                 roundLengths, roundProgressions, roundDistances
         )
-    }
-
-    /**
-     * @return the value the specified key maps to in the jsonObject
-     */
-    private inline fun <reified T> parseObject(jsonObject: JsonObject, key: String): T {
-        val retrievedObject = jsonObject[key]
-                ?: throw KlaxonException("Cannot parse $key from: $jsonObject")
-        if (retrievedObject !is T) {
-            throw ClassCastException("$key is not of type ${T::class.java.name}")
-        }
-        return retrievedObject
     }
 
     /**
