@@ -11,6 +11,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -22,6 +23,10 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 
 class ViewRoundsFragment : Fragment(), ActionBarHelp {
+    companion object {
+        const val LOG_TAG = "ViewRoundsFrag"
+    }
+
     private lateinit var viewRoundsViewModel: ViewRoundsViewModel
     private var allArrows: List<ArrowValue> = listOf()
     private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
@@ -114,6 +119,22 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
         activity!!.menuInflater.inflate(R.menu.view_rounds_item_menu, menu)
+
+        check(selectedArcherRoundId != -1) { "No round id selected" }
+        val selectedArcherRoundInfo =
+                allArcherRoundsWithNames.find { it.archerRound.archerRoundId == selectedArcherRoundId }
+        if (selectedArcherRoundInfo == null) {
+            CustomLogger.customLogger.w(LOG_TAG, "No archer round info for selected round")
+            return
+        }
+
+        val selectedRoundId = selectedArcherRoundInfo.round?.roundId ?: return
+        val roundArrowCount = allArrowCounts.filter { it.roundId == selectedRoundId }.sumBy { it.arrowCount }
+        val currentArrowCount = allArrows.count { it.archerRoundId == selectedArcherRoundId }
+
+        val showContinue = roundArrowCount > currentArrowCount
+        menu.findItem(R.id.button_view_rounds_menu__continue).isVisible = showContinue
+        menu.findItem(R.id.button_view_rounds_menu__continue).isEnabled = showContinue
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

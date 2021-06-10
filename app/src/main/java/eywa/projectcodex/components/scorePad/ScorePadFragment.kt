@@ -179,6 +179,11 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
         activity!!.menuInflater.inflate(R.menu.score_pad_item_menu, menu)
+
+        // Don't show insert option if all arrows have been inputted
+        val allowInsert = arrowCounts.isEmpty() || arrowCounts.sumBy { it.arrowCount } > arrows.count()
+        menu.findItem(R.id.button_score_pad_menu__insert).isVisible = allowInsert
+        menu.findItem(R.id.button_score_pad_menu__insert).isEnabled = allowInsert
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

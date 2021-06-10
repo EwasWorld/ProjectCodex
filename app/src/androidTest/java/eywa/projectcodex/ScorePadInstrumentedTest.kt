@@ -77,6 +77,26 @@ class ScorePadInstrumentedTest {
         }
     }
 
+    private fun clickMenuButton(buttonText: String): Instruction {
+        return object : Instruction() {
+            override fun getDescription(): String {
+                return "Click the desired menu item or wait if it hasn't appeared yet"
+            }
+
+            override fun checkCondition(): Boolean {
+                return try {
+                    onView(withText(buttonText)).perform(click())
+                    true
+                }
+                catch (e: NoMatchingViewException) {
+                    println("Sleep")
+                    Thread.sleep(200)
+                    false
+                }
+            }
+        }
+    }
+
     private fun checkColumnHeaders(goldsHeader: String = "10") {
         var col = 0
         val expectedColumnHeaders =
@@ -108,17 +128,17 @@ class ScorePadInstrumentedTest {
 
     @Before
     fun beforeEach() {
-//        ScoresRoomDatabase.clearInstance(activity.activity)
+        ScoresRoomDatabase.clearInstance(activity.activity)
         activity.activity.supportFragmentManager.beginTransaction()
         db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
     }
 
-    private fun generateArrowsAndAddToDb() {
+    private fun generateArrowsAndAddToDb(hasRound: Boolean = false) {
         arrows = TestData.generateArrowValues(36, 1)
-        addArrowsToDatabase()
+        addArrowsToDatabase(hasRound)
     }
 
-    private fun addArrowsToDatabase() {
+    private fun addArrowsToDatabase(hasRound: Boolean = false) {
         for (arrow in arrows) {
             // Sometimes the test has kittens so it's nice to have a log
             println("ArrowValue(${arrow.archerRoundId},${arrow.arrowNumber},${arrow.score},${arrow.isX}),")
@@ -126,9 +146,13 @@ class ScorePadInstrumentedTest {
                 db.arrowValueDao().insert(arrow)
             }
         }
+        val roundId = if (hasRound) 1 else null
         runBlocking {
-            db.archerRoundDao()
-                    .insert(ArcherRound(1, TestData.generateDate(), 1, true, roundId = 1, roundSubTypeId = 1))
+            db.archerRoundDao().insert(
+                    ArcherRound(
+                            1, TestData.generateDate(), 1, true, roundId = roundId, roundSubTypeId = roundId
+                    )
+            )
         }
     }
 
@@ -153,7 +177,7 @@ class ScorePadInstrumentedTest {
 
     @Test
     fun testTableValuesWithTotals() {
-        generateArrowsAndAddToDb()
+        generateArrowsAndAddToDb(true)
         val arrowCounts = listOf(
                 RoundArrowCount(1, 1, 1.0, 18),
                 RoundArrowCount(1, 2, 1.0, 18)
@@ -332,8 +356,7 @@ class ScorePadInstrumentedTest {
         ConditionWatcher.waitForCondition(getTableAdapter().waitForRowToAppear(4))
 
         onView(withText("X-9-9-9-7-6")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
-        onView(withText(menuButtonInsert)).perform(click())
+        ConditionWatcher.waitForCondition(clickMenuButton(menuButtonInsert))
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InsertEndFragment::class.java.name))
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")

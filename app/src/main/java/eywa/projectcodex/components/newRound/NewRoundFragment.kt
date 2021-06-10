@@ -38,10 +38,6 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
     // TODO Date/time format
     private val dateFormat = SimpleDateFormat("dd MMM yy")
     private val timeFormat = SimpleDateFormat("HH:mm")
-
-    // Lowercase h for 12 hour
-    private val is24HourTime = timeFormat.toPattern().contains("HH")
-
     private val datePickerDialog: DatePickerDialog by lazy {
         val okListener = object : DatePickerDialog.OnOkListener {
             override fun onSelect(value: Calendar) {
@@ -64,7 +60,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         }
         TimePickerDialog(
                 getString(R.string.create_round__time_shot_time_picker_title), null, date.get(Calendar.HOUR_OF_DAY),
-                date.get(Calendar.MINUTE), is24HourTime, okListener
+                date.get(Calendar.MINUTE), timeFormat.toPattern().contains("HH"), okListener
         )
     }
 

@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -263,13 +264,7 @@ class ViewRoundsInstrumentedTest {
         goToViewRoundsAndPopulateAdapter()
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
         onView(arrowValues.sumBy { it.score }.toString()).perform(longClick())
-        onView(withText(menuButtonContinue)).perform(click())
-
-        onView(withText("Continue")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
-        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InputEndFragment::class.java.name))
-
-        R.id.text_scores_indicator__table_score_1.textEquals(arrowValues.sumBy { it.score }.toString())
-        R.id.text_scores_indicator__table_arrow_count_1.textEquals(arrowValues.size.toString())
+        onView(withText(menuButtonContinue)).check(doesNotExist())
     }
 
     /**
