@@ -11,7 +11,9 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.SharedPrefs
+import eywa.projectcodex.components.inputEnd.InputEndFragment
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
+import eywa.projectcodex.components.newRound.NewRoundFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -23,6 +25,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.reflect.jvm.jvmName
 
 
 /**
@@ -56,8 +59,17 @@ class InputEndInstrumentedTest {
             RoundDistance(1, 3, 1, 50)
     )
 
+    /**
+     * Clicks the submit button then waits for the [InputEndFragment] to open
+     */
+    private fun clickSubmitNewRound() {
+        R.id.button_create_round__submit.click()
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+    }
+
     @Before
     fun beforeEach() {
+        ScoresRoomDatabase.clearInstance(activity.activity)
         activity.activity.supportFragmentManager.beginTransaction()
         db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
 
@@ -84,6 +96,7 @@ class InputEndInstrumentedTest {
          * Navigate to create round screen
          */
         R.id.button_main_menu__start_new_round.click()
+        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(NewRoundFragment::class.jvmName))
     }
 
     @After
@@ -93,7 +106,7 @@ class InputEndInstrumentedTest {
 
     @Test
     fun testScoreButtonPressed() {
-        R.id.button_create_round__submit.click()
+        clickSubmitNewRound()
 
         val buttons = mapOf(
                 R.id.button_arrow_inputs__score_0 to "m",
@@ -153,7 +166,7 @@ class InputEndInstrumentedTest {
 
     @Test
     fun testClearScore() {
-        R.id.button_create_round__submit.click()
+        clickSubmitNewRound()
 
         // Full score
         R.id.button_arrow_inputs__score_3.click()
@@ -187,7 +200,7 @@ class InputEndInstrumentedTest {
 
     @Test
     fun testBackSpace() {
-        R.id.button_create_round__submit.click()
+        clickSubmitNewRound()
 
         // Full score
         R.id.button_arrow_inputs__score_3.click()
@@ -225,7 +238,7 @@ class InputEndInstrumentedTest {
 
     @Test
     fun testNextEnd() {
-        R.id.button_create_round__submit.click()
+        clickSubmitNewRound()
 
         R.id.text_scores_indicator__table_score_1.textEquals("0")
         R.id.text_scores_indicator__table_arrow_count_1.textEquals("0")
@@ -287,7 +300,7 @@ class InputEndInstrumentedTest {
 
     @Test
     fun testOpenScorePad() {
-        R.id.button_create_round__submit.click()
+        clickSubmitNewRound()
 
         for (i in 0.rangeTo(5)) {
             R.id.button_arrow_inputs__score_1.click()
@@ -327,7 +340,7 @@ class InputEndInstrumentedTest {
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
 
         completeEnd()
-        onView("OK").perform(click())
+        onViewWithClassName("OK").perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(MainMenuFragment::class.java.name))
     }
 
@@ -344,13 +357,13 @@ class InputEndInstrumentedTest {
     @Test
     fun testOddEndSize() {
         R.id.spinner_create_round__round.clickSpinnerItem(roundsInput[0].displayName)
-        R.id.button_create_round__submit.click()
+        clickSubmitNewRound()
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
         R.id.text_end_inputs__inputted_arrows.click()
 
-        onView(NumberPicker::class.java).perform(setNumberPickerValue(5))
-        onView("OK").perform(click())
+        onViewWithClassName(NumberPicker::class.java).perform(setNumberPickerValue(5))
+        onViewWithClassName("OK").perform(click())
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
         completeEnd()

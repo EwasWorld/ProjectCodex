@@ -154,7 +154,7 @@ class ViewRoundsInstrumentedTest {
         var uniqueScore: Int? = null
         while (uniqueScore == null) {
             addDataToDatabase()
-            val scores = arrows.map { roundArrows -> roundArrows.sumBy { arrow -> arrow.score } }
+            val scores = arrows.map { roundArrows -> roundArrows.sumOf { arrow -> arrow.score } }
 
             for ((i, score) in scores.withIndex()) {
                 if (scores.lastIndexOf(score) == i) {
@@ -200,7 +200,7 @@ class ViewRoundsInstrumentedTest {
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
 
         val deleteIndex = 1
-        onView(findRoundArrows(deleteIndex).sumBy { it.score }.toString()).perform(longClick())
+        onViewWithClassName(findRoundArrows(deleteIndex).sumOf { it.score }.toString()).perform(longClick())
         onView(withText(menuButtonDelete)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
@@ -230,11 +230,11 @@ class ViewRoundsInstrumentedTest {
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
 
         val continueRound = findRoundArrows(1)
-        onView(continueRound.sumBy { it.score }.toString()).perform(longClick())
+        onViewWithClassName(continueRound.sumOf { it.score }.toString()).perform(longClick())
         onView(withText(menuButtonContinue)).perform(click())
         ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InputEndFragment::class.java.name))
 
-        R.id.text_scores_indicator__table_score_1.textEquals(continueRound.sumBy { it.score }.toString())
+        R.id.text_scores_indicator__table_score_1.textEquals(continueRound.sumOf { it.score }.toString())
         R.id.text_scores_indicator__table_arrow_count_1.textEquals(continueRound.size.toString())
     }
 
@@ -263,7 +263,7 @@ class ViewRoundsInstrumentedTest {
 
         goToViewRoundsAndPopulateAdapter()
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
-        onView(arrowValues.sumBy { it.score }.toString()).perform(longClick())
+        onViewWithClassName(arrowValues.sumOf { it.score }.toString()).perform(longClick())
         onView(withText(menuButtonContinue)).check(doesNotExist())
     }
 

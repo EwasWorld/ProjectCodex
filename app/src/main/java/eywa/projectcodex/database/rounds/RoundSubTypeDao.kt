@@ -6,7 +6,7 @@ import androidx.room.*
 @Dao
 interface RoundSubTypeDao : RoundTypeDao<RoundSubType> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    override suspend fun insert(roundSubType: RoundSubType)
+    override suspend fun insert(insertItem: RoundSubType)
 
     @Query("SELECT * FROM round_sub_types")
     fun getAllSubTypes(): LiveData<List<RoundSubType>>

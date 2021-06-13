@@ -11,15 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
-import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.*
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
+import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import eywa.projectcodex.components.MainActivity
@@ -60,15 +58,30 @@ fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = Espresso.onView(View
 )!!
 
 fun Int.clickSpinnerItem(text: String) = this.run {
-    Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())
-    Espresso.onData(Matchers.hasToString(text)).perform(ViewActions.click())
-}!!
+    val viewId = this
+    ConditionWatcher.waitForCondition(object : Instruction() {
+        override fun getDescription(): String {
+            return "Wait for the round spinner to be visible"
+        }
 
-fun onView(text: String): ViewInteraction {
+        override fun checkCondition(): Boolean {
+            try {
+                Espresso.onView(ViewMatchers.withId(viewId)).perform(ViewActions.click())
+                Espresso.onData(Matchers.hasToString(text)).perform(ViewActions.click())
+                return true
+            }
+            catch (e: PerformException) {
+            }
+            return false
+        }
+    })
+}
+
+fun onViewWithClassName(text: String): ViewInteraction {
     return Espresso.onView(ViewMatchers.withText(text))!!
 }
 
-fun <T> onView(clazz: Class<T>): ViewInteraction {
+fun <T> onViewWithClassName(clazz: Class<T>): ViewInteraction {
     return Espresso.onView(ViewMatchers.withClassName(Matchers.equalTo(clazz.name)))!!
 }
 

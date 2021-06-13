@@ -105,7 +105,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
      * @return the total score for the end
      */
     fun getScore(): Int {
-        return arrows.sumBy { it.score }
+        return arrows.sumOf { it.score }
     }
 
     /**

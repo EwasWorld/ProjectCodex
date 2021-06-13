@@ -67,7 +67,7 @@ class ScorePadInstrumentedTest {
             return try {
                 R.id.button_main_menu__view_rounds.click()
                 onView(withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
-                onView(withText(arrows.sumBy { it.score }.toString())).perform(click())
+                onView(withText(arrows.sumOf { it.score }.toString())).perform(click())
                 true
             }
             catch (e: NoMatchingViewException) {
@@ -317,7 +317,7 @@ class ScorePadInstrumentedTest {
         val endToClick =
                 End(expectedArrowsGrouped[deleteEndIndex], TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         endToClick.reorderScores()
-        onView(endToClick.toString()).perform(click())
+        onViewWithClassName(endToClick.toString()).perform(click())
         ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
         onView(withText(menuButtonDelete)).perform(click())
 

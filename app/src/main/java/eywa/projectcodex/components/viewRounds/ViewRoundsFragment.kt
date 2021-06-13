@@ -129,7 +129,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
         }
 
         val selectedRoundId = selectedArcherRoundInfo.round?.roundId ?: return
-        val roundArrowCount = allArrowCounts.filter { it.roundId == selectedRoundId }.sumBy { it.arrowCount }
+        val roundArrowCount = allArrowCounts.filter { it.roundId == selectedRoundId }.sumOf { it.arrowCount }
         val currentArrowCount = allArrows.count { it.archerRoundId == selectedArcherRoundId }
 
         val showContinue = roundArrowCount > currentArrowCount
@@ -155,7 +155,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                      */
                     val arrowsShot = allArrows.filter { it.archerRoundId == selectedArcherRoundId }.count()
                     val arrowsInRound = allArrowCounts.filter { it.roundId == selectedArcherRound?.round?.roundId }
-                            .sumBy { it.arrowCount }
+                            .sumOf { it.arrowCount }
                     if (arrowsShot >= arrowsInRound) {
                         /*
                          * Warn the user they're about to add arrows to a completed round

@@ -6,7 +6,7 @@ import androidx.room.*
 @Dao
 interface RoundDao : RoundTypeDao<Round> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    override suspend fun insert(round: Round)
+    override suspend fun insert(insertItem: Round)
 
     @Query("SELECT * FROM $ROUND_TABLE_NAME WHERE name = :uniqueName")
     fun getRoundByName(uniqueName: String): LiveData<List<Round>>

@@ -16,6 +16,7 @@ import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.coroutines.runBlocking
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -154,8 +155,7 @@ class DefaultRoundInfoHelper {
          * Removes non-alphanumerics and spaces and converts to lower case
          */
         fun formatNameString(string: String): String {
-            // TODO Locale
-            return string.replace(Regex("[^A-Za-z0-9]| "), "").toLowerCase()
+            return string.replace(Regex("[^A-Za-z0-9]| "), "").lowercase(Locale.getDefault())
         }
 
         /**
@@ -432,7 +432,8 @@ class UpdateDefaultRounds {
                 var nextRoundId: Int? = null
                 val dbInfoRetrieved by lazy {
                     check(latch.await(10, TimeUnit.SECONDS)) { "Failed to retrieve db information" }
-                    nextRoundId = dbRounds!!.map { it.roundId }.max()?.plus(1) ?: DefaultRoundInfo.defaultRoundMinimumId
+                    nextRoundId =
+                            dbRounds!!.maxOfOrNull { it.roundId }?.plus(1) ?: DefaultRoundInfo.defaultRoundMinimumId
                     Handler(Looper.getMainLooper()).post {
                         repository.rounds.removeObserver(dbRoundsObserver)
                         repository.roundArrowCounts.removeObserver(dbArrowCountsObserver)
@@ -496,8 +497,8 @@ class UpdateDefaultRounds {
                 val roundsToDelete =
                         repository.rounds.value!!.filter { dbRound -> !readRoundNames.contains(dbRound.name) }
 
-                val delItems = roundsToDelete.map { it as Any }.toMutableList()
                 val idsOfRoundsToDelete = roundsToDelete.map { it.roundId }
+                val delItems: MutableList<Any> = roundsToDelete.toMutableList()
                 delItems.addAll(repository.roundArrowCounts.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
                 delItems.addAll(repository.roundSubTypes.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
                 delItems.addAll(repository.roundDistances.value!!.filter { idsOfRoundsToDelete.contains(it.roundId) })
@@ -554,6 +555,7 @@ private class RoundsList(val rounds: List<String>) {
             return RoundsList::class.java.isAssignableFrom(cls)
         }
 
+        @Suppress("UNCHECKED_CAST")
         override fun fromJson(jv: JsonValue): Any {
             val jsonObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")
             val jsonRoundObjects = jsonObject["rounds"] as JsonArray<JsonObject>
@@ -581,6 +583,7 @@ class DefaultRoundInfoJsonConverter : Converter {
         return DefaultRoundInfo::class.java.isAssignableFrom(cls)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun fromJson(jv: JsonValue): Any {
         val klaxon = Klaxon()
         val jsonRoundObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")

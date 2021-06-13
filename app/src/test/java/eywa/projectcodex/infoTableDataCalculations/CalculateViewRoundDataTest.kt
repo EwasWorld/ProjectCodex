@@ -103,7 +103,7 @@ class CalculateViewRoundDataTest {
             expected.add(dateFormat.format(archerRound.dateShot))
             expected.add(sortedGenArcherRounds[i].roundSubTypeName ?: sortedGenArcherRounds[i].round?.displayName ?: "")
             expected.add(arrows.count { it.score != 0 })
-            expected.add(arrows.sumBy { it.score })
+            expected.add(arrows.sumOf { it.score })
             val expectedGoldsType =
                     rounds[i % rounds.size]?.let {
                         getGoldsType(

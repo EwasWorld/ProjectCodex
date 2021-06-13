@@ -84,7 +84,7 @@ class InfoTableViewAdapter(private val context: Context) :
             cellTextView.text = cell?.content.toString()
 
             if (viewType != ItemViewType.COLUMN_HEADER.ordinal && cell?.id != null) {
-                if (cell.id.toLowerCase(Locale.ROOT).contains(TOTAL_CELL_ID.toLowerCase(Locale.ROOT))) {
+                if (cell.id.lowercase(Locale.ROOT).contains(TOTAL_CELL_ID.lowercase(Locale.ROOT))) {
                     isTotalCell = true
                     cellTextView.setTypeface(cellTextView.typeface, Typeface.BOLD)
                 }

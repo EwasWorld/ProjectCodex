@@ -131,7 +131,7 @@ class NewRoundInstrumentedTest {
         assertEquals(1, roundsAfterCreate.size)
         assert(
                 roundsAfterCreate[0].archerRoundId
-                        > roundsBeforeCreate.maxBy { round -> round.archerId }!!.archerRoundId
+                        > roundsBeforeCreate.maxByOrNull { round -> round.archerId }!!.archerRoundId
         )
         assertEquals(null, roundsAfterCreate[0].roundId)
         assertEquals(null, roundsAfterCreate[0].roundSubTypeId)
@@ -277,15 +277,15 @@ class NewRoundInstrumentedTest {
     @Test
     fun testCustomDateTime() {
         R.id.text_create_round__time.click()
-        onView(TimePicker::class.java).perform(setTimePickerValue(20, 22))
-        onView("OK").perform(ViewActions.click())
+        onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(20, 22))
+        onViewWithClassName("OK").perform(ViewActions.click())
 
         R.id.text_create_round__date.click()
         val calendar = Calendar.getInstance()
         // Use a different hour/minute to ensure it's not overwriting the time
         calendar.set(2040, 9, 30, 13, 15, 0)
-        onView(DatePicker::class.java).perform(setDatePickerValue(calendar))
-        onView("OK").perform(ViewActions.click())
+        onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
+        onViewWithClassName("OK").perform(ViewActions.click())
 
         R.id.text_create_round__time.textEquals("20:22")
         R.id.text_create_round__date.textEquals("30 Oct 40")

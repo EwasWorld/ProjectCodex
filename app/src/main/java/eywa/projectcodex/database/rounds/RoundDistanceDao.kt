@@ -6,7 +6,7 @@ import androidx.room.*
 @Dao
 interface RoundDistanceDao : RoundTypeDao<RoundDistance> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    override suspend fun insert(roundDistance: RoundDistance)
+    override suspend fun insert(insertItem: RoundDistance)
 
     @Query("SELECT * FROM $ROUND_DISTANCES_TABLE_NAME")
     fun getAllDistances(): LiveData<List<RoundDistance>>

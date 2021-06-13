@@ -419,7 +419,11 @@ class DefaultRoundInfoUnitTest {
         Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
         Assert.assertTrue(RoundRepo.repositoryWriteLock.tryLock())
         Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
-        checkErrorState("", listOf(), R.string.err_about__update_default_rounds_no_lock)
+        checkErrorState(
+                "${TestData.START_JSON}${TestData.YORK_JSON}${TestData.END_JSON}",
+                listOf(),
+                R.string.err_about__update_default_rounds_no_lock
+        )
         Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
         RoundRepo.repositoryWriteLock.unlock()
         Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
@@ -1356,7 +1360,7 @@ class DefaultRoundInfoUnitTest {
 
     private class TestData {
         companion object {
-            const val START_JSON = """{"rounds": ["""
+            const val START_JSON = """{"version": 1, "rounds": ["""
             const val END_JSON = """]}"""
 
             /*

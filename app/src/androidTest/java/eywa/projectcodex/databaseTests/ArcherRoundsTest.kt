@@ -70,7 +70,7 @@ class ArcherRoundsTest {
 
             val unpackedMax = retrievedMax.retrieveValue()!!
             assertEquals(
-                    retrievedArcherRounds.retrieveValue()!!.maxBy { it.archerRoundId }?.archerRoundId ?: 0,
+                    retrievedArcherRounds.retrieveValue()!!.maxByOrNull { it.archerRoundId }?.archerRoundId ?: 0,
                     unpackedMax
             )
             assert(currentMax < unpackedMax)

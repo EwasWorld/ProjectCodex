@@ -269,7 +269,7 @@ class CalculateScorePadDataTest {
         val expected = listOf(
                 grandTotal,
                 generatedArrows.count { it.score != 0 },
-                generatedArrows.sumBy { it.score },
+                generatedArrows.sumOf { it.score },
                 generatedArrows.count { goldsType.isGold(it) },
                 "-",
                 ""

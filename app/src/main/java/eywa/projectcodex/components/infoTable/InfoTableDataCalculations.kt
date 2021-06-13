@@ -86,7 +86,7 @@ fun calculateScorePadTableData(
         distancesInfo = arrowCounts.sortedBy { it.distanceNumber }.map { it.arrowCount }
                 .zip(distances.sortedBy { it.distanceNumber }.map { it.distance }).toMutableList()
         // If shot beyond the end of a round
-        val arrowsLeft = arrows.size - arrowCounts.sumBy { it.arrowCount }
+        val arrowsLeft = arrows.size - arrowCounts.sumOf { it.arrowCount }
         if (arrowsLeft > 0) {
             distancesInfo.add(arrowsLeft to null)
         }
@@ -155,7 +155,7 @@ fun calculateScorePadTableData(
                     }
             )
             distanceRowData.add(distanceArrows.count { it.score != 0 })
-            distanceRowData.add(distanceArrows.sumBy { it.score })
+            distanceRowData.add(distanceArrows.sumOf { it.score })
             distanceRowData.add(distanceArrows.count { goldsType.isGold(it) })
             distanceRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
             check(distanceRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
@@ -170,7 +170,7 @@ fun calculateScorePadTableData(
     val grandTotalRowData = mutableListOf<Any>()
     grandTotalRowData.add(resources.getString(R.string.score_pad__grand_total))
     grandTotalRowData.add(arrows.count { it.score != 0 })
-    grandTotalRowData.add(arrows.sumBy { it.score })
+    grandTotalRowData.add(arrows.sumOf { it.score })
     grandTotalRowData.add(arrows.count { goldsType.isGold(it) })
     grandTotalRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
     check(grandTotalRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
@@ -205,7 +205,7 @@ fun calculateViewRoundsTableData(
         // H/S/G
         val relevantArrows = arrows.filter { arrow -> arrow.archerRoundId == archerRound.archerRoundId }
         rowData.add(relevantArrows.count { it.score != 0 })
-        rowData.add(relevantArrows.sumBy { it.score })
+        rowData.add(relevantArrows.sumOf { it.score })
         val goldsType = archerRoundInfo.round?.let {
             getGoldsType(
                     it.isOutdoor, it.isMetric

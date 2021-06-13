@@ -33,7 +33,7 @@ class ScoreIndicatorFragment : Fragment(), ActionBarHelp {
     fun update(arrows: List<ArrowValue>) {
         view?.let { view ->
             view.findViewById<TextView>(R.id.text_scores_indicator__table_score_1).text =
-                    arrows.sumBy { it.score }.toString()
+                    arrows.sumOf { it.score }.toString()
             view.findViewById<TextView>(R.id.text_scores_indicator__table_arrow_count_1).text = arrows.size.toString()
         }
     }

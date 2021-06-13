@@ -28,7 +28,7 @@ class RemainingArrows(
     init {
         require(distanceUnit.isNotEmpty()) { "'unit' cannot be empty" }
         require(currentArrowCount >= 0) { "Cannot have a <0 current arrow count" }
-        if (arrowCounts.isEmpty() || currentArrowCount >= arrowCounts.sumBy { it.arrowCount }) {
+        if (arrowCounts.isEmpty() || currentArrowCount >= arrowCounts.sumOf { it.arrowCount }) {
             calculated = null
         }
         else {

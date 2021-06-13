@@ -97,7 +97,7 @@ class GeneralDatabaseTests {
          * Update (doesn't exist)
          */
         val nonExistentUpdatedRound = Round(
-                rounds.map { it.roundId }.max()!! + 1, "bananas", "bananas", round1.isOutdoor, round1.isMetric,
+                rounds.maxOf { it.roundId } + 1, "bananas", "bananas", round1.isOutdoor, round1.isMetric,
                 round1.permittedFaces, round1.isDefaultRound, round1.fiveArrowEnd
         )
         runBlocking {

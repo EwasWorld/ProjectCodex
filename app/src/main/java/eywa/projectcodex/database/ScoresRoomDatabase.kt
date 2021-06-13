@@ -1,6 +1,7 @@
 package eywa.projectcodex.database
 
 import android.content.Context
+import android.os.Build
 import androidx.annotation.VisibleForTesting
 import androidx.room.*
 import androidx.room.migration.Migration
@@ -311,6 +312,17 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                 val instance =
                         Room.databaseBuilder(context.applicationContext, ScoresRoomDatabase::class.java, DATABASE_NAME)
                                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    /*
+                     * Write ahead mode suspected of causes issues with the instrumented test,
+                     * crashing suite runs with the error:
+                     *      SQLiteDiskIOException: disk I/O error (code 522 SQLITE_IOERR_SHORT_READ):
+                     *      , while compiling: PRAGMA journal_mode
+                     * A few sources point to turning of WAL, notably: https://github.com/Tencent/wcdb/issues/243
+                     * This also appears to have fixed some test faliures
+                     */
+                    instance.openHelper.setWriteAheadLoggingEnabled(false)
+                }
                 INSTANCE = instance
                 return instance
             }

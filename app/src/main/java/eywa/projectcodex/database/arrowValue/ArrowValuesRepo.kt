@@ -74,9 +74,9 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
         /*
          * Check arrow numbers
          */
-        val minArrowNumber = toInsert.map { it.arrowNumber }.min()!!
+        val minArrowNumber = toInsert.minOf { it.arrowNumber }
         require(minArrowNumber >= 1) { "Arrow numbers must be >= 1" }
-        require(minArrowNumber < allArrows.maxBy { it.arrowNumber }!!.arrowNumber) {
+        require(minArrowNumber < allArrows.maxOf { it.arrowNumber }) {
             "Insert must start within existing arrows indices"
         }
         require(
