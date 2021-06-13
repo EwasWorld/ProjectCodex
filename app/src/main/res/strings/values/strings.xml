@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Project Codex</string>
+    <string name="app_name">Codex Archery Aide</string>
 
     <string name="short_boolean_true">Y</string>
     <string name="short_boolean_false">N</string>

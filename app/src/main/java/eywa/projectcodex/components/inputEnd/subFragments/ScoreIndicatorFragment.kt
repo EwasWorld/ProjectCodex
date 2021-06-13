@@ -49,6 +49,6 @@ class ScoreIndicatorFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpPriority(): Int {
-        return 10
+        return -100
     }
 }
