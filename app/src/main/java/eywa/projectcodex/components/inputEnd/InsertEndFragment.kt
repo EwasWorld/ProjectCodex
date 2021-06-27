@@ -74,7 +74,7 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.insert_end__title)
         val action = InsertEndFragmentDirections.actionInsertEndFragmentToScorePadFragment(
-                args.endSize, args.archerRoundId
+                args.archerRoundId
         )
 
         button_insert_end__cancel.setOnClickListener {

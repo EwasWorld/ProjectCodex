@@ -48,7 +48,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.view_round__title)
 
-        val tableAdapter = InfoTableViewAdapter(context!!)
+        val tableAdapter = InfoTableViewAdapter(requireContext())
         val tableView = view.findViewById<TableView>(R.id.table_view_view_rounds)
         tableView.adapter = tableAdapter
         tableView.rowHeaderWidth = 0
@@ -118,7 +118,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        activity!!.menuInflater.inflate(R.menu.view_rounds_item_menu, menu)
+        requireActivity().menuInflater.inflate(R.menu.view_rounds_item_menu, menu)
 
         check(selectedArcherRoundId != -1) { "No round id selected" }
         val selectedArcherRoundInfo =
@@ -163,7 +163,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                         if (roundCompleteDialog == null) {
                             val okListener = DialogInterface.OnClickListener { _, _ ->
                                 val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
-                                        selectedArcherRoundId, false
+                                        selectedArcherRoundId
                                 )
                                 view?.findNavController()?.navigate(action)
                             }
@@ -181,7 +181,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                     }
                 }
                 val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
-                        selectedArcherRoundId, hasRound
+                        selectedArcherRoundId
                 )
                 view?.findNavController()?.navigate(action)
                 true
@@ -196,7 +196,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
 
     private fun openScorePad() {
         val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(
-                6, selectedArcherRoundId
+                selectedArcherRoundId
         )
         view?.findNavController()?.navigate(action)
     }

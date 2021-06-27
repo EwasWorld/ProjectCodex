@@ -65,8 +65,8 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
     }
 
     private fun updateDateTime() {
-        view!!.findViewById<TextView>(R.id.text_create_round__date).text = dateFormat.format(date.time)
-        view!!.findViewById<TextView>(R.id.text_create_round__time).text = timeFormat.format(date.time)
+        requireView().findViewById<TextView>(R.id.text_create_round__date).text = dateFormat.format(date.time)
+        requireView().findViewById<TextView>(R.id.text_create_round__time).text = timeFormat.format(date.time)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -86,9 +86,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
             else {
                 maxId = id
                 // When the new round entry has been added, open the input end dialog
-                val action = NewRoundFragmentDirections.actionNewRoundFragmentToInputEndFragment(
-                        maxId, selectedRoundPosition != noRoundPosition
-                )
+                val action = NewRoundFragmentDirections.actionNewRoundFragmentToInputEndFragment(maxId)
                 view.findNavController().navigate(action)
             }
         })
@@ -124,7 +122,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         // Update the spinners if the database updates (spinners don't display correctly at the start without this)
         newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer {
             spinner_create_round__round.adapter = ArrayAdapter(
-                    activity!!.applicationContext, R.layout.spinner_light_background,
+                    requireActivity().applicationContext, R.layout.spinner_light_background,
                     roundSelection.getAvailableRounds()
             )
             spinner_create_round__round.setSelection(noRoundPosition)

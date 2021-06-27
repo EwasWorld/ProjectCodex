@@ -30,7 +30,7 @@ interface ActionBarHelp {
                 CustomLogger.customLogger.i(LOG_TAG, "No help information defined")
                 ToastSpamPrevention.displayToast(
                         activity.applicationContext,
-                        activity.resources.getString(R.string.err__no_help_info)
+                        activity.resources.getString(R.string.err_action_bar__no_help_info)
                 )
                 return
             }

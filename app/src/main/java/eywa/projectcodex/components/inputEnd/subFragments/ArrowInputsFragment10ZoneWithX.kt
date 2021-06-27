@@ -8,10 +8,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import eywa.projectcodex.R
+import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.findInstanceOf
-import kotlinx.android.synthetic.main.content_main.*
 
 
 class ArrowInputsFragment10ZoneWithX : Fragment() {
@@ -38,8 +37,8 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        listener = findInstanceOf((context as FragmentActivity).nav_host_fragment)
-                   ?: throw ClassCastException("$context must implement ScoreButtonPressedListener")
+        listener = findInstanceOf((requireActivity() as MainActivity).navHostFragment)
+                ?: throw ClassCastException("$context must implement ScoreButtonPressedListener")
     }
 
     override fun onDetach() {

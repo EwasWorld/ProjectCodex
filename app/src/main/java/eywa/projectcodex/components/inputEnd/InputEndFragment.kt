@@ -10,12 +10,12 @@ import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
 import eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment
@@ -27,10 +27,11 @@ import eywa.projectcodex.exceptions.UserException
 import kotlinx.android.synthetic.main.fragment_input_end.*
 
 
-class InputEndFragment : Fragment(), ActionBarHelp {
+class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     private val args: InputEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
     private lateinit var endInputsFragment: EndInputsFragment
+    private var showRemainingArrows = false
     private var arrows = emptyList<ArrowValue>()
     private var arrowCounts = emptyList<RoundArrowCount>()
     private var distances = emptyList<RoundDistance>()
@@ -42,25 +43,26 @@ class InputEndFragment : Fragment(), ActionBarHelp {
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
             InputEndViewModel(requireActivity().application, args.archerRoundId)
         }).get(InputEndViewModel::class.java)
-        inputEndViewModel.archerRound.observe(viewLifecycleOwner, Observer { archerRound ->
+        inputEndViewModel.archerRound.observe(viewLifecycleOwner, { archerRound ->
+            showRemainingArrows = archerRound.roundId != null
             archerRound.roundId?.let { roundId ->
-                inputEndViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, Observer {
+                inputEndViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, {
                     arrowCounts = it
                     updateRoundInfo(view)
                 })
                 inputEndViewModel.getDistancesForRound(roundId, archerRound.roundSubTypeId)
-                        .observe(viewLifecycleOwner, Observer {
+                        .observe(viewLifecycleOwner, {
                             distances = it
                             updateRoundInfo(view)
                         })
-                inputEndViewModel.getRoundById(roundId).observe(viewLifecycleOwner, Observer {
+                inputEndViewModel.getRoundById(roundId).observe(viewLifecycleOwner, {
                     distanceUnit =
                             getString(if (it.isMetric) R.string.units_meters_short else R.string.units_yards_short)
                     updateRoundInfo(view)
                 })
             }
         })
-        inputEndViewModel.arrows.observe(viewLifecycleOwner, Observer { arrows ->
+        inputEndViewModel.arrows.observe(viewLifecycleOwner, { arrows ->
             arrows?.let {
                 this.arrows = arrows
                 updateRoundInfo(view)
@@ -79,7 +81,6 @@ class InputEndFragment : Fragment(), ActionBarHelp {
         (childFragmentManager.findFragmentById(R.id.fragment_input_end__score_indicator)!! as ScoreIndicatorFragment)
                 .onClickListener = View.OnClickListener {
             val action = InputEndFragmentDirections.actionInputEndFragmentToScorePadFragment(
-                    endInputsFragment.end.endSize,
                     args.archerRoundId
             )
             view.findNavController().navigate(action)
@@ -129,7 +130,7 @@ class InputEndFragment : Fragment(), ActionBarHelp {
          * Round Indicators
          */
         val roundIndicatorSection = view.findViewById<LinearLayout>(R.id.layout_input_end__remaining_arrows)
-        if (!args.showRemaining || distances.size != arrowCounts.size || distanceUnit.isBlank()) {
+        if (!showRemainingArrows || distances.size != arrowCounts.size || distanceUnit.isBlank()) {
             roundIndicatorSection.visibility = View.GONE
             return
         }
@@ -177,7 +178,7 @@ class InputEndFragment : Fragment(), ActionBarHelp {
                         getString(R.string.help_input_end__next_end_body)
                 )
         )
-        if (view!!.findViewById<TextView>(R.id.layout_input_end__remaining_arrows).isVisible) {
+        if (requireView().findViewById<TextView>(R.id.layout_input_end__remaining_arrows).isVisible) {
             main.add(
                     ActionBarHelp.HelpShowcaseItem(
                             R.id.layout_input_end__remaining_arrows,
@@ -192,5 +193,13 @@ class InputEndFragment : Fragment(), ActionBarHelp {
 
     override fun getHelpPriority(): Int? {
         return null
+    }
+
+    override fun getArcherRoundId(): Int {
+        return args.archerRoundId
+    }
+
+    override fun isRoundComplete(): Boolean {
+        return false
     }
 }

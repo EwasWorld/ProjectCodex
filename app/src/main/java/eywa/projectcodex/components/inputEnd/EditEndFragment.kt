@@ -70,7 +70,7 @@ class EditEndFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.edit_end__title)
         val action = EditEndFragmentDirections.actionEditEndFragmentToScorePadFragment(
-                args.endSize, args.archerRoundId
+                args.archerRoundId
         )
 
         button_edit_end__cancel.setOnClickListener {

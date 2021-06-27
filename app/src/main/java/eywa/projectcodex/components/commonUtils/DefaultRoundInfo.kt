@@ -39,7 +39,7 @@ class DefaultRoundInfo(
 
     /**
      * Validation
-     * TODO_CURRENT Make a builder omg
+     * TODO Make a builder omg
      */
     init {
         // Lengths

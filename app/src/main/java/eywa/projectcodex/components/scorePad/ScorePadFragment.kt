@@ -15,6 +15,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
 import eywa.projectcodex.components.commonUtils.showContextMenuOnCentreOfView
 import eywa.projectcodex.components.infoTable.*
@@ -23,7 +24,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlin.math.ceil
 
-class ScorePadFragment : Fragment(), ActionBarHelp {
+class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
     private var dialog: AlertDialog? = null
@@ -60,12 +61,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
             field = value
             updateTable()
         }
-    private var endSize: Int? = null
-        set(value) {
-            if (value == null || value < 1 || value == field) return
-            field = value
-            updateTable()
-        }
+    private val endSize = 6
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_score_pad, container, false)
@@ -75,21 +71,19 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.score_pad__title)
 
-        if (endSize == null) endSize = args.endSize
-
         scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
-            ScorePadViewModel(activity!!.application, args.archerRoundId)
+            ScorePadViewModel(requireActivity().application, args.archerRoundId)
         }).get(ScorePadViewModel::class.java)
 
         // Get arrow counts and distances
         scorePadViewModel.archerRound.observe(viewLifecycleOwner, Observer { archerRound ->
             if (archerRound == null) return@Observer
             archerRound.roundId?.let { roundId ->
-                scorePadViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, Observer {
+                scorePadViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, {
                     arrowCounts = it
                 })
                 scorePadViewModel.getDistancesForRound(roundId, archerRound.roundSubTypeId)
-                        .observe(viewLifecycleOwner, Observer {
+                        .observe(viewLifecycleOwner, {
                             distances = it
                         })
             }
@@ -118,8 +112,9 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
      * Does nothing if the requirements to make a valid table are not met
      */
     private fun updateTable() {
-        if (endSize == null || arrows.isNullOrEmpty() || arrowCounts.size != distances.size ||
-            (distances.isNotEmpty() && distanceUnit.isNullOrBlank())) {
+        if (arrows.isNullOrEmpty() || arrowCounts.size != distances.size ||
+            (distances.isNotEmpty() && distanceUnit.isNullOrBlank())
+        ) {
             return
         }
 
@@ -129,21 +124,21 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
              *  - On deletion of a row, column sizes go crazy and column headers no longer horizontally align with data
              *  - On setAllItems it will randomly bold some rows and headers and truncate data in random places
              */
-            val tableAdapter = InfoTableViewAdapter(context!!)
-            val tableView = view!!.findViewById<TableView>(R.id.table_view_score_pad)
+            val tableAdapter = InfoTableViewAdapter(requireContext())
+            val tableView = requireView().findViewById<TableView>(R.id.table_view_score_pad)
             tableView.adapter = tableAdapter
             tableView.tableViewListener = ScorePadTableViewListener(tableView)
             registerForContextMenu(tableView.cellRecyclerView)
 
             val tableData = calculateScorePadTableData(
-                    arrows, endSize!!, goldsType, resources, arrowCounts, distances, distanceUnit
+                    arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit
             )
-            val arrowRowsShot = ceil(arrows.size / endSize!!.toDouble()).toInt()
+            val arrowRowsShot = ceil(arrows.size / endSize.toDouble()).toInt()
             tableAdapter.setAllItems(
                     getColumnHeadersForTable(scorePadColumnHeaderIds, resources, goldsType),
                     generateNumberedRowHeaders(
                             if (arrowCounts.isNotEmpty()) {
-                                arrowCounts.map { ceil(it.arrowCount / endSize!!.toDouble()).toInt() }
+                                arrowCounts.map { ceil(it.arrowCount / endSize.toDouble()).toInt() }
                             }
                             else {
                                 listOf(arrowRowsShot)
@@ -178,7 +173,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        activity!!.menuInflater.inflate(R.menu.score_pad_item_menu, menu)
+        requireActivity().menuInflater.inflate(R.menu.score_pad_item_menu, menu)
 
         // Don't show insert option if all arrows have been inputted
         val allowInsert = arrowCounts.isEmpty() || arrowCounts.sumOf { it.arrowCount } > arrows.count()
@@ -188,25 +183,25 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         // Note arrows are counted from 1
-        val firstArrowId = selectedRow * args.endSize + 1
+        val firstArrowId = selectedRow * endSize + 1
 
         return when (item.itemId) {
             R.id.button_score_pad_menu__edit -> {
                 val action = ScorePadFragmentDirections.actionScorePadFragmentToEditEndFragment(
-                        args.endSize, args.archerRoundId, firstArrowId
+                        endSize, args.archerRoundId, firstArrowId
                 )
                 view?.findNavController()?.navigate(action)
                 true
             }
             R.id.button_score_pad_menu__insert -> {
                 val action = ScorePadFragmentDirections.actionScorePadFragmentToInsertEndFragment(
-                        args.endSize, args.archerRoundId, firstArrowId
+                        endSize, args.archerRoundId, firstArrowId
                 )
                 view?.findNavController()?.navigate(action)
                 true
             }
             R.id.button_score_pad_menu__delete -> {
-                scorePadViewModel.deleteArrows(firstArrowId, args.endSize)
+                scorePadViewModel.deleteArrows(firstArrowId, endSize)
                 true
             }
             else -> super.onContextItemSelected(item)
@@ -248,5 +243,17 @@ class ScorePadFragment : Fragment(), ActionBarHelp {
 
     override fun getHelpPriority(): Int? {
         return null
+    }
+
+    override fun getArcherRoundId(): Int {
+        return args.archerRoundId
+    }
+
+    override fun isRoundComplete(): Boolean {
+        // Arrow counts will be empty if no round is being tracked
+        if (arrowCounts.isEmpty()) {
+            return false
+        }
+        return arrowCounts.sumOf { it.arrowCount } >= arrows.size
     }
 }

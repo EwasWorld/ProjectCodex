@@ -13,7 +13,7 @@
     <color name="black">#000000</color>
     <color name="offBlack">#242424</color>
     <color name="white">#FFFFFF</color>
-    <color name="offWhite">#C9C9C9</color>
+    <color name="offWhite">#BCBCBC</color>
 
     <color name="scorePadText">@color/offBlack</color>
     <color name="inputEndText">@color/white</color>
