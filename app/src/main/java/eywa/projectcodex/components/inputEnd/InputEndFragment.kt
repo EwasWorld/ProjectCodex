@@ -7,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
+import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
@@ -107,10 +107,7 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             }
         }
 
-        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            returnToMainMenu(view)
-        }
-        callback.isEnabled = true
+        (requireActivity() as MainActivity).setCustomBackButtonCallback()
     }
 
     /**
@@ -160,14 +157,10 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
                     .setMessage(R.string.input_end__return_to_main_menu)
                     .setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
                         dialogInterface.cancel()
-                        returnToMainMenu(view)
+                        val action = InputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
+                        view.findNavController().navigate(action)
                     }.show()
         }
-    }
-
-    private fun returnToMainMenu(view: View) {
-        val action = InputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
-        view.findNavController().navigate(action)
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {

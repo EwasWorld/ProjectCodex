@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.R
+import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -106,6 +107,8 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             }
             arrows = arrowValues
         })
+
+        (requireActivity() as MainActivity).setCustomBackButtonCallback()
     }
 
     /**
@@ -163,7 +166,9 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         builder.setTitle(R.string.err_table_view__no_data)
         builder.setMessage(R.string.err_score_pad__no_arrows)
         builder.setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
-            activity?.onBackPressed()
+            // Don't skip fragments like InputEnd from the backstack in this case
+            //      else it will kick the user out of the score completely when this was probably a mistake
+            (requireActivity() as MainActivity).navHostFragment.navController.popBackStack()
             dialogInterface.cancel()
             dialog = null
         }

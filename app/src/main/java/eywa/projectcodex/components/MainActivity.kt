@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -15,11 +16,17 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.commonUtils.*
 import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var navHostFragment: NavHostFragment
     private lateinit var mainActivityViewModel: MainActivityViewModel
     private var defaultRoundsVersion = -1
+
+    /**
+     * Stores destination IDs of fragments which will be returned to when the back button is pressed
+     */
+    private val customBackStack = Stack<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,13 +63,20 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        navHostFragment.navController.addOnDestinationChangedListener { _, _, arguments ->
-            bottomNav.visibility = if (arguments?.getBoolean("archerRoundNavBar", false) == true) {
-                View.VISIBLE
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
+            if (arguments?.getBoolean("showArcherRoundNavBar", false) == true) {
+                bottomNav.visibility = View.VISIBLE
+                return@addOnDestinationChangedListener
             }
             else {
-                View.GONE
+                bottomNav.visibility = View.GONE
             }
+
+            if (arguments?.getBoolean("doNotAddToBackStack", false) == true) {
+                return@addOnDestinationChangedListener
+            }
+
+            customBackStack.push(destination.id)
         }
     }
 
@@ -113,5 +127,15 @@ class MainActivity : AppCompatActivity() {
             allFragments.addAll(findAllActionBarChildFragments(childFragment))
         }
         return allFragments
+    }
+
+    fun setCustomBackButtonCallback() {
+        val callback = this.onBackPressedDispatcher.addCallback(this) {
+            if (customBackStack.empty()) {
+                navHostFragment.navController.popBackStack()
+            }
+            navHostFragment.navController.popBackStack(customBackStack.pop(), false)
+        }
+        callback.isEnabled = true
     }
 }

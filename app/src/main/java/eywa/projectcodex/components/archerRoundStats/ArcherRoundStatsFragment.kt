@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
+import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.components.commonUtils.DateTimeFormat
@@ -75,6 +76,8 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 text_archer_round_stats__remaining_arrows.visibility = View.VISIBLE
             }
         })
+
+        (requireActivity() as MainActivity).setCustomBackButtonCallback()
     }
 
     private fun setRemainingArrowsText() {

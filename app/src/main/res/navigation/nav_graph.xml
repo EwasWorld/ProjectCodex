@@ -46,6 +46,11 @@
             android:id="@+id/actionNewRoundFragmentToInputEndFragment"
             app:destination="@id/inputEndFragment"
             />
+        <argument
+            android:name="doNotAddToBackStack"
+            app:argType="boolean"
+            android:defaultValue="true"
+            />
     </fragment>
     <fragment
         android:id="@+id/inputEndFragment"
@@ -66,7 +71,7 @@
             app:argType="integer"
             />
         <argument
-            android:name="archerRoundNavBar"
+            android:name="showArcherRoundNavBar"
             app:argType="boolean"
             android:defaultValue="true"
             />
@@ -90,7 +95,7 @@
             app:destination="@id/insertEndFragment"
             />
         <argument
-            android:name="archerRoundNavBar"
+            android:name="showArcherRoundNavBar"
             app:argType="boolean"
             android:defaultValue="true"
             />
@@ -162,7 +167,7 @@
             app:argType="integer"
             />
         <argument
-            android:name="archerRoundNavBar"
+            android:name="showArcherRoundNavBar"
             app:argType="boolean"
             android:defaultValue="true"
             />
