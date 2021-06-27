@@ -16,6 +16,10 @@ class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
         return archerRoundDao.getRoundInfo(archerRoundId)
     }
 
+    fun getArcherRoundWithRoundInfoAndName(archerRoundId: Int): LiveData<ArcherRoundWithRoundInfoAndName> {
+        return archerRoundDao.getArcherRoundWithRoundInfoAndName(archerRoundId)
+    }
+
     fun getArcherRound(archerRoundId: Int): LiveData<ArcherRound> {
         return archerRoundDao.getArcherRoundById(archerRoundId)
     }

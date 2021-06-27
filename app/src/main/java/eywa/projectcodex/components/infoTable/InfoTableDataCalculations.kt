@@ -5,16 +5,14 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
+import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.math.min
 
-private val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.UK)
 private const val GOLDS_HEADER_PLACE_HOLDER = -1
 
 const val TOTAL_CELL_ID = "Total"
@@ -199,7 +197,7 @@ fun calculateViewRoundsTableData(
 
         val rowData = mutableListOf<Any>()
         rowData.add(archerRound.archerRoundId)
-        rowData.add(dateFormat.format(archerRound.dateShot))
+        rowData.add(DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(archerRound.dateShot))
         rowData.add(archerRoundInfo.roundSubTypeName ?: archerRoundInfo.round?.displayName ?: "")
 
         // H/S/G

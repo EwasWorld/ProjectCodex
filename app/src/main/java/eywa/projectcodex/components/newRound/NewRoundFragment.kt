@@ -16,10 +16,10 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.commonElements.DatePickerDialog
 import eywa.projectcodex.components.commonElements.TimePickerDialog
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.archerRound.ArcherRound
 import kotlinx.android.synthetic.main.fragment_new_round.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 class NewRoundFragment : Fragment(), ActionBarHelp {
@@ -35,9 +35,6 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
     private var date: Calendar = Calendar.getInstance()
     private var defaultRoundsState = UpdateDefaultRounds.UpdateTaskState.NOT_STARTED
 
-    // TODO Date/time format
-    private val dateFormat = SimpleDateFormat("dd MMM yy")
-    private val timeFormat = SimpleDateFormat("HH:mm")
     private val datePickerDialog: DatePickerDialog by lazy {
         val okListener = object : DatePickerDialog.OnOkListener {
             override fun onSelect(value: Calendar) {
@@ -60,13 +57,15 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         }
         TimePickerDialog(
                 getString(R.string.create_round__time_shot_time_picker_title), null, date.get(Calendar.HOUR_OF_DAY),
-                date.get(Calendar.MINUTE), timeFormat.toPattern().contains("HH"), okListener
+                date.get(Calendar.MINUTE), DateTimeFormat.TIME_FORMAT.pattern.contains("HH"), okListener
         )
     }
 
     private fun updateDateTime() {
-        requireView().findViewById<TextView>(R.id.text_create_round__date).text = dateFormat.format(date.time)
-        requireView().findViewById<TextView>(R.id.text_create_round__time).text = timeFormat.format(date.time)
+        requireView().findViewById<TextView>(R.id.text_create_round__date).text =
+                DateTimeFormat.LONG_DATE_FORMAT.format(date.time)
+        requireView().findViewById<TextView>(R.id.text_create_round__time).text =
+                DateTimeFormat.TIME_FORMAT.format(date.time)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

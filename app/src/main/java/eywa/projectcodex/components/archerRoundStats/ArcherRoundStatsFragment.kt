@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
+import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_archer_round_stats.*
 
@@ -18,6 +19,8 @@ import kotlinx.android.synthetic.main.fragment_archer_round_stats.*
 class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
     private val args: ArcherRoundStatsFragmentArgs by navArgs()
     private lateinit var archerRoundStatsViewModel: ArcherRoundStatsViewModel
+    private var roundArrowCounts = 0
+    private var arrowsShot = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_archer_round_stats, container, false)
@@ -34,13 +37,55 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             if (arrows.isNullOrEmpty()) {
                 return@Observer
             }
-            text_archer_round_stats__hits.updateText(newText = arrows.count { it.score != 0 }.toString())
+            arrowsShot = arrows.count()
+            setRemainingArrowsText()
+
+            val hits = arrows.count { it.score != 0 }
+            val totalArrows = arrows.size
+            text_archer_round_stats__hits.updateText(
+                    newText = "$hits" + if (totalArrows > hits) "(of $totalArrows)" else ""
+            )
             text_archer_round_stats__score.updateText(newText = arrows.sumOf { it.score }.toString())
             text_archer_round_stats__golds.updateText(newText = arrows.count { GoldsType.TENS.isGold(it) }.toString())
-            text_archer_round_stats__total_arrows.updateText(newText = arrows.size.toString())
         })
-        text_archer_round_stats__round.updateText(newText = "") // TODO
-        text_archer_round_stats__remaining_arrows.updateText(newText = "") // TODO
+        archerRoundStatsViewModel.archerRoundWithRoundInfo.observe(viewLifecycleOwner, { info ->
+            info?.let { archerRoundWithInfo ->
+                text_archer_round_stats__date.updateText(
+                        newText = DateTimeFormat.LONG_DATE_TIME_FORMAT.format(archerRoundWithInfo.archerRound.dateShot)
+                )
+
+                if (archerRoundWithInfo.archerRound.roundId == null) {
+                    text_archer_round_stats__round.visibility = View.GONE
+                    text_archer_round_stats__remaining_arrows.visibility = View.GONE
+                    return@observe
+                }
+
+                text_archer_round_stats__round.updateText(
+                        newText = archerRoundWithInfo.roundSubTypeName ?: archerRoundWithInfo.round!!.displayName
+                )
+                archerRoundStatsViewModel.getArrowCountsForRound(archerRoundWithInfo.round!!.roundId)
+                        .observe(viewLifecycleOwner, { counts ->
+                            counts?.let { arrowCounts ->
+                                roundArrowCounts = arrowCounts.sumOf { it.arrowCount }
+                                setRemainingArrowsText()
+                            }
+                        })
+
+                text_archer_round_stats__round.visibility = View.VISIBLE
+                text_archer_round_stats__remaining_arrows.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    private fun setRemainingArrowsText() {
+        if (roundArrowCounts <= 0) {
+            return
+        }
+        var remainingText = (roundArrowCounts - arrowsShot).toString()
+        if (remainingText == "0") {
+            remainingText = resources.getString(R.string.input_end__round_complete)
+        }
+        text_archer_round_stats__remaining_arrows.updateText(newText = remainingText)
     }
 
     override fun getArcherRoundId(): Int {
@@ -48,7 +93,10 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
     }
 
     override fun isRoundComplete(): Boolean {
-        // TODO_CURRENT
-        return true
+        // No arrow counts if no round is being tracked
+        if (roundArrowCounts <= 0) {
+            return false
+        }
+        return roundArrowCounts <= arrowsShot
     }
 }

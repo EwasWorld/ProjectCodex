@@ -254,6 +254,6 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         if (arrowCounts.isEmpty()) {
             return false
         }
-        return arrowCounts.sumOf { it.arrowCount } >= arrows.size
+        return arrowCounts.sumOf { it.arrowCount } <= arrows.size
     }
 }

@@ -2,6 +2,7 @@
 <resources>
     <string name="archer_round_stats__title">Round Statistics</string>
 
+    <string name="archer_round_stats__date">Date shot</string>
     <string name="archer_round_stats__round">Round</string>
     <string name="archer_round_stats__hits">Hits</string>
     <string name="archer_round_stats__score">Score</string>
