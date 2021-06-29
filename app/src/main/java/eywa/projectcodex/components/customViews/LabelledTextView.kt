@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
 import eywa.projectcodex.R
+import eywa.projectcodex.components.commonUtils.getColourResource
 
 
 class LabelledTextView : LinearLayout {
+    private lateinit var mainTextView: TextView
     constructor(context: Context) : super(context) {
         initialise(context, null)
     }
@@ -29,24 +31,37 @@ class LabelledTextView : LinearLayout {
         val styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.LabelledTextView)
         val label = styledAttributes.getString(R.styleable.LabelledTextView_label) ?: ""
         val text = styledAttributes.getString(R.styleable.LabelledTextView_text) ?: ""
+        val textSize = styledAttributes.getDimension(
+                R.styleable.LabelledTextView_text_size,
+                resources.getDimension(R.dimen.small_text_size)
+        )
+        val textColour = styledAttributes.getColor(
+                R.styleable.LabelledTextView_text_color,
+                getColourResource(resources, R.color.white, context.theme)
+        )
         val displayColon = styledAttributes.getBoolean(R.styleable.LabelledTextView_display_colon, true)
         styledAttributes.recycle()
 
-        (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
+        val layout = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
                 .inflate(R.layout.labelled_text, this, true) as LinearLayout
+        mainTextView = layout.findViewById(R.id.labelled_text__text)
+        val labelTextView = layout.findViewById<TextView>(R.id.labelled_text__label)
+        val colonTextView = layout.findViewById<TextView>(R.id.labelled_text__colon)
 
-        updateText(text, label, displayColon)
+        for (textView in listOf(mainTextView, labelTextView, colonTextView)) {
+            // Not sure why setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize) doesn't work...
+            textView.textSize = textSize / resources.displayMetrics.scaledDensity
+            textView.setTextColor(textColour)
+        }
+
+        labelTextView.text = label
+        colonTextView.visibility = if (displayColon) VISIBLE else GONE
+        updateText(text)
     }
 
-    fun updateText(newText: String? = null, label: String? = null, displayColon: Boolean = true) {
-        val layout = getChildAt(0)
-
-        if (newText != null) layout.findViewById<TextView>(R.id.labelled_text__text).text = newText
-        if (label != null) layout.findViewById<TextView>(R.id.labelled_text__label).text = label
-        layout.findViewById<TextView>(R.id.labelled_text__colon).visibility = if (displayColon) VISIBLE else GONE
-
+    fun updateText(newText: String) {
+        mainTextView.text = newText
         invalidate()
         requestLayout()
     }
 }
-
