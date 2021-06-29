@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                         this,
                         resources.getString(R.string.err_archer_round_nav__round_completed)
                 )
-                return@setOnNavigationItemSelectedListener true
+                return@setOnNavigationItemSelectedListener false
             }
             val args = Bundle()
             args.putInt("archerRoundId", roundInfo.getArcherRoundId())
