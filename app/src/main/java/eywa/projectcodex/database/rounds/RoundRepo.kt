@@ -37,7 +37,7 @@ class RoundRepo(
     }
 
     fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>> {
-        return roundDistanceDao.getDistancesForRound(roundId, subTypeId)
+        return roundDistanceDao.getDistancesForRound(roundId, subTypeId ?: 1)
     }
 
     fun getRoundById(roundId: Int): LiveData<Round> {

@@ -8,11 +8,17 @@ import java.util.*
 
 
 /**
- * Does a breadth-first search of **child** fragments of [root] searching for an instance of [T]
+ * Finds the root of [startElement] (fragment with no parent) then does a breadth-first search of **child** fragments,
+ * searching for an instance of [T]
  */
-inline fun <reified T> findInstanceOf(root: Fragment): T? {
-    val queue: Queue<Fragment>? = LinkedList(listOf(root))
-    while (queue!!.isNotEmpty()) {
+inline fun <reified T> findInstanceOf(startElement: Fragment): T? {
+    var current = startElement
+    while (current.parentFragment != null) {
+        current = current.requireParentFragment()
+    }
+    val queue: Queue<Fragment> = LinkedList(listOf(current))
+
+    while (queue.isNotEmpty()) {
         for (fragment in queue.remove().childFragmentManager.fragments) {
             if (fragment is T) return fragment
             queue.offer(fragment)

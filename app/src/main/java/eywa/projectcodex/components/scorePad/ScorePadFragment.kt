@@ -108,7 +108,9 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             arrows = arrowValues
         })
 
-        (requireActivity() as MainActivity).setCustomBackButtonCallback()
+        if (requireActivity() is MainActivity) {
+            (requireActivity() as MainActivity).setCustomBackButtonCallback()
+        }
     }
 
     /**

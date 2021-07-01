@@ -1,31 +1,29 @@
 package eywa.projectcodex
 
-import android.os.Handler
-import android.os.Looper
+import android.os.Bundle
 import android.widget.NumberPicker
 import android.widget.TextView
+import androidx.fragment.app.testing.FragmentScenario
+import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
-import com.evrencoskun.tableview.TableView
-import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.inputEnd.InputEndFragment
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
-import eywa.projectcodex.components.newRound.NewRoundFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.reflect.jvm.jvmName
 
 
 /**
@@ -40,10 +38,11 @@ class InputEndInstrumentedTest {
             ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
             SharedPrefs.sharedPreferencesCustomName = testSharedPrefsName
         }
+
+        private lateinit var scenario: FragmentScenario<InputEndFragment>
     }
 
-    @get:Rule
-    val activity = ActivityTestRule(MainActivity::class.java)
+    private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private val emptyEnd = ".-.-.-.-.-."
     private val arrowsPerArrowCount = 12
@@ -58,25 +57,36 @@ class InputEndInstrumentedTest {
             RoundDistance(1, 2, 1, 70),
             RoundDistance(1, 3, 1, 50)
     )
+    private val archerRounds = listOf(
+            ArcherRound(1, TestData.generateDate(), 1, true),
+            ArcherRound(2, TestData.generateDate(), 1, true, roundId = 1)
+    )
 
     /**
-     * Clicks the submit button then waits for the [InputEndFragment] to open
+     * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
+     * with all desired information
      */
-    private fun clickSubmitNewRound() {
-        R.id.button_create_round__submit.click()
-        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InputEndFragment::class.jvmName))
-    }
+    private fun setup(archerRoundId: Int = 1) {
+        check(archerRounds.find { it.archerRoundId == archerRoundId } != null) {
+            "Desired archer round not added to the db"
+        }
 
-    @Before
-    fun beforeEach() {
-        ScoresRoomDatabase.clearInstance(activity.activity)
-        activity.activity.supportFragmentManager.beginTransaction()
-        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
+        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+        val args = Bundle()
+        args.putInt("archerRoundId", archerRoundId)
 
-        /*
-         * Fill default rounds
-         */
-        Handler(Looper.getMainLooper()).post {
+        // Start initialised so we can add to the database before the onCreate methods are called
+        scenario = launchFragmentInContainer(args, initialState = Lifecycle.State.INITIALIZED)
+        scenario.onFragment {
+            ScoresRoomDatabase.clearInstance(it.requireContext())
+            db = ScoresRoomDatabase.getDatabase(it.requireContext())
+
+            navController.setGraph(R.navigation.nav_graph)
+            navController.setCurrentDestination(R.id.inputEndFragment, args)
+
+            /*
+             * Fill default rounds
+             */
             for (i in distancesInput.indices) {
                 runBlocking {
                     if (i < roundsInput.size) {
@@ -88,25 +98,29 @@ class InputEndInstrumentedTest {
                     if (i < distancesInput.size) {
                         db.roundDistanceDao().insert(distancesInput[i])
                     }
+                    if (i < archerRounds.size) {
+                        db.archerRoundDao().insert(archerRounds[i])
+                    }
                 }
             }
         }
 
-        /*
-         * Navigate to create round screen
-         */
-        R.id.button_main_menu__start_new_round.click()
-        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(NewRoundFragment::class.jvmName))
+        scenario.moveToState(Lifecycle.State.RESUMED)
+        scenario.onFragment {
+            Navigation.setViewNavController(it.requireView(), navController)
+        }
     }
 
     @After
     fun afterEach() {
-        ScoresRoomDatabase.clearInstance(activity.activity)
+        scenario.onFragment {
+            ScoresRoomDatabase.clearInstance(it.requireContext())
+        }
     }
 
     @Test
     fun testScoreButtonPressed() {
-        clickSubmitNewRound()
+        setup()
 
         val buttons = mapOf(
                 R.id.button_arrow_inputs__score_0 to "m",
@@ -159,15 +173,18 @@ class InputEndInstrumentedTest {
 
         // Too many arrows
         R.id.button_arrow_inputs__score_7.click()
-        activity containsToast "Arrows already added"
+        checkContainsToast("Arrows already added")
         R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-1-3")
         R.id.text_end_inputs__end_total.textEquals("18")
     }
 
     @Test
-    fun testClearScore() {
-        clickSubmitNewRound()
+    fun testClearAndBackspace() {
+        setup()
 
+        /*
+         * Clear
+         */
         // Full score
         R.id.button_arrow_inputs__score_3.click()
         R.id.button_arrow_inputs__score_7.click()
@@ -196,12 +213,10 @@ class InputEndInstrumentedTest {
         R.id.button_end_inputs__clear.click()
         R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
         R.id.text_end_inputs__end_total.textEquals("0")
-    }
 
-    @Test
-    fun testBackSpace() {
-        clickSubmitNewRound()
-
+        /*
+         * Backspace
+         */
         // Full score
         R.id.button_arrow_inputs__score_3.click()
         R.id.button_arrow_inputs__score_7.click()
@@ -231,14 +246,14 @@ class InputEndInstrumentedTest {
         R.id.text_end_inputs__end_total.textEquals("0")
 
         R.id.button_end_inputs__backspace.click()
-        activity containsToast "No arrows entered"
+        checkContainsToast("No arrows entered")
         R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
         R.id.text_end_inputs__end_total.textEquals("0")
     }
 
     @Test
     fun testNextEnd() {
-        clickSubmitNewRound()
+        setup()
 
         R.id.text_scores_indicator__table_score_1.textEquals("0")
         R.id.text_scores_indicator__table_arrow_count_1.textEquals("0")
@@ -277,7 +292,7 @@ class InputEndInstrumentedTest {
 
         // No arrows
         R.id.button_input_end__next_end.click()
-        activity containsToast "Please enter all arrows for this end"
+        checkContainsToast("Please enter all arrows for this end")
         R.id.text_scores_indicator__table_score_1.textEquals("46")
         R.id.text_scores_indicator__table_arrow_count_1.textEquals("12")
         R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
@@ -292,7 +307,7 @@ class InputEndInstrumentedTest {
         R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-6-6-.")
 
         R.id.button_input_end__next_end.click()
-        activity containsToast "Please enter all arrows for this end"
+        checkContainsToast("Please enter all arrows for this end")
         R.id.text_scores_indicator__table_score_1.textEquals("46")
         R.id.text_scores_indicator__table_arrow_count_1.textEquals("12")
         R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-6-6-.")
@@ -300,22 +315,23 @@ class InputEndInstrumentedTest {
 
     @Test
     fun testOpenScorePad() {
-        clickSubmitNewRound()
+        setup()
 
         for (i in 0.rangeTo(5)) {
             R.id.button_arrow_inputs__score_1.click()
         }
         R.id.button_input_end__next_end.click()
         R.id.fragment_input_end__score_indicator.click()
-        val tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
-        assertEquals(2, tableViewAdapter.getCellColumnItems(0).size)
-        assertEquals(5, tableViewAdapter.getCellRowItems(0)?.size)
+        assertEquals(navController.currentDestination?.id, R.id.scorePadFragment)
     }
 
     @Test
     fun testRemainingArrowsIndicatorAndCompleteRound() {
-        R.id.spinner_create_round__round.clickSpinnerItem(roundsInput[0].displayName)
-        R.id.button_create_round__submit.click()
+        setup(2)
+
+        // Give it a moment to sort out the indicators
+        ConditionWatcher.waitForCondition(waitFor(1000))
+
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 90m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
 
@@ -341,23 +357,29 @@ class InputEndInstrumentedTest {
 
         completeEnd()
         onViewWithClassName("OK").perform(click())
-        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        assertEquals(navController.currentDestination?.id, R.id.mainMenuFragment)
     }
 
     /**
      * Fills the end by pressing the '1' button then presses 'next end'
      */
     private fun completeEnd() {
-        while (activity.activity.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')) {
-            R.id.button_arrow_inputs__score_1.click()
+        var contains = true
+        while (contains) {
+            scenario.onFragment {
+                contains = it.requireActivity()
+                        .findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')
+            }
+            if (contains) {
+                R.id.button_arrow_inputs__score_1.click()
+            }
         }
         R.id.button_input_end__next_end.click()
     }
 
     @Test
     fun testOddEndSize() {
-        R.id.spinner_create_round__round.clickSpinnerItem(roundsInput[0].displayName)
-        clickSubmitNewRound()
+        setup(2)
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
         R.id.text_end_inputs__inputted_arrows.click()

@@ -77,7 +77,9 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             }
         })
 
-        (requireActivity() as MainActivity).setCustomBackButtonCallback()
+        if (requireActivity() is MainActivity) {
+            (requireActivity() as MainActivity).setCustomBackButtonCallback()
+        }
     }
 
     private fun setRemainingArrowsText() {

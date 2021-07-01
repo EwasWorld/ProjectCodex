@@ -9,7 +9,6 @@ import android.widget.Button
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
-import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.findInstanceOf
 
 
@@ -37,7 +36,7 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        listener = findInstanceOf((requireActivity() as MainActivity).navHostFragment)
+        listener = findInstanceOf(this)
                 ?: throw ClassCastException("$context must implement ScoreButtonPressedListener")
     }
 

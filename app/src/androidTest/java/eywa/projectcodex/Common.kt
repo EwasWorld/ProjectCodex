@@ -4,6 +4,7 @@ import android.os.Debug
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.WindowManager
 import android.widget.DatePicker
 import android.widget.NumberPicker
 import android.widget.TimePicker
@@ -14,7 +15,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.*
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
@@ -25,9 +25,11 @@ import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
-import kotlinx.android.synthetic.main.content_main.*
-import org.hamcrest.*
 import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers
+import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -85,9 +87,20 @@ fun <T> onViewWithClassName(clazz: Class<T>): ViewInteraction {
     return Espresso.onView(ViewMatchers.withClassName(Matchers.equalTo(clazz.name)))!!
 }
 
-infix fun ActivityTestRule<MainActivity>.containsToast(message: String) =
+fun checkContainsToast(message: String) =
         Espresso.onView(ViewMatchers.withText(message))
-                .inRoot(RootMatchers.withDecorView(CoreMatchers.not(activity.window.decorView)))
+                .inRoot(object : TypeSafeMatcher<Root>() {
+                    override fun matchesSafely(item: Root?): Boolean {
+                        val type = item?.windowLayoutParams?.orNull()?.type ?: return false
+                        // Deprecation advises using TYPE_APPLICATION_OVERLAY instead, but this causes the test to hang
+                        return type == WindowManager.LayoutParams.TYPE_TOAST
+                                && item.decorView.windowToken == item.decorView.applicationWindowToken
+                    }
+
+                    override fun describeTo(description: Description?) {
+                        description?.appendText("toast with text")
+                    }
+                })
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))!!
 
 fun AppCompatActivity.getString(name: String): String {
@@ -116,7 +129,7 @@ fun <T> LiveData<T>.retrieveValue(): T? {
 fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName: String): Instruction {
     return object : Instruction() {
         override fun checkCondition(): Boolean {
-            val fragments = activity.nav_host_fragment.childFragmentManager.fragments
+            val fragments = activity.navHostFragment.childFragmentManager.fragments
             for (fragment in fragments) {
                 if (fragment.javaClass.name == fragmentClassName) {
                     return true

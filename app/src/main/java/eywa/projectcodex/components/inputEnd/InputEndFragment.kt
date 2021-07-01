@@ -44,6 +44,9 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             InputEndViewModel(requireActivity().application, args.archerRoundId)
         }).get(InputEndViewModel::class.java)
         inputEndViewModel.archerRound.observe(viewLifecycleOwner, { archerRound ->
+            if (archerRound == null) {
+                return@observe
+            }
             showRemainingArrows = archerRound.roundId != null
             archerRound.roundId?.let { roundId ->
                 inputEndViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, {
@@ -107,7 +110,9 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             }
         }
 
-        (requireActivity() as MainActivity).setCustomBackButtonCallback()
+        if (requireActivity() is MainActivity) {
+            (requireActivity() as MainActivity).setCustomBackButtonCallback()
+        }
     }
 
     /**
@@ -127,7 +132,9 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
          * Round Indicators
          */
         val roundIndicatorSection = view.findViewById<LinearLayout>(R.id.layout_input_end__remaining_arrows)
-        if (!showRemainingArrows || distances.size != arrowCounts.size || distanceUnit.isBlank()) {
+        if (!showRemainingArrows || arrowCounts.sumOf { it.arrowCount } == 0 || distances.size != arrowCounts.size
+            || distanceUnit.isBlank()
+        ) {
             roundIndicatorSection.visibility = View.GONE
             return
         }
