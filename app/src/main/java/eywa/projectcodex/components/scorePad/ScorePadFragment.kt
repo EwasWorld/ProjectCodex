@@ -170,7 +170,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         builder.setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
             // Don't skip fragments like InputEnd from the backstack in this case
             //      else it will kick the user out of the score completely when this was probably a mistake
-            (requireActivity() as MainActivity).navHostFragment.navController.popBackStack()
+            requireView().findNavController().popBackStack()
             dialogInterface.cancel()
             dialog = null
         }

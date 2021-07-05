@@ -3,6 +3,7 @@ package eywa.projectcodex
 import android.os.Debug
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.DatePicker
@@ -16,10 +17,9 @@ import androidx.test.espresso.*
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import com.evrencoskun.tableview.adapter.AbstractTableAdapter
+import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
@@ -34,6 +34,7 @@ import org.junit.Assert
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 
 
 /**
@@ -126,16 +127,23 @@ fun <T> LiveData<T>.retrieveValue(): T? {
 /**
  * Wait for a particular fragment to appear on the screen
  */
-fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName: String): Instruction {
+fun ActivityScenario<MainActivity>.waitForFragmentInstruction(fragmentClassName: String): Instruction {
     return object : Instruction() {
         override fun checkCondition(): Boolean {
-            val fragments = activity.navHostFragment.childFragmentManager.fragments
-            for (fragment in fragments) {
-                if (fragment.javaClass.name == fragmentClassName) {
-                    return true
+            var found = false
+            onActivity {
+                val fragments = it.navHostFragment.childFragmentManager.fragments
+                for (fragment in fragments) {
+                    if (fragment.javaClass.name == fragmentClassName) {
+                        found = true
+                    }
                 }
             }
-            return false
+            if (!found) {
+                // Don't clog up the main thread in the onActivity method, wait a moment before trying again
+                Thread.sleep(2000)
+            }
+            return found
         }
 
         override fun getDescription(): String {
@@ -147,11 +155,11 @@ fun ActivityTestRule<MainActivity>.waitForFragmentInstruction(fragmentClassName:
 /**
  * Wait for a particular table row to appear
  */
-fun AbstractTableAdapter<*, *, *>.waitForRowToAppear(rowIndex: Int): Instruction {
+fun TableView.waitForRowToAppear(rowIndex: Int): Instruction {
     return object : Instruction() {
         override fun checkCondition(): Boolean {
             try {
-                return getCellRowItems(rowIndex) != null
+                return adapter!!.getCellRowItems(rowIndex) != null
             }
             catch (e: NullPointerException) {
                 println("Waiting for score pad entries to load")
