@@ -1,25 +1,27 @@
 package eywa.projectcodex
 
-import android.os.Handler
-import android.os.Looper
+import android.content.res.Resources
+import androidx.fragment.app.testing.FragmentScenario
+import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.rule.ActivityTestRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
-import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.infoTable.InfoTableCell
 import eywa.projectcodex.components.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.components.infoTable.generateNumberedRowHeaders
-import eywa.projectcodex.components.inputEnd.InputEndFragment
-import eywa.projectcodex.components.scorePad.ScorePadFragment
+import eywa.projectcodex.components.viewRounds.ViewRoundsFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -33,7 +35,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 class ViewRoundsInstrumentedTest {
@@ -43,16 +44,19 @@ class ViewRoundsInstrumentedTest {
         }
     }
 
-    @get:Rule
-    val activity = ActivityTestRule(MainActivity::class.java)
-
     private val menuButtonScorePad = "Show score pad"
     private val menuButtonContinue = "Continue round"
     private val menuButtonDelete = "Delete round"
 
-    // RoundId and handicap
+    /**
+     * RoundId and handicap
+     */
     private val removedColumnIndexes = listOf(0, 6)
 
+    private lateinit var scenario: FragmentScenario<ViewRoundsFragment>
+    private lateinit var navController: TestNavHostController
+    private lateinit var db: ScoresRoomDatabase
+    private lateinit var resources: Resources
     private lateinit var tableViewAdapter: AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
     private lateinit var archerRounds: List<ArcherRoundWithRoundInfoAndName>
     private lateinit var round: Round
@@ -62,12 +66,27 @@ class ViewRoundsInstrumentedTest {
 
     @Before
     fun beforeEach() {
-        ScoresRoomDatabase.clearInstance(activity.activity)
-        activity.activity.supportFragmentManager.beginTransaction()
+        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+
+        // Start initialised so we can add to the database before the onCreate methods are called
+        scenario = launchFragmentInContainer(initialState = Lifecycle.State.INITIALIZED)
+        scenario.onFragment {
+            ScoresRoomDatabase.clearInstance(it.requireContext())
+            db = ScoresRoomDatabase.getDatabase(it.requireContext())
+
+            navController.setGraph(R.navigation.nav_graph)
+            navController.setCurrentDestination(R.id.viewRoundsFragment)
+
+        }
+
+        scenario.moveToState(Lifecycle.State.RESUMED)
+        scenario.onFragment {
+            Navigation.setViewNavController(it.requireView(), navController)
+            resources = it.resources
+        }
     }
 
     private fun addDataToDatabase() {
-        val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
         round = TestData.generateRounds(1)[0]
         roundSubType = TestData.generateSubTypes(1)[0]
         roundArrowCount = TestData.generateArrowCounts(1)[0]
@@ -80,7 +99,8 @@ class ViewRoundsInstrumentedTest {
         for (round in archerRounds) {
             arrows.add(TestData.generateArrowValues(30, round.archerRound.archerRoundId))
         }
-        Handler(Looper.getMainLooper()).post {
+
+        scenario.onFragment {
             for (archerRound in archerRounds) {
                 runBlocking {
                     db.archerRoundDao().insert(archerRound.archerRound)
@@ -97,31 +117,30 @@ class ViewRoundsInstrumentedTest {
                 db.roundArrowCountDao().insert(roundArrowCount)
             }
         }
+
+        populateAdapter()
     }
 
-    private fun goToViewRoundsAndPopulateAdapter() {
-        R.id.button_main_menu__view_rounds.click()
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_view_rounds).adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+    private fun populateAdapter() {
+        scenario.onFragment {
+            tableViewAdapter = it.requireActivity().findViewById<TableView>(R.id.table_view_view_rounds).adapter!!
+                    as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+        }
     }
 
     @After
     fun afterEach() {
-        ScoresRoomDatabase.clearInstance(activity.activity)
+        scenario.onFragment {
+            ScoresRoomDatabase.clearInstance(it.requireContext())
+        }
     }
 
     @Test
     fun testTableValues() {
         addDataToDatabase()
-        goToViewRoundsAndPopulateAdapter()
 
         val expected =
-                calculateViewRoundsTableData(
-                        archerRounds,
-                        arrows.flatten(),
-                        GoldsType.TENS,
-                        activity.activity.resources
-                )
+                calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, resources)
         for (i in expected.indices) {
             assertEquals(
                     expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) },
@@ -143,58 +162,61 @@ class ViewRoundsInstrumentedTest {
 
     @Test
     fun testEmptyTable() {
-        goToViewRoundsAndPopulateAdapter()
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
-        onView(withText("Main Menu")).check(matches(isDisplayed()))
+        assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
     }
 
-    @Test
-    fun testOpenScorePad() {
-        // Generate rounds until there is a unique score
-        var uniqueScore: Int? = null
+
+    /**
+     * Generate rounds until there is a unique score then open the long press menu on that
+     */
+    private fun createRoundWithUniqueScoreAndLongPress(): Int {
+        data class RoundScore(val archerRoundId: Int, val score: Int)
+
+        var uniqueScore: RoundScore? = null
         while (uniqueScore == null) {
             addDataToDatabase()
-            val scores = arrows.map { roundArrows -> roundArrows.sumOf { arrow -> arrow.score } }
-
+            val scores = arrows.map { roundArrows ->
+                RoundScore(roundArrows[0].archerRoundId, roundArrows.sumOf { arrow -> arrow.score })
+            }
             for ((i, score) in scores.withIndex()) {
-                if (scores.lastIndexOf(score) == i) {
+                if (scores.indexOfLast { it.score == score.score } == i) {
                     uniqueScore = score
                     break
                 }
             }
         }
-        goToViewRoundsAndPopulateAdapter()
 
-        // Click on that unique score
+        // Open the score pad for that unique score
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
-        onView(withText(uniqueScore.toString())).perform(longClick())
-        onView(withText(menuButtonScorePad)).perform(click())
-        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        onView(withText("Score Pad")).check(matches(isDisplayed()))
-        tableViewAdapter = activity.activity.findViewById<TableView>(R.id.table_view_score_pad).adapter!!
-                as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
+        onView(withText(uniqueScore.score.toString())).perform(longClick())
 
-        // Check the last running total is the unique score
-        val maxColIndex = tableViewAdapter.getCellRowItems(0)?.size!! - 1
-        // -2 to ignore the total row
-        val maxRowIndex = tableViewAdapter.getCellColumnItems(0).size - 2
-        assertEquals(
-                uniqueScore,
-                tableViewAdapter.getCellItem(maxColIndex, maxRowIndex)?.content!! as Int
-        )
+        return uniqueScore.archerRoundId
+    }
+
+    @Test
+    fun testOpenScorePad() {
+        val uniqueScoreRoundId = createRoundWithUniqueScoreAndLongPress()
+        onView(withText(menuButtonScorePad)).perform(click())
+
+        assertEquals(R.id.scorePadFragment, navController.currentDestination?.id)
+        assertEquals(uniqueScoreRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+    }
+
+    @Test
+    fun testContinueRound() {
+        val uniqueScoreRoundId = createRoundWithUniqueScoreAndLongPress()
+        onView(withText(menuButtonContinue)).perform(click())
+
+        assertEquals(R.id.inputEndFragment, navController.currentDestination?.id)
+        assertEquals(uniqueScoreRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
     }
 
     @Test
     fun testDeleteRow() {
         addDataToDatabase()
-        goToViewRoundsAndPopulateAdapter()
         var expected: List<List<InfoTableCell>> =
-                calculateViewRoundsTableData(
-                        archerRounds,
-                        arrows.flatten(),
-                        GoldsType.TENS,
-                        activity.activity.resources
-                )
+                calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, resources)
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
@@ -224,21 +246,6 @@ class ViewRoundsInstrumentedTest {
     }
 
     @Test
-    fun testContinueRound() {
-        addDataToDatabase()
-        goToViewRoundsAndPopulateAdapter()
-        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
-
-        val continueRound = findRoundArrows(1)
-        onViewWithClassName(continueRound.sumOf { it.score }.toString()).perform(longClick())
-        onView(withText(menuButtonContinue)).perform(click())
-        ConditionWatcher.waitForCondition(activity.waitForFragmentInstruction(InputEndFragment::class.java.name))
-
-        R.id.text_scores_indicator__table_score_1.textEquals(continueRound.sumOf { it.score }.toString())
-        R.id.text_scores_indicator__table_arrow_count_1.textEquals(continueRound.size.toString())
-    }
-
-    @Test
     fun testContinueCompletedRound() {
         val round = Round(1, "test", "test", true, true, listOf())
         val roundArrowCount = RoundArrowCount(1, 1, 1.0, 6)
@@ -246,8 +253,7 @@ class ViewRoundsInstrumentedTest {
         val archerRound = ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1)
         val arrowValues = TestData.ARROWS.take(6).mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) }
 
-        val db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
-        Handler(Looper.getMainLooper()).post {
+        scenario.onFragment {
             runBlocking {
                 db.roundDao().insert(round)
                 db.roundArrowCountDao().insert(roundArrowCount)
@@ -260,8 +266,8 @@ class ViewRoundsInstrumentedTest {
                 }
             }
         }
+        populateAdapter()
 
-        goToViewRoundsAndPopulateAdapter()
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
         onViewWithClassName(arrowValues.sumOf { it.score }.toString()).perform(longClick())
         onView(withText(menuButtonContinue)).check(doesNotExist())

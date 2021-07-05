@@ -106,7 +106,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                 builder.setTitle(R.string.err_table_view__no_data)
                 builder.setMessage(R.string.err_view_round__no_rounds)
                 builder.setPositiveButton(R.string.general_ok) { _, _ ->
-                    activity?.onBackPressed()
+                    requireView().findNavController().popBackStack()
                 }
                 emptyDialog = builder.create()
             }
