@@ -1,18 +1,18 @@
 package eywa.projectcodex
 
-import android.os.Handler
-import android.os.Looper
 import android.widget.DatePicker
 import android.widget.Spinner
 import android.widget.TimePicker
-import androidx.lifecycle.Observer
-import androidx.test.espresso.Espresso
+import androidx.fragment.app.testing.FragmentScenario
+import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.ActivityTestRule
-import com.azimolabs.conditionwatcher.ConditionWatcher
-import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.newRound.NewRoundFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -20,7 +20,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
@@ -32,11 +31,11 @@ class NewRoundInstrumentedTest {
         init {
             ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
         }
+
+        private lateinit var scenario: FragmentScenario<NewRoundFragment>
     }
 
-    @get:Rule
-    val activity = ActivityTestRule(MainActivity::class.java)
-
+    private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private var currentArcherRounds: List<ArcherRound> = listOf()
     private val noRoundDisplayName = "No Round"
@@ -56,26 +55,25 @@ class NewRoundInstrumentedTest {
             )
 
     /**
-     * Set up database and navigate to create rounds screen
+     * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
+     * with all desired information
      */
     @Before
-    fun roundsBeforeCreateEach() {
-        activity.activity.supportFragmentManager.beginTransaction()
-        db = ScoresRoomDatabase.getDatabase(activity.activity.applicationContext)
+    fun setup() {
+        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
-        /*
-         * Observe created rounds
-         */
-        Handler(Looper.getMainLooper()).post {
-            db.archerRoundDao().getAllArcherRounds().observe(activity.activity, Observer { obArcherRounds ->
-                currentArcherRounds = obArcherRounds
-            })
-        }
+        // Start initialised so we can add to the database before the onCreate methods are called
+        scenario = launchFragmentInContainer(initialState = Lifecycle.State.INITIALIZED)
+        scenario.onFragment {
+            ScoresRoomDatabase.clearInstance(it.requireContext())
+            db = ScoresRoomDatabase.getDatabase(it.requireContext())
 
-        /*
-         * Fill default rounds
-         */
-        Handler(Looper.getMainLooper()).post {
+            navController.setGraph(R.navigation.nav_graph)
+            navController.setCurrentDestination(R.id.newRoundFragment)
+
+            /*
+             * Fill default rounds
+             */
             for (i in distancesInput.indices) {
                 runBlocking {
                     if (i < roundsInput.size) {
@@ -94,16 +92,22 @@ class NewRoundInstrumentedTest {
             }
         }
 
-        /*
-         * Navigate to create round screen
-         */
-        R.id.button_main_menu__start_new_round.click()
-        ConditionWatcher.waitForCondition(waitForRoundUpdateTaskToFinishInstruction())
+
+        scenario.moveToState(Lifecycle.State.RESUMED)
+        scenario.onFragment {
+            Navigation.setViewNavController(it.requireView(), navController)
+
+            db.archerRoundDao().getAllArcherRounds().observe(it.requireActivity(), { obArcherRounds ->
+                currentArcherRounds = obArcherRounds
+            })
+        }
     }
 
     @After
     fun afterEach() {
-        ScoresRoomDatabase.clearInstance(activity.activity)
+        scenario.onFragment {
+            ScoresRoomDatabase.clearInstance(it.requireContext())
+        }
     }
 
     /**
@@ -116,25 +120,34 @@ class NewRoundInstrumentedTest {
 
         assertEquals(1, currentArcherRounds.size)
         assertEquals(1, currentArcherRounds[0].archerRoundId)
+        assertEquals(null, currentArcherRounds[0].roundId)
+    }
 
-        Espresso.pressBack()
-        R.id.button_main_menu__start_new_round.click()
-
-        val roundsBeforeCreate = currentArcherRounds
-        assertEquals(1, roundsBeforeCreate.size)
+    /**
+     * Test row added to archer_round
+     * Test id is correct
+     */
+    @Test
+    fun addAnotherRound() {
+        val ar = ArcherRound(1, TestData.generateDate(), 1, true)
+        scenario.onFragment {
+            runBlocking {
+                db.archerRoundDao().insert(ar)
+            }
+        }
 
         R.id.button_create_round__submit.click()
         val roundsAfterCreate = currentArcherRounds.toMutableList()
         assertEquals(2, roundsAfterCreate.size)
 
-        roundsAfterCreate.removeAll(roundsBeforeCreate)
+        roundsAfterCreate.remove(ar)
         assertEquals(1, roundsAfterCreate.size)
-        assert(
-                roundsAfterCreate[0].archerRoundId
-                        > roundsBeforeCreate.maxByOrNull { round -> round.archerId }!!.archerRoundId
-        )
+        assert(roundsAfterCreate[0].archerRoundId > ar.archerRoundId)
         assertEquals(null, roundsAfterCreate[0].roundId)
         assertEquals(null, roundsAfterCreate[0].roundSubTypeId)
+
+        assertEquals(R.id.inputEndFragment, navController.currentDestination?.id)
+        assertEquals(2, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
     }
 
     /**
@@ -168,7 +181,12 @@ class NewRoundInstrumentedTest {
         /*
          * Check spinner options
          */
-        val roundSpinner = activity.activity.findViewById<Spinner>(R.id.spinner_create_round__round)
+        var roundSpinnerTemp: Spinner? = null
+        scenario.onFragment {
+            roundSpinnerTemp = it.requireActivity().findViewById(R.id.spinner_create_round__round)
+        }
+        val roundSpinner = roundSpinnerTemp!!
+
         // + 1 for 'no rounds'
         assertEquals(roundsInput.size + 1, roundSpinner.count)
         for (i in roundsInput.indices) {
@@ -238,7 +256,11 @@ class NewRoundInstrumentedTest {
      */
     @Test
     fun subTypeSpinner() {
-        val subtypeSpinner = activity.activity.findViewById<Spinner>(R.id.spinner_create_round__round_sub_type)
+        var subtypeSpinnerTemp: Spinner? = null
+        scenario.onFragment {
+            subtypeSpinnerTemp = it.requireActivity().findViewById(R.id.spinner_create_round__round_sub_type)
+        }
+        val subtypeSpinner = subtypeSpinnerTemp!!
 
         /*
          * Check spinner options

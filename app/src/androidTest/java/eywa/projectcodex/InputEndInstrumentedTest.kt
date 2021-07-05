@@ -322,7 +322,7 @@ class InputEndInstrumentedTest {
         }
         R.id.button_input_end__next_end.click()
         R.id.fragment_input_end__score_indicator.click()
-        assertEquals(navController.currentDestination?.id, R.id.scorePadFragment)
+        assertEquals(R.id.scorePadFragment, navController.currentDestination?.id)
     }
 
     @Test
@@ -357,7 +357,7 @@ class InputEndInstrumentedTest {
 
         completeEnd()
         onViewWithClassName("OK").perform(click())
-        assertEquals(navController.currentDestination?.id, R.id.mainMenuFragment)
+        assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
     }
 
     /**

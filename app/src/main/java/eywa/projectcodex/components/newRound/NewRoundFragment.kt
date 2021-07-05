@@ -9,7 +9,6 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
@@ -24,11 +23,6 @@ import java.util.*
 
 class NewRoundFragment : Fragment(), ActionBarHelp {
     private lateinit var newRoundViewModel: NewRoundViewModel
-
-    /**
-     * Used to find the round that was just created
-     */
-    private var maxId: Int = 0
     private val noRoundPosition = 0
     private var selectedRoundPosition: Int = noRoundPosition
     private var selectedSubtypePosition: Int? = null
@@ -76,14 +70,10 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.create_round__title)
 
-        var initialId = true
+        var submitPressed = false
         newRoundViewModel = ViewModelProvider(this).get(NewRoundViewModel::class.java)
-        newRoundViewModel.maxId.observe(viewLifecycleOwner, Observer { id ->
-            if (initialId) {
-                initialId = false
-            }
-            else {
-                maxId = id
+        newRoundViewModel.maxId.observe(viewLifecycleOwner, { maxId ->
+            if (submitPressed && maxId != null) {
                 // When the new round entry has been added, open the input end dialog
                 val action = NewRoundFragmentDirections.actionNewRoundFragmentToInputEndFragment(maxId)
                 view.findNavController().navigate(action)
@@ -99,7 +89,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         }
 
         // Hide the round spinner if rounds are being updated
-        newRoundViewModel.updateDefaultRoundsState.observe(viewLifecycleOwner, Observer { state ->
+        newRoundViewModel.updateDefaultRoundsState.observe(viewLifecycleOwner, { state ->
             defaultRoundsState = state
             val isInProgress = defaultRoundsState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS
             fun getVisibility(isShown: Boolean) = if (isShown) View.VISIBLE else View.GONE
@@ -107,7 +97,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
             layout_create_round__default_rounds_updating_status.visibility = getVisibility(isInProgress)
             layout_create_round__round.visibility = getVisibility(!isInProgress)
         })
-        newRoundViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, Observer { message ->
+        newRoundViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, { message ->
             text_create_round__default_rounds_updating_status.text = when {
                 message != null -> message
                 defaultRoundsState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS -> {
@@ -119,7 +109,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
 
         val roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
         // Update the spinners if the database updates (spinners don't display correctly at the start without this)
-        newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer {
+        newRoundViewModel.allRounds.observe(viewLifecycleOwner, {
             spinner_create_round__round.adapter = ArrayAdapter(
                     requireActivity().applicationContext, R.layout.spinner_light_background,
                     roundSelection.getAvailableRounds()
@@ -134,8 +124,11 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
             // TODO Check date locales (I want to store in UTC)
             newRoundViewModel.insert(
                     ArcherRound(0, date.time, 1, false, roundId = roundId, roundSubTypeId = roundSubtypeId)
-            )
-            // Navigate to the round's input end screen navigating to the newly created round id (found using maxId)
+            ).invokeOnCompletion {
+                // Ensures that when max ID changes due to the newly created round, it will navigate to the input end
+                //      screen
+                submitPressed = true
+            }
         }
 
         spinner_create_round__round.onItemSelectedListener = object : OnItemSelectedListener {
