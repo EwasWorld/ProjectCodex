@@ -12,5 +12,5 @@
     <string name="about__update_default_rounds_not_started">Not started</string>
     <string name="about__update_default_rounds_in_progress">In progress</string>
 
-    <string name="err_about__update_default_rounds_no_lock">Update default rounds failed.<br />Database is currently in use, try again later</string>
+    <string name="err_about__update_default_rounds_no_lock">Update default rounds failed. Database is currently in use, try again later</string>
 </resources>

@@ -32,9 +32,9 @@ class NewRoundInstrumentedTest {
             ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
         }
 
-        private lateinit var scenario: FragmentScenario<NewRoundFragment>
     }
 
+    private lateinit var scenario: FragmentScenario<NewRoundFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private var currentArcherRounds: List<ArcherRound> = listOf()

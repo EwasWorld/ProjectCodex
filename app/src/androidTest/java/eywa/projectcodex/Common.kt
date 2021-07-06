@@ -152,6 +152,27 @@ fun ActivityScenario<MainActivity>.waitForFragmentInstruction(fragmentClassName:
     }
 }
 
+fun waitForOpenScorePadFromMainMenu(uniqueScoreToClick: Int): Instruction {
+    return object : Instruction() {
+        override fun getDescription(): String {
+            return "Wait for data to appear in view rounds table so score pad can be opened"
+        }
+
+        override fun checkCondition(): Boolean {
+            return try {
+                R.id.button_main_menu__view_rounds.click()
+                Espresso.onView(ViewMatchers.withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
+                Espresso.onView(ViewMatchers.withText(uniqueScoreToClick.toString())).perform(ViewActions.click())
+                true
+            }
+            catch (e: NoMatchingViewException) {
+                Espresso.pressBack()
+                false
+            }
+        }
+    }
+}
+
 /**
  * Wait for a particular table row to appear
  */

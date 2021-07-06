@@ -39,9 +39,9 @@ class InputEndInstrumentedTest {
             SharedPrefs.sharedPreferencesCustomName = testSharedPrefsName
         }
 
-        private lateinit var scenario: FragmentScenario<InputEndFragment>
     }
 
+    private lateinit var scenario: FragmentScenario<InputEndFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private val emptyEnd = ".-.-.-.-.-."

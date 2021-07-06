@@ -26,8 +26,9 @@ class UpdateDefaultRoundsInstrumentedTests {
             SharedPrefs.sharedPreferencesCustomName = testSharedPrefsName
         }
 
-        private lateinit var scenario: ActivityScenario<MainActivity>
     }
+
+    private lateinit var scenario: ActivityScenario<MainActivity>
 
     @After
     fun afterEach() {

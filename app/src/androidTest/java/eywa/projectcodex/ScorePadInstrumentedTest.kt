@@ -14,7 +14,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -50,9 +49,6 @@ class ScorePadInstrumentedTest {
         init {
             ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
         }
-
-        private var fragScenario: FragmentScenario<ScorePadFragment>? = null
-        private var activityScenario: ActivityScenario<MainActivity>? = null
     }
 
     private val endSize = 6
@@ -61,6 +57,8 @@ class ScorePadInstrumentedTest {
     private val menuButtonEdit = "Edit end"
     private val waitForMenuMs = 500L
 
+    private var fragScenario: FragmentScenario<ScorePadFragment>? = null
+    private var activityScenario: ActivityScenario<MainActivity>? = null
     private lateinit var navController: TestNavHostController
     private lateinit var resources: Resources
     private lateinit var db: ScoresRoomDatabase
@@ -173,24 +171,7 @@ class ScorePadInstrumentedTest {
             resources = it.resources
         }
 
-        ConditionWatcher.waitForCondition(object : Instruction() {
-            override fun getDescription(): String {
-                return "Wait for data to appear in view rounds table so score pad can be opened"
-            }
-
-            override fun checkCondition(): Boolean {
-                return try {
-                    R.id.button_main_menu__view_rounds.click()
-                    onView(withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
-                    onView(withText(arrows.sumOf { it.score }.toString())).perform(click())
-                    true
-                }
-                catch (e: NoMatchingViewException) {
-                    pressBack()
-                    false
-                }
-            }
-        })
+        ConditionWatcher.waitForCondition(waitForOpenScorePadFromMainMenu(arrows.sumOf { it.score }))
         ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(ScorePadFragment::class.java.name))
         ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(waitForRow))
     }
