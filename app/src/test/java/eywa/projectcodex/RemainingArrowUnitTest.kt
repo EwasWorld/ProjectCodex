@@ -1,7 +1,7 @@
 package eywa.projectcodex
 
 import eywa.projectcodex.TestData.Companion.MAX_ARROW_COUNT_ARROWS
-import eywa.projectcodex.components.inputEnd.RemainingArrows
+import eywa.projectcodex.components.archerRoundScore.inputEnd.RemainingArrows
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import org.junit.Assert.assertEquals

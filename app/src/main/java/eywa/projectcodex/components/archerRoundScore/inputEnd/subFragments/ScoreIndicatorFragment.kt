@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.inputEnd.subFragments
+package eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments
 
 import android.os.Bundle
 import android.view.LayoutInflater

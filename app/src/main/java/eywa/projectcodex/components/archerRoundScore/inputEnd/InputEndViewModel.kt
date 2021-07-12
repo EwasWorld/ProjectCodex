@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.inputEnd
+package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

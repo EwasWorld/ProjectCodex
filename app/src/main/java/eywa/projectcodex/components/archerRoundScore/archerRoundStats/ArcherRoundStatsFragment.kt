@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundStats
+package eywa.projectcodex.components.archerRoundScore.archerRoundStats
 
 import android.os.Bundle
 import android.view.LayoutInflater

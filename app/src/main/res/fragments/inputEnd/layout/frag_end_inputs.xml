@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".components.inputEnd.subFragments.EndInputsFragment"
+    tools:context=".components.archerRoundScore.inputEnd.subFragments.EndInputsFragment"
     >
 
     <TextView
@@ -48,7 +48,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_end_inputs__arrow_inputs"
-            android:name="eywa.projectcodex.components.inputEnd.subFragments.ArrowInputsFragment10ZoneWithX"
+            android:name="eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment10ZoneWithX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="3dp"

@@ -23,14 +23,14 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment
+import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
+import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.infoTable.InfoTableCell
 import eywa.projectcodex.components.infoTable.calculateScorePadTableData
 import eywa.projectcodex.components.infoTable.generateNumberedRowHeaders
-import eywa.projectcodex.components.inputEnd.EditEndFragment
-import eywa.projectcodex.components.inputEnd.InsertEndFragment
-import eywa.projectcodex.components.scorePad.ScorePadFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue

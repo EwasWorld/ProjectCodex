@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.scorePad
+package eywa.projectcodex.components.archerRoundScore.scorePad
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

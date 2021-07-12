@@ -5,8 +5,8 @@ import androidx.test.core.app.ActivityScenario
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.scorePad.ScorePadFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue

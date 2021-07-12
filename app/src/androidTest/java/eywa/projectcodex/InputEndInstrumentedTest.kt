@@ -12,8 +12,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
+import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
 import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.inputEnd.InputEndFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round

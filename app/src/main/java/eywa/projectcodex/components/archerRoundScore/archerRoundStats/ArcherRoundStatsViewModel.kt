@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundStats
+package eywa.projectcodex.components.archerRoundScore.archerRoundStats
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

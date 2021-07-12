@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.inputEnd
+package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance

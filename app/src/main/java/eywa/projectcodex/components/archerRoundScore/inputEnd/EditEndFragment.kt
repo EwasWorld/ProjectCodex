@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.inputEnd
+package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,43 +13,36 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
-import eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
-import kotlinx.android.synthetic.main.fragment_insert_end.*
+import kotlinx.android.synthetic.main.fragment_edit_end.*
 
 
-class InsertEndFragment : Fragment(), ActionBarHelp {
-    private val args: InsertEndFragmentArgs by navArgs()
+class EditEndFragment : Fragment(), ActionBarHelp {
+    private val args: EditEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
     private lateinit var endInputsFragment: EndInputsFragment
     private var arrows = emptyList<ArrowValue>()
 
     companion object {
-        private const val LOG_TAG = "InsertEndFragment"
+        private const val LOG_TAG = "EditEndFragment"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_insert_end, container, false)
-        val insertEndAt = (args.firstArrowId - 1) / args.endSize + 1
-        view.findViewById<TextView>(R.id.text_insert_end__title).text =
-                if (insertEndAt == 1) {
-                    getString(R.string.insert_end__info_at_start)
-                }
-                else {
-                    resourceStringReplace(
-                            getString(R.string.insert_end__info),
-                            mapOf("end before" to (insertEndAt - 1).toString(), "end after" to insertEndAt.toString())
-                    )
-                }
+        val view = inflater.inflate(R.layout.fragment_edit_end, container, false)
+        view.findViewById<TextView>(R.id.text_edit_end__title).text = resourceStringReplace(
+                getString(R.string.edit_end__edit_info),
+                mapOf("end number" to ((args.firstArrowId - 1) / args.endSize + 1).toString())
+        )
 
         endInputsFragment =
-                childFragmentManager.findFragmentById(R.id.fragment_insert_end__end_inputs)!! as EndInputsFragment
+                childFragmentManager.findFragmentById(R.id.fragment_edit_end__end_inputs)!! as EndInputsFragment
         endInputsFragment.showResetButton = true
 
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
@@ -59,8 +52,11 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
             arrowsJava?.let { arrows ->
                 this.arrows = arrows
 
+                val originalEnd = this.arrows.filter {
+                    it.arrowNumber >= args.firstArrowId && it.arrowNumber < args.firstArrowId + args.endSize
+                }
                 endInputsFragment.end = End(
-                        args.endSize,
+                        originalEnd,
                         getString(R.string.end_to_string_arrow_placeholder),
                         getString(R.string.end_to_string_arrow_deliminator)
                 )
@@ -72,19 +68,19 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.title = getString(R.string.insert_end__title)
-        val action = InsertEndFragmentDirections.actionInsertEndFragmentToScorePadFragment(
+        activity?.title = getString(R.string.edit_end__title)
+        val action = EditEndFragmentDirections.actionEditEndFragmentToScorePadFragment(
                 args.archerRoundId
         )
 
-        button_insert_end__cancel.setOnClickListener {
+        button_edit_end__cancel.setOnClickListener {
             view.findNavController().navigate(action)
         }
 
-        button_insert_end__complete.setOnClickListener {
+        button_edit_end__complete.setOnClickListener {
             try {
-                val arrowValues = endInputsFragment.end.toArrowValues(args.archerRoundId, args.firstArrowId)
-                inputEndViewModel.insertEnd(arrows, arrowValues).invokeOnCompletion {
+                // Update database
+                endInputsFragment.end.addArrowsToDatabase(args.archerRoundId, null, inputEndViewModel) {
                     // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
                     //    with the table refreshing bug (above as well)
                     view.findNavController().navigate(action)
@@ -108,12 +104,12 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         return listOf(
                 ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_insert_end__complete,
+                        R.id.button_edit_end__complete,
                         getString(R.string.help_edit_end__complete_title),
                         getString(R.string.help_edit_end__complete_body)
                 ),
                 ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_insert_end__cancel,
+                        R.id.button_edit_end__cancel,
                         getString(R.string.help_edit_end__cancel_title),
                         getString(R.string.help_edit_end__cancel_body)
                 )

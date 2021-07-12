@@ -340,7 +340,7 @@ class UpdateDefaultRounds {
      * Used to enforce ordering when updating the state and message
      */
     class TaskProgress {
-        private val state = MutableLiveData<UpdateTaskState>(UpdateTaskState.NOT_STARTED)
+        private val state = MutableLiveData(UpdateTaskState.NOT_STARTED)
         private val message = MutableLiveData<String?>(null)
 
         fun getState(): LiveData<UpdateTaskState> {
@@ -534,7 +534,7 @@ private class RoundsVersion(val version: Int) {
 
         override fun fromJson(jv: JsonValue): Any {
             val jsonObject = jv.obj ?: throw KlaxonException("Cannot parse null object: ${jv.string}")
-            return RoundsVersion(DefaultRoundInfoHelper.parseObject<Int>(jsonObject, "version"))
+            return RoundsVersion(DefaultRoundInfoHelper.parseObject(jsonObject, "version"))
         }
 
         /**

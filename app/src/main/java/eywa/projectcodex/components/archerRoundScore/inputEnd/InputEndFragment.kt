@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.inputEnd
+package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -14,12 +14,12 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
 import eywa.projectcodex.components.MainActivity
+import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
+import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ScoreIndicatorFragment
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
-import eywa.projectcodex.components.inputEnd.subFragments.EndInputsFragment
-import eywa.projectcodex.components.inputEnd.subFragments.ScoreIndicatorFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
