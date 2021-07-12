@@ -9,6 +9,7 @@ import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
 
 /**
@@ -31,5 +32,9 @@ class ArcherRoundStatsViewModel(application: Application, archerRoundId: Int) : 
 
     fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
         return roundRepo.getArrowCountsForRound(roundId)
+    }
+
+    fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>> {
+        return roundRepo.getDistancesForRound(roundId, subTypeId)
     }
 }

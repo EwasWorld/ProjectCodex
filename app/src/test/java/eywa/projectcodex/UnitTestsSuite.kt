@@ -6,8 +6,7 @@ import org.junit.runners.Suite
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
-        InfoTableDataCalculationsSuite::class, ArrowUnitTest::class, EndUnitTest::class,
-        GoldsTypeUnitTest::class, RoundSelectionUnitTest::class,
-        RemainingArrowUnitTest::class
+        InfoTableDataCalculationsSuite::class, ArrowUnitTest::class, EndUnitTest::class, HandicapUnitTest::class,
+        GoldsTypeUnitTest::class, RoundSelectionUnitTest::class, RemainingArrowUnitTest::class
 )
 class UnitTestsSuite

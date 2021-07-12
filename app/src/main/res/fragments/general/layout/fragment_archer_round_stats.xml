@@ -78,7 +78,6 @@
             app:label="@string/archer_round_stats__handicap"
             app:text="@string/placeholder_0"
             android:paddingTop="0dp"
-            android:visibility="gone"
             />
 
         <eywa.projectcodex.components.customViews.LabelledTextView
@@ -86,7 +85,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:label="@string/archer_round_stats__predicted_score"
-            android:visibility="gone"
             />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

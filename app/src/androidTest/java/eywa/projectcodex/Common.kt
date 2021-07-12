@@ -3,7 +3,6 @@ package eywa.projectcodex
 import android.os.Debug
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.DatePicker
@@ -17,6 +16,7 @@ import androidx.test.espresso.*
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
@@ -25,6 +25,7 @@ import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
+import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -34,7 +35,6 @@ import org.junit.Assert
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.reflect.KClass
 
 
 /**
@@ -46,17 +46,22 @@ val latchAwaitTimeUnit = TimeUnit.SECONDS
 const val testDatabaseName = "test_database"
 const val testSharedPrefsName = "test_prefs"
 
-fun Int.click() = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.click())!!
-fun Int.write(text: String) = Espresso.onView(ViewMatchers.withId(this)).perform(ViewActions.typeText(text))!!
-fun Int.textEquals(text: String) = Espresso.onView(ViewMatchers.withId(this)).check(
+fun Int.click() = Espresso.onView(withId(this)).perform(ViewActions.click())!!
+fun Int.write(text: String) = Espresso.onView(withId(this)).perform(ViewActions.typeText(text))!!
+fun Int.textEquals(text: String) = Espresso.onView(withId(this)).check(
         ViewAssertions.matches(ViewMatchers.withText(text))
 )!!
 
-fun Int.textContains(text: String) = Espresso.onView(ViewMatchers.withId(this)).check(
+fun Int.labelledTextViewTextEquals(text: String) =
+        Espresso.onView(
+                allOf(ViewMatchers.withParent(ViewMatchers.withParent(withId(this))), withId(R.id.labelled_text__text))
+        ).check(ViewAssertions.matches(ViewMatchers.withText(text)))!!
+
+fun Int.textContains(text: String) = Espresso.onView(withId(this)).check(
         ViewAssertions.matches(ViewMatchers.withText(containsString(text)))
 )!!
 
-fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = Espresso.onView(ViewMatchers.withId(this)).check(
+fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = Espresso.onView(withId(this)).check(
         ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(visibility))
 )!!
 
@@ -69,7 +74,7 @@ fun Int.clickSpinnerItem(text: String) = this.run {
 
         override fun checkCondition(): Boolean {
             try {
-                Espresso.onView(ViewMatchers.withId(viewId)).perform(ViewActions.click())
+                Espresso.onView(withId(viewId)).perform(ViewActions.click())
                 Espresso.onData(Matchers.hasToString(text)).perform(ViewActions.click())
                 return true
             }
@@ -161,7 +166,7 @@ fun waitForOpenScorePadFromMainMenu(uniqueScoreToClick: Int): Instruction {
         override fun checkCondition(): Boolean {
             return try {
                 R.id.button_main_menu__view_rounds.click()
-                Espresso.onView(ViewMatchers.withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
+                Espresso.onView(withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
                 Espresso.onView(ViewMatchers.withText(uniqueScoreToClick.toString())).perform(ViewActions.click())
                 true
             }
