@@ -8,11 +8,16 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.findInstanceOf
 
 
 class ArrowInputsFragment10ZoneWithX : Fragment() {
+    companion object {
+        private const val LOG_TAG = "ArrowInputsFragment10ZoneWithX"
+    }
+
     private var listener: ScoreButtonPressedListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -37,7 +42,16 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = findInstanceOf(this)
-                ?: throw ClassCastException("$context must implement ScoreButtonPressedListener")
+        if (listener == null) {
+            /*
+             * Downgraded from throwing an exception to showing a warning because
+             * if navigating away from an input end fragment (e.g. to the score pad),
+             * the ScoreButtonPressedListener will no longer be locatable by findInstanceOf
+             * but the app may still recreate this fragment causing a detach/attach action
+             * where no listener can be found
+             */
+            CustomLogger.customLogger.w(LOG_TAG, "No ScoreButtonPressedListener found")
+        }
     }
 
     override fun onDetach() {
