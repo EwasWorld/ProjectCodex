@@ -3,6 +3,7 @@ package eywa.projectcodex
 import android.os.Debug
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.DatePicker
@@ -35,6 +36,7 @@ import org.junit.Assert
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 
 
 /**
@@ -43,8 +45,9 @@ import java.util.concurrent.TimeUnit
 val latchAwaitTimeSeconds = if (Debug.isDebuggerConnected()) 60L * 60 else 10L
 val latchAwaitTimeUnit = TimeUnit.SECONDS
 
-const val testDatabaseName = "test_database"
-const val testSharedPrefsName = "test_prefs"
+fun logMessage(logClass: KClass<*>, message: String) {
+    Log.i("ProjCodexTest" + logClass.simpleName, message)
+}
 
 fun Int.click() = Espresso.onView(withId(this)).perform(ViewActions.click())!!
 fun Int.write(text: String) = Espresso.onView(withId(this)).perform(ViewActions.typeText(text))!!

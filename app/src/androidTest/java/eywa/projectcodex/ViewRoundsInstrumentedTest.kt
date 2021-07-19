@@ -40,13 +40,9 @@ import org.junit.Test
 class ViewRoundsInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
+            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
         }
     }
-
-    private val menuButtonScorePad = "Show score pad"
-    private val menuButtonContinue = "Continue round"
-    private val menuButtonDelete = "Delete round"
 
     /**
      * RoundId and handicap
@@ -197,7 +193,7 @@ class ViewRoundsInstrumentedTest {
     @Test
     fun testOpenScorePad() {
         val uniqueScoreRoundId = createRoundWithUniqueScoreAndLongPress()
-        onView(withText(menuButtonScorePad)).perform(click())
+        onView(withText(CommonStrings.Menus.viewRoundsShowScorePad)).perform(click())
 
         assertEquals(R.id.scorePadFragment, navController.currentDestination?.id)
         assertEquals(uniqueScoreRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
@@ -206,7 +202,7 @@ class ViewRoundsInstrumentedTest {
     @Test
     fun testContinueRound() {
         val uniqueScoreRoundId = createRoundWithUniqueScoreAndLongPress()
-        onView(withText(menuButtonContinue)).perform(click())
+        onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
 
         assertEquals(R.id.inputEndFragment, navController.currentDestination?.id)
         assertEquals(uniqueScoreRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
@@ -223,7 +219,7 @@ class ViewRoundsInstrumentedTest {
 
         val deleteIndex = 1
         onViewWithClassName(findRoundArrows(deleteIndex).sumOf { it.score }.toString()).perform(longClick())
-        onView(withText(menuButtonDelete)).perform(click())
+        onView(withText(CommonStrings.Menus.viewRoundsDelete)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
                 return "wait for row to be removed"
@@ -270,7 +266,7 @@ class ViewRoundsInstrumentedTest {
 
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
         onViewWithClassName(arrowValues.sumOf { it.score }.toString()).perform(longClick())
-        onView(withText(menuButtonContinue)).check(doesNotExist())
+        onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(doesNotExist())
     }
 
     /**

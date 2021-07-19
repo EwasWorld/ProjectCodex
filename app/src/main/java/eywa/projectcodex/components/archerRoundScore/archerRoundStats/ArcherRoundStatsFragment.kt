@@ -9,7 +9,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
-import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
@@ -90,10 +89,6 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 calculateHandicap()
             }
         })
-
-        if (requireActivity() is MainActivity) {
-            (requireActivity() as MainActivity).setCustomBackButtonCallback()
-        }
     }
 
     private fun calculateHandicap(innerTenArcher: Boolean = false) {

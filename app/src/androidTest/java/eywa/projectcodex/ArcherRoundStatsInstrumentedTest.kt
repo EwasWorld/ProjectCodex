@@ -29,7 +29,7 @@ import kotlin.math.max
 class ArcherRoundStatsInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
+            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
         }
     }
 

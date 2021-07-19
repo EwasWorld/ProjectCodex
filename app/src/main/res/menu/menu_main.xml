@@ -1,5 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/menu_main_action_bar"
     >
     <!-- Note: action bar actions are implemented in MainActivity -->
     <item

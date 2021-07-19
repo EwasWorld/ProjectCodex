@@ -35,8 +35,8 @@ import org.junit.runner.RunWith
 class InputEndInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
-            SharedPrefs.sharedPreferencesCustomName = testSharedPrefsName
+            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
+            SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
         }
 
     }

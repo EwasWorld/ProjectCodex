@@ -29,7 +29,7 @@ import java.util.*
 class NewRoundInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
+            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
         }
 
     }

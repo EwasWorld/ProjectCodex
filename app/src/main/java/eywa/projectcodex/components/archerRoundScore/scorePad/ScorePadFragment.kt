@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.R
-import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -107,10 +106,11 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             }
             arrows = arrowValues
         })
+    }
 
-        if (requireActivity() is MainActivity) {
-            (requireActivity() as MainActivity).setCustomBackButtonCallback()
-        }
+    override fun onResume() {
+        super.onResume()
+        updateTable()
     }
 
     /**

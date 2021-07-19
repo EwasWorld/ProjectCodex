@@ -8,10 +8,12 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.commonUtils.*
@@ -19,14 +21,19 @@ import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedP
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val LOG_TAG = "MainActivity"
+    }
+
     lateinit var navHostFragment: NavHostFragment
     private lateinit var mainActivityViewModel: MainActivityViewModel
     private var defaultRoundsVersion = -1
 
     /**
      * Stores destination IDs of fragments which will be returned to when the back button is pressed
+     * This is a list rather than a stack due to the need to remove all duplicates of certain items at certain times
      */
-    private val customBackStack = Stack<Int>()
+    private val customBackStack = mutableListOf<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,19 +73,66 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
             if (arguments?.getBoolean("showArcherRoundNavBar", false) == true) {
                 bottomNav.visibility = View.VISIBLE
-                return@addOnDestinationChangedListener
             }
             else {
                 bottomNav.visibility = View.GONE
             }
 
-            if (arguments?.getBoolean("doNotAddToBackStack", false) == true) {
-                return@addOnDestinationChangedListener
+            if (getBackStackBehaviour(destination) != BackStackBehaviour.NONE) {
+                customBackStack.add(destination.id)
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            val navController = navHostFragment.navController
+
+            /*
+             * Find the first destination that is not the current
+             */
+            var newDestination: Int
+            do {
+                if (customBackStack.isEmpty()) {
+                    if (!navController.popBackStack()) {
+                        // If there was nowhere to pop to, go to the main menu
+                        navController.navigate(R.id.mainMenuFragment)
+                    }
+                    return@addCallback
+                }
+                newDestination = customBackStack.removeLast()
+            } while (navController.currentDestination?.id == newDestination)
+
+            /*
+             * Ensure it won't pop to the same place next time
+             */
+            while (customBackStack.isNotEmpty() && customBackStack.last() == newDestination) {
+                customBackStack.removeLast()
             }
 
-            customBackStack.push(destination.id)
+            if (getBackStackBehaviour(navController.currentDestination) == BackStackBehaviour.SINGLE) {
+                customBackStack.removeAll { it == navController.currentDestination?.id }
+            }
+
+            /*
+             * Actually pop the back stack
+             */
+            if (!navController.popBackStack(newDestination, false)) {
+                // If there was nowhere to pop to, clear the back stack and go to the main menu
+                var count = 0
+                while (navController.popBackStack()) {
+                    count++
+                }
+                CustomLogger.customLogger.w(
+                        LOG_TAG,
+                        "Pop to $newDestination failed, removed $count items from the back stack." +
+                                " Navigating to main menu"
+                )
+                navController.navigate(R.id.mainMenuFragment)
+            }
         }
     }
+
+    private fun getBackStackBehaviour(destination: NavDestination?): BackStackBehaviour = destination?.arguments
+            ?.get("backStackBehaviour")?.defaultValue as? BackStackBehaviour ?: BackStackBehaviour.NORMAL
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -127,15 +181,5 @@ class MainActivity : AppCompatActivity() {
             allFragments.addAll(findAllActionBarChildFragments(childFragment))
         }
         return allFragments
-    }
-
-    fun setCustomBackButtonCallback() {
-        val callback = this.onBackPressedDispatcher.addCallback(this) {
-            if (customBackStack.empty()) {
-                navHostFragment.navController.popBackStack()
-            }
-            navHostFragment.navController.popBackStack(customBackStack.pop(), false)
-        }
-        callback.isEnabled = true
     }
 }

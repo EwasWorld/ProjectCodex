@@ -47,14 +47,11 @@ import org.junit.runner.RunWith
 class ScorePadInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = testDatabaseName
+            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
         }
     }
 
     private val endSize = 6
-    private val menuButtonInsert = "Insert end above"
-    private val menuButtonDelete = "Delete end"
-    private val menuButtonEdit = "Edit end"
     private val waitForMenuMs = 500L
 
     private var fragScenario: FragmentScenario<ScorePadFragment>? = null
@@ -270,7 +267,7 @@ class ScorePadInstrumentedTest {
 
         onView(withText("X-9-9-9-7-6")).perform(click())
         ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
-        onView(withText(menuButtonEdit)).perform(click())
+        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
         ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(EditEndFragment::class.java.name))
         onView(withId(R.id.button_end_inputs__clear)).perform(click())
         val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
@@ -313,7 +310,7 @@ class ScorePadInstrumentedTest {
         firstEnd.reorderScores()
         onView(withText(firstEnd.toString())).perform(click())
         ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
-        onView(withText(menuButtonEdit)).perform(click())
+        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
         ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(EditEndFragment::class.java.name))
     }
 
@@ -340,7 +337,7 @@ class ScorePadInstrumentedTest {
         endToClick.reorderScores()
         onViewWithClassName(endToClick.toString()).perform(click())
         ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
-        onView(withText(menuButtonDelete)).perform(click())
+        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
 
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
@@ -376,7 +373,7 @@ class ScorePadInstrumentedTest {
         )
 
         onView(withText("X-9-9-9-7-6")).perform(click())
-        ConditionWatcher.waitForCondition(clickMenuButton(menuButtonInsert))
+        ConditionWatcher.waitForCondition(clickMenuButton(CommonStrings.Menus.scorePadInsertEnd))
         ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(InsertEndFragment::class.java.name))
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")

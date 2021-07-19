@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
-import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ScoreIndicatorFragment
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -108,10 +107,6 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             catch (e: Exception) {
                 ToastSpamPrevention.displayToast(requireContext(), getString(R.string.err__internal_error))
             }
-        }
-
-        if (requireActivity() is MainActivity) {
-            (requireActivity() as MainActivity).setCustomBackButtonCallback()
         }
     }
 

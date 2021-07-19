@@ -47,9 +47,9 @@
             app:destination="@id/inputEndFragment"
             />
         <argument
-            android:name="doNotAddToBackStack"
-            app:argType="boolean"
-            android:defaultValue="true"
+            android:name="backStackBehaviour"
+            app:argType="eywa.projectcodex.components.BackStackBehaviour"
+            android:defaultValue="NONE"
             />
     </fragment>
     <fragment
@@ -75,6 +75,11 @@
             app:argType="boolean"
             android:defaultValue="true"
             />
+        <argument
+            android:name="backStackBehaviour"
+            app:argType="eywa.projectcodex.components.BackStackBehaviour"
+            android:defaultValue="SINGLE"
+            />
     </fragment>
     <fragment
         android:id="@+id/scorePadFragment"
@@ -99,6 +104,11 @@
             app:argType="boolean"
             android:defaultValue="true"
             />
+        <argument
+            android:name="backStackBehaviour"
+            app:argType="eywa.projectcodex.components.BackStackBehaviour"
+            android:defaultValue="SINGLE"
+            />
     </fragment>
     <fragment
         android:id="@+id/editEndFragment"
@@ -117,6 +127,11 @@
         <argument
             android:name="firstArrowId"
             app:argType="integer"
+            />
+        <argument
+            android:name="backStackBehaviour"
+            app:argType="eywa.projectcodex.components.BackStackBehaviour"
+            android:defaultValue="NONE"
             />
         <action
             android:id="@+id/actionEditEndFragmentToScorePadFragment"
@@ -142,6 +157,11 @@
         <argument
             android:name="firstArrowId"
             app:argType="integer"
+            />
+        <argument
+            android:name="backStackBehaviour"
+            app:argType="eywa.projectcodex.components.BackStackBehaviour"
+            android:defaultValue="NONE"
             />
         <action
             android:id="@+id/actionInsertEndFragmentToScorePadFragment"
@@ -170,6 +190,11 @@
             android:name="showArcherRoundNavBar"
             app:argType="boolean"
             android:defaultValue="true"
+            />
+        <argument
+            android:name="backStackBehaviour"
+            app:argType="eywa.projectcodex.components.BackStackBehaviour"
+            android:defaultValue="SINGLE"
             />
     </fragment>
 </navigation>
