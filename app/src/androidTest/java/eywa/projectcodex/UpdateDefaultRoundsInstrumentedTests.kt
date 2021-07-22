@@ -13,6 +13,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
 import org.junit.After
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
@@ -30,8 +31,40 @@ class UpdateDefaultRoundsInstrumentedTests {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
 
+    @Before
+    fun setup() {
+        RoundRepo.reCreateLock()
+    }
+
     @After
     fun afterEach() {
+        /*
+         * Check that the current update rounds task is completed so it doesn't interfere with other tests
+         * It runs in a separate thread which will not be stopped on scenario close
+         */
+        val state = UpdateDefaultRounds.taskProgress.getState()
+        val completeLatch = CountDownLatch(1)
+        val observer = Observer { taskState: UpdateDefaultRounds.UpdateTaskState ->
+            if (taskState.isCompletedState) {
+                completeLatch.countDown()
+            }
+        }
+        scenario.onActivity {
+            state.observeForever(observer)
+        }
+        if (!completeLatch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
+            Assert.fail("Update task did not finish")
+        }
+        scenario.onActivity {
+            state.removeObserver(observer)
+        }
+
+        /*
+         * Normal cleanup
+         */
+        scenario.onActivity {
+            ScoresRoomDatabase.clearInstance(it.applicationContext)
+        }
         setSharedPrefs(scenario)
         scenario.close()
     }
@@ -70,7 +103,7 @@ class UpdateDefaultRoundsInstrumentedTests {
          */
         val lockHolderThread = object : Runnable {
             var isRunning = true
-            var complete = false
+            var isComplete = false
 
             override fun run() {
                 Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
@@ -90,7 +123,7 @@ class UpdateDefaultRoundsInstrumentedTests {
                 Assert.assertEquals(1, RoundRepo.repositoryWriteLock.holdCount)
                 RoundRepo.repositoryWriteLock.unlock()
                 Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
-                complete = true
+                isComplete = true
             }
         }
         Thread(lockHolderThread).start()
@@ -132,7 +165,7 @@ class UpdateDefaultRoundsInstrumentedTests {
             }
 
             override fun checkCondition(): Boolean {
-                return lockHolderThread.complete
+                return lockHolderThread.isComplete
             }
         })
     }

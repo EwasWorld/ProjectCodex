@@ -1,5 +1,6 @@
 package eywa.projectcodex.database.rounds
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
@@ -17,7 +18,12 @@ class RoundRepo(
         private val roundDistanceDao: RoundDistanceDao
 ) {
     companion object {
-        val repositoryWriteLock = ReentrantLock()
+        var repositoryWriteLock = ReentrantLock()
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        fun reCreateLock() {
+            repositoryWriteLock = ReentrantLock()
+        }
     }
 
     val rounds: LiveData<List<Round>> = roundDao.getAllRounds()

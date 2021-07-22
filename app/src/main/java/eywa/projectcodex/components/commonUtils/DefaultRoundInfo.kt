@@ -312,6 +312,7 @@ class UpdateDefaultRounds {
                                 LOG_TAG,
                                 "Update default rounds task failed with exception: " + exception.toString()
                                         + "\nlast progress token was " + taskProgress.getMessage().value
+                                        + "\nstack trace: " + exception.stackTraceToString()
                         )
                         val message = when (exception) {
                             is UserException -> exception.getUserMessage(resources)
@@ -334,7 +335,9 @@ class UpdateDefaultRounds {
         }
     }
 
-    enum class UpdateTaskState { NOT_STARTED, IN_PROGRESS, COMPLETE, ERROR, UP_TO_DATE }
+    enum class UpdateTaskState(val isCompletedState: Boolean) {
+        NOT_STARTED(false), IN_PROGRESS(false), COMPLETE(true), ERROR(true), UP_TO_DATE(true)
+    }
 
     /**
      * Used to enforce ordering when updating the state and message
@@ -366,8 +369,7 @@ class UpdateDefaultRounds {
             private val repository: RoundRepo,
             private val resources: Resources,
             private val sharedPreferences: SharedPreferences
-    ) :
-            TaskRunner.ProgressTask<String, String>() {
+    ) : TaskRunner.ProgressTask<String, String>() {
         companion object {
             const val LOG_TAG = "UpdateDefaultRoundsTask"
         }
@@ -377,7 +379,6 @@ class UpdateDefaultRounds {
 
             /*
              * Check if an update is needed
-             * TODO Read from the json file rather than using CURRENT_VERSION constant
              */
             val rawString =
                     resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
