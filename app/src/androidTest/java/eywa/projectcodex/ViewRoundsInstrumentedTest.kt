@@ -45,9 +45,9 @@ class ViewRoundsInstrumentedTest {
     }
 
     /**
-     * RoundId and handicap
+     * RoundId
      */
-    private val removedColumnIndexes = listOf(0, 6)
+    private val removedColumnIndexes = listOf(0)
 
     private lateinit var scenario: FragmentScenario<ViewRoundsFragment>
     private lateinit var navController: TestNavHostController
@@ -58,6 +58,7 @@ class ViewRoundsInstrumentedTest {
     private lateinit var round: Round
     private lateinit var roundSubType: RoundSubType
     private lateinit var roundArrowCount: RoundArrowCount
+    private lateinit var roundDistance: RoundDistance
     private var arrows: MutableList<List<ArrowValue>> = mutableListOf()
 
     @Before
@@ -86,6 +87,7 @@ class ViewRoundsInstrumentedTest {
         round = TestData.generateRounds(1)[0]
         roundSubType = TestData.generateSubTypes(1)[0]
         roundArrowCount = TestData.generateArrowCounts(1)[0]
+        roundDistance = RoundDistance(1, 1, 1, 70)
         archerRounds = TestData.generateArcherRounds(5, 1, listOf(1, 1, null), listOf(1, null, null))
                 .mapIndexed { i, archerRound ->
                     val roundInfo = if (i % 3 == 0 || i % 3 == 1) round else null
@@ -97,20 +99,17 @@ class ViewRoundsInstrumentedTest {
         }
 
         scenario.onFragment {
-            for (archerRound in archerRounds) {
-                runBlocking {
+            runBlocking {
+                for (archerRound in archerRounds) {
                     db.archerRoundDao().insert(archerRound.archerRound)
                 }
-            }
-            for (arrow in arrows.flatten()) {
-                runBlocking {
+                for (arrow in arrows.flatten()) {
                     db.arrowValueDao().insert(arrow)
                 }
-            }
-            runBlocking {
                 db.roundDao().insert(round)
                 db.roundSubTypeDao().insert(roundSubType)
                 db.roundArrowCountDao().insert(roundArrowCount)
+                db.roundDistanceDao().insert(roundDistance)
             }
         }
 
@@ -135,8 +134,13 @@ class ViewRoundsInstrumentedTest {
     fun testTableValues() {
         addDataToDatabase()
 
-        val expected =
-                calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, resources)
+        val expected = calculateViewRoundsTableData(
+                archerRounds,
+                arrows.flatten(),
+                GoldsType.TENS,
+                listOf(roundArrowCount),
+                listOf(roundDistance)
+        )
         for (i in expected.indices) {
             assertEquals(
                     expected[i].filterIndexed { j, _ -> !removedColumnIndexes.contains(j) },
@@ -211,8 +215,13 @@ class ViewRoundsInstrumentedTest {
     @Test
     fun testDeleteRow() {
         addDataToDatabase()
-        var expected: List<List<InfoTableCell>> =
-                calculateViewRoundsTableData(archerRounds, arrows.flatten(), GoldsType.TENS, resources)
+        var expected: List<List<InfoTableCell>> = calculateViewRoundsTableData(
+                archerRounds,
+                arrows.flatten(),
+                GoldsType.TENS,
+                listOf(roundArrowCount),
+                listOf(roundDistance)
+        )
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())

@@ -220,13 +220,13 @@ class ScorePadInstrumentedTest {
         ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(8))
 
         val expectedCells = calculateScorePadTableData(
-                arrows, endSize, GoldsType.XS, resources, arrowCounts, roundDistances, "m"
+                arrows, endSize, GoldsType.TENS, resources, arrowCounts, roundDistances, "m"
         )
         for (i in expectedCells.indices) {
             assertEquals(expectedCells[i], getTableView().adapter!!.getCellRowItems(i))
         }
 
-        checkColumnHeaders("X")
+        checkColumnHeaders("10")
         checkRowsHeaders(listOf(3, 3))
     }
 

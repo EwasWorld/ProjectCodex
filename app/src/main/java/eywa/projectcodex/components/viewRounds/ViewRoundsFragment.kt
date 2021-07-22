@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +20,7 @@ import eywa.projectcodex.components.infoTable.*
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
 
 class ViewRoundsFragment : Fragment(), ActionBarHelp {
     companion object {
@@ -31,13 +31,13 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     private var allArrows: List<ArrowValue> = listOf()
     private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
     private var allArrowCounts: List<RoundArrowCount> = listOf()
+    private var allDistances: List<RoundDistance> = listOf()
     private val goldsType = GoldsType.TENS
     private var selectedArcherRoundId = -1
     private var emptyDialog: AlertDialog? = null
     private var roundCompleteDialog: AlertDialog? = null
     private val archerRoundIdColumn = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)
-    private val countsToHcColumn = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__counts_to_hc_header)
-    private val hiddenColumnIndexes = listOf(archerRoundIdColumn, countsToHcColumn).sorted()
+    private val hiddenColumnIndexes = listOf(archerRoundIdColumn).sorted()
     private lateinit var hiddenColumns: MutableList<MutableList<InfoTableCell>>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -56,32 +56,42 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
         registerForContextMenu(tableView.cellRecyclerView)
 
         viewRoundsViewModel = ViewModelProvider(this).get(ViewRoundsViewModel::class.java)
-        viewRoundsViewModel.allArrows.observe(viewLifecycleOwner, Observer { arrows ->
+        viewRoundsViewModel.allArrows.observe(viewLifecycleOwner, { arrows ->
             arrows?.let {
                 allArrows = arrows
                 populateTable(tableAdapter)
             }
         })
-        viewRoundsViewModel.allArcherRounds.observe(viewLifecycleOwner, Observer { archerRounds ->
+        viewRoundsViewModel.allArcherRounds.observe(viewLifecycleOwner, { archerRounds ->
             archerRounds?.let {
                 allArcherRoundsWithNames = archerRounds
                 populateTable(tableAdapter)
             }
         })
-        viewRoundsViewModel.allArrowCounts.observe(viewLifecycleOwner, Observer { arrowCounts ->
-            arrowCounts?.let { allArrowCounts = arrowCounts }
+        viewRoundsViewModel.allArrowCounts.observe(viewLifecycleOwner, { arrowCounts ->
+            arrowCounts?.let {
+                allArrowCounts = arrowCounts
+                populateTable(tableAdapter)
+            }
+        })
+        viewRoundsViewModel.allDistances.observe(viewLifecycleOwner, { distances ->
+            distances?.let {
+                allDistances = distances
+                populateTable(tableAdapter)
+            }
         })
     }
 
     private fun populateTable(tableAdapter: InfoTableViewAdapter) {
-        try {
-            val tableData = calculateViewRoundsTableData(
-                    allArcherRoundsWithNames,
-                    allArrows,
-                    goldsType,
-                    resources
-            )
+        val tableData = calculateViewRoundsTableData(
+                allArcherRoundsWithNames,
+                allArrows,
+                goldsType,
+                allArrowCounts,
+                allDistances
+        )
 
+        if (!tableData.isNullOrEmpty()) {
             // Remove columns to be hidden
             val displayTableData = mutableListOf<MutableList<InfoTableCell>>()
             hiddenColumns = mutableListOf()
@@ -100,7 +110,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                 emptyDialog!!.dismiss()
             }
         }
-        catch (e: IllegalArgumentException) {
+        else {
             if (emptyDialog == null) {
                 val builder = AlertDialog.Builder(activity)
                 builder.setTitle(R.string.err_table_view__no_data)

@@ -123,41 +123,41 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             return
         }
 
-        try {
-            /*
-             * For some unknown reason not creating a new table adapter every time causes major display issues. Chiefly:
-             *  - On deletion of a row, column sizes go crazy and column headers no longer horizontally align with data
-             *  - On setAllItems it will randomly bold some rows and headers and truncate data in random places
-             */
-            val tableAdapter = InfoTableViewAdapter(requireContext())
-            val tableView = requireView().findViewById<TableView>(R.id.table_view_score_pad)
-            tableView.adapter = tableAdapter
-            tableView.tableViewListener = ScorePadTableViewListener(tableView)
-            registerForContextMenu(tableView.cellRecyclerView)
+        /*
+         * For some unknown reason not creating a new table adapter every time causes major display issues. Chiefly:
+         *  - On deletion of a row, column sizes go crazy and column headers no longer horizontally align with data
+         *  - On setAllItems it will randomly bold some rows and headers and truncate data in random places
+         */
+        val tableAdapter = InfoTableViewAdapter(requireContext())
+        val tableView = requireView().findViewById<TableView>(R.id.table_view_score_pad)
+        tableView.adapter = tableAdapter
+        tableView.tableViewListener = ScorePadTableViewListener(tableView)
+        registerForContextMenu(tableView.cellRecyclerView)
 
-            val tableData = calculateScorePadTableData(
-                    arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit
-            )
-            val arrowRowsShot = ceil(arrows.size / endSize.toDouble()).toInt()
-            tableAdapter.setAllItems(
-                    getColumnHeadersForTable(scorePadColumnHeaderIds, resources, goldsType),
-                    generateNumberedRowHeaders(
-                            if (arrowCounts.isNotEmpty()) {
-                                arrowCounts.map { ceil(it.arrowCount / endSize.toDouble()).toInt() }
-                            }
-                            else {
-                                listOf(arrowRowsShot)
-                            },
-                            arrowRowsShot,
-                            resources,
-                            true
-                    ),
-                    tableData
-            )
-        }
-        catch (e: IllegalArgumentException) {
+        val tableData = calculateScorePadTableData(
+                arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit
+        )
+        if (tableData.isNullOrEmpty()) {
             displayError()
+            return
         }
+
+        val arrowRowsShot = ceil(arrows.size / endSize.toDouble()).toInt()
+        tableAdapter.setAllItems(
+                getColumnHeadersForTable(scorePadColumnHeaderIds, resources, goldsType),
+                generateNumberedRowHeaders(
+                        if (arrowCounts.isNotEmpty()) {
+                            arrowCounts.map { ceil(it.arrowCount / endSize.toDouble()).toInt() }
+                        }
+                        else {
+                            listOf(arrowRowsShot)
+                        },
+                        arrowRowsShot,
+                        resources,
+                        true
+                ),
+                tableData
+        )
     }
 
     private fun displayError() {

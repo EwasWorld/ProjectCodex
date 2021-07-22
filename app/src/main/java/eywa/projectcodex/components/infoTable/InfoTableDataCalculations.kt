@@ -2,6 +2,7 @@ package eywa.projectcodex.components.infoTable
 
 import android.content.res.Resources
 import eywa.projectcodex.R
+import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
@@ -63,6 +64,7 @@ fun getColumnHeadersForTable(
 /**
  * Displays the arrow data along with total rows and a grand total row
  * @see scorePadColumnHeaderIds
+ * @return score pad data or an empty list if there's no data to show
  */
 fun calculateScorePadTableData(
         arrows: List<ArrowValue>,
@@ -73,10 +75,13 @@ fun calculateScorePadTableData(
         distances: List<RoundDistance> = listOf(),
         distanceUnit: String? = null
 ): MutableList<MutableList<InfoTableCell>> {
-    require(arrows.isNotEmpty()) { "allArrows cannot be empty" }
     require(endSize > 0) { "endSize must be >0" }
     require(arrowCounts.size == distances.size) { "Must have the same number of arrow counts as distances" }
     require(arrowCounts.isEmpty() || !distanceUnit.isNullOrEmpty()) { "Must provide a unit for distance totals" }
+
+    if (arrows.isEmpty()) {
+        return mutableListOf()
+    }
 
     // Maps arrow count for distance to distance (e.g. 36 arrows at 70yds)
     val distancesInfo: MutableList<Pair<Int, Int?>>
@@ -181,17 +186,21 @@ fun calculateScorePadTableData(
 /**
  * Adds a delete column on the end
  * @param defaultGoldsType The default GoldsType to use if an archer round doesn't have a round
+ * @return rounds data or an empty list if there's no data to show
  * @see viewRoundsColumnHeaderIds
  */
 fun calculateViewRoundsTableData(
         archerRounds: List<ArcherRoundWithRoundInfoAndName>,
         arrows: List<ArrowValue>,
         defaultGoldsType: GoldsType,
-        resources: Resources
+        arrowCounts: List<RoundArrowCount>? = null,
+        distances: List<RoundDistance>? = null
 ): MutableList<MutableList<InfoTableCell>> {
-    require(archerRounds.isNotEmpty()) { "archerRounds cannot be empty" }
-
     val tableData = mutableListOf<MutableList<InfoTableCell>>()
+    if (archerRounds.isEmpty()) {
+        return tableData
+    }
+
     for (archerRoundInfo in archerRounds.sortedByDescending { archerRound -> archerRound.archerRound.dateShot }) {
         val archerRound = archerRoundInfo.archerRound
 
@@ -202,8 +211,9 @@ fun calculateViewRoundsTableData(
 
         // H/S/G
         val relevantArrows = arrows.filter { arrow -> arrow.archerRoundId == archerRound.archerRoundId }
+        val score = relevantArrows.sumOf { it.score }
         rowData.add(relevantArrows.count { it.score != 0 })
-        rowData.add(relevantArrows.sumOf { it.score })
+        rowData.add(score)
         val goldsType = archerRoundInfo.round?.let {
             getGoldsType(
                     it.isOutdoor, it.isMetric
@@ -211,9 +221,31 @@ fun calculateViewRoundsTableData(
         } ?: defaultGoldsType
         rowData.add(relevantArrows.count { goldsType.isGold(it) })
 
-        val countsToHandicap =
-                if (archerRound.countsTowardsHandicap) R.string.short_boolean_true else R.string.short_boolean_false
-        rowData.add(resources.getString(countsToHandicap))
+        // Handicap
+        var handicap: Int? = null
+        if (archerRound.roundId != null && !arrowCounts.isNullOrEmpty() && !distances.isNullOrEmpty()
+            && !relevantArrows.isNullOrEmpty()
+        ) {
+            val relevantArrowCounts = arrowCounts.filter { it.roundId == archerRound.roundId }
+            val relevantDistances = distances.filter {
+                return@filter when {
+                    it.roundId != archerRound.roundId -> false
+                    archerRound.roundSubTypeId == null -> it.subTypeId == 1
+                    else -> it.subTypeId == archerRound.roundSubTypeId
+                }
+            }
+            if (relevantArrowCounts.isNotEmpty() && relevantDistances.isNotEmpty()) {
+                handicap = Handicap.getHandicapForRound(
+                        archerRoundInfo.round!!,
+                        relevantArrowCounts,
+                        relevantDistances,
+                        score,
+                        false,
+                        relevantArrows.size
+                )
+            }
+        }
+        rowData.add(handicap ?: "-")
 
         tableData.add(toCells(rowData, tableData.size))
     }

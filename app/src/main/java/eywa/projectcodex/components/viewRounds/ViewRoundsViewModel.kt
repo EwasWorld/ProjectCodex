@@ -10,6 +10,7 @@ import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.launch
 
@@ -25,11 +26,13 @@ class ViewRoundsViewModel(application: Application) : AndroidViewModel(applicati
     val allArrows: LiveData<List<ArrowValue>>
     val allArcherRounds: LiveData<List<ArcherRoundWithRoundInfoAndName>>
     val allArrowCounts: LiveData<List<RoundArrowCount>>
+    val allDistances: LiveData<List<RoundDistance>>
 
     init {
         allArrows = arrowValuesRepo.allArrowValues
         allArcherRounds = archerRoundsRepo.allArcherRoundsWithRoundInfoAndName
         allArrowCounts = roundRepo.roundArrowCounts
+        allDistances = roundRepo.roundDistances
     }
 
     /**

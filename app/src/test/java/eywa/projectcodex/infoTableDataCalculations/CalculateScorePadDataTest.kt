@@ -218,10 +218,9 @@ class CalculateScorePadDataTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testNoData() {
-        checkScorePadData(0, endSize, goldsType)
-        Assert.fail("Create table data with no data")
+        Assert.assertTrue(calculateScorePadTableData(listOf(), endSize, goldsType, resources).isNullOrEmpty())
     }
 
     @Test(expected = IllegalArgumentException::class)

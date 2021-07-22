@@ -52,7 +52,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             text_archer_round_stats__hits.updateText("$hits" + if (totalArrows > hits) " (of $totalArrows)" else "")
             text_archer_round_stats__score.updateText(dbArrows.sumOf { it.score }.toString())
             text_archer_round_stats__golds.updateText(dbArrows.count { GoldsType.TENS.isGold(it) }.toString())
-            calculateHandicap()
+            calculateHandicapAndPredictedScore()
         })
         archerRoundStatsViewModel.archerRoundWithRoundInfo.observe(viewLifecycleOwner, { info ->
             info?.let { archerRoundWithInfo ->
@@ -75,23 +75,23 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                             counts?.let { dbArrowCounts ->
                                 arrowCounts = dbArrowCounts
                                 setRemainingArrowsText()
-                                calculateHandicap()
+                                calculateHandicapAndPredictedScore()
                             }
                         })
                 archerRoundStatsViewModel.getDistancesForRound(round!!.roundId, archerRound.roundSubTypeId)
                         .observe(viewLifecycleOwner, {
                             roundDistances = it
-                            calculateHandicap()
+                            calculateHandicapAndPredictedScore()
                         })
 
                 text_archer_round_stats__round.visibility = View.VISIBLE
                 text_archer_round_stats__remaining_arrows.visibility = View.VISIBLE
-                calculateHandicap()
+                calculateHandicapAndPredictedScore()
             }
         })
     }
 
-    private fun calculateHandicap(innerTenArcher: Boolean = false) {
+    private fun calculateHandicapAndPredictedScore(innerTenArcher: Boolean = false) {
         if (round == null || arrowCounts.isNullOrEmpty() || roundDistances.isNullOrEmpty() || arrows.isNullOrEmpty()) {
             text_archer_round_stats__handicap.visibility = View.GONE
             text_archer_round_stats__predicted_score.visibility = View.GONE
@@ -103,6 +103,9 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
         check(roundDistances!!.distinctBy { it.subTypeId }.size == 1) { "Multiple distance subtypes" }
         check(roundDistances!!.size == arrowCounts!!.size) { "Distances arrow counts size mismatch" }
 
+        /*
+         * Calculate
+         */
         val handicap = Handicap.getHandicapForRound(
                 round!!,
                 arrowCounts!!,
@@ -111,19 +114,26 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 innerTenArcher,
                 arrows!!.count()
         )
+        // No need to predict a score if round is already completed
+        var predictedScore: Int? = null
+        if (!isRoundComplete()) {
+            predictedScore = Handicap.getScoreForRound(
+                    round!!, arrowCounts!!, roundDistances!!, handicap, innerTenArcher, null
+            )
+        }
+
+        /*
+         * Display
+         */
         text_archer_round_stats__handicap.updateText(handicap.toString())
-        text_archer_round_stats__predicted_score.updateText(
-                Handicap.getScoreForRound(
-                        round!!,
-                        arrowCounts!!,
-                        roundDistances!!,
-                        handicap,
-                        innerTenArcher,
-                        null
-                ).toString()
-        )
         text_archer_round_stats__handicap.visibility = View.VISIBLE
-        text_archer_round_stats__predicted_score.visibility = View.VISIBLE
+        if (predictedScore != null) {
+            text_archer_round_stats__predicted_score.updateText(predictedScore.toString())
+            text_archer_round_stats__predicted_score.visibility = View.VISIBLE
+        }
+        else {
+            text_archer_round_stats__predicted_score.visibility = View.GONE
+        }
     }
 
     private fun setRemainingArrowsText() {
