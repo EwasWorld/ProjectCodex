@@ -35,6 +35,7 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     private var arrowCounts = emptyList<RoundArrowCount>()
     private var distances = emptyList<RoundDistance>()
     private var distanceUnit: String = ""
+    private var roundName: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_input_end, container, false)
@@ -42,17 +43,19 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
             InputEndViewModel(requireActivity().application, args.archerRoundId)
         }).get(InputEndViewModel::class.java)
-        inputEndViewModel.archerRound.observe(viewLifecycleOwner, { archerRound ->
-            if (archerRound == null) {
+        inputEndViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, { archerRoundInfo ->
+            if (archerRoundInfo == null) {
                 return@observe
             }
-            showRemainingArrows = archerRound.roundId != null
-            archerRound.roundId?.let { roundId ->
+            roundName = archerRoundInfo.displayName ?: ""
+            setFragmentTitle()
+            showRemainingArrows = archerRoundInfo.round != null
+            archerRoundInfo.round?.roundId?.let { roundId ->
                 inputEndViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, {
                     arrowCounts = it
                     updateRoundInfo(view)
                 })
-                inputEndViewModel.getDistancesForRound(roundId, archerRound.roundSubTypeId)
+                inputEndViewModel.getDistancesForRound(roundId, archerRoundInfo.archerRound.roundSubTypeId)
                         .observe(viewLifecycleOwner, {
                             distances = it
                             updateRoundInfo(view)
@@ -74,9 +77,13 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         return view
     }
 
+    private fun setFragmentTitle() {
+        activity?.title = roundName ?: getString(R.string.input_end__title)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.title = getString(R.string.input_end__title)
+        setFragmentTitle()
         endInputsFragment =
                 childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment
 
@@ -126,15 +133,15 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         /*
          * Round Indicators
          */
-        val roundIndicatorSection = view.findViewById<LinearLayout>(R.id.layout_input_end__remaining_arrows)
+        val roundInfoLayout = view.findViewById<LinearLayout>(R.id.layout_input_end__round_info)
         if (!showRemainingArrows || arrowCounts.sumOf { it.arrowCount } == 0 || distances.size != arrowCounts.size
             || distanceUnit.isBlank()
         ) {
-            roundIndicatorSection.visibility = View.GONE
+            roundInfoLayout.visibility = View.GONE
             return
         }
 
-        roundIndicatorSection.visibility = View.VISIBLE
+        roundInfoLayout.visibility = View.VISIBLE
         val remainingArrows = RemainingArrows(arrows.size, arrowCounts, distances, distanceUnit)
         endInputsFragment.end.distanceRemainingArrows = remainingArrows.getFirstRemainingArrowCount()
         val roundIndicators =
@@ -173,10 +180,10 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
                         getString(R.string.help_input_end__next_end_body)
                 )
         )
-        if (requireView().findViewById<TextView>(R.id.layout_input_end__remaining_arrows).isVisible) {
+        if (requireView().findViewById<TextView>(R.id.layout_input_end__round_info).isVisible) {
             main.add(
                     ActionBarHelp.HelpShowcaseItem(
-                            R.id.layout_input_end__remaining_arrows,
+                            R.id.layout_input_end__round_info,
                             getString(R.string.help_input_end__remaining_arrows_title),
                             getString(R.string.help_input_end__remaining_arrows_body),
                             priority = 20

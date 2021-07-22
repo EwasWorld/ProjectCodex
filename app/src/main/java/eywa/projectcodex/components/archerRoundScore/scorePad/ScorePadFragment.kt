@@ -29,6 +29,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     private lateinit var scorePadViewModel: ScorePadViewModel
     private var dialog: AlertDialog? = null
     private var selectedRow = 0
+    private var roundName: String? = null
 
     // TODO Is there a way to make these setters common?
     private var goldsType = GoldsType.TENS
@@ -69,20 +70,22 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.title = getString(R.string.score_pad__title)
+        setFragmentTitle()
 
         scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
             ScorePadViewModel(requireActivity().application, args.archerRoundId)
         }).get(ScorePadViewModel::class.java)
 
         // Get arrow counts and distances
-        scorePadViewModel.archerRound.observe(viewLifecycleOwner, Observer { archerRound ->
-            if (archerRound == null) return@Observer
-            archerRound.roundId?.let { roundId ->
+        scorePadViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, Observer { archerRoundInfo ->
+            if (archerRoundInfo == null) return@Observer
+            roundName = archerRoundInfo.displayName
+            setFragmentTitle()
+            archerRoundInfo.round?.roundId?.let { roundId ->
                 scorePadViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, {
                     arrowCounts = it
                 })
-                scorePadViewModel.getDistancesForRound(roundId, archerRound.roundSubTypeId)
+                scorePadViewModel.getDistancesForRound(roundId, archerRoundInfo.archerRound.roundSubTypeId)
                         .observe(viewLifecycleOwner, {
                             distances = it
                         })
@@ -106,6 +109,10 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             }
             arrows = arrowValues
         })
+    }
+
+    private fun setFragmentTitle() {
+        activity?.title = roundName ?: getString(R.string.score_pad__title)
     }
 
     override fun onResume() {

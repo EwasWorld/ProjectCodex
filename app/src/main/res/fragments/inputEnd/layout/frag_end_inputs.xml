@@ -8,16 +8,18 @@
     tools:context=".components.archerRoundScore.inputEnd.subFragments.EndInputsFragment"
     >
 
+    <!-- text is a placeholder than will be overwritten on load -->
     <TextView
         android:id="@+id/text_end_inputs__end_total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/placeholder_0"
+        android:text="23"
         android:textColor="@color/inputEndText"
         android:textSize="@dimen/large_text_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText"
         />
 
     <!-- text is a placeholder than will be overwritten on load -->

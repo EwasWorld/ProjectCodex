@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
@@ -48,18 +49,22 @@
             <!-- android:text="Bob"-->
             <!-- />-->
 
+            <!-- text is a placeholder than will be overwritten on load -->
             <TextView
                 android:id="@+id/text_scores_indicator__table_score_1"
                 style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
-                android:text="@string/placeholder_0"
+                android:text="108"
+                tools:ignore="HardcodedText"
                 />
 
+            <!-- text is a placeholder than will be overwritten on load -->
             <TextView
                 android:id="@+id/text_scores_indicator__table_arrow_count_1"
                 style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
-                android:text="@string/placeholder_0"
+                android:text="12"
+                tools:ignore="HardcodedText"
                 />
         </TableRow>
     </TableLayout>

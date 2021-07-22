@@ -15,7 +15,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.65"
         >
 
         <LinearLayout
@@ -26,6 +25,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:padding="15dp"
             >
 
             <androidx.fragment.app.FragmentContainerView
@@ -41,44 +41,42 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_input_end__remaining_arrows"
+            android:id="@+id/layout_input_end__round_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingTop="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layout_input_end__score_indicator"
+            android:paddingHorizontal="@dimen/info_table__padding"
             >
 
             <TextView
                 android:id="@+id/text_input_end__remaining_arrows_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/info_table__padding"
                 android:text="@string/input_end__round_indicator_label"
                 android:textColor="@color/inputEndText"
                 android:textSize="@dimen/small_text_size"
                 />
 
-            <!-- Placeholder text -->
+            <!-- text is a placeholder than will be overwritten on load -->
             <TextView
                 android:id="@+id/text_input_end__remaining_arrows_current_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="72 at 100yd"
+                android:text="60 at 100yd"
                 android:textColor="@color/inputEndText"
                 android:textSize="@dimen/medium_text_size"
                 tools:ignore="HardcodedText"
                 />
 
-            <!-- Placeholder text -->
+            <!-- text is a placeholder than will be overwritten on load -->
             <TextView
                 android:id="@+id/text_input_end__remaining_arrows_later_distances"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/info_table__padding"
                 android:text="48 at 80yd, 24 at 60yd"
                 android:textColor="@color/inputEndText"
                 android:textSize="@dimen/small_text_size"

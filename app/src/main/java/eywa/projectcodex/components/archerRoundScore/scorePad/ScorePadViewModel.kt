@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
@@ -23,14 +23,14 @@ class ScorePadViewModel(application: Application, archerRoundId: Int) : AndroidV
     private var arrowValueRepo: ArrowValuesRepo
     val arrowsForRound: LiveData<List<ArrowValue>>
     val roundInfo: LiveData<Round>
-    val archerRound: LiveData<ArcherRound>
+    val archerRoundWithInfo: LiveData<ArcherRoundWithRoundInfoAndName>
 
     init {
         val db = ScoresRoomDatabase.getDatabase(application)
         arrowValueRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
         arrowsForRound = arrowValueRepo.arrowValuesForRound!!
         val archerRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
-        archerRound = archerRoundsRepo.getArcherRound(archerRoundId)
+        archerRoundWithInfo = archerRoundsRepo.getArcherRoundWithRoundInfoAndName(archerRoundId)
         roundInfo = archerRoundsRepo.getRoundInfo(archerRoundId)
         roundRepo = RoundRepo(db)
     }

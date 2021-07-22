@@ -28,6 +28,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
     private var round: Round? = null
     private var arrowCounts: List<RoundArrowCount>? = null
     private var roundDistances: List<RoundDistance>? = null
+    private var roundName: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_archer_round_stats, container, false)
@@ -35,7 +36,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.title = getString(R.string.archer_round_stats__title)
+        setFragmentTitle()
 
         archerRoundStatsViewModel = ViewModelProvider(this, ViewModelFactory {
             ArcherRoundStatsViewModel(requireActivity().application, args.archerRoundId)
@@ -67,6 +68,8 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                     text_archer_round_stats__remaining_arrows.visibility = View.GONE
                     return@observe
                 }
+                roundName = archerRoundWithInfo.displayName
+                setFragmentTitle()
 
                 round = archerRoundWithInfo.round!!
                 text_archer_round_stats__round.updateText(archerRoundWithInfo.roundSubTypeName ?: round!!.displayName)
@@ -89,6 +92,10 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 calculateHandicapAndPredictedScore()
             }
         })
+    }
+
+    private fun setFragmentTitle() {
+        activity?.title = roundName ?: getString(R.string.archer_round_stats__title)
     }
 
     private fun calculateHandicapAndPredictedScore(innerTenArcher: Boolean = false) {

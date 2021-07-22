@@ -29,4 +29,7 @@ data class ArcherRoundWithRoundInfoAndName(
         @Embedded(prefix = "ar_") var archerRound: ArcherRound,
         @Embedded var round: Round? = null,
         var roundSubTypeName: String? = null
-)
+) {
+    val displayName: String?
+        get() = roundSubTypeName ?: round?.displayName
+}
