@@ -15,6 +15,7 @@ class CommonStrings {
             const val viewRoundsShowScorePad = "Show score pad"
             const val viewRoundsContinue = "Continue round"
             const val viewRoundsDelete = "Delete round"
+            const val viewRoundsConvert = "Convert"
         }
     }
 }

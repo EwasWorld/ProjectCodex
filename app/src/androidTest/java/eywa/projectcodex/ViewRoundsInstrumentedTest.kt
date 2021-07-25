@@ -54,15 +54,22 @@ class ViewRoundsInstrumentedTest {
     private lateinit var db: ScoresRoomDatabase
     private lateinit var resources: Resources
     private lateinit var tableViewAdapter: AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
-    private lateinit var archerRounds: List<ArcherRoundWithRoundInfoAndName>
-    private lateinit var round: Round
-    private lateinit var roundSubType: RoundSubType
-    private lateinit var roundArrowCount: RoundArrowCount
-    private lateinit var roundDistance: RoundDistance
-    private var arrows: MutableList<List<ArrowValue>> = mutableListOf()
+    private var archerRounds: List<ArcherRoundWithRoundInfoAndName> = listOf()
+    private var round: Round? = null
+    private var roundSubType: RoundSubType? = null
+    private var roundArrowCount: RoundArrowCount? = null
+    private var roundDistance: RoundDistance? = null
+    private var arrows: List<List<ArrowValue>> = listOf()
 
     @Before
     fun beforeEach() {
+        archerRounds = listOf()
+        round = null
+        roundSubType = null
+        roundArrowCount = null
+        roundDistance = null
+        arrows = listOf()
+
         navController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
         // Start initialised so we can add to the database before the onCreate methods are called
@@ -83,22 +90,28 @@ class ViewRoundsInstrumentedTest {
         }
     }
 
-    private fun addDataToDatabase() {
+    private fun generateBasicDataAndAddToDb() {
         round = TestData.generateRounds(1)[0]
         roundSubType = TestData.generateSubTypes(1)[0]
         roundArrowCount = TestData.generateArrowCounts(1)[0]
         roundDistance = RoundDistance(1, 1, 1, 70)
         archerRounds = TestData.generateArcherRounds(5, 1, listOf(1, 1, null), listOf(1, null, null))
                 .mapIndexed { i, archerRound ->
-                    val roundInfo = if (i % 3 == 0 || i % 3 == 1) round else null
-                    val roundSubTypeName = if (i % 3 == 0) roundSubType.name else null
+                    val roundInfo = if (i % 3 == 0 || i % 3 == 1) round!! else null
+                    val roundSubTypeName = if (i % 3 == 0) roundSubType!!.name else null
                     ArcherRoundWithRoundInfoAndName(archerRound, roundInfo, roundSubTypeName)
                 }
+        val mutableArrows = mutableListOf<List<ArrowValue>>()
         for (round in archerRounds) {
-            arrows.add(TestData.generateArrowValues(30, round.archerRound.archerRoundId))
+            mutableArrows.add(TestData.generateArrowValues(30, round.archerRound.archerRoundId))
         }
+        arrows = mutableArrows
 
-        scenario.onFragment {
+        addToDbAndPopulateAdapter()
+    }
+
+    private fun addToDbAndPopulateAdapter() {
+        scenario.onFragment { fragment ->
             runBlocking {
                 for (archerRound in archerRounds) {
                     db.archerRoundDao().insert(archerRound.archerRound)
@@ -106,19 +119,18 @@ class ViewRoundsInstrumentedTest {
                 for (arrow in arrows.flatten()) {
                     db.arrowValueDao().insert(arrow)
                 }
-                db.roundDao().insert(round)
-                db.roundSubTypeDao().insert(roundSubType)
-                db.roundArrowCountDao().insert(roundArrowCount)
-                db.roundDistanceDao().insert(roundDistance)
+                round?.let { db.roundDao().insert(it) }
+                roundSubType?.let { db.roundSubTypeDao().insert(it) }
+                roundArrowCount?.let { db.roundArrowCountDao().insert(it) }
+                roundDistance?.let { db.roundDistanceDao().insert(it) }
             }
         }
-
         populateAdapter()
     }
 
     private fun populateAdapter() {
-        scenario.onFragment {
-            tableViewAdapter = it.requireActivity().findViewById<TableView>(R.id.table_view_view_rounds).adapter!!
+        scenario.onFragment { fragment ->
+            tableViewAdapter = fragment.requireActivity().findViewById<TableView>(R.id.table_view_view_rounds).adapter!!
                     as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
         }
     }
@@ -132,14 +144,14 @@ class ViewRoundsInstrumentedTest {
 
     @Test
     fun testTableValues() {
-        addDataToDatabase()
+        generateBasicDataAndAddToDb()
 
         val expected = calculateViewRoundsTableData(
                 archerRounds,
                 arrows.flatten(),
                 GoldsType.TENS,
-                listOf(roundArrowCount),
-                listOf(roundDistance)
+                listOf(roundArrowCount!!),
+                listOf(roundDistance!!)
         )
         for (i in expected.indices) {
             assertEquals(
@@ -175,7 +187,7 @@ class ViewRoundsInstrumentedTest {
 
         var uniqueScore: RoundScore? = null
         while (uniqueScore == null) {
-            addDataToDatabase()
+            generateBasicDataAndAddToDb()
             val scores = arrows.map { roundArrows ->
                 RoundScore(roundArrows[0].archerRoundId, roundArrows.sumOf { arrow -> arrow.score })
             }
@@ -214,13 +226,13 @@ class ViewRoundsInstrumentedTest {
 
     @Test
     fun testDeleteRow() {
-        addDataToDatabase()
+        generateBasicDataAndAddToDb()
         var expected: List<List<InfoTableCell>> = calculateViewRoundsTableData(
                 archerRounds,
                 arrows.flatten(),
                 GoldsType.TENS,
-                listOf(roundArrowCount),
-                listOf(roundDistance)
+                listOf(roundArrowCount!!),
+                listOf(roundDistance!!)
         )
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
@@ -252,30 +264,66 @@ class ViewRoundsInstrumentedTest {
 
     @Test
     fun testContinueCompletedRound() {
-        val round = Round(1, "test", "test", true, true, listOf())
-        val roundArrowCount = RoundArrowCount(1, 1, 1.0, 6)
-        val roundDistance = RoundDistance(1, 1, 1, 10)
-        val archerRound = ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1)
-        val arrowValues = TestData.ARROWS.take(6).mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) }
-
-        scenario.onFragment {
-            runBlocking {
-                db.roundDao().insert(round)
-                db.roundArrowCountDao().insert(roundArrowCount)
-                db.roundDistanceDao().insert(roundDistance)
-                db.archerRoundDao().insert(archerRound)
-            }
-            for (arrow in arrowValues) {
-                runBlocking {
-                    db.arrowValueDao().insert(arrow)
-                }
-            }
-        }
-        populateAdapter()
+        round = Round(1, "test", "test", true, true, listOf())
+        roundArrowCount = RoundArrowCount(1, 1, 1.0, 6)
+        roundDistance = RoundDistance(1, 1, 1, 10)
+        archerRounds = listOf(
+                ArcherRoundWithRoundInfoAndName(
+                        ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1), round, null
+                )
+        )
+        arrows = listOf(TestData.ARROWS.take(6).mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
+        addToDbAndPopulateAdapter()
 
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
-        onViewWithClassName(arrowValues.sumOf { it.score }.toString()).perform(longClick())
+        onViewWithClassName(arrows.flatten().sumOf { it.score }.toString()).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(doesNotExist())
+    }
+
+    @Test
+    fun testConvertRound() {
+        archerRounds = listOf(
+                ArcherRoundWithRoundInfoAndName(
+                        ArcherRound(1, TestData.generateDate(), 1, false)
+                ),
+                ArcherRoundWithRoundInfoAndName(
+                        ArcherRound(2, TestData.generateDate(), 1, false)
+                )
+        )
+        arrows = listOf(
+                TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(2, i + 1) }
+        )
+        addToDbAndPopulateAdapter()
+        // TODO_CURRENT Why with class name?
+
+        // Convert first score
+        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        onView(withIndex(withText(TestData.ARROWS.sumOf { it.score }.toString()), 0)).perform(longClick())
+        onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
+        onView(withText("10-zone to 5-zone")).perform(click())
+
+
+        // Convert second score (sum should be unique)
+        onView(withText(TestData.ARROWS.sumOf { it.score }.toString())).perform(longClick())
+        onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
+        onView(withText("Xs to 10s")).perform(click())
+
+        populateAdapter()
+        val expectedData = calculateViewRoundsTableData(
+                archerRounds,
+                listOf(
+                        TestData.ARROWS[0], TestData.ARROWS[1], TestData.ARROWS[1], TestData.ARROWS[3],
+                        TestData.ARROWS[3], TestData.ARROWS[5], TestData.ARROWS[5], TestData.ARROWS[7],
+                        TestData.ARROWS[7], TestData.ARROWS[9], TestData.ARROWS[9], TestData.ARROWS[9]
+                ).mapIndexed { i, arrow -> arrow.toArrowValue(1, i) }
+                        .plus(TestData.ARROWS.dropLast(1).plus(TestData.ARROWS[10])
+                                .mapIndexed { i, arrow -> arrow.toArrowValue(2, i) }),
+                GoldsType.TENS
+        )
+        for (expected in expectedData.withIndex()) {
+            assertEquals(expected.value, tableViewAdapter.getCellRowItems(expected.index))
+        }
     }
 
     /**

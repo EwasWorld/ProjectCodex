@@ -14,6 +14,7 @@ import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.components.commonUtils.showContextMenuOnCentreOfView
 import eywa.projectcodex.components.infoTable.*
@@ -24,21 +25,97 @@ import eywa.projectcodex.database.rounds.RoundDistance
 
 class ViewRoundsFragment : Fragment(), ActionBarHelp {
     companion object {
-        const val LOG_TAG = "ViewRoundsFrag"
+        private const val LOG_TAG = "ViewRoundsFrag"
     }
 
     private lateinit var viewRoundsViewModel: ViewRoundsViewModel
+
+    /*
+     * All data from certain tables in the database
+     */
     private var allArrows: List<ArrowValue> = listOf()
     private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
     private var allArrowCounts: List<RoundArrowCount> = listOf()
     private var allDistances: List<RoundDistance> = listOf()
+
+    /**
+     * How to calculate the golds column
+     */
     private val goldsType = GoldsType.TENS
+
+    /**
+     * Currently selected row, set when any row is pressed or long pressed
+     */
     private var selectedArcherRoundId = -1
-    private var emptyDialog: AlertDialog? = null
-    private var roundCompleteDialog: AlertDialog? = null
+
+    /**
+     * Displayed when there's no information to display in the table
+     */
+    private val emptyTableDialog by lazy {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(R.string.err_table_view__no_data)
+        builder.setMessage(R.string.err_view_round__no_rounds)
+        builder.setPositiveButton(R.string.general_ok) { _, _ ->
+            requireView().findNavController().popBackStack()
+        }
+        builder.create()
+    }
+
+    /**
+     * Displayed if a user tries to continue a round that's already completed
+     */
+    private val roundCompleteDialog by lazy {
+        val okListener = DialogInterface.OnClickListener { _, _ ->
+            val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
+                    selectedArcherRoundId
+            )
+            view?.findNavController()?.navigate(action)
+        }
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(R.string.err_view_round__round_already_complete_title)
+        builder.setMessage(R.string.err_view_round__round_already_complete)
+        builder.setPositiveButton(R.string.general_continue, okListener)
+        builder.setNegativeButton(R.string.general_cancel) { _, _ -> }
+        builder.create()
+    }
+
+    /**
+     * Displayed when the user selects the 'convert' option from the menu
+     */
+    private val convertDialog by lazy {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(R.string.view_round__convert_score_dialog_title)
+        builder.setMessage(R.string.view_round__convert_score_dialog_body)
+        val menuItems = listOf(
+                R.string.view_rounds__convert_xs_to_tens to ConvertScore.XS_TO_TENS,
+                R.string.view_rounds__convert_to_five_zone to ConvertScore.TO_FIVE_ZONE
+        )
+        builder.setSingleChoiceItems(
+                menuItems.map { resources.getString(it.first) }.toTypedArray(), -1
+        ) { _, selectedIndex ->
+            val archerRoundId = selectedArcherRoundId
+            ToastSpamPrevention.displayToast(
+                    requireContext(), resources.getString(R.string.view_round__convert_score_started_message)
+            )
+            val completedMessage = resources.getString(R.string.view_round__convert_score_completed_message)
+            menuItems[selectedIndex].second.convertScore(
+                    allArrows.filter { it.archerRoundId == archerRoundId }, viewRoundsViewModel
+            )?.invokeOnCompletion {
+                ToastSpamPrevention.displayToast(requireContext(), completedMessage)
+            } ?: ToastSpamPrevention.displayToast(requireContext(), completedMessage)
+        }
+    }
     private val archerRoundIdColumn = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)
+
+    /**
+     * Column indexes as per [viewRoundsColumnHeaderIds] which should be hidden
+     */
     private val hiddenColumnIndexes = listOf(archerRoundIdColumn).sorted()
-    private lateinit var hiddenColumns: MutableList<MutableList<InfoTableCell>>
+
+    /**
+     * Data removed from the table so that the column is 'hidden'
+     */
+    private lateinit var hiddenColumnData: MutableList<MutableList<InfoTableCell>>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_view_rounds, container, false)
@@ -94,9 +171,9 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
         if (!tableData.isNullOrEmpty()) {
             // Remove columns to be hidden
             val displayTableData = mutableListOf<MutableList<InfoTableCell>>()
-            hiddenColumns = mutableListOf()
+            hiddenColumnData = mutableListOf()
             for (row in tableData) {
-                hiddenColumns.add(row.filterIndexed { i, _ -> hiddenColumnIndexes.contains(i) }.toMutableList())
+                hiddenColumnData.add(row.filterIndexed { i, _ -> hiddenColumnIndexes.contains(i) }.toMutableList())
                 displayTableData.add(row.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) }.toMutableList())
             }
 
@@ -106,22 +183,13 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                     generateNumberedRowHeaders(tableData.size),
                     displayTableData
             )
-            if (emptyDialog?.isShowing == true) {
-                emptyDialog!!.dismiss()
+            if (emptyTableDialog.isShowing) {
+                emptyTableDialog.dismiss()
             }
         }
         else {
-            if (emptyDialog == null) {
-                val builder = AlertDialog.Builder(activity)
-                builder.setTitle(R.string.err_table_view__no_data)
-                builder.setMessage(R.string.err_view_round__no_rounds)
-                builder.setPositiveButton(R.string.general_ok) { _, _ ->
-                    requireView().findNavController().popBackStack()
-                }
-                emptyDialog = builder.create()
-            }
-            if (!emptyDialog!!.isShowing) {
-                emptyDialog!!.show()
+            if (!emptyTableDialog.isShowing) {
+                emptyTableDialog.show()
             }
         }
     }
@@ -167,37 +235,24 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                     val arrowsInRound = allArrowCounts.filter { it.roundId == selectedArcherRound?.round?.roundId }
                             .sumOf { it.arrowCount }
                     if (arrowsShot >= arrowsInRound) {
-                        /*
-                         * Warn the user they're about to add arrows to a completed round
-                         */
-                        if (roundCompleteDialog == null) {
-                            val okListener = DialogInterface.OnClickListener { _, _ ->
-                                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
-                                        selectedArcherRoundId
-                                )
-                                view?.findNavController()?.navigate(action)
-                            }
-                            val builder = AlertDialog.Builder(activity)
-                            builder.setTitle(R.string.err_view_round__round_already_complete_title)
-                            builder.setMessage(R.string.err_view_round__round_already_complete)
-                            builder.setPositiveButton(R.string.general_continue, okListener)
-                            builder.setNegativeButton(R.string.general_cancel) { _, _ -> }
-                            roundCompleteDialog = builder.create()
-                        }
-                        if (!roundCompleteDialog!!.isShowing) {
-                            roundCompleteDialog!!.show()
+                        // Warn the user they're about to add arrows to a completed round
+                        if (!roundCompleteDialog.isShowing) {
+                            roundCompleteDialog.show()
                         }
                         return true
                     }
                 }
-                val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(
-                        selectedArcherRoundId
-                )
+                val action =
+                        ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(selectedArcherRoundId)
                 view?.findNavController()?.navigate(action)
                 true
             }
             R.id.button_view_rounds_menu__delete -> {
                 viewRoundsViewModel.deleteRound(selectedArcherRoundId)
+                true
+            }
+            R.id.button_view_rounds_menu__convert -> {
+                convertDialog.show()
                 true
             }
             else -> super.onContextItemSelected(item)
@@ -212,7 +267,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     }
 
     private fun getArcherRoundId(row: Int): Int {
-        return hiddenColumns[row][hiddenColumnIndexes.indexOf(archerRoundIdColumn)].content as Int
+        return hiddenColumnData[row][hiddenColumnIndexes.indexOf(archerRoundIdColumn)].content as Int
     }
 
     inner class ViewRoundsTableViewListener : ITableViewListener {
