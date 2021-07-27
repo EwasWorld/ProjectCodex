@@ -301,13 +301,13 @@ class ViewRoundsInstrumentedTest {
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
         onView(withIndex(withText(TestData.ARROWS.sumOf { it.score }.toString()), 0)).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
-        onView(withText("10-zone to 5-zone")).perform(click())
+        onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())
 
 
         // Convert second score (sum should be unique)
         onView(withText(TestData.ARROWS.sumOf { it.score }.toString())).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
-        onView(withText("Xs to 10s")).perform(click())
+        onView(withText(CommonStrings.Menus.viewRoundsConvertToTens)).perform(click())
 
         populateAdapter()
         val expectedData = calculateViewRoundsTableData(

@@ -16,6 +16,8 @@ class CommonStrings {
             const val viewRoundsContinue = "Continue round"
             const val viewRoundsDelete = "Delete round"
             const val viewRoundsConvert = "Convert"
+            const val viewRoundsConvertToTens = "Xs to 10s"
+            const val viewRoundsConvertToFiveZone = "10-zone to 5-zone"
         }
     }
 }

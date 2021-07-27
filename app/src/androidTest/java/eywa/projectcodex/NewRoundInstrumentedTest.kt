@@ -34,6 +34,7 @@ class NewRoundInstrumentedTest {
 
     }
 
+    // TODO Check date is within 1min of current date
     private lateinit var scenario: FragmentScenario<NewRoundFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase

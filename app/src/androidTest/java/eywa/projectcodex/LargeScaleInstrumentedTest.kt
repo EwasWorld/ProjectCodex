@@ -1,6 +1,8 @@
 package eywa.projectcodex
 
 import android.content.pm.ActivityInfo
+import android.view.View
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
@@ -11,6 +13,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.azimolabs.conditionwatcher.ConditionWatcher
+import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.about.AboutFragment
@@ -20,6 +23,7 @@ import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.commonUtils.SharedPrefs
+import eywa.projectcodex.components.commonUtils.findInstanceOf
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.newRound.NewRoundFragment
 import eywa.projectcodex.components.viewRounds.ViewRoundsFragment
@@ -50,11 +54,14 @@ class LargeScaleInstrumentedTest {
     private lateinit var db: ScoresRoomDatabase
     private lateinit var navController: NavController
 
+    private val closeHelpString = "Close help"
+
     @Before
     fun setup() {
+        // Note clearing the database instance after launching the activity causes issues with live data
+        // (as DAOs are inconsistent)
         scenario = ActivityScenario.launch(MainActivity::class.java)
         scenario.onActivity {
-            ScoresRoomDatabase.clearInstance(it.applicationContext)
             db = ScoresRoomDatabase.getDatabase(it.applicationContext)
             navController = it.navHostFragment.navController
         }
@@ -66,6 +73,7 @@ class LargeScaleInstrumentedTest {
             ScoresRoomDatabase.clearInstance(it.applicationContext)
         }
         ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
+        setSharedPrefs(scenario)
     }
 
     private fun addSimpleTestDataToDb() {
@@ -84,60 +92,281 @@ class LargeScaleInstrumentedTest {
     /**
      * Try to run through as much of the functionality as possible
      */
-    @Ignore("Not implemented")
+    @Test
     fun mainTest() {
+        // TODO Add checks to make sure each step worked as intended
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.jvmName))
+
         logMessage(this::class, "View rounds (nothing inputted)")
+        R.id.button_main_menu__view_rounds.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.jvmName))
+        ConditionWatcher.waitForCondition(waitFor(500))
+        clickOk()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.jvmName))
+
 
         logMessage(this::class, "Start score A - default date, with round")
-        // TODO Check initially is importing rounds data - check info screen?
-        // TODO Check date is within 1min of current date
+        R.id.button_main_menu__start_new_round.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(NewRoundFragment::class.jvmName))
+        ConditionWatcher.waitForCondition(object : Instruction() {
+            override fun getDescription(): String {
+                return "Wait for rounds to be added"
+            }
+
+            override fun checkCondition(): Boolean {
+                var isVisible = true
+                scenario.onActivity {
+                    isVisible =
+                            it.findViewById<TextView>(R.id.text_create_round__default_rounds_updating_warning).visibility == View.VISIBLE
+                }
+                if (isVisible) {
+                    Thread.sleep(2000)
+                }
+                return !isVisible
+            }
+        })
+        ConditionWatcher.waitForCondition(waitFor(500))
+        R.id.spinner_create_round__round.clickSpinnerItem("National")
+        R.id.button_create_round__submit.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+
 
         logMessage(this::class, "Score A - open score pad - no arrows entered")
+        R.id.scorePadFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        clickOk()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+
+
         logMessage(this::class, "Score A - open stats - no arrows entered")
+        R.id.archerRoundStatsFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ArcherRoundStatsFragment::class.jvmName))
+        R.id.inputEndFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+
 
         logMessage(this::class, "Score A - enter 3 ends")
-        // TODO click help
+        completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
+        completeEnd(R.id.button_arrow_inputs__score_2, activityScenario = scenario)
+        completeEnd(R.id.button_arrow_inputs__score_3, activityScenario = scenario)
+
+
+        logMessage(this::class, "Score A - input end help button")
+        R.id.action_bar__help.click()
+        onView(withText(closeHelpString)).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+
 
         logMessage(this::class, "Score A - open stats - some arrows entered")
+        R.id.archerRoundStatsFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ArcherRoundStatsFragment::class.jvmName))
+
+
         logMessage(this::class, "Score A - open score pad - some arrows entered")
+        R.id.scorePadFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+
 
         logMessage(this::class, "Score A - Score pad insert end - 1")
+        onView(withText("2-2-2-2-2-2")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InsertEndFragment::class.jvmName))
+        completeEnd(
+                R.id.button_arrow_inputs__score_4,
+                activityScenario = scenario,
+                submitButtonId = R.id.button_insert_end__complete
+        )
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+
+
         logMessage(this::class, "Score A - Score pad edit end - 1")
+        onView(withText("2-2-2-2-2-2")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        repeat(4) { R.id.button_end_inputs__backspace.click() }
+        completeEnd(
+                R.id.button_arrow_inputs__score_5,
+                activityScenario = scenario,
+                submitButtonId = R.id.button_edit_end__complete
+        )
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+
+
         logMessage(this::class, "Score A - Score pad delete end - 1")
+        onView(withText("4-4-4-4-4-4")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
+
+
         logMessage(this::class, "Score A - Score pad insert end - 2")
+        onView(withText("5-5-5-5-2-2")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InsertEndFragment::class.jvmName))
+        completeEnd(
+                R.id.button_arrow_inputs__score_6,
+                activityScenario = scenario,
+                submitButtonId = R.id.button_insert_end__complete
+        )
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+
+
         logMessage(this::class, "Score A - Score pad edit end - 2")
-        // TODO click help
+        onView(withText("6-6-6-6-6-6")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        R.id.button_end_inputs__clear.click()
+        completeEnd(
+                R.id.button_arrow_inputs__score_7,
+                activityScenario = scenario,
+                submitButtonId = R.id.button_edit_end__complete
+        )
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+
+
+        logMessage(this::class, "Score A - score pad help button")
+        R.id.action_bar__help.click()
+        onView(withText(closeHelpString)).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+
+
         logMessage(this::class, "Score A - Score pad delete end - 2")
+        onView(withText("7-7-7-7-7-7")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
+
 
         logMessage(this::class, "Score A - return to main menu")
-        // TODO click help
-        // TODO click help
+        var isOnMainMenu = false
+        while (!isOnMainMenu) {
+            pressBack()
+            scenario.onActivity {
+                if (findInstanceOf<MainMenuFragment>(it.navHostFragment) != null) {
+                    isOnMainMenu = true
+                }
+            }
+        }
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.jvmName))
+
+
+        logMessage(this::class, "Main menu help button 1")
+        R.id.action_bar__help.click()
+        onView(withText(closeHelpString)).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+
+
+        logMessage(this::class, "Main menu help button 2")
+        R.id.action_bar__help.click()
+        onView(withText(closeHelpString)).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+
 
         logMessage(this::class, "View rounds (score A inputted)")
+        R.id.button_main_menu__view_rounds.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.jvmName))
+
 
         logMessage(this::class, "Score A - View round insert end - 1")
+        onView(withText("48")).perform(click())
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        R.id.inputEndFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
+
+
         logMessage(this::class, "Score A - View round edit end - 1")
+        R.id.scorePadFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        onView(withIndex(withText("1-1-1-1-1-1"), 0)).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        R.id.button_end_inputs__clear.click()
+        completeEnd(
+                R.id.button_arrow_inputs__score_2,
+                activityScenario = scenario,
+                submitButtonId = R.id.button_edit_end__complete
+        )
+
+
         logMessage(this::class, "Score A - View round delete end - 1")
+        onView(withText("3-3-3-3-3-3")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
+
+
         logMessage(this::class, "Score A - View round insert end - 2")
+        R.id.inputEndFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        completeEnd(R.id.button_arrow_inputs__score_8, activityScenario = scenario)
+
+
         logMessage(this::class, "Score A - View round edit end - 2")
+        R.id.scorePadFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        onView(withIndex(withText("8-8-8-8-8-8"), 0)).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        R.id.button_end_inputs__clear.click()
+        completeEnd(
+                R.id.button_arrow_inputs__score_9,
+                activityScenario = scenario,
+                submitButtonId = R.id.button_edit_end__complete
+        )
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+
+
         logMessage(this::class, "Score A - View round delete end - 2")
+        onView(withText("9-9-9-9-9-9")).perform(click())
+        ConditionWatcher.waitForCondition(waitFor(500))
+        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
 
-        logMessage(this::class, "Score A - Continue round")
 
-        logMessage(this::class, "Score A - Continue round insert end - 1")
-        logMessage(this::class, "Score A - Continue round edit end - 1")
-        logMessage(this::class, "Score A - Continue round delete end - 1")
-        // TODO Complete round
-        // TODO Check kicked to main menu
+        logMessage(this::class, "Score A - Complete round")
+        R.id.inputEndFragment.click()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        repeat(9) { completeEnd(R.id.button_arrow_inputs__score_x, activityScenario = scenario) }
+        clickOk()
+        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.jvmName))
+
 
         logMessage(this::class, "Score A - Continue round (completed)")
         // TODO Try to continue the round from view rounds, score pad - insert, and input end (nav from score pad and stats)
 
-        logMessage(this::class, "Start score B - change date, no round")
 
-        logMessage(this::class, "View rounds (scores A and B inputted)")
-
-        logMessage(this::class, "Score B - Continue round")
+//        logMessage(this::class, "Score A - Convert round Xs")
+//        onView(withText("Score A current score")).perform(longClick())
+//        onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
+//
+//
+//
+//        logMessage(this::class, "Start score B - change date, no round")
+//        R.id.button_main_menu__start_new_round.click()
+//        R.id.text_create_round__date.click()
+//        val calendar = Calendar.getInstance()
+//        // Use a different hour/minute to ensure it's not overwriting the time
+//        calendar.set(2040, 9, 30, 13, 15, 0)
+//        onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
+//        R.id.text_create_round__time.click()
+//        onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(20, 22))
+//        R.id.button_create_round__submit.click()
+//
+//
+//        logMessage(this::class, "View rounds (scores A and B inputted)")
+//        pressBack()
+//        R.id.button_main_menu__view_rounds.click()
+//        // TODO Check scores A and B inputted
+//
+//
+//        logMessage(this::class, "Score B - Continue round")
+//        onView(withText("0")).perform(longClick())
+//        ConditionWatcher.waitForCondition(waitFor(500))
+//        onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
+//        completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
     }
 
     /**
@@ -177,7 +406,7 @@ class LargeScaleInstrumentedTest {
         touchEveryScreen(listOf(ArcherRoundStatsFragment::class, AboutFragment::class)) {
             R.id.action_bar__help.click()
             onViewWithClassName(MaterialShowcaseView::class.java).check(matches(isDisplayed()))
-            onView(withText("Close help")).perform(click())
+            onView(withText(closeHelpString)).perform(click())
             ConditionWatcher.waitForCondition(waitFor(1000))
         }
     }

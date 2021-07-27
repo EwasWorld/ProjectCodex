@@ -183,6 +183,7 @@ class ScorePadInstrumentedTest {
             fragScenario = null
         }
         activityScenario?.let { scenario ->
+            setSharedPrefs(scenario)
             scenario.onActivity { teardown(it.applicationContext) }
             activityScenario = null
         }

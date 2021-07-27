@@ -1,5 +1,8 @@
+@file:Suppress("unused")
+
 package eywa.projectcodex
 
+import android.app.Activity
 import android.os.Debug
 import android.os.Handler
 import android.os.Looper
@@ -8,16 +11,21 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.DatePicker
 import android.widget.NumberPicker
+import android.widget.TextView
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.*
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
@@ -25,7 +33,6 @@ import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
-import eywa.projectcodex.database.ScoresRoomDatabase
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Description
@@ -49,22 +56,22 @@ fun logMessage(logClass: KClass<*>, message: String) {
     Log.i("ProjCodexTest" + logClass.simpleName, message)
 }
 
-fun Int.click() = Espresso.onView(withId(this)).perform(ViewActions.click())!!
-fun Int.write(text: String) = Espresso.onView(withId(this)).perform(ViewActions.typeText(text))!!
-fun Int.textEquals(text: String) = Espresso.onView(withId(this)).check(
-        ViewAssertions.matches(ViewMatchers.withText(text))
+fun Int.click() = onView(withId(this)).perform(ViewActions.click())!!
+fun Int.write(text: String) = onView(withId(this)).perform(ViewActions.typeText(text))!!
+fun Int.textEquals(text: String) = onView(withId(this)).check(
+        ViewAssertions.matches(withText(text))
 )!!
 
 fun Int.labelledTextViewTextEquals(text: String) =
-        Espresso.onView(
+        onView(
                 allOf(ViewMatchers.withParent(ViewMatchers.withParent(withId(this))), withId(R.id.labelled_text__text))
-        ).check(ViewAssertions.matches(ViewMatchers.withText(text)))!!
+        ).check(ViewAssertions.matches(withText(text)))!!
 
-fun Int.textContains(text: String) = Espresso.onView(withId(this)).check(
-        ViewAssertions.matches(ViewMatchers.withText(containsString(text)))
+fun Int.textContains(text: String) = onView(withId(this)).check(
+        ViewAssertions.matches(withText(containsString(text)))
 )!!
 
-fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = Espresso.onView(withId(this)).check(
+fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = onView(withId(this)).check(
         ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(visibility))
 )!!
 
@@ -77,7 +84,7 @@ fun Int.clickSpinnerItem(text: String) = this.run {
 
         override fun checkCondition(): Boolean {
             try {
-                Espresso.onView(withId(viewId)).perform(ViewActions.click())
+                onView(withId(viewId)).perform(ViewActions.click())
                 Espresso.onData(Matchers.hasToString(text)).perform(ViewActions.click())
                 return true
             }
@@ -89,15 +96,15 @@ fun Int.clickSpinnerItem(text: String) = this.run {
 }
 
 fun onViewWithClassName(text: String): ViewInteraction {
-    return Espresso.onView(ViewMatchers.withText(text))!!
+    return onView(withText(text))!!
 }
 
 fun <T> onViewWithClassName(clazz: Class<T>): ViewInteraction {
-    return Espresso.onView(ViewMatchers.withClassName(Matchers.equalTo(clazz.name)))!!
+    return onView(ViewMatchers.withClassName(Matchers.equalTo(clazz.name)))!!
 }
 
 fun checkContainsToast(message: String) =
-        Espresso.onView(ViewMatchers.withText(message))
+        onView(withText(message))
                 .inRoot(object : TypeSafeMatcher<Root>() {
                     override fun matchesSafely(item: Root?): Boolean {
                         val type = item?.windowLayoutParams?.orNull()?.type ?: return false
@@ -169,8 +176,8 @@ fun waitForOpenScorePadFromMainMenu(uniqueScoreToClick: Int): Instruction {
         override fun checkCondition(): Boolean {
             return try {
                 R.id.button_main_menu__view_rounds.click()
-                Espresso.onView(withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
-                Espresso.onView(ViewMatchers.withText(uniqueScoreToClick.toString())).perform(ViewActions.click())
+                onView(withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
+                onView(withText(uniqueScoreToClick.toString())).perform(ViewActions.click())
                 true
             }
             catch (e: NoMatchingViewException) {
@@ -219,6 +226,41 @@ fun waitFor(milli: Long): Instruction {
 }
 
 /**
+ * Fills the end by pressing one of the score buttons then pressing complete
+ * @param scoreButtonId the score button to press to fill up the end
+ * @param submitButtonId the button to press to submit the end
+ */
+fun completeEnd(
+        scoreButtonId: Int,
+        activityScenario: ActivityScenario<MainActivity>? = null,
+        fragmentScenario: FragmentScenario<*>? = null,
+        submitButtonId: Int = R.id.button_input_end__next_end
+) {
+    require(activityScenario == null || fragmentScenario == null) { "Cannot define a fragment and activity scenario" }
+    require(activityScenario != null || fragmentScenario != null) { "Must define a fragment or activity scenario" }
+
+    var contains = true
+    fun Activity.containsPlaceholder() =
+            this.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')
+    while (contains) {
+        activityScenario?.let { scenario ->
+            scenario.onActivity { contains = it.containsPlaceholder() }
+        }
+        fragmentScenario?.let { scenario ->
+            @Suppress("UNCHECKED_CAST")
+            (scenario as FragmentScenario<Fragment>).onFragment {
+                contains = it.requireActivity().containsPlaceholder()
+            }
+        }
+        if (contains) {
+            scoreButtonId.click()
+        }
+    }
+    submitButtonId.click()
+}
+
+
+/**
  * If the matcher matches multiple elements, get the element with the specified index
  */
 fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
@@ -237,7 +279,7 @@ fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
     }
 }
 
-fun setNumberPickerValue(value: Int): ViewAction? {
+fun setNumberPickerValue(value: Int): ViewAction {
     return object : ViewAction {
         override fun perform(uiController: UiController?, view: View) {
             check(view is NumberPicker) { "View must be a number picker to use this" }
@@ -254,7 +296,7 @@ fun setNumberPickerValue(value: Int): ViewAction? {
     }
 }
 
-fun setDatePickerValue(value: Calendar): ViewAction? {
+fun setDatePickerValue(value: Calendar): ViewAction {
     return object : ViewAction {
         override fun perform(uiController: UiController?, view: View) {
             check(view is DatePicker) { "View must be a date picker to use this" }
@@ -271,7 +313,11 @@ fun setDatePickerValue(value: Calendar): ViewAction? {
     }
 }
 
-fun setTimePickerValue(hours: Int, minutes: Int): ViewAction? {
+fun clickOk() {
+    onView(withText("OK")).perform(ViewActions.click())
+}
+
+fun setTimePickerValue(hours: Int, minutes: Int): ViewAction {
     return object : ViewAction {
         override fun perform(uiController: UiController?, view: View) {
             check(view is TimePicker) { "View must be a time picker to use this" }
@@ -294,7 +340,6 @@ fun setSharedPrefs(scenario: ActivityScenario<MainActivity>, value: Int = -1) {
         val prefs = activity.getSharedPreferences().edit()
         prefs.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, value)
         prefs.apply()
-        ScoresRoomDatabase.clearInstance(activity)
     }
 }
 

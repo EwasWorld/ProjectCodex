@@ -2,7 +2,6 @@ package eywa.projectcodex
 
 import android.os.Bundle
 import android.widget.NumberPicker
-import android.widget.TextView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
@@ -335,46 +334,29 @@ class InputEndInstrumentedTest {
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 90m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
 
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 90m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
 
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 70m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 50m")
 
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 70m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 50m")
 
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 50m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
 
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 50m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
 
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         onViewWithClassName("OK").perform(click())
         assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
-    }
-
-    /**
-     * Fills the end by pressing the '1' button then presses 'next end'
-     */
-    private fun completeEnd() {
-        var contains = true
-        while (contains) {
-            scenario.onFragment {
-                contains = it.requireActivity()
-                        .findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')
-            }
-            if (contains) {
-                R.id.button_arrow_inputs__score_1.click()
-            }
-        }
-        R.id.button_input_end__next_end.click()
     }
 
     @Test
@@ -388,11 +370,11 @@ class InputEndInstrumentedTest {
         onViewWithClassName("OK").perform(click())
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.")
-        completeEnd()
+        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
     }
 }
