@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -55,6 +56,8 @@ class LargeScaleInstrumentedTest {
     private lateinit var navController: NavController
 
     private val closeHelpString = "Close help"
+    private val nextHelpString = "Next"
+    private val helpFadeTime = 300L
 
     @Before
     fun setup() {
@@ -154,7 +157,7 @@ class LargeScaleInstrumentedTest {
         logMessage(this::class, "Score A - input end help button")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
 
 
         logMessage(this::class, "Score A - open stats - some arrows entered")
@@ -230,7 +233,7 @@ class LargeScaleInstrumentedTest {
         logMessage(this::class, "Score A - score pad help button")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
 
 
         logMessage(this::class, "Score A - Score pad delete end - 2")
@@ -255,13 +258,13 @@ class LargeScaleInstrumentedTest {
         logMessage(this::class, "Main menu help button 1")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
 
 
         logMessage(this::class, "Main menu help button 2")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
 
 
         logMessage(this::class, "View rounds (score A inputted)")
@@ -405,9 +408,18 @@ class LargeScaleInstrumentedTest {
     fun testHelpDialogs() {
         touchEveryScreen(listOf(ArcherRoundStatsFragment::class, AboutFragment::class)) {
             R.id.action_bar__help.click()
-            onViewWithClassName(MaterialShowcaseView::class.java).check(matches(isDisplayed()))
+            try {
+                while (true) {
+                    ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+                    onViewWithClassName(MaterialShowcaseView::class.java).check(matches(isDisplayed()))
+                    onView(withText(nextHelpString)).perform(click())
+                }
+            }
+            catch (e: NoMatchingViewException) {
+            }
+            ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
             onView(withText(closeHelpString)).perform(click())
-            ConditionWatcher.waitForCondition(waitFor(1000))
+            ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
         }
     }
 
