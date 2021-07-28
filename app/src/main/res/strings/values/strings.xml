@@ -56,4 +56,5 @@
     <string name="err__internal_error">Internal error occurred</string>
 
     <string name="placeholder_0">0</string>
+    <string name="placeholder_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nib.</string>
 </resources>

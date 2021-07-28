@@ -4,6 +4,9 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -49,6 +52,11 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     private var selectedArcherRoundId = -1
 
     /**
+     * Currently selected item in the [convertDialog]
+     */
+    private var selectedConvertIndex = -1
+
+    /**
      * Displayed when there's no information to display in the table
      */
     private val emptyTableDialog by lazy {
@@ -85,25 +93,42 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     private val convertDialog by lazy {
         val builder = AlertDialog.Builder(context)
         builder.setTitle(R.string.view_round__convert_score_dialog_title)
-        builder.setMessage(R.string.view_round__convert_score_dialog_body)
         val menuItems = listOf(
                 R.string.view_rounds__convert_xs_to_tens to ConvertScore.XS_TO_TENS,
                 R.string.view_rounds__convert_to_five_zone to ConvertScore.TO_FIVE_ZONE
         )
-        builder.setSingleChoiceItems(
-                menuItems.map { resources.getString(it.first) }.toTypedArray(), -1
-        ) { _, selectedIndex ->
+
+        val content = layoutInflater.inflate(R.layout.list_msg_dialog, null)
+        content.findViewById<TextView>(R.id.text_list_msg_dialog__message).text =
+                resources.getString(R.string.view_round__convert_score_dialog_body)
+
+        val listView = content.findViewById<ListView>(R.id.list_list_msg_dialog__items)
+        listView.adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_list_item_single_choice,
+                menuItems.map { resources.getString(it.first) }
+        )
+        listView.choiceMode = ListView.CHOICE_MODE_SINGLE
+        listView.setOnItemClickListener { _, _, _, selectedIndex ->
+            selectedConvertIndex = selectedIndex.toInt()
+        }
+
+        builder.setView(content)
+        builder.setPositiveButton(R.string.general_ok) { dialog, _ ->
             val archerRoundId = selectedArcherRoundId
             ToastSpamPrevention.displayToast(
                     requireContext(), resources.getString(R.string.view_round__convert_score_started_message)
             )
             val completedMessage = resources.getString(R.string.view_round__convert_score_completed_message)
-            menuItems[selectedIndex].second.convertScore(
+            menuItems[selectedConvertIndex].second.convertScore(
                     allArrows.filter { it.archerRoundId == archerRoundId }, viewRoundsViewModel
             )?.invokeOnCompletion {
                 ToastSpamPrevention.displayToast(requireContext(), completedMessage)
             } ?: ToastSpamPrevention.displayToast(requireContext(), completedMessage)
+            dialog.dismiss()
         }
+        builder.setNegativeButton(R.string.general_cancel) { _, _ -> }
+        builder.create()
     }
     private val archerRoundIdColumn = viewRoundsColumnHeaderIds.indexOf(R.string.view_round__id_header)
 

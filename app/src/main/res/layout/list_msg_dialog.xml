@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="3dp"
+    >
+
+    <TextView
+        android:id="@+id/text_list_msg_dialog__message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingTop="15dp"
+        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:text="@string/placeholder_text"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:paddingStart="10dp"
+        />
+
+    <ListView
+        android:id="@+id/list_list_msg_dialog__items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@null"
+        android:entries="@array/dummy_array"
+        android:choiceMode="singleChoice"
+        />
+</LinearLayout>

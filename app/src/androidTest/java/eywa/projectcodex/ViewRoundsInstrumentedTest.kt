@@ -45,6 +45,7 @@ class ViewRoundsInstrumentedTest {
     }
 
     /**
+     * Columns returned by [calculateViewRoundsTableData] that are not actually displayed in the view rounds table
      * RoundId
      */
     private val removedColumnIndexes = listOf(0)
@@ -111,7 +112,7 @@ class ViewRoundsInstrumentedTest {
     }
 
     private fun addToDbAndPopulateAdapter() {
-        scenario.onFragment { fragment ->
+        scenario.onFragment {
             runBlocking {
                 for (archerRound in archerRounds) {
                     db.archerRoundDao().insert(archerRound.archerRound)
@@ -302,12 +303,16 @@ class ViewRoundsInstrumentedTest {
         onView(withIndex(withText(TestData.ARROWS.sumOf { it.score }.toString()), 0)).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())
+        clickOk()
 
 
         // Convert second score (sum should be unique)
         onView(withText(TestData.ARROWS.sumOf { it.score }.toString())).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToTens)).perform(click())
+        clickOk()
+
+        ConditionWatcher.waitForCondition(waitFor(3000))
 
         populateAdapter()
         val expectedData = calculateViewRoundsTableData(
@@ -317,12 +322,17 @@ class ViewRoundsInstrumentedTest {
                         TestData.ARROWS[3], TestData.ARROWS[5], TestData.ARROWS[5], TestData.ARROWS[7],
                         TestData.ARROWS[7], TestData.ARROWS[9], TestData.ARROWS[9], TestData.ARROWS[9]
                 ).mapIndexed { i, arrow -> arrow.toArrowValue(1, i) }
-                        .plus(TestData.ARROWS.dropLast(1).plus(TestData.ARROWS[10])
+                        .plus(
+                                TestData.ARROWS.dropLast(1).plus(TestData.ARROWS[10])
                                 .mapIndexed { i, arrow -> arrow.toArrowValue(2, i) }),
                 GoldsType.TENS
         )
         for (expected in expectedData.withIndex()) {
-            assertEquals(expected.value, tableViewAdapter.getCellRowItems(expected.index))
+            assertEquals(
+                    // Ignore hidden columns
+                    expected.value.filterIndexed { i, _ -> !removedColumnIndexes.contains(i) },
+                    tableViewAdapter.getCellRowItems(expected.index)
+            )
         }
     }
 
