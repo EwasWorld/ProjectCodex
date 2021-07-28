@@ -3,28 +3,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="3dp"
+    android:paddingVertical="5dp"
+    android:paddingHorizontal="25dp"
     >
 
     <TextView
         android:id="@+id/text_list_msg_dialog__message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:paddingTop="15dp"
         android:textAppearance="?android:attr/textAppearanceListItem"
         android:text="@string/placeholder_text"
+        style="@style/TextAppearance.MaterialComponents.Body2"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
-        android:paddingStart="10dp"
+        android:textSize="@dimen/small_text_size"
+        android:paddingVertical="10dp"
         />
 
-    <ListView
-        android:id="@+id/list_list_msg_dialog__items"
-        android:layout_width="match_parent"
+    <RadioGroup
+        android:id="@+id/radios_list_msg_dialog__items"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:divider="@null"
-        android:entries="@array/dummy_array"
-        android:choiceMode="singleChoice"
-        />
+        android:paddingHorizontal="15dp"
+        ></RadioGroup>
 </LinearLayout>

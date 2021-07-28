@@ -1,11 +1,12 @@
 package eywa.projectcodex.components.viewRounds
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
-import android.widget.ArrayAdapter
-import android.widget.ListView
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -54,7 +55,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     /**
      * Currently selected item in the [convertDialog]
      */
-    private var selectedConvertIndex = -1
+    private var selectedConversionType: ConvertScore? = null
 
     /**
      * Displayed when there's no information to display in the table
@@ -98,20 +99,25 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                 R.string.view_rounds__convert_to_five_zone to ConvertScore.TO_FIVE_ZONE
         )
 
+        @SuppressLint("InflateParams")
         val content = layoutInflater.inflate(R.layout.list_msg_dialog, null)
         content.findViewById<TextView>(R.id.text_list_msg_dialog__message).text =
                 resources.getString(R.string.view_round__convert_score_dialog_body)
 
-        val listView = content.findViewById<ListView>(R.id.list_list_msg_dialog__items)
-        listView.adapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_list_item_single_choice,
-                menuItems.map { resources.getString(it.first) }
-        )
-        listView.choiceMode = ListView.CHOICE_MODE_SINGLE
-        listView.setOnItemClickListener { _, _, _, selectedIndex ->
-            selectedConvertIndex = selectedIndex.toInt()
+        val radioGroup = content.findViewById<RadioGroup>(R.id.radios_list_msg_dialog__items)
+
+        menuItems.forEachIndexed { i, menuItem ->
+            @SuppressLint("InflateParams")
+            val layout = layoutInflater.inflate(R.layout.radio_button, null, false)
+            val radioButton = layout.findViewById<RadioButton>(R.id.radio_button)
+            radioButton.text = resources.getString(menuItem.first)
+            radioButton.setOnClickListener {
+                selectedConversionType = menuItem.second
+            }
+            layout.id = i
+            radioGroup.addView(radioButton)
         }
+        radioGroup.check(0)
 
         builder.setView(content)
         builder.setPositiveButton(R.string.general_ok) { dialog, _ ->
@@ -120,7 +126,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                     requireContext(), resources.getString(R.string.view_round__convert_score_started_message)
             )
             val completedMessage = resources.getString(R.string.view_round__convert_score_completed_message)
-            menuItems[selectedConvertIndex].second.convertScore(
+            selectedConversionType!!.convertScore(
                     allArrows.filter { it.archerRoundId == archerRoundId }, viewRoundsViewModel
             )?.invokeOnCompletion {
                 ToastSpamPrevention.displayToast(requireContext(), completedMessage)
