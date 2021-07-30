@@ -9,13 +9,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import eywa.projectcodex.R
 import eywa.projectcodex.TestUtils
+import eywa.projectcodex.common.latchAwaitTimeSeconds
+import eywa.projectcodex.common.latchAwaitTimeUnit
 import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
-import eywa.projectcodex.latchAwaitTimeSeconds
-import eywa.projectcodex.latchAwaitTimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert

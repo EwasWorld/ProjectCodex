@@ -9,9 +9,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.azimolabs.conditionwatcher.ConditionWatcher
+import com.azimolabs.conditionwatcher.Instruction
+import eywa.projectcodex.common.*
 import eywa.projectcodex.components.newRound.NewRoundFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -182,16 +187,26 @@ class NewRoundInstrumentedTest {
         /*
          * Check spinner options
          */
-        var roundSpinnerTemp: Spinner? = null
-        scenario.onFragment {
-            roundSpinnerTemp = it.requireActivity().findViewById(R.id.spinner_create_round__round)
-        }
-        val roundSpinner = roundSpinnerTemp!!
+        var roundSpinner: Spinner? = null
+        ConditionWatcher.waitForCondition(object : Instruction() {
+            override fun getDescription(): String {
+                return "Wait for round spinner to have the correct number of items"
+            }
 
-        // + 1 for 'no rounds'
-        assertEquals(roundsInput.size + 1, roundSpinner.count)
+            override fun checkCondition(): Boolean {
+                scenario.onFragment {
+                    roundSpinner = it.requireActivity().findViewById(R.id.spinner_create_round__round)
+                }
+                // + 1 for 'no rounds'
+                val conditionMet = roundsInput.size + 1 == roundSpinner!!.count
+                if (!conditionMet) {
+                    Thread.sleep(CustomConditionWaiter.DEFAULT_THREAD_SLEEP)
+                }
+                return conditionMet
+            }
+        })
         for (i in roundsInput.indices) {
-            assertEquals(roundsInput[i].displayName, roundSpinner.getItemAtPosition(i + 1) as String)
+            assertEquals(roundsInput[i].displayName, roundSpinner!!.getItemAtPosition(i + 1) as String)
         }
 
         R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
@@ -301,14 +316,14 @@ class NewRoundInstrumentedTest {
     fun testCustomDateTime() {
         R.id.text_create_round__time.click()
         onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(20, 22))
-        onViewWithClassName("OK").perform(ViewActions.click())
+        onView(withText("OK")).perform(ViewActions.click())
 
         R.id.text_create_round__date.click()
         val calendar = Calendar.getInstance()
         // Use a different hour/minute to ensure it's not overwriting the time
         calendar.set(2040, 9, 30, 13, 15, 0)
         onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
-        onViewWithClassName("OK").perform(ViewActions.click())
+        onView(withText("OK")).perform(ViewActions.click())
 
         R.id.text_create_round__time.textEquals("20:22")
         R.id.text_create_round__date.textEquals("30 Oct 40")

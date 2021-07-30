@@ -17,6 +17,10 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
+import eywa.projectcodex.common.CommonStrings
+import eywa.projectcodex.common.CustomConditionWaiter
+import eywa.projectcodex.common.clickAlertDialogOk
+import eywa.projectcodex.common.withIndex
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.infoTable.InfoTableCell
 import eywa.projectcodex.components.infoTable.calculateViewRoundsTableData
@@ -240,7 +244,7 @@ class ViewRoundsInstrumentedTest {
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
 
         val deleteIndex = 1
-        onViewWithClassName(findRoundArrows(deleteIndex).sumOf { it.score }.toString()).perform(longClick())
+        onView(withText(findRoundArrows(deleteIndex).sumOf { it.score }.toString())).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsDelete)).perform(click())
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
@@ -277,7 +281,7 @@ class ViewRoundsInstrumentedTest {
         addToDbAndPopulateAdapter()
 
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
-        onViewWithClassName(arrows.flatten().sumOf { it.score }.toString()).perform(longClick())
+        onView(withText(arrows.flatten().sumOf { it.score }.toString())).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(doesNotExist())
     }
 
@@ -296,23 +300,23 @@ class ViewRoundsInstrumentedTest {
                 TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(2, i + 1) }
         )
         addToDbAndPopulateAdapter()
-        // TODO_CURRENT Why with class name?
 
         // Convert first score
         onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
         onView(withIndex(withText(TestData.ARROWS.sumOf { it.score }.toString()), 0)).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())
-        clickOk()
+        clickAlertDialogOk(CommonStrings.Dialogs.viewRoundsConvertTitle)
 
 
         // Convert second score (sum should be unique)
         onView(withText(TestData.ARROWS.sumOf { it.score }.toString())).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToTens)).perform(click())
-        clickOk()
+        clickAlertDialogOk(CommonStrings.Dialogs.viewRoundsConvertTitle)
 
-        ConditionWatcher.waitForCondition(waitFor(3000))
+        // TODO Better wait for (possibly await on a latch where it counts down when the finished toast appears)
+        CustomConditionWaiter.waitFor(3000)
 
         populateAdapter()
         val expectedData = calculateViewRoundsTableData(

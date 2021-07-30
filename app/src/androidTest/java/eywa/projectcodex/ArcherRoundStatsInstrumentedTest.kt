@@ -9,7 +9,10 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.azimolabs.conditionwatcher.ConditionWatcher
+import eywa.projectcodex.common.CommonStrings
+import eywa.projectcodex.common.CustomConditionWaiter
+import eywa.projectcodex.common.labelledTextViewTextEquals
+import eywa.projectcodex.common.visibilityIs
 import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -125,8 +128,8 @@ class ArcherRoundStatsInstrumentedTest {
         scenario.onFragment {
             Navigation.setViewNavController(it.requireView(), navController)
         }
-        
-        ConditionWatcher.waitForCondition(waitFor(500))
+
+        CustomConditionWaiter.waitFor(500)
     }
 
     @After

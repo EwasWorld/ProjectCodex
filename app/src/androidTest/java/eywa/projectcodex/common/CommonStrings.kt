@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.common
 
 class CommonStrings {
     companion object {
@@ -18,6 +18,14 @@ class CommonStrings {
             const val viewRoundsConvert = "Convert"
             const val viewRoundsConvertToTens = "Xs to 10s"
             const val viewRoundsConvertToFiveZone = "10-zone to 5-zone"
+        }
+    }
+
+    class Dialogs {
+        companion object {
+            const val emptyTable = "Table is empty"
+            const val inputEndRoundComplete = "Round Complete"
+            const val viewRoundsConvertTitle = "Convert score"
         }
     }
 }

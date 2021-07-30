@@ -1,11 +1,9 @@
 @file:Suppress("unused")
 
-package eywa.projectcodex
+package eywa.projectcodex.common
 
 import android.app.Activity
 import android.os.Debug
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -22,24 +20,20 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.*
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import com.evrencoskun.tableview.TableView
+import eywa.projectcodex.R
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
-import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.TypeSafeMatcher
-import org.junit.Assert
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -58,28 +52,23 @@ fun logMessage(logClass: KClass<*>, message: String) {
 
 fun Int.click() = onView(withId(this)).perform(ViewActions.click())!!
 fun Int.write(text: String) = onView(withId(this)).perform(ViewActions.typeText(text))!!
-fun Int.textEquals(text: String) = onView(withId(this)).check(
-        ViewAssertions.matches(withText(text))
-)!!
+fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))!!
 
 fun Int.labelledTextViewTextEquals(text: String) =
-        onView(
-                allOf(ViewMatchers.withParent(ViewMatchers.withParent(withId(this))), withId(R.id.labelled_text__text))
-        ).check(ViewAssertions.matches(withText(text)))!!
+        onView(allOf(withParent(withParent(withId(this))), withId(R.id.labelled_text__text)))
+                .check(matches(withText(text)))!!
 
-fun Int.textContains(text: String) = onView(withId(this)).check(
-        ViewAssertions.matches(withText(containsString(text)))
-)!!
+fun Int.textContains(text: String) =
+        onView(withId(this)).check(matches(withText(containsString(text))))!!
 
-fun Int.visibilityIs(visibility: ViewMatchers.Visibility) = onView(withId(this)).check(
-        ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(visibility))
-)!!
+fun Int.visibilityIs(visibility: Visibility) =
+        onView(withId(this)).check(matches(withEffectiveVisibility(visibility)))!!
 
 fun Int.clickSpinnerItem(text: String) = this.run {
     val viewId = this
     ConditionWatcher.waitForCondition(object : Instruction() {
         override fun getDescription(): String {
-            return "Wait for the round spinner to be visible"
+            return "Wait for the designated spinner to be visible"
         }
 
         override fun checkCondition(): Boolean {
@@ -95,12 +84,25 @@ fun Int.clickSpinnerItem(text: String) = this.run {
     })
 }
 
-fun onViewWithClassName(text: String): ViewInteraction {
-    return onView(withText(text))!!
-}
+fun <T> onViewWithClassName(clazz: Class<T>) = onView(withClassName(Matchers.equalTo(clazz.name)))!!
 
-fun <T> onViewWithClassName(clazz: Class<T>): ViewInteraction {
-    return onView(ViewMatchers.withClassName(Matchers.equalTo(clazz.name)))!!
+/**
+ * If the matcher matches multiple elements, get the element with the specified index
+ */
+fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
+    return object : TypeSafeMatcher<View>() {
+        var currentIndex = 0
+
+        override fun describeTo(description: Description) {
+            description.appendText("with index: ")
+            description.appendValue(index)
+            matcher.describeTo(description)
+        }
+
+        override fun matchesSafely(view: View): Boolean {
+            return matcher.matches(view) && currentIndex++ == index
+        }
+    }
 }
 
 fun checkContainsToast(message: String) =
@@ -117,7 +119,7 @@ fun checkContainsToast(message: String) =
                         description?.appendText("toast with text")
                     }
                 })
-                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))!!
+                .check(matches(isDisplayed()))!!
 
 fun AppCompatActivity.getString(name: String): String {
     return getString(resources.getIdentifier(name, "string", packageName))
@@ -139,36 +141,8 @@ fun <T> LiveData<T>.retrieveValue(): T? {
     return value
 }
 
-/**
- * Wait for a particular fragment to appear on the screen
- */
-fun ActivityScenario<MainActivity>.waitForFragmentInstruction(fragmentClassName: String): Instruction {
-    return object : Instruction() {
-        override fun checkCondition(): Boolean {
-            var found = false
-            onActivity {
-                val fragments = it.navHostFragment.childFragmentManager.fragments
-                for (fragment in fragments) {
-                    if (fragment.javaClass.name == fragmentClassName) {
-                        found = true
-                    }
-                }
-            }
-            if (!found) {
-                // Don't clog up the main thread in the onActivity method, wait a moment before trying again
-                Thread.sleep(2000)
-            }
-            return found
-        }
-
-        override fun getDescription(): String {
-            return "Wait for $fragmentClassName to appear"
-        }
-    }
-}
-
-fun waitForOpenScorePadFromMainMenu(uniqueScoreToClick: Int): Instruction {
-    return object : Instruction() {
+fun openScorePadFromMainMenu(uniqueScoreToClick: Int) {
+    ConditionWatcher.waitForCondition(object : Instruction() {
         override fun getDescription(): String {
             return "Wait for data to appear in view rounds table so score pad can be opened"
         }
@@ -185,44 +159,7 @@ fun waitForOpenScorePadFromMainMenu(uniqueScoreToClick: Int): Instruction {
                 false
             }
         }
-    }
-}
-
-/**
- * Wait for a particular table row to appear
- */
-fun TableView.waitForRowToAppear(rowIndex: Int): Instruction {
-    return object : Instruction() {
-        override fun checkCondition(): Boolean {
-            try {
-                return adapter!!.getCellRowItems(rowIndex) != null
-            }
-            catch (e: NullPointerException) {
-                println("Waiting for score pad entries to load")
-            }
-            return false
-        }
-
-        override fun getDescription(): String {
-            return "Waiting for row $rowIndex to load"
-        }
-    }
-}
-
-/**
- * Wait for a set amount of time (non blocking)
- */
-fun waitFor(milli: Long): Instruction {
-    return object : Instruction() {
-        override fun checkCondition(): Boolean {
-            Thread.sleep(milli)
-            return true
-        }
-
-        override fun getDescription(): String {
-            return "Wait for a given length of time"
-        }
-    }
+    })
 }
 
 /**
@@ -259,26 +196,6 @@ fun completeEnd(
     submitButtonId.click()
 }
 
-
-/**
- * If the matcher matches multiple elements, get the element with the specified index
- */
-fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
-    return object : TypeSafeMatcher<View>() {
-        var currentIndex = 0
-
-        override fun describeTo(description: Description) {
-            description.appendText("with index: ")
-            description.appendValue(index)
-            matcher.describeTo(description)
-        }
-
-        override fun matchesSafely(view: View): Boolean {
-            return matcher.matches(view) && currentIndex++ == index
-        }
-    }
-}
-
 fun setNumberPickerValue(value: Int): ViewAction {
     return object : ViewAction {
         override fun perform(uiController: UiController?, view: View) {
@@ -291,7 +208,7 @@ fun setNumberPickerValue(value: Int): ViewAction {
         }
 
         override fun getConstraints(): Matcher<View> {
-            return ViewMatchers.isAssignableFrom(NumberPicker::class.java)
+            return isAssignableFrom(NumberPicker::class.java)
         }
     }
 }
@@ -308,13 +225,9 @@ fun setDatePickerValue(value: Calendar): ViewAction {
         }
 
         override fun getConstraints(): Matcher<View> {
-            return ViewMatchers.isAssignableFrom(DatePicker::class.java)
+            return isAssignableFrom(DatePicker::class.java)
         }
     }
-}
-
-fun clickOk() {
-    onView(withText("OK")).perform(ViewActions.click())
 }
 
 fun setTimePickerValue(hours: Int, minutes: Int): ViewAction {
@@ -330,9 +243,31 @@ fun setTimePickerValue(hours: Int, minutes: Int): ViewAction {
         }
 
         override fun getConstraints(): Matcher<View> {
-            return ViewMatchers.isAssignableFrom(TimePicker::class.java)
+            return isAssignableFrom(TimePicker::class.java)
         }
     }
+}
+
+/**
+ * Wait for an alert dialog to appear then click OK
+ */
+fun clickAlertDialogOk(alertDialogText: String) {
+    ConditionWatcher.waitForCondition(object : Instruction() {
+        override fun getDescription(): String {
+            return "Waiting for alert dialog to appear"
+        }
+
+        override fun checkCondition(): Boolean {
+            try {
+                onView(withText(alertDialogText)).check(matches(isDisplayed()))
+                return true
+            }
+            catch (e: NoMatchingViewException) {
+            }
+            return false
+        }
+    })
+    onView(withText("OK")).perform(ViewActions.click())
 }
 
 fun setSharedPrefs(scenario: ActivityScenario<MainActivity>, value: Int = -1) {
@@ -340,27 +275,5 @@ fun setSharedPrefs(scenario: ActivityScenario<MainActivity>, value: Int = -1) {
         val prefs = activity.getSharedPreferences().edit()
         prefs.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, value)
         prefs.apply()
-    }
-}
-
-fun waitForRoundUpdateTaskToFinishInstruction(): Instruction {
-    return object : Instruction() {
-        override fun getDescription(): String {
-            return "Wait for update to finish"
-        }
-
-        override fun checkCondition(): Boolean {
-            var currentValue: UpdateDefaultRounds.UpdateTaskState? = null
-            val latch = CountDownLatch(1)
-            Handler(Looper.getMainLooper()).post {
-                currentValue = UpdateDefaultRounds.taskProgress.getState().retrieveValue()!!
-                latch.countDown()
-            }
-            if (!latch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
-                Assert.fail("Failed to retrieve state")
-            }
-            return currentValue == UpdateDefaultRounds.UpdateTaskState.UP_TO_DATE
-                    || currentValue == UpdateDefaultRounds.UpdateTaskState.COMPLETE
-        }
     }
 }

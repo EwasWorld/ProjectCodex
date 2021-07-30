@@ -8,9 +8,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.azimolabs.conditionwatcher.ConditionWatcher
+import eywa.projectcodex.common.*
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
 import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -329,7 +331,7 @@ class InputEndInstrumentedTest {
         setup(2)
 
         // Give it a moment to sort out the indicators
-        ConditionWatcher.waitForCondition(waitFor(1000))
+        CustomConditionWaiter.waitFor(1000)
 
         R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 90m")
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
@@ -355,7 +357,7 @@ class InputEndInstrumentedTest {
         R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
 
         completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        onViewWithClassName("OK").perform(click())
+        onView(withText("OK")).perform(click())
         assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
     }
 
@@ -367,7 +369,7 @@ class InputEndInstrumentedTest {
         R.id.text_end_inputs__inputted_arrows.click()
 
         onViewWithClassName(NumberPicker::class.java).perform(setNumberPickerValue(5))
-        onViewWithClassName("OK").perform(click())
+        onView(withText("OK")).perform(click())
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
         completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)

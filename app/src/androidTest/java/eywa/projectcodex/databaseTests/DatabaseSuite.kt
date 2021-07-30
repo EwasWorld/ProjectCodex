@@ -3,7 +3,7 @@ package eywa.projectcodex.databaseTests
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import eywa.projectcodex.CommonStrings
+import eywa.projectcodex.common.CommonStrings
 import eywa.projectcodex.database.ScoresRoomDatabase
 import org.junit.runner.RunWith
 import org.junit.runners.Suite

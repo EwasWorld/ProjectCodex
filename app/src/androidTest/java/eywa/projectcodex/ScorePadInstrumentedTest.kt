@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
+import eywa.projectcodex.common.*
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
@@ -111,7 +112,6 @@ class ScorePadInstrumentedTest {
     }
 
     private fun setupDb(context: Context, hasRound: Boolean = false) {
-        ScoresRoomDatabase.clearInstance(context)
         db = ScoresRoomDatabase.getDatabase(context)
 
         for (arrow in arrows) {
@@ -168,23 +168,19 @@ class ScorePadInstrumentedTest {
             resources = it.resources
         }
 
-        ConditionWatcher.waitForCondition(waitForOpenScorePadFromMainMenu(arrows.sumOf { it.score }))
-        ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(waitForRow))
+        openScorePadFromMainMenu(arrows.sumOf { it.score })
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForRowToAppear(getTableView(), (waitForRow))
     }
 
     @After
     fun afterEach() {
-        fun teardown(context: Context) {
-            ScoresRoomDatabase.clearInstance(context)
-        }
         fragScenario?.let { scenario ->
-            scenario.onFragment { teardown(it.requireContext()) }
+            scenario.onFragment { ScoresRoomDatabase.clearInstance(it.requireContext()) }
             fragScenario = null
         }
         activityScenario?.let { scenario ->
-            setSharedPrefs(scenario)
-            scenario.onActivity { teardown(it.applicationContext) }
+            CommonSetupTeardownFns.teardownScenario(scenario)
             activityScenario = null
         }
     }
@@ -192,7 +188,7 @@ class ScorePadInstrumentedTest {
     @Test
     fun testTableValues() {
         setupFragment()
-        ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(0))
+        CustomConditionWaiter.waitForRowToAppear(getTableView(), (0))
         checkCells(arrows)
         checkColumnHeaders()
         checkRowsHeaders(6)
@@ -218,7 +214,7 @@ class ScorePadInstrumentedTest {
                 db.roundDistanceDao().insert(roundDistances[1])
             }
         }
-        ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(8))
+        CustomConditionWaiter.waitForRowToAppear(getTableView(), (8))
 
         val expectedCells = calculateScorePadTableData(
                 arrows, endSize, GoldsType.TENS, resources, arrowCounts, roundDistances, "m"
@@ -267,17 +263,17 @@ class ScorePadInstrumentedTest {
         )
 
         onView(withText("X-9-9-9-7-6")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
+        CustomConditionWaiter.waitFor(waitForMenuMs)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(EditEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class.java.name))
         onView(withId(R.id.button_end_inputs__clear)).perform(click())
         val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
         for (i in 0 until endSize) {
             scoreButton.perform(click())
         }
         onView(withId(R.id.button_edit_end__complete)).perform(click())
-        ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(2))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForRowToAppear(getTableView(), (2))
 
         val newArrows = listOf(List(endSize) { TestData.ARROWS[2] }, nextArrows).flatten()
                 .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
@@ -310,14 +306,14 @@ class ScorePadInstrumentedTest {
         val firstEnd = End(arrows.subList(0, 6), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         firstEnd.reorderScores()
         onView(withText(firstEnd.toString())).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
+        CustomConditionWaiter.waitFor(waitForMenuMs)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(EditEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class.java.name))
     }
 
     private fun checkEditEndCancelledCorrectly() {
-        ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(0))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForRowToAppear(getTableView(), (0))
 
         checkCells(arrows)
         checkColumnHeaders()
@@ -336,8 +332,8 @@ class ScorePadInstrumentedTest {
         val endToClick =
                 End(expectedArrowsGrouped[deleteEndIndex], TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         endToClick.reorderScores()
-        onViewWithClassName(endToClick.toString()).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(waitForMenuMs))
+        onView(withText(endToClick.toString())).perform(click())
+        CustomConditionWaiter.waitFor(waitForMenuMs)
         onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
 
         ConditionWatcher.waitForCondition(object : Instruction() {
@@ -375,7 +371,7 @@ class ScorePadInstrumentedTest {
 
         onView(withText("X-9-9-9-7-6")).perform(click())
         ConditionWatcher.waitForCondition(clickMenuButton(CommonStrings.Menus.scorePadInsertEnd))
-        ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(InsertEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (InsertEndFragment::class.java.name))
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
         val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
@@ -383,8 +379,8 @@ class ScorePadInstrumentedTest {
             scoreButton.perform(click())
         }
         onView(withId(R.id.button_insert_end__complete)).perform(click())
-        ConditionWatcher.waitForCondition(activityScenario!!.waitForFragmentInstruction(ScorePadFragment::class.java.name))
-        ConditionWatcher.waitForCondition(getTableView().waitForRowToAppear(5))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForRowToAppear(getTableView(), (5))
 
         val newArrows = listOf(
                 List(endSize) { TestData.ARROWS[1] },

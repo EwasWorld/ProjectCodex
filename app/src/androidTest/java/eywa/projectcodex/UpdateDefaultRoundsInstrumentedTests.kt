@@ -6,6 +6,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
+import eywa.projectcodex.common.*
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
@@ -19,6 +20,10 @@ import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+/**
+ * Note this test suite starts the activity using [ActivityScenario.launch] rather than [ActivityScenarioRule] because
+ * the former allows actions to happen before the activity is launched (e.g. locking up the database)
+ */
 @RunWith(AndroidJUnit4::class)
 class UpdateDefaultRoundsInstrumentedTests {
     companion object {
@@ -38,35 +43,7 @@ class UpdateDefaultRoundsInstrumentedTests {
 
     @After
     fun afterEach() {
-        /*
-         * Check that the current update rounds task is completed so it doesn't interfere with other tests
-         * It runs in a separate thread which will not be stopped on scenario close
-         */
-        val state = UpdateDefaultRounds.taskProgress.getState()
-        val completeLatch = CountDownLatch(1)
-        val observer = Observer { taskState: UpdateDefaultRounds.UpdateTaskState ->
-            if (taskState.isCompletedState) {
-                completeLatch.countDown()
-            }
-        }
-        scenario.onActivity {
-            state.observeForever(observer)
-        }
-        if (!completeLatch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
-            Assert.fail("Update task did not finish")
-        }
-        scenario.onActivity {
-            state.removeObserver(observer)
-        }
-
-        /*
-         * Normal cleanup
-         */
-        scenario.onActivity {
-            ScoresRoomDatabase.clearInstance(it.applicationContext)
-        }
-        setSharedPrefs(scenario)
-        scenario.close()
+        CommonSetupTeardownFns.teardownScenario(scenario)
     }
 
     /**

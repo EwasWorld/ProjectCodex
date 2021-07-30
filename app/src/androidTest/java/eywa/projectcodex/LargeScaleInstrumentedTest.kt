@@ -1,8 +1,6 @@
 package eywa.projectcodex
 
 import android.content.pm.ActivityInfo
-import android.view.View
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
@@ -13,9 +11,10 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
-import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
+import eywa.projectcodex.common.*
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsFragment
@@ -51,6 +50,9 @@ class LargeScaleInstrumentedTest {
         }
     }
 
+    @get:Rule
+    var rule = ActivityScenarioRule(MainActivity::class.java)
+
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
     private lateinit var navController: NavController
@@ -63,7 +65,7 @@ class LargeScaleInstrumentedTest {
     fun setup() {
         // Note clearing the database instance after launching the activity causes issues with live data
         // (as DAOs are inconsistent)
-        scenario = ActivityScenario.launch(MainActivity::class.java)
+        scenario = rule.scenario
         scenario.onActivity {
             db = ScoresRoomDatabase.getDatabase(it.applicationContext)
             navController = it.navHostFragment.navController
@@ -72,11 +74,8 @@ class LargeScaleInstrumentedTest {
 
     @After
     fun afterEach() {
-        scenario.onActivity {
-            ScoresRoomDatabase.clearInstance(it.applicationContext)
-        }
+        CommonSetupTeardownFns.teardownScenario(rule)
         ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
-        setSharedPrefs(scenario)
     }
 
     private fun addSimpleTestDataToDb() {
@@ -98,54 +97,37 @@ class LargeScaleInstrumentedTest {
     @Test
     fun mainTest() {
         // TODO Add checks to make sure each step worked as intended
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.jvmName))
+        ConditionWatcher.setTimeoutLimit(15000)
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
 
         logMessage(this::class, "View rounds (nothing inputted)")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.jvmName))
-        ConditionWatcher.waitForCondition(waitFor(500))
-        clickOk()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.jvmName))
+        clickAlertDialogOk(CommonStrings.Dialogs.emptyTable)
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
 
 
         logMessage(this::class, "Start score A - default date, with round")
         R.id.button_main_menu__start_new_round.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(NewRoundFragment::class.jvmName))
-        ConditionWatcher.waitForCondition(object : Instruction() {
-            override fun getDescription(): String {
-                return "Wait for rounds to be added"
-            }
-
-            override fun checkCondition(): Boolean {
-                var isVisible = true
-                scenario.onActivity {
-                    isVisible =
-                            it.findViewById<TextView>(R.id.text_create_round__default_rounds_updating_warning).visibility == View.VISIBLE
-                }
-                if (isVisible) {
-                    Thread.sleep(2000)
-                }
-                return !isVisible
-            }
-        })
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (NewRoundFragment::class.jvmName))
+        CustomConditionWaiter.waitForUpdateRoundsTaskToFinish(scenario)
         R.id.spinner_create_round__round.clickSpinnerItem("National")
         R.id.button_create_round__submit.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - open score pad - no arrows entered")
         R.id.scorePadFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
-        clickOk()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
+        clickAlertDialogOk(CommonStrings.Dialogs.emptyTable)
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - open stats - no arrows entered")
         R.id.archerRoundStatsFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ArcherRoundStatsFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class.jvmName))
         R.id.inputEndFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - enter 3 ends")
@@ -157,88 +139,88 @@ class LargeScaleInstrumentedTest {
         logMessage(this::class, "Score A - input end help button")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+        CustomConditionWaiter.waitFor(helpFadeTime)
 
 
         logMessage(this::class, "Score A - open stats - some arrows entered")
         R.id.archerRoundStatsFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ArcherRoundStatsFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - open score pad - some arrows entered")
         R.id.scorePadFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - Score pad insert end - 1")
         onView(withText("2-2-2-2-2-2")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InsertEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class.jvmName))
         completeEnd(
                 R.id.button_arrow_inputs__score_4,
                 activityScenario = scenario,
                 submitButtonId = R.id.button_insert_end__complete
         )
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - Score pad edit end - 1")
         onView(withText("2-2-2-2-2-2")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class.jvmName))
         repeat(4) { R.id.button_end_inputs__backspace.click() }
         completeEnd(
                 R.id.button_arrow_inputs__score_5,
                 activityScenario = scenario,
                 submitButtonId = R.id.button_edit_end__complete
         )
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - Score pad delete end - 1")
         onView(withText("4-4-4-4-4-4")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
 
 
         logMessage(this::class, "Score A - Score pad insert end - 2")
         onView(withText("5-5-5-5-2-2")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InsertEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class.jvmName))
         completeEnd(
                 R.id.button_arrow_inputs__score_6,
                 activityScenario = scenario,
                 submitButtonId = R.id.button_insert_end__complete
         )
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - Score pad edit end - 2")
         onView(withText("6-6-6-6-6-6")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class.jvmName))
         R.id.button_end_inputs__clear.click()
         completeEnd(
                 R.id.button_arrow_inputs__score_7,
                 activityScenario = scenario,
                 submitButtonId = R.id.button_edit_end__complete
         )
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - score pad help button")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+        CustomConditionWaiter.waitFor(helpFadeTime)
 
 
         logMessage(this::class, "Score A - Score pad delete end - 2")
         onView(withText("7-7-7-7-7-7")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
 
 
@@ -252,41 +234,41 @@ class LargeScaleInstrumentedTest {
                 }
             }
         }
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
 
 
         logMessage(this::class, "Main menu help button 1")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+        CustomConditionWaiter.waitFor(helpFadeTime)
 
 
         logMessage(this::class, "Main menu help button 2")
         R.id.action_bar__help.click()
         onView(withText(closeHelpString)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+        CustomConditionWaiter.waitFor(helpFadeTime)
 
 
         logMessage(this::class, "View rounds (score A inputted)")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - View round insert end - 1")
         onView(withText("48")).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
         R.id.inputEndFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
         completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
 
 
         logMessage(this::class, "Score A - View round edit end - 1")
         R.id.scorePadFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
         onView(withIndex(withText("1-1-1-1-1-1"), 0)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class.jvmName))
         R.id.button_end_inputs__clear.click()
         completeEnd(
                 R.id.button_arrow_inputs__score_2,
@@ -297,44 +279,44 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Score A - View round delete end - 1")
         onView(withText("3-3-3-3-3-3")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
 
 
         logMessage(this::class, "Score A - View round insert end - 2")
         R.id.inputEndFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
         completeEnd(R.id.button_arrow_inputs__score_8, activityScenario = scenario)
 
 
         logMessage(this::class, "Score A - View round edit end - 2")
         R.id.scorePadFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
         onView(withIndex(withText("8-8-8-8-8-8"), 0)).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class.jvmName))
         R.id.button_end_inputs__clear.click()
         completeEnd(
                 R.id.button_arrow_inputs__score_9,
                 activityScenario = scenario,
                 submitButtonId = R.id.button_edit_end__complete
         )
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - View round delete end - 2")
         onView(withText("9-9-9-9-9-9")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
 
 
         logMessage(this::class, "Score A - Complete round")
         R.id.inputEndFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
         repeat(9) { completeEnd(R.id.button_arrow_inputs__score_x, activityScenario = scenario) }
-        clickOk()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.jvmName))
+        clickAlertDialogOk(CommonStrings.Dialogs.inputEndRoundComplete)
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - Continue round (completed)")
@@ -367,7 +349,7 @@ class LargeScaleInstrumentedTest {
 //
 //        logMessage(this::class, "Score B - Continue round")
 //        onView(withText("0")).perform(longClick())
-//        ConditionWatcher.waitForCondition(waitFor(500))
+//        CustomConditionWaiter.waitFor(500)
 //        onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
 //        completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
     }
@@ -410,16 +392,16 @@ class LargeScaleInstrumentedTest {
             R.id.action_bar__help.click()
             try {
                 while (true) {
-                    ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+                    CustomConditionWaiter.waitFor(helpFadeTime)
                     onViewWithClassName(MaterialShowcaseView::class.java).check(matches(isDisplayed()))
                     onView(withText(nextHelpString)).perform(click())
                 }
             }
             catch (e: NoMatchingViewException) {
             }
-            ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+            CustomConditionWaiter.waitFor(helpFadeTime)
             onView(withText(closeHelpString)).perform(click())
-            ConditionWatcher.waitForCondition(waitFor(helpFadeTime))
+            CustomConditionWaiter.waitFor(helpFadeTime)
         }
     }
 
@@ -436,11 +418,11 @@ class LargeScaleInstrumentedTest {
             scenario.onActivity {
                 it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
-            ConditionWatcher.waitForCondition(waitFor(1000))
+            CustomConditionWaiter.waitFor(1000)
             scenario.onActivity {
                 it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
-            ConditionWatcher.waitForCondition(waitFor(1000))
+            CustomConditionWaiter.waitFor(1000)
         }
     }
 
@@ -455,7 +437,7 @@ class LargeScaleInstrumentedTest {
                 return
             }
             logMessage(this::class, "Performing on: ${current.jvmName}")
-            ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(current.jvmName))
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (current.jvmName))
             action()
         }
 
@@ -486,38 +468,38 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Navigating to: Edit end")
         onView(withText("2-2-2-2-2-2")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class.java.name))
         performAction(EditEndFragment::class)
 
         logMessage(this::class, "Navigating to: Insert end")
         R.id.button_edit_end__cancel.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         onView(withText("2-2-2-2-2-2")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
         performAction(InsertEndFragment::class)
 
         logMessage(this::class, "Navigating to: Score stats")
         R.id.button_insert_end__cancel.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         R.id.archerRoundStatsFragment.click()
         performAction(ArcherRoundStatsFragment::class)
 
         logMessage(this::class, "Navigating to: View rounds")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
         R.id.button_main_menu__view_rounds.click()
         performAction(ViewRoundsFragment::class)
 
         logMessage(this::class, "Returning to main menu")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
     }
 
     /**
@@ -561,13 +543,13 @@ class LargeScaleInstrumentedTest {
                 db.roundDistanceDao().insert(RoundDistance(1, 1, 1, 20))
             }
         }
-        ConditionWatcher.waitForCondition(waitForOpenScorePadFromMainMenu(arrowScore * arrowCount))
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        openScorePadFromMainMenu(arrowScore * arrowCount)
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         var tableView: TableView? = null
         scenario.onActivity {
             tableView = it.findViewById(R.id.table_view_score_pad)
         }
-        ConditionWatcher.waitForCondition(tableView!!.waitForRowToAppear(0))
+        CustomConditionWaiter.waitForRowToAppear(tableView!!, (0))
 
         // Score Pad -> Input End
         moveTo(R.id.inputEndFragment, !roundComplete)
@@ -602,158 +584,158 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Main menu 1")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "About")
         R.id.action_bar__about.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(AboutFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (AboutFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "New score")
         R.id.button_main_menu__start_new_round.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(NewRoundFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (NewRoundFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "New score -> Input end")
         R.id.button_main_menu__start_new_round.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(NewRoundFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (NewRoundFragment::class.java.name))
         R.id.button_create_round__submit.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "New score -> Score pad")
         R.id.button_main_menu__start_new_round.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(NewRoundFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (NewRoundFragment::class.java.name))
         R.id.button_create_round__submit.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.java.name))
         for (i in 0 until 6) {
             R.id.button_arrow_inputs__score_2.click()
         }
         R.id.button_input_end__next_end.click()
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         R.id.scorePadFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "Main menu 2")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "View rounds")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "View rounds -> Score pad")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         onView(withText("12")).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "View rounds -> Score pad -> Score stats")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         onView(withText("12")).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         R.id.archerRoundStatsFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ArcherRoundStatsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "View rounds -> Score pad -> Many")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         onView(withText("12")).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         R.id.archerRoundStatsFragment.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ArcherRoundStatsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class.java.name))
         for (i in 0 until 6) {
             R.id.scorePadFragment.click()
-            ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
             R.id.inputEndFragment.click()
-            ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InputEndFragment::class.java.name))
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.java.name))
         }
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ArcherRoundStatsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "View rounds -> Edit end")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         onView(withText("12")).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         onView(withText("2-2-2-2-2-2")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(InsertEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "View rounds -> Insert end")
         R.id.button_main_menu__view_rounds.click()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         onView(withText("12")).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         onView(withText("2-2-2-2-2-2")).perform(click())
-        ConditionWatcher.waitForCondition(waitFor(500))
+        CustomConditionWaiter.waitFor(500)
         onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(EditEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class.java.name))
         logMessage(this::class, " - back")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(ViewRoundsFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.java.name))
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
         logMessage(this::class, "Main menu 3")
         pressBack()
-        ConditionWatcher.waitForCondition(scenario.waitForFragmentInstruction(MainMenuFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
         ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
     }
