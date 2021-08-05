@@ -15,7 +15,7 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 ext.minimumSdkVersion = 15 // 2 digits
 ext.versionMajor = 1 // 2 digits
 ext.versionMinor = 1 // 2 digits
-ext.versionPatch = 0 // 2 digits
+ext.versionPatch = 1 // 2 digits
 ext.extraInfo = 0 // 1 digit (currently unused)
 ext.versionClassifier = null // Extra info to be appended to version name e.g. alpha (used for version name)
 ext.isSnapshot = false // Will append SNAPSHOT to version name

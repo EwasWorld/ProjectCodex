@@ -116,6 +116,9 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
             }
             layout.id = i
             radioGroup.addView(radioButton)
+            if (i == 0) {
+                radioButton.callOnClick()
+            }
         }
         radioGroup.check(0)
 
