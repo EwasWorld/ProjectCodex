@@ -292,6 +292,7 @@ class UpdateDefaultRounds {
          * Begins an [UpdateDefaultRoundsTask] if one isn't already in progress
          */
         fun runUpdate(db: ScoresRoomDatabase, resources: Resources, sharedPreferences: SharedPreferences) {
+            CustomLogger.customLogger.d(LOG_TAG, "runUpdate")
             synchronized(taskProgress) {
                 if (taskProgress.getState().value == UpdateTaskState.IN_PROGRESS) return
                 taskProgress.update(
@@ -375,6 +376,7 @@ class UpdateDefaultRounds {
         }
 
         override fun runTask(progressToken: OnToken<String>): String {
+            CustomLogger.customLogger.d(LOG_TAG, "runTask")
             progressToken(resources.getString(R.string.about__update_default_rounds_initialising))
 
             /*
@@ -515,9 +517,11 @@ class UpdateDefaultRounds {
                 val editor = sharedPreferences.edit()
                 editor.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, dataVersion)
                 editor.apply()
+                CustomLogger.customLogger.d(LOG_TAG, "runTask successfully completed")
                 return resources.getString(R.string.general_complete)
             }
             finally {
+                CustomLogger.customLogger.d(LOG_TAG, "runTask finally")
                 RoundRepo.repositoryWriteLock.unlock()
             }
         }

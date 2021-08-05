@@ -35,6 +35,7 @@ class EditEndFragment : Fragment(), ActionBarHelp {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        CustomLogger.customLogger.d(LOG_TAG, "onCreateView")
         val view = inflater.inflate(R.layout.fragment_edit_end, container, false)
         view.findViewById<TextView>(R.id.text_edit_end__title).text = resourceStringReplace(
                 getString(R.string.edit_end__edit_info),
@@ -68,6 +69,7 @@ class EditEndFragment : Fragment(), ActionBarHelp {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         activity?.title = getString(R.string.edit_end__title)
         val action = EditEndFragmentDirections.actionEditEndFragmentToScorePadFragment(
                 args.archerRoundId

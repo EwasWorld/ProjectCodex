@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archeryObjects.GoldsType
@@ -22,6 +23,10 @@ import kotlinx.android.synthetic.main.fragment_archer_round_stats.*
 
 
 class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
+    companion object {
+        private const val LOG_TAG = "ArcherRoundStatsFragment"
+    }
+
     private val args: ArcherRoundStatsFragmentArgs by navArgs()
     private lateinit var archerRoundStatsViewModel: ArcherRoundStatsViewModel
     private var arrows: List<ArrowValue>? = null
@@ -36,6 +41,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         setFragmentTitle()
 
         archerRoundStatsViewModel = ViewModelProvider(this, ViewModelFactory {

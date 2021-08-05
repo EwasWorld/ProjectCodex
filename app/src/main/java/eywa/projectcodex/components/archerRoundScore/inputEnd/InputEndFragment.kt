@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ScoreIndicatorFragment
@@ -27,6 +28,10 @@ import kotlinx.android.synthetic.main.fragment_input_end.*
 
 
 class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
+    companion object {
+        const val LOG_TAG = "InputEndFragment"
+    }
+
     private val args: InputEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
     private lateinit var endInputsFragment: EndInputsFragment
@@ -38,6 +43,7 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     private var roundName: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        CustomLogger.customLogger.d(LOG_TAG, "onCreateView")
         val view = inflater.inflate(R.layout.fragment_input_end, container, false)
 
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
@@ -83,6 +89,7 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         setFragmentTitle()
         endInputsFragment =
                 childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment

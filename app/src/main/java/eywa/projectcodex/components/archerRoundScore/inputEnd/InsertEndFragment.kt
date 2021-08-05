@@ -35,6 +35,7 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        CustomLogger.customLogger.d(LOG_TAG, "onCreateView")
         val view = inflater.inflate(R.layout.fragment_insert_end, container, false)
         val insertEndAt = (args.firstArrowId - 1) / args.endSize + 1
         view.findViewById<TextView>(R.id.text_insert_end__title).text =
@@ -72,6 +73,7 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         activity?.title = getString(R.string.insert_end__title)
         val action = InsertEndFragmentDirections.actionInsertEndFragmentToScorePadFragment(
                 args.archerRoundId

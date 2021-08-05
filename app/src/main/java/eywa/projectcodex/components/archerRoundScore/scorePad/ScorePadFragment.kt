@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.archeryObjects.getGoldsType
@@ -25,6 +26,10 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import kotlin.math.ceil
 
 class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
+    companion object {
+        const val LOG_TAG = "ScorePadFragment"
+    }
+
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
     private var dialog: AlertDialog? = null
@@ -70,6 +75,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         setFragmentTitle()
 
         scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
@@ -129,6 +135,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         ) {
             return
         }
+        CustomLogger.customLogger.d(LOG_TAG, "updateTable")
 
         /*
          * For some unknown reason not creating a new table adapter every time causes major display issues. Chiefly:
