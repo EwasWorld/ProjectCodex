@@ -18,6 +18,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.commonUtils.*
 import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
+import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -148,6 +149,18 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_bar__help -> {
                 ActionBarHelp.executeHelpPressed(findAllActionBarChildFragments(navHostFragment), this)
+            }
+            R.id.action_bar__home -> {
+                val aboutFragment =
+                        navHostFragment.childFragmentManager.fragments.filterIsInstance<MainMenuFragment>()
+                                .firstOrNull()
+                if (aboutFragment != null && aboutFragment.isVisible) {
+                    ToastSpamPrevention.displayToast(
+                            applicationContext,
+                            resources.getString(R.string.err_action_bar__home_already_displayed)
+                    )
+                }
+                navHostFragment.findNavController().navigate(R.id.mainMenuFragment)
             }
             R.id.action_bar__about -> {
                 val aboutFragment =

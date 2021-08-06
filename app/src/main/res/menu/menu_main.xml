@@ -17,4 +17,11 @@
         android:icon="@drawable/ic_about_icon"
         app:showAsAction="ifRoom"
         />
+    <item
+        android:id="@+id/action_bar__home"
+        android:orderInCategory="200"
+        android:title="@string/action_bar__home"
+        android:icon="@drawable/ic_home_icon"
+        app:showAsAction="ifRoom"
+        />
 </menu>

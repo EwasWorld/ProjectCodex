@@ -9,9 +9,11 @@
     <!-- Action bar -->
     <string name="action_bar__help">help</string>
     <string name="action_bar__about">about</string>
+    <string name="action_bar__home">main menu</string>
     <string name="action_bar__close_help">Close help</string>
     <string name="err_action_bar__no_help_info">No help info available for this page</string>
     <string name="err_action_bar__about_already_displayed">About page is already displayed</string>
+    <string name="err_action_bar__home_already_displayed">Main menu is already displayed</string>
 
     <!-- Archer rounds bottom nav bar -->
     <string name="err_archer_round_nav__round_completed">Round completed, cannot insert a new end</string>
