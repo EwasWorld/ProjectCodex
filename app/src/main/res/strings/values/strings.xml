@@ -53,6 +53,7 @@
     <string name="general_complete">Complete</string>
     <string name="general_continue">Continue</string>
     <string name="general_next">Next</string>
+    <string name="general__reset_edits">Reset</string>
 
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__internal_error">Internal error occurred</string>

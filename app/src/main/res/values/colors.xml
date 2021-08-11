@@ -17,6 +17,7 @@
 
     <color name="scorePadText">@color/offBlack</color>
     <color name="inputEndText">@color/white</color>
+    <color name="warningText">#D61A00</color>
 
     <color name="targetFaceGreen">#26FF00</color>
     <color name="targetFaceWhite">#FFFFFF</color>

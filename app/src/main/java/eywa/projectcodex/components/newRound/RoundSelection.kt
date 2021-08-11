@@ -2,13 +2,15 @@ package eywa.projectcodex.components.newRound
 
 import android.content.res.Resources
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import java.text.DecimalFormat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * Helper class for selecting a round on the create round screen
@@ -17,9 +19,22 @@ import java.text.DecimalFormat
 class RoundSelection(
         val resources: Resources, newRoundViewModel: NewRoundViewModel, viewLifecycleOwner: LifecycleOwner
 ) {
+    companion object {
+        const val LOG_TAG = "RoundSelection"
+    }
+
+    private val roundsRetrievedLatch = CountDownLatch(1)
+    private val subTypesRetrievedLatch = CountDownLatch(1)
     private var allRoundSubTypes: List<RoundSubType> = listOf()
     private var allRoundArrowCounts: List<RoundArrowCount> = listOf()
     private var allRoundDistances: List<RoundDistance> = listOf()
+
+    /**
+     * The position in [availableRounds] that indicates no round selected
+     */
+    val noRoundPosition = 0
+    var selectedRoundPosition = noRoundPosition
+    var selectedSubtypePosition: Int? = 0
 
     /**
      * The rounds named on the round spinner in their correct positions
@@ -34,16 +49,18 @@ class RoundSelection(
     private var availableSubtypes: List<Int> = listOf()
 
     init {
-        newRoundViewModel.allRounds.observe(viewLifecycleOwner, Observer { dbRounds ->
+        newRoundViewModel.allRounds.observe(viewLifecycleOwner, { dbRounds ->
             availableRounds = listOf<Round?>(null).plus(dbRounds)
+            roundsRetrievedLatch.countDown()
         })
-        newRoundViewModel.allRoundSubTypes.observe(viewLifecycleOwner, Observer { dbRounds ->
+        newRoundViewModel.allRoundSubTypes.observe(viewLifecycleOwner, { dbRounds ->
             allRoundSubTypes = dbRounds
+            subTypesRetrievedLatch.countDown()
         })
-        newRoundViewModel.allRoundArrowCounts.observe(viewLifecycleOwner, Observer { dbRounds ->
+        newRoundViewModel.allRoundArrowCounts.observe(viewLifecycleOwner, { dbRounds ->
             allRoundArrowCounts = dbRounds
         })
-        newRoundViewModel.allRoundDistances.observe(viewLifecycleOwner, Observer { dbRounds ->
+        newRoundViewModel.allRoundDistances.observe(viewLifecycleOwner, { dbRounds ->
             allRoundDistances = dbRounds
         })
     }
@@ -66,13 +83,52 @@ class RoundSelection(
         }
     }
 
+    fun getPositionOfRound(roundId: Int?): Int? {
+        if (!roundsRetrievedLatch.await(3, TimeUnit.SECONDS)) {
+            CustomLogger.customLogger.w(LOG_TAG, "Rounds not retrieved")
+            return null
+        }
+        val pos = availableRounds.indexOfFirst {
+            return@indexOfFirst if (roundId == null) {
+                it == null
+            }
+            else {
+                it?.roundId == roundId
+            }
+        }
+        if (pos == -1) {
+            throw IllegalStateException("Round not found")
+        }
+        return pos
+    }
+
+    fun getPositionOfSubtype(roundId: Int?, subTypeId: Int): Int? {
+        val roundPos = getPositionOfRound(roundId) ?: return null
+        // Ensure available subtypes is populated
+        getRoundSubtypes(roundPos)
+
+        if (!subTypesRetrievedLatch.await(3, TimeUnit.SECONDS)) {
+            CustomLogger.customLogger.w(LOG_TAG, "Sub types not retrieved")
+            return null
+        }
+        val pos = availableSubtypes.indexOfFirst { it == subTypeId }
+        if (pos == -1) {
+            throw IllegalStateException("Sub type not found")
+        }
+        return pos
+    }
+
+    fun getSelectedRoundName(): String? {
+        return availableRounds[selectedRoundPosition]?.displayName
+    }
+
     /**
      * Updates available subtypes and returns their display names
      *
      * @return null if there are one or no subtypes available. Note: the order should not be edited if later
      * functions are to work as this class' functions work on item positions
      */
-    fun getRoundSubtypes(selectedRoundPosition: Int): List<String>? {
+    fun getRoundSubtypes(selectedRoundPosition: Int = this.selectedRoundPosition): List<String>? {
         require(selectedRoundPosition >= 0) { "Selected round index out of bounds, must be >= 0" }
         require(selectedRoundPosition <= availableRounds.size) { "Selected round index out of bounds" }
 
@@ -90,7 +146,7 @@ class RoundSelection(
     /**
      * @return the arrow counts for the selected round in dozens, comma separated
      */
-    fun getArrowCountIndicatorText(selectedRoundPosition: Int): String? {
+    fun getArrowCountIndicatorText(): String? {
         require(selectedRoundPosition >= 0) { "Selected round index out of bounds, must be >= 0" }
         require(selectedRoundPosition <= availableRounds.size) { "Selected round index out of bounds" }
 
@@ -103,23 +159,35 @@ class RoundSelection(
         }
     }
 
+    fun getTotalArrowsInRound(): Int? {
+        require(selectedRoundPosition >= 0) { "Selected round index out of bounds, must be >= 0" }
+        require(selectedRoundPosition <= availableRounds.size) { "Selected round index out of bounds" }
+
+        val roundInfo = availableRounds[selectedRoundPosition] ?: return null
+        val total = allRoundArrowCounts.filter { it.roundId == roundInfo.roundId }.sumOf { it.arrowCount }
+        if (total == 0) {
+            return null
+        }
+        return total
+    }
+
     /**
      * @return the distances for the given round and subtype including units, comma separated. Returns null if a valid
      * set of distances cannot be deduced
      */
-    fun getDistanceIndicatorText(selectedRoundPosition: Int, selectedSubtypePosition: Int?): String? {
+    fun getDistanceIndicatorText(): String? {
         require(selectedRoundPosition >= 0) { "Selected round index out of bounds, must be >= 0" }
         require(selectedRoundPosition <= availableRounds.size) { "Selected round index out of bounds" }
         if (selectedSubtypePosition != null) {
-            require(selectedSubtypePosition >= 0) { "Selected round index out of bounds, must be >= 0" }
-            require(selectedSubtypePosition <= availableSubtypes.size) { "Selected round index out of bounds" }
+            require(selectedSubtypePosition!! >= 0) { "Selected round index out of bounds, must be >= 0" }
+            require(selectedSubtypePosition!! <= availableSubtypes.size) { "Selected round index out of bounds" }
         }
 
         val roundInfo = availableRounds[selectedRoundPosition] ?: return null
 
         var distances = allRoundDistances.filter { it.roundId == roundInfo.roundId }
         if (selectedSubtypePosition != null) {
-            distances = distances.filter { it.subTypeId == availableSubtypes[selectedSubtypePosition] }
+            distances = distances.filter { it.subTypeId == availableSubtypes[selectedSubtypePosition!!] }
         }
         if (distances.isEmpty()) return null
         if (distances.distinctBy { it.subTypeId }.size > 1) return null
@@ -130,7 +198,7 @@ class RoundSelection(
         return (distances.joinToString(", ") { it.distance.toString() + unitText })
     }
 
-    fun getSelectedRoundId(selectedRoundPosition: Int): Int? {
+    fun getSelectedRoundId(): Int? {
         require(selectedRoundPosition >= 0) { "Selected round index out of bounds, must be >= 0" }
         require(selectedRoundPosition <= availableRounds.size) { "Selected round index out of bounds" }
 
@@ -141,15 +209,15 @@ class RoundSelection(
      * @return the subtype ID at the given position, the only available subtype ID, or 1 (as is default in RoundDistance)
      * @see RoundDistance
      */
-    fun getSelectedSubtypeId(selectedSubtypePosition: Int?): Int? {
+    fun getSelectedSubtypeId(): Int {
         if (selectedSubtypePosition != null) {
-            require(selectedSubtypePosition >= 0) { "Selected round index out of bounds, must be >= 0" }
-            require(selectedSubtypePosition <= availableSubtypes.size) { "Selected round index out of bounds" }
+            require(selectedSubtypePosition!! >= 0) { "Selected round index out of bounds, must be >= 0" }
+            require(selectedSubtypePosition!! <= availableSubtypes.size) { "Selected round index out of bounds" }
         }
 
         if (selectedSubtypePosition == null) {
             return if (availableSubtypes.size == 1) availableSubtypes[0] else 1
         }
-        return availableSubtypes[selectedSubtypePosition]
+        return availableSubtypes[selectedSubtypePosition!!]
     }
 }

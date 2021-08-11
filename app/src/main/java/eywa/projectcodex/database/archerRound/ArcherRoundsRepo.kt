@@ -31,4 +31,8 @@ class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
     suspend fun deleteRound(archerRoundId: Int) {
         archerRoundDao.deleteRound(archerRoundId)
     }
+
+    suspend fun update(vararg archerRounds: ArcherRound) {
+        archerRoundDao.update(*archerRounds)
+    }
 }

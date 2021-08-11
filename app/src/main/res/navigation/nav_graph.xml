@@ -35,6 +35,10 @@
             android:id="@+id/actionViewRoundsFragmentToInputEndFragment"
             app:destination="@id/inputEndFragment"
             />
+        <action
+            android:id="@+id/action_viewRoundsFragment_to_newRoundFragment"
+            app:destination="@id/newRoundFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/newRoundFragment"
@@ -50,6 +54,11 @@
             android:name="backStackBehaviour"
             app:argType="eywa.projectcodex.components.BackStackBehaviour"
             android:defaultValue="NONE"
+            />
+        <argument
+            android:name="archerRoundId"
+            app:argType="integer"
+            android:defaultValue="-1"
             />
     </fragment>
     <fragment

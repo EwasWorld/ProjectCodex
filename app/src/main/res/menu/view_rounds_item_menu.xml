@@ -14,6 +14,11 @@
         android:orderInCategory="8"
         />
     <item
+        android:id="@+id/button_view_rounds_menu__edit"
+        android:title="@string/view_rounds_menu__edit"
+        android:orderInCategory="9"
+        />
+    <item
         android:id="@+id/button_view_rounds_menu__delete"
         android:title="@string/view_rounds_menu__delete"
         android:orderInCategory="10"

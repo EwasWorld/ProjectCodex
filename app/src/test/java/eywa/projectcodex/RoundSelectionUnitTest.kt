@@ -108,7 +108,8 @@ class RoundSelectionUnitTest {
     @Test
     fun testGetArrowCountIndicatorTextNoData() {
         val roundSel = setupRoundSelection(mapOf(), listOf())
-        val text = roundSel.getArrowCountIndicatorText(0)
+        roundSel.selectedRoundPosition = 0
+        val text = roundSel.getArrowCountIndicatorText()
         Assert.assertEquals(null, text)
     }
 
@@ -118,7 +119,8 @@ class RoundSelectionUnitTest {
         val size = 3
         val arrowCounts = TestData.generateArrowCounts(2, size, size)
         val roundSel = setupRoundSelection(mapOf(), TestData.generateRounds(5), arrows = arrowCounts)
-        val text = roundSel.getArrowCountIndicatorText(index)
+        roundSel.selectedRoundPosition = index
+        val text = roundSel.getArrowCountIndicatorText()
         if (text != null) {
             Assert.assertEquals(size - 1, text.count { it == ',' })
             val counts = text.split(", ").map { it.toInt() }
@@ -135,7 +137,9 @@ class RoundSelectionUnitTest {
     @Test
     fun testGetDistanceIndicatorTextNoData() {
         val roundSel = setupRoundSelection(mapOf(), listOf())
-        val text = roundSel.getDistanceIndicatorText(0, null)
+        roundSel.selectedRoundPosition = 0
+        roundSel.selectedSubtypePosition = null
+        val text = roundSel.getDistanceIndicatorText()
         Assert.assertEquals(null, text)
     }
 
@@ -151,7 +155,9 @@ class RoundSelectionUnitTest {
                 mapOf(Pair(R.string.units_meters_short, "m")), rounds, subtypes = subtypes, distances = distances
         )
         roundSel.getRoundSubtypes(1)
-        val text = roundSel.getDistanceIndicatorText(roundIndex, 0)
+        roundSel.selectedRoundPosition = roundIndex
+        roundSel.selectedSubtypePosition = 0
+        val text = roundSel.getDistanceIndicatorText()
         if (text != null) {
             Assert.assertEquals(size - 1, text.count { it == ',' })
             val actualDistances = text.replace("m", "").split(", ").map { it.toInt() }
@@ -179,7 +185,9 @@ class RoundSelectionUnitTest {
                 mapOf(Pair(R.string.units_meters_short, meters)), rounds, distances = distances
         )
         roundSel.getRoundSubtypes(index)
-        val text = roundSel.getDistanceIndicatorText(index, null)
+        roundSel.selectedRoundPosition = index
+        roundSel.selectedSubtypePosition = null
+        val text = roundSel.getDistanceIndicatorText()
         if (text != null) {
             Assert.assertEquals(size, text.count { it == meters[0] })
             Assert.assertEquals(size - 1, text.count { it == ',' })
@@ -203,7 +211,9 @@ class RoundSelectionUnitTest {
         val roundSel = setupRoundSelection(
                 mapOf(Pair(R.string.units_yards_short, yards)), rounds, distances = distances
         )
-        val text = roundSel.getDistanceIndicatorText(index, null)
+        roundSel.selectedRoundPosition = index
+        roundSel.selectedSubtypePosition = null
+        val text = roundSel.getDistanceIndicatorText()
         if (text != null) {
             Assert.assertEquals(size, text.count { it == yards[0] })
             Assert.assertEquals(size - 1, text.count { it == ',' })

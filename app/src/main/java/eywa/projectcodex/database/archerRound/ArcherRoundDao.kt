@@ -1,16 +1,16 @@
 package eywa.projectcodex.database.archerRound
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import eywa.projectcodex.database.rounds.Round
 
 @Dao
 interface ArcherRoundDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(archerRound: ArcherRound)
+
+    @Update
+    suspend fun update(vararg archerRounds: ArcherRound)
 
     @Query("SELECT MAX(archerRoundId) FROM $ARCHER_ROUNDS_TABLE_NAME")
     fun getMaxId(): LiveData<Int>

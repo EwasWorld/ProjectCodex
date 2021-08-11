@@ -53,6 +53,15 @@ fun logMessage(logClass: KClass<*>, message: String) {
 fun Int.click() = onView(withId(this)).perform(ViewActions.click())!!
 fun Int.write(text: String) = onView(withId(this)).perform(ViewActions.typeText(text))!!
 fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))!!
+fun Int.labelledTextEquals(text: String) =
+        onView(allOf(withParent(withParent(withId(this))), withId(R.id.labelled_text__text))).check(
+                matches(
+                        withText(text)
+                )
+        )!!
+
+fun Int.spinnerTextEquals(text: String) =
+        onView(allOf(withParent(withId(this)), withText(text))).check(matches(isDisplayed()))!!
 
 fun Int.labelledTextViewTextEquals(text: String) =
         onView(allOf(withParent(withParent(withId(this))), withId(R.id.labelled_text__text)))
@@ -228,6 +237,10 @@ fun setDatePickerValue(value: Calendar): ViewAction {
             return isAssignableFrom(DatePicker::class.java)
         }
     }
+}
+
+fun setTimePickerValue(calendar: Calendar): ViewAction {
+    return setTimePickerValue(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
 }
 
 fun setTimePickerValue(hours: Int, minutes: Int): ViewAction {

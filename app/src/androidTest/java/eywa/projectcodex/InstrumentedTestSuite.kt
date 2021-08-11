@@ -8,6 +8,6 @@ import org.junit.runners.Suite
 @Suite.SuiteClasses(
         InputEndInstrumentedTest::class, NewRoundInstrumentedTest::class, LargeScaleInstrumentedTest::class,
         ScorePadInstrumentedTest::class, ViewRoundsInstrumentedTest::class, UpdateDefaultRoundsInstrumentedTests::class,
-        ArcherRoundStatsInstrumentedTest::class
+        ArcherRoundStatsInstrumentedTest::class, LargeScaleInstrumentedTest::class
 )
 class InstrumentedTestSuite

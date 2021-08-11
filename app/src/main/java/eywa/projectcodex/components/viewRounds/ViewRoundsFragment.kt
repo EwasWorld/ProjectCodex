@@ -276,9 +276,17 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                         return true
                     }
                 }
-                val action =
+                view?.findNavController()?.navigate(
                         ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(selectedArcherRoundId)
-                view?.findNavController()?.navigate(action)
+                )
+                true
+            }
+            R.id.button_view_rounds_menu__edit -> {
+                view?.findNavController()?.navigate(
+                        ViewRoundsFragmentDirections.actionViewRoundsFragmentToNewRoundFragment(
+                                archerRoundId = selectedArcherRoundId
+                        )
+                )
                 true
             }
             R.id.button_view_rounds_menu__delete -> {
@@ -294,10 +302,9 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     }
 
     private fun openScorePad() {
-        val action = ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(
-                selectedArcherRoundId
+        view?.findNavController()?.navigate(
+                ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(selectedArcherRoundId)
         )
-        view?.findNavController()?.navigate(action)
     }
 
     private fun getArcherRoundId(row: Int): Int {

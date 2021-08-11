@@ -96,6 +96,7 @@ class LargeScaleInstrumentedTest {
      */
     @Test
     fun mainTest() {
+        // TODO Add edit round info
         // TODO Add checks to make sure each step worked as intended
         ConditionWatcher.setTimeoutLimit(15000)
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
@@ -352,35 +353,6 @@ class LargeScaleInstrumentedTest {
 //        CustomConditionWaiter.waitFor(500)
 //        onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
 //        completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
-    }
-
-    /**
-     * Do repeated edit operations on a round to try and cause a problem
-     */
-    @Ignore("Not implemented")
-    fun testEditScoreStressTest() {
-        // TODO Implement
-        logMessage(this::class, "Insert end")
-        logMessage(this::class, "Edit end")
-        logMessage(this::class, "Delete end")
-
-        logMessage(this::class, "Insert end")
-        logMessage(this::class, "Edit end")
-        logMessage(this::class, "Delete end")
-
-        logMessage(this::class, "Edit end")
-        logMessage(this::class, "Edit end")
-        logMessage(this::class, "Edit end")
-        logMessage(this::class, "Insert end")
-        logMessage(this::class, "Insert end")
-        logMessage(this::class, "Insert end")
-        logMessage(this::class, "Delete end")
-        logMessage(this::class, "Delete end")
-        logMessage(this::class, "Delete end")
-
-        logMessage(this::class, "Insert end")
-        logMessage(this::class, "Edit end")
-        logMessage(this::class, "Delete end")
     }
 
     /**

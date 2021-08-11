@@ -12,9 +12,9 @@ class CommonStrings {
             const val scorePadDeleteEnd = "Delete end"
             const val scorePadEditEnd = "Edit end"
 
-            const val viewRoundsShowScorePad = "Show score pad"
-            const val viewRoundsContinue = "Continue round"
-            const val viewRoundsDelete = "Delete round"
+            const val viewRoundsShowScorePad = "Score pad"
+            const val viewRoundsContinue = "Continue scoring"
+            const val viewRoundsDelete = "Delete"
             const val viewRoundsConvert = "Convert"
             const val viewRoundsConvertToTens = "Xs to 10s"
             const val viewRoundsConvertToFiveZone = "10-zone to 5-zone"

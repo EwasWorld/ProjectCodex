@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="create_round__title">New Score</string>
+    <string name="create_round__edit_title">Edit Score Info</string>
     <string name="create_round__submit">Start Scoring</string>
     <string name="create_round__imperial_metric">Imperial</string>
     <string name="create_round__date">Date:</string>
     <string name="create_round__default_rounds_updating_warning">Rounds list is being updated. Please wait a few moments for list to update or start scoring without a round.</string>
-    <string name="create_round__default_rounds_updating_warning_status">Current status:</string>
+    <string name="create_round__default_rounds_updating_warning_status">Current status</string>
     <string name="create_round__round">Round:</string>
     <string name="create_round__round_sub_type">Round Subtype:</string>
     <string name="create_round__no_round">No Round</string>
     <string name="create_round__no_rounds_found">No round found in database</string>
-    <string name="create_round__arrow_count_indicator">Arrows per distance (doz):</string>
-    <string name="create_round__distance_indicator">Distances:</string>
+    <string name="create_round__arrow_count_indicator">Arrows per distance (doz)</string>
+    <string name="create_round__distance_indicator">Distances</string>
     <string name="create_round__arrows_per_end">Arrows per End</string>
     <string name="create_round__date_shot_date_picker_title">Date shot</string>
     <string name="create_round__time_shot_time_picker_title">Time shot</string>
+
+    <string name="err_create_round__too_many_arrows">This score has too many arrows ({shot arrows}) entered to change the type to {round} (max {round arrows})</string>
 
     <string name="help_create_round__date_title">Date and Time</string>
     <string name="help_create_round__date_body">The date and time that this round was shot</string>

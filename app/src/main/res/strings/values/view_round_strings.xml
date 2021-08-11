@@ -5,9 +5,10 @@
     <string name="view_round__round_name_header">Round</string>
     <string name="view_round__counts_to_hc_header">HC</string>
     <string name="view_round__id_header">ID</string>
-    <string name="view_rounds_menu__score_pad">Show score pad</string>
-    <string name="view_rounds_menu__continue">Continue round</string>
-    <string name="view_rounds_menu__delete">Delete round</string>
+    <string name="view_rounds_menu__score_pad">Score pad</string>
+    <string name="view_rounds_menu__continue">Continue scoring</string>
+    <string name="view_rounds_menu__delete">Delete</string>
+    <string name="view_rounds_menu__edit">Edit info</string>
 
     <!-- Convert score -->
     <string name="view_rounds_menu__convert">Convert</string>

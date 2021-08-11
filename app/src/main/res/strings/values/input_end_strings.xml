@@ -18,7 +18,6 @@
 
     <!-- Edit end -->
     <string name="edit_end__title">Edit End</string>
-    <string name="edit_end__reset">Reset</string>
     <string name="edit_end__edit_info">Editing end {end number}</string>
 
     <!-- Insert end -->
