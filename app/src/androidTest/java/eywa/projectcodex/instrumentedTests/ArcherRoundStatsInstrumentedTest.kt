@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.instrumentedTests
 
 import android.os.Bundle
 import androidx.fragment.app.testing.FragmentScenario
@@ -9,6 +9,8 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import eywa.projectcodex.R
+import eywa.projectcodex.TestData
 import eywa.projectcodex.common.CommonStrings
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.labelledTextViewTextEquals

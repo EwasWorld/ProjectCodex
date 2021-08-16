@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.instrumentedTests
 
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
@@ -6,6 +6,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
+import eywa.projectcodex.R
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.commonUtils.SharedPrefs

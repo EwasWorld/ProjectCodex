@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.instrumentedTests
 
 import android.content.pm.ActivityInfo
 import androidx.fragment.app.Fragment
@@ -14,6 +14,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.evrencoskun.tableview.TableView
+import eywa.projectcodex.R
+import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.about.AboutFragment

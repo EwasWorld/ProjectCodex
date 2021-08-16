@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.instrumentedTests
 
 import android.os.Bundle
 import android.widget.DatePicker
@@ -17,6 +17,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
+import eywa.projectcodex.R
+import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.newRound.NewRoundFragment
 import eywa.projectcodex.database.ScoresRoomDatabase

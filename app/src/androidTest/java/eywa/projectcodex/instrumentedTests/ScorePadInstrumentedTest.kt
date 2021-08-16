@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.instrumentedTests
 
 import android.app.Activity
 import android.content.Context
@@ -22,6 +22,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
+import eywa.projectcodex.R
+import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.MainActivity
 import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment

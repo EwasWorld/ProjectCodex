@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.instrumentedTests
 
 import android.content.res.Resources
 import androidx.fragment.app.testing.FragmentScenario
@@ -17,6 +17,8 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
+import eywa.projectcodex.R
+import eywa.projectcodex.TestData
 import eywa.projectcodex.common.CommonStrings
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.clickAlertDialogOk
