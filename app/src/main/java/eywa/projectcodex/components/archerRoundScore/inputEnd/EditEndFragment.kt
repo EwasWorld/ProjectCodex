@@ -7,12 +7,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -49,7 +49,7 @@ class EditEndFragment : Fragment(), ActionBarHelp {
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
             InputEndViewModel(requireActivity().application, args.archerRoundId)
         }).get(InputEndViewModel::class.java)
-        inputEndViewModel.arrows.observe(viewLifecycleOwner, Observer { arrowsJava ->
+        inputEndViewModel.arrows.observe(viewLifecycleOwner, { arrowsJava ->
             arrowsJava?.let { arrows ->
                 this.arrows = arrows
 
@@ -61,6 +61,11 @@ class EditEndFragment : Fragment(), ActionBarHelp {
                         getString(R.string.end_to_string_arrow_placeholder),
                         getString(R.string.end_to_string_arrow_deliminator)
                 )
+            }
+        })
+        inputEndViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, { archerRoundInfo ->
+            archerRoundInfo?.round?.let { round ->
+                endInputsFragment.setScoreButtons(ArrowInputsFragment.ArrowInputsType.getType(round))
             }
         })
 

@@ -103,7 +103,6 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "View rounds (nothing inputted)")
         R.id.button_main_menu__view_rounds.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewRoundsFragment::class.jvmName))
         clickAlertDialogOk(CommonStrings.Dialogs.emptyTable)
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
 
@@ -112,14 +111,13 @@ class LargeScaleInstrumentedTest {
         R.id.button_main_menu__start_new_round.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (NewRoundFragment::class.jvmName))
         CustomConditionWaiter.waitForUpdateRoundsTaskToFinish(scenario)
-        R.id.spinner_create_round__round.clickSpinnerItem("National")
+        R.id.spinner_create_round__round.clickSpinnerItem("Short Metric")
         R.id.button_create_round__submit.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - open score pad - no arrows entered")
         R.id.scorePadFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
         clickAlertDialogOk(CommonStrings.Dialogs.emptyTable)
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
 

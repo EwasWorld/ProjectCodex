@@ -9,8 +9,10 @@ import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
@@ -21,8 +23,10 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -47,20 +51,30 @@ class InputEndInstrumentedTest {
     private lateinit var db: ScoresRoomDatabase
     private val emptyEnd = ".-.-.-.-.-."
     private val arrowsPerArrowCount = 12
-    private val roundsInput = listOf(Round(1, "test", "Test", true, true, listOf()))
+    private val roundsInput = listOf(
+            Round(1, "test", "Test", true, true, listOf()),
+            Round(2, "test2", "Test2", true, false, listOf())
+    )
     private val arrowCountsInput = listOf(
             RoundArrowCount(1, 1, 1.0, arrowsPerArrowCount),
             RoundArrowCount(1, 2, 1.0, arrowsPerArrowCount),
-            RoundArrowCount(1, 3, 1.0, arrowsPerArrowCount)
+            RoundArrowCount(1, 3, 1.0, arrowsPerArrowCount),
+            RoundArrowCount(2, 1, 1.0, arrowsPerArrowCount),
+            RoundArrowCount(2, 2, 1.0, arrowsPerArrowCount),
+            RoundArrowCount(2, 3, 1.0, arrowsPerArrowCount)
     )
     private val distancesInput = listOf(
             RoundDistance(1, 1, 1, 90),
             RoundDistance(1, 2, 1, 70),
-            RoundDistance(1, 3, 1, 50)
+            RoundDistance(1, 3, 1, 50),
+            RoundDistance(2, 1, 1, 90),
+            RoundDistance(2, 2, 1, 70),
+            RoundDistance(2, 3, 1, 50)
     )
     private val archerRounds = listOf(
             ArcherRound(1, TestData.generateDate(), 1, true),
-            ArcherRound(2, TestData.generateDate(), 1, true, roundId = 1)
+            ArcherRound(2, TestData.generateDate(), 1, true, roundId = 1),
+            ArcherRound(3, TestData.generateDate(), 1, true, roundId = 2),
     )
 
     /**
@@ -378,5 +392,22 @@ class InputEndInstrumentedTest {
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.")
         completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
+    }
+
+    @Test
+    fun scoreButtonsChange() {
+        setup(3)
+
+        try {
+            onView(withId(R.id.button_arrow_inputs__score_2)).check(matches(not(isDisplayed())))
+            fail("Score button 2 should not be shown on an outdoor imperial round")
+        }
+        catch (e: NoMatchingViewException) {
+            // Desired behaviour
+        }
+
+        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
+        R.id.button_arrow_inputs__score_1.click()
+        R.id.text_end_inputs__inputted_arrows.textEquals("1-.-.-.-.-.")
     }
 }

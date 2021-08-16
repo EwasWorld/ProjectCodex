@@ -308,6 +308,7 @@ class ViewRoundsInstrumentedTest {
         onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())
         clickAlertDialogOk(CommonStrings.Dialogs.viewRoundsConvertTitle)
 
+        CustomConditionWaiter.waitForToast("Finished conversion")
 
         // Convert second score (sum should be unique)
         onView(withText(TestData.ARROWS.sumOf { it.score }.toString())).perform(longClick())
@@ -315,8 +316,8 @@ class ViewRoundsInstrumentedTest {
         onView(withText(CommonStrings.Menus.viewRoundsConvertToTens)).perform(click())
         clickAlertDialogOk(CommonStrings.Dialogs.viewRoundsConvertTitle)
 
-        // TODO Better wait for (possibly await on a latch where it counts down when the finished toast appears)
-        CustomConditionWaiter.waitFor(3000)
+        CustomConditionWaiter.waitForToast("Finished conversion")
+        CustomConditionWaiter.waitFor(1000)
 
         populateAdapter()
         val expectedData = calculateViewRoundsTableData(

@@ -10,18 +10,20 @@ import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.components.archerRoundScore.inputEnd.ScoreButtonPressedListener
 import eywa.projectcodex.components.commonUtils.findInstanceOf
+import eywa.projectcodex.database.rounds.Round
 
 
-class ArrowInputsFragment10ZoneWithX : Fragment() {
+class ArrowInputsFragment(private val type: ArrowInputsType) : Fragment() {
     companion object {
-        private const val LOG_TAG = "ArrowInputsFragment10ZoneWithX"
+        private const val LOG_TAG = "ArrowInputsFragment"
     }
 
     private var listener: ScoreButtonPressedListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.frag_arrow_inputs_10_zone_with_x, container, false)
+        return inflater.inflate(type.layoutId, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,10 +35,6 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
                 listener?.onScoreButtonPressed(button.text.toString())
             }
         }
-    }
-
-    interface ScoreButtonPressedListener {
-        fun onScoreButtonPressed(score: String)
     }
 
     override fun onAttach(context: Context) {
@@ -57,5 +55,21 @@ class ArrowInputsFragment10ZoneWithX : Fragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    enum class ArrowInputsType(val layoutId: Int) {
+        TEN_ZONE_WITH_X(R.layout.frag_arrow_inputs_10_zone_with_x), FIVE_ZONE(R.layout.frag_arrow_inputs_5_zone),
+        WORCESTER(R.layout.frag_arrow_inputs_worcester);
+
+        companion object {
+            fun getType(round: Round): ArrowInputsType {
+                return when {
+                    round.displayName.contains(WORCESTER.toString(), ignoreCase = true) -> WORCESTER
+                    round.isMetric -> TEN_ZONE_WITH_X
+                    !round.isOutdoor -> TEN_ZONE_WITH_X
+                    else -> FIVE_ZONE
+                }
+            }
+        }
     }
 }

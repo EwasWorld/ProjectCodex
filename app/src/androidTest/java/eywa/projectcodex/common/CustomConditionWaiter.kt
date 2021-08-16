@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.NoMatchingViewException
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
@@ -77,6 +78,27 @@ class CustomConditionWaiter {
 
                 override fun getDescription(): String {
                     return "Wait for a given length of time"
+                }
+            })
+        }
+
+        /**
+         * Wait toast with certain text to appear
+         */
+        fun waitForToast(text: String) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    try {
+                        checkContainsToast(text)
+                        return true
+                    }
+                    catch (e: NoMatchingViewException) {
+                    }
+                    return false
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for toast with text '$text' to appear"
                 }
             })
         }

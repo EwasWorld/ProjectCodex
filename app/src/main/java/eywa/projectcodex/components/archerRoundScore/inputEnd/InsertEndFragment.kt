@@ -13,6 +13,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -65,6 +66,11 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
                         getString(R.string.end_to_string_arrow_placeholder),
                         getString(R.string.end_to_string_arrow_deliminator)
                 )
+            }
+        })
+        inputEndViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, { archerRoundInfo ->
+            archerRoundInfo?.round?.let { round ->
+                endInputsFragment.setScoreButtons(ArrowInputsFragment.ArrowInputsType.getType(round))
             }
         })
 

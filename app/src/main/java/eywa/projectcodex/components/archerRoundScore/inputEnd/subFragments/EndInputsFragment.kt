@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
+import eywa.projectcodex.components.archerRoundScore.inputEnd.ScoreButtonPressedListener
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.commonElements.NumberPickerDialog
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -16,9 +17,10 @@ import eywa.projectcodex.exceptions.UserException
 import kotlinx.android.synthetic.main.frag_end_inputs.*
 
 
-class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButtonPressedListener, ActionBarHelp {
+class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp {
     private val defaultStartingEndSize = 6
     var showResetButton = false
+    private var currentScoreButtonsType: ArrowInputsFragment.ArrowInputsType? = null
 
     // This assignment will always be overwritten, just can't have a lateinit with a custom setter :rolling_eyes:
     var end: End = End(defaultStartingEndSize, ".", "-")
@@ -56,6 +58,7 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
                 updateEndStringAndTotal(view)
             }
         }
+        setScoreButtons()
         view.findViewById<Button>(R.id.button_end_inputs__reset).visibility =
                 if (showResetButton) View.VISIBLE else View.GONE
         updateEndStringAndTotal(view)
@@ -96,6 +99,17 @@ class EndInputsFragment : Fragment(), ArrowInputsFragment10ZoneWithX.ScoreButton
     fun clearEnd() {
         end.clear()
         updateEndStringAndTotal()
+    }
+
+    fun setScoreButtons(
+            type: ArrowInputsFragment.ArrowInputsType = ArrowInputsFragment.ArrowInputsType.TEN_ZONE_WITH_X
+    ) {
+        if (currentScoreButtonsType != type) {
+            childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_end_inputs__arrow_inputs, ArrowInputsFragment(type))
+                    .commit()
+            currentScoreButtonsType = type
+        }
     }
 
     override fun onScoreButtonPressed(score: String) {

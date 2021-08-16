@@ -14,6 +14,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ScoreIndicatorFragment
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
@@ -45,6 +46,8 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         CustomLogger.customLogger.d(LOG_TAG, "onCreateView")
         val view = inflater.inflate(R.layout.fragment_input_end, container, false)
+        endInputsFragment =
+                childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment
 
         inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
             InputEndViewModel(requireActivity().application, args.archerRoundId)
@@ -56,21 +59,20 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             roundName = archerRoundInfo.displayName ?: ""
             setFragmentTitle()
             showRemainingArrows = archerRoundInfo.round != null
-            archerRoundInfo.round?.roundId?.let { roundId ->
-                inputEndViewModel.getArrowCountsForRound(roundId).observe(viewLifecycleOwner, {
+            archerRoundInfo.round?.let { round ->
+                inputEndViewModel.getArrowCountsForRound(round.roundId).observe(viewLifecycleOwner, {
                     arrowCounts = it
                     updateRoundInfo(view)
                 })
-                inputEndViewModel.getDistancesForRound(roundId, archerRoundInfo.archerRound.roundSubTypeId)
+                inputEndViewModel.getDistancesForRound(round.roundId, archerRoundInfo.archerRound.roundSubTypeId)
                         .observe(viewLifecycleOwner, {
                             distances = it
                             updateRoundInfo(view)
                         })
-                inputEndViewModel.getRoundById(roundId).observe(viewLifecycleOwner, {
-                    distanceUnit =
-                            getString(if (it.isMetric) R.string.units_meters_short else R.string.units_yards_short)
-                    updateRoundInfo(view)
-                })
+                endInputsFragment.setScoreButtons(ArrowInputsFragment.ArrowInputsType.getType(round))
+                distanceUnit =
+                        getString(if (round.isMetric) R.string.units_meters_short else R.string.units_yards_short)
+                updateRoundInfo(view)
             }
         })
         inputEndViewModel.arrows.observe(viewLifecycleOwner, { arrows ->
@@ -91,8 +93,6 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         super.onViewCreated(view, savedInstanceState)
         CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         setFragmentTitle()
-        endInputsFragment =
-                childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment
 
         (childFragmentManager.findFragmentById(R.id.fragment_input_end__score_indicator)!! as ScoreIndicatorFragment)
                 .onClickListener = View.OnClickListener {

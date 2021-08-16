@@ -265,6 +265,7 @@ fun setTimePickerValue(hours: Int, minutes: Int): ViewAction {
  * Wait for an alert dialog to appear then click OK
  */
 fun clickAlertDialogOk(alertDialogText: String) {
+    CustomConditionWaiter.waitFor(200)
     ConditionWatcher.waitForCondition(object : Instruction() {
         override fun getDescription(): String {
             return "Waiting for alert dialog to appear"
