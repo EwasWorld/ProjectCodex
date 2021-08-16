@@ -14,7 +14,7 @@
     <string name="input_end__archer_name_header">Archer</string>
     <string name="input_end__archer_score_header">Score</string>
     <string name="input_end__archer_arrows_count_header">Arrows</string>
-    <string name="input_end__return_to_main_menu">Returning to main menu</string>
+    <string name="input_end__go_to_summary">Going to summary</string>
 
     <!-- Edit end -->
     <string name="edit_end__title">Edit End</string>

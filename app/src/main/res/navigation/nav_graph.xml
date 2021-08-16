@@ -89,6 +89,10 @@
             app:argType="eywa.projectcodex.components.BackStackBehaviour"
             android:defaultValue="SINGLE"
             />
+        <action
+            android:id="@+id/action_inputEndFragment_to_archerRoundStatsFragment"
+            app:destination="@id/archerRoundStatsFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/scorePadFragment"

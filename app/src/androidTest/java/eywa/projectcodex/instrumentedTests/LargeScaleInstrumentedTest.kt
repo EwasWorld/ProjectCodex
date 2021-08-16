@@ -317,7 +317,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
         repeat(9) { completeEnd(R.id.button_arrow_inputs__score_x, activityScenario = scenario) }
         clickAlertDialogOk(CommonStrings.Dialogs.inputEndRoundComplete)
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class.jvmName))
 
 
         logMessage(this::class, "Score A - Continue round (completed)")

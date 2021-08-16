@@ -170,11 +170,13 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
             AlertDialog.Builder(view.context)
                     .setTitle(R.string.input_end__round_complete)
-                    .setMessage(R.string.input_end__return_to_main_menu)
+                    .setMessage(R.string.input_end__go_to_summary)
                     .setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
                         dialogInterface.cancel()
-                        val action = InputEndFragmentDirections.actionInputEndFragmentToMainMenuFragment()
-                        view.findNavController().navigate(action)
+                        view.findNavController().navigate(
+                                InputEndFragmentDirections
+                                        .actionInputEndFragmentToArcherRoundStatsFragment(args.archerRoundId)
+                        )
                     }.show()
         }
     }

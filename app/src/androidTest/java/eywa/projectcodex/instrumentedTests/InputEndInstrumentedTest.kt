@@ -374,7 +374,7 @@ class InputEndInstrumentedTest {
 
         completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
         onView(withText("OK")).perform(click())
-        assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
+        assertEquals(R.id.archerRoundStatsFragment, navController.currentDestination?.id)
     }
 
     @Test
