@@ -43,6 +43,22 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     private var distanceUnit: String = ""
     private var roundName: String? = null
 
+    private val roundCompleteDialog by lazy {
+        AlertDialog.Builder(requireView().context)
+                .setTitle(R.string.input_end__round_complete)
+                .setMessage(R.string.input_end__go_to_summary)
+                .setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
+                    dialogInterface.cancel()
+                    requireView().findNavController().navigate(
+                            InputEndFragmentDirections
+                                    .actionInputEndFragmentToArcherRoundStatsFragment(args.archerRoundId)
+                    )
+                }
+                // Prevents clicking off the dialog and pressing the back button to cancel
+                .setCancelable(false)
+                .create()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         CustomLogger.customLogger.d(LOG_TAG, "onCreateView")
         val view = inflater.inflate(R.layout.fragment_input_end, container, false)
@@ -103,6 +119,14 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         }
 
         button_input_end__next_end.setOnClickListener {
+            if (isRoundComplete()) {
+                CustomLogger.customLogger.w(LOG_TAG, "Input end's next end button pressed when round is complete")
+                if (!roundCompleteDialog.isShowing) {
+                    roundCompleteDialog.show()
+                }
+                return@setOnClickListener
+            }
+
             try {
                 // Update database
                 var highestArrowNumber = 0
@@ -168,16 +192,9 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             large.visibility = View.GONE
             small.visibility = View.GONE
 
-            AlertDialog.Builder(view.context)
-                    .setTitle(R.string.input_end__round_complete)
-                    .setMessage(R.string.input_end__go_to_summary)
-                    .setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
-                        dialogInterface.cancel()
-                        view.findNavController().navigate(
-                                InputEndFragmentDirections
-                                        .actionInputEndFragmentToArcherRoundStatsFragment(args.archerRoundId)
-                        )
-                    }.show()
+            if (!roundCompleteDialog.isShowing) {
+                roundCompleteDialog.show()
+            }
         }
     }
 

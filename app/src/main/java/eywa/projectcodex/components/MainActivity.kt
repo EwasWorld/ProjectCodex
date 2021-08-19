@@ -87,10 +87,17 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this) {
             val navController = navHostFragment.navController
 
+            fun clearBackStackAndReturnToMainMenu() {
+                CustomLogger.customLogger.i(LOG_TAG, "Popping backstack to main menu")
+                if (!navController.popBackStack(R.id.mainMenuFragment, false)) {
+                    navController.navigate(R.id.mainMenuFragment)
+                }
+            }
+
             /*
              * Find the first destination that is not the current
              */
-            var newDestination: Int
+            var nextDestination: Int
             do {
                 if (customBackStack.isEmpty()) {
                     if (!navController.popBackStack()) {
@@ -99,14 +106,26 @@ class MainActivity : AppCompatActivity() {
                     }
                     return@addCallback
                 }
-                newDestination = customBackStack.removeLast()
-            } while (navController.currentDestination?.id == newDestination)
+                nextDestination = customBackStack.removeLast()
+            } while (navController.currentDestination?.id == nextDestination)
 
             /*
              * Ensure it won't pop to the same place next time
              */
-            while (customBackStack.isNotEmpty() && customBackStack.last() == newDestination) {
+            while (customBackStack.isNotEmpty() && customBackStack.last() == nextDestination) {
                 customBackStack.removeLast()
+            }
+
+            /*
+             * Check it's not illegally moving to input end on a completed round
+             */
+            if (nextDestination == R.id.inputEndFragment) {
+                findInstanceOf<ArcherRoundBottomNavigationInfo>(navHostFragment)?.let { roundInfo ->
+                    if (roundInfo.isRoundComplete()) {
+                        clearBackStackAndReturnToMainMenu()
+                        return@addCallback
+                    }
+                }
             }
 
             if (getBackStackBehaviour(navController.currentDestination) == BackStackBehaviour.SINGLE) {
@@ -116,18 +135,10 @@ class MainActivity : AppCompatActivity() {
             /*
              * Actually pop the back stack
              */
-            if (!navController.popBackStack(newDestination, false)) {
-                // If there was nowhere to pop to, clear the back stack and go to the main menu
-                var count = 0
-                while (navController.popBackStack()) {
-                    count++
-                }
-                CustomLogger.customLogger.w(
-                        LOG_TAG,
-                        "Pop to $newDestination failed, removed $count items from the back stack." +
-                                " Navigating to main menu"
-                )
-                navController.navigate(R.id.mainMenuFragment)
+            if (!navController.popBackStack(nextDestination, false)) {
+                // If there was nowhere to pop to
+                CustomLogger.customLogger.w(LOG_TAG, "Pop to $nextDestination failed")
+                clearBackStackAndReturnToMainMenu()
             }
         }
     }
