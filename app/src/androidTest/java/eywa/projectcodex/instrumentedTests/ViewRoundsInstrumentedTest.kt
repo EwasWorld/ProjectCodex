@@ -21,7 +21,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.common.CommonStrings
 import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.common.clickAlertDialogOk
+import eywa.projectcodex.common.clickAlertDialog
 import eywa.projectcodex.common.withIndex
 import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.infoTable.InfoTableCell
@@ -308,7 +308,7 @@ class ViewRoundsInstrumentedTest {
         onView(withIndex(withText(TestData.ARROWS.sumOf { it.score }.toString()), 0)).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())
-        clickAlertDialogOk(CommonStrings.Dialogs.viewRoundsConvertTitle)
+        clickAlertDialog(CommonStrings.Dialogs.viewRoundsConvertTitle)
 
         CustomConditionWaiter.waitForToast("Finished conversion")
 
@@ -316,7 +316,7 @@ class ViewRoundsInstrumentedTest {
         onView(withText(TestData.ARROWS.sumOf { it.score }.toString())).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToTens)).perform(click())
-        clickAlertDialogOk(CommonStrings.Dialogs.viewRoundsConvertTitle)
+        clickAlertDialog(CommonStrings.Dialogs.viewRoundsConvertTitle)
 
         CustomConditionWaiter.waitForToast("Finished conversion")
         CustomConditionWaiter.waitFor(1000)

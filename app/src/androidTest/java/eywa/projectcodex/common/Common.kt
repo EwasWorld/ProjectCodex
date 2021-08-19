@@ -262,9 +262,9 @@ fun setTimePickerValue(hours: Int, minutes: Int): ViewAction {
 }
 
 /**
- * Wait for an alert dialog to appear then click OK
+ * Wait for an alert dialog to appear then click the specified button
  */
-fun clickAlertDialogOk(alertDialogText: String) {
+fun clickAlertDialog(alertDialogText: String, buttonText: String = "OK") {
     CustomConditionWaiter.waitFor(200)
     ConditionWatcher.waitForCondition(object : Instruction() {
         override fun getDescription(): String {
@@ -281,7 +281,7 @@ fun clickAlertDialogOk(alertDialogText: String) {
             return false
         }
     })
-    onView(withText("OK")).perform(ViewActions.click())
+    onView(withText(buttonText)).perform(ViewActions.click())
 }
 
 fun setSharedPrefs(scenario: ActivityScenario<MainActivity>, value: Int = -1) {

@@ -4,6 +4,10 @@
     <string name="main_menu__new_round">Begin New Score</string>
     <string name="main_menu__view_rounds">View Scores</string>
 
+    <string name="main_menu__exit_app_dialog_title">Going so soon?</string>
+    <string name="main_menu__exit_app_dialog_body">I hate to say goodbye</string>
+    <string name="main_menu__exit_app_dialog_exit">Exit app</string>
+
     <string name="help_main_menu__new_round_title">New score</string>
     <string name="help_main_menu__new_round_body">Start inputting a new score</string>
     <string name="help_main_menu__view_rounds_title">View scores</string>

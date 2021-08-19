@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.mainMenu
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +11,21 @@ import androidx.navigation.findNavController
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import kotlinx.android.synthetic.main.fragment_main_menu.*
+import kotlin.system.exitProcess
 
 class MainMenuFragment : Fragment(), ActionBarHelp {
+    private val exitAppDialog by lazy {
+        AlertDialog.Builder(context)
+                .setTitle(R.string.main_menu__exit_app_dialog_title)
+                .setMessage(R.string.main_menu__exit_app_dialog_body)
+                .setPositiveButton(R.string.main_menu__exit_app_dialog_exit) { _, _ ->
+                    requireActivity().finish()
+                    exitProcess(0)
+                }
+                .setNegativeButton(R.string.general_cancel) { _, _ -> }
+                .create()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main_menu, container, false)
     }
@@ -31,7 +45,12 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         }
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            // Do nothing
+            if (!exitAppDialog.isShowing) {
+                exitAppDialog.show()
+            }
+            else {
+                exitAppDialog.dismiss()
+            }
         }
         callback.isEnabled = true
     }

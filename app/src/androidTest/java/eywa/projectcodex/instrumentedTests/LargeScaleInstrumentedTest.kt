@@ -105,7 +105,7 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "View rounds (nothing inputted)")
         R.id.button_main_menu__view_rounds.click()
-        clickAlertDialogOk(CommonStrings.Dialogs.emptyTable)
+        clickAlertDialog(CommonStrings.Dialogs.emptyTable)
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.jvmName))
 
 
@@ -120,7 +120,7 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Score A - open score pad - no arrows entered")
         R.id.scorePadFragment.click()
-        clickAlertDialogOk(CommonStrings.Dialogs.emptyTable)
+        clickAlertDialog(CommonStrings.Dialogs.emptyTable)
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
 
 
@@ -316,7 +316,7 @@ class LargeScaleInstrumentedTest {
         R.id.inputEndFragment.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))
         repeat(9) { completeEnd(R.id.button_arrow_inputs__score_x, activityScenario = scenario) }
-        clickAlertDialogOk(CommonStrings.Dialogs.inputEndRoundComplete)
+        clickAlertDialog(CommonStrings.Dialogs.inputEndRoundComplete)
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class.jvmName))
 
 
@@ -551,11 +551,13 @@ class LargeScaleInstrumentedTest {
      */
     @Test
     fun testBackButton() {
-        ConditionWatcher.setTimeoutLimit(2000)
+        ConditionWatcher.setTimeoutLimit(3000)
 
 
         logMessage(this::class, "Main menu 1")
         pressBack()
+        pressBack()
+        clickAlertDialog("Going so soon?", "Cancel")
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
@@ -606,6 +608,7 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Main menu 2")
         pressBack()
+        clickAlertDialog("Going so soon?", "Cancel")
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
 
@@ -707,6 +710,7 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Main menu 3")
         pressBack()
+        clickAlertDialog("Going so soon?", "Cancel")
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
         ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
