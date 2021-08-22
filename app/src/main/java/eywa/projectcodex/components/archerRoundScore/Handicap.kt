@@ -28,6 +28,7 @@ class Handicap {
                 arrows: Int?
         ): Int {
             require(arrows == null || arrows > 0) { "Arrows must be greater than 0" }
+            require(arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount }) { "Arrows must be at most arrowCounts total" }
             require(roundArrowCounts.size == roundDistances.size) { "Arrow counts and distances size not equal" }
             require(roundArrowCounts.all { it.roundId == round.roundId }) { "Arrow count round ID incorrect" }
             require(roundDistances.all { it.roundId == round.roundId }) { "Distance round ID incorrect" }
@@ -76,6 +77,7 @@ class Handicap {
                 arrows: Int?
         ): Int {
             require(arrows == null || arrows > 0) { "Arrows must be greater than 0" }
+            require(arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount }) { "Arrows must be at most arrowCounts total" }
             require(roundArrowCounts.size == roundDistances.size) { "Arrow counts and distances size not equal" }
             require(roundArrowCounts.all { it.roundId == round.roundId }) { "Arrow count round ID incorrect" }
             require(roundDistances.all { it.roundId == round.roundId }) { "Distance round ID incorrect" }

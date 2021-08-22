@@ -14,7 +14,6 @@ import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archeryObjects.GoldsType
-import eywa.projectcodex.components.archeryObjects.getGoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.components.commonUtils.ViewModelFactory
@@ -103,7 +102,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             if (round == null) return@Observer
             distanceUnit =
                     getString(if (round.isMetric) R.string.units_meters_short else R.string.units_yards_short)
-            goldsType = getGoldsType(round.isOutdoor, round.isMetric)
+            goldsType = GoldsType.getGoldsType(round.isOutdoor, round.isMetric)
         })
 
         // Get arrows

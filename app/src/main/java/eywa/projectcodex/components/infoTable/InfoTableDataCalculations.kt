@@ -5,7 +5,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.archeryObjects.GoldsType
-import eywa.projectcodex.components.archeryObjects.getGoldsType
 import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -27,7 +26,7 @@ val viewRoundsColumnHeaderIds = listOf(
         R.string.table_hits_header,
         R.string.table_score_header,
         R.string.table_golds_header,
-        R.string.view_round__counts_to_hc_header
+        R.string.view_round__handicap
 )
 val scorePadColumnHeaderIds = listOf(
         R.string.score_pad__end_string_header,
@@ -215,7 +214,7 @@ fun calculateViewRoundsTableData(
         rowData.add(relevantArrows.count { it.score != 0 })
         rowData.add(score)
         val goldsType = archerRoundInfo.round?.let {
-            getGoldsType(
+            GoldsType.getGoldsType(
                     it.isOutdoor, it.isMetric
             )
         } ?: defaultGoldsType

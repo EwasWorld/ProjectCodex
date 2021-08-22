@@ -12,20 +12,20 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
-import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.components.commonUtils.showContextMenuOnCentreOfView
-import eywa.projectcodex.components.infoTable.*
+import eywa.projectcodex.components.infoTable.InfoTableCell
+import eywa.projectcodex.components.infoTable.viewRoundsColumnHeaderIds
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import kotlinx.android.synthetic.main.fragment_view_scores.*
 
 class ViewRoundsFragment : Fragment(), ActionBarHelp {
     companion object {
@@ -37,15 +37,10 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     /*
      * All data from certain tables in the database
      */
-    private var allArrows: List<ArrowValue> = listOf()
-    private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName> = listOf()
-    private var allArrowCounts: List<RoundArrowCount> = listOf()
-    private var allDistances: List<RoundDistance> = listOf()
-
-    /**
-     * How to calculate the golds column
-     */
-    private val goldsType = GoldsType.TENS
+    private var allArrows: List<ArrowValue>? = null
+    private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName>? = null
+    private var allArrowCounts: List<RoundArrowCount>? = null
+    private var allDistances: List<RoundDistance>? = null
 
     /**
      * Currently selected row, set when any row is pressed or long pressed
@@ -130,7 +125,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
             )
             val completedMessage = resources.getString(R.string.view_round__convert_score_completed_message)
             selectedConversionType!!.convertScore(
-                    allArrows.filter { it.archerRoundId == archerRoundId }, viewRoundsViewModel
+                    allArrows!!.filter { it.archerRoundId == archerRoundId }, viewRoundsViewModel
             )?.invokeOnCompletion {
                 ToastSpamPrevention.displayToast(requireContext(), completedMessage)
             } ?: ToastSpamPrevention.displayToast(requireContext(), completedMessage)
@@ -152,80 +147,68 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     private lateinit var hiddenColumnData: MutableList<MutableList<InfoTableCell>>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_view_rounds, container, false)
+        return inflater.inflate(R.layout.fragment_view_scores, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.view_round__title)
 
-        val tableAdapter = InfoTableViewAdapter(requireContext())
-        val tableView = view.findViewById<TableView>(R.id.table_view_view_rounds)
-        tableView.adapter = tableAdapter
-        tableView.rowHeaderWidth = 0
-        tableView.tableViewListener = ViewRoundsTableViewListener()
-        registerForContextMenu(tableView.cellRecyclerView)
+        val viewScoreData = ViewScoreData.getViewScoreData()
+        val viewScoresListAdapter = ViewScoresAdapter()
+        recycler_view_scores.adapter = viewScoresListAdapter
+        registerForContextMenu(view.findViewById(R.id.recycler_view_scores))
 
         viewRoundsViewModel = ViewModelProvider(this).get(ViewRoundsViewModel::class.java)
         viewRoundsViewModel.allArrows.observe(viewLifecycleOwner, { arrows ->
             arrows?.let {
                 allArrows = arrows
-                populateTable(tableAdapter)
+                viewScoreData.updateArrows(arrows)
             }
         })
         viewRoundsViewModel.allArcherRounds.observe(viewLifecycleOwner, { archerRounds ->
             archerRounds?.let {
                 allArcherRoundsWithNames = archerRounds
-                populateTable(tableAdapter)
+                val updateList = viewScoreData.updateArcherRounds(archerRounds)
+
+                // Ensure that if other fields were populated before this one, they're updated too
+                if (allArrows != null) {
+                    viewScoreData.updateArrows(allArrows!!)
+                }
+                if (allArrowCounts != null) {
+                    viewScoreData.updateArrowCounts(allArrowCounts!!)
+                }
+                if (allDistances != null) {
+                    viewScoreData.updateDistances(allDistances!!)
+                }
+
+                if (updateList) {
+                    CustomLogger.customLogger.i(LOG_TAG, "New list")
+                    viewScoresListAdapter.submitList(viewScoreData.getData())
+                }
+                // TODO Recognise no entries
             }
         })
         viewRoundsViewModel.allArrowCounts.observe(viewLifecycleOwner, { arrowCounts ->
             arrowCounts?.let {
                 allArrowCounts = arrowCounts
-                populateTable(tableAdapter)
+                viewScoreData.updateArrowCounts(arrowCounts)
             }
         })
         viewRoundsViewModel.allDistances.observe(viewLifecycleOwner, { distances ->
             distances?.let {
                 allDistances = distances
-                populateTable(tableAdapter)
+                viewScoreData.updateDistances(distances)
             }
         })
     }
 
-    private fun populateTable(tableAdapter: InfoTableViewAdapter) {
-        val tableData = calculateViewRoundsTableData(
-                allArcherRoundsWithNames,
-                allArrows,
-                goldsType,
-                allArrowCounts,
-                allDistances
-        )
-
-        if (!tableData.isNullOrEmpty()) {
-            // Remove columns to be hidden
-            val displayTableData = mutableListOf<MutableList<InfoTableCell>>()
-            hiddenColumnData = mutableListOf()
-            for (row in tableData) {
-                hiddenColumnData.add(row.filterIndexed { i, _ -> hiddenColumnIndexes.contains(i) }.toMutableList())
-                displayTableData.add(row.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) }.toMutableList())
-            }
-
-            val colHeaders = getColumnHeadersForTable(viewRoundsColumnHeaderIds, resources, goldsType)
-            tableAdapter.setAllItems(
-                    colHeaders.filterIndexed { i, _ -> !hiddenColumnIndexes.contains(i) },
-                    generateNumberedRowHeaders(tableData.size),
-                    displayTableData
-            )
-            if (emptyTableDialog.isShowing) {
-                emptyTableDialog.dismiss()
-            }
-        }
-        else {
-            if (!emptyTableDialog.isShowing) {
-                emptyTableDialog.show()
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        CustomLogger.customLogger.i(LOG_TAG, "Resuming")
+        val adapter = recycler_view_scores.adapter as ViewScoresAdapter?
+        adapter?.submitList(ViewScoreData.getViewScoreData().getData())
+        adapter?.notifyDataSetChanged()
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -234,15 +217,15 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
 
         check(selectedArcherRoundId != -1) { "No round id selected" }
         val selectedArcherRoundInfo =
-                allArcherRoundsWithNames.find { it.archerRound.archerRoundId == selectedArcherRoundId }
+                allArcherRoundsWithNames!!.find { it.archerRound.archerRoundId == selectedArcherRoundId }
         if (selectedArcherRoundInfo == null) {
             CustomLogger.customLogger.w(LOG_TAG, "No archer round info for selected round")
             return
         }
 
         val selectedRoundId = selectedArcherRoundInfo.round?.roundId ?: return
-        val roundArrowCount = allArrowCounts.filter { it.roundId == selectedRoundId }.sumOf { it.arrowCount }
-        val currentArrowCount = allArrows.count { it.archerRoundId == selectedArcherRoundId }
+        val roundArrowCount = allArrowCounts!!.filter { it.roundId == selectedRoundId }.sumOf { it.arrowCount }
+        val currentArrowCount = allArrows!!.count { it.archerRoundId == selectedArcherRoundId }
 
         val showContinue = roundArrowCount > currentArrowCount
         menu.findItem(R.id.button_view_rounds_menu__continue).isVisible = showContinue
@@ -259,14 +242,14 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
             }
             R.id.button_view_rounds_menu__continue -> {
                 val selectedArcherRound =
-                        allArcherRoundsWithNames.find { it.archerRound.archerRoundId == selectedArcherRoundId }
+                        allArcherRoundsWithNames!!.find { it.archerRound.archerRoundId == selectedArcherRoundId }
                 val hasRound = selectedArcherRound?.round != null
                 if (hasRound) {
                     /*
                      * Check whether the round is completed (full with arrows)
                      */
-                    val arrowsShot = allArrows.filter { it.archerRoundId == selectedArcherRoundId }.count()
-                    val arrowsInRound = allArrowCounts.filter { it.roundId == selectedArcherRound?.round?.roundId }
+                    val arrowsShot = allArrows!!.filter { it.archerRoundId == selectedArcherRoundId }.count()
+                    val arrowsInRound = allArrowCounts!!.filter { it.roundId == selectedArcherRound?.round?.roundId }
                             .sumOf { it.arrowCount }
                     if (arrowsShot >= arrowsInRound) {
                         // Warn the user they're about to add arrows to a completed round

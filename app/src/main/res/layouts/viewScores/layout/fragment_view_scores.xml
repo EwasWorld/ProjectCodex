@@ -8,12 +8,16 @@
     tools:context=".components.viewRounds.ViewRoundsFragment"
     >
 
-    <com.evrencoskun.tableview.TableView
-        android:id="@+id/table_view_view_rounds"
-        style="@style/TableViewStyle"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_scores"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        app:layoutManager="LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/view_scores_round_item"
+        android:layout_margin="5dp"
         />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

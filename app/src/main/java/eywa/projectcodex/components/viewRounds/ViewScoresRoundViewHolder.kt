@@ -1,0 +1,32 @@
+package eywa.projectcodex.components.viewRounds
+
+import android.view.View
+import android.widget.TextView
+import eywa.projectcodex.R
+import eywa.projectcodex.components.commonUtils.DateTimeFormat
+import kotlin.math.roundToInt
+
+class ViewScoresRoundViewHolder(view: View) : ViewScoresAdapter.ViewScoresEntryViewHolder(view) {
+    private val dateView = view.findViewById<TextView>(R.id.text_vs_round_item__date)
+    private val roundView = view.findViewById<TextView>(R.id.text_vs_round_item__round)
+    private val hsgView = view.findViewById<TextView>(R.id.text_vs_round_item__hsg)
+    private val handicapView = view.findViewById<TextView>(R.id.text_vs_round_item__handicap)
+
+    init {
+        handicapView.minWidth = handicapView.paint.measureText("00").roundToInt()
+    }
+
+    override fun bind(viewScoresEntry: ViewScoresEntry) {
+        val listener = object : ViewScoresEntry.UpdatedListener {
+            override fun onUpdate() {
+                dateView.text = DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(viewScoresEntry.archerRound.dateShot)
+                roundView.text =
+                        viewScoresEntry.displayName ?: itemView.resources.getString(R.string.create_round__no_round)
+                hsgView.text = viewScoresEntry.hitsScoreGolds ?: "-/-/-"
+                handicapView.text = viewScoresEntry.handicap?.toString() ?: "-"
+            }
+        }
+        viewScoresEntry.updatedListener = listener
+        listener.onUpdate()
+    }
+}

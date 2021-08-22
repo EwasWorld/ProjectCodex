@@ -25,7 +25,7 @@
         android:id="@+id/viewRoundsFragment"
         android:name="eywa.projectcodex.components.viewRounds.ViewRoundsFragment"
         android:label="fragment_view_rounds"
-        tools:layout="@layout/fragment_view_rounds"
+        tools:layout="@layout/fragment_view_scores"
         >
         <action
             android:id="@+id/actionViewRoundsFragmentToScorePadFragment"
