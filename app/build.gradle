@@ -94,9 +94,11 @@ android {
     sourceSets {
         main {
             res {
-                srcDirs 'src/main/res', 'src/main/res/fragments/inputEnd',
-                        'src/main/res/fragments/general', 'src/main/res/launcherAssets',
-                        'src/main/res/tableView', 'src/main/res/iconAssets', 'src/main/res/strings',
+                srcDirs 'src/main/res/general',
+                        'src/main/res/layouts/inputEnd', 'src/main/res/layouts/general',
+                        'src/main/res/layouts/tableView', 'src/main/res/layouts/viewScores',
+                        'src/main/res/launcherAssets', 'src/main/res/iconAssets',
+                        'src/main/res/strings',
                         'src/main/res/prototyping'
             }
         }
