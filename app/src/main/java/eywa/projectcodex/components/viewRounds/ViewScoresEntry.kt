@@ -9,6 +9,10 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 
+/**
+ * Stores all the information pertaining to an [ArcherRound] so that it can be displayed in a
+ * [ViewScoresEntryViewHolder]
+ */
 class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     companion object {
         private const val LOG_TAG = "ViewScoresEntry"
@@ -22,7 +26,8 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
         private set
     var displayName: String? = null
         private set
-    private var arrows: List<ArrowValue>? = null
+    var arrows: List<ArrowValue>? = null
+        private set
     private var arrowCounts: List<RoundArrowCount>? = null
     private var distances: List<RoundDistance>? = null
 
@@ -145,6 +150,18 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
             handicap = null
         }
         updatedListener?.onUpdate()
+    }
+
+    fun isRoundComplete(): Boolean {
+        synchronized(this) {
+            if (arrowCounts.isNullOrEmpty() || arrows.isNullOrEmpty()) {
+                return false
+            }
+            if (arrowCounts!!.sumOf { it.arrowCount } <= arrows!!.count()) {
+                return true
+            }
+            return false
+        }
     }
 
     override fun equals(other: Any?): Boolean {

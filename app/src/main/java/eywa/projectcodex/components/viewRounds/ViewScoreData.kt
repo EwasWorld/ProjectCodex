@@ -22,7 +22,7 @@ class ViewScoreData {
 
     fun getData(): List<ViewScoresEntry> {
         synchronized(this) {
-            return data.values.sortedBy { it.archerRound.dateShot }
+            return data.values.sortedByDescending { it.archerRound.dateShot }
         }
     }
 

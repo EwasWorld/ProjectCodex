@@ -22,8 +22,7 @@
 
     <!-- Errors -->
     <string name="err_view_round__no_rounds">There are no rounds to show</string>
-    <string name="err_view_round__round_already_complete_title">Warning: Round Complete</string>
-    <string name="err_view_round__round_already_complete">This round is complete. Are you sure you want to add more arrows to it?</string>
+    <string name="err_view_round__round_already_complete">This round is already complete</string>
 
     <!-- Help info -->
     <string name="help_view_round__main_title">Score details and edit</string>

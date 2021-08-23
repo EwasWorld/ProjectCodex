@@ -6,17 +6,19 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import kotlin.math.roundToInt
 
-class ViewScoresRoundViewHolder(view: View) : ViewScoresAdapter.ViewScoresEntryViewHolder(view) {
+class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
     private val dateView = view.findViewById<TextView>(R.id.text_vs_round_item__date)
     private val roundView = view.findViewById<TextView>(R.id.text_vs_round_item__round)
     private val hsgView = view.findViewById<TextView>(R.id.text_vs_round_item__hsg)
     private val handicapView = view.findViewById<TextView>(R.id.text_vs_round_item__handicap)
 
     init {
+        view.setOnCreateContextMenuListener(this)
         handicapView.minWidth = handicapView.paint.measureText("00").roundToInt()
     }
 
     override fun bind(viewScoresEntry: ViewScoresEntry) {
+        entry = viewScoresEntry
         val listener = object : ViewScoresEntry.UpdatedListener {
             override fun onUpdate() {
                 dateView.text = DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(viewScoresEntry.archerRound.dateShot)
