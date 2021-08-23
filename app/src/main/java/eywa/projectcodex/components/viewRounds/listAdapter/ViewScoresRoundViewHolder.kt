@@ -1,9 +1,10 @@
-package eywa.projectcodex.components.viewRounds
+package eywa.projectcodex.components.viewRounds.listAdapter
 
 import android.view.View
 import android.widget.TextView
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.DateTimeFormat
+import eywa.projectcodex.components.viewRounds.data.ViewScoresEntry
 import kotlin.math.roundToInt
 
 class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
@@ -14,7 +15,8 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
 
     init {
         view.setOnCreateContextMenuListener(this)
-        handicapView.minWidth = handicapView.paint.measureText("00").roundToInt()
+        handicapView.minWidth = handicapView.paddingLeft + handicapView.paddingRight +
+                handicapView.paint.measureText("00").roundToInt()
     }
 
     override fun bind(viewScoresEntry: ViewScoresEntry) {

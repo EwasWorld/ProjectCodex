@@ -12,6 +12,8 @@ import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
+import eywa.projectcodex.components.viewRounds.data.ViewScoreData
+import eywa.projectcodex.components.viewRounds.listAdapter.ViewScoresAdapter
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -43,6 +45,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
         builder.setPositiveButton(R.string.general_ok) { _, _ ->
             requireView().findNavController().popBackStack()
         }
+        builder.setCancelable(false)
         builder.create()
     }
 
@@ -85,7 +88,12 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                     CustomLogger.customLogger.i(LOG_TAG, "New list")
                     viewScoresListAdapter.submitList(viewScoreData.getData())
                 }
-                // TODO Recognise no entries
+                if (viewScoreData.getData().isEmpty()) {
+                    emptyTableDialog.show()
+                }
+                else if (emptyTableDialog.isShowing) {
+                    emptyTableDialog.dismiss()
+                }
             }
         })
         viewRoundsViewModel.allArrowCounts.observe(viewLifecycleOwner, { arrowCounts ->

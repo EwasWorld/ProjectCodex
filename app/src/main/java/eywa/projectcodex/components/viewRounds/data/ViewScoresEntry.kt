@@ -1,7 +1,9 @@
-package eywa.projectcodex.components.viewRounds
+package eywa.projectcodex.components.viewRounds.data
 
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archeryObjects.GoldsType
+import eywa.projectcodex.components.viewRounds.listAdapter.ViewScoresAdapter
+import eywa.projectcodex.components.viewRounds.listAdapter.ViewScoresEntryViewHolder
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -15,7 +17,6 @@ import eywa.projectcodex.database.rounds.RoundDistance
  */
 class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     companion object {
-        private const val LOG_TAG = "ViewScoresEntry"
         private val defaultGoldsType = GoldsType.TENS
         val data: List<ViewScoresEntry> = listOf()
     }

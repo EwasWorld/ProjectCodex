@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewRounds
+package eywa.projectcodex.components.viewRounds.data
 
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue

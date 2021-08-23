@@ -1,10 +1,12 @@
-package eywa.projectcodex.components.viewRounds
+package eywa.projectcodex.components.viewRounds.listAdapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import eywa.projectcodex.R
+import eywa.projectcodex.components.viewRounds.ViewRoundsViewModel
+import eywa.projectcodex.components.viewRounds.data.ViewScoresEntry
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 

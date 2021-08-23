@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewRounds
+package eywa.projectcodex.components.viewRounds.listAdapter
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -12,6 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
+import eywa.projectcodex.components.viewRounds.ConvertScore
+import eywa.projectcodex.components.viewRounds.ViewRoundsFragmentDirections
+import eywa.projectcodex.components.viewRounds.ViewRoundsViewModel
+import eywa.projectcodex.components.viewRounds.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
 
 /**
