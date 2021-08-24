@@ -8,12 +8,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
-import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.components.viewRounds.data.ViewScoreData
 import eywa.projectcodex.components.viewRounds.listAdapter.ViewScoresAdapter
+import eywa.projectcodex.components.viewRounds.listAdapter.ViewScoresEntryViewHolder
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -61,7 +62,6 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
         val viewScoreData = ViewScoreData.getViewScoreData()
         val viewScoresListAdapter = ViewScoresAdapter(viewRoundsViewModel)
         recycler_view_scores.adapter = viewScoresListAdapter
-        registerForContextMenu(view.findViewById(R.id.recycler_view_scores))
         viewRoundsViewModel.allArrows.observe(viewLifecycleOwner, { arrows ->
             arrows?.let {
                 allArrows = arrows
@@ -119,16 +119,29 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        return listOf(
-                ActionBarHelp.HelpShowcaseItem(
-                        null,
-                        getString(R.string.help_view_round__main_title),
-                        resourceStringReplace(
-                                getString(R.string.help_view_round__main_body),
-                                mapOf(Pair("edit help", getString(R.string.help_table_open_menu_body)))
-                        )
-                )
-        )
+        val helpShowcases = mutableListOf<ActionBarHelp.HelpShowcaseItem>()
+        val recyclerViewLayoutManager = recycler_view_scores.layoutManager as LinearLayoutManager
+        val seenItemTypes = mutableSetOf<Int>()
+        var priorityOffset = 0
+        for (position in recyclerViewLayoutManager.findFirstCompletelyVisibleItemPosition() until recyclerViewLayoutManager.findLastCompletelyVisibleItemPosition()) {
+            if (!seenItemTypes.add(recycler_view_scores.adapter!!.getItemViewType(position))) {
+                continue
+            }
+            val showcases =
+                    (recycler_view_scores.findViewHolderForAdapterPosition(position) as ViewScoresEntryViewHolder)
+                            .getHelpShowcases()
+            showcases.forEach {
+                if (it.priority == null) {
+                    it.priority = priorityOffset
+                }
+                else {
+                    it.priority = it.priority!! + priorityOffset
+                }
+            }
+            helpShowcases.addAll(showcases)
+            priorityOffset = showcases.maxOf { it.priority ?: priorityOffset } + 1
+        }
+        return helpShowcases
     }
 
     override fun getHelpPriority(): Int? {

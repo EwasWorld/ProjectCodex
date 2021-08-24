@@ -253,11 +253,11 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem(
-                        null,
-                        getString(R.string.help_score_pad__open_menu_title),
-                        getString(R.string.help_table_open_menu_body)
-                )
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setHelpTitleId(R.string.help_score_pad__open_menu_title)
+                        .setHelpBodyId(R.string.help_table_open_menu_body)
+                        .setShape(ActionBarHelp.ShowcaseShape.NO_SHAPE)
+                        .build()
         )
     }
 

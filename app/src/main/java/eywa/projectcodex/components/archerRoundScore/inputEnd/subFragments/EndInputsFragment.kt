@@ -131,43 +131,43 @@ class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp 
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         val helpItems = mutableListOf(
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.fragment_end_inputs__arrow_inputs,
-                        getString(R.string.help_input_end__arrow_inputs_title),
-                        getString(R.string.help_input_end__arrow_inputs_body),
-                        shape = ActionBarHelp.ShowcaseShape.OVAL
-                ),
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.text_end_inputs__inputted_arrows,
-                        getString(R.string.help_input_end__end_inputs_arrows_title),
-                        getString(R.string.help_input_end__end_inputs_arrows_body),
-                        shape = ActionBarHelp.ShowcaseShape.OVAL
-                ),
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.text_end_inputs__end_total,
-                        getString(R.string.help_input_end__end_inputs_total_title),
-                        getString(R.string.help_input_end__end_inputs_total_body),
-                        shape = ActionBarHelp.ShowcaseShape.CIRCLE,
-                        shapePadding = 85
-                ),
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_end_inputs__backspace,
-                        getString(R.string.help_input_end__end_inputs_backspace_title),
-                        getString(R.string.help_input_end__end_inputs_backspace_body)
-                ),
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_end_inputs__clear,
-                        getString(R.string.help_input_end__end_inputs_clear_title),
-                        getString(R.string.help_input_end__end_inputs_clear_body)
-                )
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.fragment_end_inputs__arrow_inputs)
+                        .setHelpTitleId(R.string.help_input_end__arrow_inputs_title)
+                        .setHelpBodyId(R.string.help_input_end__arrow_inputs_body)
+                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .build(),
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.text_end_inputs__inputted_arrows)
+                        .setHelpTitleId(R.string.help_input_end__end_inputs_arrows_title)
+                        .setHelpBodyId(R.string.help_input_end__end_inputs_arrows_body)
+                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .build(),
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.text_end_inputs__end_total)
+                        .setHelpTitleId(R.string.help_input_end__end_inputs_total_title)
+                        .setHelpBodyId(R.string.help_input_end__end_inputs_total_body)
+                        .setShape(ActionBarHelp.ShowcaseShape.CIRCLE)
+                        .setShapePadding(85)
+                        .build(),
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.button_end_inputs__backspace)
+                        .setHelpTitleId(R.string.help_input_end__end_inputs_backspace_title)
+                        .setHelpBodyId(R.string.help_input_end__end_inputs_backspace_body)
+                        .build(),
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.button_end_inputs__clear)
+                        .setHelpTitleId(R.string.help_input_end__end_inputs_clear_title)
+                        .setHelpBodyId(R.string.help_input_end__end_inputs_clear_body)
+                        .build()
         )
         if (showResetButton) {
             helpItems.add(
-                    ActionBarHelp.HelpShowcaseItem(
-                            R.id.button_end_inputs__reset,
-                            getString(R.string.help_input_end__end_inputs_reset_title),
-                            getString(R.string.help_input_end__end_inputs_reset_body)
-                    )
+                    ActionBarHelp.HelpShowcaseItem.Builder()
+                            .setViewId(R.id.button_end_inputs__reset)
+                            .setHelpTitleId(R.string.help_input_end__end_inputs_reset_title)
+                            .setHelpBodyId(R.string.help_input_end__end_inputs_reset_body)
+                            .build()
             )
         }
         return helpItems

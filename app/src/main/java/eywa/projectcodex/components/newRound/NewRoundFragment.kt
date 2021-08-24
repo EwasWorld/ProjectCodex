@@ -363,55 +363,55 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         val mainList = mutableListOf(
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.layout_create_round__date,
-                        getString(R.string.help_create_round__date_title),
-                        getString(R.string.help_create_round__date_body),
-                        shape = ActionBarHelp.ShowcaseShape.OVAL,
-                        shapePadding = 0
-                ),
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.layout_create_round__round,
-                        getString(R.string.help_create_round__round_title),
-                        getString(R.string.help_create_round__round_body),
-                        shape = ActionBarHelp.ShowcaseShape.OVAL,
-                        shapePadding = 0
-                )
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.layout_create_round__date)
+                        .setHelpTitleId(R.string.help_create_round__date_title)
+                        .setHelpBodyId(R.string.help_create_round__date_body)
+                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .setShapePadding(0)
+                        .build(),
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.layout_create_round__round)
+                        .setHelpTitleId(R.string.help_create_round__round_title)
+                        .setHelpBodyId(R.string.help_create_round__round_body)
+                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .setShapePadding(0)
+                        .build()
         )
         if (layout_create_round__round_sub_type.visibility == View.VISIBLE) {
             mainList.addAll(
                     listOf(
-                            ActionBarHelp.HelpShowcaseItem(
-                                    R.id.layout_create_round__round_sub_type,
-                                    getString(R.string.help_create_round__sub_round_title),
-                                    getString(R.string.help_create_round__sub_round_body),
-                                    shape = ActionBarHelp.ShowcaseShape.OVAL,
-                                    shapePadding = 0
-                            ),
-                            ActionBarHelp.HelpShowcaseItem(
-                                    R.id.text_create_round__arrow_count_indicator,
-                                    getString(R.string.help_create_round__arrow_count_indicator_title),
-                                    getString(R.string.help_create_round__arrow_count_indicator_body),
-                                    shape = ActionBarHelp.ShowcaseShape.OVAL,
-                                    shapePadding = 0
-                            ),
-                            ActionBarHelp.HelpShowcaseItem(
-                                    R.id.text_create_round__distance_indicator,
-                                    getString(R.string.help_create_round__distance_indicator_title),
-                                    getString(R.string.help_create_round__distance_indicator_body),
-                                    shape = ActionBarHelp.ShowcaseShape.OVAL,
-                                    shapePadding = 0
-                            )
+                            ActionBarHelp.HelpShowcaseItem.Builder()
+                                    .setViewId(R.id.layout_create_round__round_sub_type)
+                                    .setHelpTitleId(R.string.help_create_round__sub_round_title)
+                                    .setHelpBodyId(R.string.help_create_round__sub_round_body)
+                                    .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                                    .setShapePadding(0)
+                                    .build(),
+                            ActionBarHelp.HelpShowcaseItem.Builder()
+                                    .setViewId(R.id.text_create_round__arrow_count_indicator)
+                                    .setHelpTitleId(R.string.help_create_round__arrow_count_indicator_title)
+                                    .setHelpBodyId(R.string.help_create_round__arrow_count_indicator_body)
+                                    .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                                    .setShapePadding(0)
+                                    .build(),
+                            ActionBarHelp.HelpShowcaseItem.Builder()
+                                    .setViewId(R.id.text_create_round__distance_indicator)
+                                    .setHelpTitleId(R.string.help_create_round__distance_indicator_title)
+                                    .setHelpBodyId(R.string.help_create_round__distance_indicator_body)
+                                    .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                                    .setShapePadding(0)
+                                    .build()
                     )
             )
         }
         mainList.add(
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_create_round__submit,
-                        getString(R.string.help_create_round__submit_title),
-                        getString(R.string.help_create_round__submit_body),
-                        shape = ActionBarHelp.ShowcaseShape.OVAL
-                )
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.button_create_round__submit)
+                        .setHelpTitleId(R.string.help_create_round__submit_title)
+                        .setHelpBodyId(R.string.help_create_round__submit_body)
+                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .build()
         )
         return mainList
     }

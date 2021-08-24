@@ -57,16 +57,16 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_main_menu__start_new_round,
-                        getString(R.string.help_main_menu__new_round_title),
-                        getString(R.string.help_main_menu__new_round_body)
-                ),
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_main_menu__view_rounds,
-                        getString(R.string.help_main_menu__view_rounds_title),
-                        getString(R.string.help_main_menu__view_rounds_body)
-                )
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.button_main_menu__start_new_round)
+                        .setHelpTitleId(R.string.help_main_menu__new_round_title)
+                        .setHelpBodyId(R.string.help_main_menu__new_round_body)
+                        .build(),
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.button_main_menu__view_rounds)
+                        .setHelpTitleId(R.string.help_main_menu__view_rounds_title)
+                        .setHelpBodyId(R.string.help_main_menu__view_rounds_body)
+                        .build()
         )
     }
 

@@ -40,11 +40,11 @@ class ScoreIndicatorFragment : Fragment(), ActionBarHelp {
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.table_layout_scores_indicator,
-                        getString(R.string.help_input_end__indicator_title),
-                        getString(R.string.help_input_end__indicator_body)
-                )
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.table_layout_scores_indicator)
+                        .setHelpTitleId(R.string.help_input_end__indicator_title)
+                        .setHelpBodyId(R.string.help_input_end__indicator_body)
+                        .build()
         )
     }
 

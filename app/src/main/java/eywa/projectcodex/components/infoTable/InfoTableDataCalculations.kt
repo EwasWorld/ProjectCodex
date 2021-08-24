@@ -2,12 +2,9 @@ package eywa.projectcodex.components.infoTable
 
 import android.content.res.Resources
 import eywa.projectcodex.R
-import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archeryObjects.End
 import eywa.projectcodex.components.archeryObjects.GoldsType
-import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
-import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -19,15 +16,6 @@ const val TOTAL_CELL_ID = "Total"
 private const val DISTANCE_TOTAL_CELL_ID_PREFIX = "distance$TOTAL_CELL_ID"
 private const val GRAND_TOTAL_CELL_ID_PREFIX = "grand$TOTAL_CELL_ID"
 
-val viewRoundsColumnHeaderIds = listOf(
-        R.string.view_round__id_header,
-        R.string.view_round__date_header,
-        R.string.view_round__round_name_header,
-        R.string.table_hits_header,
-        R.string.table_score_header,
-        R.string.table_golds_header,
-        R.string.view_round__handicap
-)
 val scorePadColumnHeaderIds = listOf(
         R.string.score_pad__end_string_header,
         R.string.table_hits_header,
@@ -179,75 +167,6 @@ fun calculateScorePadTableData(
     // Having 'total' in the id makes it bold - see InfoTableViewAdapter.setBoldIfTotal
     tableData.add(toCells(grandTotalRowData, null, GRAND_TOTAL_CELL_ID_PREFIX))
 
-    return tableData
-}
-
-/**
- * Adds a delete column on the end
- * @param defaultGoldsType The default GoldsType to use if an archer round doesn't have a round
- * @return rounds data or an empty list if there's no data to show
- * @see viewRoundsColumnHeaderIds
- */
-fun calculateViewRoundsTableData(
-        archerRounds: List<ArcherRoundWithRoundInfoAndName>,
-        arrows: List<ArrowValue>,
-        defaultGoldsType: GoldsType,
-        arrowCounts: List<RoundArrowCount>? = null,
-        distances: List<RoundDistance>? = null
-): MutableList<MutableList<InfoTableCell>> {
-    val tableData = mutableListOf<MutableList<InfoTableCell>>()
-    if (archerRounds.isEmpty()) {
-        return tableData
-    }
-
-    for (archerRoundInfo in archerRounds.sortedByDescending { archerRound -> archerRound.archerRound.dateShot }) {
-        val archerRound = archerRoundInfo.archerRound
-
-        val rowData = mutableListOf<Any>()
-        rowData.add(archerRound.archerRoundId)
-        rowData.add(DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(archerRound.dateShot))
-        rowData.add(archerRoundInfo.roundSubTypeName ?: archerRoundInfo.round?.displayName ?: "")
-
-        // H/S/G
-        val relevantArrows = arrows.filter { arrow -> arrow.archerRoundId == archerRound.archerRoundId }
-        val score = relevantArrows.sumOf { it.score }
-        rowData.add(relevantArrows.count { it.score != 0 })
-        rowData.add(score)
-        val goldsType = archerRoundInfo.round?.let {
-            GoldsType.getGoldsType(
-                    it.isOutdoor, it.isMetric
-            )
-        } ?: defaultGoldsType
-        rowData.add(relevantArrows.count { goldsType.isGold(it) })
-
-        // Handicap
-        var handicap: Int? = null
-        if (archerRound.roundId != null && !arrowCounts.isNullOrEmpty() && !distances.isNullOrEmpty()
-            && !relevantArrows.isNullOrEmpty()
-        ) {
-            val relevantArrowCounts = arrowCounts.filter { it.roundId == archerRound.roundId }
-            val relevantDistances = distances.filter {
-                return@filter when {
-                    it.roundId != archerRound.roundId -> false
-                    archerRound.roundSubTypeId == null -> it.subTypeId == 1
-                    else -> it.subTypeId == archerRound.roundSubTypeId
-                }
-            }
-            if (relevantArrowCounts.isNotEmpty() && relevantDistances.isNotEmpty()) {
-                handicap = Handicap.getHandicapForRound(
-                        archerRoundInfo.round!!,
-                        relevantArrowCounts,
-                        relevantDistances,
-                        score,
-                        false,
-                        relevantArrows.size
-                )
-            }
-        }
-        rowData.add(handicap ?: "-")
-
-        tableData.add(toCells(rowData, tableData.size))
-    }
     return tableData
 }
 

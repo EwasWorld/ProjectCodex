@@ -200,20 +200,20 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         val main = mutableListOf(
-                ActionBarHelp.HelpShowcaseItem(
-                        R.id.button_input_end__next_end,
-                        getString(R.string.help_input_end__next_end_title),
-                        getString(R.string.help_input_end__next_end_body)
-                )
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setViewId(R.id.button_input_end__next_end)
+                        .setHelpTitleId(R.string.help_input_end__next_end_title)
+                        .setHelpBodyId(R.string.help_input_end__next_end_body)
+                        .build()
         )
         if (requireView().findViewById<TextView>(R.id.layout_input_end__round_info).isVisible) {
             main.add(
-                    ActionBarHelp.HelpShowcaseItem(
-                            R.id.layout_input_end__round_info,
-                            getString(R.string.help_input_end__remaining_arrows_title),
-                            getString(R.string.help_input_end__remaining_arrows_body),
-                            priority = 20
-                    )
+                    ActionBarHelp.HelpShowcaseItem.Builder()
+                            .setViewId(R.id.layout_input_end__round_info)
+                            .setHelpTitleId(R.string.help_input_end__remaining_arrows_title)
+                            .setHelpBodyId(R.string.help_input_end__remaining_arrows_body)
+                            .setPriority(20)
+                            .build()
             )
         }
         return main

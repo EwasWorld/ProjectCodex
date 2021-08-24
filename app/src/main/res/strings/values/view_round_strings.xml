@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="view_round__title">All Rounds</string>
-    <string name="view_round__date_header">Date</string>
-    <string name="view_round__round_name_header">Round</string>
     <string name="view_round__hsg">H/S/G</string>
     <string name="view_round__handicap">HC</string>
-    <string name="view_round__id_header">ID</string>
     <string name="view_rounds_menu__score_pad">Score pad</string>
     <string name="view_rounds_menu__continue">Continue scoring</string>
     <string name="view_rounds_menu__delete">Delete</string>
@@ -25,6 +22,8 @@
     <string name="err_view_round__round_already_complete">This round is already complete</string>
 
     <!-- Help info -->
-    <string name="help_view_round__main_title">Score details and edit</string>
-    <string name="help_view_round__main_body">Click on a score to see the score pad containing further information. {edit help}</string>
+    <string name="help_view_round__hsg_title">Hits/Score/Golds</string>
+    <string name="help_view_round__hsg_body">Shows the hits, score, and golds in that order. Golds are counted as 9s for imperial rounds and 10s for all other scores</string>
+    <string name="help_view_round__handicap_title">Handicap</string>
+    <string name="help_view_round__handicap_body">The handicap for the round (or partial round). Will be blank if there is no round or if no arrows have been added</string>
 </resources>

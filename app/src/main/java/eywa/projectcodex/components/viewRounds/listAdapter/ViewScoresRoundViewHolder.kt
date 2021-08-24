@@ -3,6 +3,7 @@ package eywa.projectcodex.components.viewRounds.listAdapter
 import android.view.View
 import android.widget.TextView
 import eywa.projectcodex.R
+import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import eywa.projectcodex.components.viewRounds.data.ViewScoresEntry
 import kotlin.math.roundToInt
@@ -32,5 +33,21 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
         }
         viewScoresEntry.updatedListener = listener
         listener.onUpdate()
+    }
+
+    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+        return listOf(
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setView(hsgView)
+                        .setHelpTitleId(R.string.help_view_round__hsg_title)
+                        .setHelpBodyId(R.string.help_view_round__hsg_body)
+                        .build(),
+                ActionBarHelp.HelpShowcaseItem.Builder()
+                        .setView(handicapView)
+                        .setHelpTitleId(R.string.help_view_round__handicap_title)
+                        .setHelpBodyId(R.string.help_view_round__handicap_body)
+                        .setShapePadding(40)
+                        .build()
+        )
     }
 }
