@@ -1,7 +1,7 @@
 package eywa.projectcodex.database.arrowValue
 
 import androidx.room.Entity
-import eywa.projectcodex.components.archeryObjects.getArrowValueString
+import eywa.projectcodex.common.archeryObjects.getArrowValueString
 
 @Entity(tableName = "arrow_values", primaryKeys = ["archerRoundId", "arrowNumber"])
 data class ArrowValue(

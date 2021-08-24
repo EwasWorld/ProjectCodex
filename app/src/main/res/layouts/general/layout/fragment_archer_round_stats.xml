@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         >
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
             android:paddingTop="0dp"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__round"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:paddingTop="0dp"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__hits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
             app:text="@string/placeholder_0"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
             app:text="@string/placeholder_0"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__golds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
             app:text="@string/placeholder_0"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__remaining_arrows"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             android:paddingTop="@dimen/text_box_margins"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__handicap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -80,7 +80,7 @@
             android:paddingTop="0dp"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_archer_round_stats__predicted_score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

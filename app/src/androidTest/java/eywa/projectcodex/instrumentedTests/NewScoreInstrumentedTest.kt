@@ -20,7 +20,7 @@ import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
-import eywa.projectcodex.components.newRound.NewScoreFragment
+import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.RoundDistance

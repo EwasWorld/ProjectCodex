@@ -2,8 +2,8 @@ package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
 import eywa.projectcodex.R
-import eywa.projectcodex.components.infoTable.InfoTableCell
-import eywa.projectcodex.components.infoTable.generateNumberedRowHeaders
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.generateNumberedRowHeaders
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

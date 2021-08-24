@@ -17,8 +17,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
+import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
-import eywa.projectcodex.components.commonUtils.SharedPrefs
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round

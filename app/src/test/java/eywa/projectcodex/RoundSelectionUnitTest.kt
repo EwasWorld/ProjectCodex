@@ -4,8 +4,8 @@ import android.content.res.Resources
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import eywa.projectcodex.components.newRound.NewScoreViewModel
-import eywa.projectcodex.components.newRound.RoundSelection
+import eywa.projectcodex.components.newScore.NewScoreViewModel
+import eywa.projectcodex.components.newScore.RoundSelection
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance

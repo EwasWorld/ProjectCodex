@@ -3,11 +3,11 @@ package eywa.projectcodex.infoTableDataCalculations
 import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
-import eywa.projectcodex.components.archeryObjects.End
-import eywa.projectcodex.components.archeryObjects.GoldsType
-import eywa.projectcodex.components.infoTable.InfoTableCell
-import eywa.projectcodex.components.infoTable.calculateScorePadTableData
-import eywa.projectcodex.components.infoTable.scorePadColumnHeaderIds
+import eywa.projectcodex.common.archeryObjects.End
+import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.calculateScorePadTableData
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.scorePadColumnHeaderIds
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import org.junit.Assert

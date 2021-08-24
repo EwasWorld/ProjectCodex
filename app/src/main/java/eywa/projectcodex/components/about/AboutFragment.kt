@@ -10,9 +10,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.R
-import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
-import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds.UpdateTaskState
+import eywa.projectcodex.common.utils.SharedPrefs
+import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
+import eywa.projectcodex.common.utils.UpdateDefaultRounds.UpdateTaskState
 import kotlinx.android.synthetic.main.fragment_about.*
 
 

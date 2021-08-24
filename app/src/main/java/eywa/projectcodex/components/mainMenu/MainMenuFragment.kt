@@ -9,7 +9,7 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.common.utils.ActionBarHelp
 import kotlinx.android.synthetic.main.fragment_main_menu.*
 import kotlin.system.exitProcess
 

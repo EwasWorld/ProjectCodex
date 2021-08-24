@@ -1,9 +1,9 @@
 package eywa.projectcodex
 
 import eywa.projectcodex.TestUtils.Companion.anyMatcher
+import eywa.projectcodex.common.archeryObjects.End
+import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndViewModel
-import eywa.projectcodex.components.archeryObjects.End
-import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.coroutines.Job

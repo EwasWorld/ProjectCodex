@@ -4,8 +4,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import eywa.projectcodex.components.MainActivity
-import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
+import eywa.projectcodex.common.utils.UpdateDefaultRounds
+import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 
 class CommonSetupTeardownFns {

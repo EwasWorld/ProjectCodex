@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".components.newRound.NewScoreFragment"
+    tools:context=".components.newScore.NewScoreFragment"
     >
 
     <LinearLayout
@@ -93,7 +93,7 @@
             android:visibility="gone"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_create_round__default_rounds_updating_status"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
@@ -126,7 +126,7 @@
                 />
         </LinearLayout>
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_create_round__arrow_count_indicator"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
@@ -135,7 +135,7 @@
             android:visibility="gone"
             />
 
-        <eywa.projectcodex.components.customViews.LabelledTextView
+        <eywa.projectcodex.common.customViews.LabelledTextView
             android:id="@+id/text_create_round__distance_indicator"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"

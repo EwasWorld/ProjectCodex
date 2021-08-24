@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.about
 
 import androidx.lifecycle.ViewModel
-import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
+import eywa.projectcodex.common.utils.UpdateDefaultRounds
 
 /**
  * @see InputEndViewModel

@@ -1,7 +1,7 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.components.archeryObjects.Arrow
-import eywa.projectcodex.components.viewRounds.ConvertScore
+import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.components.viewScores.ConvertScore
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import kotlinx.coroutines.Job
 import org.junit.Assert

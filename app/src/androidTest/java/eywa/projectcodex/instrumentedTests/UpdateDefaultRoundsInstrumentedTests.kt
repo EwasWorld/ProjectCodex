@@ -8,9 +8,9 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
 import eywa.projectcodex.common.*
-import eywa.projectcodex.components.MainActivity
-import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
+import eywa.projectcodex.common.utils.SharedPrefs
+import eywa.projectcodex.common.utils.UpdateDefaultRounds
+import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
 import org.junit.After

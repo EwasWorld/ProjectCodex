@@ -1,8 +1,8 @@
 package eywa.projectcodex.infoTableDataCalculations
 
 import eywa.projectcodex.TestData
-import eywa.projectcodex.components.archeryObjects.GoldsType
-import eywa.projectcodex.components.infoTable.calculateViewRoundsTableData
+import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue

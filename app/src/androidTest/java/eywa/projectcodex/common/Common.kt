@@ -25,9 +25,9 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
-import eywa.projectcodex.components.MainActivity
-import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.commonUtils.SharedPrefs.Companion.getSharedPreferences
+import eywa.projectcodex.common.utils.SharedPrefs
+import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
+import eywa.projectcodex.components.mainActivity.MainActivity
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Description

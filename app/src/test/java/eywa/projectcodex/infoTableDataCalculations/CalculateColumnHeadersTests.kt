@@ -1,8 +1,8 @@
 package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
-import eywa.projectcodex.components.archeryObjects.GoldsType
-import eywa.projectcodex.components.infoTable.getColumnHeadersForTable
+import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.getColumnHeadersForTable
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

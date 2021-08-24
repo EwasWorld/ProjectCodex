@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
-import eywa.projectcodex.components.commonUtils.ActionBarHelp
+import eywa.projectcodex.common.utils.ActionBarHelp
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import kotlinx.android.synthetic.main.frag_score_indicator.*
 

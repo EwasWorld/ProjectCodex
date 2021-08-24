@@ -8,8 +8,8 @@ import androidx.test.espresso.NoMatchingViewException
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
-import eywa.projectcodex.components.MainActivity
-import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
+import eywa.projectcodex.common.utils.UpdateDefaultRounds
+import eywa.projectcodex.components.mainActivity.MainActivity
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
 

@@ -11,8 +11,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.TestUtils
 import eywa.projectcodex.common.latchAwaitTimeSeconds
 import eywa.projectcodex.common.latchAwaitTimeUnit
-import eywa.projectcodex.components.commonUtils.SharedPrefs
-import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
+import eywa.projectcodex.common.utils.SharedPrefs
+import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
