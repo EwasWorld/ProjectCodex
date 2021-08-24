@@ -34,13 +34,13 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.main_menu__title)
 
-        button_main_menu__start_new_round.setOnClickListener {
-            val action = MainMenuFragmentDirections.actionMainMenuFragmentToNewRoundFragment()
+        button_main_menu__start_new_score.setOnClickListener {
+            val action = MainMenuFragmentDirections.actionMainMenuFragmentToNewScoreFragment()
             view.findNavController().navigate(action)
         }
 
-        button_main_menu__view_rounds.setOnClickListener {
-            val action = MainMenuFragmentDirections.actionMainMenuFragmentToViewRoundsFragment()
+        button_main_menu__view_scores.setOnClickListener {
+            val action = MainMenuFragmentDirections.actionMainMenuFragmentToViewScoresFragment()
             view.findNavController().navigate(action)
         }
 
@@ -58,14 +58,14 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
         return listOf(
                 ActionBarHelp.HelpShowcaseItem.Builder()
-                        .setViewId(R.id.button_main_menu__start_new_round)
-                        .setHelpTitleId(R.string.help_main_menu__new_round_title)
-                        .setHelpBodyId(R.string.help_main_menu__new_round_body)
+                        .setViewId(R.id.button_main_menu__start_new_score)
+                        .setHelpTitleId(R.string.help_main_menu__new_score_title)
+                        .setHelpBodyId(R.string.help_main_menu__new_score_body)
                         .build(),
                 ActionBarHelp.HelpShowcaseItem.Builder()
-                        .setViewId(R.id.button_main_menu__view_rounds)
-                        .setHelpTitleId(R.string.help_main_menu__view_rounds_title)
-                        .setHelpBodyId(R.string.help_main_menu__view_rounds_body)
+                        .setViewId(R.id.button_main_menu__view_scores)
+                        .setHelpTitleId(R.string.help_main_menu__view_scores_title)
+                        .setHelpBodyId(R.string.help_main_menu__view_scores_body)
                         .build()
         )
     }

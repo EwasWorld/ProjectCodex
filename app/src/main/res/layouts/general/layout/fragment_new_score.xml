@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".components.newRound.NewRoundFragment"
+    tools:context=".components.newRound.NewScoreFragment"
     >
 
     <LinearLayout

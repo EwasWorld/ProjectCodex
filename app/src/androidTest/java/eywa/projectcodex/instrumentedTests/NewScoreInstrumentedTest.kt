@@ -20,7 +20,7 @@ import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
-import eywa.projectcodex.components.newRound.NewRoundFragment
+import eywa.projectcodex.components.newRound.NewScoreFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -33,7 +33,7 @@ import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
-class NewRoundInstrumentedTest {
+class NewScoreInstrumentedTest {
     companion object {
         init {
             ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
@@ -42,7 +42,7 @@ class NewRoundInstrumentedTest {
     }
 
     // TODO Check date is within 1min of current date
-    private lateinit var scenario: FragmentScenario<NewRoundFragment>
+    private lateinit var scenario: FragmentScenario<NewScoreFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private var currentArcherRounds: List<ArcherRound> = listOf()
@@ -86,7 +86,7 @@ class NewRoundInstrumentedTest {
             db = ScoresRoomDatabase.getDatabase(it.requireContext())
 
             navController.setGraph(R.navigation.nav_graph)
-            navController.setCurrentDestination(R.id.newRoundFragment)
+            navController.setCurrentDestination(R.id.newScoreFragment)
 
             /*
              * Fill default rounds

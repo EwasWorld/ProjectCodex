@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="main_menu__title">Main Menu</string>
-    <string name="main_menu__new_round">Begin New Score</string>
-    <string name="main_menu__view_rounds">View Scores</string>
+    <string name="main_menu__new_score">Begin New Score</string>
+    <string name="main_menu__view_scores">View Scores</string>
 
     <string name="main_menu__exit_app_dialog_title">Going so soon?</string>
     <string name="main_menu__exit_app_dialog_body">I hate to say goodbye</string>
     <string name="main_menu__exit_app_dialog_exit">Exit app</string>
 
-    <string name="help_main_menu__new_round_title">New score</string>
-    <string name="help_main_menu__new_round_body">Start inputting a new score</string>
-    <string name="help_main_menu__view_rounds_title">View scores</string>
-    <string name="help_main_menu__view_rounds_body">View, edit, and continue existing scores</string>
+    <string name="help_main_menu__new_score_title">New score</string>
+    <string name="help_main_menu__new_score_body">Start inputting a new score</string>
+    <string name="help_main_menu__view_scores_title">View scores</string>
+    <string name="help_main_menu__view_scores_body">View, edit, and continue existing scores</string>
 </resources>

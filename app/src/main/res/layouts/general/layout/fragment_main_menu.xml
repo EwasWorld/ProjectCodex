@@ -9,10 +9,10 @@
     >
 
     <Button
-        android:id="@+id/button_main_menu__start_new_round"
+        android:id="@+id/button_main_menu__start_new_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/main_menu__new_round"
+        android:text="@string/main_menu__new_score"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,12 +20,12 @@
         />
 
     <Button
-        android:id="@+id/button_main_menu__view_rounds"
+        android:id="@+id/button_main_menu__view_scores"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/main_menu__view_rounds"
+        android:text="@string/main_menu__view_scores"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_main_menu__start_new_round"
+        app:layout_constraintTop_toBottomOf="@+id/button_main_menu__start_new_score"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 /**
  * @see InputEndViewModel
  */
-class ViewRoundsViewModel(application: Application) : AndroidViewModel(application),
+class ViewScoresViewModel(application: Application) : AndroidViewModel(application),
         ConvertScore.ConvertScoreViewModel {
     private val db = ScoresRoomDatabase.getDatabase(application)
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())

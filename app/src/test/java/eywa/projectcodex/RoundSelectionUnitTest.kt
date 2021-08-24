@@ -4,7 +4,7 @@ import android.content.res.Resources
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import eywa.projectcodex.components.newRound.NewRoundViewModel
+import eywa.projectcodex.components.newRound.NewScoreViewModel
 import eywa.projectcodex.components.newRound.RoundSelection
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -17,7 +17,7 @@ import org.mockito.Mockito.*
 
 class RoundSelectionUnitTest {
     private val lifecycleOwner = mock(LifecycleOwner::class.java)
-    private val viewModel = mock(NewRoundViewModel::class.java)
+    private val viewModel = mock(NewScoreViewModel::class.java)
     private lateinit var resources: Resources
     private lateinit var allRounds: LiveData<*>
     private lateinit var allRoundSubTypes: LiveData<*>

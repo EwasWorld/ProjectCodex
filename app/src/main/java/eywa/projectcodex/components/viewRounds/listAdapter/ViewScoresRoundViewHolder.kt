@@ -39,13 +39,13 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
         return listOf(
                 ActionBarHelp.HelpShowcaseItem.Builder()
                         .setView(hsgView)
-                        .setHelpTitleId(R.string.help_view_round__hsg_title)
-                        .setHelpBodyId(R.string.help_view_round__hsg_body)
+                        .setHelpTitleId(R.string.help_view_score__hsg_title)
+                        .setHelpBodyId(R.string.help_view_score__hsg_body)
                         .build(),
                 ActionBarHelp.HelpShowcaseItem.Builder()
                         .setView(handicapView)
-                        .setHelpTitleId(R.string.help_view_round__handicap_title)
-                        .setHelpBodyId(R.string.help_view_round__handicap_body)
+                        .setHelpTitleId(R.string.help_view_score__handicap_title)
+                        .setHelpBodyId(R.string.help_view_score__handicap_body)
                         .setShapePadding(40)
                         .build()
         )

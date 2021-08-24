@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="view_score__title">All Rounds</string>
+    <string name="view_score__hsg">H/S/G</string>
+    <string name="view_score__handicap">HC</string>
+    <string name="view_scores_menu__score_pad">Score pad</string>
+    <string name="view_scores_menu__continue">Continue scoring</string>
+    <string name="view_scores_menu__delete">Delete</string>
+    <string name="view_scores_menu__edit">Edit info</string>
+
+    <!-- Convert score -->
+    <string name="view_scores_menu__convert">Convert</string>
+    <string name="view_scores__convert_xs_to_tens">Xs to 10s</string>
+    <string name="view_scores__convert_to_five_zone">10-zone to 5-zone</string>
+    <string name="view_score__convert_score_dialog_title">Convert score</string>
+    <string name="view_score__convert_score_dialog_body">Converts the selected score to a different scoring type.\nWARNING: this is irreversible</string>
+    <string name="view_score__convert_score_started_message">Begun conversion</string>
+    <string name="view_score__convert_score_completed_message">Finished conversion</string>
+
+    <!-- Errors -->
+    <string name="err_view_score__no_rounds">There are no rounds to show</string>
+    <string name="err_view_score__round_already_complete">This round is already complete</string>
+
+    <!-- Help info -->
+    <string name="help_view_score__hsg_title">Hits/Score/Golds</string>
+    <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. Golds are counted as 9s for imperial rounds and 10s for all other scores</string>
+    <string name="help_view_score__handicap_title">Handicap</string>
+    <string name="help_view_score__handicap_body">The handicap for the round (or partial round). Will be blank if there is no round or if no arrows have been added</string>
+</resources>

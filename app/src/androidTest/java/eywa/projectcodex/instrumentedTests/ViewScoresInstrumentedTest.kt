@@ -27,7 +27,7 @@ import eywa.projectcodex.components.archeryObjects.GoldsType
 import eywa.projectcodex.components.infoTable.InfoTableCell
 import eywa.projectcodex.components.infoTable.calculateViewRoundsTableData
 import eywa.projectcodex.components.infoTable.generateNumberedRowHeaders
-import eywa.projectcodex.components.viewRounds.ViewRoundsFragment
+import eywa.projectcodex.components.viewRounds.ViewScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -43,7 +43,7 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 
-class ViewRoundsInstrumentedTest {
+class ViewScoresInstrumentedTest {
     companion object {
         init {
             ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
@@ -56,7 +56,7 @@ class ViewRoundsInstrumentedTest {
      */
     private val removedColumnIndexes = listOf(0)
 
-    private lateinit var scenario: FragmentScenario<ViewRoundsFragment>
+    private lateinit var scenario: FragmentScenario<ViewScoresFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private lateinit var resources: Resources
@@ -86,7 +86,7 @@ class ViewRoundsInstrumentedTest {
             db = ScoresRoomDatabase.getDatabase(it.requireContext())
 
             navController.setGraph(R.navigation.nav_graph)
-            navController.setCurrentDestination(R.id.viewRoundsFragment)
+            navController.setCurrentDestination(R.id.viewScoresFragment)
 
         }
 
@@ -137,7 +137,7 @@ class ViewRoundsInstrumentedTest {
 
     private fun populateAdapter() {
         scenario.onFragment { fragment ->
-            tableViewAdapter = fragment.requireActivity().findViewById<TableView>(R.id.table_view_view_rounds).adapter!!
+            tableViewAdapter = fragment.requireActivity().findViewById<TableView>(R.id.table_view_view_scores).adapter!!
                     as AbstractTableAdapter<InfoTableCell, InfoTableCell, InfoTableCell>
         }
     }
@@ -207,7 +207,7 @@ class ViewRoundsInstrumentedTest {
         }
 
         // Open the score pad for that unique score
-        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        onView(withId((R.id.table_view_view_scores))).perform(swipeLeft())
         onView(withText(uniqueScore.score.toString())).perform(longClick())
 
         return uniqueScore.archerRoundId
@@ -243,7 +243,7 @@ class ViewRoundsInstrumentedTest {
         )
 
         assertEquals(expected.size, tableViewAdapter.getCellColumnItems(2).size)
-        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        onView(withId((R.id.table_view_view_scores))).perform(swipeLeft())
 
         val deleteIndex = 1
         onView(withText(findRoundArrows(deleteIndex).sumOf { it.score }.toString())).perform(longClick())
@@ -282,7 +282,7 @@ class ViewRoundsInstrumentedTest {
         arrows = listOf(TestData.ARROWS.take(6).mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
         addToDbAndPopulateAdapter()
 
-        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        onView(withId((R.id.table_view_view_scores))).perform(swipeLeft())
         onView(withText(arrows.flatten().sumOf { it.score }.toString())).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(doesNotExist())
     }
@@ -304,7 +304,7 @@ class ViewRoundsInstrumentedTest {
         addToDbAndPopulateAdapter()
 
         // Convert first score
-        onView(withId((R.id.table_view_view_rounds))).perform(swipeLeft())
+        onView(withId((R.id.table_view_view_scores))).perform(swipeLeft())
         onView(withIndex(withText(TestData.ARROWS.sumOf { it.score }.toString()), 0)).perform(longClick())
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())

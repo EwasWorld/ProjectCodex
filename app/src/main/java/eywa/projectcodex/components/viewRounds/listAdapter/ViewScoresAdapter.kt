@@ -5,12 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import eywa.projectcodex.R
-import eywa.projectcodex.components.viewRounds.ViewRoundsViewModel
+import eywa.projectcodex.components.viewRounds.ViewScoresViewModel
 import eywa.projectcodex.components.viewRounds.data.ViewScoresEntry
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
-class ViewScoresAdapter(private val viewModel: ViewRoundsViewModel) :
+class ViewScoresAdapter(private val viewModel: ViewScoresViewModel) :
         ListAdapter<ViewScoresEntry, ViewScoresEntryViewHolder>(
                 object : DiffUtil.ItemCallback<ViewScoresEntry>() {
                     override fun areItemsTheSame(oldItem: ViewScoresEntry, newItem: ViewScoresEntry): Boolean {

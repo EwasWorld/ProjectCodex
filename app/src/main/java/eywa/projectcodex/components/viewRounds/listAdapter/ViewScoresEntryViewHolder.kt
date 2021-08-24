@@ -14,8 +14,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.components.commonUtils.ActionBarHelp
 import eywa.projectcodex.components.commonUtils.ToastSpamPrevention
 import eywa.projectcodex.components.viewRounds.ConvertScore
-import eywa.projectcodex.components.viewRounds.ViewRoundsFragmentDirections
-import eywa.projectcodex.components.viewRounds.ViewRoundsViewModel
+import eywa.projectcodex.components.viewRounds.ViewScoresFragmentDirections
+import eywa.projectcodex.components.viewRounds.ViewScoresViewModel
 import eywa.projectcodex.components.viewRounds.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
 
@@ -28,7 +28,7 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
     }
 
     internal var entry: ViewScoresEntry? = null
-    var viewModel: ViewRoundsViewModel? = null
+    var viewModel: ViewScoresViewModel? = null
 
     abstract fun bind(viewScoresEntry: ViewScoresEntry)
 
@@ -41,25 +41,25 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
     }
 
     enum class ContextMenuItem(val titleId: Int) {
-        SCORE_PAD(R.string.view_rounds_menu__score_pad) {
-            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewRoundsViewModel) {
+        SCORE_PAD(R.string.view_scores_menu__score_pad) {
+            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
                 view.findNavController().navigate(
-                        ViewRoundsFragmentDirections.actionViewRoundsFragmentToScorePadFragment(entry.id)
+                        ViewScoresFragmentDirections.actionViewScoresFragmentToScorePadFragment(entry.id)
                 )
             }
         },
-        CONTINUE(R.string.view_rounds_menu__continue) {
-            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewRoundsViewModel) {
+        CONTINUE(R.string.view_scores_menu__continue) {
+            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
                 if (entry.isRoundComplete()) {
                     CustomLogger.customLogger.w(LOG_TAG, "Tried to continue completed round")
                     ToastSpamPrevention.displayToast(
                             view.context,
-                            view.resources.getString(R.string.err_view_round__round_already_complete)
+                            view.resources.getString(R.string.err_view_score__round_already_complete)
                     )
                 }
                 else {
                     view.findNavController().navigate(
-                            ViewRoundsFragmentDirections.actionViewRoundsFragmentToInputEndFragment(entry.id)
+                            ViewScoresFragmentDirections.actionViewScoresFragmentToInputEndFragment(entry.id)
                     )
                 }
             }
@@ -68,7 +68,7 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
                     menu: ContextMenu,
                     view: View,
                     entry: ViewScoresEntry,
-                    viewModel: ViewRoundsViewModel
+                    viewModel: ViewScoresViewModel
             ) {
                 if (entry.isRoundComplete()) {
                     return
@@ -76,22 +76,22 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
                 super.addItemToMenu(menu, view, entry, viewModel)
             }
         },
-        EDIT_INFO(R.string.view_rounds_menu__edit) {
-            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewRoundsViewModel) {
+        EDIT_INFO(R.string.view_scores_menu__edit) {
+            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
                 view.findNavController().navigate(
-                        ViewRoundsFragmentDirections.actionViewRoundsFragmentToNewRoundFragment(archerRoundId = entry.id)
+                        ViewScoresFragmentDirections.actionViewScoresFragmentToNewScoreFragment(archerRoundId = entry.id)
                 )
             }
         },
-        DELETE(R.string.view_rounds_menu__delete) {
-            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewRoundsViewModel) {
+        DELETE(R.string.view_scores_menu__delete) {
+            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
                 viewModel.deleteRound(entry.id)
             }
         },
-        CONVERT(R.string.view_rounds_menu__convert) {
+        CONVERT(R.string.view_scores_menu__convert) {
             private var context: Context? = null
             private var entry: ViewScoresEntry? = null
-            private var viewModel: ViewRoundsViewModel? = null
+            private var viewModel: ViewScoresViewModel? = null
 
             /**
              * Currently selected item in the [convertDialog]
@@ -103,17 +103,17 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
              */
             private val convertDialog by lazy {
                 val builder = AlertDialog.Builder(context)
-                builder.setTitle(R.string.view_round__convert_score_dialog_title)
+                builder.setTitle(R.string.view_score__convert_score_dialog_title)
                 val menuItems = listOf(
-                        R.string.view_rounds__convert_xs_to_tens to ConvertScore.XS_TO_TENS,
-                        R.string.view_rounds__convert_to_five_zone to ConvertScore.TO_FIVE_ZONE
+                        R.string.view_scores__convert_xs_to_tens to ConvertScore.XS_TO_TENS,
+                        R.string.view_scores__convert_to_five_zone to ConvertScore.TO_FIVE_ZONE
                 )
                 val layoutInflater = context!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
                 @SuppressLint("InflateParams")
                 val content = layoutInflater.inflate(R.layout.list_msg_dialog, null)
                 content.findViewById<TextView>(R.id.text_list_msg_dialog__message).text =
-                        context!!.resources.getString(R.string.view_round__convert_score_dialog_body)
+                        context!!.resources.getString(R.string.view_score__convert_score_dialog_body)
 
                 val radioGroup = content.findViewById<RadioGroup>(R.id.radios_list_msg_dialog__items)
 
@@ -137,10 +137,10 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
                 builder.setPositiveButton(R.string.general_ok) { dialog, _ ->
                     ToastSpamPrevention.displayToast(
                             context!!,
-                            context!!.resources.getString(R.string.view_round__convert_score_started_message)
+                            context!!.resources.getString(R.string.view_score__convert_score_started_message)
                     )
                     val completedMessage =
-                            context!!.resources.getString(R.string.view_round__convert_score_completed_message)
+                            context!!.resources.getString(R.string.view_score__convert_score_completed_message)
                     selectedConversionType!!.convertScore(entry!!.arrows!!, viewModel!!)?.invokeOnCompletion {
                         ToastSpamPrevention.displayToast(context!!, completedMessage)
                     } ?: ToastSpamPrevention.displayToast(context!!, completedMessage)
@@ -150,7 +150,7 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
                 builder.create()
             }
 
-            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewRoundsViewModel) {
+            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
                 this.viewModel = viewModel
                 this.context = view.context
                 this.entry = entry
@@ -159,7 +159,7 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
             }
         };
 
-        open fun addItemToMenu(menu: ContextMenu, view: View, entry: ViewScoresEntry, viewModel: ViewRoundsViewModel) {
+        open fun addItemToMenu(menu: ContextMenu, view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
             val newItem = menu.add(Menu.NONE, ordinal, ordinal, titleId)
             newItem.setOnMenuItemClickListener(object : MenuItem.OnMenuItemClickListener {
                 override fun onMenuItemClick(item: MenuItem?): Boolean {
@@ -172,6 +172,6 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
             })
         }
 
-        abstract fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewRoundsViewModel)
+        abstract fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel)
     }
 }

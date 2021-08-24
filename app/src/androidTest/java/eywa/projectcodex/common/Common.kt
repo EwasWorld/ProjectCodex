@@ -158,8 +158,7 @@ fun openScorePadFromMainMenu(uniqueScoreToClick: Int) {
 
         override fun checkCondition(): Boolean {
             return try {
-                R.id.button_main_menu__view_rounds.click()
-                onView(withId((R.id.table_view_view_rounds))).perform(ViewActions.swipeLeft())
+                R.id.button_main_menu__view_scores.click()
                 onView(withText(uniqueScoreToClick.toString())).perform(ViewActions.click())
                 true
             }

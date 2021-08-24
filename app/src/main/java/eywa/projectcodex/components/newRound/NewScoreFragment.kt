@@ -20,12 +20,12 @@ import eywa.projectcodex.components.commonUtils.DateTimeFormat
 import eywa.projectcodex.components.commonUtils.UpdateDefaultRounds
 import eywa.projectcodex.components.commonUtils.resourceStringReplace
 import eywa.projectcodex.database.archerRound.ArcherRound
-import kotlinx.android.synthetic.main.fragment_new_round.*
+import kotlinx.android.synthetic.main.fragment_new_score.*
 import java.util.*
 
-class NewRoundFragment : Fragment(), ActionBarHelp {
-    private val args: NewRoundFragmentArgs by navArgs()
-    private lateinit var newRoundViewModel: NewRoundViewModel
+class NewScoreFragment : Fragment(), ActionBarHelp {
+    private val args: NewScoreFragmentArgs by navArgs()
+    private lateinit var newRoundViewModel: NewScoreViewModel
 
     /**
      * Round information for the two round selection spinners
@@ -87,7 +87,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_new_round, container, false)
+        return inflater.inflate(R.layout.fragment_new_score, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -101,7 +101,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         )
 
         var submitPressed = false
-        newRoundViewModel = ViewModelProvider(this).get(NewRoundViewModel::class.java)
+        newRoundViewModel = ViewModelProvider(this).get(NewScoreViewModel::class.java)
         roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
 
         if (isInEditMode) {
@@ -125,7 +125,7 @@ class NewRoundFragment : Fragment(), ActionBarHelp {
         newRoundViewModel.maxId.observe(viewLifecycleOwner, { maxId ->
             if (submitPressed && maxId != null) {
                 // When the new round entry has been added, open the input end dialog
-                val action = NewRoundFragmentDirections.actionNewRoundFragmentToInputEndFragment(maxId)
+                val action = NewScoreFragmentDirections.actionNewScoreFragmentToInputEndFragment(maxId)
                 view.findNavController().navigate(action)
             }
         })

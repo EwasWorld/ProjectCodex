@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
  * @param newRoundViewModel used to fetch rounds and sub-types form the database
  */
 class RoundSelection(
-        val resources: Resources, newRoundViewModel: NewRoundViewModel, viewLifecycleOwner: LifecycleOwner
+        val resources: Resources, newRoundViewModel: NewScoreViewModel, viewLifecycleOwner: LifecycleOwner
 ) {
     companion object {
         const val LOG_TAG = "RoundSelection"

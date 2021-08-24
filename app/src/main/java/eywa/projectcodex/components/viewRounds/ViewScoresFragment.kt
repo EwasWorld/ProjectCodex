@@ -21,12 +21,12 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.android.synthetic.main.fragment_view_scores.*
 
-class ViewRoundsFragment : Fragment(), ActionBarHelp {
+class ViewScoresFragment : Fragment(), ActionBarHelp {
     companion object {
-        private const val LOG_TAG = "ViewRoundsFrag"
+        private const val LOG_TAG = "ViewScoresFrag"
     }
 
-    private lateinit var viewRoundsViewModel: ViewRoundsViewModel
+    private lateinit var viewScoresViewModel: ViewScoresViewModel
 
     /*
      * All data from certain tables in the database
@@ -42,7 +42,7 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
     private val emptyTableDialog by lazy {
         val builder = AlertDialog.Builder(context)
         builder.setTitle(R.string.err_table_view__no_data)
-        builder.setMessage(R.string.err_view_round__no_rounds)
+        builder.setMessage(R.string.err_view_score__no_rounds)
         builder.setPositiveButton(R.string.general_ok) { _, _ ->
             requireView().findNavController().popBackStack()
         }
@@ -56,19 +56,19 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.title = getString(R.string.view_round__title)
-        viewRoundsViewModel = ViewModelProvider(this).get(ViewRoundsViewModel::class.java)
+        activity?.title = getString(R.string.view_score__title)
+        viewScoresViewModel = ViewModelProvider(this).get(ViewScoresViewModel::class.java)
 
         val viewScoreData = ViewScoreData.getViewScoreData()
-        val viewScoresListAdapter = ViewScoresAdapter(viewRoundsViewModel)
+        val viewScoresListAdapter = ViewScoresAdapter(viewScoresViewModel)
         recycler_view_scores.adapter = viewScoresListAdapter
-        viewRoundsViewModel.allArrows.observe(viewLifecycleOwner, { arrows ->
+        viewScoresViewModel.allArrows.observe(viewLifecycleOwner, { arrows ->
             arrows?.let {
                 allArrows = arrows
                 viewScoreData.updateArrows(arrows)
             }
         })
-        viewRoundsViewModel.allArcherRounds.observe(viewLifecycleOwner, { archerRounds ->
+        viewScoresViewModel.allArcherRounds.observe(viewLifecycleOwner, { archerRounds ->
             archerRounds?.let {
                 allArcherRoundsWithNames = archerRounds
                 val updateList = viewScoreData.updateArcherRounds(archerRounds)
@@ -96,13 +96,13 @@ class ViewRoundsFragment : Fragment(), ActionBarHelp {
                 }
             }
         })
-        viewRoundsViewModel.allArrowCounts.observe(viewLifecycleOwner, { arrowCounts ->
+        viewScoresViewModel.allArrowCounts.observe(viewLifecycleOwner, { arrowCounts ->
             arrowCounts?.let {
                 allArrowCounts = arrowCounts
                 viewScoreData.updateArrowCounts(arrowCounts)
             }
         })
-        viewRoundsViewModel.allDistances.observe(viewLifecycleOwner, { distances ->
+        viewScoresViewModel.allDistances.observe(viewLifecycleOwner, { distances ->
             distances?.let {
                 allDistances = distances
                 viewScoreData.updateDistances(distances)

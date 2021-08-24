@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 /**
  * @see InputEndViewModel
  */
-class NewRoundViewModel(application: Application) : AndroidViewModel(application) {
+class NewScoreViewModel(application: Application) : AndroidViewModel(application) {
     private val db: ScoresRoomDatabase = ScoresRoomDatabase.getDatabase(application)
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     val maxId: LiveData<Int> = archerRoundsRepo.maxId
