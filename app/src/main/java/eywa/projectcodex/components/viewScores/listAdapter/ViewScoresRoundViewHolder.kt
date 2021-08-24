@@ -2,9 +2,11 @@ package eywa.projectcodex.components.viewScores.listAdapter
 
 import android.view.View
 import android.widget.TextView
+import androidx.navigation.findNavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ActionBarHelp
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.viewScores.ViewScoresFragmentDirections
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import kotlin.math.roundToInt
 
@@ -22,6 +24,11 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
 
     override fun bind(viewScoresEntry: ViewScoresEntry) {
         entry = viewScoresEntry
+        itemView.setOnClickListener {
+            itemView.findNavController().navigate(
+                    ViewScoresFragmentDirections.actionViewScoresFragmentToScorePadFragment(entry!!.id)
+            )
+        }
         val listener = object : ViewScoresEntry.UpdatedListener {
             override fun onUpdate() {
                 dateView.text = DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(viewScoresEntry.archerRound.dateShot)
