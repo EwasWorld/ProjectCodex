@@ -10,7 +10,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 /**
  * Stores the list of [ViewScoresEntry]s to be displayed by the [ViewScoresFragment]
  */
-class ViewScoreData {
+class ViewScoreData private constructor() {
     companion object {
         private var INSTANCE: ViewScoreData? = null
 
@@ -25,6 +25,11 @@ class ViewScoreData {
         @VisibleForTesting(otherwise = VisibleForTesting.NONE)
         fun clearInstance() {
             INSTANCE = null
+        }
+
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+        fun createInstance(): ViewScoreData {
+            return ViewScoreData()
         }
     }
 
@@ -86,6 +91,7 @@ class ViewScoreData {
         synchronized(this) {
             val grouped = allArrowCounts.groupBy { it.roundId }
             for (groupedEntries in data.values.groupBy { it.round?.roundId }) {
+                // Ignore those without a round
                 if (groupedEntries.key == null) {
                     continue
                 }
@@ -105,12 +111,13 @@ class ViewScoreData {
         synchronized(this) {
             val grouped = allDistances.groupBy { it.roundId }
             for (groupedEntries in data.values.groupBy { it.round?.roundId }) {
+                // Ignore those without a round
                 if (groupedEntries.key == null) {
                     continue
                 }
                 val distances = grouped[groupedEntries.key] ?: listOf()
-                groupedEntries.value.forEach {
-                    it.updateDistances(distances)
+                groupedEntries.value.forEach { entry ->
+                    entry.updateDistances(distances.filter { entry.archerRound.roundSubTypeId ?: 1 == it.subTypeId })
                 }
             }
         }
