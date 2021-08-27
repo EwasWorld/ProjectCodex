@@ -20,7 +20,7 @@ class RoundRepo(
     companion object {
         var repositoryWriteLock = ReentrantLock()
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE)
         fun reCreateLock() {
             repositoryWriteLock = ReentrantLock()
         }

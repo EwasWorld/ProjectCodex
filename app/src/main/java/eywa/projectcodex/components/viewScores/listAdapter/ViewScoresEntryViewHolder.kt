@@ -17,10 +17,9 @@ import eywa.projectcodex.components.viewScores.ConvertScore
 import eywa.projectcodex.components.viewScores.ViewScoresFragmentDirections
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.database.archerRound.ArcherRound
 
 /**
- * Container to display an [ArcherRound] in a recycler view
+ * Container to display a [ViewScoresEntry] in a recycler view
  */
 abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnCreateContextMenuListener {
     companion object {

@@ -5,11 +5,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import eywa.projectcodex.R
+import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
+/**
+ * Used to display data in [ViewScoresFragment]'s recycler view
+ */
 class ViewScoresAdapter(private val viewModel: ViewScoresViewModel) :
         ListAdapter<ViewScoresEntry, ViewScoresEntryViewHolder>(
                 object : DiffUtil.ItemCallback<ViewScoresEntry>() {

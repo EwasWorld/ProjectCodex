@@ -13,7 +13,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 
 /**
  * Stores all the information pertaining to an [ArcherRound] so that it can be displayed in a
- * [ViewScoresEntryViewHolder]
+ * [ViewScoresEntryViewHolder]. Caches calculations like handicaps and totals
  */
 class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     companion object {
@@ -68,7 +68,7 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
                         distances!!,
                         arrows!!.sumOf { it.score },
                         false,
-                        null
+                        arrows!!.size
                 )
                 return field
             }

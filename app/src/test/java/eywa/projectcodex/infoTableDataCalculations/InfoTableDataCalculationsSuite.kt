@@ -5,7 +5,6 @@ import org.junit.runners.Suite
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
-        CalculateColumnHeadersTests::class, CalculateRowHeadersTest::class, CalculateScorePadDataTest::class,
-        CalculateViewRoundDataTest::class
+        CalculateColumnHeadersTests::class, CalculateRowHeadersTest::class, CalculateScorePadDataTest::class
 )
 class InfoTableDataCalculationsSuite

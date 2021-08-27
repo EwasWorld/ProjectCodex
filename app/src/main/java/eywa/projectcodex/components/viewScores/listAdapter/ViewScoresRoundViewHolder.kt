@@ -10,6 +10,9 @@ import eywa.projectcodex.components.viewScores.ViewScoresFragmentDirections
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import kotlin.math.roundToInt
 
+/**
+ * Container to display a [ViewScoresEntry] of type [ViewScoresAdapter.ViewScoresEntryType.ROUND] in a recycler view
+ */
 class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
     private val dateView = view.findViewById<TextView>(R.id.text_vs_round_item__date)
     private val roundView = view.findViewById<TextView>(R.id.text_vs_round_item__round)
