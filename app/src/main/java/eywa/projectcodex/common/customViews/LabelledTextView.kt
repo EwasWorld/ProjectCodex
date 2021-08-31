@@ -12,6 +12,8 @@ import eywa.projectcodex.common.utils.getColourResource
 
 class LabelledTextView : LinearLayout {
     private lateinit var mainTextView: TextView
+    private lateinit var labelTextView: TextView
+
     constructor(context: Context) : super(context) {
         initialise(context, null)
     }
@@ -45,7 +47,7 @@ class LabelledTextView : LinearLayout {
         val layout = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
                 .inflate(R.layout.labelled_text, this, true) as LinearLayout
         mainTextView = layout.findViewById(R.id.labelled_text__text)
-        val labelTextView = layout.findViewById<TextView>(R.id.labelled_text__label)
+        labelTextView = layout.findViewById(R.id.labelled_text__label)
         val colonTextView = layout.findViewById<TextView>(R.id.labelled_text__colon)
 
         for (textView in listOf(mainTextView, labelTextView, colonTextView)) {
@@ -61,6 +63,12 @@ class LabelledTextView : LinearLayout {
 
     fun updateText(newText: String) {
         mainTextView.text = newText
+        invalidate()
+        requestLayout()
+    }
+
+    fun updateLabel(newText: String) {
+        labelTextView.text = newText
         invalidate()
         requestLayout()
     }

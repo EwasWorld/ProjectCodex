@@ -1,6 +1,8 @@
 package eywa.projectcodex.components.viewScores.data
 
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresAdapter
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresEntryViewHolder
@@ -17,6 +19,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
  */
 class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     companion object {
+        const val LOG_TAG = "ViewScoresEntry"
         private val defaultGoldsType = GoldsType.TENS
         val data: List<ViewScoresEntry> = listOf()
     }
@@ -62,14 +65,25 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
                 if (round == null || arrows.isNullOrEmpty() || arrowCounts.isNullOrEmpty() || distances.isNullOrEmpty()) {
                     return null
                 }
-                field = Handicap.getHandicapForRound(
-                        round!!,
-                        arrowCounts!!,
-                        distances!!,
-                        arrows!!.sumOf { it.score },
-                        false,
-                        arrows!!.size
-                )
+                try {
+                    field = Handicap.getHandicapForRound(
+                            round!!,
+                            arrowCounts!!,
+                            distances!!,
+                            arrows!!.sumOf { it.score },
+                            false,
+                            arrows!!.size
+                    )
+                }
+                catch (e: IllegalArgumentException) {
+                    CustomLogger.customLogger.e(
+                            LOG_TAG,
+                            "Failed to get handicap for round with id $id (date shot: %s)"
+                                    .format(DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(archerRound.dateShot))
+                    )
+                    CustomLogger.customLogger.e(LOG_TAG, "Handicap Error: " + e.message)
+                    return null
+                }
                 return field
             }
         }

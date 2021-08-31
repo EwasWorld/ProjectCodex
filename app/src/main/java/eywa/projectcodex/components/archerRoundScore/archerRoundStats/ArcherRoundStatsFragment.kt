@@ -15,6 +15,8 @@ import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.ViewModelFactory
 import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -34,6 +36,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
     private var arrowCounts: List<RoundArrowCount>? = null
     private var roundDistances: List<RoundDistance>? = null
     private var roundName: String? = null
+    private var archerRound: ArcherRound? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_archer_round_stats, container, false)
@@ -64,6 +67,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
         archerRoundStatsViewModel.archerRoundWithRoundInfo.observe(viewLifecycleOwner, { info ->
             info?.let { archerRoundWithInfo ->
                 val archerRound = archerRoundWithInfo.archerRound
+                this.archerRound = archerRound
 
                 text_archer_round_stats__date.updateText(
                         DateTimeFormat.LONG_DATE_TIME_FORMAT.format(archerRound.dateShot)
@@ -119,27 +123,43 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
         /*
          * Calculate
          */
-        val handicap = Handicap.getHandicapForRound(
-                round!!,
-                arrowCounts!!,
-                roundDistances!!,
-                arrows!!.sumOf { it.score },
-                innerTenArcher,
-                arrows!!.count()
-        )
-        // No need to predict a score if round is already completed
+        var handicap: Int? = null
         var predictedScore: Int? = null
-        if (!isRoundComplete()) {
-            predictedScore = Handicap.getScoreForRound(
-                    round!!, arrowCounts!!, roundDistances!!, handicap, innerTenArcher, null
+        try {
+            handicap = Handicap.getHandicapForRound(
+                    round!!,
+                    arrowCounts!!,
+                    roundDistances!!,
+                    arrows!!.sumOf { it.score },
+                    innerTenArcher,
+                    arrows!!.count()
             )
+            // No need to predict a score if round is already completed
+            if (!isRoundComplete()) {
+                predictedScore = Handicap.getScoreForRound(
+                        round!!, arrowCounts!!, roundDistances!!, handicap, innerTenArcher, null
+                )
+            }
+        }
+        catch (e: IllegalArgumentException) {
+            CustomLogger.customLogger.e(
+                    ViewScoresEntry.LOG_TAG,
+                    "Failed to get handicap for round with id ${args.archerRoundId} (date shot: %s)"
+                            .format(DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(archerRound!!.dateShot))
+            )
+            CustomLogger.customLogger.e(ViewScoresEntry.LOG_TAG, "Handicap Error: " + e.message)
         }
 
         /*
          * Display
          */
-        text_archer_round_stats__handicap.updateText(handicap.toString())
-        text_archer_round_stats__handicap.visibility = View.VISIBLE
+        if (handicap != null) {
+            text_archer_round_stats__handicap.updateText(handicap.toString())
+            text_archer_round_stats__handicap.visibility = View.VISIBLE
+        }
+        else {
+            text_archer_round_stats__handicap.visibility = View.GONE
+        }
         if (predictedScore != null) {
             text_archer_round_stats__predicted_score.updateText(predictedScore.toString())
             text_archer_round_stats__predicted_score.visibility = View.VISIBLE
@@ -154,10 +174,18 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
         if (roundArrowCounts == null || roundArrowCounts <= 0) {
             return
         }
-        var remainingText = (roundArrowCounts - (arrows?.count() ?: 0)).toString()
-        if (remainingText == "0") {
-            remainingText = resources.getString(R.string.input_end__round_complete)
+        val remainingArrows = (roundArrowCounts - (arrows?.count() ?: 0))
+        val remainingText = when {
+            remainingArrows == 0 -> resources.getString(R.string.input_end__round_complete)
+            remainingArrows < 0 -> (remainingArrows * -1).toString()
+            else -> remainingArrows.toString()
         }
+        val labelId = when {
+            remainingArrows >= 0 -> R.string.archer_round_stats__remaining_arrows
+            else -> R.string.archer_round_stats__surplus_arrows
+        }
+
+        text_archer_round_stats__remaining_arrows.updateLabel(resources.getString(labelId))
         text_archer_round_stats__remaining_arrows.updateText(remainingText)
     }
 
