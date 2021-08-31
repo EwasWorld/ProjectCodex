@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".components.about.AboutFragment"
+    tools:context=".components.archerRoundScore.archerRoundStats.ArcherRoundStatsFragment"
     >
 
     <LinearLayout
@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             app:label="@string/archer_round_stats__date"
             android:paddingTop="0dp"
+            tools:text="17 Jan 21 17:45"
             />
 
         <eywa.projectcodex.common.customViews.LabelledTextView
@@ -34,6 +35,7 @@
             android:layout_height="wrap_content"
             app:label="@string/archer_round_stats__round"
             android:paddingTop="0dp"
+            tools:text="Western"
             />
 
         <eywa.projectcodex.common.customViews.LabelledTextView
@@ -69,6 +71,7 @@
             android:layout_height="wrap_content"
             app:label="@string/archer_round_stats__remaining_arrows"
             android:paddingTop="@dimen/text_box_margins"
+            tools:text="48"
             />
 
         <eywa.projectcodex.common.customViews.LabelledTextView
@@ -78,6 +81,7 @@
             app:label="@string/archer_round_stats__handicap"
             app:text="@string/placeholder_0"
             android:paddingTop="0dp"
+            tools:text="40"
             />
 
         <eywa.projectcodex.common.customViews.LabelledTextView
@@ -85,6 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:label="@string/archer_round_stats__predicted_score"
+            tools:text="283"
             />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

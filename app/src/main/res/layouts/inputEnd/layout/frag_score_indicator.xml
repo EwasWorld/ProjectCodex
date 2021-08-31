@@ -54,8 +54,7 @@
                 android:id="@+id/text_scores_indicator__table_score_1"
                 style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
-                android:text="108"
-                tools:ignore="HardcodedText"
+                tools:text="108"
                 />
 
             <!-- text is a placeholder than will be overwritten on load -->
@@ -63,8 +62,7 @@
                 android:id="@+id/text_scores_indicator__table_arrow_count_1"
                 style="@style/InputEndTableItem"
                 android:background="@drawable/table_border"
-                android:text="12"
-                tools:ignore="HardcodedText"
+                tools:text="12"
                 />
         </TableRow>
     </TableLayout>

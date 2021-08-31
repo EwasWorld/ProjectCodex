@@ -26,10 +26,9 @@
             android:id="@+id/text_edit_end__title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Editing end 12"
+            tools:text="Editing end 12"
             android:textColor="@color/inputEndText"
             android:textSize="@dimen/medium_text_size"
-            tools:ignore="HardcodedText"
             />
     </LinearLayout>
 

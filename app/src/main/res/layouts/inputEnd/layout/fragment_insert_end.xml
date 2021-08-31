@@ -27,9 +27,8 @@
             style="@style/GeneralText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Inserting end\nbetween ends 5 and 6"
+            tools:text="Inserting end\nbetween ends 5 and 6"
             android:textSize="@dimen/medium_text_size"
-            tools:ignore="HardcodedText"
             />
     </LinearLayout>
 

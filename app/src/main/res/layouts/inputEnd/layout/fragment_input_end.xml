@@ -66,10 +66,9 @@
                 android:id="@+id/text_input_end__remaining_arrows_current_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="60 at 100yd"
+                tools:text="60 at 100yd"
                 android:textColor="@color/inputEndText"
                 android:textSize="@dimen/medium_text_size"
-                tools:ignore="HardcodedText"
                 />
 
             <!-- text is a placeholder than will be overwritten on load -->
@@ -77,10 +76,9 @@
                 android:id="@+id/text_input_end__remaining_arrows_later_distances"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="48 at 80yd, 24 at 60yd"
+                tools:text="48 at 80yd, 24 at 60yd"
                 android:textColor="@color/inputEndText"
                 android:textSize="@dimen/small_text_size"
-                tools:ignore="HardcodedText"
                 />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
