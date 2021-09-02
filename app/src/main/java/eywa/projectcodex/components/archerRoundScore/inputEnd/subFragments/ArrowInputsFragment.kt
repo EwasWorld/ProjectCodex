@@ -15,15 +15,32 @@ import eywa.projectcodex.components.archerRoundScore.inputEnd.ScoreButtonPressed
 import eywa.projectcodex.database.rounds.Round
 
 
-class ArrowInputsFragment(private val type: ArrowInputsType) : Fragment() {
+class ArrowInputsFragment : Fragment() {
     companion object {
         private const val LOG_TAG = "ArrowInputsFragment"
+        private const val ARROW_INPUTS_TYPE = "arrowInputsType"
+
+        /**
+         * Note: Fragments MUST have a public, no-arg constructor (without it, there are issues with recreating them
+         * from saved instances). This method allows arguments to be passed in
+         */
+        fun newInstance(type: ArrowInputsType): ArrowInputsFragment {
+            val args = Bundle()
+            args.putInt(ARROW_INPUTS_TYPE, type.ordinal)
+            val f = ArrowInputsFragment()
+            f.arguments = args
+            return f
+        }
     }
 
     private var listener: ScoreButtonPressedListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(type.layoutId, container, false)
+        return inflater.inflate(
+                ArrowInputsType.values()[requireArguments().getInt(ARROW_INPUTS_TYPE)].layoutId,
+                container,
+                false
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

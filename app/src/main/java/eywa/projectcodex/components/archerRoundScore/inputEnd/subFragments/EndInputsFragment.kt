@@ -106,7 +106,7 @@ class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp 
     ) {
         if (currentScoreButtonsType != type) {
             childFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_end_inputs__arrow_inputs, ArrowInputsFragment(type))
+                    .replace(R.id.fragment_end_inputs__arrow_inputs, ArrowInputsFragment.newInstance(type))
                     .commit()
             currentScoreButtonsType = type
         }

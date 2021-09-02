@@ -1,6 +1,5 @@
 package eywa.projectcodex.instrumentedTests
 
-import android.content.pm.ActivityInfo
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
@@ -9,8 +8,7 @@ import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.evrencoskun.tableview.TableView
@@ -381,20 +379,12 @@ class LargeScaleInstrumentedTest {
      * Navigate to every screen and check that landscape mode doesn't crash the app (rotate back to portrait before
      * transitioning as not all buttons will be visible in landscape)
      */
-    @Ignore("Not currently working")
+    @Test
     fun testLandscape() {
-        scenario.onActivity {
-            it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
+        ConditionWatcher.setTimeoutLimit(5000)
         touchEveryScreen {
-            scenario.onActivity {
-                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
-            CustomConditionWaiter.waitFor(1000)
-            scenario.onActivity {
-                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
-            CustomConditionWaiter.waitFor(1000)
+            onView(isRoot()).perform(OrientationChangeAction(scenario, OrientationChangeAction.Orientation.LANDSCAPE))
+            onView(isRoot()).perform(OrientationChangeAction(scenario, OrientationChangeAction.Orientation.PORTRAIT))
         }
     }
 
