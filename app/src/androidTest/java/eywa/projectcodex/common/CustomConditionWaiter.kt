@@ -4,7 +4,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
@@ -62,6 +66,67 @@ class CustomConditionWaiter {
 
                 override fun getDescription(): String {
                     return "Waiting for row $rowIndex to load"
+                }
+            })
+        }
+
+        fun waitForViewToAppear(viewId: Int) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    try {
+                        onView(withId(viewId)).check(matches(isDisplayed()))
+                        return true
+                    }
+                    catch (e: NoMatchingViewException) {
+                        println("Waiting for view to appear")
+                    }
+                    return false
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for view to appear"
+                }
+            })
+        }
+
+        fun waitForTextToAppear(text: String) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    try {
+                        onView(withIndex(withText(text), 0)).check(matches(isDisplayed()))
+                        return true
+                    }
+                    catch (e: NoMatchingViewException) {
+                        println("Waiting for text '$text' to appear")
+                    }
+                    return false
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for text '$text' to appear"
+                }
+            })
+        }
+
+        /**
+         * @param menuItemText the text of one of the menu items
+         */
+        fun waitForMenuToAppear(menuItemText: String) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    try {
+                        onView(withText(menuItemText)).inRoot(RootMatchers.isPlatformPopup())
+                                .check(matches(isDisplayed()))
+                        return true
+                    }
+                    catch (e: NoMatchingViewException) {
+                        println("Waiting for a menu to appear")
+                    }
+                    return false
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for a menu to appear"
                 }
             })
         }

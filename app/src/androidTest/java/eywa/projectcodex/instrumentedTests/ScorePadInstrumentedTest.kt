@@ -170,7 +170,7 @@ class ScorePadInstrumentedTest {
             resources = it.resources
         }
 
-        openScorePadFromMainMenu(arrows.sumOf { it.score })
+        openScorePadFromMainMenu(arrows)
         CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (waitForRow))
     }

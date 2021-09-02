@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="view_score__title">All Rounds</string>
+    <string name="view_score__title">All Scores</string>
     <string name="view_score__hsg">H/S/G</string>
     <string name="view_score__handicap">HC</string>
     <string name="view_scores_menu__score_pad">Score pad</string>

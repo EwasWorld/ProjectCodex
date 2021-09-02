@@ -220,7 +220,7 @@ class ViewScoresInstrumentedTest {
         generateBasicDataAndAddToDb()
         val expectedData = generateExpectedData()
 
-        val clickedItem = expectedData.getData()[0]
+        val clickedItem = expectedData.getData().find { it.round?.roundId == 1 }!!
         onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
         CustomConditionWaiter.waitFor(200)
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
@@ -275,10 +275,10 @@ class ViewScoresInstrumentedTest {
     fun testConvertRound() {
         archerRounds = listOf(
                 ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(1, TestData.generateDate(), 1, false)
+                        ArcherRound(1, TestData.generateDate(2020), 1, false)
                 ),
                 ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(2, TestData.generateDate(), 1, false)
+                        ArcherRound(2, TestData.generateDate(2019), 1, false)
                 )
         )
         arrows = listOf(
@@ -289,20 +289,24 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         // Convert first score
-        onView(withIndex(withText(expectedData.getData()[0].hitsScoreGolds), 0)).perform(longClick())
+        val expectedHsg = expectedData.getData().find { it.id == 1 }!!.hitsScoreGolds!!
+        CustomConditionWaiter.waitForTextToAppear(expectedHsg)
+        onView(withIndex(withText(expectedHsg), 0)).perform(longClick())
+        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())
+        CustomConditionWaiter.waitFor(500)
         clickAlertDialog(CommonStrings.Dialogs.viewRoundsConvertTitle)
         CustomConditionWaiter.waitForToast("Finished conversion")
 
         // Convert second score (sum should be unique)
-        onView(withIndex(withText(expectedData.getData()[1].hitsScoreGolds), 0)).perform(longClick())
+        onView(withIndex(withText(expectedData.getData().find { it.id == 2 }!!.hitsScoreGolds), 0)).perform(longClick())
+        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
         onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
         onView(withText(CommonStrings.Menus.viewRoundsConvertToTens)).perform(click())
+        CustomConditionWaiter.waitFor(500)
         clickAlertDialog(CommonStrings.Dialogs.viewRoundsConvertTitle)
         CustomConditionWaiter.waitForToast("Finished conversion")
-
-        CustomConditionWaiter.waitFor(1000)
         retrieveUpdatedAdapter()
 
         // Change arrows so we generate expected data again
