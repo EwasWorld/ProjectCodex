@@ -72,7 +72,7 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             if (archerRoundInfo == null) {
                 return@observe
             }
-            roundName = archerRoundInfo.displayName ?: ""
+            roundName = archerRoundInfo.displayName
             setFragmentTitle()
             showRemainingArrows = archerRoundInfo.round != null
             archerRoundInfo.round?.let { round ->
