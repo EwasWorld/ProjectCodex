@@ -1,26 +1,32 @@
 # Project Codex
 Project Codex is an Android app for archers to input scores as they shoot and track progress over time.
 <p align="center">
-    <img src="Images/ReadmeOverviewGif.gif" height="400"/>
+    <img src="Images/21.9_v1.2.2/ReadMeClip.gif" height="400"/>
 </p>
 
 ## Features
-- Input, edit, and delete scores
-- Score standard rounds and get distance change hints on the end input screen and and distance totals on the score pad
+- Input, edit, view, and delete scores
+- Option to score standard rounds
+    - Calculates the handicap achieved even for partially completed rounds
+    - Predicts the final score for the round based on handicap
+    - Changes the score buttons based on the round type
+    - Shows arrows remaining and distance change hints
+    - Calculates distance totals on the score pad
 - Custom end size
+- In-app help bubbles
 
-## Documentation
-Please take a look at the manual on the [wiki](https://github.com/EwasWorld/ProjectCodex/wiki/1.2-Manual "Project Codex wiki").
+## Documentation and Help
+Take a look at the manual on the [wiki](https://github.com/EwasWorld/ProjectCodex/wiki/1.2-Manual "Project Codex wiki - manual").
+If you're unfamiliar with archery, take a look at the [jargon wiki oage](https://github.com/EwasWorld/ProjectCodex/wiki/1.3-Jargon "Project Codex wiki - jargon").
 
-## Roadmap
-### Version 1 Remaining Work
-- Ensuring the app works with screen readers
-- In-app help and guidance
-- Improving loading screens to be more transparent about what the app is doing
-- Further polish the look and feel
+## Up and Coming
+- Better support for landscape mode
+- Email a score to someone
+- Option to track number of arrows shot in a session without scoring
+- Graph showing handicap changes over time 
 
-See the outline of future versions on the [wiki](https://github.com/EwasWorld/ProjectCodex/wiki/1.4-Roadmap "Project Codex wiki - Roadmap").
-See the full roadmap on [Trello](https://trello.com/b/NpihuidC/project-codex "Project Codex Trello").
+See the full outline of future features on the [wiki](https://github.com/EwasWorld/ProjectCodex/wiki/1.4-Roadmap "Project Codex wiki - Roadmap").
+Watch me track and manage the project on [Trello](https://trello.com/b/NpihuidC/project-codex "Project Codex Trello").
 
 ## Contact
 For feedback, questions, or inquiries email caldeikeycodes@gmail.com
