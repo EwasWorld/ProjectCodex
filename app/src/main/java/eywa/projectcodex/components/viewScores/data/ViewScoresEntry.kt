@@ -20,7 +20,6 @@ import eywa.projectcodex.database.rounds.RoundDistance
 class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     companion object {
         const val LOG_TAG = "ViewScoresEntry"
-        private val defaultGoldsType = GoldsType.TENS
         val data: List<ViewScoresEntry> = listOf()
     }
 
@@ -35,6 +34,15 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     private var arrowCounts: List<RoundArrowCount>? = null
     private var distances: List<RoundDistance>? = null
 
+    var goldsType = GoldsType.defaultGoldsType
+        private set
+        get() {
+            synchronized(this) {
+                field = if (round == null) GoldsType.defaultGoldsType else GoldsType.getGoldsType(round!!)
+                return field
+            }
+        }
+
     var hitsScoreGolds: String? = null
         private set
         get() {
@@ -47,7 +55,6 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
                 }
                 val hits = arrows!!.count { it.score != 0 }
                 val score = arrows!!.sumOf { it.score }
-                val goldsType = if (round == null) defaultGoldsType else GoldsType.getGoldsType(round!!)
                 val golds = arrows!!.count { goldsType.isGold(it) }
 
                 field = "%d/%d/%d".format(hits, score, golds)

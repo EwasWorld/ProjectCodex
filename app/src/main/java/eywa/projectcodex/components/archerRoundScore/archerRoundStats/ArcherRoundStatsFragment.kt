@@ -61,7 +61,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             val totalArrows = dbArrows.size
             text_archer_round_stats__hits.updateText("$hits" + if (totalArrows > hits) " (of $totalArrows)" else "")
             text_archer_round_stats__score.updateText(dbArrows.sumOf { it.score }.toString())
-            text_archer_round_stats__golds.updateText(dbArrows.count { GoldsType.TENS.isGold(it) }.toString())
+            setGolds()
             calculateHandicapAndPredictedScore()
         })
         archerRoundStatsViewModel.archerRoundWithRoundInfo.observe(viewLifecycleOwner, { info ->
@@ -99,6 +99,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
 
                 text_archer_round_stats__round.visibility = View.VISIBLE
                 text_archer_round_stats__remaining_arrows.visibility = View.VISIBLE
+                setGolds()
                 calculateHandicapAndPredictedScore()
             }
         })
@@ -106,6 +107,16 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
 
     private fun setFragmentTitle() {
         activity?.title = roundName ?: getString(R.string.archer_round_stats__title)
+    }
+
+    private fun setGolds() {
+        if (arrows.isNullOrEmpty()) {
+            text_archer_round_stats__golds.updateLabel(resources.getString(GoldsType.NINES.longStringId))
+            return
+        }
+        val goldsType = if (round != null) GoldsType.getGoldsType(round!!) else GoldsType.defaultGoldsType
+        text_archer_round_stats__golds.updateLabel(resources.getString(goldsType.longStringId))
+        text_archer_round_stats__golds.updateText(arrows!!.count { goldsType.isGold(it) }.toString())
     }
 
     private fun calculateHandicapAndPredictedScore(innerTenArcher: Boolean = false) {

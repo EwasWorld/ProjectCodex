@@ -28,7 +28,7 @@ class CalculateColumnHeadersTests {
             verify(resources, times(5)).getString(captor.capture())
             for (i in captor.allValues.indices) {
                 if (headerIds[i] == -1) {
-                    Assert.assertEquals(testGoldsType.colHeaderStringId, captor.allValues[i])
+                    Assert.assertEquals(testGoldsType.shortStringId, captor.allValues[i])
                 }
                 else {
                     Assert.assertEquals(headerIds[i], captor.allValues[i])

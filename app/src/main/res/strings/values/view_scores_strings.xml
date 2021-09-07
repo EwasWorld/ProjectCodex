@@ -23,7 +23,7 @@
 
     <!-- Help info -->
     <string name="help_view_score__hsg_title">Hits/Score/Golds</string>
-    <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. Golds are counted as 9s for imperial rounds and 10s for all other scores</string>
+    <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. The label above indicates how golds are being counted: G for 9+, 10 for 10s and Xs, X for Xs only.</string>
     <string name="help_view_score__handicap_title">Handicap</string>
     <string name="help_view_score__handicap_body">The handicap for the round (or partial round). Will be blank if there is no round or if no arrows have been added</string>
 </resources>

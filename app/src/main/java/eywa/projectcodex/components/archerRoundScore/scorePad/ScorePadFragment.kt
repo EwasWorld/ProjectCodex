@@ -36,7 +36,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     private var roundName: String? = null
 
     // TODO Is there a way to make these setters common?
-    private var goldsType = GoldsType.TENS
+    private var goldsType = GoldsType.defaultGoldsType
         set(value) {
             if (value == field) return
             field = value
@@ -102,7 +102,7 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             if (round == null) return@Observer
             distanceUnit =
                     getString(if (round.isMetric) R.string.units_meters_short else R.string.units_yards_short)
-            goldsType = GoldsType.getGoldsType(round.isOutdoor, round.isMetric)
+            goldsType = GoldsType.getGoldsType(round)
         })
 
         // Get arrows

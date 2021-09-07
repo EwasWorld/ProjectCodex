@@ -267,7 +267,7 @@ class ViewScoresInstrumentedTest {
 
         val clickedItem = expectedData.getData().find { it.round?.roundId == 2 }!!
         onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
-        CustomConditionWaiter.waitFor(200)
+        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(doesNotExist())
     }
 

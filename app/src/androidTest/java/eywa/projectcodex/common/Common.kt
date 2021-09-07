@@ -152,7 +152,7 @@ fun <T> LiveData<T>.retrieveValue(): T? {
     return value
 }
 
-fun openScorePadFromMainMenu(arrows: Iterable<ArrowValue>, goldsType: GoldsType = GoldsType.TENS) {
+fun openScorePadFromMainMenu(arrows: Iterable<ArrowValue>, goldsType: GoldsType = GoldsType.NINES) {
     openScorePadFromMainMenu(
             "%d/%d/%d".format(
                     arrows.count { it.score != 0 },

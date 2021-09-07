@@ -39,7 +39,7 @@ fun getColumnHeadersForTable(
     }
     val stringsList = headerStringIds.map {
         if (it == GOLDS_HEADER_PLACE_HOLDER) {
-            resources.getString(goldsType!!.colHeaderStringId)
+            resources.getString(goldsType!!.shortStringId)
         }
         else {
             resources.getString(it)

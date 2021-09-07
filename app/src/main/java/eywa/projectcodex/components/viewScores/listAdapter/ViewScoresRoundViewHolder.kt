@@ -17,6 +17,7 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
     private val dateView = view.findViewById<TextView>(R.id.text_vs_round_item__date)
     private val roundView = view.findViewById<TextView>(R.id.text_vs_round_item__round)
     private val hsgView = view.findViewById<TextView>(R.id.text_vs_round_item__hsg)
+    private val hsgLabel = view.findViewById<TextView>(R.id.label_vs_round_item__hsg)
     private val handicapView = view.findViewById<TextView>(R.id.text_vs_round_item__handicap)
 
     init {
@@ -38,6 +39,11 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
                 roundView.text =
                         viewScoresEntry.displayName ?: itemView.resources.getString(R.string.create_round__no_round)
                 hsgView.text = viewScoresEntry.hitsScoreGolds ?: "-/-/-"
+                hsgLabel.text = "%s/%s/%s".format(
+                        itemView.resources.getString(R.string.table_hits_header),
+                        itemView.resources.getString(R.string.table_score_header),
+                        itemView.resources.getString(viewScoresEntry.goldsType.shortStringId),
+                )
                 handicapView.text = viewScoresEntry.handicap?.toString() ?: "-"
             }
         }

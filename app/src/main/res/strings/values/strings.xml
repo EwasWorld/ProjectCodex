@@ -40,8 +40,11 @@
     <string name="table_score_header">S</string>
     <string name="table_golds_header">G</string>
     <string name="table_golds_nines_header">G</string>
+    <string name="table_golds_nines_full">Golds</string>
     <string name="table_golds_tens_header">10</string>
+    <string name="table_golds_tens_full">10s</string>
     <string name="table_golds_xs_header">X</string>
+    <string name="table_golds_xs_full">Xs</string>
     <string name="err_table_view__no_data">Table is empty</string>
     <string name="help_table_open_menu_body">Long press on a row for more options</string>
 

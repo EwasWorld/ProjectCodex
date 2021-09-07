@@ -21,7 +21,7 @@ class ViewScoresUnitTest {
             RoundArrowCount(1, 1, 122.0, 9),
             RoundArrowCount(1, 2, 122.0, 9)
     )
-    private val round = Round(1, "imperial", "imperial", true, false, listOf())
+    private val round = Round(1, "imperial", "imperial", false, false, listOf())
 
     @After
     fun teardown() {
@@ -31,7 +31,7 @@ class ViewScoresUnitTest {
     @Test
     fun testGoldsTypesTens() {
         val entry = ViewScoresEntry(
-                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false))
+                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1), round)
         )
         entry.updateArrows(TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
         Assert.assertEquals("2", entry.hitsScoreGolds?.split("/")?.last())
@@ -40,7 +40,7 @@ class ViewScoresUnitTest {
     @Test
     fun testGoldsTypesNines() {
         val entry = ViewScoresEntry(
-                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1), round)
+                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false))
         )
         entry.updateArrows(TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
         Assert.assertEquals("3", entry.hitsScoreGolds?.split("/")?.last())

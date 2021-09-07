@@ -84,7 +84,7 @@ class ScorePadInstrumentedTest {
         }
     }
 
-    private fun checkColumnHeaders(goldsHeader: String = "10") {
+    private fun checkColumnHeaders(goldsHeader: String = "G") {
         var col = 0
         val expectedColumnHeaders =
                 listOf("Arrows", "H", "S", goldsHeader, "R/T").map { InfoTableCell(it, "col" + col++) }
@@ -107,7 +107,7 @@ class ScorePadInstrumentedTest {
     }
 
     private fun checkCells(arrows: List<ArrowValue>) {
-        val expectedCells = calculateScorePadTableData(arrows, endSize, GoldsType.TENS, resources)
+        val expectedCells = calculateScorePadTableData(arrows, endSize, GoldsType.NINES, resources)
         for (i in expectedCells.indices) {
             assertEquals(expectedCells[i], getTableView().adapter!!.getCellRowItems(i))
         }
@@ -209,7 +209,7 @@ class ScorePadInstrumentedTest {
         )
         fragScenario!!.onFragment {
             runBlocking {
-                db.roundDao().insert(Round(1, "RoundName", "Round Name", true, true, listOf()))
+                db.roundDao().insert(Round(1, "RoundName", "Round Name", false, true, listOf()))
                 db.roundArrowCountDao().insert(arrowCounts[0])
                 db.roundArrowCountDao().insert(arrowCounts[1])
                 db.roundDistanceDao().insert(roundDistances[0])
