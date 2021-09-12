@@ -9,13 +9,16 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @see InputEndViewModel
  */
 class ViewScoresViewModel(application: Application) : AndroidViewModel(application),
         ConvertScore.ConvertScoreViewModel {
-    private val db = ScoresRoomDatabase.getDatabase(application)
+    @Inject
+    lateinit var db: ScoresRoomDatabase
+
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val roundRepo: RoundRepo = RoundRepo(db)

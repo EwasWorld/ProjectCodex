@@ -14,6 +14,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * With a ViewModel, the data is kept even if the activity is destroyed (e.g. in the event of a screen rotation)
@@ -24,13 +25,15 @@ import kotlinx.coroutines.launch
  * https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
  */
 class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidViewModel(application) {
+    @Inject
+    lateinit var db: ScoresRoomDatabase
+
     private val arrowValueRepo: ArrowValuesRepo
     private val roundRepo: RoundRepo
     val arrows: LiveData<List<ArrowValue>>
     val archerRoundWithInfo: LiveData<ArcherRoundWithRoundInfoAndName>
 
     init {
-        val db = ScoresRoomDatabase.getDatabase(application)
         roundRepo = RoundRepo(db)
         arrowValueRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
         arrows = arrowValueRepo.arrowValuesForRound!!

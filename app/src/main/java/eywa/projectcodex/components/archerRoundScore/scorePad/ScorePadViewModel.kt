@@ -14,11 +14,15 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @see InputEndViewModel
  */
 class ScorePadViewModel(application: Application, archerRoundId: Int) : AndroidViewModel(application) {
+    @Inject
+    lateinit var db: ScoresRoomDatabase
+
     private var roundRepo: RoundRepo
     private var arrowValueRepo: ArrowValuesRepo
     val arrowsForRound: LiveData<List<ArrowValue>>
@@ -26,7 +30,6 @@ class ScorePadViewModel(application: Application, archerRoundId: Int) : AndroidV
     val archerRoundWithInfo: LiveData<ArcherRoundWithRoundInfoAndName>
 
     init {
-        val db = ScoresRoomDatabase.getDatabase(application)
         arrowValueRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
         arrowsForRound = arrowValueRepo.arrowValuesForRound!!
         val archerRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())

@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup"
-        android:name="androidx.multidex.MultiDexApplication"
+        android:name=".components.app.App"
         >
         <activity
             android:name="eywa.projectcodex.components.mainActivity.MainActivity"

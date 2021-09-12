@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.newScore
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +10,9 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.R
 import eywa.projectcodex.common.elements.DatePickerDialog
 import eywa.projectcodex.common.elements.TimePickerDialog
@@ -22,10 +23,13 @@ import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.database.archerRound.ArcherRound
 import kotlinx.android.synthetic.main.fragment_new_score.*
 import java.util.*
+import javax.inject.Inject
 
 class NewScoreFragment : Fragment(), ActionBarHelp {
     private val args: NewScoreFragmentArgs by navArgs()
-    private lateinit var newRoundViewModel: NewScoreViewModel
+
+    @Inject
+    lateinit var newRoundViewModel: NewScoreViewModel
 
     /**
      * Round information for the two round selection spinners
@@ -101,7 +105,6 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         )
 
         var submitPressed = false
-        newRoundViewModel = ViewModelProvider(this).get(NewScoreViewModel::class.java)
         roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
 
         if (isInEditMode) {
@@ -317,6 +320,11 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                 setDistanceIndicatorText(roundSelection)
             }
         }
+    }
+
+    override fun onAttach(activity: Activity) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(activity)
     }
 
     private fun updateDateTime() {
