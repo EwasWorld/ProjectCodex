@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ActionBarHelp
-import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
-import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.common.utils.ViewModelFactory
+import eywa.projectcodex.common.utils.*
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ScoreIndicatorFragment
@@ -26,12 +25,16 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.android.synthetic.main.fragment_input_end.*
+import javax.inject.Inject
 
 
 class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     companion object {
         const val LOG_TAG = "InputEndFragment"
     }
+
+    @Inject
+    lateinit var factory: ViewModelFactoryByInjection
 
     private val args: InputEndFragmentArgs by navArgs()
     private lateinit var inputEndViewModel: InputEndViewModel
@@ -65,9 +68,8 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         endInputsFragment =
                 childFragmentManager.findFragmentById(R.id.fragment_input_end__end_inputs)!! as EndInputsFragment
 
-        inputEndViewModel = ViewModelProvider(this, ViewModelFactory {
-            InputEndViewModel(requireActivity().application, args.archerRoundId)
-        }).get(InputEndViewModel::class.java)
+        inputEndViewModel = ViewModelProvider(this, factory.create(this, args.toBundle()))
+                .get(InputEndViewModel::class.java)
         inputEndViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, { archerRoundInfo ->
             if (archerRoundInfo == null) {
                 return@observe
@@ -146,6 +148,11 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
                 ToastSpamPrevention.displayToast(requireContext(), getString(R.string.err__internal_error))
             }
         }
+    }
+
+    override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
     }
 
     /**

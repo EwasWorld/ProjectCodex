@@ -1,33 +1,26 @@
 package eywa.projectcodex.components.archerRoundScore.inputEnd
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
+import eywa.projectcodex.common.utils.ViewModelAssistedFactory
 import eywa.projectcodex.common.utils.ViewModelKey
-import eywa.projectcodex.database.ScoresRoomDatabase
 
-@Module(includes = [InputEndDaggerModule.ProvideViewModel::class])
+@Module
 abstract class InputEndDaggerModule {
-    @ContributesAndroidInjector(modules = [InjectViewModel::class])
-    abstract fun contributeMainAndroidInjector(): InputEndFragment
+    @ContributesAndroidInjector
+    abstract fun contributeInputEndFragmentAndroidInjector(): InputEndFragment
 
-    @Module
-    class ProvideViewModel {
-        @Provides
-        @IntoMap
-        @ViewModelKey(InputEndViewModel::class)
-        fun provideInputEndViewModel(application: Application, db: ScoresRoomDatabase): ViewModel =
-                InputEndViewModel(application, 1)
-    }
+    @ContributesAndroidInjector
+    abstract fun contributeEditEndFragmentAndroidInjector(): EditEndFragment
 
-    @Module
-    class InjectViewModel {
-        @Provides
-        fun provideInputEndViewModel(factory: ViewModelProvider.Factory, target: InputEndFragment): InputEndViewModel =
-                ViewModelProvider(target, factory).get(InputEndViewModel::class.java)
-    }
+    @ContributesAndroidInjector
+    abstract fun contributeInsertEndFragmentAndroidInjector(): InsertEndFragment
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(InputEndViewModel::class)
+    abstract fun bindFactory(factory: InputEndViewModel.Factory): ViewModelAssistedFactory<out ViewModel>
 }

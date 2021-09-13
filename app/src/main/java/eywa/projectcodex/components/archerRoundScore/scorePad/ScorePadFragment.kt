@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore.scorePad
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -11,23 +12,25 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
+import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.utils.ActionBarHelp
-import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
-import eywa.projectcodex.common.utils.ViewModelFactory
-import eywa.projectcodex.common.utils.showContextMenuOnCentreOfView
+import eywa.projectcodex.common.utils.*
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.*
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import javax.inject.Inject
 import kotlin.math.ceil
 
 class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     companion object {
         const val LOG_TAG = "ScorePadFragment"
     }
+
+    @Inject
+    lateinit var factory: ViewModelFactoryByInjection
 
     private val args: ScorePadFragmentArgs by navArgs()
     private lateinit var scorePadViewModel: ScorePadViewModel
@@ -77,9 +80,8 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         setFragmentTitle()
 
-        scorePadViewModel = ViewModelProvider(this, ViewModelFactory {
-            ScorePadViewModel(requireActivity().application, args.archerRoundId)
-        }).get(ScorePadViewModel::class.java)
+        scorePadViewModel = ViewModelProvider(this, factory.create(this, args.toBundle()))
+                .get(ScorePadViewModel::class.java)
 
         // Get arrow counts and distances
         scorePadViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, Observer { archerRoundInfo ->
@@ -118,6 +120,11 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
     private fun setFragmentTitle() {
         activity?.title = roundName ?: getString(R.string.score_pad__title)
+    }
+
+    override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
     }
 
     override fun onResume() {

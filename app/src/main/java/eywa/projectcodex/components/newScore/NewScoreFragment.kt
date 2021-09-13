@@ -1,6 +1,6 @@
 package eywa.projectcodex.components.newScore
 
-import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +29,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
     private val args: NewScoreFragmentArgs by navArgs()
 
     @Inject
-    lateinit var newRoundViewModel: NewScoreViewModel
+    lateinit var newScoreViewModel: NewScoreViewModel
 
     /**
      * Round information for the two round selection spinners
@@ -105,16 +105,16 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         )
 
         var submitPressed = false
-        roundSelection = RoundSelection(resources, newRoundViewModel, viewLifecycleOwner)
+        roundSelection = RoundSelection(resources, newScoreViewModel, viewLifecycleOwner)
 
         if (isInEditMode) {
-            newRoundViewModel.getArcherRound(args.archerRoundId).observe(viewLifecycleOwner, { ar ->
+            newScoreViewModel.getArcherRound(args.archerRoundId).observe(viewLifecycleOwner, { ar ->
                 ar?.let {
                     archerRound = it
                     setValuesFromArcherRound()
                 }
             })
-            newRoundViewModel.getArrowsForRound(args.archerRoundId).observe(viewLifecycleOwner, { arrows ->
+            newScoreViewModel.getArrowsForRound(args.archerRoundId).observe(viewLifecycleOwner, { arrows ->
                 if (arrows != null) arrowsShot = arrows.count()
             })
             layout_create_round__edit_submit_buttons.visibility = View.VISIBLE
@@ -125,7 +125,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             layout_create_round__new_submit_buttons.visibility = View.VISIBLE
         }
 
-        newRoundViewModel.maxId.observe(viewLifecycleOwner, { maxId ->
+        newScoreViewModel.maxId.observe(viewLifecycleOwner, { maxId ->
             if (submitPressed && maxId != null) {
                 // When the new round entry has been added, open the input end dialog
                 val action = NewScoreFragmentDirections.actionNewScoreFragmentToInputEndFragment(maxId)
@@ -142,7 +142,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         }
 
         // Hide the round spinner if rounds are being updated
-        newRoundViewModel.updateDefaultRoundsState.observe(viewLifecycleOwner, { state ->
+        newScoreViewModel.updateDefaultRoundsState.observe(viewLifecycleOwner, { state ->
             updateDefaultRoundsState = state
             val isInProgress = updateDefaultRoundsState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS
             fun getVisibility(isShown: Boolean) = if (isShown) View.VISIBLE else View.GONE
@@ -150,7 +150,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             text_create_round__default_rounds_updating_status.visibility = getVisibility(isInProgress)
             layout_create_round__round.visibility = getVisibility(!isInProgress)
         })
-        newRoundViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, { message ->
+        newScoreViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, { message ->
             val newText = when {
                 message != null -> message
                 updateDefaultRoundsState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS -> {
@@ -162,7 +162,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         })
 
         // Update the spinners if the database updates (spinners don't display correctly at the start without this)
-        newRoundViewModel.allRounds.observe(viewLifecycleOwner, {
+        newScoreViewModel.allRounds.observe(viewLifecycleOwner, {
             spinner_create_round__round.adapter = ArrayAdapter(
                     requireActivity().applicationContext, R.layout.spinner_light_background,
                     roundSelection.getAvailableRounds()
@@ -179,7 +179,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             val roundId = roundSelection.getSelectedRoundId()
             val roundSubtypeId = if (roundId != null) roundSelection.getSelectedSubtypeId() else null
             // TODO Check date locales (I want to store in UTC)
-            newRoundViewModel.insert(
+            newScoreViewModel.insert(
                     ArcherRound(0, date.time, 1, false, roundId = roundId, roundSubTypeId = roundSubtypeId)
             ).invokeOnCompletion {
                 // Ensures that when max ID changes due to the newly created round, it will navigate to the input end
@@ -201,7 +201,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             val roundSubtypeId = if (roundId != null) roundSelection.getSelectedSubtypeId() else null
             // TODO Check date locales (I want to store in UTC)
             archerRound?.let { ar ->
-                newRoundViewModel.update(
+                newScoreViewModel.update(
                         ArcherRound(
                                 ar.archerRoundId,
                                 date.time,
@@ -322,9 +322,9 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         }
     }
 
-    override fun onAttach(activity: Activity) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
-        super.onAttach(activity)
+        super.onAttach(context)
     }
 
     private fun updateDateTime() {

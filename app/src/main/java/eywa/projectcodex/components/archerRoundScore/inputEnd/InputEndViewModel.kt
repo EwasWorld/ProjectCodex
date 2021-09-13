@@ -3,7 +3,12 @@ package eywa.projectcodex.components.archerRoundScore.inputEnd
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import eywa.projectcodex.common.utils.ViewModelAssistedFactory
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -14,7 +19,6 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * With a ViewModel, the data is kept even if the activity is destroyed (e.g. in the event of a screen rotation)
@@ -24,21 +28,17 @@ import javax.inject.Inject
  * https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate
  * https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
  */
-class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidViewModel(application) {
-    @Inject
-    lateinit var db: ScoresRoomDatabase
-
-    private val arrowValueRepo: ArrowValuesRepo
-    private val roundRepo: RoundRepo
-    val arrows: LiveData<List<ArrowValue>>
-    val archerRoundWithInfo: LiveData<ArcherRoundWithRoundInfoAndName>
-
-    init {
-        roundRepo = RoundRepo(db)
-        arrowValueRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
-        arrows = arrowValueRepo.arrowValuesForRound!!
-        archerRoundWithInfo = ArcherRoundsRepo(db.archerRoundDao()).getArcherRoundWithRoundInfoAndName(archerRoundId)
-    }
+class InputEndViewModel @AssistedInject constructor(
+        @Assisted private val stateHandle: SavedStateHandle,
+        application: Application,
+        db: ScoresRoomDatabase
+) : AndroidViewModel(application) {
+    private val archerRoundId = stateHandle.get<Int>("archerRoundId")!!
+    private val arrowValueRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
+    private val roundRepo: RoundRepo = RoundRepo(db)
+    val arrows: LiveData<List<ArrowValue>> = arrowValueRepo.arrowValuesForRound!!
+    val archerRoundWithInfo: LiveData<ArcherRoundWithRoundInfoAndName> =
+            ArcherRoundsRepo(db.archerRoundDao()).getArcherRoundWithRoundInfoAndName(archerRoundId)
 
     fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
         return roundRepo.getArrowCountsForRound(roundId)
@@ -66,4 +66,7 @@ class InputEndViewModel(application: Application, archerRoundId: Int) : AndroidV
     fun insertEnd(allArrows: List<ArrowValue>, toInsert: List<ArrowValue>) = viewModelScope.launch {
         arrowValueRepo.insertEnd(allArrows, toInsert)
     }
+
+    @AssistedFactory
+    interface Factory : ViewModelAssistedFactory<InputEndViewModel>
 }
