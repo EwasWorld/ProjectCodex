@@ -13,6 +13,7 @@ abstract class ArcherRoundStatsDaggerModule {
     @ContributesAndroidInjector
     abstract fun contributeArcherRoundStatsFragmentAndroidInjector(): ArcherRoundStatsFragment
 
+    @Suppress("unused")
     @Binds
     @IntoMap
     @ViewModelKey(ArcherRoundStatsViewModel::class)

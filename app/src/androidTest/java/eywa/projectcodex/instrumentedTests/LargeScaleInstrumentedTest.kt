@@ -33,6 +33,7 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -45,7 +46,6 @@ import kotlin.reflect.jvm.jvmName
 class LargeScaleInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
             SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
         }
     }
@@ -67,7 +67,7 @@ class LargeScaleInstrumentedTest {
         // (as DAOs are inconsistent)
         scenario = rule.scenario
         scenario.onActivity {
-            db = ScoresRoomDatabase.getDatabase(it.applicationContext)
+            db = DatabaseDaggerTestModule.scoresRoomDatabase
             navController = it.navHostFragment.navController
         }
     }
@@ -390,12 +390,12 @@ class LargeScaleInstrumentedTest {
 
     /**
      * @param action run once on every single fragment
-     * @param ignoreList do not run [action] on these fragments
+     * @param TestList do not run [action] on these fragments
      */
-    private fun touchEveryScreen(ignoreList: List<KClass<out Fragment>> = listOf(), action: () -> Unit) {
+    private fun touchEveryScreen(TestList: List<KClass<out Fragment>> = listOf(), action: () -> Unit) {
         fun performAction(current: KClass<out Fragment>) {
-            if (ignoreList.contains(current)) {
-                logMessage(this::class, "Ignored: ${current.jvmName}")
+            if (TestList.contains(current)) {
+                logMessage(this::class, "Testd: ${current.jvmName}")
                 return
             }
             logMessage(this::class, "Performing on: ${current.jvmName}")
@@ -505,8 +505,7 @@ class LargeScaleInstrumentedTest {
                 db.roundDistanceDao().insert(RoundDistance(1, 1, 1, 20))
             }
         }
-        openScorePadFromMainMenu("%d/%d/%d".format(arrowCount, arrowScore * arrowCount, 0))
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForScorePadToOpen(scenario, "%d/%d/%d".format(arrowCount, arrowScore * arrowCount, 0))
         var tableView: TableView? = null
         scenario.onActivity {
             tableView = it.findViewById(R.id.table_view_score_pad)

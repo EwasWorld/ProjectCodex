@@ -6,14 +6,21 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
+import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
+import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.components.mainMenu.MainMenuFragment
+import eywa.projectcodex.components.viewScores.ViewScoresFragment
+import eywa.projectcodex.database.arrowValue.ArrowValue
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
 
@@ -47,6 +54,54 @@ class CustomConditionWaiter {
                     return "Wait for $fragmentClassName to appear"
                 }
             })
+        }
+
+        fun waitForScorePadToOpen(
+                scenario: ActivityScenario<MainActivity>,
+                arrows: Iterable<ArrowValue>,
+                goldsType: GoldsType = GoldsType.NINES
+        ) {
+            waitForScorePadToOpen(
+                    scenario,
+                    "%d/%d/%d".format(
+                            arrows.count { it.score != 0 },
+                            arrows.sumOf { it.score },
+                            arrows.count { goldsType.isGold(it) })
+            )
+        }
+
+        /**
+         * Returns to the main menu, clicks view scores, then waits for the given hits/score/golds string to appear
+         * and clicks on it to open the score pad
+         * @param hsgToClick the hits/score/golds string to click (in the form 0/0/0 where 0s are positive integers)
+         */
+        fun waitForScorePadToOpen(scenario: ActivityScenario<MainActivity>, hsgToClick: String) {
+            R.id.action_bar__home.click()
+            waitForFragmentToShow(scenario, MainMenuFragment::class.java.name)
+            R.id.button_main_menu__view_scores.click()
+            waitForFragmentToShow(scenario, ViewScoresFragment::class.java.name)
+
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    var hsgClicked = false
+                    try {
+                        onView(withText(hsgToClick)).perform(ViewActions.click())
+                        hsgClicked = true
+                    }
+                    catch (e: NoMatchingViewException) {
+                    }
+                    if (!hsgClicked) {
+                        // Don't clog up the main thread in the onActivity method, wait a moment before trying again
+                        Thread.sleep(DEFAULT_THREAD_SLEEP)
+                    }
+                    return hsgClicked
+                }
+
+                override fun getDescription(): String {
+                    return "Wait for $hsgToClick to appear"
+                }
+            })
+            waitForFragmentToShow(scenario, ScorePadFragment::class.java.name)
         }
 
         /**

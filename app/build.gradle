@@ -2,6 +2,7 @@ apply plugin: "com.android.application"
 
 apply plugin: "kotlin-android"
 
+// Allow referencing of views by name rather than using findViewById
 apply plugin: "kotlin-android-extensions"
 
 apply plugin: "kotlin-kapt"
@@ -102,6 +103,10 @@ android {
                         'src/main/res/prototyping'
             }
         }
+        androidTest {
+            java.srcDir 'src/androidTest/java'
+            manifest.srcFile 'src/debug/AndroidManifest.xml'
+        }
     }
 }
 
@@ -127,7 +132,7 @@ dependencies {
     implementation "com.xfinity:resourceprovider-library:1.2.1"
     kapt "com.xfinity:resourceprovider-compiler:1.2.1"
     testImplementation "com.xfinity:resourceprovider-testutils:1.2.1"
-    def mockito_version = "3.8.0"
+    def mockito_version = "4.0.0"
     implementation("org.mockito:mockito-core:$mockito_version")
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"
 

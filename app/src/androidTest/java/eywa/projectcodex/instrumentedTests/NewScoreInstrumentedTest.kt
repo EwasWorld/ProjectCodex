@@ -21,9 +21,11 @@ import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.newScore.NewScoreFragment
+import eywa.projectcodex.components.newScore.NewScoreViewModel
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -34,15 +36,8 @@ import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class NewScoreInstrumentedTest {
-    companion object {
-        init {
-            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
-        }
-
-    }
-
     // TODO Check date is within 1min of current date
-    private lateinit var scenario: FragmentScenario<NewScoreFragment>
+    private lateinit var scenario: FragmentScenario<NewScoreTestFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private var currentArcherRounds: List<ArcherRound> = listOf()
@@ -83,7 +78,8 @@ class NewScoreInstrumentedTest {
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = launchFragmentInContainer(args, initialState = Lifecycle.State.INITIALIZED)
         scenario.onFragment {
-            db = ScoresRoomDatabase.getDatabase(it.requireContext())
+            db = DatabaseDaggerTestModule.scoresRoomDatabase
+            it.newScoreViewModel = NewScoreViewModel(ApplicationProvider.getApplicationContext(), db)
 
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.newScoreFragment)
@@ -123,9 +119,7 @@ class NewScoreInstrumentedTest {
 
     @After
     fun afterEach() {
-        scenario.onFragment {
-            ScoresRoomDatabase.clearInstance(it.requireContext())
-        }
+        CommonSetupTeardownFns.teardownScenario(scenario)
     }
 
     /**
@@ -463,5 +457,9 @@ class NewScoreInstrumentedTest {
                 ),
                 currentArcherRounds.find { it.archerRoundId == archerRoundInput.archerRoundId }
         )
+    }
+
+    class NewScoreTestFragment : NewScoreFragment() {
+        override fun injectMembers() {}
     }
 }

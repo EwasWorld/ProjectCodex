@@ -23,7 +23,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.android.synthetic.main.fragment_view_scores.*
 import javax.inject.Inject
 
-class ViewScoresFragment : Fragment(), ActionBarHelp {
+open class ViewScoresFragment : Fragment(), ActionBarHelp {
     companion object {
         private const val LOG_TAG = "ViewScoresFrag"
     }
@@ -113,9 +113,11 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
     }
 
     override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
+        injectMembers()
         super.onAttach(context)
     }
+
+    protected open fun injectMembers() = AndroidSupportInjection.inject(this)
 
     override fun onResume() {
         super.onResume()

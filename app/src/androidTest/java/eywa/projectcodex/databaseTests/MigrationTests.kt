@@ -7,6 +7,7 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import eywa.projectcodex.database.DatabaseMigrations
 import eywa.projectcodex.database.ScoresRoomDatabase
 import org.junit.Assert.assertEquals
 import org.junit.Ignore
@@ -36,7 +37,7 @@ class MigrationTests {
         helper.createDatabase(TEST_DB_NAME, 2).apply {
             close()
         }
-        helper.runMigrationsAndValidate(TEST_DB_NAME, 3, true, ScoresRoomDatabase.MIGRATION_2_3)
+        helper.runMigrationsAndValidate(TEST_DB_NAME, 3, true, DatabaseMigrations.MIGRATION_2_3)
     }
 
     @Test
@@ -59,8 +60,8 @@ class MigrationTests {
         }
 
         val db = helper.runMigrationsAndValidate(
-                TEST_DB_NAME, 4, true, ScoresRoomDatabase.MIGRATION_2_3,
-                ScoresRoomDatabase.MIGRATION_3_4
+                TEST_DB_NAME, 4, true, DatabaseMigrations.MIGRATION_2_3,
+                DatabaseMigrations.MIGRATION_3_4
         )
 
         // Verify data migrated properly

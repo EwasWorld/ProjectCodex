@@ -11,7 +11,6 @@ import eywa.projectcodex.common.*
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
 import org.junit.After
 import org.junit.Assert
@@ -29,7 +28,6 @@ import java.util.concurrent.TimeUnit
 class UpdateDefaultRoundsInstrumentedTests {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
             SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
         }
 

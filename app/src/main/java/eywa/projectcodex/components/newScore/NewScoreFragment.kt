@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.fragment_new_score.*
 import java.util.*
 import javax.inject.Inject
 
-class NewScoreFragment : Fragment(), ActionBarHelp {
+open class NewScoreFragment : Fragment(), ActionBarHelp {
     private val args: NewScoreFragmentArgs by navArgs()
 
     @Inject
@@ -323,9 +323,11 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
     }
 
     override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
+        injectMembers()
         super.onAttach(context)
     }
+
+    protected open fun injectMembers() = AndroidSupportInjection.inject(this)
 
     private fun updateDateTime() {
         requireView().findViewById<TextView>(R.id.text_create_round__date).text =

@@ -24,6 +24,7 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.not
 import org.junit.After
@@ -42,7 +43,6 @@ import org.junit.runner.RunWith
 class InputEndInstrumentedTest {
     companion object {
         init {
-            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
             SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
         }
 
@@ -95,8 +95,7 @@ class InputEndInstrumentedTest {
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = launchFragmentInContainer(args, initialState = Lifecycle.State.INITIALIZED)
         scenario.onFragment {
-            ScoresRoomDatabase.clearInstance(it.requireContext())
-            db = ScoresRoomDatabase.getDatabase(it.requireContext())
+            db = DatabaseDaggerTestModule.scoresRoomDatabase
 
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.inputEndFragment, args)
@@ -130,9 +129,7 @@ class InputEndInstrumentedTest {
 
     @After
     fun afterEach() {
-        scenario.onFragment {
-            ScoresRoomDatabase.clearInstance(it.requireContext())
-        }
+        CommonSetupTeardownFns.teardownScenario(scenario)
     }
 
     @Test

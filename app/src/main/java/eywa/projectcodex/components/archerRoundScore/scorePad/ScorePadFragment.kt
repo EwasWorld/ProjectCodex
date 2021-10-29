@@ -24,7 +24,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import javax.inject.Inject
 import kotlin.math.ceil
 
-class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
+open class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     companion object {
         const val LOG_TAG = "ScorePadFragment"
     }
@@ -123,9 +123,11 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     }
 
     override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
+        injectMembers()
         super.onAttach(context)
     }
+
+    protected open fun injectMembers() = AndroidSupportInjection.inject(this)
 
     override fun onResume() {
         super.onResume()

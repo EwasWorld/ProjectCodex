@@ -25,11 +25,9 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.database.arrowValue.ArrowValue
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Description
@@ -150,43 +148,6 @@ fun <T> LiveData<T>.retrieveValue(): T? {
     observeForever(observer)
     latch.await(2, TimeUnit.SECONDS)
     return value
-}
-
-fun openScorePadFromMainMenu(arrows: Iterable<ArrowValue>, goldsType: GoldsType = GoldsType.NINES) {
-    openScorePadFromMainMenu(
-            "%d/%d/%d".format(
-                    arrows.count { it.score != 0 },
-                    arrows.sumOf { it.score },
-                    arrows.count { goldsType.isGold(it) })
-    )
-}
-
-/**
- * Clicks view scores, then waits for the given hits/score/golds string to appear and clicks on it to open the score pad
- * @param hsgToClick the hits/score/golds string to click (in the form 0/0/0 where 0s are any numbers)
- */
-fun openScorePadFromMainMenu(hsgToClick: String) {
-    ConditionWatcher.waitForCondition(object : Instruction() {
-        override fun getDescription(): String {
-            return "Wait for data to appear in view rounds table so score pad can be opened"
-        }
-
-        override fun checkCondition(): Boolean {
-            try {
-                R.id.button_main_menu__view_scores.click()
-            }
-            catch (e: NoMatchingViewException) {
-                // Not on the main menu, already in the view scores screen
-            }
-            try {
-                onView(withText(hsgToClick)).perform(ViewActions.click())
-                return true
-            }
-            catch (e: NoMatchingViewException) {
-            }
-            return false
-        }
-    })
 }
 
 /**

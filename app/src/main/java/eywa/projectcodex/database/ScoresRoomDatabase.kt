@@ -1,7 +1,5 @@
 package eywa.projectcodex.database
 
-import android.content.Context
-import androidx.annotation.VisibleForTesting
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
@@ -35,21 +33,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun roundDistanceDao(): RoundDistanceDao
 
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        var DATABASE_NAME = "scores_database"
-        // Singleton prevents multiple instances of database opening at the same time.
-        @Volatile
-        private var INSTANCE: ScoresRoomDatabase? = null
-
-
-        /**
-         * Delete the database and clear the instance
-         */
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        fun clearInstance(context: Context) {
-            context.deleteDatabase(DATABASE_NAME)
-            INSTANCE = null
-        }
+        const val DATABASE_NAME = "scores_database"
     }
 
     class Converters {

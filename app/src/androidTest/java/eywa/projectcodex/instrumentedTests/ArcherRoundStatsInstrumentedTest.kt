@@ -11,7 +11,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
-import eywa.projectcodex.common.CommonStrings
+import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.labelledTextViewTextEquals
 import eywa.projectcodex.common.visibilityIs
@@ -23,6 +23,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
@@ -32,12 +33,6 @@ import kotlin.math.max
 
 @RunWith(AndroidJUnit4::class)
 class ArcherRoundStatsInstrumentedTest {
-    companion object {
-        init {
-            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
-        }
-    }
-
     private lateinit var scenario: FragmentScenario<ArcherRoundStatsFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
@@ -93,8 +88,7 @@ class ArcherRoundStatsInstrumentedTest {
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = launchFragmentInContainer(args, initialState = Lifecycle.State.INITIALIZED)
         scenario.onFragment {
-            ScoresRoomDatabase.clearInstance(it.requireContext())
-            db = ScoresRoomDatabase.getDatabase(it.requireContext())
+            db = DatabaseDaggerTestModule.scoresRoomDatabase
 
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.archerRoundStatsFragment, args)
@@ -136,9 +130,7 @@ class ArcherRoundStatsInstrumentedTest {
 
     @After
     fun teardown() {
-        scenario.onFragment {
-            ScoresRoomDatabase.clearInstance(it.requireContext())
-        }
+        CommonSetupTeardownFns.teardownScenario(scenario)
     }
 
     @Test

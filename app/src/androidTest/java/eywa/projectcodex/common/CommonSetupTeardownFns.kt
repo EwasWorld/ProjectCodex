@@ -2,11 +2,12 @@ package eywa.projectcodex.common
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 
 class CommonSetupTeardownFns {
     companion object {
@@ -42,19 +43,26 @@ class CommonSetupTeardownFns {
             /*
              * General cleanup
              */
-            scenario.onActivity {
-                ScoresRoomDatabase.clearInstance(it.applicationContext)
-            }
             setSharedPrefs(scenario)
+
+            /*
+             * Destroy the fragment before clearing the database
+             *      else the UI can react to the empty database and fail
+             */
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            DatabaseDaggerTestModule.teardown()
         }
 
+        @Suppress("UNCHECKED_CAST")
         fun teardownScenario(scenario: FragmentScenario<*>) {
             val fragmentScenario = scenario as FragmentScenario<Fragment>
 
-            CustomConditionWaiter.waitForUpdateRoundsTaskToFinish(fragmentScenario)
-            fragmentScenario.onFragment {
-                ScoresRoomDatabase.clearInstance(it.requireContext())
-            }
+            /*
+             * Destroy the fragment before clearing the database
+             *      else the UI can react to the empty database and fail
+             */
+            fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+            DatabaseDaggerTestModule.teardown()
         }
     }
 }

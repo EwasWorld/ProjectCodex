@@ -30,7 +30,6 @@ abstract class ViewScoresDaggerModule {
         fun provideNewScoreViewModel(
                 factory: ViewModelProvider.Factory,
                 target: ViewScoresFragment
-        ): ViewScoresViewModel =
-                ViewModelProvider(target, factory).get(ViewScoresViewModel::class.java)
+        ): ViewScoresViewModel = ViewModelProvider(target, factory).get(ViewScoresViewModel::class.java)
     }
 }

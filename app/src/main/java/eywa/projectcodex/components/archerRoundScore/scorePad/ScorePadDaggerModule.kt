@@ -13,6 +13,7 @@ abstract class ScorePadDaggerModule {
     @ContributesAndroidInjector
     abstract fun contributeInputEndFragmentAndroidInjector(): ScorePadFragment
 
+    @Suppress("unused")
     @Binds
     @IntoMap
     @ViewModelKey(ScorePadViewModel::class)

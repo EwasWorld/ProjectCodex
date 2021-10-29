@@ -19,11 +19,9 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
-import eywa.projectcodex.common.CommonStrings
-import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.common.clickAlertDialog
-import eywa.projectcodex.common.withIndex
+import eywa.projectcodex.common.*
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
+import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -33,6 +31,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -40,13 +39,7 @@ import org.junit.Before
 import org.junit.Test
 
 class ViewScoresInstrumentedTest {
-    companion object {
-        init {
-            ScoresRoomDatabase.DATABASE_NAME = CommonStrings.testDatabaseName
-        }
-    }
-
-    private lateinit var scenario: FragmentScenario<ViewScoresFragment>
+    private lateinit var scenario: FragmentScenario<ViewScoresTestFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private lateinit var resources: Resources
@@ -72,8 +65,8 @@ class ViewScoresInstrumentedTest {
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = launchFragmentInContainer(initialState = Lifecycle.State.INITIALIZED)
         scenario.onFragment {
-            ScoresRoomDatabase.clearInstance(it.requireContext())
-            db = ScoresRoomDatabase.getDatabase(it.requireContext())
+            db = DatabaseDaggerTestModule.scoresRoomDatabase
+            it.viewScoresViewModel = ViewScoresViewModel(ApplicationProvider.getApplicationContext(), db)
 
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.viewScoresFragment)
@@ -89,9 +82,7 @@ class ViewScoresInstrumentedTest {
 
     @After
     fun afterEach() {
-        scenario.onFragment {
-            ScoresRoomDatabase.clearInstance(it.requireContext())
-        }
+        CommonSetupTeardownFns.teardownScenario(scenario)
         ViewScoreData.clearInstance()
     }
 
@@ -207,8 +198,9 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         val clickedItem = expectedData.getData()[0]
+        CustomConditionWaiter.waitForTextToAppear(clickedItem.hitsScoreGolds!!)
         onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
-        CustomConditionWaiter.waitFor(200)
+        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsShowScorePad)
         onView(withText(CommonStrings.Menus.viewRoundsShowScorePad)).perform(click())
 
         assertEquals(R.id.scorePadFragment, navController.currentDestination?.id)
@@ -221,8 +213,9 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         val clickedItem = expectedData.getData().find { it.round?.roundId == 1 }!!
+        CustomConditionWaiter.waitForTextToAppear(clickedItem.hitsScoreGolds!!)
         onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
-        CustomConditionWaiter.waitFor(200)
+        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsContinue)
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
 
         assertEquals(R.id.inputEndFragment, navController.currentDestination?.id)
@@ -235,8 +228,9 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         val deleteItem = expectedData.getData()[1]
+        CustomConditionWaiter.waitForTextToAppear(deleteItem.hitsScoreGolds!!)
         onView(withIndex(withText(deleteItem.hitsScoreGolds), 0)).perform(longClick())
-        CustomConditionWaiter.waitFor(200)
+        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsDelete)
         onView(withText(CommonStrings.Menus.viewRoundsDelete)).perform(click())
 
         ConditionWatcher.waitForCondition(object : Instruction() {
@@ -266,6 +260,7 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         val clickedItem = expectedData.getData().find { it.round?.roundId == 2 }!!
+        CustomConditionWaiter.waitForTextToAppear(clickedItem.hitsScoreGolds!!)
         onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
         CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(doesNotExist())
@@ -328,5 +323,9 @@ class ViewScoresInstrumentedTest {
             onView(withIndex(withId(R.id.text_vs_round_item__handicap), indexedItem.index))
                     .check(matches(withText(indexedItem.value.handicap?.toString() ?: "-")))
         }
+    }
+
+    class ViewScoresTestFragment : ViewScoresFragment() {
+        override fun injectMembers() {}
     }
 }

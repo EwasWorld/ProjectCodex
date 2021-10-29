@@ -19,6 +19,7 @@ abstract class InputEndDaggerModule {
     @ContributesAndroidInjector
     abstract fun contributeInsertEndFragmentAndroidInjector(): InsertEndFragment
 
+    @Suppress("unused")
     @Binds
     @IntoMap
     @ViewModelKey(InputEndViewModel::class)

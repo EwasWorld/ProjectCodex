@@ -7,9 +7,9 @@ import dagger.android.HasAndroidInjector
 import eywa.projectcodex.database.DatabaseDaggerModule
 import javax.inject.Inject
 
-class App : MultiDexApplication(), HasAndroidInjector {
+open class App : MultiDexApplication(), HasAndroidInjector {
     @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
+    open lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
     override fun onCreate() {
         super.onCreate()
