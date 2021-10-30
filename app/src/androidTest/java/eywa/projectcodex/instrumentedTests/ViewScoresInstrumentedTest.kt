@@ -21,7 +21,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
-import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -39,7 +38,7 @@ import org.junit.Before
 import org.junit.Test
 
 class ViewScoresInstrumentedTest {
-    private lateinit var scenario: FragmentScenario<ViewScoresTestFragment>
+    private lateinit var scenario: FragmentScenario<ViewScoresFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private lateinit var resources: Resources
@@ -66,11 +65,8 @@ class ViewScoresInstrumentedTest {
         scenario = launchFragmentInContainer(initialState = Lifecycle.State.INITIALIZED)
         scenario.onFragment {
             db = DatabaseDaggerTestModule.scoresRoomDatabase
-            it.viewScoresViewModel = ViewScoresViewModel(ApplicationProvider.getApplicationContext(), db)
-
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.viewScoresFragment)
-
         }
 
         scenario.moveToState(Lifecycle.State.RESUMED)
@@ -323,9 +319,5 @@ class ViewScoresInstrumentedTest {
             onView(withIndex(withId(R.id.text_vs_round_item__handicap), indexedItem.index))
                     .check(matches(withText(indexedItem.value.handicap?.toString() ?: "-")))
         }
-    }
-
-    class ViewScoresTestFragment : ViewScoresFragment() {
-        override fun injectMembers() {}
     }
 }

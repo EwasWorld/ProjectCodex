@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
+import eywa.projectcodex.components.app.App
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -14,11 +16,19 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
- * @see InputEndViewModel
+ * @see ArcherRoundScoreViewModel
  */
-class NewScoreViewModel(application: Application, val db: ScoresRoomDatabase) : AndroidViewModel(application) {
+class NewScoreViewModel(application: Application) : AndroidViewModel(application) {
+    @Inject
+    lateinit var db: ScoresRoomDatabase
+
+    init {
+        (application as App).appComponent.inject(this)
+    }
+
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     val maxId: LiveData<Int> = archerRoundsRepo.maxId
     val allRounds: LiveData<List<Round>> = db.roundDao().getAllRounds()
@@ -39,5 +49,5 @@ class NewScoreViewModel(application: Application, val db: ScoresRoomDatabase) : 
     fun getArcherRound(archerRoundId: Int) = archerRoundsRepo.getArcherRound(archerRoundId)
 
     fun getArrowsForRound(archerRoundId: Int) =
-            ArrowValuesRepo(db.arrowValueDao(), archerRoundId).arrowValuesForRound!!
+            ArrowValuesRepo(db.arrowValueDao()).getArrowValuesForRound(archerRoundId)
 }

@@ -3,7 +3,7 @@ package eywa.projectcodex
 import eywa.projectcodex.TestUtils.Companion.anyMatcher
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndViewModel
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.coroutines.Job
@@ -212,7 +212,7 @@ class EndUnitTest {
         end.addArrowToEnd(TestData.ARROWS[11])
         assertEquals(arrowScores.sum(), end.getScore())
 
-        val viewModel = mock(InputEndViewModel::class.java)
+        val viewModel = mock(ArcherRoundScoreViewModel::class.java)
         val job = mock(Job::class.java)
         `when`(viewModel.insert(anyMatcher())).thenReturn(job)
         var arrowNumber = 1
@@ -245,7 +245,7 @@ class EndUnitTest {
         }
         assertEquals(arrowScores.sum(), end.getScore())
 
-        val viewModel = mock(InputEndViewModel::class.java)
+        val viewModel = mock(ArcherRoundScoreViewModel::class.java)
         val job = mock(Job::class.java)
         `when`(viewModel.update(anyMatcher())).thenReturn(job)
         val firstArrowNumber = 10

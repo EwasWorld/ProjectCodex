@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="eywa.projectcodex"
-    >
+<manifest package="eywa.projectcodex">
 
-    <application
-        tools:replace="android:name"
-        android:name=".instrumentedTests.daggerObjects.TestApp"
-        ></application>
+    <!--    <application-->
+    <!--        tools:replace="android:name"-->
+    <!--        android:name=".instrumentedTests.daggerObjects.TestApp"-->
+    <!--        ></application>-->
 
 </manifest>

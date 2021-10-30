@@ -1,21 +1,19 @@
 package eywa.projectcodex.components.archerRoundScore.archerRoundStats
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
-import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.ViewModelFactoryByInjection
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -24,7 +22,6 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.android.synthetic.main.fragment_archer_round_stats.*
-import javax.inject.Inject
 
 
 class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
@@ -32,11 +29,8 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
         private const val LOG_TAG = "ArcherRoundStatsFragment"
     }
 
-    @Inject
-    lateinit var factory: ViewModelFactoryByInjection
-
     private val args: ArcherRoundStatsFragmentArgs by navArgs()
-    private lateinit var archerRoundStatsViewModel: ArcherRoundStatsViewModel
+    private val archerRoundStatsViewModel: ArcherRoundScoreViewModel by activityViewModels()
     private var arrows: List<ArrowValue>? = null
     private var round: Round? = null
     private var arrowCounts: List<RoundArrowCount>? = null
@@ -53,9 +47,8 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
         CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         setFragmentTitle()
 
-        archerRoundStatsViewModel = ViewModelProvider(this, factory.create(this, args.toBundle()))
-                .get(ArcherRoundStatsViewModel::class.java)
-        archerRoundStatsViewModel.arrows.observe(viewLifecycleOwner, Observer { dbArrows ->
+        archerRoundStatsViewModel.archerRoundIdMutableLiveData.postValue(args.archerRoundId)
+        archerRoundStatsViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer { dbArrows ->
             if (dbArrows.isNullOrEmpty()) {
                 return@Observer
             }
@@ -69,7 +62,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             setGolds()
             calculateHandicapAndPredictedScore()
         })
-        archerRoundStatsViewModel.archerRoundWithRoundInfo.observe(viewLifecycleOwner, { info ->
+        archerRoundStatsViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, { info ->
             info?.let { archerRoundWithInfo ->
                 val archerRound = archerRoundWithInfo.archerRound
                 this.archerRound = archerRound
@@ -108,11 +101,6 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 calculateHandicapAndPredictedScore()
             }
         })
-    }
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
     }
 
     private fun setFragmentTitle() {

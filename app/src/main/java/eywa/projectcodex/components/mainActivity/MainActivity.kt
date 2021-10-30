@@ -5,13 +5,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import dagger.android.support.DaggerAppCompatActivity
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.*
@@ -19,16 +20,13 @@ import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import java.util.*
-import javax.inject.Inject
 
-class MainActivity : DaggerAppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     companion object {
         private const val LOG_TAG = "MainActivity"
     }
 
     lateinit var navHostFragment: NavHostFragment
-
-    @Inject
     lateinit var mainActivityViewModel: MainActivityViewModel
     private var defaultRoundsVersion = -1
 
@@ -41,6 +39,8 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        mainActivityViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         // Ensure default rounds are up to date
         val sharedPreferences = this.getSharedPreferences()

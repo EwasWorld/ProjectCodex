@@ -1,14 +1,8 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd
+package eywa.projectcodex.components.archerRoundScore
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import eywa.projectcodex.common.utils.ViewModelAssistedFactory
+import androidx.lifecycle.*
+import eywa.projectcodex.components.app.App
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -19,6 +13,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * With a ViewModel, the data is kept even if the activity is destroyed (e.g. in the event of a screen rotation)
@@ -28,17 +23,31 @@ import kotlinx.coroutines.launch
  * https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate
  * https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
  */
-class InputEndViewModel @AssistedInject constructor(
-        @Assisted private val stateHandle: SavedStateHandle,
-        application: Application,
-        db: ScoresRoomDatabase
-) : AndroidViewModel(application) {
-    private val archerRoundId = stateHandle.get<Int>("archerRoundId")!!
-    private val arrowValueRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao(), archerRoundId)
-    private val roundRepo: RoundRepo = RoundRepo(db)
-    val arrows: LiveData<List<ArrowValue>> = arrowValueRepo.arrowValuesForRound!!
+class ArcherRoundScoreViewModel(application: Application) : AndroidViewModel(application) {
+    @Inject
+    lateinit var db: ScoresRoomDatabase
+
+    init {
+        (application as App).appComponent.inject(this)
+    }
+
+    val archerRoundIdMutableLiveData = MutableLiveData<Int?>(null)
+    private var roundRepo: RoundRepo = RoundRepo(db)
+    private var arrowValueRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
+    val archerRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
+
+    val arrowsForRound: LiveData<List<ArrowValue>> =
+            archerRoundIdMutableLiveData.switchMap { id ->
+                if (id != null) arrowValueRepo.getArrowValuesForRound(id) else MutableLiveData(listOf())
+            }.distinctUntilChanged()
+    val roundInfo: LiveData<Round> =
+            archerRoundIdMutableLiveData.switchMap { id ->
+                if (id != null) archerRoundsRepo.getRoundInfo(id) else MutableLiveData()
+            }.distinctUntilChanged()
     val archerRoundWithInfo: LiveData<ArcherRoundWithRoundInfoAndName> =
-            ArcherRoundsRepo(db.archerRoundDao()).getArcherRoundWithRoundInfoAndName(archerRoundId)
+            archerRoundIdMutableLiveData.switchMap { id ->
+                if (id != null) archerRoundsRepo.getArcherRoundWithRoundInfoAndName(id) else MutableLiveData()
+            }.distinctUntilChanged()
 
     fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
         return roundRepo.getArrowCountsForRound(roundId)
@@ -46,10 +55,6 @@ class InputEndViewModel @AssistedInject constructor(
 
     fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>> {
         return roundRepo.getDistancesForRound(roundId, subTypeId)
-    }
-
-    fun getRoundById(roundId: Int): LiveData<Round> {
-        return roundRepo.getRoundById(roundId)
     }
 
     /**
@@ -67,6 +72,12 @@ class InputEndViewModel @AssistedInject constructor(
         arrowValueRepo.insertEnd(allArrows, toInsert)
     }
 
-    @AssistedFactory
-    interface Factory : ViewModelAssistedFactory<InputEndViewModel>
+    /**
+     * @param from zero indexed
+     */
+    fun deleteArrows(from: Int, count: Int) = viewModelScope.launch {
+        arrowsForRound.value?.let { arrows ->
+            arrowValueRepo.deleteEnd(arrows, from, count)
+        }
+    }
 }

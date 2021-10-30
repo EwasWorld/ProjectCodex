@@ -3,20 +3,28 @@ package eywa.projectcodex.components.viewScores
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import eywa.projectcodex.components.app.App
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
- * @see InputEndViewModel
+ * @see ArcherRoundScoreViewModel
  */
-class ViewScoresViewModel(
-        application: Application,
-        val db: ScoresRoomDatabase
-) : AndroidViewModel(application), ConvertScore.ConvertScoreViewModel {
+class ViewScoresViewModel(application: Application) : AndroidViewModel(application),
+        ConvertScore.ConvertScoreViewModel {
+    @Inject
+    lateinit var db: ScoresRoomDatabase
+
+    init {
+        (application as App).appComponent.inject(this)
+    }
+
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val roundRepo: RoundRepo = RoundRepo(db)

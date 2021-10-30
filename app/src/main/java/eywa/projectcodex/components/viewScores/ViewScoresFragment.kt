@@ -1,15 +1,14 @@
 package eywa.projectcodex.components.viewScores
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ActionBarHelp
@@ -21,14 +20,12 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.android.synthetic.main.fragment_view_scores.*
-import javax.inject.Inject
 
-open class ViewScoresFragment : Fragment(), ActionBarHelp {
+class ViewScoresFragment : Fragment(), ActionBarHelp {
     companion object {
         private const val LOG_TAG = "ViewScoresFrag"
     }
 
-    @Inject
     lateinit var viewScoresViewModel: ViewScoresViewModel
 
     /*
@@ -61,6 +58,7 @@ open class ViewScoresFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.view_score__title)
 
+        viewScoresViewModel = ViewModelProvider(this).get(ViewScoresViewModel::class.java)
         val viewScoreData = ViewScoreData.getViewScoreData()
         val viewScoresListAdapter = ViewScoresAdapter(viewScoresViewModel)
         recycler_view_scores.adapter = viewScoresListAdapter
@@ -111,13 +109,6 @@ open class ViewScoresFragment : Fragment(), ActionBarHelp {
             }
         })
     }
-
-    override fun onAttach(context: Context) {
-        injectMembers()
-        super.onAttach(context)
-    }
-
-    protected open fun injectMembers() = AndroidSupportInjection.inject(this)
 
     override fun onResume() {
         super.onResume()

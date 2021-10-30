@@ -105,7 +105,7 @@ class ArrowValueTest {
     @Test
     fun deleteEndRepoTst() {
         val archerRoundId = 1
-        val arrowValuesRepo = ArrowValuesRepo(arrowValueDao, archerRoundId)
+        val arrowValuesRepo = ArrowValuesRepo(arrowValueDao)
 
         for (arrowNumber in 1..24) {
             runBlocking {
@@ -141,7 +141,7 @@ class ArrowValueTest {
     @Test
     fun insertEndRepoTest() {
         val archerRoundId = 1
-        val arrowValuesRepo = ArrowValuesRepo(arrowValueDao, archerRoundId)
+        val arrowValuesRepo = ArrowValuesRepo(arrowValueDao)
 
         for (arrowNumber in 1..24) {
             runBlocking {

@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.newScore
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,9 +9,9 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.R
 import eywa.projectcodex.common.elements.DatePickerDialog
 import eywa.projectcodex.common.elements.TimePickerDialog
@@ -23,12 +22,10 @@ import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.database.archerRound.ArcherRound
 import kotlinx.android.synthetic.main.fragment_new_score.*
 import java.util.*
-import javax.inject.Inject
 
-open class NewScoreFragment : Fragment(), ActionBarHelp {
+class NewScoreFragment : Fragment(), ActionBarHelp {
     private val args: NewScoreFragmentArgs by navArgs()
 
-    @Inject
     lateinit var newScoreViewModel: NewScoreViewModel
 
     /**
@@ -96,6 +93,8 @@ open class NewScoreFragment : Fragment(), ActionBarHelp {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        newScoreViewModel = ViewModelProvider(this).get(NewScoreViewModel::class.java)
 
         // True if the fragment is being used to edit an existing round
         val isInEditMode = args.archerRoundId != -1
@@ -321,13 +320,6 @@ open class NewScoreFragment : Fragment(), ActionBarHelp {
             }
         }
     }
-
-    override fun onAttach(context: Context) {
-        injectMembers()
-        super.onAttach(context)
-    }
-
-    protected open fun injectMembers() = AndroidSupportInjection.inject(this)
 
     private fun updateDateTime() {
         requireView().findViewById<TextView>(R.id.text_create_round__date).text =

@@ -4,12 +4,10 @@ import android.app.Application
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
-import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsDaggerModule
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndDaggerModule
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadDaggerModule
-import eywa.projectcodex.components.mainActivity.ActivityDaggerModule
-import eywa.projectcodex.components.newScore.NewScoreDaggerModule
-import eywa.projectcodex.components.viewScores.ViewScoresDaggerModule
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
+import eywa.projectcodex.components.mainActivity.MainActivityViewModel
+import eywa.projectcodex.components.newScore.NewScoreViewModel
+import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.database.DatabaseDaggerModule
 import javax.inject.Singleton
 
@@ -21,20 +19,21 @@ import javax.inject.Singleton
 @Component(
         dependencies = [],
         modules = [
-            AndroidInjectionModule::class, AppModule::class, DatabaseDaggerModule::class,
-            ActivityDaggerModule::class,
-            ViewScoresDaggerModule::class, NewScoreDaggerModule::class,
-            ArcherRoundStatsDaggerModule::class, InputEndDaggerModule::class, ScorePadDaggerModule::class,
+            AndroidInjectionModule::class, DatabaseDaggerModule::class
         ]
 )
 interface AppComponent {
     fun inject(app: App)
 
+    fun inject(viewModel: ArcherRoundScoreViewModel)
+    fun inject(viewModel: MainActivityViewModel)
+    fun inject(viewModel: NewScoreViewModel)
+    fun inject(viewModel: ViewScoresViewModel)
+
     @Component.Builder
     interface Builder {
         @BindsInstance
         fun application(application: Application): Builder
-        fun appModule(appModule: AppModule): Builder
         fun dbModule(databaseDaggerModule: DatabaseDaggerModule): Builder
         fun build(): AppComponent
     }

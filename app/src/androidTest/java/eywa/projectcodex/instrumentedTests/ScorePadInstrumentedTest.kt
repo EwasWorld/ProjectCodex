@@ -6,8 +6,6 @@ import android.os.Bundle
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
@@ -25,16 +23,13 @@ import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.R
 import eywa.projectcodex.TestData
-import eywa.projectcodex.TestUtils.Companion.anyMatcher
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.common.utils.ViewModelFactoryByInjection
 import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadViewModel
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.calculateScorePadTableData
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.generateNumberedRowHeaders
@@ -51,8 +46,6 @@ import org.junit.After
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 class ScorePadInstrumentedTest {
@@ -153,7 +146,6 @@ class ScorePadInstrumentedTest {
 
         val data = Pair("archerRoundId", 1)
         val bundle = Bundle()
-        val handle = SavedStateHandle(mapOf(data))
         bundle.putInt(data.first, data.second)
 
         // Start initialised so we can add to the database before the onCreate methods are called
@@ -162,14 +154,6 @@ class ScorePadInstrumentedTest {
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.scorePadFragment, bundle)
             setupDb(hasRound)
-
-            val mockInjectionFactory = mock(ViewModelFactoryByInjection::class.java)
-            val mockProviderFactory = mock(ViewModelProvider.Factory::class.java)
-            `when`(mockInjectionFactory.create(anyMatcher(), anyMatcher())).thenReturn(mockProviderFactory)
-            `when`(mockProviderFactory.create<ScorePadViewModel>(anyMatcher())).thenReturn(
-                    ScorePadViewModel(handle, ApplicationProvider.getApplicationContext(), db)
-            )
-            it.factory = mockInjectionFactory
         }
 
         fragScenario!!.moveToState(Lifecycle.State.RESUMED)
@@ -414,9 +398,5 @@ class ScorePadInstrumentedTest {
         checkCells(newArrows)
         checkColumnHeaders()
         checkRowsHeaders(5)
-    }
-
-    class ScorePadTestFragment : ScorePadFragment() {
-        override fun injectMembers() {}
     }
 }

@@ -9,10 +9,11 @@ import androidx.lifecycle.LiveData
  *
  *  If DAOs have just one or two methods then repositories are often combined
  */
-class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val archerRoundId: Int? = null) {
-    val arrowValuesForRound: LiveData<List<ArrowValue>>? =
-            archerRoundId?.let { arrowValueDao.getArrowValuesForRound(archerRoundId) }
+class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
     val allArrowValues: LiveData<List<ArrowValue>> = arrowValueDao.getAllArrowValues()
+
+    fun getArrowValuesForRound(archerRoundId: Int): LiveData<List<ArrowValue>> =
+            arrowValueDao.getArrowValuesForRound(archerRoundId)
 
     suspend fun insert(vararg arrowValues: ArrowValue) {
         arrowValueDao.insert(*arrowValues)
@@ -37,13 +38,21 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
      * results in an out of range arrowNumber
      * @throws IllegalStateException if this repo was created without an archerRoundId
      */
-    suspend fun deleteEnd(allArrows: List<ArrowValue>, firstArrowToDelete: Int, numberToDelete: Int) {
-        check(archerRoundId != null) { "Must provide an archerRoundId" }
-        require(allArrows.size > numberToDelete) { "allArrows must be larger than numberToDelete" }
+    suspend fun deleteEnd(allArrowsInRound: List<ArrowValue>, firstArrowToDelete: Int, numberToDelete: Int) {
+        val distinctByArcherRoundIds = allArrowsInRound.distinctBy { it.archerRoundId }
+        require(distinctByArcherRoundIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
+        require(allArrowsInRound.size >= numberToDelete) { "allArrowsInRound must be larger than numberToDelete" }
         require(firstArrowToDelete >= 0 && numberToDelete > 0) {
             "Either firstArrowToDelete is too high or numberToDelete is too low"
         }
-        val sortedArrows = allArrows.sortedBy { it.arrowNumber }
+
+        val archerRoundId = distinctByArcherRoundIds[0].archerRoundId
+        if (allArrowsInRound.size == numberToDelete) {
+            arrowValueDao.deleteRoundsArrows(archerRoundId)
+            return
+        }
+
+        val sortedArrows = allArrowsInRound.sortedBy { it.arrowNumber }
         val maxArrowNumber = sortedArrows.last().arrowNumber
         // e.g. firstArrow 0 + deleteCount 6 - 1 == maxNumber 5
         require(firstArrowToDelete + numberToDelete - 1 <= maxArrowNumber) {
@@ -65,18 +74,19 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
         )
     }
 
-    suspend fun insertEnd(allArrows: List<ArrowValue>, toInsert: List<ArrowValue>) {
-        check(archerRoundId != null) { "Must provide an archerRoundId" }
+    suspend fun insertEnd(allArrowsInRound: List<ArrowValue>, toInsert: List<ArrowValue>) {
         if (toInsert.isNullOrEmpty()) return
-        require(allArrows.isNotEmpty()) { "Must provide arrows to shift" }
-        require(toInsert.none { it.archerRoundId != archerRoundId }) { "All arrows must match the Repo's roundId" }
+        val distinctByArcherRoundIds = allArrowsInRound.distinctBy { it.archerRoundId }
+        require(distinctByArcherRoundIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
+        require(allArrowsInRound.isNotEmpty()) { "Must provide arrows to shift" }
+        val archerRoundId = distinctByArcherRoundIds[0].archerRoundId
 
         /*
          * Check arrow numbers
          */
         val minArrowNumber = toInsert.minOf { it.arrowNumber }
         require(minArrowNumber >= 1) { "Arrow numbers must be >= 1" }
-        require(minArrowNumber < allArrows.maxOf { it.arrowNumber }) {
+        require(minArrowNumber < allArrowsInRound.maxOf { it.arrowNumber }) {
             "Insert must start within existing arrows indices"
         }
         require(
@@ -86,11 +96,11 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao, private val arch
 
         // Shift other arrowNumbers to make space for inserted ones
         val allArrowsReady =
-                toInsert.plus(allArrows.filter { it.arrowNumber >= minArrowNumber }.map {
+                toInsert.plus(allArrowsInRound.filter { it.arrowNumber >= minArrowNumber }.map {
                     ArrowValue(archerRoundId, it.arrowNumber + toInsert.size, it.score, it.isX)
                 })
 
-        val currentArrowNumbers = allArrows.map { it.arrowNumber }
+        val currentArrowNumbers = allArrowsInRound.map { it.arrowNumber }
         val updateArrows = allArrowsReady.filter { currentArrowNumbers.contains(it.arrowNumber) }
         val insertArrows = allArrowsReady.filter { !currentArrowNumbers.contains(it.arrowNumber) }
 

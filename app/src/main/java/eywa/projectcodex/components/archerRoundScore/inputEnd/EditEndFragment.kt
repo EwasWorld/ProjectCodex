@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.archerRoundScore.inputEnd
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,31 +7,26 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.utils.ActionBarHelp
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.common.utils.ViewModelFactoryByInjection
 import eywa.projectcodex.common.utils.resourceStringReplace
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.android.synthetic.main.fragment_edit_end.*
-import javax.inject.Inject
 
 
 class EditEndFragment : Fragment(), ActionBarHelp {
-    @Inject
-    lateinit var factory: ViewModelFactoryByInjection
-
     private val args: EditEndFragmentArgs by navArgs()
-    private lateinit var inputEndViewModel: InputEndViewModel
+    private val inputEndViewModel: ArcherRoundScoreViewModel by activityViewModels()
     private lateinit var endInputsFragment: EndInputsFragment
     private var arrows = emptyList<ArrowValue>()
 
@@ -52,9 +46,8 @@ class EditEndFragment : Fragment(), ActionBarHelp {
                 childFragmentManager.findFragmentById(R.id.fragment_edit_end__end_inputs)!! as EndInputsFragment
         endInputsFragment.showResetButton = true
 
-        inputEndViewModel = ViewModelProvider(this, factory.create(this, args.toBundle()))
-                .get(InputEndViewModel::class.java)
-        inputEndViewModel.arrows.observe(viewLifecycleOwner, { arrowsJava ->
+        inputEndViewModel.archerRoundIdMutableLiveData.postValue(args.archerRoundId)
+        inputEndViewModel.arrowsForRound.observe(viewLifecycleOwner, { arrowsJava ->
             arrowsJava?.let { arrows ->
                 this.arrows = arrows
 
@@ -111,11 +104,6 @@ class EditEndFragment : Fragment(), ActionBarHelp {
             view.findNavController().navigate(action)
         }
         callback.isEnabled = true
-    }
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {

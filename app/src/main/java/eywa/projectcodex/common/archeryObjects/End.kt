@@ -2,7 +2,7 @@ package eywa.projectcodex.common.archeryObjects
 
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndViewModel
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.coroutines.CompletionHandler
@@ -203,7 +203,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
     fun addArrowsToDatabase(
             archerRoundId: Int?,
             firstArrowId: Int?,
-            inputEndViewModel: InputEndViewModel,
+            inputEndViewModel: ArcherRoundScoreViewModel,
             callback: CompletionHandler? = null
     ) {
         val origArcherRoundIds = originalEnd?.map { it.archerRoundId }?.distinct()

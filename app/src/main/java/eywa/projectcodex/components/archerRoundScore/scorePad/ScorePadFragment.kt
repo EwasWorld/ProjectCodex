@@ -1,42 +1,50 @@
 package eywa.projectcodex.components.archerRoundScore.scorePad
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.TableView
 import com.evrencoskun.tableview.listener.ITableViewListener
-import dagger.android.support.AndroidSupportInjection
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.*
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.*
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import javax.inject.Inject
 import kotlin.math.ceil
 
-open class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
+class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     companion object {
         const val LOG_TAG = "ScorePadFragment"
     }
 
-    @Inject
-    lateinit var factory: ViewModelFactoryByInjection
-
     private val args: ScorePadFragmentArgs by navArgs()
-    private lateinit var scorePadViewModel: ScorePadViewModel
-    private var dialog: AlertDialog? = null
+
+    val scorePadViewModel: ArcherRoundScoreViewModel by activityViewModels()
     private var selectedRow = 0
     private var roundName: String? = null
+
+    private val noArrowsErrorDialog by lazy {
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(R.string.err_table_view__no_data)
+        builder.setMessage(R.string.err_score_pad__no_arrows)
+        builder.setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
+            // Don't skip fragments like InputEnd from the backstack in this case
+            //      else it will kick the user out of the score completely when this was probably a mistake
+            requireView().findNavController().popBackStack()
+            dialogInterface.cancel()
+        }
+        builder.create()
+    }
 
     // TODO Is there a way to make these setters common?
     private var goldsType = GoldsType.defaultGoldsType
@@ -80,8 +88,7 @@ open class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNaviga
         CustomLogger.customLogger.d(LOG_TAG, "onViewCreated")
         setFragmentTitle()
 
-        scorePadViewModel = ViewModelProvider(this, factory.create(this, args.toBundle()))
-                .get(ScorePadViewModel::class.java)
+        scorePadViewModel.archerRoundIdMutableLiveData.postValue(args.archerRoundId)
 
         // Get arrow counts and distances
         scorePadViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, Observer { archerRoundInfo ->
@@ -110,9 +117,12 @@ open class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNaviga
         // Get arrows
         scorePadViewModel.arrowsForRound.observe(viewLifecycleOwner, Observer { arrowValues ->
             if (arrowValues == null) return@Observer
-            if (arrowValues.isNullOrEmpty()) {
-                displayError()
+            if (arrowValues.isNullOrEmpty() && !noArrowsErrorDialog.isShowing) {
+                noArrowsErrorDialog.show()
                 return@Observer
+            }
+            if (noArrowsErrorDialog.isShowing) {
+                noArrowsErrorDialog.cancel()
             }
             arrows = arrowValues
         })
@@ -121,13 +131,6 @@ open class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNaviga
     private fun setFragmentTitle() {
         activity?.title = roundName ?: getString(R.string.score_pad__title)
     }
-
-    override fun onAttach(context: Context) {
-        injectMembers()
-        super.onAttach(context)
-    }
-
-    protected open fun injectMembers() = AndroidSupportInjection.inject(this)
 
     override fun onResume() {
         super.onResume()
@@ -159,9 +162,12 @@ open class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNaviga
         val tableData = calculateScorePadTableData(
                 arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit
         )
-        if (tableData.isNullOrEmpty()) {
-            displayError()
+        if (tableData.isNullOrEmpty() && !noArrowsErrorDialog.isShowing) {
+            noArrowsErrorDialog.show()
             return
+        }
+        if (noArrowsErrorDialog.isShowing) {
+            noArrowsErrorDialog.cancel()
         }
 
         val arrowRowsShot = ceil(arrows.size / endSize.toDouble()).toInt()
@@ -180,24 +186,6 @@ open class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNaviga
                 ),
                 tableData
         )
-    }
-
-    private fun displayError() {
-        if (dialog != null) {
-            return
-        }
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle(R.string.err_table_view__no_data)
-        builder.setMessage(R.string.err_score_pad__no_arrows)
-        builder.setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
-            // Don't skip fragments like InputEnd from the backstack in this case
-            //      else it will kick the user out of the score completely when this was probably a mistake
-            requireView().findNavController().popBackStack()
-            dialogInterface.cancel()
-            dialog = null
-        }
-        dialog = builder.create()
-        dialog!!.show()
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
