@@ -2,8 +2,11 @@ package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
 import eywa.projectcodex.R
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
+import eywa.projectcodex.TestData
+import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -13,6 +16,7 @@ class CalculateRowHeadersTest {
     companion object {
         private const val TOTAL_ROW_HEADER = "T"
         private const val GRAND_TOTAL_ROW_HEADER = "GT"
+        private const val DISTANCE_UNIT = "unit"
     }
 
     private lateinit var resources: Resources
@@ -25,122 +29,49 @@ class CalculateRowHeadersTest {
             when (invocation.getArgument<Int>(0)) {
                 R.string.score_pad__grand_total_row_header -> GRAND_TOTAL_ROW_HEADER
                 R.string.score_pad__distance_total_row_header -> TOTAL_ROW_HEADER
-                else -> Assert.fail("Bad string passed to resources")
+                else -> ""
             }
         }
         rowId = 0
     }
 
     @Test
+    fun testNoData() {
+        testRowHeaders(ScorePadData(listOf(), 1, GoldsType.TENS, resources), listOf())
+    }
+
+    @Test
     fun testNormalHeaders() {
         for (testSize in listOf(1, 6, 20)) {
-            testRowHeaders(
-                    ScorePadData.generateRowHeaders(listOf(testSize)),
-                    List(testSize) { Outputs.NUMBER }
-            )
+            val expectedOutput = List(testSize) { Outputs.NUMBER }.plus(Outputs.GRAND_TOTAL)
+            val input = ScorePadData(TestData.generateArrowValues(testSize, 1), 1, GoldsType.TENS, resources)
+            testRowHeaders(input, expectedOutput)
         }
     }
 
     @Test
-    fun testHeadersWithGrandTotal() {
-        testRowHeaders(
-                ScorePadData.generateRowHeaders(
-                        listOf(5),
-                        null,
-                        resources,
-                        true
-                ),
-                listOf(
-                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER,
-                        Outputs.GRAND_TOTAL
-                )
-        )
-    }
-
-    @Test
     fun testHeadersWithDistanceTotal() {
-        testRowHeaders(
-                ScorePadData.generateRowHeaders(
-                        listOf(3, 3),
-                        null,
-                        resources,
-                        false
-                ),
-                listOf(
-                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER,
-                        Outputs.NUMBER, Outputs.TOTAL
-                )
-        )
-        testRowHeaders(
-                ScorePadData.generateRowHeaders(
-                        listOf(4, 2),
-                        null,
-                        resources,
-                        false
-                ),
-                listOf(
-                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER,
-                        Outputs.NUMBER, Outputs.TOTAL
-                )
-        )
-        testRowHeaders(
-                ScorePadData.generateRowHeaders(
-                        listOf(2, 2, 2),
-                        null,
-                        resources,
-                        false
-                ),
-                listOf(
-                        Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL,
-                        Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL
-                )
-        )
-    }
-
-    @Test
-    fun testHeadersWithDistanceTotalAndArrowsComplete() {
-        testRowHeaders(
-                ScorePadData.generateRowHeaders(
-                        listOf(5),
-                        3,
-                        resources,
-                        false
-                ),
-                listOf(Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER)
-        )
-        testRowHeaders(
-                ScorePadData.generateRowHeaders(
-                        listOf(2, 4, 6),
-                        5,
-                        resources,
-                        false
-                ),
-                listOf(
-                        Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER,
-                        Outputs.TOTAL
-                )
-        )
-    }
-
-    @Test
-    fun testArrowsInputBeyondEndOfRound() {
-        testRowHeaders(
-                ScorePadData.generateRowHeaders(
-                        listOf(3),
-                        5,
-                        resources,
-                        false
-                ),
-                listOf(
-                        Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER, Outputs.TOTAL, Outputs.NUMBER, Outputs.NUMBER,
-                        Outputs.TOTAL
-                )
-        )
+        for (testDistanceSizes in listOf(listOf(3, 3), listOf(4, 2), listOf(2, 2, 2))) {
+            val expectedOutput = testDistanceSizes.map { distanceSize ->
+                List(distanceSize) { Outputs.NUMBER }.plus(Outputs.TOTAL)
+            }.flatten().plus(Outputs.GRAND_TOTAL)
+            val input = ScorePadData(
+                    TestData.generateArrowValues(testDistanceSizes.sum(), 1),
+                    1,
+                    GoldsType.TENS,
+                    resources,
+                    testDistanceSizes.mapIndexed { index, _ -> RoundArrowCount(1, index, 1.0, 1) },
+                    testDistanceSizes.mapIndexed { index, _ -> RoundDistance(1, index, 1, index * 10) },
+                    DISTANCE_UNIT
+            )
+            testRowHeaders(input, expectedOutput)
+        }
     }
 
     private enum class Outputs { NUMBER, TOTAL, GRAND_TOTAL }
 
-    private fun testRowHeaders(actual: List<InfoTableCell>, expected: List<Outputs>) {
+    private fun testRowHeaders(inputData: ScorePadData, expected: List<Outputs>) {
+        val actual = inputData.generateRowHeaders(TOTAL_ROW_HEADER, GRAND_TOTAL_ROW_HEADER)
         var maxNumberSeen = 0
         var grandTotalSeen = false
         for (i in actual.indices) {
@@ -175,35 +106,5 @@ class CalculateRowHeadersTest {
                 }
             } ?: Assert.fail("No content")
         }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testNoData() {
-        ScorePadData.generateRowHeaders(listOf(0))
-        Assert.fail("Generate no header rows")
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testNegativeRowCount() {
-        ScorePadData.generateRowHeaders(listOf(-1))
-        Assert.fail("Negative row count for distance")
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testGrandTotalNoResource() {
-        ScorePadData.generateRowHeaders(listOf(24), grandTotal = true)
-        Assert.fail("Resources required, grand total")
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testDistanceTotalNoResource() {
-        ScorePadData.generateRowHeaders(listOf(1, 4))
-        Assert.fail("Resources required, multiple distances")
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testBothTotalNoResource() {
-        ScorePadData.generateRowHeaders(listOf(1, 4), grandTotal = true)
-        Assert.fail("Resources required, grand total and multiple distances")
     }
 }

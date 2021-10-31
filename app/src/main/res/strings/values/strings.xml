@@ -48,6 +48,13 @@
     <string name="err_table_view__no_data">Table is empty</string>
     <string name="help_table_open_menu_body">Long press on a row for more options</string>
 
+    <!-- Email -->
+    <string name="email_main_details">{roundName} - {date}\nHits: {hits}, Score: {score}, Golds ({goldsType}): {golds}</string>
+    <string name="email_arrow_values_header">End - Hits - Score - Golds - Running Total</string>
+    <string name="email_arrow_values">{endString} {hits} {score} {golds} {runningTotal}</string>
+    <string name="email_distance_total">Total at {distance}{distanceUnit}: {hits} {score} {golds} {runningTotal}</string>
+    <string name="email_grand_total">Grand Total: {hits} {score} {golds}</string>
+
     <!-- General -->
     <string name="general_ok">OK</string>
     <string name="general_cancel">Cancel</string>

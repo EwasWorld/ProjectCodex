@@ -6,7 +6,9 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -172,6 +174,28 @@ class CustomConditionWaiter {
                     try {
                         onView(withText(menuItemText)).inRoot(RootMatchers.isPlatformPopup())
                                 .check(matches(isDisplayed()))
+                        return true
+                    }
+                    catch (e: NoMatchingViewException) {
+                        println("Waiting for a menu to appear")
+                    }
+                    return false
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for a menu to appear"
+                }
+            })
+        }
+
+        /**
+         * @param menuItemText the text of one of the menu items
+         */
+        fun waitForMenuItemAndPerform(menuItemText: String, action: ViewAction = click()) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    try {
+                        onView(withText(menuItemText)).inRoot(RootMatchers.isPlatformPopup()).perform(action)
                         return true
                     }
                     catch (e: NoMatchingViewException) {

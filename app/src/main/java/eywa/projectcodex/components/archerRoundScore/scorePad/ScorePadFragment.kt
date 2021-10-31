@@ -20,7 +20,6 @@ import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.*
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import kotlin.math.ceil
 
 class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     companion object {
@@ -167,7 +166,6 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         registerForContextMenu(tableView.cellRecyclerView)
 
         val tableData = ScorePadData(arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit)
-                .getAsTableCells(columnHeaderOrder)
         if (tableData.isNullOrEmpty() && !noArrowsErrorDialog.isShowing) {
             noArrowsErrorDialog.show()
             return
@@ -176,21 +174,13 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             noArrowsErrorDialog.cancel()
         }
 
-        val arrowRowsShot = ceil(arrows.size / endSize.toDouble()).toInt()
         tableAdapter.setAllItems(
                 ScorePadData.getColumnHeadersForTable(columnHeaderOrder, resources, goldsType),
-                ScorePadData.generateRowHeaders(
-                        if (arrowCounts.isNotEmpty()) {
-                            arrowCounts.map { ceil(it.arrowCount / endSize.toDouble()).toInt() }
-                        }
-                        else {
-                            listOf(arrowRowsShot)
-                        },
-                        arrowRowsShot,
-                        resources,
-                        true
+                tableData.generateRowHeaders(
+                        resources.getString(R.string.score_pad__distance_total_row_header),
+                        resources.getString(R.string.score_pad__grand_total_row_header),
                 ),
-                tableData
+                tableData.getAsTableCells(columnHeaderOrder)
         )
     }
 

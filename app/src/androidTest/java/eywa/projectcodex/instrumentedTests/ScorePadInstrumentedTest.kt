@@ -12,7 +12,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
-import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -55,7 +54,6 @@ class ScorePadInstrumentedTest {
     }
 
     private val endSize = 6
-    private val waitForMenuMs = 500L
 
     private var fragScenario: FragmentScenario<ScorePadFragment>? = null
     private var activityScenario: ActivityScenario<MainActivity>? = null
@@ -72,27 +70,17 @@ class ScorePadInstrumentedTest {
             ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
-    private fun clickMenuButton(buttonText: String): Instruction {
-        return object : Instruction() {
-            override fun getDescription(): String {
-                return "Click the desired menu item or wait if it hasn't appeared yet"
-            }
-
-            override fun checkCondition(): Boolean {
-                return try {
-                    onView(withText(buttonText)).perform(click())
-                    true
-                }
-                catch (e: NoMatchingViewException) {
-                    println("Sleep")
-                    Thread.sleep(200)
-                    false
-                }
-            }
-        }
+    private fun checkData(arrows: List<ArrowValue>, goldsHeader: String = "G") {
+        checkData(ScorePadData(arrows, endSize, GoldsType.NINES, resources), goldsHeader)
     }
 
-    private fun checkColumnHeaders(goldsHeader: String = "G") {
+    /**
+     * Check the data currently in the adapter against [expectedData]
+     */
+    private fun checkData(expectedData: ScorePadData, goldsHeader: String = "G") {
+        /*
+         * Check cells
+         */
         var col = 0
         val expectedColumnHeaders =
                 listOf("Arrows", "H", "S", goldsHeader, "R/T").map { InfoTableCell(it, "col" + col++) }
@@ -100,23 +88,20 @@ class ScorePadInstrumentedTest {
             assertEquals(expectedColumnHeaders[i], getTableView().adapter!!.getColumnHeaderItem(i))
         }
         assertNull(getTableView().adapter!!.getColumnHeaderItem(expectedColumnHeaders.size))
-    }
 
-    private fun checkRowsHeaders(rowsPerDistance: Int) {
-        checkRowsHeaders(listOf(rowsPerDistance))
-    }
-
-    private fun checkRowsHeaders(rowsPerDistance: List<Int>) {
-        val expectedRowHeaders = ScorePadData.generateRowHeaders(rowsPerDistance, null, resources, true)
+        /*
+         * Check row headers
+         */
+        val expectedRowHeaders = expectedData.generateRowHeaders("T", "GT")
         for (i in expectedRowHeaders.indices) {
             assertEquals(expectedRowHeaders[i], getTableView().adapter!!.getRowHeaderItem(i))
         }
         assertNull(getTableView().adapter!!.getRowHeaderItem(expectedRowHeaders.size))
-    }
 
-    private fun checkCells(arrows: List<ArrowValue>) {
-        val expectedCells = ScorePadData(arrows, endSize, GoldsType.NINES, resources)
-                .getAsTableCells(columnHeaderOrder)
+        /*
+         * Check column headers
+         */
+        val expectedCells = expectedData.getAsTableCells(columnHeaderOrder)
         for (i in expectedCells.indices) {
             assertEquals(expectedCells[i], getTableView().adapter!!.getCellRowItems(i))
         }
@@ -203,9 +188,7 @@ class ScorePadInstrumentedTest {
     fun testTableValues() {
         setupFragment()
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (0))
-        checkCells(arrows)
-        checkColumnHeaders()
-        checkRowsHeaders(6)
+        checkData(arrows)
     }
 
     @Test
@@ -230,14 +213,7 @@ class ScorePadInstrumentedTest {
         }
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (8))
 
-        val expectedCells = ScorePadData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, roundDistances, "m")
-                .getAsTableCells(columnHeaderOrder)
-        for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], getTableView().adapter!!.getCellRowItems(i))
-        }
-
-        checkColumnHeaders("10")
-        checkRowsHeaders(listOf(3, 3))
+        checkData(ScorePadData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, roundDistances, "m"), "10")
     }
 
     @Test
@@ -276,8 +252,7 @@ class ScorePadInstrumentedTest {
         )
 
         onView(withText("X-9-9-9-7-6")).perform(click())
-        CustomConditionWaiter.waitFor(waitForMenuMs)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadEditEnd)
         CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class.java.name))
         onView(withId(R.id.button_end_inputs__clear)).perform(click())
         val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
@@ -291,9 +266,7 @@ class ScorePadInstrumentedTest {
         val newArrows = listOf(List(endSize) { TestData.ARROWS[2] }, nextArrows).flatten()
                 .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
 
-        checkCells(newArrows)
-        checkColumnHeaders()
-        checkRowsHeaders(2)
+        checkData(newArrows)
     }
 
     @Test
@@ -319,8 +292,7 @@ class ScorePadInstrumentedTest {
         val firstEnd = End(arrows.subList(0, 6), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         firstEnd.reorderScores()
         onView(withText(firstEnd.toString())).perform(click())
-        CustomConditionWaiter.waitFor(waitForMenuMs)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadEditEnd)
         CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class.java.name))
     }
 
@@ -328,9 +300,7 @@ class ScorePadInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (0))
 
-        checkCells(arrows)
-        checkColumnHeaders()
-        checkRowsHeaders(6)
+        checkData(arrows)
     }
 
     @Test
@@ -346,8 +316,7 @@ class ScorePadInstrumentedTest {
                 End(expectedArrowsGrouped[deleteEndIndex], TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         endToClick.reorderScores()
         onView(withText(endToClick.toString())).perform(click())
-        CustomConditionWaiter.waitFor(waitForMenuMs)
-        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
+        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadDeleteEnd)
 
         ConditionWatcher.waitForCondition(object : Instruction() {
             override fun getDescription(): String {
@@ -360,11 +329,9 @@ class ScorePadInstrumentedTest {
             }
         })
 
-        checkCells(expectedArrowsGrouped.filterIndexed { index, _ ->
+        checkData(expectedArrowsGrouped.filterIndexed { index, _ ->
             index != deleteEndIndex
         }.flatten())
-        checkColumnHeaders()
-        checkRowsHeaders(5)
     }
 
     @Test
@@ -383,7 +350,7 @@ class ScorePadInstrumentedTest {
         )
 
         onView(withText("X-9-9-9-7-6")).perform(click())
-        ConditionWatcher.waitForCondition(clickMenuButton(CommonStrings.Menus.scorePadInsertEnd))
+        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadInsertEnd)
         CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (InsertEndFragment::class.java.name))
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
@@ -402,8 +369,6 @@ class ScorePadInstrumentedTest {
                 List(endSize * 2) { TestData.ARROWS[1] }
         ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
 
-        checkCells(newArrows)
-        checkColumnHeaders()
-        checkRowsHeaders(5)
+        checkData(newArrows)
     }
 }

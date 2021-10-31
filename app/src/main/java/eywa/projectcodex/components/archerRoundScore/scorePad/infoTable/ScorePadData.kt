@@ -55,112 +55,14 @@ class ScorePadData(
                 InfoTableCell(headerString, "col$colIndex")
             }
         }
-
-        /**
-         * Generate row headers that increment from **1** to size, adding in totals rows where appropriate.
-         *
-         * Cell IDs: Normal row headers, distance totals have their own numbering 'totalRow$i', grand total row: grandTotalHeader
-         *
-         * @param rowsPerDistance the number of rows after which a total-for-distance row will appear (no total-for-distance for
-         * a singleton). Will be cut down until [rowsPerDistance].sum() <= [rowsCompleted]. e.g. (5, 5) means 5 rows then a
-         * total, then 5 more then a total. If [rowsCompleted] is 8 there will be 5 rows then a total, then 3 rows then a total
-         * @param rowsCompleted the number of rows actually shot (null if this was all of them)
-         * @param grandTotal whether there is a row for the grand total
-         */
-        fun generateRowHeaders(
-                rowsPerDistance: List<Int>,
-                rowsCompleted: Int? = null,
-                resources: Resources? = null,
-                grandTotal: Boolean = false
-        ): List<InfoTableCell> {
-            require(rowsPerDistance.sum() > 0) {
-                "Must have at least one distance in rowsPerDistance with at least one row in it"
-            }
-            require(rowsPerDistance.all { it > 0 }) { "Row counts must be greater than zero" }
-            require(rowsCompleted == null || rowsCompleted >= 0) { "rowsCompleted must be at least zero or null" }
-            require(resources != null || (!grandTotal && rowsPerDistance.size == 1)) {
-                "Totals rows require resources to be not null"
-            }
-
-            /*
-             * Cut down rowsPerDistance if necessary
-             */
-            var rowsPerDistanceCompleted: MutableList<Int>? = null
-            if (rowsPerDistance.size > 1 || (rowsCompleted != null && rowsCompleted > rowsPerDistance.sum())) {
-                if (rowsCompleted == null) {
-                    rowsPerDistanceCompleted = rowsPerDistance.toMutableList()
-                }
-                else {
-                    rowsPerDistanceCompleted = mutableListOf()
-                    var totalRowCount = 0
-                    for (rows in rowsPerDistance) {
-                        if (rowsCompleted >= totalRowCount + rows) {
-                            rowsPerDistanceCompleted.add(rows)
-                        }
-                        else if (rowsCompleted == totalRowCount) {
-                            break
-                        }
-                        else {
-                            rowsPerDistanceCompleted.add(rowsCompleted - totalRowCount)
-                            break
-                        }
-                        totalRowCount += rows
-                    }
-                }
-            }
-
-            /*
-             * Generate rows
-             */
-            // Generate integer row headers for ends
-            val headers = IntRange(1, rowsCompleted ?: rowsPerDistance.sum()).map { rowIndex ->
-                InfoTableCell(rowIndex, "row$rowIndex")
-            }.toMutableList()
-
-            // Add in distance total headers
-            if (!rowsPerDistanceCompleted.isNullOrEmpty()) {
-                var nextLocation = 0
-                for ((i, distanceRowCount) in rowsPerDistanceCompleted.withIndex()) {
-                    nextLocation += distanceRowCount
-                    headers.add(
-                            nextLocation,
-                            InfoTableCell(
-                                    resources!!.getString(R.string.score_pad__distance_total_row_header),
-                                    "$DISTANCE_TOTAL_CELL_ID_PREFIX${i}Header",
-                                    InfoTableCell.CellStyle.BOLD
-                            )
-                    )
-                    // Account for the row that's just been added
-                    nextLocation++
-                }
-                // Surplus total
-                if (!headers.last().id.contains(DISTANCE_TOTAL_CELL_ID_PREFIX)) {
-                    headers.add(
-                            InfoTableCell(
-                                    resources!!.getString(R.string.score_pad__distance_total_row_header),
-                                    "${DISTANCE_TOTAL_CELL_ID_PREFIX}SurplusHeader",
-                                    InfoTableCell.CellStyle.BOLD
-                            )
-                    )
-                }
-            }
-
-            // Grand total header
-            if (grandTotal) {
-                headers.add(
-                        InfoTableCell(
-                                resources!!.getString(R.string.score_pad__grand_total_row_header),
-                                "${GRAND_TOTAL_CELL_ID_PREFIX}Header",
-                                InfoTableCell.CellStyle.BOLD
-                        )
-                )
-            }
-            return headers
-        }
     }
 
     private val data: MutableList<MutableMap<ColumnHeader, Any>> =
             calculateScorePadData(arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit)
+
+    fun isNullOrEmpty(): Boolean {
+        return data.isNullOrEmpty()
+    }
 
     fun getAsTableCells(columnOrder: List<ColumnHeader>): List<List<InfoTableCell>> {
         return data.mapIndexed { rowIndex, rowData ->
@@ -181,6 +83,40 @@ class ScorePadData(
                         cellIdPrefix + cellRowIndex + colIndex,
                         if (rowType.isTotal) InfoTableCell.CellStyle.BOLD else null
                 )
+            }
+        }
+    }
+
+    /**
+     * Generate row headers corresponding to the stored score pad data.
+     * Headers increment from **1** to data.size, adding in total rows where appropriate.
+     *
+     * Cell IDs: ends: 'row$endIndex', distance totals: '[DISTANCE_TOTAL_CELL_ID_PREFIX]${distance}Header',
+     * grand total row: [GRAND_TOTAL_CELL_ID_PREFIX]Header
+     *
+     * @param distanceTotalRowHeader the [InfoTableCell.cellContent] when the row is a distance total
+     * @param grandTotalRowHeader the [InfoTableCell.cellContent] when the row is the grand total
+     */
+    fun generateRowHeaders(distanceTotalRowHeader: String, grandTotalRowHeader: String): List<InfoTableCell> {
+        if (!data.isNullOrEmpty() && !data[0].isNullOrEmpty()) return listOf()
+
+        var endCount = 0
+        return data.map { row ->
+            when (row[ColumnHeader.ROW_TYPE]) {
+                ScorePadRowType.GRAND_TOTAL -> InfoTableCell(
+                        grandTotalRowHeader,
+                        "${GRAND_TOTAL_CELL_ID_PREFIX}Header",
+                        InfoTableCell.CellStyle.BOLD
+                )
+                ScorePadRowType.DISTANCE_TOTAL -> InfoTableCell(
+                        distanceTotalRowHeader,
+                        "$DISTANCE_TOTAL_CELL_ID_PREFIX${row[ColumnHeader.DISTANCE]}Header",
+                        InfoTableCell.CellStyle.BOLD
+                )
+                else -> {
+                    endCount++
+                    InfoTableCell(endCount.toString(), "row$endCount")
+                }
             }
         }
     }
