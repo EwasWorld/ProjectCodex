@@ -26,7 +26,7 @@ import java.util.*
 class NewScoreFragment : Fragment(), ActionBarHelp {
     private val args: NewScoreFragmentArgs by navArgs()
 
-    lateinit var newScoreViewModel: NewScoreViewModel
+    private lateinit var newScoreViewModel: NewScoreViewModel
 
     /**
      * Round information for the two round selection spinners

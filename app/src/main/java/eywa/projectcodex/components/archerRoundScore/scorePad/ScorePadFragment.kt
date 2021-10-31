@@ -29,9 +29,16 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
     private val args: ScorePadFragmentArgs by navArgs()
 
-    val scorePadViewModel: ArcherRoundScoreViewModel by activityViewModels()
+    private val scorePadViewModel: ArcherRoundScoreViewModel by activityViewModels()
     private var selectedRow = 0
     private var roundName: String? = null
+    private val columnHeaderOrder = listOf(
+            ScorePadHeader.END_STRING,
+            ScorePadHeader.HITS,
+            ScorePadHeader.SCORE,
+            ScorePadHeader.GOLDS,
+            ScorePadHeader.RUNNING_TOTAL
+    )
 
     private val noArrowsErrorDialog by lazy {
         val builder = AlertDialog.Builder(activity)
@@ -159,8 +166,8 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         tableView.tableViewListener = ScorePadTableViewListener(tableView)
         registerForContextMenu(tableView.cellRecyclerView)
 
-        val tableData = calculateScorePadTableData(
-                arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit
+        val tableData = calculateScorePadDataAsTableCells(
+                columnHeaderOrder, arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit
         )
         if (tableData.isNullOrEmpty() && !noArrowsErrorDialog.isShowing) {
             noArrowsErrorDialog.show()
@@ -172,8 +179,8 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
         val arrowRowsShot = ceil(arrows.size / endSize.toDouble()).toInt()
         tableAdapter.setAllItems(
-                getColumnHeadersForTable(scorePadColumnHeaderIds, resources, goldsType),
-                generateNumberedRowHeaders(
+                getColumnHeadersForTable(columnHeaderOrder, resources, goldsType),
+                generateScorePadRowHeaders(
                         if (arrowCounts.isNotEmpty()) {
                             arrowCounts.map { ceil(it.arrowCount / endSize.toDouble()).toInt() }
                         }

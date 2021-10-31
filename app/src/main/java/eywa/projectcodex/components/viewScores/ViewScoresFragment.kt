@@ -26,7 +26,7 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         private const val LOG_TAG = "ViewScoresFrag"
     }
 
-    lateinit var viewScoresViewModel: ViewScoresViewModel
+    private lateinit var viewScoresViewModel: ViewScoresViewModel
 
     /*
      * All data from certain tables in the database

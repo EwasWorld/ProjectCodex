@@ -10,50 +10,41 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlin.math.min
 
-private const val GOLDS_HEADER_PLACE_HOLDER = -1
-
-const val TOTAL_CELL_ID = "Total"
+private const val TOTAL_CELL_ID = "Total"
 private const val DISTANCE_TOTAL_CELL_ID_PREFIX = "distance$TOTAL_CELL_ID"
 private const val GRAND_TOTAL_CELL_ID_PREFIX = "grand$TOTAL_CELL_ID"
 
-val scorePadColumnHeaderIds = listOf(
-        R.string.score_pad__end_string_header,
-        R.string.table_hits_header,
-        R.string.table_score_header,
-        GOLDS_HEADER_PLACE_HOLDER,
-        R.string.score_pad__running_total_header
-)
-
 /**
- * @param headerStringIds the resource IDs of each of the column headers in order (golds column should be -1)
+ * @param columnOrder the resource IDs of each of the column headers in order (golds column should be -1)
  * @param goldsType the goldsType to get the golds column header from (required if a headerStringId contains a -1)
  */
 fun getColumnHeadersForTable(
-        headerStringIds: List<Int>,
+        columnOrder: List<ScorePadHeader>,
         resources: Resources,
         goldsType: GoldsType? = null
 ): List<InfoTableCell> {
-    require(headerStringIds.isNotEmpty()) { "No headers provided" }
-    require(!headerStringIds.contains(GOLDS_HEADER_PLACE_HOLDER) || goldsType != null) {
-        "Must provide a goldsType if stringIds contains the golds placeholder, $GOLDS_HEADER_PLACE_HOLDER"
+    require(columnOrder.isNotEmpty()) { "No headers provided" }
+
+    return columnOrder.mapIndexed { colIndex, header ->
+        val headerString =
+                if (header == ScorePadHeader.GOLDS) {
+                    require(goldsType != null) {
+                        "Must provide a goldsType if columnOrder contains the ${ScorePadHeader.GOLDS}"
+                    }
+                    resources.getString(goldsType.shortStringId)
+                }
+                else {
+                    require(header.resourceId != null) {
+                        "Cannot use $header as it doesn't have a corresponding resource id"
+                    }
+                    resources.getString(header.resourceId)
+                }
+        InfoTableCell(headerString, "col$colIndex")
     }
-    val stringsList = headerStringIds.map {
-        if (it == GOLDS_HEADER_PLACE_HOLDER) {
-            resources.getString(goldsType!!.shortStringId)
-        }
-        else {
-            resources.getString(it)
-        }
-    }.toMutableList()
-    return toCellsHeader(stringsList, true)
 }
 
-/**
- * Displays the arrow data along with total rows and a grand total row
- * @see scorePadColumnHeaderIds
- * @return score pad data or an empty list if there's no data to show
- */
-fun calculateScorePadTableData(
+fun calculateScorePadDataAsTableCells(
+        columnOrder: List<ScorePadHeader>,
         arrows: List<ArrowValue>,
         endSize: Int,
         goldsType: GoldsType,
@@ -61,8 +52,53 @@ fun calculateScorePadTableData(
         arrowCounts: List<RoundArrowCount> = listOf(),
         distances: List<RoundDistance> = listOf(),
         distanceUnit: String? = null
-): MutableList<MutableList<InfoTableCell>> {
+): List<List<InfoTableCell>> {
+    return calculateScorePadData(arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit)
+            .mapIndexed { rowIndex, rowData ->
+                val rowType = rowData[ScorePadHeader.ROW_TYPE] as ScorePadRowType
+                val cellIdPrefix = when (rowType) {
+                    ScorePadRowType.DISTANCE_TOTAL -> DISTANCE_TOTAL_CELL_ID_PREFIX
+                    ScorePadRowType.GRAND_TOTAL -> GRAND_TOTAL_CELL_ID_PREFIX
+                    else -> "cell"
+                }
+                val cellRowIndex = when (rowType) {
+                    ScorePadRowType.DISTANCE_TOTAL -> rowData[ScorePadHeader.DISTANCE]
+                    ScorePadRowType.GRAND_TOTAL -> ""
+                    else -> rowIndex
+                }
+                columnOrder.mapIndexed { colIndex, colHeader ->
+                    InfoTableCell(
+                            rowData[colHeader],
+                            cellIdPrefix + cellRowIndex + colIndex,
+                            if (rowType.isTotal) InfoTableCell.CellStyle.BOLD else null
+                    )
+                }
+            }
+}
+
+/**
+ * Calculates totals for each end, distance, and the round
+ *
+ * @param endSize how many arrows each row represents
+ *
+ * @return an list of rows each containing their end string, hits, score, and golds etc.
+ * Has rows for distance totals and a grand total in appropriate places
+ */
+fun calculateScorePadData(
+        arrows: List<ArrowValue>,
+        endSize: Int,
+        goldsType: GoldsType,
+        resources: Resources,
+        arrowCounts: List<RoundArrowCount> = listOf(),
+        distances: List<RoundDistance> = listOf(),
+        distanceUnit: String? = null
+): MutableList<MutableMap<ScorePadHeader, Any>> {
+    if (arrows.isNullOrEmpty()) {
+        return mutableListOf()
+    }
+
     require(endSize > 0) { "endSize must be >0" }
+    require(arrows.distinctBy { it.archerRoundId }.size == 1) { "Must only contain arrows from a single score" }
     require(arrowCounts.size == distances.size) { "Must have the same number of arrow counts as distances" }
     require(arrowCounts.isEmpty() || !distanceUnit.isNullOrEmpty()) { "Must provide a unit for distance totals" }
 
@@ -90,7 +126,7 @@ fun calculateScorePadTableData(
      * Splitting it into a distance loop ensures that if an odd end size is chosen, the distances will still be split
      *     out correctly with their corresponding totals
      */
-    val tableData = mutableListOf<MutableList<InfoTableCell>>()
+    val tableData = mutableListOf<MutableMap<ScorePadHeader, Any>>()
     var runningArrowCount = 0
     var runningTotal = 0
     for (distanceInfo in distancesInfo) {
@@ -106,7 +142,7 @@ fun calculateScorePadTableData(
          * Ends
          */
         for (endArrows in distanceArrows.chunked(endSize)) {
-            val endRowData = mutableListOf<Any>()
+            val endData = mutableMapOf<ScorePadHeader, Any>()
             val end = End(
                     endArrows,
                     resources.getString(R.string.end_to_string_arrow_placeholder),
@@ -116,24 +152,22 @@ fun calculateScorePadTableData(
             val endScore = end.getScore()
             runningTotal += endScore
 
-            endRowData.add(end.toString())
-            endRowData.add(end.getHits())
-            endRowData.add(endScore)
-            endRowData.add(end.getGolds(goldsType))
-            endRowData.add(runningTotal)
-
-            // Add row
-            val rowCells = toCells(endRowData, tableData.size)
-            check(rowCells.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
-            tableData.add(rowCells)
+            endData[ScorePadHeader.ROW_TYPE] = ScorePadRowType.END
+            endData[ScorePadHeader.END_STRING] = end.toString()
+            endData[ScorePadHeader.HITS] = end.getHits()
+            endData[ScorePadHeader.SCORE] = endScore
+            endData[ScorePadHeader.GOLDS] = end.getGolds(goldsType)
+            endData[ScorePadHeader.RUNNING_TOTAL] = runningTotal
+            tableData.add(endData)
         }
 
         /*
          * Distance total
          */
         if (distancesInfo.size > 1) {
-            val distanceRowData = mutableListOf<Any>()
-            distanceRowData.add(
+            val distanceRowData = mutableMapOf<ScorePadHeader, Any>()
+            distanceRowData[ScorePadHeader.ROW_TYPE] = ScorePadRowType.DISTANCE_TOTAL
+            distanceRowData[ScorePadHeader.END_STRING] =
                     if (distance != null) {
                         resourceStringReplace(
                                 resources.getString(R.string.score_pad__distance_total),
@@ -143,51 +177,30 @@ fun calculateScorePadTableData(
                     else {
                         resources.getString(R.string.score_pad__surplus_total)
                     }
-            )
-            distanceRowData.add(distanceArrows.count { it.score != 0 })
-            distanceRowData.add(distanceArrows.sumOf { it.score })
-            distanceRowData.add(distanceArrows.count { goldsType.isGold(it) })
-            distanceRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
-            check(distanceRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
-            // Having 'total' in the id makes it bold - see InfoTableViewAdapter.setBoldIfTotal
-            tableData.add(toCells(distanceRowData, distance, DISTANCE_TOTAL_CELL_ID_PREFIX))
+
+            distanceRowData[ScorePadHeader.HITS] = distanceArrows.count { it.score != 0 }
+            distanceRowData[ScorePadHeader.SCORE] = distanceArrows.sumOf { it.score }
+            distanceRowData[ScorePadHeader.GOLDS] = distanceArrows.count { goldsType.isGold(it) }
+            distanceRowData[ScorePadHeader.RUNNING_TOTAL] =
+                    resources.getString(R.string.score_pad__running_total_placeholder)
+            distanceRowData[ScorePadHeader.DISTANCE] = (distance ?: "Surplus").toString()
+            tableData.add(distanceRowData)
         }
     }
 
     /*
      * Grand total
      */
-    val grandTotalRowData = mutableListOf<Any>()
-    grandTotalRowData.add(resources.getString(R.string.score_pad__grand_total))
-    grandTotalRowData.add(arrows.count { it.score != 0 })
-    grandTotalRowData.add(arrows.sumOf { it.score })
-    grandTotalRowData.add(arrows.count { goldsType.isGold(it) })
-    grandTotalRowData.add(resources.getString(R.string.score_pad__running_total_placeholder))
-    check(grandTotalRowData.size == scorePadColumnHeaderIds.size) { "Row length doesn't match headers length" }
-    // Having 'total' in the id makes it bold - see InfoTableViewAdapter.setBoldIfTotal
-    tableData.add(toCells(grandTotalRowData, null, GRAND_TOTAL_CELL_ID_PREFIX))
+    val grandTotalRowData = mutableMapOf<ScorePadHeader, Any>()
+    grandTotalRowData[ScorePadHeader.ROW_TYPE] = ScorePadRowType.GRAND_TOTAL
+    grandTotalRowData[ScorePadHeader.END_STRING] = resources.getString(R.string.score_pad__grand_total)
+    grandTotalRowData[ScorePadHeader.HITS] = arrows.count { it.score != 0 }
+    grandTotalRowData[ScorePadHeader.SCORE] = arrows.sumOf { it.score }
+    grandTotalRowData[ScorePadHeader.GOLDS] = arrows.count { goldsType.isGold(it) }
+    grandTotalRowData[ScorePadHeader.RUNNING_TOTAL] = resources.getString(R.string.score_pad__running_total_placeholder)
+    tableData.add(grandTotalRowData)
 
     return tableData
-}
-
-/**
- * Convert from List<String> to List<InfoTableCell> for cells
- */
-private fun toCells(rowData: List<Any>, rowId: Int?, prefix: String = "cell"): MutableList<InfoTableCell> {
-    require(rowData.isNotEmpty()) { "Data cannot be empty" }
-    val row = rowId?.toString() ?: ""
-    var col = 0
-    return rowData.map { InfoTableCell(it, prefix + row + col++.toString()) }.toMutableList()
-}
-
-/**
- * Convert from List<String> to List<InfoTableCell> for row or column headers
- */
-private fun toCellsHeader(data: List<String>, isColumn: Boolean): List<InfoTableCell> {
-    require(data.isNotEmpty()) { "Data cannot be empty" }
-    val prefix = if (isColumn) "col" else "row"
-    var index = 0
-    return data.map { InfoTableCell(it, prefix + index++) }
 }
 
 /**
@@ -200,21 +213,20 @@ private fun toCellsHeader(data: List<String>, isColumn: Boolean): List<InfoTable
  * total, then 5 more then a total. If [rowsCompleted] is 8 there will be 5 rows then a total, then 3 rows then a total
  * @param rowsCompleted the number of rows actually shot (null if this was all of them)
  * @param grandTotal whether there is a row for the grand total
- * @see toCellsHeader
  */
-fun generateNumberedRowHeaders(
+fun generateScorePadRowHeaders(
         rowsPerDistance: List<Int>,
         rowsCompleted: Int? = null,
         resources: Resources? = null,
         grandTotal: Boolean = false
 ): List<InfoTableCell> {
-    require(rowsPerDistance.sum() > 0) { "Must have at least one distance (array item) with at least one row in it" }
-    require(!rowsPerDistance.contains(0)) { "Cannot have zero rows at a distance" }
-    require(rowsCompleted == null || rowsCompleted >= 0) { "rowsCompleted must be >= 0" }
-    require(resources != null || (!grandTotal && rowsPerDistance.size == 1))
-    { "Totals rows require resources to be not null" }
-    for (count in rowsPerDistance) {
-        require(count > 0) { "Row counts cannot be <= 0" }
+    require(rowsPerDistance.sum() > 0) {
+        "Must have at least one distance in rowsPerDistance with at least one row in it"
+    }
+    require(rowsPerDistance.all { it > 0 }) { "Row counts must be greater than zero" }
+    require(rowsCompleted == null || rowsCompleted >= 0) { "rowsCompleted must be at least zero or null" }
+    require(resources != null || (!grandTotal && rowsPerDistance.size == 1)) {
+        "Totals rows require resources to be not null"
     }
 
     /*
@@ -248,9 +260,9 @@ fun generateNumberedRowHeaders(
      * Generate rows
      */
     // Generate integer row headers for ends
-    val headers = toCellsHeader(
-            IntRange(1, rowsCompleted ?: rowsPerDistance.sum()).map { it.toString() }, false
-    ).toMutableList()
+    val headers = IntRange(1, rowsCompleted ?: rowsPerDistance.sum()).map { rowIndex ->
+        InfoTableCell(rowIndex, "row$rowIndex")
+    }.toMutableList()
 
     // Add in distance total headers
     if (!rowsPerDistanceCompleted.isNullOrEmpty()) {
@@ -261,7 +273,8 @@ fun generateNumberedRowHeaders(
                     nextLocation,
                     InfoTableCell(
                             resources!!.getString(R.string.score_pad__distance_total_row_header),
-                            "$DISTANCE_TOTAL_CELL_ID_PREFIX${i}Header"
+                            "$DISTANCE_TOTAL_CELL_ID_PREFIX${i}Header",
+                            InfoTableCell.CellStyle.BOLD
                     )
             )
             // Account for the row that's just been added
@@ -272,7 +285,8 @@ fun generateNumberedRowHeaders(
             headers.add(
                     InfoTableCell(
                             resources!!.getString(R.string.score_pad__distance_total_row_header),
-                            "${DISTANCE_TOTAL_CELL_ID_PREFIX}SurplusHeader"
+                            "${DISTANCE_TOTAL_CELL_ID_PREFIX}SurplusHeader",
+                            InfoTableCell.CellStyle.BOLD
                     )
             )
         }
@@ -283,21 +297,20 @@ fun generateNumberedRowHeaders(
         headers.add(
                 InfoTableCell(
                         resources!!.getString(R.string.score_pad__grand_total_row_header),
-                        "${GRAND_TOTAL_CELL_ID_PREFIX}Header"
+                        "${GRAND_TOTAL_CELL_ID_PREFIX}Header",
+                        InfoTableCell.CellStyle.BOLD
                 )
         )
     }
     return headers
 }
 
-/**
- * @see generateNumberedRowHeaders
- */
-fun generateNumberedRowHeaders(
-        rowsPerDistance: Int,
-        rowsCompleted: Int? = null,
-        resources: Resources? = null,
-        grandTotal: Boolean = false
-): List<InfoTableCell> {
-    return generateNumberedRowHeaders(listOf(rowsPerDistance), rowsCompleted, resources, grandTotal)
+enum class ScorePadHeader(val resourceId: Int? = null) {
+    END_STRING(R.string.score_pad__end_string_header), HITS(R.string.table_hits_header),
+    SCORE(R.string.table_score_header), GOLDS, RUNNING_TOTAL(R.string.score_pad__running_total_header), ROW_TYPE,
+    DISTANCE
+}
+
+enum class ScorePadRowType(val isTotal: Boolean) {
+    END(false), DISTANCE_TOTAL(true), GRAND_TOTAL(true)
 }

@@ -10,7 +10,6 @@ import android.widget.TextView
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
 import eywa.projectcodex.R
-import java.util.*
 
 
 class InfoTableViewAdapter(private val context: Context) :
@@ -84,7 +83,7 @@ class InfoTableViewAdapter(private val context: Context) :
             cellTextView.text = cell?.content.toString()
 
             if (viewType != ItemViewType.COLUMN_HEADER.ordinal && cell?.id != null) {
-                if (cell.id.lowercase(Locale.ROOT).contains(TOTAL_CELL_ID.lowercase(Locale.ROOT))) {
+                if (cell.style == InfoTableCell.CellStyle.BOLD) {
                     isTotalCell = true
                     cellTextView.setTypeface(cellTextView.typeface, Typeface.BOLD)
                 }

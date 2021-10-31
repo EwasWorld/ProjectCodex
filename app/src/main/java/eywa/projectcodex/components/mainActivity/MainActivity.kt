@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     lateinit var navHostFragment: NavHostFragment
-    lateinit var mainActivityViewModel: MainActivityViewModel
+    private lateinit var mainActivityViewModel: MainActivityViewModel
     private var defaultRoundsVersion = -1
 
     /**

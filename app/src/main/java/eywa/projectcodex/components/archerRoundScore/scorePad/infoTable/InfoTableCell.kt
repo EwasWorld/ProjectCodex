@@ -2,24 +2,14 @@ package eywa.projectcodex.components.archerRoundScore.scorePad.infoTable
 
 import com.evrencoskun.tableview.sort.ISortableModel
 
-class InfoTableCell(content: Any?, id: String) : ISortableModel {
-    private var cellContent = content
-    private var cellId = id
-
+class InfoTableCell(private val cellContent: Any?, private val cellId: String, val style: CellStyle? = null) :
+        ISortableModel {
     override fun getContent(): Any? {
         return cellContent
     }
 
     override fun getId(): String {
         return cellId
-    }
-
-    fun setContent(value: Any?) {
-        cellContent = value
-    }
-
-    fun setId(value: String) {
-        cellId = value
     }
 
     override fun equals(other: Any?): Boolean {
@@ -41,4 +31,6 @@ class InfoTableCell(content: Any?, id: String) : ISortableModel {
     override fun toString(): String {
         return cellId + ":" + cellContent.toString()
     }
+
+    enum class CellStyle { BOLD }
 }
