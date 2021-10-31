@@ -6,8 +6,7 @@ import eywa.projectcodex.TestData
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadHeader
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.calculateScorePadDataAsTableCells
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import org.junit.Assert
@@ -29,11 +28,11 @@ class CalculateScorePadDataTest {
     private lateinit var resources: Resources
 
     private val columnHeaderOrder = listOf(
-            ScorePadHeader.END_STRING,
-            ScorePadHeader.HITS,
-            ScorePadHeader.SCORE,
-            ScorePadHeader.GOLDS,
-            ScorePadHeader.RUNNING_TOTAL
+            ScorePadData.ColumnHeader.END_STRING,
+            ScorePadData.ColumnHeader.HITS,
+            ScorePadData.ColumnHeader.SCORE,
+            ScorePadData.ColumnHeader.GOLDS,
+            ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
     @Before
@@ -155,16 +154,8 @@ class CalculateScorePadDataTest {
         )
 
         val scorePadData =
-                calculateScorePadDataAsTableCells(
-                        columnHeaderOrder,
-                        arrows,
-                        endSize,
-                        GoldsType.TENS,
-                        resources,
-                        arrowCounts,
-                        distances,
-                        "unit"
-                )
+                ScorePadData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, distances, "unit")
+                        .getAsTableCells(columnHeaderOrder)
 
         Assert.assertEquals(expectedRows.size, scorePadData.size)
         for (i in scorePadData.indices) {
@@ -187,16 +178,8 @@ class CalculateScorePadDataTest {
         )
 
         val scorePadData =
-                calculateScorePadDataAsTableCells(
-                        columnHeaderOrder,
-                        arrows,
-                        endSize,
-                        GoldsType.TENS,
-                        resources,
-                        arrowCounts,
-                        distances,
-                        "unit"
-                )
+                ScorePadData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, distances, "unit")
+                        .getAsTableCells(columnHeaderOrder)
 
         val otherRows = listOf(
                 InfoTableCell("X-10-9-8-7-6", "cell<row>0"),
@@ -247,13 +230,7 @@ class CalculateScorePadDataTest {
     @Test
     fun testNoData() {
         Assert.assertTrue(
-                calculateScorePadDataAsTableCells(
-                        columnHeaderOrder,
-                        listOf(),
-                        endSize,
-                        goldsType,
-                        resources
-                ).isNullOrEmpty()
+                ScorePadData(listOf(), endSize, goldsType, resources).getAsTableCells(columnHeaderOrder).isNullOrEmpty()
         )
     }
 
@@ -266,7 +243,7 @@ class CalculateScorePadDataTest {
     private fun checkScorePadData(size: Int, endSize: Int, goldsType: GoldsType) {
         val generatedArrows = TestData.generateArrowValues(size, 1)
         val scorePadData =
-                calculateScorePadDataAsTableCells(columnHeaderOrder, generatedArrows, endSize, goldsType, resources)
+                ScorePadData(generatedArrows, endSize, goldsType, resources).getAsTableCells(columnHeaderOrder)
 
         val chunkedArrows = generatedArrows.chunked(endSize)
         // -1 for grand total

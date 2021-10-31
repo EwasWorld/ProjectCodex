@@ -2,8 +2,7 @@ package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
 import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadHeader
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.getColumnHeadersForTable
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -15,11 +14,11 @@ class CalculateColumnHeadersTests {
     private lateinit var resources: Resources
 
     private val headerIds = listOf(
-            ScorePadHeader.END_STRING,
-            ScorePadHeader.HITS,
-            ScorePadHeader.SCORE,
-            ScorePadHeader.GOLDS,
-            ScorePadHeader.RUNNING_TOTAL
+            ScorePadData.ColumnHeader.END_STRING,
+            ScorePadData.ColumnHeader.HITS,
+            ScorePadData.ColumnHeader.SCORE,
+            ScorePadData.ColumnHeader.GOLDS,
+            ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
     @Before
@@ -33,11 +32,11 @@ class CalculateColumnHeadersTests {
         for (testGoldsType in GoldsType.values()) {
             reset(resources)
             `when`(resources.getString(anyInt())).thenReturn("")
-            getColumnHeadersForTable(headerIds, resources, testGoldsType)
+            ScorePadData.getColumnHeadersForTable(headerIds, resources, testGoldsType)
             val captor = ArgumentCaptor.forClass(Int::class.java)
             verify(resources, times(headerIds.size)).getString(captor.capture())
             for (i in captor.allValues.indices) {
-                if (headerIds[i] == ScorePadHeader.GOLDS) {
+                if (headerIds[i] == ScorePadData.ColumnHeader.GOLDS) {
                     Assert.assertEquals(testGoldsType.shortStringId, captor.allValues[i])
                 }
                 else {
@@ -52,24 +51,24 @@ class CalculateColumnHeadersTests {
      */
     @Test
     fun testGetStandardHeadersWithResourceParameter() {
-        getColumnHeadersForTable(listOf(ScorePadHeader.END_STRING), resources)
+        ScorePadData.getColumnHeadersForTable(listOf(ScorePadData.ColumnHeader.END_STRING), resources)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testNoData() {
-        getColumnHeadersForTable(listOf(), resources, goldsType)
+        ScorePadData.getColumnHeadersForTable(listOf(), resources, goldsType)
         Assert.fail("Create column headers with no data")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testPlaceholderButNoGoldsType() {
-        getColumnHeadersForTable(listOf(ScorePadHeader.GOLDS), resources)
+        ScorePadData.getColumnHeadersForTable(listOf(ScorePadData.ColumnHeader.GOLDS), resources)
         Assert.fail("Golds placeholder and no goldsType given")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testHeaderWithNullResId() {
-        getColumnHeadersForTable(listOf(ScorePadHeader.ROW_TYPE), resources)
+        ScorePadData.getColumnHeadersForTable(listOf(ScorePadData.ColumnHeader.ROW_TYPE), resources)
         Assert.fail("Row type used as header")
     }
 }

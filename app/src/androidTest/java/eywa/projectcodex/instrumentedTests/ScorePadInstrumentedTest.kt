@@ -31,9 +31,7 @@ import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadHeader
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.calculateScorePadDataAsTableCells
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.generateScorePadRowHeaders
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -67,11 +65,11 @@ class ScorePadInstrumentedTest {
     private lateinit var arrows: List<ArrowValue>
 
     private val columnHeaderOrder = listOf(
-            ScorePadHeader.END_STRING,
-            ScorePadHeader.HITS,
-            ScorePadHeader.SCORE,
-            ScorePadHeader.GOLDS,
-            ScorePadHeader.RUNNING_TOTAL
+            ScorePadData.ColumnHeader.END_STRING,
+            ScorePadData.ColumnHeader.HITS,
+            ScorePadData.ColumnHeader.SCORE,
+            ScorePadData.ColumnHeader.GOLDS,
+            ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
     private fun clickMenuButton(buttonText: String): Instruction {
@@ -109,7 +107,7 @@ class ScorePadInstrumentedTest {
     }
 
     private fun checkRowsHeaders(rowsPerDistance: List<Int>) {
-        val expectedRowHeaders = generateScorePadRowHeaders(rowsPerDistance, null, resources, true)
+        val expectedRowHeaders = ScorePadData.generateRowHeaders(rowsPerDistance, null, resources, true)
         for (i in expectedRowHeaders.indices) {
             assertEquals(expectedRowHeaders[i], getTableView().adapter!!.getRowHeaderItem(i))
         }
@@ -117,8 +115,8 @@ class ScorePadInstrumentedTest {
     }
 
     private fun checkCells(arrows: List<ArrowValue>) {
-        val expectedCells =
-                calculateScorePadDataAsTableCells(columnHeaderOrder, arrows, endSize, GoldsType.NINES, resources)
+        val expectedCells = ScorePadData(arrows, endSize, GoldsType.NINES, resources)
+                .getAsTableCells(columnHeaderOrder)
         for (i in expectedCells.indices) {
             assertEquals(expectedCells[i], getTableView().adapter!!.getCellRowItems(i))
         }
@@ -232,9 +230,8 @@ class ScorePadInstrumentedTest {
         }
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (8))
 
-        val expectedCells = calculateScorePadDataAsTableCells(
-                columnHeaderOrder, arrows, endSize, GoldsType.TENS, resources, arrowCounts, roundDistances, "m"
-        )
+        val expectedCells = ScorePadData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, roundDistances, "m")
+                .getAsTableCells(columnHeaderOrder)
         for (i in expectedCells.indices) {
             assertEquals(expectedCells[i], getTableView().adapter!!.getCellRowItems(i))
         }

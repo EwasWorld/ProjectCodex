@@ -33,11 +33,11 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
     private var selectedRow = 0
     private var roundName: String? = null
     private val columnHeaderOrder = listOf(
-            ScorePadHeader.END_STRING,
-            ScorePadHeader.HITS,
-            ScorePadHeader.SCORE,
-            ScorePadHeader.GOLDS,
-            ScorePadHeader.RUNNING_TOTAL
+            ScorePadData.ColumnHeader.END_STRING,
+            ScorePadData.ColumnHeader.HITS,
+            ScorePadData.ColumnHeader.SCORE,
+            ScorePadData.ColumnHeader.GOLDS,
+            ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
     private val noArrowsErrorDialog by lazy {
@@ -166,9 +166,8 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         tableView.tableViewListener = ScorePadTableViewListener(tableView)
         registerForContextMenu(tableView.cellRecyclerView)
 
-        val tableData = calculateScorePadDataAsTableCells(
-                columnHeaderOrder, arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit
-        )
+        val tableData = ScorePadData(arrows, endSize, goldsType, resources, arrowCounts, distances, distanceUnit)
+                .getAsTableCells(columnHeaderOrder)
         if (tableData.isNullOrEmpty() && !noArrowsErrorDialog.isShowing) {
             noArrowsErrorDialog.show()
             return
@@ -179,8 +178,8 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
 
         val arrowRowsShot = ceil(arrows.size / endSize.toDouble()).toInt()
         tableAdapter.setAllItems(
-                getColumnHeadersForTable(columnHeaderOrder, resources, goldsType),
-                generateScorePadRowHeaders(
+                ScorePadData.getColumnHeadersForTable(columnHeaderOrder, resources, goldsType),
+                ScorePadData.generateRowHeaders(
                         if (arrowCounts.isNotEmpty()) {
                             arrowCounts.map { ceil(it.arrowCount / endSize.toDouble()).toInt() }
                         }

@@ -3,7 +3,7 @@ package eywa.projectcodex.infoTableDataCalculations
 import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.generateScorePadRowHeaders
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -35,7 +35,7 @@ class CalculateRowHeadersTest {
     fun testNormalHeaders() {
         for (testSize in listOf(1, 6, 20)) {
             testRowHeaders(
-                    generateScorePadRowHeaders(listOf(testSize)),
+                    ScorePadData.generateRowHeaders(listOf(testSize)),
                     List(testSize) { Outputs.NUMBER }
             )
         }
@@ -44,7 +44,7 @@ class CalculateRowHeadersTest {
     @Test
     fun testHeadersWithGrandTotal() {
         testRowHeaders(
-                generateScorePadRowHeaders(
+                ScorePadData.generateRowHeaders(
                         listOf(5),
                         null,
                         resources,
@@ -60,7 +60,7 @@ class CalculateRowHeadersTest {
     @Test
     fun testHeadersWithDistanceTotal() {
         testRowHeaders(
-                generateScorePadRowHeaders(
+                ScorePadData.generateRowHeaders(
                         listOf(3, 3),
                         null,
                         resources,
@@ -72,7 +72,7 @@ class CalculateRowHeadersTest {
                 )
         )
         testRowHeaders(
-                generateScorePadRowHeaders(
+                ScorePadData.generateRowHeaders(
                         listOf(4, 2),
                         null,
                         resources,
@@ -84,7 +84,7 @@ class CalculateRowHeadersTest {
                 )
         )
         testRowHeaders(
-                generateScorePadRowHeaders(
+                ScorePadData.generateRowHeaders(
                         listOf(2, 2, 2),
                         null,
                         resources,
@@ -100,7 +100,7 @@ class CalculateRowHeadersTest {
     @Test
     fun testHeadersWithDistanceTotalAndArrowsComplete() {
         testRowHeaders(
-                generateScorePadRowHeaders(
+                ScorePadData.generateRowHeaders(
                         listOf(5),
                         3,
                         resources,
@@ -109,7 +109,7 @@ class CalculateRowHeadersTest {
                 listOf(Outputs.NUMBER, Outputs.NUMBER, Outputs.NUMBER)
         )
         testRowHeaders(
-                generateScorePadRowHeaders(
+                ScorePadData.generateRowHeaders(
                         listOf(2, 4, 6),
                         5,
                         resources,
@@ -125,7 +125,7 @@ class CalculateRowHeadersTest {
     @Test
     fun testArrowsInputBeyondEndOfRound() {
         testRowHeaders(
-                generateScorePadRowHeaders(
+                ScorePadData.generateRowHeaders(
                         listOf(3),
                         5,
                         resources,
@@ -179,31 +179,31 @@ class CalculateRowHeadersTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testNoData() {
-        generateScorePadRowHeaders(listOf(0))
+        ScorePadData.generateRowHeaders(listOf(0))
         Assert.fail("Generate no header rows")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testNegativeRowCount() {
-        generateScorePadRowHeaders(listOf(-1))
+        ScorePadData.generateRowHeaders(listOf(-1))
         Assert.fail("Negative row count for distance")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGrandTotalNoResource() {
-        generateScorePadRowHeaders(listOf(24), grandTotal = true)
+        ScorePadData.generateRowHeaders(listOf(24), grandTotal = true)
         Assert.fail("Resources required, grand total")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testDistanceTotalNoResource() {
-        generateScorePadRowHeaders(listOf(1, 4))
+        ScorePadData.generateRowHeaders(listOf(1, 4))
         Assert.fail("Resources required, multiple distances")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testBothTotalNoResource() {
-        generateScorePadRowHeaders(listOf(1, 4), grandTotal = true)
+        ScorePadData.generateRowHeaders(listOf(1, 4), grandTotal = true)
         Assert.fail("Resources required, grand total and multiple distances")
     }
 }
