@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             tools:text="Editing end 12"
             android:textColor="@color/inputEndText"
-            android:textSize="@dimen/medium_text_size"
+            android:textSize="@dimen/large_text_size"
             />
     </LinearLayout>
 

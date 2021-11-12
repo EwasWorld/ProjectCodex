@@ -18,7 +18,7 @@ import kotlin.math.ceil
 class CalculateScorePadDataTest {
     private val arrowPlaceHolder = "."
     private val arrowDeliminator = "-"
-    private val grandTotal = "Grand total:"
+    private val grandTotal = "Grand Total"
     private val runningTotalPlaceholder = "-"
 
     private val size = 36
@@ -145,7 +145,7 @@ class CalculateScorePadDataTest {
                         InfoTableCell("-", "distanceTotal404")
                 ),
                 listOf(
-                        InfoTableCell("Grand total:", "grandTotal0"),
+                        InfoTableCell("Grand Total", "grandTotal0"),
                         InfoTableCell(35, "grandTotal1"),
                         InfoTableCell(274, "grandTotal2"),
                         InfoTableCell(10, "grandTotal3"),
@@ -213,7 +213,7 @@ class CalculateScorePadDataTest {
                         InfoTableCell("-", "distanceTotalSurplus4")
                 ),
                 listOf(
-                        InfoTableCell("Grand total:", "grandTotal0"),
+                        InfoTableCell("Grand Total", "grandTotal0"),
                         InfoTableCell(18, "grandTotal1"),
                         InfoTableCell(150, "grandTotal2"),
                         InfoTableCell(6, "grandTotal3"),

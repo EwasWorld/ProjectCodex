@@ -19,6 +19,7 @@ import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
+import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 import kotlinx.android.synthetic.main.fragment_edit_end.*
@@ -84,12 +85,13 @@ class EditEndFragment : Fragment(), ActionBarHelp {
 
         button_edit_end__complete.setOnClickListener {
             try {
-                // Update database
-                endInputsFragment.end.addArrowsToDatabase(args.archerRoundId, null, inputEndViewModel) {
-                    // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
-                    //    with the table refreshing bug (above as well)
-                    view.findNavController().navigate(action)
-                }
+                val updates = endInputsFragment.end.getDatabaseUpdates(args.archerRoundId, null)
+                require(updates.first == UpdateType.UPDATE) { "Edit end can only update arrows in the database" }
+                inputEndViewModel.update(*updates.second.toTypedArray())
+
+                // TODO Revert to `activity?.onBackPressed()` if I can work out how to make this and cancel both work
+                //    with the table refreshing bug (above as well)
+                view.findNavController().navigate(action)
             }
             catch (e: UserException) {
                 ToastSpamPrevention.displayToast(requireContext(), e.getUserMessage(resources))

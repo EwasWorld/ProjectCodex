@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/input_end__round_indicator_label"
                 android:textColor="@color/inputEndText"
-                android:textSize="@dimen/small_text_size"
+                android:textSize="@dimen/medium_text_size"
                 />
 
             <!-- text is a placeholder than will be overwritten on load -->
@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 tools:text="60 at 100yd"
                 android:textColor="@color/inputEndText"
-                android:textSize="@dimen/medium_text_size"
+                android:textSize="@dimen/large_text_size"
                 />
 
             <!-- text is a placeholder than will be overwritten on load -->
@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 tools:text="48 at 80yd, 24 at 60yd"
                 android:textColor="@color/inputEndText"
-                android:textSize="@dimen/small_text_size"
+                android:textSize="@dimen/medium_text_size"
                 />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,10 +1,19 @@
 package eywa.projectcodex
 
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 
 class TestUtils {
     companion object {
+        private val defaultColumnHeaderOrder = listOf(
+                ScorePadData.ColumnHeader.END_STRING,
+                ScorePadData.ColumnHeader.HITS,
+                ScorePadData.ColumnHeader.SCORE,
+                ScorePadData.ColumnHeader.GOLDS,
+                ScorePadData.ColumnHeader.RUNNING_TOTAL
+        )
+
         /**
          * Use this when the usual argumentCaptor.capture() apparently throws a null
          *

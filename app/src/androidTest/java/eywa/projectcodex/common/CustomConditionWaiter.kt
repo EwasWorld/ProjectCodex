@@ -1,14 +1,16 @@
 package eywa.projectcodex.common
 
+import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.FailureHandler
 import androidx.test.espresso.ViewAction
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -23,6 +25,9 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import org.hamcrest.CoreMatchers
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.allOf
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
 
@@ -85,18 +90,11 @@ class CustomConditionWaiter {
 
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
-                    var hsgClicked = false
-                    try {
-                        onView(withText(hsgToClick)).perform(ViewActions.click())
-                        hsgClicked = true
-                    }
-                    catch (e: NoMatchingViewException) {
-                    }
-                    if (!hsgClicked) {
-                        // Don't clog up the main thread in the onActivity method, wait a moment before trying again
-                        Thread.sleep(DEFAULT_THREAD_SLEEP)
-                    }
-                    return hsgClicked
+                    val failureHandler = CustomWaiterFailHandle()
+                    onView(withText(hsgToClick))
+                            .withFailureHandler(failureHandler)
+                            .perform(click())
+                    return !failureHandler.wasTriggered
                 }
 
                 override fun getDescription(): String {
@@ -130,14 +128,11 @@ class CustomConditionWaiter {
         fun waitForViewToAppear(viewId: Int) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
-                    try {
-                        onView(withId(viewId)).check(matches(isDisplayed()))
-                        return true
-                    }
-                    catch (e: NoMatchingViewException) {
-                        println("Waiting for view to appear")
-                    }
-                    return false
+                    val failureHandler = CustomWaiterFailHandle("Waiting for view to appear")
+                    onView(withId(viewId))
+                            .withFailureHandler(failureHandler)
+                            .check(matches(isDisplayed()))
+                    return !failureHandler.wasTriggered
                 }
 
                 override fun getDescription(): String {
@@ -146,21 +141,61 @@ class CustomConditionWaiter {
             })
         }
 
-        fun waitForTextToAppear(text: String) {
+        enum class ClickType { NONE, CLICK, LONG_CLICK }
+
+        fun waitForTextToAppear(text: String, clickType: ClickType = ClickType.NONE) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
-                    try {
-                        onView(withIndex(withText(text), 0)).check(matches(isDisplayed()))
-                        return true
+                    val failureHandler = CustomWaiterFailHandle("Waiting for text '$text' to appear")
+                    val interaction = onView(withIndex(withText(text), 0))
+                            .withFailureHandler(failureHandler)
+                    when (clickType) {
+                        ClickType.NONE -> interaction.check(matches(isDisplayed()))
+                        ClickType.CLICK -> interaction.perform(click())
+                        ClickType.LONG_CLICK -> interaction.perform(longClick())
                     }
-                    catch (e: NoMatchingViewException) {
-                        println("Waiting for text '$text' to appear")
-                    }
-                    return false
+                    return !failureHandler.wasTriggered
                 }
 
                 override fun getDescription(): String {
                     return "Waiting for text '$text' to appear"
+                }
+            })
+        }
+
+        fun waitForTextToAppear(text: String, viewId: Int, index: Int, clickText: Boolean = false) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    val failureHandler = CustomWaiterFailHandle("Waiting for text '$text' to appear")
+                    val interaction = onView(allOf(withIndex(withId(viewId), index), withText(text)))
+                            .withFailureHandler(failureHandler)
+                    if (clickText) {
+                        interaction.perform(click())
+                    }
+                    else {
+                        interaction.check(matches(isDisplayed()))
+                    }
+                    return !failureHandler.wasTriggered
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for text '$text' to appear"
+                }
+            })
+        }
+
+        fun waitForSpinnerTextToAppear(spinnerId: Int, text: String) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    val failureHandler = CustomWaiterFailHandle("Waiting for text '$text' to appear in spinner")
+                    onView(CoreMatchers.allOf(withParent(withId(spinnerId)), withText(text)))
+                            .withFailureHandler(failureHandler)
+                            .check(matches(isDisplayed()))
+                    return !failureHandler.wasTriggered
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for text '$text' to appear in spinner"
                 }
             })
         }
@@ -171,15 +206,11 @@ class CustomConditionWaiter {
         fun waitForMenuToAppear(menuItemText: String) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
-                    try {
-                        onView(withText(menuItemText)).inRoot(RootMatchers.isPlatformPopup())
-                                .check(matches(isDisplayed()))
-                        return true
-                    }
-                    catch (e: NoMatchingViewException) {
-                        println("Waiting for a menu to appear")
-                    }
-                    return false
+                    val failureHandler = CustomWaiterFailHandle("Waiting for a menu to appear")
+                    onView(withText(menuItemText)).inRoot(RootMatchers.isPlatformPopup())
+                            .withFailureHandler(failureHandler)
+                            .check(matches(isDisplayed()))
+                    return !failureHandler.wasTriggered
                 }
 
                 override fun getDescription(): String {
@@ -194,14 +225,11 @@ class CustomConditionWaiter {
         fun waitForMenuItemAndPerform(menuItemText: String, action: ViewAction = click()) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
-                    try {
-                        onView(withText(menuItemText)).inRoot(RootMatchers.isPlatformPopup()).perform(action)
-                        return true
-                    }
-                    catch (e: NoMatchingViewException) {
-                        println("Waiting for a menu to appear")
-                    }
-                    return false
+                    val failureHandler = CustomWaiterFailHandle("Waiting for a menu to appear")
+                    onView(withText(menuItemText)).inRoot(RootMatchers.isPlatformPopup())
+                            .withFailureHandler(failureHandler)
+                            .perform(action)
+                    return !failureHandler.wasTriggered
                 }
 
                 override fun getDescription(): String {
@@ -227,18 +255,21 @@ class CustomConditionWaiter {
         }
 
         /**
+         * Wait for the duration of [Toast.LENGTH_SHORT] or [Toast.LENGTH_LONG]
+         */
+        fun waitForToastToDisappear(isShortToast: Boolean = true) {
+            waitFor(if (isShortToast) 2000 else 3500)
+        }
+
+        /**
          * Wait toast with certain text to appear
          */
         fun waitForToast(text: String) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
-                    try {
-                        checkContainsToast(text)
-                        return true
-                    }
-                    catch (e: NoMatchingViewException) {
-                    }
-                    return false
+                    val failureHandler = CustomWaiterFailHandle()
+                    checkContainsToast(text, failureHandler)
+                    return !failureHandler.wasTriggered
                 }
 
                 override fun getDescription(): String {
@@ -283,7 +314,26 @@ class CustomConditionWaiter {
             activityScenario?.let { it.onActivity { state.removeObserver(observer) } }
             fragmentScenario?.let { it.onFragment { state.removeObserver(observer) } }
         }
+    }
 
+    /**
+     * Espresso [FailureHandler] that logs a message and set [wasTriggered] to true on fail. Does not propagate the error.
+     *
+     * Class is private because if we're not checking in a loop/waiter, the error should propagate
+     */
+    private class CustomWaiterFailHandle(private val failMessage: String? = null) : FailureHandler {
+        var wasTriggered = false
+            private set
 
+        override fun handle(error: Throwable?, viewMatcher: Matcher<View>?) {
+            if (failMessage != null) {
+                println(failMessage)
+            }
+            else {
+                println("Custom failure handler triggered: ${error?.message}")
+            }
+
+            wasTriggered = true
+        }
     }
 }

@@ -1,9 +1,13 @@
 package eywa.projectcodex.components.viewScores.data
 
+import android.content.res.Resources
 import eywa.projectcodex.CustomLogger
+import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresAdapter
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresEntryViewHolder
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -43,21 +47,55 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
             }
         }
 
-    var hitsScoreGolds: String? = null
+    var hitsScoreGolds = ""
         private set
         get() {
-            if (field != null) {
+            synchronized(this) {
+                return "%s/%s/%s".format(hits?.toString() ?: "-", score?.toString() ?: "-", golds?.toString() ?: "-")
+            }
+        }
+
+    var hits: Int? = null
+        private set
+        get() {
+            synchronized(this) {
+                if (field != null) {
+                    return field
+                }
+                if (arrows.isNullOrEmpty()) {
+                    return null
+                }
+                field = arrows!!.count { it.score != 0 }
                 return field
             }
-            synchronized(this) {
-                if (arrows.isNullOrEmpty()) {
-                    return "0/0/0"
-                }
-                val hits = arrows!!.count { it.score != 0 }
-                val score = arrows!!.sumOf { it.score }
-                val golds = arrows!!.count { goldsType.isGold(it) }
+        }
 
-                field = "%d/%d/%d".format(hits, score, golds)
+    var score: Int? = null
+        private set
+        get() {
+            synchronized(this) {
+                if (field != null) {
+                    return field
+                }
+                if (arrows.isNullOrEmpty()) {
+                    return null
+                }
+                field = arrows!!.sumOf { it.score }
+                return field
+            }
+        }
+
+    var golds: Int? = null
+        private set
+        get() {
+            synchronized(this) {
+                if (field != null) {
+                    return field
+                }
+                if (arrows.isNullOrEmpty()) {
+                    return null
+                }
+                field = arrows!!.count { goldsType.isGold(it) }
                 return field
             }
         }
@@ -65,10 +103,10 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     var handicap: Int? = null
         private set
         get() {
-            if (field != null) {
-                return field
-            }
             synchronized(this) {
+                if (field != null) {
+                    return field
+                }
                 if (round == null || arrows.isNullOrEmpty() || arrowCounts.isNullOrEmpty() || distances.isNullOrEmpty()) {
                     return null
                 }
@@ -95,6 +133,42 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
             }
         }
 
+    private var scorePadDataEndSize: Int? = null
+    private var scorePadData: ScorePadData? = null
+
+    fun getScorePadData(endSize: Int, resources: Resources): ScorePadData? {
+        synchronized(this) {
+            if (scorePadData != null && scorePadDataEndSize == endSize) {
+                return scorePadData
+            }
+            if (arrows.isNullOrEmpty()) {
+                return null
+            }
+            val distanceUnit = when {
+                round == null -> null
+                round!!.isMetric -> resources.getString(R.string.units_meters_short)
+                else -> resources.getString(R.string.units_yards_short)
+            }
+            scorePadData = ScorePadData(arrows!!, endSize, goldsType, resources, arrowCounts, distances, distanceUnit)
+            scorePadDataEndSize = endSize
+            return scorePadData
+        }
+    }
+
+    fun getScoreSummary(resources: Resources): String {
+        return resourceStringReplace(
+                resources.getString(R.string.email_round_summary),
+                mapOf(
+                        Pair("roundName", displayName ?: resources.getString(R.string.create_round__no_round)),
+                        Pair("date", DateTimeFormat.SHORT_DATE_FORMAT.format(archerRound.dateShot)),
+                        Pair("hits", hits.toString()),
+                        Pair("score", score.toString()),
+                        Pair("goldsType", resources.getString(goldsType.longStringId)),
+                        Pair("golds", golds.toString()),
+                )
+        )
+    }
+
     var updatedListener: UpdatedListener? = null
     val id: Int
         get() = archerRound.archerRoundId
@@ -109,69 +183,84 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
         return ViewScoresAdapter.ViewScoresEntryType.ROUND
     }
 
-    fun updateArcherRound(info: ArcherRoundWithRoundInfoAndName) {
+    fun updateArcherRound(info: ArcherRoundWithRoundInfoAndName): Boolean {
         synchronized(this) {
             if (archerRound.archerRoundId != info.archerRound.archerRoundId) {
-                return
+                return false
             }
             if (archerRound == info.archerRound && round == info.round && displayName == info.displayName) {
-                return
+                return false
             }
 
             archerRound = info.archerRound
             round = info.round
             displayName = info.displayName
 
-            hitsScoreGolds = null
-            handicap = null
+            clearCache(true)
         }
         updatedListener?.onUpdate()
+        return true
     }
 
-    fun updateArrows(allArrows: List<ArrowValue>) {
+    fun updateArrows(allArrows: List<ArrowValue>): Boolean {
         synchronized(this) {
             val incoming = allArrows.filter { it.archerRoundId == archerRound.archerRoundId }
             if (incoming == arrows) {
-                return
+                return false
             }
             arrows = incoming
-            hitsScoreGolds = null
-            handicap = null
+
+            clearCache(true)
         }
         updatedListener?.onUpdate()
+        return true
     }
 
-    fun updateArrowCounts(allArrowCounts: List<RoundArrowCount>) {
+    fun updateArrowCounts(allArrowCounts: List<RoundArrowCount>): Boolean {
         synchronized(this) {
             if (round == null) {
-                return
+                return false
             }
             val incoming = allArrowCounts.filter { it.roundId == round!!.roundId }
             if (incoming == arrowCounts) {
-                return
+                return false
             }
             arrowCounts = incoming
-            handicap = null
+            clearCache(false)
         }
         updatedListener?.onUpdate()
+        return true
     }
 
-    fun updateDistances(allDistances: List<RoundDistance>) {
+    fun updateDistances(allDistances: List<RoundDistance>): Boolean {
         synchronized(this) {
             if (round == null) {
-                return
+                return false
             }
             val incoming = allDistances.filter {
                 it.roundId == round!!.roundId
                         && (archerRound.roundSubTypeId == null || archerRound.roundSubTypeId == it.subTypeId)
             }
             if (incoming == distances) {
-                return
+                return false
             }
             distances = incoming
-            handicap = null
+            clearCache(false)
         }
         updatedListener?.onUpdate()
+        return true
+    }
+
+    private fun clearCache(clearHitsScoreGolds: Boolean) {
+        if (clearHitsScoreGolds) {
+            hits = null
+            score = null
+            golds = null
+        }
+
+        handicap = null
+        scorePadData = null
+        scorePadDataEndSize = null
     }
 
     fun isRoundComplete(): Boolean {

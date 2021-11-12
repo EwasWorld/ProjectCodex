@@ -60,7 +60,9 @@ class CalculateRowHeadersTest {
                     1,
                     GoldsType.TENS,
                     resources,
-                    testDistanceSizes.mapIndexed { index, _ -> RoundArrowCount(1, index, 1.0, 1) },
+                    testDistanceSizes.mapIndexed { index, distanceSize ->
+                        RoundArrowCount(1, index, 1.0, distanceSize)
+                    },
                     testDistanceSizes.mapIndexed { index, _ -> RoundDistance(1, index, 1, index * 10) },
                     DISTANCE_UNIT
             )
@@ -74,37 +76,38 @@ class CalculateRowHeadersTest {
         val actual = inputData.generateRowHeaders(TOTAL_ROW_HEADER, GRAND_TOTAL_ROW_HEADER)
         var maxNumberSeen = 0
         var grandTotalSeen = false
-        for (i in actual.indices) {
+        for (i in expected.indices) {
             if (grandTotalSeen) Assert.fail("Should not be anything after grand total")
 
             val tableCell = actual[i]
-            tableCell.content?.let { content ->
-                when (expected[i]) {
-                    Outputs.NUMBER -> {
-                        if (!tableCell.id.contains("row")) Assert.fail("Incorrect rowId: ${tableCell.id}")
-                        val intContent = content as Int
-                        if (intContent == maxNumberSeen + 1) maxNumberSeen = intContent
-                        else Assert.fail("Non-ascending row-headers")
-                    }
-                    Outputs.TOTAL -> {
-                        if (!tableCell.id.contains("distanceTotal")) Assert.fail(
-                                "Incorrect rowId: ${tableCell.id}"
-                        )
-                        if (!(content as String).contains(TOTAL_ROW_HEADER)) Assert.fail(
-                                "Incorrect row header: ${tableCell.content}"
-                        )
-                    }
-                    Outputs.GRAND_TOTAL -> {
-                        if (!tableCell.id.contains("grandTotalHeader")) Assert.fail(
-                                "Incorrect rowId: ${tableCell.id}"
-                        )
-                        if (!(content as String).contains(GRAND_TOTAL_ROW_HEADER)) Assert.fail(
-                                "Incorrect row header: ${tableCell.content}"
-                        )
-                        grandTotalSeen = true
-                    }
+            if (tableCell.content == null) {
+                Assert.fail("No content")
+            }
+            when (expected[i]) {
+                Outputs.NUMBER -> {
+                    if (!tableCell.id.contains("row")) Assert.fail("Incorrect rowId: ${tableCell.id}")
+                    val intContent = tableCell.content as String
+                    if (intContent == (maxNumberSeen + 1).toString()) maxNumberSeen++
+                    else Assert.fail("Non-ascending row-headers")
                 }
-            } ?: Assert.fail("No content")
+                Outputs.TOTAL -> {
+                    if (!tableCell.id.contains("distanceTotal")) Assert.fail(
+                            "Incorrect rowId: ${tableCell.id}"
+                    )
+                    if (!(tableCell.content as String).contains(TOTAL_ROW_HEADER)) Assert.fail(
+                            "Incorrect row header: ${tableCell.content}"
+                    )
+                }
+                Outputs.GRAND_TOTAL -> {
+                    if (!tableCell.id.contains("grandTotalHeader")) Assert.fail(
+                            "Incorrect rowId: ${tableCell.id}"
+                    )
+                    if (!(tableCell.content as String).contains(GRAND_TOTAL_ROW_HEADER)) Assert.fail(
+                            "Incorrect row header: ${tableCell.content}"
+                    )
+                    grandTotalSeen = true
+                }
+            }
         }
     }
 }

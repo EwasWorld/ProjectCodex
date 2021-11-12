@@ -38,7 +38,7 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
                 dateView.text = DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(viewScoresEntry.archerRound.dateShot)
                 roundView.text =
                         viewScoresEntry.displayName ?: itemView.resources.getString(R.string.create_round__no_round)
-                hsgView.text = viewScoresEntry.hitsScoreGolds ?: "-/-/-"
+                hsgView.text = viewScoresEntry.hitsScoreGolds
                 hsgLabel.text = "%s/%s/%s".format(
                         itemView.resources.getString(R.string.table_hits_header),
                         itemView.resources.getString(R.string.table_score_header),

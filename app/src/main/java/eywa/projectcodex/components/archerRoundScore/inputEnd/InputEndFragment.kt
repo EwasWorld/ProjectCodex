@@ -19,6 +19,7 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ScoreIndicatorFragment
+import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -124,16 +125,14 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             }
 
             try {
-                // Update database
-                var highestArrowNumber = 0
-                for (arrow in arrows) {
-                    if (arrow.arrowNumber > highestArrowNumber) {
-                        highestArrowNumber = arrow.arrowNumber
-                    }
+                val updates = endInputsFragment.end.getDatabaseUpdates(
+                        args.archerRoundId,
+                        if (arrows.isEmpty()) 1 else arrows.maxOf { it.arrowNumber } + 1
+                )
+                require(updates.first == UpdateType.NEW) { "Input end can only add arrows to the database" }
+                inputEndViewModel.insert(*updates.second.toTypedArray()).invokeOnCompletion {
+                    endInputsFragment.clearEnd()
                 }
-                endInputsFragment.end.addArrowsToDatabase(
-                        args.archerRoundId, highestArrowNumber + 1, inputEndViewModel
-                ) { endInputsFragment.clearEnd() }
             }
             catch (e: UserException) {
                 ToastSpamPrevention.displayToast(requireContext(), e.getUserMessage(resources))

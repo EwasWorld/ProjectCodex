@@ -22,6 +22,7 @@ class ViewScoreData private constructor() {
             }
         }
 
+        // TODO_CURRENT Use dagger for this
         @VisibleForTesting(otherwise = VisibleForTesting.NONE)
         fun clearInstance() {
             INSTANCE = null
@@ -44,6 +45,8 @@ class ViewScoreData private constructor() {
     /**
      * Updates the [ViewScoresEntry]s currently stored. Creates new instances for archerRoundIds that aren't current
      * stored and updates the archer round on stored items
+     *
+     * @return whether any changes were made
      */
     fun updateArcherRounds(allArcherRounds: List<ArcherRoundWithRoundInfoAndName>): Boolean {
         var changeMade = false
@@ -63,7 +66,7 @@ class ViewScoreData private constructor() {
                     changeMade = true
                 }
                 else {
-                    currentData.updateArcherRound(archerRound)
+                    changeMade = currentData.updateArcherRound(archerRound) || changeMade
                 }
             }
         }
@@ -73,21 +76,28 @@ class ViewScoreData private constructor() {
     /**
      * Updates the [ViewScoresEntry]s with the arrows that share their archerRoundId. Passes an empty list if there are
      * no arrows with that id
+     *
+     * @return whether any changes were made
      */
-    fun updateArrows(allArrows: List<ArrowValue>) {
+    fun updateArrows(allArrows: List<ArrowValue>): Boolean {
+        var changeMade = false
         synchronized(this) {
             val grouped = allArrows.groupBy { it.archerRoundId }
             for (entry in data.entries) {
-                entry.value.updateArrows(grouped.getOrElse(entry.key, { listOf() }))
+                changeMade = entry.value.updateArrows(grouped.getOrElse(entry.key, { listOf() })) || changeMade
             }
         }
+        return changeMade
     }
 
     /**
      * Updates the [ViewScoresEntry]s which have a round with the arrowCounts that share their roundId. Passes an empty
      * list if there are no arrowCounts with that roundId. Doesn't call if the [ViewScoresEntry] doesn't have a round
+     *
+     * @return whether any changes were made
      */
-    fun updateArrowCounts(allArrowCounts: List<RoundArrowCount>) {
+    fun updateArrowCounts(allArrowCounts: List<RoundArrowCount>): Boolean {
+        var changeMade = false
         synchronized(this) {
             val grouped = allArrowCounts.groupBy { it.roundId }
             for (groupedEntries in data.values.groupBy { it.round?.roundId }) {
@@ -97,17 +107,21 @@ class ViewScoreData private constructor() {
                 }
                 val arrowCounts = grouped[groupedEntries.key] ?: listOf()
                 groupedEntries.value.forEach {
-                    it.updateArrowCounts(arrowCounts)
+                    changeMade = it.updateArrowCounts(arrowCounts) || changeMade
                 }
             }
         }
+        return changeMade
     }
 
     /**
      * Updates the [ViewScoresEntry]s which have a round with the distances that share their roundId. Passes an empty
      * list if there are no distances with that roundId. Doesn't call if the [ViewScoresEntry] doesn't have a round
+     *
+     * @return whether any changes were made
      */
-    fun updateDistances(allDistances: List<RoundDistance>) {
+    fun updateDistances(allDistances: List<RoundDistance>): Boolean {
+        var changeMade = false
         synchronized(this) {
             val grouped = allDistances.groupBy { it.roundId }
             for (groupedEntries in data.values.groupBy { it.round?.roundId }) {
@@ -117,9 +131,12 @@ class ViewScoreData private constructor() {
                 }
                 val distances = grouped[groupedEntries.key] ?: listOf()
                 groupedEntries.value.forEach { entry ->
-                    entry.updateDistances(distances.filter { entry.archerRound.roundSubTypeId ?: 1 == it.subTypeId })
+                    changeMade = entry.updateDistances(distances.filter {
+                        entry.archerRound.roundSubTypeId ?: 1 == it.subTypeId
+                    }) || changeMade
                 }
             }
         }
+        return changeMade
     }
 }

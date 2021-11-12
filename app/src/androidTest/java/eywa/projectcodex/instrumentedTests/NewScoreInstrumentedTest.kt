@@ -372,9 +372,16 @@ class NewScoreInstrumentedTest {
 
         R.id.text_create_round__time.textEquals("17:12")
         R.id.text_create_round__date.textEquals("10 Jun 19")
-        R.id.spinner_create_round__round.spinnerTextEquals(roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName)
-        CustomConditionWaiter.waitForViewToAppear(R.id.spinner_create_round__round_sub_type)
-        R.id.spinner_create_round__round_sub_type.spinnerTextEquals(subtypesInput.find { it.roundId == archerRoundInput.roundId && it.subTypeId == archerRoundInput.roundSubTypeId }!!.name!!)
+        CustomConditionWaiter.waitForSpinnerTextToAppear(
+                R.id.spinner_create_round__round,
+                roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName
+        )
+        CustomConditionWaiter.waitForSpinnerTextToAppear(
+                R.id.spinner_create_round__round_sub_type,
+                subtypesInput.find {
+                    it.roundId == archerRoundInput.roundId && it.subTypeId == archerRoundInput.roundSubTypeId
+                }!!.name!!
+        )
 
         /*
          * Change some stuff
@@ -403,9 +410,16 @@ class NewScoreInstrumentedTest {
 
         R.id.text_create_round__time.textEquals("17:12")
         R.id.text_create_round__date.textEquals("10 Jun 19")
-        R.id.spinner_create_round__round.spinnerTextEquals(roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName)
-        CustomConditionWaiter.waitForViewToAppear(R.id.spinner_create_round__round_sub_type)
-        R.id.spinner_create_round__round_sub_type.spinnerTextEquals(subtypesInput.find { it.roundId == archerRoundInput.roundId && it.subTypeId == archerRoundInput.roundSubTypeId }!!.name!!)
+        CustomConditionWaiter.waitForSpinnerTextToAppear(
+                R.id.spinner_create_round__round,
+                roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName
+        )
+        CustomConditionWaiter.waitForSpinnerTextToAppear(
+                R.id.spinner_create_round__round_sub_type,
+                subtypesInput.find {
+                    it.roundId == archerRoundInput.roundId && it.subTypeId == archerRoundInput.roundSubTypeId
+                }!!.name!!
+        )
 
         /*
          * Change again

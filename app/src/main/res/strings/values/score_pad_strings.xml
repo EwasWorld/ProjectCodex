@@ -4,7 +4,7 @@
     <string name="score_pad__running_total_placeholder">-</string>
     <string name="score_pad__end_string_header">Arrows</string>
     <string name="score_pad__running_total_header">R/T</string>
-    <string name="score_pad__grand_total">Grand total:</string>
+    <string name="score_pad__grand_total">Grand Total</string>
     <string name="score_pad__grand_total_row_header">GT</string>
     <string name="score_pad__distance_total">Total at {distance}{unit}</string> <!-- Total at 90m -->
     <string name="score_pad__surplus_total">Surplus Total</string>

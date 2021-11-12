@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import eywa.projectcodex.CustomLogger
@@ -15,10 +15,6 @@ import eywa.projectcodex.common.utils.ActionBarHelp
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresAdapter
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresEntryViewHolder
-import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
-import eywa.projectcodex.database.arrowValue.ArrowValue
-import eywa.projectcodex.database.rounds.RoundArrowCount
-import eywa.projectcodex.database.rounds.RoundDistance
 import kotlinx.android.synthetic.main.fragment_view_scores.*
 
 class ViewScoresFragment : Fragment(), ActionBarHelp {
@@ -26,15 +22,7 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         private const val LOG_TAG = "ViewScoresFrag"
     }
 
-    private lateinit var viewScoresViewModel: ViewScoresViewModel
-
-    /*
-     * All data from certain tables in the database
-     */
-    private var allArrows: List<ArrowValue>? = null
-    private var allArcherRoundsWithNames: List<ArcherRoundWithRoundInfoAndName>? = null
-    private var allArrowCounts: List<RoundArrowCount>? = null
-    private var allDistances: List<RoundDistance>? = null
+    private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
 
     /**
      * Displayed when there's no information to display in the table
@@ -58,54 +46,18 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.view_score__title)
 
-        viewScoresViewModel = ViewModelProvider(this).get(ViewScoresViewModel::class.java)
-        val viewScoreData = ViewScoreData.getViewScoreData()
         val viewScoresListAdapter = ViewScoresAdapter(viewScoresViewModel)
         recycler_view_scores.adapter = viewScoresListAdapter
-        viewScoresViewModel.allArrows.observe(viewLifecycleOwner, { arrows ->
-            arrows?.let {
-                allArrows = arrows
-                viewScoreData.updateArrows(arrows)
-            }
-        })
-        viewScoresViewModel.allArcherRounds.observe(viewLifecycleOwner, { archerRounds ->
-            archerRounds?.let {
-                allArcherRoundsWithNames = archerRounds
-                val updateList = viewScoreData.updateArcherRounds(archerRounds)
+        viewScoresViewModel.viewScoresData.observe(viewLifecycleOwner, { it ->
+            CustomLogger.customLogger.i(LOG_TAG, "New list")
+            viewScoresListAdapter.submitList(it?.getData())
+            viewScoresListAdapter.notifyDataSetChanged()
 
-                // Ensure that if other fields were populated before this one, they're updated too
-                if (allArrows != null) {
-                    viewScoreData.updateArrows(allArrows!!)
-                }
-                if (allArrowCounts != null) {
-                    viewScoreData.updateArrowCounts(allArrowCounts!!)
-                }
-                if (allDistances != null) {
-                    viewScoreData.updateDistances(allDistances!!)
-                }
-
-                if (updateList) {
-                    CustomLogger.customLogger.i(LOG_TAG, "New list")
-                    viewScoresListAdapter.submitList(viewScoreData.getData())
-                }
-                if (viewScoreData.getData().isEmpty()) {
-                    emptyTableDialog.show()
-                }
-                else if (emptyTableDialog.isShowing) {
-                    emptyTableDialog.dismiss()
-                }
+            if (it == null || it.getData().isNullOrEmpty()) {
+                emptyTableDialog.show()
             }
-        })
-        viewScoresViewModel.allArrowCounts.observe(viewLifecycleOwner, { arrowCounts ->
-            arrowCounts?.let {
-                allArrowCounts = arrowCounts
-                viewScoreData.updateArrowCounts(arrowCounts)
-            }
-        })
-        viewScoresViewModel.allDistances.observe(viewLifecycleOwner, { distances ->
-            distances?.let {
-                allDistances = distances
-                viewScoreData.updateDistances(distances)
+            else if (emptyTableDialog.isShowing) {
+                emptyTableDialog.dismiss()
             }
         })
     }

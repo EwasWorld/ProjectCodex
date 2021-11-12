@@ -254,7 +254,7 @@ class LargeScaleInstrumentedTest {
 
 
         logMessage(this::class, "Score A - View round insert end - 1")
-        onView(withText("18/48/0")).perform(click())
+        CustomConditionWaiter.waitForTextToAppear("18/48/0", CustomConditionWaiter.Companion.ClickType.CLICK)
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class.jvmName))
         R.id.inputEndFragment.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class.jvmName))

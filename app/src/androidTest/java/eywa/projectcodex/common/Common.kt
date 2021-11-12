@@ -114,21 +114,26 @@ fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
     }
 }
 
-fun checkContainsToast(message: String) =
-        onView(withText(message))
-                .inRoot(object : TypeSafeMatcher<Root>() {
-                    override fun matchesSafely(item: Root?): Boolean {
-                        val type = item?.windowLayoutParams?.orNull()?.type ?: return false
-                        // Deprecation advises using TYPE_APPLICATION_OVERLAY instead, but this causes the test to hang
-                        return type == WindowManager.LayoutParams.TYPE_TOAST
-                                && item.decorView.windowToken == item.decorView.applicationWindowToken
-                    }
+fun checkContainsToast(message: String, failureHandler: FailureHandler? = null): ViewInteraction {
+    val interaction = onView(withText(message))
+            .inRoot(object : TypeSafeMatcher<Root>() {
+                override fun matchesSafely(item: Root?): Boolean {
+                    val type = item?.windowLayoutParams?.orNull()?.type ?: return false
+                    // Deprecation advises using TYPE_APPLICATION_OVERLAY instead, but this causes the test to hang
+                    return type == WindowManager.LayoutParams.TYPE_TOAST
+                            && item.decorView.windowToken == item.decorView.applicationWindowToken
+                }
 
-                    override fun describeTo(description: Description?) {
-                        description?.appendText("toast with text")
-                    }
-                })
-                .check(matches(isDisplayed()))!!
+                override fun describeTo(description: Description?) {
+                    description?.appendText("toast with text")
+                }
+            })
+    if (failureHandler != null) {
+        interaction.withFailureHandler(failureHandler)
+    }
+    interaction.check(matches(isDisplayed()))!!
+    return interaction
+}
 
 fun AppCompatActivity.getString(name: String): String {
     return getString(resources.getIdentifier(name, "string", packageName))

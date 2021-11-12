@@ -34,7 +34,7 @@ class ViewScoresUnitTest {
                 ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false, roundId = 1), round)
         )
         entry.updateArrows(TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
-        Assert.assertEquals("2", entry.hitsScoreGolds?.split("/")?.last())
+        Assert.assertEquals("2", entry.hitsScoreGolds.split("/").last())
     }
 
     @Test
@@ -43,7 +43,7 @@ class ViewScoresUnitTest {
                 ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false))
         )
         entry.updateArrows(TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
-        Assert.assertEquals("3", entry.hitsScoreGolds?.split("/")?.last())
+        Assert.assertEquals("3", entry.hitsScoreGolds.split("/").last())
     }
 
     @Test
@@ -52,7 +52,7 @@ class ViewScoresUnitTest {
                 ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false))
         )
         entry.updateArrows(TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
-        Assert.assertEquals(TestData.ARROWS.sumOf { it.score }.toString(), entry.hitsScoreGolds?.split("/")?.get(1))
+        Assert.assertEquals(TestData.ARROWS.sumOf { it.score }.toString(), entry.hitsScoreGolds.split("/")[1])
     }
 
     @Test
@@ -61,7 +61,7 @@ class ViewScoresUnitTest {
                 ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1, false))
         )
         entry.updateArrows(TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) })
-        Assert.assertEquals((TestData.ARROWS.count() - 1).toString(), entry.hitsScoreGolds?.split("/")?.get(0))
+        Assert.assertEquals((TestData.ARROWS.count() - 1).toString(), entry.hitsScoreGolds.split("/")[0])
     }
 
     @Test
@@ -172,7 +172,7 @@ class ViewScoresUnitTest {
                 List(10) { i -> TestData.ARROWS[8].toArrowValue(2, i) }
         ).flatten())
         data.updateArrows(listOf())
-        Assert.assertEquals("0/0/0", data.getData().first().hitsScoreGolds)
+        Assert.assertEquals("-/-/-", data.getData().first().hitsScoreGolds)
     }
 
     @Test

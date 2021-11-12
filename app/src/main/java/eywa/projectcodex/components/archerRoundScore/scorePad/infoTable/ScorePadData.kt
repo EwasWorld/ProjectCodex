@@ -18,8 +18,8 @@ class ScorePadData(
         endSize: Int,
         goldsType: GoldsType,
         resources: Resources,
-        arrowCounts: List<RoundArrowCount> = listOf(),
-        distances: List<RoundDistance> = listOf(),
+        arrowCounts: List<RoundArrowCount>? = null,
+        distances: List<RoundDistance>? = null,
         distanceUnit: String? = null
 ) {
     companion object {
@@ -98,7 +98,7 @@ class ScorePadData(
      * @param grandTotalRowHeader the [InfoTableCell.cellContent] when the row is the grand total
      */
     fun generateRowHeaders(distanceTotalRowHeader: String, grandTotalRowHeader: String): List<InfoTableCell> {
-        if (!data.isNullOrEmpty() && !data[0].isNullOrEmpty()) return listOf()
+        if (data.isNullOrEmpty() || data[0].isNullOrEmpty()) return listOf()
 
         var endCount = 0
         return data.map { row ->
@@ -134,8 +134,8 @@ class ScorePadData(
             endSize: Int,
             goldsType: GoldsType,
             resources: Resources,
-            arrowCounts: List<RoundArrowCount> = listOf(),
-            distances: List<RoundDistance> = listOf(),
+            arrowCounts: List<RoundArrowCount>? = null,
+            distances: List<RoundDistance>? = null,
             distanceUnit: String? = null
     ): MutableList<MutableMap<ColumnHeader, Any>> {
         if (arrows.isNullOrEmpty()) {
@@ -144,8 +144,8 @@ class ScorePadData(
 
         require(endSize > 0) { "endSize must be >0" }
         require(arrows.distinctBy { it.archerRoundId }.size == 1) { "Must only contain arrows from a single score" }
-        require(arrowCounts.size == distances.size) { "Must have the same number of arrow counts as distances" }
-        require(arrowCounts.isEmpty() || !distanceUnit.isNullOrEmpty()) { "Must provide a unit for distance totals" }
+        require(arrowCounts?.size ?: 0 == distances?.size ?: 0) { "Must have the same number of arrow counts as distances" }
+        require(arrowCounts.isNullOrEmpty() || !distanceUnit.isNullOrEmpty()) { "Must provide a unit for distance totals" }
 
         if (arrows.isEmpty()) {
             return mutableListOf()
@@ -153,7 +153,7 @@ class ScorePadData(
 
         // Maps arrow count for distance to distance (e.g. 36 arrows at 70yds)
         val distancesInfo: MutableList<Pair<Int, Int?>>
-        if (arrowCounts.isNotEmpty()) {
+        if (!arrowCounts.isNullOrEmpty() && !distances.isNullOrEmpty()) {
             distancesInfo = arrowCounts.sortedBy { it.distanceNumber }.map { it.arrowCount }
                     .zip(distances.sortedBy { it.distanceNumber }.map { it.distance }).toMutableList()
             // If shot beyond the end of a round
@@ -258,4 +258,6 @@ class ScorePadData(
     enum class ScorePadRowType(val isTotal: Boolean) {
         END(false), DISTANCE_TOTAL(true), GRAND_TOTAL(true)
     }
+
+    data class ScorePadDetailsString(val headerRow: String?, val details: String)
 }

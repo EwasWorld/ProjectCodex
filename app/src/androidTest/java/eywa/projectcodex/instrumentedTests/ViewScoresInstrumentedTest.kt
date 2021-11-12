@@ -14,7 +14,8 @@ import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
@@ -22,6 +23,7 @@ import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -32,6 +34,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -114,11 +117,17 @@ class ViewScoresInstrumentedTest {
                     }?.name
             )
         }
-        arrows = List(archerRounds.size) { archerRoundId ->
+        arrows = archerRounds.map { archerRound ->
+            val archerRoundId = archerRound.archerRound.archerRoundId
             List(36) { arrowNumber -> TestData.ARROWS[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
         }
 
         addToDbAndRetrieveAdapter()
+    }
+
+    private fun ViewScoresEntry.getExpectedHsg(): String {
+        val score = this.id * 36
+        return "36/$score/0"
     }
 
     private fun addToDbAndRetrieveAdapter() {
@@ -166,20 +175,32 @@ class ViewScoresInstrumentedTest {
         return expectedData
     }
 
+    private fun checkData(
+            indexedExpectedData: Iterable<IndexedValue<ViewScoresEntry>>,
+            useExpectedHsg: Boolean = true
+    ) {
+        for (indexedItem in indexedExpectedData) {
+            scenario.onFragment {
+                layoutManager.scrollToPosition(indexedItem.index)
+            }
+            CustomConditionWaiter.waitForTextToAppear(
+                    if (useExpectedHsg) indexedItem.value.getExpectedHsg() else indexedItem.value.hitsScoreGolds,
+                    R.id.text_vs_round_item__score,
+                    indexedItem.index
+            )
+            CustomConditionWaiter.waitForTextToAppear(
+                    indexedItem.value.handicap?.toString() ?: "-",
+                    R.id.text_vs_round_item__handicap,
+                    indexedItem.index
+            )
+        }
+    }
+
     @Test
     fun testTableValues() {
         generateBasicDataAndAddToDb()
         val expectedData = generateExpectedData()
-
-        for (indexedItem in expectedData.getData().withIndex()) {
-            scenario.onFragment {
-                layoutManager.scrollToPosition(indexedItem.index)
-            }
-            onView(withIndex(withId(R.id.text_vs_round_item__hsg), indexedItem.index))
-                    .check(matches(withText(indexedItem.value.hitsScoreGolds)))
-            onView(withIndex(withId(R.id.text_vs_round_item__handicap), indexedItem.index))
-                    .check(matches(withText(indexedItem.value.handicap?.toString() ?: "-")))
-        }
+        checkData(expectedData.getData().withIndex())
     }
 
     @Test
@@ -194,8 +215,8 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         val clickedItem = expectedData.getData()[0]
-        CustomConditionWaiter.waitForTextToAppear(clickedItem.hitsScoreGolds!!)
-        onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
+        CustomConditionWaiter.waitForTextToAppear(clickedItem.getExpectedHsg())
+        onView(withIndex(withText(clickedItem.getExpectedHsg()), 0)).perform(longClick())
         CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsShowScorePad)
         onView(withText(CommonStrings.Menus.viewRoundsShowScorePad)).perform(click())
 
@@ -209,9 +230,10 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         val clickedItem = expectedData.getData().find { it.round?.roundId == 1 }!!
-        CustomConditionWaiter.waitForTextToAppear(clickedItem.hitsScoreGolds!!)
-        onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
+        CustomConditionWaiter.waitForTextToAppear(clickedItem.getExpectedHsg())
+        onView(withIndex(withText(clickedItem.getExpectedHsg()), 0)).perform(longClick())
         CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsContinue)
+        CustomConditionWaiter.waitFor(2000)
         onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
 
         assertEquals(R.id.inputEndFragment, navController.currentDestination?.id)
@@ -223,9 +245,11 @@ class ViewScoresInstrumentedTest {
         generateBasicDataAndAddToDb()
         val expectedData = generateExpectedData()
 
-        val deleteItem = expectedData.getData()[1]
-        CustomConditionWaiter.waitForTextToAppear(deleteItem.hitsScoreGolds!!)
-        onView(withIndex(withText(deleteItem.hitsScoreGolds), 0)).perform(longClick())
+        val deleteItem = expectedData.getData().filterIndexed { i, entry ->
+            i != 0 && entry.round != null
+        }.first()
+        CustomConditionWaiter.waitForTextToAppear(deleteItem.getExpectedHsg())
+        onView(withIndex(withText(deleteItem.getExpectedHsg()), 0)).perform(longClick())
         CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsDelete)
         onView(withText(CommonStrings.Menus.viewRoundsDelete)).perform(click())
 
@@ -239,15 +263,7 @@ class ViewScoresInstrumentedTest {
             }
         })
 
-        for (indexedItem in expectedData.getData().minus(deleteItem).withIndex()) {
-            scenario.onFragment {
-                layoutManager.scrollToPosition(indexedItem.index)
-            }
-            onView(withIndex(withId(R.id.text_vs_round_item__hsg), indexedItem.index))
-                    .check(matches(withText(indexedItem.value.hitsScoreGolds)))
-            onView(withIndex(withId(R.id.text_vs_round_item__handicap), indexedItem.index))
-                    .check(matches(withText(indexedItem.value.handicap?.toString() ?: "-")))
-        }
+        checkData(expectedData.getData().minus(deleteItem).withIndex())
     }
 
     @Test
@@ -256,10 +272,14 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         val clickedItem = expectedData.getData().find { it.round?.roundId == 2 }!!
-        CustomConditionWaiter.waitForTextToAppear(clickedItem.hitsScoreGolds!!)
-        onView(withIndex(withText(clickedItem.hitsScoreGolds), 0)).perform(longClick())
+        CustomConditionWaiter.waitForTextToAppear(
+                clickedItem.getExpectedHsg(),
+                CustomConditionWaiter.Companion.ClickType.LONG_CLICK
+        )
         CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
-        onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(doesNotExist())
+        onView(withText(CommonStrings.Menus.viewRoundsContinue)).withFailureHandler { _, _ ->
+            onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(matches(not(isDisplayed())))
+        }.check(doesNotExist())
     }
 
     @Test
@@ -280,7 +300,7 @@ class ViewScoresInstrumentedTest {
         val expectedData = generateExpectedData()
 
         // Convert first score
-        val expectedHsg = expectedData.getData().find { it.id == 1 }!!.hitsScoreGolds!!
+        val expectedHsg = expectedData.getData().find { it.id == 1 }!!.hitsScoreGolds
         CustomConditionWaiter.waitForTextToAppear(expectedHsg)
         onView(withIndex(withText(expectedHsg), 0)).perform(longClick())
         CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
@@ -312,12 +332,6 @@ class ViewScoresInstrumentedTest {
                 TestData.ARROWS.dropLast(1).plus(TestData.ARROWS[10])
                         .mapIndexed { i, arrow -> arrow.toArrowValue(2, i) }
         )
-        val newExpectedData = generateExpectedData()
-        for (indexedItem in newExpectedData.getData().withIndex()) {
-            onView(withIndex(withId(R.id.text_vs_round_item__hsg), indexedItem.index))
-                    .check(matches(withText(indexedItem.value.hitsScoreGolds)))
-            onView(withIndex(withId(R.id.text_vs_round_item__handicap), indexedItem.index))
-                    .check(matches(withText(indexedItem.value.handicap?.toString() ?: "-")))
-        }
+        checkData(generateExpectedData().getData().withIndex(), false)
     }
 }

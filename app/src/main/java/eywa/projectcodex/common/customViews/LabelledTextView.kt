@@ -35,7 +35,7 @@ class LabelledTextView : LinearLayout {
         val text = styledAttributes.getString(R.styleable.LabelledTextView_text) ?: ""
         val textSize = styledAttributes.getDimension(
                 R.styleable.LabelledTextView_text_size,
-                resources.getDimension(R.dimen.small_text_size)
+                resources.getDimension(R.dimen.medium_text_size)
         )
         val textColour = styledAttributes.getColor(
                 R.styleable.LabelledTextView_text_color,

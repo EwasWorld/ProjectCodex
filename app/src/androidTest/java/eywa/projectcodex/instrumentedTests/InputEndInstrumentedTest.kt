@@ -307,6 +307,7 @@ class InputEndInstrumentedTest {
         // No arrows
         R.id.button_input_end__next_end.click()
         checkContainsToast("Please enter all arrows for this end")
+        CustomConditionWaiter.waitForToastToDisappear()
         R.id.text_scores_indicator__table_score_1.textEquals("46")
         R.id.text_scores_indicator__table_arrow_count_1.textEquals("12")
         R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
