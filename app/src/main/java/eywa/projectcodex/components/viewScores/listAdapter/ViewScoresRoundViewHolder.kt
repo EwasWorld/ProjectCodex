@@ -27,12 +27,8 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
     }
 
     override fun bind(viewScoresEntry: ViewScoresEntry) {
-        entry = viewScoresEntry
-        itemView.setOnClickListener {
-            itemView.findNavController().navigate(
-                    ViewScoresFragmentDirections.actionViewScoresFragmentToScorePadFragment(entry!!.id)
-            )
-        }
+        super.bind(viewScoresEntry)
+
         val listener = object : ViewScoresEntry.UpdatedListener {
             override fun onUpdate() {
                 dateView.text = DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(viewScoresEntry.archerRound.dateShot)
@@ -49,6 +45,15 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
         }
         viewScoresEntry.updatedListener = listener
         listener.onUpdate()
+    }
+
+    override fun onClick(): Boolean {
+        if (super.onClick()) return true
+
+        itemView.findNavController().navigate(
+                ViewScoresFragmentDirections.actionViewScoresFragmentToScorePadFragment(entry!!.id)
+        )
+        return true
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {

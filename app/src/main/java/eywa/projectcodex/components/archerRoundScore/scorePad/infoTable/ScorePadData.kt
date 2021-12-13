@@ -87,6 +87,49 @@ class ScorePadData(
         }
     }
 
+    fun getDetailsAsString(
+            columnOrder: List<ColumnHeader>,
+            goldsType: GoldsType,
+            resources: Resources
+    ): ScorePadDetailsString {
+        val headers = mapOf(*columnOrder.map { column ->
+            val headerStringId = if (column == ColumnHeader.GOLDS) goldsType.shortStringId else column.resourceId!!
+            Pair(column, resources.getString(headerStringId))
+        }.toTypedArray())
+        val maxWidths = mapOf(*columnOrder.map { colHeader ->
+            Pair(
+                    colHeader,
+                    data.maxOf { it[colHeader].toString().length }.coerceAtLeast(headers[colHeader]!!.length)
+            )
+        }.toTypedArray())
+
+        val header = columnOrder.joinToString(" ") { column ->
+            "%${maxWidths[column]}s".format(headers[column]!!)
+        }
+        val details = data.joinToString("\n") { row ->
+            columnOrder.joinToString(" ") { column ->
+                // Pad the start of each item to the max column width
+                "%${maxWidths[column]}s".format(row[column].toString())
+            }
+        }
+        return ScorePadDetailsString(header, details)
+    }
+
+    fun getDetailsAsCsv(
+            columnOrder: List<ColumnHeader>,
+            goldsType: GoldsType,
+            resources: Resources
+    ): ScorePadDetailsString {
+        val header = columnOrder.joinToString(" ") { column ->
+            val headerStringId = if (column == ColumnHeader.GOLDS) goldsType.shortStringId else column.resourceId!!
+            resources.getString(headerStringId)
+        }
+        val details = data.joinToString("\n") { row ->
+            columnOrder.joinToString(",") { row[it].toString() }
+        }
+        return ScorePadDetailsString(header, details)
+    }
+
     /**
      * Generate row headers corresponding to the stored score pad data.
      * Headers increment from **1** to data.size, adding in total rows where appropriate.

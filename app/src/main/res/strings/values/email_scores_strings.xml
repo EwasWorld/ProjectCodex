@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="email_scores__title">Email Scores</string>
+
+    <string name="email_default_message_subject">Archery Scores</string>
+    <string name="email_default_message_header">Hi,\n\nHere are my scores</string>
+    <string name="email_default_message_footer">From</string>
+    <string name="email_default_message_signature">Sent from Codex Archery Aide app</string>
+    <string name="email_round_summary">{roundName} - {date}\nHits: {hits}, Score: {score}, Golds ({goldsType}): {golds}</string>
+    <string name="email_empty_round_summary">No scores selected</string>
+
+    <string name="email_scores__to">To</string>
+    <string name="email_scores__subject">Subject</string>
+    <string name="email_scores__message">Message</string>
+    <string name="email_scores__full_score_sheet_as_attachment">Add full score sheet as attachment</string>
+    <string name="email_scores__send">Send</string>
+
+    <string name="email_scores__edit_icon_description">Edit scores to send</string>
+</resources>

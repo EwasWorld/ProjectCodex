@@ -7,6 +7,12 @@
     <string name="view_scores_menu__continue">Continue scoring</string>
     <string name="view_scores_menu__delete">Delete</string>
     <string name="view_scores_menu__edit">Edit info</string>
+    <string name="view_scores_menu__email_score">Email score</string>
+
+    <string name="view_scores_menu__multi_select">Multi-select</string>
+    <string name="view_scores_menu__multi_select_all_or_none">Select all or none</string>
+    <string name="view_scores_menu__multi_select_cancel">Cancel multi-select mode</string>
+    <string name="view_scores_menu__multi_select_next">Action all selected items</string>
 
     <!-- Convert score -->
     <string name="view_scores_menu__convert">Convert</string>

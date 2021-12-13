@@ -42,7 +42,7 @@
 
     <style name="InputEndTableItem">
         <item name="android:textColor">@color/inputEndText</item>
-        <item name="android:textSize">@dimen/medium_text_size</item>
+        <item name="android:textSize">@dimen/large_text_size</item>
         <item name="android:gravity">center</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
@@ -84,6 +84,15 @@
 
     <style name="Spinner">
         <item name="android:popupBackground">@color/colorLightAccent</item>
+    </style>
+
+    <style name="UserInputText" parent="GeneralText">
+        <item name="android:background">@drawable/edit_text_rounded_corners_states</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:radius">100dp</item>
+        <item name="android:textColorHint">@color/grey</item>
+        <item name="android:textColor">@color/offBlack</item>
+        <item name="android:gravity">left</item>
     </style>
 
 </resources>

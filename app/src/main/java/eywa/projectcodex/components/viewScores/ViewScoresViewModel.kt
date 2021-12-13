@@ -28,6 +28,8 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
         (application as App).appComponent.inject(this)
     }
 
+    var isInSelectMode = false
+
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val roundRepo: RoundRepo = RoundRepo(db)
@@ -37,6 +39,7 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
     private val allArrowCounts = roundRepo.roundArrowCounts
     private val allDistances = roundRepo.roundDistances
     val viewScoresData = ViewScoresLiveData(allArrows, allArcherRounds, allArrowCounts, allDistances)
+    private val selectedArcherRoundIds = MutableLiveData<Set<Int>>(setOf())
 
     /**
      * Deletes the specified round and all its arrows
@@ -48,6 +51,18 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
 
     override fun updateArrowValues(vararg arrows: ArrowValue) = viewModelScope.launch {
         arrowValuesRepo.update(*arrows)
+    }
+
+    fun getSelectedArcherIds(): LiveData<Set<Int>> {
+        return selectedArcherRoundIds
+    }
+
+    fun postSelectedArcherIds(ids: Set<Int>) {
+        selectedArcherRoundIds.postValue(ids)
+    }
+
+    fun addSelectedArcherIds(ids: Set<Int>) {
+        selectedArcherRoundIds.postValue(ids.union(selectedArcherRoundIds.value!!))
     }
 
     /**

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -60,6 +61,47 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
                 emptyTableDialog.dismiss()
             }
         })
+
+        button_view_scores__start_multi_select.setOnClickListener {
+            viewScoresViewModel.isInSelectMode = true
+        }
+
+        button_view_scores__cancel_selection.setOnClickListener {
+            viewScoresViewModel.isInSelectMode = false
+            recycler_view_scores.children.forEach {
+                if (it is ViewScoresEntryViewHolder) {
+                    (it as ViewScoresEntryViewHolder).itemView.isSelected = false
+                }
+            }
+        }
+
+        /*
+         * If all items are selected, deselect all items. Else, select all items
+         */
+        button_view_scores__select_all_or_none.setOnClickListener {
+            val allSelected = recycler_view_scores.children
+                    .filter { it is ViewScoresEntryViewHolder }
+                    .all { (it as ViewScoresEntryViewHolder).itemView.isSelected }
+
+            recycler_view_scores.children.forEach {
+                if (it is ViewScoresEntryViewHolder) {
+                    (it as ViewScoresEntryViewHolder).itemView.isSelected = !allSelected
+                }
+            }
+        }
+
+        button_view_scores__cancel_selection.setOnClickListener {
+            viewScoresViewModel.isInSelectMode = false
+            recycler_view_scores.children.forEach {
+                if (it is ViewScoresEntryViewHolder) {
+                    (it as ViewScoresEntryViewHolder).itemView.isSelected = false
+                }
+            }
+        }
+
+        button_view_scores__selection_action.setOnClickListener {
+            // TODO_CURRENT action multi selection
+        }
     }
 
     override fun onResume() {

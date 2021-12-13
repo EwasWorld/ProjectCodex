@@ -5,6 +5,7 @@
     <dimen name="medium_text_size">20sp</dimen>
     <dimen name="small_text_size">15sp</dimen>
 
+    <dimen name="extra_small_margins">5dp</dimen>
     <dimen name="small_margins">10dp</dimen>
     <dimen name="large_margins">30dp</dimen>
     <dimen name="text_box_margins">20dp</dimen>
@@ -24,5 +25,10 @@
     <dimen name="info_table__padding">5dp</dimen>
 
     <dimen name="view_scores__item_margin">3dp</dimen>
+    <dimen name="view_scores__icon_bar_height">56dp</dimen>
+    <dimen name="view_scores__icon_bar_corner_radius">28dp</dimen>
+    <dimen name="view_scores__icon_bar_icon">35dp</dimen>
+
+
     <dimen name="edit_text_rounded_corner_radius">5dp</dimen>
 </resources>
