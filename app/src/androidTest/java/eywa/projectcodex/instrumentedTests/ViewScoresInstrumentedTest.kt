@@ -185,7 +185,7 @@ class ViewScoresInstrumentedTest {
             }
             CustomConditionWaiter.waitForTextToAppear(
                     if (useExpectedHsg) indexedItem.value.getExpectedHsg() else indexedItem.value.hitsScoreGolds,
-                    R.id.text_vs_round_item__score,
+                    R.id.text_vs_round_item__hsg,
                     indexedItem.index
             )
             CustomConditionWaiter.waitForTextToAppear(
