@@ -32,4 +32,12 @@
     <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. The label above indicates how golds are being counted: G for 9+, 10 for 10s and Xs, X for Xs only.</string>
     <string name="help_view_score__handicap_title">Handicap</string>
     <string name="help_view_score__handicap_body">The handicap for the round (or partial round). Will be blank if there is no round or if no arrows have been added</string>
+    <string name="help_view_score__start_multi_select_title">Multi-select mode</string>
+    <string name="help_view_score__start_multi_select_body">Turn on multi-select mode. Allows multiple entries to be actioned at once</string>
+    <string name="help_view_score__cancel_multi_select_title">Cancel multi select</string>
+    <string name="help_view_score__cancel_multi_select_body">Exit multi-select mode</string>
+    <string name="help_view_score__action_multi_select_title">Email selected entries</string>
+    <string name="help_view_score__action_multi_select_body">Email all selected entries</string>
+    <string name="help_view_score__select_all_or_none_title">Select all</string>
+    <string name="help_view_score__select_all_or_none_body">Select all entries. (if all entries are selected, deselects all entries</string>
 </resources>

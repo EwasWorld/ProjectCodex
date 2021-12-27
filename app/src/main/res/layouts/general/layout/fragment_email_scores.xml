@@ -134,18 +134,6 @@
                     android:importantForAutofill="no"
                     />
 
-                <ImageButton
-                    android:id="@+id/button_email_scores__edit_scores"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:alpha="0.7"
-                    android:src="@drawable/ic_edit_icon_black"
-                    app:layout_constraintEnd_toEndOf="@+id/text_email_scores__message_scores"
-                    app:layout_constraintTop_toTopOf="@+id/text_email_scores__message_scores"
-                    android:layout_margin="@dimen/small_margins"
-                    android:contentDescription="@string/email_scores__edit_icon_description"
-                    />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
@@ -155,11 +143,22 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="@string/email_scores__full_score_sheet_as_attachment"
-            app:layout_constraintBottom_toTopOf="@+id/button_email_scores__send"
+            app:layout_constraintBottom_toTopOf="@+id/check_box_email_scores__include_distance"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/scroll_view_email_scores"
+            />
+
+        <CheckBox
+            android:id="@+id/check_box_email_scores__include_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/email_scores__full_score_sheet_with_distance_totals"
+            app:layout_constraintBottom_toTopOf="@+id/button_email_scores__send"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             />
 
         <Button

@@ -13,7 +13,28 @@
     <string name="email_scores__subject">Subject</string>
     <string name="email_scores__message">Message</string>
     <string name="email_scores__full_score_sheet_as_attachment">Add full score sheet as attachment</string>
+    <string name="email_scores__full_score_sheet_with_distance_totals">Include distance totals in attachment</string>
     <string name="email_scores__send">Send</string>
 
     <string name="email_scores__edit_icon_description">Edit scores to send</string>
+
+    <string name="err_email_scores__no_items_selected">No entries selected</string>
+    <string name="err_email_scores__no_app_found">No email app found on phone</string>
+
+    <string name="help_email_scores__to_title">To</string>
+    <string name="help_email_scores__to_body">A list of email addresses to send to, separated by a comma \',\'</string>
+    <string name="help_email_scores__subject_title">Subject</string>
+    <string name="help_email_scores__subject_body">The email subject line</string>
+    <string name="help_email_scores__message_start_title">Message beginning</string>
+    <string name="help_email_scores__message_start_body">The message text that will go before your scores</string>
+    <string name="help_email_scores__message_end_title">Message ending</string>
+    <string name="help_email_scores__message_end_body">The message text that will go after your scores</string>
+    <string name="help_email_scores__scores_title">Scores</string>
+    <string name="help_email_scores__scores_body">A preview of what your scores will look like</string>
+    <string name="help_email_scores__full_score_sheet_attachment_title">Attach full score sheet</string>
+    <string name="help_email_scores__full_score_sheet_attachment_body">Tick this to add a CSV file attachment to the email. This file will contain all arrow values for all selected rounds</string>
+    <string name="help_email_scores__include_distance_totals_title">Include distance totals</string>
+    <string name="help_email_scores__include_distance_totals_body">Tick this to keep distance totals in the CSV file attachment. This will keep all \'Total at 60m\' style lines in the full score sheet</string>
+    <string name="help_email_scores__send_title">Send</string>
+    <string name="help_email_scores__send_body">Launches an email app to send the email. You will be able to review the email before you send it</string>
 </resources>

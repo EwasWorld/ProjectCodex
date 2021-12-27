@@ -41,6 +41,7 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
                         itemView.resources.getString(viewScoresEntry.goldsType.shortStringId),
                 )
                 handicapView.text = viewScoresEntry.handicap?.toString() ?: "-"
+                itemView.isSelected = viewScoresEntry.isSelected
             }
         }
         viewScoresEntry.updatedListener = listener

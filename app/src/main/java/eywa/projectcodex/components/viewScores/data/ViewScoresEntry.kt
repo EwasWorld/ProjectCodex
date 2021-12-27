@@ -136,6 +136,12 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     private var scorePadDataEndSize: Int? = null
     private var scorePadData: ScorePadData? = null
 
+    var isSelected = false
+        set(value) {
+            field = value
+            updatedListener?.onUpdate()
+        }
+
     fun getScorePadData(endSize: Int, resources: Resources): ScorePadData? {
         synchronized(this) {
             if (scorePadData != null && scorePadDataEndSize == endSize) {

@@ -62,7 +62,7 @@
                 style="@style/SmallText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/placeholder_0"
+                tools:text="@string/placeholder_0"
                 />
         </LinearLayout>
 
@@ -88,7 +88,7 @@
                 style="@style/SmallText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/placeholder_0"
+                tools:text="@string/placeholder_0"
                 />
         </LinearLayout>
 

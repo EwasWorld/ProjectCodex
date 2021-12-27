@@ -48,18 +48,18 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
      */
     open fun onClick(): Boolean {
         if (viewModel?.isInSelectMode == true) {
-            itemView.isSelected = !itemView.isSelected
-//            viewModel.postSelectedArcherIds()
+            entry!!.isSelected = !entry!!.isSelected
             return true
         }
         return false
     }
 
-    enum class ContextMenuItem(val titleId: Int) {
+    enum class ContextMenuItem(private val titleId: Int) {
         EMAIL_SCORE(R.string.view_scores_menu__email_score) {
             override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
-                viewModel.postSelectedArcherIds(setOf(entry.id))
-                view.findNavController().navigate(R.id.emailFragment)
+                view.findNavController().navigate(
+                        ViewScoresFragmentDirections.actionViewScoresFragmentToEmailFragment(entry.id)
+                )
             }
         },
         SCORE_PAD(R.string.view_scores_menu__score_pad) {

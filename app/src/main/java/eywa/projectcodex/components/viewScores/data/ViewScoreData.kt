@@ -22,7 +22,7 @@ class ViewScoreData private constructor() {
             }
         }
 
-        // TODO_CURRENT Use dagger for this
+        // TODO Use dagger for this
         @VisibleForTesting(otherwise = VisibleForTesting.NONE)
         fun clearInstance() {
             INSTANCE = null
@@ -138,5 +138,22 @@ class ViewScoreData private constructor() {
             }
         }
         return changeMade
+    }
+
+    /**
+     * Sets [ViewScoresEntry.isSelected] to [isSelected] for all items
+     * @return the IDs of the [ViewScoresEntry] that changed
+     */
+    fun setAllSelected(isSelected: Boolean): Set<Int> {
+        val changedItems = mutableSetOf<Int>()
+        synchronized(this) {
+            for (item in data.values) {
+                if (item.isSelected != isSelected) {
+                    changedItems.add(item.id)
+                    item.isSelected = isSelected
+                }
+            }
+        }
+        return changedItems
     }
 }

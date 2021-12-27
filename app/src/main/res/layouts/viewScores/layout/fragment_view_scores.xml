@@ -29,7 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:gravity="center"
-        android:layout_marginBottom="@dimen/small_margins"
+        android:layout_marginBottom="@dimen/medium_margins"
         android:background="@drawable/icon_bar_rounded_corners"
         android:paddingHorizontal="@dimen/small_margins"
         >
@@ -45,6 +45,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:background="@null"
             android:contentDescription="@string/view_scores_menu__multi_select"
+            tools:visibility="gone"
             />
 
         <TextView
@@ -52,20 +53,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/extra_small_margins"
+            android:paddingHorizontal="@dimen/extra_small_margins"
             android:text="@string/view_scores_menu__multi_select"
             style="@style/GeneralText"
             android:textStyle="bold"
-            />
-
-        <ImageButton
-            android:id="@+id/button_view_scores__cancel_selection"
-            android:layout_width="@dimen/view_scores__icon_bar_icon"
-            android:layout_height="@dimen/view_scores__icon_bar_icon"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_close_icon"
-            android:background="@null"
-            android:layout_marginHorizontal="@dimen/extra_small_margins"
-            android:contentDescription="@string/view_scores_menu__multi_select_cancel"
+            android:visibility="gone"
+            tools:visibility="visible"
             />
 
         <ImageButton
@@ -77,17 +70,35 @@
             android:background="@null"
             android:contentDescription="@string/view_scores_menu__multi_select_all_or_none"
             android:layout_marginHorizontal="@dimen/extra_small_margins"
+            android:visibility="gone"
+            tools:visibility="visible"
             />
 
         <ImageButton
             android:id="@+id/button_view_scores__selection_action"
             android:layout_width="@dimen/view_scores__icon_bar_icon"
             android:layout_height="@dimen/view_scores__icon_bar_icon"
+            android:layout_marginHorizontal="@dimen/extra_small_margins"
+            android:background="@null"
+            android:contentDescription="@string/view_scores_menu__multi_select_next"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_check_icon"
+            android:src="@drawable/ic_email_icon"
+            android:visibility="gone"
+            tools:ignore="RedundantDescriptionCheck"
+            tools:visibility="visible"
+            />
+
+        <ImageButton
+            android:id="@+id/button_view_scores__cancel_selection"
+            android:layout_width="@dimen/view_scores__icon_bar_icon"
+            android:layout_height="@dimen/view_scores__icon_bar_icon"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_close_icon"
             android:background="@null"
             android:layout_marginHorizontal="@dimen/extra_small_margins"
-            android:contentDescription="@string/view_scores_menu__multi_select_next"
+            android:contentDescription="@string/view_scores_menu__multi_select_cancel"
+            android:visibility="gone"
+            tools:visibility="visible"
             />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

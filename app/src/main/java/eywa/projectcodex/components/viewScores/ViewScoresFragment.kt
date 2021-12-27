@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -20,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_view_scores.*
 
 class ViewScoresFragment : Fragment(), ActionBarHelp {
     companion object {
-        private const val LOG_TAG = "ViewScoresFrag"
+        private const val LOG_TAG = "ViewScoresFragment"
     }
 
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
@@ -46,12 +45,14 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.view_score__title)
+        setMultiSelectMode(viewScoresViewModel.isInSelectMode)
 
         val viewScoresListAdapter = ViewScoresAdapter(viewScoresViewModel)
         recycler_view_scores.adapter = viewScoresListAdapter
-        viewScoresViewModel.viewScoresData.observe(viewLifecycleOwner, { it ->
+        viewScoresViewModel.getViewScoreData().observe(viewLifecycleOwner, {
             CustomLogger.customLogger.i(LOG_TAG, "New list")
             viewScoresListAdapter.submitList(it?.getData())
+            // TODO_CURRENT Notify specific items
             viewScoresListAdapter.notifyDataSetChanged()
 
             if (it == null || it.getData().isNullOrEmpty()) {
@@ -63,15 +64,16 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         })
 
         button_view_scores__start_multi_select.setOnClickListener {
-            viewScoresViewModel.isInSelectMode = true
+            setMultiSelectMode(true)
         }
 
         button_view_scores__cancel_selection.setOnClickListener {
-            viewScoresViewModel.isInSelectMode = false
-            recycler_view_scores.children.forEach {
-                if (it is ViewScoresEntryViewHolder) {
-                    (it as ViewScoresEntryViewHolder).itemView.isSelected = false
-                }
+            setMultiSelectMode(false)
+            val changedItems = viewScoresViewModel.setAllSelected(false)
+            changedItems.forEach { itemId ->
+                viewScoresListAdapter.notifyItemChanged(
+                        viewScoresListAdapter.currentList.indexOfFirst { it.id == itemId }
+                )
             }
         }
 
@@ -79,29 +81,29 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
          * If all items are selected, deselect all items. Else, select all items
          */
         button_view_scores__select_all_or_none.setOnClickListener {
-            val allSelected = recycler_view_scores.children
-                    .filter { it is ViewScoresEntryViewHolder }
-                    .all { (it as ViewScoresEntryViewHolder).itemView.isSelected }
-
-            recycler_view_scores.children.forEach {
-                if (it is ViewScoresEntryViewHolder) {
-                    (it as ViewScoresEntryViewHolder).itemView.isSelected = !allSelected
-                }
-            }
-        }
-
-        button_view_scores__cancel_selection.setOnClickListener {
-            viewScoresViewModel.isInSelectMode = false
-            recycler_view_scores.children.forEach {
-                if (it is ViewScoresEntryViewHolder) {
-                    (it as ViewScoresEntryViewHolder).itemView.isSelected = false
-                }
+            val allSelected = viewScoresListAdapter.currentList.all { it.isSelected }
+            val changedItems = viewScoresViewModel.setAllSelected(!allSelected)
+            changedItems.forEach { itemId ->
+                viewScoresListAdapter.notifyItemChanged(
+                        viewScoresListAdapter.currentList.indexOfFirst { it.id == itemId }
+                )
             }
         }
 
         button_view_scores__selection_action.setOnClickListener {
-            // TODO_CURRENT action multi selection
+            view.findNavController().navigate(R.id.emailFragment)
         }
+    }
+
+    private fun setMultiSelectMode(isInSelectMode: Boolean) {
+        viewScoresViewModel.isInSelectMode = isInSelectMode
+        button_view_scores__start_multi_select.visibility = if (isInSelectMode) View.GONE else View.VISIBLE
+
+        val multiSelectItemsVisibility = if (isInSelectMode) View.VISIBLE else View.GONE
+        label_view_scores__multi_select.visibility = multiSelectItemsVisibility
+        button_view_scores__cancel_selection.visibility = multiSelectItemsVisibility
+        button_view_scores__select_all_or_none.visibility = multiSelectItemsVisibility
+        button_view_scores__selection_action.visibility = multiSelectItemsVisibility
     }
 
     override fun onResume() {
@@ -110,6 +112,7 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         val adapter = recycler_view_scores.adapter as ViewScoresAdapter?
         adapter?.submitList(ViewScoreData.getViewScoreData().getData())
         adapter?.notifyDataSetChanged()
+        setMultiSelectMode(viewScoresViewModel.isInSelectMode)
     }
 
     override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
@@ -134,6 +137,36 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
             }
             helpShowcases.addAll(showcases)
             priorityOffset = showcases.maxOf { it.priority ?: priorityOffset } + 1
+        }
+        if (!viewScoresViewModel.isInSelectMode) {
+            helpShowcases.add(
+                    ActionBarHelp.HelpShowcaseItem.Builder()
+                            .setViewId(R.id.button_view_scores__start_multi_select)
+                            .setHelpTitleId(R.string.help_view_score__start_multi_select_title)
+                            .setHelpBodyId(R.string.help_view_score__start_multi_select_body)
+                            .build()
+            )
+        }
+        else {
+            helpShowcases.addAll(
+                    listOf(
+                            ActionBarHelp.HelpShowcaseItem.Builder()
+                                    .setViewId(R.id.button_view_scores__select_all_or_none)
+                                    .setHelpTitleId(R.string.help_view_score__select_all_or_none_title)
+                                    .setHelpBodyId(R.string.help_view_score__select_all_or_none_body)
+                                    .build(),
+                            ActionBarHelp.HelpShowcaseItem.Builder()
+                                    .setViewId(R.id.button_view_scores__selection_action)
+                                    .setHelpTitleId(R.string.help_view_score__action_multi_select_title)
+                                    .setHelpBodyId(R.string.help_view_score__action_multi_select_body)
+                                    .build(),
+                            ActionBarHelp.HelpShowcaseItem.Builder()
+                                    .setViewId(R.id.button_view_scores__cancel_selection)
+                                    .setHelpTitleId(R.string.help_view_score__cancel_multi_select_title)
+                                    .setHelpBodyId(R.string.help_view_score__cancel_multi_select_body)
+                                    .build()
+                    )
+            )
         }
         return helpShowcases
     }

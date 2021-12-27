@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -38,8 +39,7 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
     private val allArcherRounds = archerRoundsRepo.allArcherRoundsWithRoundInfoAndName
     private val allArrowCounts = roundRepo.roundArrowCounts
     private val allDistances = roundRepo.roundDistances
-    val viewScoresData = ViewScoresLiveData(allArrows, allArcherRounds, allArrowCounts, allDistances)
-    private val selectedArcherRoundIds = MutableLiveData<Set<Int>>(setOf())
+    private val viewScoresData = ViewScoresLiveData(allArrows, allArcherRounds, allArrowCounts, allDistances)
 
     /**
      * Deletes the specified round and all its arrows
@@ -53,16 +53,16 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
         arrowValuesRepo.update(*arrows)
     }
 
-    fun getSelectedArcherIds(): LiveData<Set<Int>> {
-        return selectedArcherRoundIds
+    fun getViewScoreData(): LiveData<ViewScoreData> {
+        return viewScoresData
     }
 
-    fun postSelectedArcherIds(ids: Set<Int>) {
-        selectedArcherRoundIds.postValue(ids)
-    }
-
-    fun addSelectedArcherIds(ids: Set<Int>) {
-        selectedArcherRoundIds.postValue(ids.union(selectedArcherRoundIds.value!!))
+    /**
+     * Sets [isSelected] for all items
+     * @return the IDs of the [ViewScoresEntry] that changed
+     */
+    fun setAllSelected(isSelected: Boolean): Set<Int> {
+        return viewScoresData.setAllSelected(isSelected)
     }
 
     /**
@@ -128,6 +128,14 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
                     value = value
                 }
             }
+        }
+
+        /**
+         * Sets [isSelected] for all items
+         * @return the IDs of the [ViewScoresEntry] that changed
+         */
+        fun setAllSelected(isSelected: Boolean): Set<Int> {
+            return value?.setAllSelected(isSelected) ?: setOf()
         }
 
         override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {

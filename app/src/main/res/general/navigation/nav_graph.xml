@@ -219,5 +219,11 @@
         android:name="eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment"
         android:label="fragment_about"
         tools:layout="@layout/fragment_email_scores"
-        />
+        >
+        <argument
+            android:name="archerRoundId"
+            app:argType="integer"
+            android:defaultValue="-1"
+            />
+    </fragment>
 </navigation>
