@@ -16,7 +16,7 @@ import kotlin.math.min
 class ScorePadData(
         arrows: List<ArrowValue>,
         endSize: Int,
-        goldsType: GoldsType,
+        private val goldsType: GoldsType,
         resources: Resources,
         arrowCounts: List<RoundArrowCount>? = null,
         distances: List<RoundDistance>? = null,
@@ -87,9 +87,17 @@ class ScorePadData(
         }
     }
 
+    /**
+     * Converts the score pad data to a string for display.
+     * One line for each end which shows data in the order given by [columnOrder], separated by at least one space.
+     * Includes a grand total at the end.
+     * The beginning of every item is padded so that columns are a fixed width.
+     * Headers are also padded to the same fixed with.
+     *
+     * @param includeDistanceHeaders whether to include rows labelled as [ScorePadRowType.DISTANCE_TOTAL]
+     */
     fun getDetailsAsString(
             columnOrder: List<ColumnHeader>,
-            goldsType: GoldsType,
             resources: Resources,
             includeDistanceHeaders: Boolean
     ): ScorePadDetailsString {
@@ -120,9 +128,15 @@ class ScorePadData(
         return ScorePadDetailsString(header, details)
     }
 
+    /**
+     * Converts the score pad data to a CSV.
+     * One line for each end which shows data in the order given by [columnOrder], separated by a comma.
+     * Includes a grand total at the end.
+     *
+     * @param includeDistanceHeaders whether to include rows labelled as [ScorePadRowType.DISTANCE_TOTAL]
+     */
     fun getDetailsAsCsv(
             columnOrder: List<ColumnHeader>,
-            goldsType: GoldsType,
             resources: Resources,
             includeDistanceHeaders: Boolean
     ): ScorePadDetailsString {

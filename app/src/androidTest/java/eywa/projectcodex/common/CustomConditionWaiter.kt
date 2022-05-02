@@ -28,6 +28,7 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.containsString
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
 
@@ -147,7 +148,7 @@ class CustomConditionWaiter {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
                     val failureHandler = CustomWaiterFailHandle("Waiting for text '$text' to appear")
-                    val interaction = onView(withIndex(withText(text), 0))
+                    val interaction = onView(withIndex(withText(containsString(text)), 0))
                             .withFailureHandler(failureHandler)
                     when (clickType) {
                         ClickType.NONE -> interaction.check(matches(isDisplayed()))

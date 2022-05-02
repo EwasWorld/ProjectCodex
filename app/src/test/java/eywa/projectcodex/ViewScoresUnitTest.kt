@@ -1,10 +1,14 @@
 package eywa.projectcodex
 
+import android.content.res.Resources
+import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
+import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -13,11 +17,13 @@ import org.junit.Assert
 import org.junit.Test
 
 class ViewScoresUnitTest {
-    private val distances = listOf(
+    private lateinit var resources: Resources
+    private lateinit var arrows: List<ArrowValue>
+    private var distances = listOf(
             RoundDistance(1, 1, 1, 40),
             RoundDistance(1, 2, 1, 10)
     )
-    private val arrowCounts = listOf(
+    private var arrowCounts = listOf(
             RoundArrowCount(1, 1, 122.0, 9),
             RoundArrowCount(1, 2, 122.0, 9)
     )
@@ -232,5 +238,160 @@ class ViewScoresUnitTest {
 
         data.updateDistances(listOf())
         Assert.assertEquals(null, data.getData().first().handicap)
+    }
+
+    @Test
+    fun testScorePadDataToCsvNoRound() {
+        setUpScorePadDetailsGlobals()
+        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, null, null, null)
+        val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+            X-X-X-X-X-X,6,60,6,60
+            10-10-10-10-10-10,6,60,6,120
+            9-9-9-9-9-9,6,54,0,174
+            8-8-8-8-8-8,6,48,0,222
+            7-7-7-7-7-7,6,42,0,264
+            6-6-6-6-6-6,6,36,0,300
+            Grand Total,36,300,12,-
+        """.trimIndent().trim()
+
+        Assert.assertEquals("End,H,S,9,RT", csv.headerRow)
+        Assert.assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testScorePadDataToCsvWithRound() {
+        setUpScorePadDetailsGlobals()
+        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+            X-X-X-X-X-X,6,60,6,60
+            10-10-10-10-10-10,6,60,6,120
+            9-9-9-9-9-9,6,54,0,174
+            Total at 10m,18,174,12,-
+            8-8-8-8-8-8,6,48,0,222
+            7-7-7-7-7-7,6,42,0,264
+            6-6-6-6-6-6,6,36,0,300
+            Total at 20m,18,126,0,-
+            Grand Total,36,300,12,-
+        """.trimIndent().trim()
+
+        Assert.assertEquals("End,H,S,9,RT", csv.headerRow)
+        Assert.assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testScorePadDataToCsvWithRoundNoDistanceTotals() {
+        setUpScorePadDetailsGlobals()
+        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, false)
+
+        val expected = """
+            X-X-X-X-X-X,6,60,6,60
+            10-10-10-10-10-10,6,60,6,120
+            9-9-9-9-9-9,6,54,0,174
+            8-8-8-8-8-8,6,48,0,222
+            7-7-7-7-7-7,6,42,0,264
+            6-6-6-6-6-6,6,36,0,300
+            Grand Total,36,300,12,-
+        """.trimIndent().trim()
+
+        Assert.assertEquals("End,H,S,9,RT", csv.headerRow)
+        Assert.assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testScorePadDataToStringNoRound() {
+        setUpScorePadDetailsGlobals()
+        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, null, null, null)
+        val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+           ||      X-X-X-X-X-X  6  60  6  60
+            |10-10-10-10-10-10  6  60  6 120
+            |      9-9-9-9-9-9  6  54  0 174
+            |      8-8-8-8-8-8  6  48  0 222
+            |      7-7-7-7-7-7  6  42  0 264
+            |      6-6-6-6-6-6  6  36  0 300
+            |      Grand Total 36 300 12   -
+        """.trimMargin().trim().removePrefix("|")
+
+        Assert.assertEquals(
+                "              End  H   S  9  RT",
+                csv.headerRow
+        )
+        Assert.assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testScorePadDataToStringWithRound() {
+        setUpScorePadDetailsGlobals()
+        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+           ||      X-X-X-X-X-X  6  60  6  60
+            |10-10-10-10-10-10  6  60  6 120
+            |      9-9-9-9-9-9  6  54  0 174
+            |     Total at 10m 18 174 12   -
+            |      8-8-8-8-8-8  6  48  0 222
+            |      7-7-7-7-7-7  6  42  0 264
+            |      6-6-6-6-6-6  6  36  0 300
+            |     Total at 20m 18 126  0   -
+            |      Grand Total 36 300 12   -
+        """.trimMargin().trim().removePrefix("|")
+
+        Assert.assertEquals(
+                "              End  H   S  9  RT",
+                csv.headerRow
+        )
+        Assert.assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testScorePadDataToStringWithRoundNoDistanceTotals() {
+        setUpScorePadDetailsGlobals()
+        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, false)
+
+        val expected = """
+           ||      X-X-X-X-X-X  6  60  6  60
+            |10-10-10-10-10-10  6  60  6 120
+            |      9-9-9-9-9-9  6  54  0 174
+            |      8-8-8-8-8-8  6  48  0 222
+            |      7-7-7-7-7-7  6  42  0 264
+            |      6-6-6-6-6-6  6  36  0 300
+            |      Grand Total 36 300 12   -
+        """.trimMargin().trim().removePrefix("|")
+
+        Assert.assertEquals(
+                "              End  H   S  9  RT",
+                csv.headerRow
+        )
+        Assert.assertEquals(expected, csv.details)
+    }
+
+    private fun setUpScorePadDetailsGlobals() {
+        resources = TestUtils.createResourceMock(
+                mapOf(
+                        Pair(R.string.end_to_string_arrow_placeholder, TestData.ARROW_PLACEHOLDER),
+                        Pair(R.string.end_to_string_arrow_deliminator, TestData.ARROW_DELIMINATOR),
+                        Pair(R.string.score_pad__grand_total, "Grand Total"),
+                        Pair(R.string.score_pad__running_total_placeholder, "-"),
+                        Pair(R.string.score_pad__distance_total, "Total at {distance}{unit}"),
+                        Pair(R.string.score_pad__surplus_total, "Surplus Total"),
+                        Pair(R.string.score_pad__end_string_header, "End"),
+                        Pair(R.string.table_hits_header, "H"),
+                        Pair(R.string.table_score_header, "S"),
+                        Pair(R.string.table_golds_tens_header, "9"),
+                        Pair(R.string.score_pad__running_total_header, "RT"),
+                )
+        )
+        arrows = List(6) { i -> List(6) { TestData.ARROWS[TestData.ARROWS.size - i - 1] } }.flatten()
+                .mapIndexed { i, arrow -> arrow.toArrowValue(1, i) }
+        arrowCounts = List(2) { i -> RoundArrowCount(1, i, 1.0, 18) }
+        distances = List(2) { i -> RoundDistance(1, i, 1, (i + 1) * 10) }
     }
 }

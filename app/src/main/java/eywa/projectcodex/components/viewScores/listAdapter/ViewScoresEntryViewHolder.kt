@@ -55,13 +55,6 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
     }
 
     enum class ContextMenuItem(private val titleId: Int) {
-        EMAIL_SCORE(R.string.view_scores_menu__email_score) {
-            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
-                view.findNavController().navigate(
-                        ViewScoresFragmentDirections.actionViewScoresFragmentToEmailFragment(entry.id)
-                )
-            }
-        },
         SCORE_PAD(R.string.view_scores_menu__score_pad) {
             override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
                 view.findNavController().navigate(
@@ -95,6 +88,13 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
                     return
                 }
                 super.addItemToMenu(menu, view, entry, viewModel)
+            }
+        },
+        EMAIL_SCORE(R.string.view_scores_menu__email_score) {
+            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
+                view.findNavController().navigate(
+                        ViewScoresFragmentDirections.actionViewScoresFragmentToEmailFragment(entry.id)
+                )
             }
         },
         EDIT_INFO(R.string.view_scores_menu__edit) {

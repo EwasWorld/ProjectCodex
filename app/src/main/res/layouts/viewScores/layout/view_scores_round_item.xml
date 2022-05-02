@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_vs_round_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/touch_target_min_dimen"

@@ -1,6 +1,5 @@
 package eywa.projectcodex.instrumentedTests
 
-import android.content.res.Resources
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
@@ -14,8 +13,7 @@ import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
@@ -44,7 +42,6 @@ class ViewScoresInstrumentedTest {
     private lateinit var scenario: FragmentScenario<ViewScoresFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
-    private lateinit var resources: Resources
     private lateinit var layoutManager: RecyclerView.LayoutManager
     private var archerRounds: List<ArcherRoundWithRoundInfoAndName> = listOf()
     private var rounds = listOf<Round>()
@@ -75,7 +72,6 @@ class ViewScoresInstrumentedTest {
         scenario.moveToState(Lifecycle.State.RESUMED)
         scenario.onFragment {
             Navigation.setViewNavController(it.requireView(), navController)
-            resources = it.resources
         }
     }
 
@@ -333,5 +329,107 @@ class ViewScoresInstrumentedTest {
                         .mapIndexed { i, arrow -> arrow.toArrowValue(2, i) }
         )
         checkData(generateExpectedData().getData().withIndex(), false)
+    }
+
+    @Test
+    fun testMultiSelections() {
+        val size = 4
+        archerRounds = TestData.generateArcherRounds(size, 1).map { ArcherRoundWithRoundInfoAndName(it) }
+        arrows = List(size) { i -> TestData.generateArrowValues(36 + i * 6, archerRounds[i].archerRound.archerRoundId) }
+        addToDbAndRetrieveAdapter()
+        val expectedData = generateExpectedData().getData()
+
+        CustomConditionWaiter.waitForTextToAppear(expectedData[0].hitsScoreGolds)
+
+        for (i in 0 until size) {
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
+        }
+        R.id.button_view_scores__start_multi_select.click()
+
+        /*
+         * Select a single item
+         */
+        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
+        for (i in 0 until size) {
+            var matcher = isSelected()
+            if (i != 1) {
+                matcher = not(matcher)
+            }
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
+        }
+
+        /*
+         * Deselect the item
+         */
+        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
+        for (i in 0 until size) {
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
+        }
+
+        /*
+         * Select all items from none then deselect all
+         */
+        R.id.button_view_scores__select_all_or_none.click()
+        for (i in 0 until size) {
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(isSelected()))
+        }
+
+        R.id.button_view_scores__select_all_or_none.click()
+        for (i in 0 until size) {
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
+        }
+
+        /*
+         * Select two items
+         */
+        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
+        onView(withText(expectedData[2].hitsScoreGolds)).perform(click())
+        for (i in 0 until size) {
+            var matcher = isSelected()
+            if (i != 1 && i != 2) {
+                matcher = not(matcher)
+            }
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
+        }
+
+        /*
+         * Deselect one item
+         */
+        onView(withText(expectedData[2].hitsScoreGolds)).perform(click())
+        for (i in 0 until size) {
+            var matcher = isSelected()
+            if (i != 1) {
+                matcher = not(matcher)
+            }
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
+        }
+
+        /*
+         * Select all items from single selection
+         */
+        R.id.button_view_scores__select_all_or_none.click()
+        for (i in 0 until size) {
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(isSelected()))
+        }
+
+        /*
+         * Deselect one item
+         */
+        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
+        for (i in 0 until size) {
+            var matcher = isSelected()
+            if (i == 1) {
+                matcher = not(matcher)
+            }
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
+        }
+
+        /*
+         * Cancel
+         */
+        R.id.button_view_scores__cancel_selection.click()
+        for (i in 0 until size) {
+            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
+        }
     }
 }

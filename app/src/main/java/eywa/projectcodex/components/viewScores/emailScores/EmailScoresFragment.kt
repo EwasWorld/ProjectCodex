@@ -86,7 +86,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
         val fileWriter = FileWriter(attachment)
         for (entry in selectedEntries) {
             val detailedScorePad = entry.getScorePadData(endSize, resources)!!
-                    .getDetailsAsCsv(columnHeaderOrder, entry.goldsType, resources, includeDistanceHeaders)
+                    .getDetailsAsCsv(columnHeaderOrder, resources, includeDistanceHeaders)
             fileWriter.append(entry.getScoreSummary(resources))
             fileWriter.append("\n\n")
             fileWriter.append(detailedScorePad.headerRow)
@@ -251,18 +251,14 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
     }
 
     private class FormErrors {
-        private val formErrorResourceIds = mutableListOf<Int>()
+        private val formErrorResourceIds = mutableSetOf<Int>()
 
         fun addFormError(resourceId: Int) {
-            if (!formErrorResourceIds.contains(resourceId)) {
-                formErrorResourceIds.add(resourceId)
-            }
+            formErrorResourceIds.add(resourceId)
         }
 
         fun removeFormError(resourceId: Int) {
-            if (!formErrorResourceIds.contains(resourceId)) {
-                formErrorResourceIds.add(resourceId)
-            }
+            formErrorResourceIds.remove(resourceId)
         }
 
         /**

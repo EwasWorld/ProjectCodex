@@ -18,6 +18,7 @@ class CommonStrings {
             const val viewRoundsConvert = "Convert"
             const val viewRoundsConvertToTens = "Xs to 10s"
             const val viewRoundsConvertToFiveZone = "10-zone to 5-zone"
+            const val viewRoundsEmail = "Email score"
         }
     }
 

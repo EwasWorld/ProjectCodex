@@ -27,11 +27,11 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
         val data: List<ViewScoresEntry> = listOf()
     }
 
-    var archerRound: ArcherRound
+    var archerRound: ArcherRound = initialInfo.archerRound
         private set
-    var round: Round? = null
+    var round: Round? = initialInfo.round
         private set
-    var displayName: String? = null
+    var displayName: String? = initialInfo.round?.displayName
         private set
     var arrows: List<ArrowValue>? = null
         private set
@@ -136,6 +136,10 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     private var scorePadDataEndSize: Int? = null
     private var scorePadData: ScorePadData? = null
 
+    var updatedListener: UpdatedListener? = null
+    val id: Int
+        get() = archerRound.archerRoundId
+
     var isSelected = false
         set(value) {
             field = value
@@ -173,16 +177,6 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
                         Pair("golds", golds.toString()),
                 )
         )
-    }
-
-    var updatedListener: UpdatedListener? = null
-    val id: Int
-        get() = archerRound.archerRoundId
-
-    init {
-        archerRound = initialInfo.archerRound
-        round = initialInfo.round
-        displayName = initialInfo.displayName
     }
 
     fun getType(): ViewScoresAdapter.ViewScoresEntryType {
