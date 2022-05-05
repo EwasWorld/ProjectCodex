@@ -4,12 +4,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import java.util.concurrent.locks.ReentrantLock
 
 /**
  * @see ArrowValuesRepo
- * TODO_CURRENT If a round is deleted, all archerRounds associated with it should also be stripped of their round info
+ * TODO If a round is deleted, all archerRounds associated with it should also be stripped of their round info
  */
 class RoundRepo(
         private val roundDao: RoundDao,

@@ -52,6 +52,8 @@ fun logMessage(logClass: KClass<*>, message: String) {
 
 fun Int.click() = onView(withId(this)).perform(ViewActions.click())!!
 fun Int.write(text: String) = onView(withId(this)).perform(ViewActions.typeText(text))!!
+fun Int.scrollTo() = onView(withId(this)).perform(ViewActions.scrollTo())!!
+fun Int.clearText() = onView(withId(this)).perform(ViewActions.clearText())!!
 fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))!!
 fun Int.labelledTextEquals(text: String) =
         onView(allOf(withParent(withParent(withId(this))), withId(R.id.labelled_text__text))).check(

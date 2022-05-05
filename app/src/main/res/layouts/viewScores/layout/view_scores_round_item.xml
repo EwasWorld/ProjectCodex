@@ -2,12 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_vs_round_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minHeight="@dimen/touch_target_min_dimen"
     android:paddingHorizontal="10dp"
     android:paddingVertical="5dp"
     android:layout_margin="@dimen/view_scores__item_margin"
-    android:background="@color/colorLightAccent"
+    android:background="@drawable/view_score_item_background_states"
     >
 
     <LinearLayout
@@ -19,6 +21,7 @@
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         >
 
         <TextView
@@ -52,6 +55,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/layout_vs_round_item__main_info"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         >
 
         <TextView

@@ -7,6 +7,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -27,6 +28,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
+import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -319,7 +321,7 @@ class LargeScaleInstrumentedTest {
 
 
         logMessage(this::class, "Score A - Continue round (completed)")
-        // TODO Try to continue the round from view rounds, score pad - insert, and input end (nav from score pad and stats)
+        // TODO Try to continue the round from view rounds, score pad - insert, and input end (nav from score pad and stats), email score
 
 
 //        logMessage(this::class, "Score A - Convert round Xs")
@@ -358,21 +360,30 @@ class LargeScaleInstrumentedTest {
      */
     @Test
     fun testHelpDialogs() {
-        touchEveryScreen(listOf(ArcherRoundStatsFragment::class, AboutFragment::class)) {
-            R.id.action_bar__help.click()
-            try {
-                while (true) {
-                    CustomConditionWaiter.waitFor(helpFadeTime)
-                    onViewWithClassName(MaterialShowcaseView::class.java).check(matches(isDisplayed()))
-                    onView(withText(nextHelpString)).perform(click())
-                }
+        touchEveryScreen(listOf(ArcherRoundStatsFragment::class, AboutFragment::class)) { fragmentClass ->
+            cycleThroughHelpDialogs()
+
+            if (fragmentClass == ViewScoresFragment::class) {
+                R.id.button_view_scores__start_multi_select.click()
+                cycleThroughHelpDialogs()
             }
-            catch (e: NoMatchingViewException) {
-            }
-            CustomConditionWaiter.waitFor(helpFadeTime)
-            onView(withText(closeHelpString)).perform(click())
-            CustomConditionWaiter.waitFor(helpFadeTime)
         }
+    }
+
+    private fun cycleThroughHelpDialogs() {
+        R.id.action_bar__help.click()
+        try {
+            while (true) {
+                CustomConditionWaiter.waitFor(helpFadeTime)
+                onViewWithClassName(MaterialShowcaseView::class.java).check(matches(isDisplayed()))
+                onView(withText(nextHelpString)).perform(click())
+            }
+        }
+        catch (e: NoMatchingViewException) {
+        }
+        CustomConditionWaiter.waitFor(helpFadeTime)
+        onView(withText(closeHelpString)).perform(click())
+        CustomConditionWaiter.waitFor(helpFadeTime)
     }
 
     /**
@@ -392,7 +403,10 @@ class LargeScaleInstrumentedTest {
      * @param action run once on every single fragment
      * @param TestList do not run [action] on these fragments
      */
-    private fun touchEveryScreen(TestList: List<KClass<out Fragment>> = listOf(), action: () -> Unit) {
+    private fun touchEveryScreen(
+            TestList: List<KClass<out Fragment>> = listOf(),
+            action: (KClass<out Fragment>) -> Unit
+    ) {
         fun performAction(current: KClass<out Fragment>) {
             if (TestList.contains(current)) {
                 logMessage(this::class, "Testd: ${current.jvmName}")
@@ -400,7 +414,7 @@ class LargeScaleInstrumentedTest {
             }
             logMessage(this::class, "Performing on: ${current.jvmName}")
             CustomConditionWaiter.waitForFragmentToShow(scenario, (current.jvmName))
-            action()
+            action(current)
         }
 
         addSimpleTestDataToDb()
@@ -458,6 +472,11 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
         R.id.button_main_menu__view_scores.click()
         performAction(ViewScoresFragment::class)
+
+        logMessage(this::class, "Navigating to: Email")
+        onView(withIndex(withId(R.id.layout_vs_round_item), 0)).perform(longClick())
+        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.viewRoundsEmail)
+        performAction(EmailScoresFragment::class)
 
         logMessage(this::class, "Returning to main menu")
         pressBack()
@@ -605,6 +624,19 @@ class LargeScaleInstrumentedTest {
         R.id.button_main_menu__view_scores.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class.java.name))
         logMessage(this::class, " -> press back")
+        pressBack()
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
+
+
+        logMessage(this::class, "Email score")
+        R.id.button_main_menu__view_scores.click()
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class.java.name))
+        onView(withText("6/12/0")).perform(longClick())
+        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.viewRoundsEmail)
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class.java.name))
+        logMessage(this::class, " -> press back")
+        pressBack()
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class.java.name))
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
 
@@ -769,6 +801,17 @@ class LargeScaleInstrumentedTest {
         logMessage(this::class, "View rounds")
         R.id.button_main_menu__view_scores.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class.java.name))
+        logMessage(this::class, " -> press home")
+        R.id.action_bar__home.click()
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
+
+
+        logMessage(this::class, "Email score")
+        R.id.button_main_menu__view_scores.click()
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class.java.name))
+        onView(withText("6/12/0")).perform(longClick())
+        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.viewRoundsEmail)
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class.java.name))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))

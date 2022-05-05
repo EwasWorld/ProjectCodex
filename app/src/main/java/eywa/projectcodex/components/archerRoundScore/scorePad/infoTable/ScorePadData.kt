@@ -16,7 +16,7 @@ import kotlin.math.min
 class ScorePadData(
         arrows: List<ArrowValue>,
         endSize: Int,
-        goldsType: GoldsType,
+        private val goldsType: GoldsType,
         resources: Resources,
         arrowCounts: List<RoundArrowCount>? = null,
         distances: List<RoundDistance>? = null,
@@ -85,6 +85,73 @@ class ScorePadData(
                 )
             }
         }
+    }
+
+    /**
+     * Converts the score pad data to a string for display.
+     * One line for each end which shows data in the order given by [columnOrder], separated by at least one space.
+     * Includes a grand total at the end.
+     * The beginning of every item is padded so that columns are a fixed width.
+     * Headers are also padded to the same fixed with.
+     *
+     * @param includeDistanceHeaders whether to include rows labelled as [ScorePadRowType.DISTANCE_TOTAL]
+     */
+    fun getDetailsAsString(
+            columnOrder: List<ColumnHeader>,
+            resources: Resources,
+            includeDistanceHeaders: Boolean
+    ): ScorePadDetailsString {
+        val headers = mapOf(*columnOrder.map { column ->
+            val headerStringId = if (column == ColumnHeader.GOLDS) goldsType.shortStringId else column.resourceId!!
+            Pair(column, resources.getString(headerStringId))
+        }.toTypedArray())
+        var outputData: List<Map<ColumnHeader, Any>> = data
+        if (!includeDistanceHeaders) {
+            outputData = outputData.filter { it[ColumnHeader.ROW_TYPE] != ScorePadRowType.DISTANCE_TOTAL }
+        }
+        val maxWidths = mapOf(*columnOrder.map { colHeader ->
+            Pair(
+                    colHeader,
+                    outputData.maxOf { it[colHeader].toString().length }.coerceAtLeast(headers[colHeader]!!.length)
+            )
+        }.toTypedArray())
+
+        val header = columnOrder.joinToString(" ") { column ->
+            "%${maxWidths[column]}s".format(headers[column]!!)
+        }
+        val details = outputData.joinToString("\n") { row ->
+            columnOrder.joinToString(" ") { column ->
+                // Pad the start of each item to the max column width
+                "%${maxWidths[column]}s".format(row[column].toString())
+            }
+        }
+        return ScorePadDetailsString(header, details)
+    }
+
+    /**
+     * Converts the score pad data to a CSV.
+     * One line for each end which shows data in the order given by [columnOrder], separated by a comma.
+     * Includes a grand total at the end.
+     *
+     * @param includeDistanceHeaders whether to include rows labelled as [ScorePadRowType.DISTANCE_TOTAL]
+     */
+    fun getDetailsAsCsv(
+            columnOrder: List<ColumnHeader>,
+            resources: Resources,
+            includeDistanceHeaders: Boolean
+    ): ScorePadDetailsString {
+        val header = columnOrder.joinToString(",") { column ->
+            val headerStringId = if (column == ColumnHeader.GOLDS) goldsType.shortStringId else column.resourceId!!
+            resources.getString(headerStringId)
+        }
+        var outputData: List<Map<ColumnHeader, Any>> = data
+        if (!includeDistanceHeaders) {
+            outputData = outputData.filter { it[ColumnHeader.ROW_TYPE] != ScorePadRowType.DISTANCE_TOTAL }
+        }
+        val details = outputData.joinToString("\n") { row ->
+            columnOrder.joinToString(",") { row[it].toString() }
+        }
+        return ScorePadDetailsString(header, details)
     }
 
     /**

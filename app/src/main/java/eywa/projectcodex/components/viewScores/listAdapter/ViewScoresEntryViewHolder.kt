@@ -21,7 +21,8 @@ import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 /**
  * Container to display a [ViewScoresEntry] in a recycler view
  */
-abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnCreateContextMenuListener {
+abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(view),
+        View.OnCreateContextMenuListener {
     companion object {
         private const val LOG_TAG = "ViewScoresEntryViewHolder"
     }
@@ -29,7 +30,10 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
     internal var entry: ViewScoresEntry? = null
     var viewModel: ViewScoresViewModel? = null
 
-    abstract fun bind(viewScoresEntry: ViewScoresEntry)
+    open fun bind(viewScoresEntry: ViewScoresEntry) {
+        entry = viewScoresEntry
+        itemView.setOnClickListener { onClick() }
+    }
 
     abstract fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem>
 
@@ -39,7 +43,18 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
         }
     }
 
-    enum class ContextMenuItem(val titleId: Int) {
+    /**
+     * @return true if a final action has been taken and subclasses should not do any further actions
+     */
+    open fun onClick(): Boolean {
+        if (viewModel?.isInSelectMode == true) {
+            entry!!.isSelected = !entry!!.isSelected
+            return true
+        }
+        return false
+    }
+
+    enum class ContextMenuItem(private val titleId: Int) {
         SCORE_PAD(R.string.view_scores_menu__score_pad) {
             override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
                 view.findNavController().navigate(
@@ -73,6 +88,13 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
                     return
                 }
                 super.addItemToMenu(menu, view, entry, viewModel)
+            }
+        },
+        EMAIL_SCORE(R.string.view_scores_menu__email_score) {
+            override fun onClick(view: View, entry: ViewScoresEntry, viewModel: ViewScoresViewModel) {
+                view.findNavController().navigate(
+                        ViewScoresFragmentDirections.actionViewScoresFragmentToEmailFragment(entry.id)
+                )
             }
         },
         EDIT_INFO(R.string.view_scores_menu__edit) {

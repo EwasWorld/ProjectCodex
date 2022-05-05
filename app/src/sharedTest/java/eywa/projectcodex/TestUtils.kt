@@ -1,12 +1,13 @@
 package eywa.projectcodex
 
+import android.content.res.Resources
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 
 class TestUtils {
     companion object {
-        private val defaultColumnHeaderOrder = listOf(
+        val defaultColumnHeaderOrder = listOf(
                 ScorePadData.ColumnHeader.END_STRING,
                 ScorePadData.ColumnHeader.HITS,
                 ScorePadData.ColumnHeader.SCORE,
@@ -34,5 +35,17 @@ class TestUtils {
 
         @Suppress("UNCHECKED_CAST")
         private fun <T> castNull(): T = null as T
+
+        fun createResourceMock(map: Map<Int, String>): Resources {
+            val resources = Mockito.mock(Resources::class.java)
+            Mockito.`when`(resources.getString(Mockito.anyInt())).thenAnswer { invocation ->
+                val resourceId = invocation.getArgument<Int>(0)
+                if (!map.containsKey(resourceId)) {
+                    throw IllegalStateException("Unknown resource: $resourceId")
+                }
+                map[resourceId]
+            }
+            return resources
+        }
     }
 }
