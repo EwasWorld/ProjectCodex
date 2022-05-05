@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.ViewScoresFragmentDirections
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
@@ -57,14 +57,14 @@ class ViewScoresRoundViewHolder(view: View) : ViewScoresEntryViewHolder(view) {
         return true
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<ViewHelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setView(hsgView)
                         .setHelpTitleId(R.string.help_view_score__hsg_title)
                         .setHelpBodyId(R.string.help_view_score__hsg_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setView(handicapView)
                         .setHelpTitleId(R.string.help_view_score__handicap_title)
                         .setHelpBodyId(R.string.help_view_score__handicap_body)

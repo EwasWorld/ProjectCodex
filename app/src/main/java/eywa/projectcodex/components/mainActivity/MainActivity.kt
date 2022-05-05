@@ -15,6 +15,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.utils.*
 import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.about.AboutFragment

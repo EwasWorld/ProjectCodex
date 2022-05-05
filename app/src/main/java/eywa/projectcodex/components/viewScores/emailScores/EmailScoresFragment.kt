@@ -14,7 +14,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.getColourResource
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
@@ -201,44 +203,44 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
         formErrors.removeFormError(R.string.err_email_scores__no_items_selected)
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.input_text_email_scores__to)
                         .setHelpTitleId(R.string.help_email_scores__to_title)
                         .setHelpBodyId(R.string.help_email_scores__to_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.input_text_email_scores__subject)
                         .setHelpTitleId(R.string.help_email_scores__subject_title)
                         .setHelpBodyId(R.string.help_email_scores__subject_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.input_text_email_scores__message_start)
                         .setHelpTitleId(R.string.help_email_scores__message_start_title)
                         .setHelpBodyId(R.string.help_email_scores__message_start_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.text_email_scores__message_scores)
                         .setHelpTitleId(R.string.help_email_scores__scores_title)
                         .setHelpBodyId(R.string.help_email_scores__scores_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.input_text_email_scores__message_end)
                         .setHelpTitleId(R.string.help_email_scores__message_end_title)
                         .setHelpBodyId(R.string.help_email_scores__message_end_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.check_box_email_scores__attach_full)
                         .setHelpTitleId(R.string.help_email_scores__full_score_sheet_attachment_title)
                         .setHelpBodyId(R.string.help_email_scores__full_score_sheet_attachment_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.check_box_email_scores__include_distance)
                         .setHelpTitleId(R.string.help_email_scores__include_distance_totals_title)
                         .setHelpBodyId(R.string.help_email_scores__include_distance_totals_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_email_scores__send)
                         .setHelpTitleId(R.string.help_email_scores__send_title)
                         .setHelpBodyId(R.string.help_email_scores__send_body)

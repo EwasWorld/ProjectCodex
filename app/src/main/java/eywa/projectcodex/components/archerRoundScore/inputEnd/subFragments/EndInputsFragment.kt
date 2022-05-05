@@ -10,7 +10,9 @@ import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.elements.NumberPickerDialog
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerRoundScore.inputEnd.ScoreButtonPressedListener
 import eywa.projectcodex.exceptions.UserException
@@ -129,33 +131,33 @@ class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp 
         }
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         val helpItems = mutableListOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.fragment_end_inputs__arrow_inputs)
                         .setHelpTitleId(R.string.help_input_end__arrow_inputs_title)
                         .setHelpBodyId(R.string.help_input_end__arrow_inputs_body)
-                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .setShape(HelpShowcaseItem.Shape.OVAL)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.text_end_inputs__inputted_arrows)
                         .setHelpTitleId(R.string.help_input_end__end_inputs_arrows_title)
                         .setHelpBodyId(R.string.help_input_end__end_inputs_arrows_body)
-                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .setShape(HelpShowcaseItem.Shape.OVAL)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.text_end_inputs__end_total)
                         .setHelpTitleId(R.string.help_input_end__end_inputs_total_title)
                         .setHelpBodyId(R.string.help_input_end__end_inputs_total_body)
-                        .setShape(ActionBarHelp.ShowcaseShape.CIRCLE)
+                        .setShape(HelpShowcaseItem.Shape.CIRCLE)
                         .setShapePadding(85)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_end_inputs__backspace)
                         .setHelpTitleId(R.string.help_input_end__end_inputs_backspace_title)
                         .setHelpBodyId(R.string.help_input_end__end_inputs_backspace_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_end_inputs__clear)
                         .setHelpTitleId(R.string.help_input_end__end_inputs_clear_title)
                         .setHelpBodyId(R.string.help_input_end__end_inputs_clear_body)
@@ -163,7 +165,7 @@ class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp 
         )
         if (showResetButton) {
             helpItems.add(
-                    ActionBarHelp.HelpShowcaseItem.Builder()
+                    ViewHelpShowcaseItem.Builder()
                             .setViewId(R.id.button_end_inputs__reset)
                             .setHelpTitleId(R.string.help_input_end__end_inputs_reset_title)
                             .setHelpBodyId(R.string.help_input_end__end_inputs_reset_body)

@@ -14,6 +14,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
@@ -193,9 +196,9 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         }
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         val main = mutableListOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_input_end__next_end)
                         .setHelpTitleId(R.string.help_input_end__next_end_title)
                         .setHelpBodyId(R.string.help_input_end__next_end_body)
@@ -203,7 +206,7 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         )
         if (requireView().findViewById<TextView>(R.id.layout_input_end__round_info).isVisible) {
             main.add(
-                    ActionBarHelp.HelpShowcaseItem.Builder()
+                    ViewHelpShowcaseItem.Builder()
                             .setViewId(R.id.layout_input_end__round_info)
                             .setHelpTitleId(R.string.help_input_end__remaining_arrows_title)
                             .setHelpBodyId(R.string.help_input_end__remaining_arrows_body)

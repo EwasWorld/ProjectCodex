@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import kotlinx.android.synthetic.main.frag_score_indicator.*
 
@@ -38,9 +40,9 @@ class ScoreIndicatorFragment : Fragment(), ActionBarHelp {
         }
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.table_layout_scores_indicator)
                         .setHelpTitleId(R.string.help_input_end__indicator_title)
                         .setHelpBodyId(R.string.help_input_end__indicator_body)

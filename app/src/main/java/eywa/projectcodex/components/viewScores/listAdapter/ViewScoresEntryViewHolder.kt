@@ -11,7 +11,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.viewScores.ConvertScore
 import eywa.projectcodex.components.viewScores.ViewScoresFragmentDirections
@@ -35,7 +35,7 @@ abstract class ViewScoresEntryViewHolder(view: View) : RecyclerView.ViewHolder(v
         itemView.setOnClickListener { onClick() }
     }
 
-    abstract fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem>
+    abstract fun getHelpShowcases(): List<ViewHelpShowcaseItem>
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
         ContextMenuItem.values().forEach {

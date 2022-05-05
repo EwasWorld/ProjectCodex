@@ -11,7 +11,9 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresAdapter
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresEntryViewHolder
@@ -115,8 +117,8 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         setMultiSelectMode(viewScoresViewModel.isInSelectMode)
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
-        val helpShowcases = mutableListOf<ActionBarHelp.HelpShowcaseItem>()
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
+        val helpShowcases = mutableListOf<ViewHelpShowcaseItem>()
         val recyclerViewLayoutManager = recycler_view_scores.layoutManager as LinearLayoutManager
         val seenItemTypes = mutableSetOf<Int>()
         var priorityOffset = 0
@@ -140,7 +142,7 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         }
         if (!viewScoresViewModel.isInSelectMode) {
             helpShowcases.add(
-                    ActionBarHelp.HelpShowcaseItem.Builder()
+                    ViewHelpShowcaseItem.Builder()
                             .setViewId(R.id.button_view_scores__start_multi_select)
                             .setHelpTitleId(R.string.help_view_score__start_multi_select_title)
                             .setHelpBodyId(R.string.help_view_score__start_multi_select_body)
@@ -150,17 +152,17 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         else {
             helpShowcases.addAll(
                     listOf(
-                            ActionBarHelp.HelpShowcaseItem.Builder()
+                            ViewHelpShowcaseItem.Builder()
                                     .setViewId(R.id.button_view_scores__select_all_or_none)
                                     .setHelpTitleId(R.string.help_view_score__select_all_or_none_title)
                                     .setHelpBodyId(R.string.help_view_score__select_all_or_none_body)
                                     .build(),
-                            ActionBarHelp.HelpShowcaseItem.Builder()
+                            ViewHelpShowcaseItem.Builder()
                                     .setViewId(R.id.button_view_scores__selection_action)
                                     .setHelpTitleId(R.string.help_view_score__action_multi_select_title)
                                     .setHelpBodyId(R.string.help_view_score__action_multi_select_body)
                                     .build(),
-                            ActionBarHelp.HelpShowcaseItem.Builder()
+                            ViewHelpShowcaseItem.Builder()
                                     .setViewId(R.id.button_view_scores__cancel_selection)
                                     .setHelpTitleId(R.string.help_view_score__cancel_multi_select_title)
                                     .setHelpBodyId(R.string.help_view_score__cancel_multi_select_body)

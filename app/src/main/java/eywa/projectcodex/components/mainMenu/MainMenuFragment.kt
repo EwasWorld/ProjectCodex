@@ -9,7 +9,9 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import kotlinx.android.synthetic.main.fragment_main_menu.*
 import kotlin.system.exitProcess
 
@@ -55,14 +57,14 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         callback.isEnabled = true
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_main_menu__start_new_score)
                         .setHelpTitleId(R.string.help_main_menu__new_score_title)
                         .setHelpBodyId(R.string.help_main_menu__new_score_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_main_menu__view_scores)
                         .setHelpTitleId(R.string.help_main_menu__view_scores_title)
                         .setHelpBodyId(R.string.help_main_menu__view_scores_body)

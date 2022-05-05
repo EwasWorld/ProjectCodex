@@ -13,7 +13,9 @@ import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.End
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
@@ -110,14 +112,14 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
         callback.isEnabled = true
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_insert_end__complete)
                         .setHelpTitleId(R.string.help_edit_end__complete_title)
                         .setHelpBodyId(R.string.help_edit_end__complete_body)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_insert_end__cancel)
                         .setHelpTitleId(R.string.help_edit_end__cancel_title)
                         .setHelpBodyId(R.string.help_edit_end__cancel_body)

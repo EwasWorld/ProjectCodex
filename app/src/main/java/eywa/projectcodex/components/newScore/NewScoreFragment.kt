@@ -15,7 +15,9 @@ import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
 import eywa.projectcodex.common.elements.DatePickerDialog
 import eywa.projectcodex.common.elements.TimePickerDialog
-import eywa.projectcodex.common.utils.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.common.utils.resourceStringReplace
@@ -363,56 +365,56 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         }
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         val mainList = mutableListOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.layout_create_round__date)
                         .setHelpTitleId(R.string.help_create_round__date_title)
                         .setHelpBodyId(R.string.help_create_round__date_body)
-                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .setShape(HelpShowcaseItem.Shape.OVAL)
                         .setShapePadding(0)
                         .build(),
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.layout_create_round__round)
                         .setHelpTitleId(R.string.help_create_round__round_title)
                         .setHelpBodyId(R.string.help_create_round__round_body)
-                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .setShape(HelpShowcaseItem.Shape.OVAL)
                         .setShapePadding(0)
                         .build()
         )
         if (layout_create_round__round_sub_type.visibility == View.VISIBLE) {
             mainList.addAll(
                     listOf(
-                            ActionBarHelp.HelpShowcaseItem.Builder()
+                            ViewHelpShowcaseItem.Builder()
                                     .setViewId(R.id.layout_create_round__round_sub_type)
                                     .setHelpTitleId(R.string.help_create_round__sub_round_title)
                                     .setHelpBodyId(R.string.help_create_round__sub_round_body)
-                                    .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                                    .setShape(HelpShowcaseItem.Shape.OVAL)
                                     .setShapePadding(0)
                                     .build(),
-                            ActionBarHelp.HelpShowcaseItem.Builder()
+                            ViewHelpShowcaseItem.Builder()
                                     .setViewId(R.id.text_create_round__arrow_count_indicator)
                                     .setHelpTitleId(R.string.help_create_round__arrow_count_indicator_title)
                                     .setHelpBodyId(R.string.help_create_round__arrow_count_indicator_body)
-                                    .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                                    .setShape(HelpShowcaseItem.Shape.OVAL)
                                     .setShapePadding(0)
                                     .build(),
-                            ActionBarHelp.HelpShowcaseItem.Builder()
+                            ViewHelpShowcaseItem.Builder()
                                     .setViewId(R.id.text_create_round__distance_indicator)
                                     .setHelpTitleId(R.string.help_create_round__distance_indicator_title)
                                     .setHelpBodyId(R.string.help_create_round__distance_indicator_body)
-                                    .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                                    .setShape(HelpShowcaseItem.Shape.OVAL)
                                     .setShapePadding(0)
                                     .build()
                     )
             )
         }
         mainList.add(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setViewId(R.id.button_create_round__submit)
                         .setHelpTitleId(R.string.help_create_round__submit_title)
                         .setHelpBodyId(R.string.help_create_round__submit_body)
-                        .setShape(ActionBarHelp.ShowcaseShape.OVAL)
+                        .setShape(HelpShowcaseItem.Shape.OVAL)
                         .build()
         )
         return mainList

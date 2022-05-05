@@ -14,6 +14,9 @@ import com.evrencoskun.tableview.listener.ITableViewListener
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.*
@@ -244,12 +247,12 @@ class ScorePadFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
         override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int) {}
     }
 
-    override fun getHelpShowcases(): List<ActionBarHelp.HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
         return listOf(
-                ActionBarHelp.HelpShowcaseItem.Builder()
+                ViewHelpShowcaseItem.Builder()
                         .setHelpTitleId(R.string.help_score_pad__open_menu_title)
                         .setHelpBodyId(R.string.help_table_open_menu_body)
-                        .setShape(ActionBarHelp.ShowcaseShape.NO_SHAPE)
+                        .setShape(HelpShowcaseItem.Shape.NO_SHAPE)
                         .build()
         )
     }
