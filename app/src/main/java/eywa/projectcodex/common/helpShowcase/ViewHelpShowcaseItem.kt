@@ -1,13 +1,14 @@
 package eywa.projectcodex.common.helpShowcase
 
-import android.app.Activity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.getColourResource
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 
 /**
@@ -17,18 +18,22 @@ class ViewHelpShowcaseItem private constructor() : HelpShowcaseItem, Comparable<
     private var endSequenceOnDismiss = false
 
     /**
-     * Turns the next [ViewHelpShowcaseItem] in [remainingItems] into a [MaterialShowcaseView] and shows it.
-     * Dismissing it will trigger the next item in [remainingItems] to be shown. Pressing anywhere else will end
+     * Displays the current item as a [MaterialShowcaseView].
+     *
+     * Dismissing it will trigger [goToNextItemListener] if it [hasNextItem]. Pressing anywhere else will end
      * the showcase
      *
      * Note cannot use [MaterialShowcaseSequence] as when it sets the config for each item, colours represented
      * using negatives are not accepted (even though that is the standard way to represent colours...)
      */
-    override fun show(activity: Activity, remainingItems: List<HelpShowcaseItem>?) {
-        val hasItemsAfterThis = !remainingItems.isNullOrEmpty()
-
+    override fun show(
+            activity: AppCompatActivity,
+            hasNextItem: Boolean,
+            goToNextItemListener: () -> Unit,
+            endShowcaseListener: () -> Unit
+    ) {
         endSequenceOnDismiss = false
-        val dismissText = if (hasItemsAfterThis) R.string.general_next else R.string.action_bar__close_help
+        val dismissText = if (hasNextItem) R.string.general_next else R.string.action_bar__close_help
         val showcaseBuilder = MaterialShowcaseView.Builder(activity)
                 .setTarget(
                         when (shape) {
@@ -59,26 +64,12 @@ class ViewHelpShowcaseItem private constructor() : HelpShowcaseItem, Comparable<
                     }
 
                     override fun onShowcaseDismissed(showcaseView: MaterialShowcaseView?) {
-                        when {
-                            endSequenceOnDismiss -> {
-                                synchronized(ActionBarHelp.showcaseInProgressLock) {
-                                    ActionBarHelp.showcaseInProgress = false
-                                }
-                            }
-                            remainingItems.isNullOrEmpty() -> {
-                                synchronized(ActionBarHelp.showcaseInProgressLock) {
-                                    ActionBarHelp.showcaseInProgress = false
-                                }
-                            }
-                            else -> {
-                                remainingItems.first().show(activity, remainingItems.drop(1))
-                            }
-                        }
+                        if (endSequenceOnDismiss || !hasNextItem) endShowcaseListener() else goToNextItemListener()
                     }
                 })
 
         val skipText = activity.getString(R.string.action_bar__close_help)
-        if (hasItemsAfterThis) {
+        if (hasNextItem) {
             showcaseBuilder.setSkipText(skipText)
         }
         shapePadding?.let { showcaseBuilder.setShapePadding(it) }
@@ -87,7 +78,7 @@ class ViewHelpShowcaseItem private constructor() : HelpShowcaseItem, Comparable<
          * Build showcase view
          */
         val showcaseView = showcaseBuilder.build()
-        if (hasItemsAfterThis) {
+        if (hasNextItem) {
             // Set the skip button listener
             //    (done awkwardly since the library doesn't provide an easy way to do this)
             showcaseView.children.first { it is LinearLayout }.touchables.first {

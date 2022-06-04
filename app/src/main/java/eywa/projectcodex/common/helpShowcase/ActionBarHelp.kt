@@ -1,6 +1,10 @@
 package eywa.projectcodex.common.helpShowcase
 
 import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ToastSpamPrevention
@@ -12,21 +16,19 @@ import eywa.projectcodex.common.utils.ToastSpamPrevention
 interface ActionBarHelp {
     companion object {
         private const val LOG_TAG = "ActionBarHelp"
-        val showcaseInProgressLock = Object()
-        var showcaseInProgress = false
+        private val showcaseInProgressLock = Object()
+        private var showcaseInProgress = false
+        private var displayedIndex by mutableStateOf(0)
 
         /**
          * Executes the [getHelpShowcases] showcases for all [fragments] in order of priority
          *
          * @param fragments fragments current shown which implement [ActionBarHelp]
          */
-        fun executeHelpPressed(fragments: List<ActionBarHelp>, activity: Activity) {
+        fun executeHelpPressed(fragments: List<ActionBarHelp>, activity: AppCompatActivity) {
             if (fragments.isEmpty()) {
-                CustomLogger.customLogger.i(LOG_TAG, "No help information defined")
-                ToastSpamPrevention.displayToast(
-                        activity.applicationContext,
-                        activity.resources.getString(R.string.err_action_bar__no_help_info)
-                )
+                CustomLogger.customLogger.d(LOG_TAG, "No help information defined")
+                activity.displayHasNoHelpToast()
                 return
             }
             synchronized(showcaseInProgressLock) {
@@ -44,8 +46,44 @@ interface ActionBarHelp {
                 }
             }
             helpItemsList.sortBy { it.priority }
-            helpItemsList.first().show(activity, helpItemsList.drop(1))
+            if (helpItemsList.isEmpty()) {
+                CustomLogger.customLogger.w(LOG_TAG, "No help information found")
+                activity.displayHasNoHelpToast()
+                synchronized(showcaseInProgressLock) {
+                    showcaseInProgress = false
+                }
+                return
+            }
+            displayedIndex = 0
+            showHelpItem(helpItemsList, activity)
         }
+
+        private fun showHelpItem(helpItemsList: List<HelpShowcaseItem>, activity: AppCompatActivity) {
+            if (displayedIndex !in helpItemsList.indices) {
+                synchronized(showcaseInProgressLock) {
+                    showcaseInProgress = false
+                }
+                return
+            }
+            helpItemsList[displayedIndex].show(
+                    activity = activity,
+                    hasNextItem = displayedIndex == helpItemsList.lastIndex,
+                    goToNextItemListener = {
+                        displayedIndex++
+                        showHelpItem(helpItemsList, activity)
+                    },
+                    endShowcaseListener = {
+                        synchronized(showcaseInProgressLock) {
+                            showcaseInProgress = false
+                        }
+                    }
+            )
+        }
+
+        private fun Activity.displayHasNoHelpToast() = ToastSpamPrevention.displayToast(
+                applicationContext,
+                resources.getString(R.string.err_action_bar__no_help_info)
+        )
     }
 
     /**

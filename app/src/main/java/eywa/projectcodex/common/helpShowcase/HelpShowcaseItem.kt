@@ -1,6 +1,6 @@
 package eywa.projectcodex.common.helpShowcase
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 
 interface HelpShowcaseItem {
     companion object {
@@ -9,7 +9,12 @@ interface HelpShowcaseItem {
 
     var priority: Int?
 
-    fun show(activity: Activity, remainingItems: List<HelpShowcaseItem>?)
+    fun show(
+            activity: AppCompatActivity,
+            hasNextItem: Boolean,
+            goToNextItemListener: () -> Unit,
+            endShowcaseListener: () -> Unit
+    )
 
     /**
      * The shape the showcase will use to highlight the given view

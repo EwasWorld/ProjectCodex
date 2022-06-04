@@ -3,6 +3,7 @@ package eywa.projectcodex.common.helpShowcase.ui
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,13 +14,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.R
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -28,23 +29,22 @@ fun ComposeHelpShowcase(
         ovalTopLeft: Offset,
         ovalHeight: Float,
         ovalWidth: Float,
-        screenHeight: Dp,
-        screenWidth: Dp,
+        screenHeight: Float,
+        screenWidth: Float,
         shown: Boolean,
-        color: Color = Color.Blue,
-        alpha: Float = 0.8f
+        color: Color = colorResource(id = R.color.colorPrimaryDarkTransparent),
+        alpha: Float = 0.8f,
+        onDismissListener: () -> Unit
 ) {
     val targetValue = if (shown) {
         1f
     }
     else {
-        with(LocalDensity.current) {
-            getRequiredScale(
-                    ovalTopLeft.x, ovalTopLeft.y,
-                    ovalHeight, ovalWidth,
-                    screenWidth.toPx(), screenHeight.toPx()
-            )
-        }
+        getRequiredScale(
+                ovalTopLeft.x, ovalTopLeft.y,
+                ovalHeight, ovalWidth,
+                screenWidth, screenHeight
+        )
     }
     val state: Float by animateFloatAsState(
             targetValue = targetValue,
@@ -55,8 +55,7 @@ fun ComposeHelpShowcase(
             modifier = Modifier
                     .fillMaxSize()
                     .alpha(alpha)
-                    .onGloballyPositioned { _ -> }
-                    .onSizeChanged { _ -> }
+                    .clickable(onClick = onDismissListener)
     ) {
         drawRect(
                 color = color,
@@ -77,12 +76,13 @@ fun ComposeHelpShowcase(
 @Composable
 fun ComposeHelpShowcase(
         viewInfo: LayoutCoordinates,
-        screenHeight: Dp,
-        screenWidth: Dp,
+        screenHeight: Float,
+        screenWidth: Float,
         shown: Boolean,
         padding: Dp = 6.dp,
-        color: Color = Color.Blue,
-        alpha: Float = 0.8f
+        color: Color = colorResource(id = R.color.colorPrimaryDarkTransparent),
+        alpha: Float = 0.8f,
+        onDismissListener: () -> Unit
 ) {
     val paddingPx = with(LocalDensity.current) { padding.toPx() }
     val (viewX, viewY) = viewInfo.positionInRoot().minus(Offset(paddingPx, paddingPx))
@@ -104,7 +104,8 @@ fun ComposeHelpShowcase(
             screenWidth = screenWidth,
             shown = shown,
             color = color,
-            alpha = alpha
+            alpha = alpha,
+            onDismissListener = onDismissListener
     )
 }
 
@@ -158,14 +159,17 @@ fun getRequiredScale(
 )
 @Composable
 fun ComposeHelpShowcasePreview() {
-    ComposeHelpShowcase(
-            ovalTopLeft = Offset(10f, 50f),
-            ovalHeight = 100f,
-            ovalWidth = 150f,
-            screenHeight = 200.dp,
-            screenWidth = 100.dp,
-            shown = true
-    )
+    with(LocalDensity.current) {
+        ComposeHelpShowcase(
+                ovalTopLeft = Offset(10f, 50f),
+                ovalHeight = 100f,
+                ovalWidth = 150f,
+                screenHeight = 200.dp.toPx(),
+                screenWidth = 100.dp.toPx(),
+                shown = true,
+                onDismissListener = {}
+        )
+    }
 }
 
 @Preview(
@@ -175,12 +179,15 @@ fun ComposeHelpShowcasePreview() {
 )
 @Composable
 fun ComposeHelpShowcaseHiddenPreview() {
-    ComposeHelpShowcase(
-            ovalTopLeft = Offset(10f, 50f),
-            ovalHeight = 100f,
-            ovalWidth = 150f,
-            screenHeight = 200.dp,
-            screenWidth = 100.dp,
-            shown = false
-    )
+    with(LocalDensity.current) {
+        ComposeHelpShowcase(
+                ovalTopLeft = Offset(10f, 50f),
+                ovalHeight = 100f,
+                ovalWidth = 150f,
+                screenHeight = 200.dp.toPx(),
+                screenWidth = 100.dp.toPx(),
+                shown = false,
+                onDismissListener = {}
+        )
+    }
 }
