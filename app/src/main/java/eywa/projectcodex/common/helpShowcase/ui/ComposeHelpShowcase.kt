@@ -1,12 +1,18 @@
 package eywa.projectcodex.common.helpShowcase.ui
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState.Visible
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
@@ -24,6 +30,7 @@ import eywa.projectcodex.R
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ComposeHelpShowcase(
         ovalTopLeft: Offset,
@@ -31,45 +38,55 @@ fun ComposeHelpShowcase(
         ovalWidth: Float,
         screenHeight: Float,
         screenWidth: Float,
-        shown: Boolean,
+        shown: MutableTransitionState<Boolean>,
         color: Color = colorResource(id = R.color.colorPrimaryDarkTransparent),
         alpha: Float = 0.8f,
         onDismissListener: () -> Unit
 ) {
-    val targetValue = if (shown) {
-        1f
-    }
-    else {
-        getRequiredScale(
-                ovalTopLeft.x, ovalTopLeft.y,
-                ovalHeight, ovalWidth,
-                screenWidth, screenHeight
+    val scale by remember {
+        mutableStateOf(
+                getRequiredScale(
+                        ovalTopLeft.x, ovalTopLeft.y,
+                        ovalHeight, ovalWidth,
+                        screenWidth, screenHeight
+                )
         )
     }
-    val state: Float by animateFloatAsState(
-            targetValue = targetValue,
-            animationSpec = tween(500)
-    )
-
-    Canvas(
-            modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(alpha)
-                    .clickable(onClick = onDismissListener)
+    AnimatedVisibility(
+            visibleState = shown,
+            enter = EnterTransition.None,
+            exit = ExitTransition.None
     ) {
-        drawRect(
-                color = color,
-                topLeft = Offset(0f, 0f),
-                size = this.size
+        val state by transition.animateFloat(
+                targetValueByState = { if (it == Visible) 1f else scale },
+                transitionSpec = {
+                    tween(
+                            durationMillis = 300,
+                            easing = if (targetState == Visible) LinearOutSlowInEasing else FastOutLinearInEasing
+                    )
+                },
+                label = "",
         )
-        val extraWidth = (ovalWidth * state - ovalWidth) / 2
-        val extraHeight = (ovalHeight * state - ovalHeight) / 2
-        drawOval(
-                color = Color.Transparent,
-                blendMode = BlendMode.Clear,
-                topLeft = Offset(ovalTopLeft.x - extraWidth, ovalTopLeft.y - extraHeight),
-                size = Size(ovalWidth * state, ovalHeight * state),
-        )
+        Canvas(
+                modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(alpha)
+                        .clickable(onClick = onDismissListener)
+        ) {
+            drawRect(
+                    color = color,
+                    topLeft = Offset(0f, 0f),
+                    size = this.size
+            )
+            val extraWidth = (ovalWidth * state - ovalWidth) / 2
+            val extraHeight = (ovalHeight * state - ovalHeight) / 2
+            drawOval(
+                    color = Color.Transparent,
+                    blendMode = BlendMode.Clear,
+                    topLeft = Offset(ovalTopLeft.x - extraWidth, ovalTopLeft.y - extraHeight),
+                    size = Size(ovalWidth * state, ovalHeight * state),
+            )
+        }
     }
 }
 
@@ -78,7 +95,7 @@ fun ComposeHelpShowcase(
         viewInfo: LayoutCoordinates,
         screenHeight: Float,
         screenWidth: Float,
-        shown: Boolean,
+        shown: MutableTransitionState<Boolean>,
         padding: Dp = 6.dp,
         color: Color = colorResource(id = R.color.colorPrimaryDarkTransparent),
         alpha: Float = 0.8f,
@@ -166,7 +183,7 @@ fun ComposeHelpShowcasePreview() {
                 ovalWidth = 150f,
                 screenHeight = 200.dp.toPx(),
                 screenWidth = 100.dp.toPx(),
-                shown = true,
+                shown = MutableTransitionState(true),
                 onDismissListener = {}
         )
     }
@@ -186,7 +203,7 @@ fun ComposeHelpShowcaseHiddenPreview() {
                 ovalWidth = 150f,
                 screenHeight = 200.dp.toPx(),
                 screenWidth = 100.dp.toPx(),
-                shown = false,
+                shown = MutableTransitionState(true),
                 onDismissListener = {}
         )
     }

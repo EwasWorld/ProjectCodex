@@ -3,9 +3,7 @@ package eywa.projectcodex.common.helpShowcase
 import android.graphics.drawable.ColorDrawable
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.ComposeView
 import eywa.projectcodex.R
@@ -19,10 +17,10 @@ class ComposeHelpShowcaseItem(
         override var priority: Int? = HelpShowcaseItem.DEFAULT_HELP_PRIORITY,
 ) : HelpShowcaseItem {
     private var layoutCoordinates: LayoutCoordinates? = null
-    private var isShown by mutableStateOf(false)
+    private var isShown = MutableTransitionState(false)
 
     private fun setIsShown(value: Boolean, activity: AppCompatActivity) {
-        isShown = value
+        isShown.targetState = value
         activity.setTitleBarColor(value)
     }
 
@@ -33,7 +31,7 @@ class ComposeHelpShowcaseItem(
             endShowcaseListener: () -> Unit
     ) {
         val composeView = activity.findViewById<ComposeView>(R.id.content_main_compose)
-        activity.setTitleBarColor(true)
+        setIsShown(true, activity)
         composeView.setContent {
             ComposeHelpShowcase(
                     viewInfo = layoutCoordinates!!,
@@ -46,7 +44,6 @@ class ComposeHelpShowcaseItem(
                     }
             )
         }
-        setIsShown(true, activity)
         // TODO Add text
     }
 
