@@ -8,10 +8,10 @@ import androidx.activity.addCallback
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import eywa.projectcodex.R
+import eywa.projectcodex.common.codexTheme.CodexTheme
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import kotlinx.android.synthetic.main.fragment_main_menu.*
 import kotlin.system.exitProcess
 
 class MainMenuComposeFragment : Fragment(), ActionBarHelp {
@@ -21,30 +21,28 @@ class MainMenuComposeFragment : Fragment(), ActionBarHelp {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                mainMenuScreen.MainMenuScreen(
-                        isAlertDialogOpen = isAlertDialogShown.value,
-                        onStartNewScoreClicked = {
-                            NavHostFragment
-                                    .findNavController(this@MainMenuComposeFragment)
-                                    .navigate(
-                                            MainMenuComposeFragmentDirections.actionMainMenuFragmentToNewScoreFragment()
-                                    )
-                        },
-                        onViewScoresClicked = {
-                            NavHostFragment
-                                    .findNavController(this@MainMenuComposeFragment)
-                                    .navigate(
-                                            MainMenuComposeFragmentDirections.actionMainMenuFragmentToViewScoresFragment()
-                                    )
-                        },
-                        onDialogActionClicked = { isPositiveButton ->
-                            isAlertDialogShown.value = false
-                            if (isPositiveButton) {
-                                requireActivity().finish()
-                                exitProcess(0)
-                            }
-                        }
-                )
+                CodexTheme {
+                    mainMenuScreen.MainMenuScreen(
+                            isExitDialogOpen = isAlertDialogShown.value,
+                            onExitAlertClicked = { isPositiveButton ->
+                                isAlertDialogShown.value = false
+                                if (isPositiveButton) {
+                                    requireActivity().finish()
+                                    exitProcess(0)
+                                }
+                            },
+                            onStartNewScoreClicked = {
+                                findNavController().navigate(
+                                        MainMenuComposeFragmentDirections.actionMainMenuFragmentToNewScoreFragment()
+                                )
+                            },
+                            onViewScoresClicked = {
+                                findNavController().navigate(
+                                        MainMenuComposeFragmentDirections.actionMainMenuFragmentToViewScoresFragment()
+                                )
+                            },
+                    )
+                }
             }
         }
     }
