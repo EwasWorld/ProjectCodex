@@ -13,8 +13,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,10 +30,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexButton
 import kotlin.math.pow
@@ -44,104 +39,82 @@ import kotlin.math.sqrt
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ComposeHelpShowcase(
-        title: String = "Title",
-        message: String = "message",
-        nextButtonListener: (() -> Unit)? = null,
-        closeButtonListener: () -> Unit = {},
-        ovalTopLeft: Offset,
-        ovalHeight: Float,
-        ovalWidth: Float,
-        screenHeight: Float,
-        screenWidth: Float,
-        shown: MutableTransitionState<Boolean>,
-        color: Color = colorResource(id = R.color.colorPrimaryDarkTransparent),
-        alpha: Float = 0.8f,
-        onDismissListener: () -> Unit
-) {
-    val scaleWhenGone by remember {
-        mutableStateOf(
-                getRequiredScale(
-                        ovalTopLeft.x, ovalTopLeft.y,
-                        ovalHeight, ovalWidth,
-                        screenWidth, screenHeight
-                )
-        )
-    }
-    val ovalBottomOffset = ovalTopLeft.y + ovalHeight
-    val isTextAbove = ovalTopLeft.y > screenHeight - ovalBottomOffset
-
+fun ComposeHelpShowcase(state: ComposeHelpShowcaseState) {
     AnimatedVisibility(
-            visibleState = shown,
+            visibleState = state.shown,
             enter = EnterTransition.None,
             exit = ExitTransition.None
     ) {
+        val animationDuration = 300
         val scale by transition.animateFloat(
-                targetValueByState = { if (it == Visible) 1f else scaleWhenGone },
+                targetValueByState = { if (it == Visible) 1f else state.maximisedOvalScale },
                 transitionSpec = {
                     tween(
-                            durationMillis = 300,
+                            durationMillis = animationDuration,
                             easing = if (targetState == Visible) LinearOutSlowInEasing else FastOutLinearInEasing
                     )
                 },
-                label = "",
+                label = "ComposeHelpShowcase scale",
+        )
+        val textAlpha by transition.animateFloat(
+                targetValueByState = { if (it == Visible) 1f else 0f },
+                transitionSpec = {
+                    tween(
+                            durationMillis = animationDuration,
+                            easing = if (targetState == Visible) LinearOutSlowInEasing else FastOutLinearInEasing
+                    )
+                },
+                label = "ComposeHelpShowcase textAlpha",
         )
 
+        val overlayColor = colorResource(id = R.color.colorPrimaryDark)
         Canvas(
                 modifier = Modifier
                         .fillMaxSize()
-                        .alpha(alpha)
-                        .clickable(onClick = onDismissListener)
+                        .alpha(0.85f)
+                        .clickable(onClick = state.overlayClickedListener)
         ) {
             drawRect(
-                    color = color,
+                    color = overlayColor,
                     topLeft = Offset(0f, 0f),
                     size = this.size
             )
-            val extraWidth = (ovalWidth * scale - ovalWidth) / 2
-            val extraHeight = (ovalHeight * scale - ovalHeight) / 2
             drawOval(
                     color = Color.Transparent,
                     blendMode = BlendMode.Clear,
-                    topLeft = Offset(ovalTopLeft.x - extraWidth, ovalTopLeft.y - extraHeight),
-                    size = Size(ovalWidth * scale, ovalHeight * scale),
+                    topLeft = state.scaledOvalOffset(scale),
+                    size = state.scaledOvalSize(scale),
             )
         }
 
         Column(
                 modifier = Modifier
-                        .offset {
-                            IntOffset(
-                                    x = 0,
-                                    y = if (isTextAbove) 0 else ovalBottomOffset.roundToInt()
-                            )
-                        }
-                        .height(
-                                with(LocalDensity.current) {
-                                    (if (isTextAbove) ovalTopLeft.y else screenHeight - ovalBottomOffset).toDp()
-                                }
-                        )
+                        .offset { state.textAreaTopLeft }
+                        .height(with(LocalDensity.current) { state.textAreaHeight.toDp() })
                         .padding(16.dp),
-                verticalArrangement = if (isTextAbove) Arrangement.Bottom else Arrangement.Top
+                verticalArrangement = state.textAreaVerticalArrangement
         ) {
             Text(
-                    text = title,
+                    text = state.title,
                     fontSize = 30.sp,
-                    modifier = Modifier.padding(
-                            start = 5.dp,
-                            bottom = 15.dp,
-                    ),
+                    modifier = Modifier
+                            .padding(
+                                    start = 5.dp,
+                                    bottom = 15.dp,
+                            )
+                            .alpha(textAlpha),
                     color = colorResource(id = R.color.colorLightAccent)
             )
+            val messageAlpha = if (state.message.isNotBlank() && state.title.isNotBlank()) 0.5f else 1f
             Text(
-                    text = message,
+                    text = state.message,
                     fontSize = 20.sp,
                     modifier = Modifier
                             .padding(start = 5.dp)
-                            .alpha(if (message.isNotBlank() && title.isNotBlank()) 0.5f else 1f),
+                            .alpha(textAlpha * messageAlpha),
                     color = Color.White
             )
-            if (nextButtonListener != null) {
+            state.nextItemListener?.let { nextButtonListener ->
                 ClickableText(
                         text = AnnotatedString("Next"),
                         onClick = { nextButtonListener() },
@@ -149,116 +122,146 @@ fun ComposeHelpShowcase(
                                 fontSize = 22.sp,
                                 color = Color.White
                         ),
-                        modifier = Modifier.padding(
-                                horizontal = 5.dp,
-                                vertical = 10.dp,
-                        ),
+                        modifier = Modifier
+                                .padding(
+                                        horizontal = 5.dp,
+                                        vertical = 10.dp,
+                                )
+                                .alpha(textAlpha),
                 )
             }
             ClickableText(
                     text = AnnotatedString("Close help"),
-                    onClick = { closeButtonListener() },
+                    onClick = { state.closeListener() },
                     style = TextStyle.Default.copy(
                             fontSize = 18.sp,
                             color = Color.White
                     ),
-                    modifier = Modifier.padding(
-                            horizontal = 5.dp,
-                            vertical = 10.dp,
-                    ),
+                    modifier = Modifier
+                            .padding(
+                                    horizontal = 5.dp,
+                                    vertical = 10.dp,
+                            )
+                            .alpha(textAlpha),
             )
         }
     }
 }
 
-@Composable
-fun ComposeHelpShowcase(
-        title: String = "Title",
-        message: String = "message",
-        nextButtonListener: (() -> Unit)? = null,
-        closeButtonListener: () -> Unit = {},
-        viewInfo: LayoutCoordinates,
-        screenHeight: Float,
-        screenWidth: Float,
-        shown: MutableTransitionState<Boolean>,
-        padding: Dp = 6.dp,
-        color: Color = colorResource(id = R.color.colorPrimaryDarkTransparent),
-        alpha: Float = 0.8f,
-        onDismissListener: () -> Unit
+class ComposeHelpShowcaseState(
+        val title: String,
+        val message: String,
+        val nextItemListener: (() -> Unit)? = null,
+        val closeListener: () -> Unit,
+        val overlayClickedListener: () -> Unit,
+        private val ovalTopLeft: Offset,
+        private val ovalHeight: Float,
+        private val ovalWidth: Float,
+        private val screenHeight: Float,
+        private val screenWidth: Float,
+        val shown: MutableTransitionState<Boolean>,
 ) {
-    val paddingPx = with(LocalDensity.current) { padding.toPx() }
-    val (viewX, viewY) = viewInfo.positionInRoot().minus(Offset(paddingPx, paddingPx))
-    val viewWidth = viewInfo.size.width + 2 * paddingPx
-    val viewHeight = viewInfo.size.height + 2 * paddingPx
+    private val ovalBottomOffset = ovalTopLeft.y + ovalHeight
+    private val isTextAboveOval = ovalTopLeft.y > screenHeight - ovalBottomOffset
 
-    val ovalCentreX = viewX + viewWidth / 2
-    val ovalCentreY = viewY + viewHeight / 2
-
-    val ratio = viewHeight / viewWidth
-    val ovalWidth = sqrt(
-            (viewX - viewWidth / 2 - ovalCentreX).pow(2)
-                    + (viewY - viewHeight / 2 - ovalCentreY).pow(2) / ratio
+    val textAreaHeight = if (isTextAboveOval) ovalTopLeft.y else screenHeight - ovalBottomOffset
+    val textAreaTopLeft = IntOffset(
+            x = 0,
+            y = if (isTextAboveOval) 0 else ovalBottomOffset.roundToInt()
     )
-    val ovalHeight = ovalWidth * ratio
+    val textAreaVerticalArrangement = if (isTextAboveOval) Arrangement.Bottom else Arrangement.Top
 
-    ComposeHelpShowcase(
-            title,
-            message,
-            nextButtonListener,
-            closeButtonListener,
-            ovalTopLeft = Offset(ovalCentreX - ovalWidth / 2, ovalCentreY - ovalHeight / 2),
-            ovalHeight = ovalHeight,
-            ovalWidth = ovalWidth,
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
-            shown = shown,
-            color = color,
-            alpha = alpha,
-            onDismissListener = onDismissListener
-    )
-}
+    /**
+     * The minimum scale factor that the oval needs to be multiplied by so that none of it is visible on the screen
+     * assuming the centre of the oval and its width to height ratio remains the same
+     */
+    val maximisedOvalScale: Float
 
-/**
- * @param ovalTopLeftY 0 is at the top, positive numbers go down the canvas
- * @param ovalTopLeftX 0 is on the left, positive numbers go across the canvas to the right
- */
-fun getRequiredScale(
-        ovalTopLeftX: Float,
-        ovalTopLeftY: Float,
-        ovalHeight: Float,
-        ovalWidth: Float,
-        screenWidth: Float,
-        screenHeight: Float
-): Float {
-    val ovalCentreX = ovalTopLeftX + ovalWidth / 2
-    val ovalCentreY = ovalTopLeftY + ovalHeight / 2
-    val xDenominator = (ovalWidth / 2).pow(2)
-    val yDenominator = (ovalHeight / 2).pow(2)
+    init {
+        val ovalCentreX = ovalTopLeft.x + ovalWidth / 2
+        val ovalCentreY = ovalTopLeft.y + ovalHeight / 2
+        val xDenominator = (ovalWidth / 2).pow(2)
+        val yDenominator = (ovalHeight / 2).pow(2)
 
-    return listOf(
-            0f to 0f,
-            0f to screenHeight,
-            screenWidth to 0f,
-            screenWidth to screenHeight
-    )
-            .map { (x, y) ->
-                /*
-                 * Find what to multiply the width and height by
-                 * so that the coordinates (x, y) are on the ellipse's perimeter
-                 *
-                 * Done using the equation of an ellipse:
-                 *      (x - ovalCentreX)^2 / ovalHorizontalRadius^2
-                 *      + (y - ovalCentreY)^2 / ovalVerticalRadius^2
-                 *      = 1
-                 * If you multiply ovalHorizontalRadius and ovalVerticalRadius by a scale factor, z,
-                 *      when you solve for z, the = 1 is replaces with z^2
-                 */
-                sqrt(
-                        (x - ovalCentreX).pow(2) / xDenominator
-                                + (y - ovalCentreY).pow(2) / yDenominator
-                )
-            }
-            .maxOf { it }
+        maximisedOvalScale = listOf(
+                0f to 0f,
+                0f to screenHeight,
+                screenWidth to 0f,
+                screenWidth to screenHeight
+        )
+                .maxOf { (x, y) ->
+                    /*
+                     * Find what to multiply the width and height by
+                     * so that the coordinates (x, y) are on the ellipse's perimeter
+                     *
+                     * Done using the equation of an ellipse:
+                     *      (x - ovalCentreX)^2 / ovalHorizontalRadius^2
+                     *      + (y - ovalCentreY)^2 / ovalVerticalRadius^2
+                     *      = 1
+                     * If you multiply ovalHorizontalRadius and ovalVerticalRadius by a scale factor, z,
+                     *      when you solve for z, the = 1 is replaces with z^2
+                     */
+                    sqrt(
+                            (x - ovalCentreX).pow(2) / xDenominator
+                                    + (y - ovalCentreY).pow(2) / yDenominator
+                    )
+                }
+    }
+
+    fun scaledOvalOffset(scale: Float): Offset {
+        val extraWidth = (ovalWidth * scale - ovalWidth) / 2
+        val extraHeight = (ovalHeight * scale - ovalHeight) / 2
+        return Offset(ovalTopLeft.x - extraWidth, ovalTopLeft.y - extraHeight)
+    }
+
+    fun scaledOvalSize(scale: Float) = Size(ovalWidth * scale, ovalHeight * scale)
+
+    companion object {
+        val DEFAULT_PADDING = 6.dp
+
+        fun from(
+                title: String,
+                message: String,
+                nextButtonListener: (() -> Unit)? = null,
+                closeButtonListener: () -> Unit,
+                overlayClickedListener: () -> Unit,
+                viewInfo: LayoutCoordinates,
+                screenHeight: Float,
+                screenWidth: Float,
+                shown: MutableTransitionState<Boolean>,
+                padding: Dp = DEFAULT_PADDING,
+                density: Density,
+        ): ComposeHelpShowcaseState {
+            val paddingPx = with(density) { padding.toPx() }
+            val (viewX, viewY) = viewInfo.positionInRoot().minus(Offset(paddingPx, paddingPx))
+            val viewWidth = viewInfo.size.width + 2 * paddingPx
+            val viewHeight = viewInfo.size.height + 2 * paddingPx
+
+            val ovalCentreX = viewX + viewWidth / 2
+            val ovalCentreY = viewY + viewHeight / 2
+
+            val ratio = viewHeight / viewWidth
+            val ovalWidth = sqrt(
+                    (viewX - viewWidth / 2 - ovalCentreX).pow(2)
+                            + (viewY - viewHeight / 2 - ovalCentreY).pow(2) / ratio
+            )
+            val ovalHeight = ovalWidth * ratio
+
+            return ComposeHelpShowcaseState(
+                    title = title,
+                    message = message,
+                    nextItemListener = nextButtonListener,
+                    closeListener = closeButtonListener,
+                    overlayClickedListener = overlayClickedListener,
+                    ovalTopLeft = Offset(ovalCentreX - ovalWidth / 2, ovalCentreY - ovalHeight / 2),
+                    ovalHeight = ovalHeight,
+                    ovalWidth = ovalWidth,
+                    screenHeight = screenHeight,
+                    screenWidth = screenWidth,
+                    shown = shown,
+            )
+        }
+    }
 }
 
 @Preview(
@@ -280,14 +283,19 @@ private fun ComposeHelpShowcasePreview(
     }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         ComposeHelpShowcase(
-                nextButtonListener = {},
-                ovalTopLeft = param.ovalTopLeft,
-                ovalHeight = param.ovalHeight,
-                ovalWidth = param.ovalWidth,
-                screenHeight = this.constraints.minHeight.toFloat(),
-                screenWidth = this.constraints.minWidth.toFloat(),
-                shown = MutableTransitionState(true),
-                onDismissListener = {}
+                ComposeHelpShowcaseState(
+                        title = "Title",
+                        message = "Message",
+                        nextItemListener = {},
+                        closeListener = {},
+                        overlayClickedListener = {},
+                        ovalTopLeft = param.ovalTopLeft,
+                        ovalHeight = param.ovalHeight,
+                        ovalWidth = param.ovalWidth,
+                        screenHeight = this.constraints.minHeight.toFloat(),
+                        screenWidth = this.constraints.minWidth.toFloat(),
+                        shown = MutableTransitionState(true),
+                )
         )
     }
 }
