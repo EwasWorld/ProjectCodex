@@ -2,9 +2,6 @@ apply plugin: "com.android.application"
 
 apply plugin: "kotlin-android"
 
-// Allow referencing of views by name rather than using findViewById
-apply plugin: "kotlin-android-extensions"
-
 apply plugin: "kotlin-kapt"
 
 // Adds SafeArgs for nav graphs

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -12,7 +13,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
-import kotlinx.android.synthetic.main.fragment_main_menu.*
 import kotlin.system.exitProcess
 
 class MainMenuFragment : Fragment(), ActionBarHelp {
@@ -36,12 +36,12 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.main_menu__title)
 
-        button_main_menu__start_new_score.setOnClickListener {
+        view.findViewById<Button>(R.id.button_main_menu__start_new_score).setOnClickListener {
             val action = MainMenuFragmentDirections.actionMainMenuFragmentToNewScoreFragment()
             view.findNavController().navigate(action)
         }
 
-        button_main_menu__view_scores.setOnClickListener {
+        view.findViewById<Button>(R.id.button_main_menu__view_scores).setOnClickListener {
             val action = MainMenuFragmentDirections.actionMainMenuFragmentToViewScoresFragment()
             view.findNavController().navigate(action)
         }

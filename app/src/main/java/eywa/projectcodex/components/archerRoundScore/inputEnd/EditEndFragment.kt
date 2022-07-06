@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
@@ -24,7 +25,6 @@ import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndIn
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
-import kotlinx.android.synthetic.main.fragment_edit_end.*
 
 
 class EditEndFragment : Fragment(), ActionBarHelp {
@@ -81,11 +81,11 @@ class EditEndFragment : Fragment(), ActionBarHelp {
                 args.archerRoundId
         )
 
-        button_edit_end__cancel.setOnClickListener {
+        view.findViewById<Button>(R.id.button_edit_end__cancel).setOnClickListener {
             view.findNavController().navigate(action)
         }
 
-        button_edit_end__complete.setOnClickListener {
+        view.findViewById<Button>(R.id.button_edit_end__complete).setOnClickListener {
             try {
                 val updates = endInputsFragment.end.getDatabaseUpdates(args.archerRoundId, null)
                 require(updates.first == UpdateType.UPDATE) { "Edit end can only update arrows in the database" }

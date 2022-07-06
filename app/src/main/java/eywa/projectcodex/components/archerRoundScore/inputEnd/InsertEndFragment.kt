@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
@@ -23,7 +24,6 @@ import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.Arrow
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
-import kotlinx.android.synthetic.main.fragment_insert_end.*
 
 
 class InsertEndFragment : Fragment(), ActionBarHelp {
@@ -84,11 +84,11 @@ class InsertEndFragment : Fragment(), ActionBarHelp {
                 args.archerRoundId
         )
 
-        button_insert_end__cancel.setOnClickListener {
+        view.findViewById<Button>(R.id.button_insert_end__cancel).setOnClickListener {
             view.findNavController().navigate(action)
         }
 
-        button_insert_end__complete.setOnClickListener {
+        view.findViewById<Button>(R.id.button_insert_end__complete).setOnClickListener {
             try {
                 val arrowValues = endInputsFragment.end.toArrowValues(args.archerRoundId, args.firstArrowId)
                 inputEndViewModel.insertEnd(arrows, arrowValues).invokeOnCompletion {

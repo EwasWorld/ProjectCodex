@@ -8,6 +8,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -24,7 +28,6 @@ import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.exceptions.UserException
-import kotlinx.android.synthetic.main.fragment_email_scores.*
 import java.io.File
 import java.io.FileWriter
 
@@ -115,21 +118,22 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
             displaySelectedEntries()
         })
 
-        button_email_scores__send.setOnClickListener {
+        view.findViewById<Button>(R.id.button_email_scores__send).setOnClickListener {
             try {
                 formErrors.throwFirstFormErrorAsUserException()
 
                 var uri: Uri? = null
-                if (check_box_email_scores__attach_full.isChecked) {
-                    uri = createAttachment(check_box_email_scores__include_distance.isChecked)
+                if (view.findViewById<CheckBox>(R.id.check_box_email_scores__attach_full).isChecked) {
+                    uri =
+                            createAttachment(view.findViewById<CheckBox>(R.id.check_box_email_scores__include_distance).isChecked)
                 }
                 val message = "%s\n\n%s\n\n%s\n\n\n\n%s".format(
-                        input_text_email_scores__message_start.text.trim(),
-                        text_email_scores__message_scores.text.trim(),
-                        input_text_email_scores__message_end.text.trim(),
+                        view.findViewById<TextView>(R.id.input_text_email_scores__message_start).text.trim(),
+                        view.findViewById<TextView>(R.id.text_email_scores__message_scores).text.trim(),
+                        view.findViewById<TextView>(R.id.input_text_email_scores__message_end).text.trim(),
                         resources.getString(R.string.email_default_message_signature)
                 )
-                val emails = input_text_email_scores__to.text
+                val emails = view.findViewById<TextView>(R.id.input_text_email_scores__to).text
                         .split(",", ";", " ")
                         .map { it.trim() }
                         .filter { it.isNotEmpty() }
@@ -140,7 +144,10 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
                 val emailIntent = Intent(Intent.ACTION_SEND).apply {
                     data = Uri.parse("mailto:")
                     putExtra(Intent.EXTRA_EMAIL, emails.toTypedArray())
-                    putExtra(Intent.EXTRA_SUBJECT, input_text_email_scores__subject.text.toString())
+                    putExtra(
+                            Intent.EXTRA_SUBJECT,
+                            view.findViewById<EditText>(R.id.input_text_email_scores__subject).text.toString()
+                    )
                     putExtra(Intent.EXTRA_TEXT, message)
                     putExtra(Intent.EXTRA_STREAM, uri)
                     selector = emailSelectorIntent
@@ -162,9 +169,10 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
             }
         }
 
-        check_box_email_scores__attach_full.setOnCheckedChangeListener { _, isChecked ->
-            check_box_email_scores__include_distance.isEnabled = isChecked
-        }
+        view.findViewById<CheckBox>(R.id.check_box_email_scores__attach_full)
+                .setOnCheckedChangeListener { _, isChecked ->
+                    view.findViewById<CheckBox>(R.id.check_box_email_scores__include_distance).isEnabled = isChecked
+                }
     }
 
     /**
@@ -186,17 +194,18 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
         val selectedItems = getSelectedEntries()
         if (selectedItems.isNullOrEmpty()) {
             formErrors.addFormError(R.string.err_email_scores__no_items_selected)
-            text_email_scores__message_scores.text = resources.getString(R.string.email_empty_round_summary)
-            text_email_scores__message_scores.setTextColor(
+            requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).text =
+                    resources.getString(R.string.email_empty_round_summary)
+            requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).setTextColor(
                     getColourResource(resources, R.color.warningText, requireContext().theme)
             )
             return
         }
 
-        text_email_scores__message_scores.setTextColor(
+        requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).setTextColor(
                 getColourResource(resources, R.color.offBlack, requireContext().theme)
         )
-        text_email_scores__message_scores.text = selectedItems
+        requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).text = selectedItems
                 .joinToString("\n\n") { entry ->
                     entry.getScoreSummary(resources)
                 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
@@ -27,7 +28,6 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.exceptions.UserException
-import kotlinx.android.synthetic.main.fragment_input_end.*
 
 
 class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
@@ -118,7 +118,7 @@ class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationI
             view.findNavController().navigate(action)
         }
 
-        button_input_end__next_end.setOnClickListener {
+        view.findViewById<Button>(R.id.button_input_end__next_end).setOnClickListener {
             if (isRoundComplete()) {
                 CustomLogger.customLogger.w(LOG_TAG, "Input end's next end button pressed when round is complete")
                 if (!roundCompleteDialog.isShowing) {

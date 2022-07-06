@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.customViews.LabelledTextView
 import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
@@ -21,7 +22,6 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import kotlinx.android.synthetic.main.fragment_archer_round_stats.*
 
 
 class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
@@ -57,8 +57,10 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
 
             val hits = dbArrows.count { it.score != 0 }
             val totalArrows = dbArrows.size
-            text_archer_round_stats__hits.updateText("$hits" + if (totalArrows > hits) " (of $totalArrows)" else "")
-            text_archer_round_stats__score.updateText(dbArrows.sumOf { it.score }.toString())
+            view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__hits)
+                    .updateText("$hits" + if (totalArrows > hits) " (of $totalArrows)" else "")
+            view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__score)
+                    .updateText(dbArrows.sumOf { it.score }.toString())
             setGolds()
             calculateHandicapAndPredictedScore()
         })
@@ -67,20 +69,22 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 val archerRound = archerRoundWithInfo.archerRound
                 this.archerRound = archerRound
 
-                text_archer_round_stats__date.updateText(
+                view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__date).updateText(
                         DateTimeFormat.LONG_DATE_TIME_FORMAT.format(archerRound.dateShot)
                 )
 
                 if (archerRound.roundId == null) {
-                    text_archer_round_stats__round.visibility = View.GONE
-                    text_archer_round_stats__remaining_arrows.visibility = View.GONE
+                    view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__round).visibility = View.GONE
+                    view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__remaining_arrows).visibility =
+                            View.GONE
                     return@observe
                 }
                 roundName = archerRoundWithInfo.displayName
                 setFragmentTitle()
 
                 round = archerRoundWithInfo.round!!
-                text_archer_round_stats__round.updateText(archerRoundWithInfo.roundSubTypeName ?: round!!.displayName)
+                view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__round)
+                        .updateText(archerRoundWithInfo.roundSubTypeName ?: round!!.displayName)
                 archerRoundStatsViewModel.getArrowCountsForRound(round!!.roundId)
                         .observe(viewLifecycleOwner, { counts ->
                             counts?.let { dbArrowCounts ->
@@ -95,8 +99,9 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                             calculateHandicapAndPredictedScore()
                         })
 
-                text_archer_round_stats__round.visibility = View.VISIBLE
-                text_archer_round_stats__remaining_arrows.visibility = View.VISIBLE
+                view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__round).visibility = View.VISIBLE
+                view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__remaining_arrows).visibility =
+                        View.VISIBLE
                 setGolds()
                 calculateHandicapAndPredictedScore()
             }
@@ -109,18 +114,22 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
 
     private fun setGolds() {
         if (arrows.isNullOrEmpty()) {
-            text_archer_round_stats__golds.updateLabel(resources.getString(GoldsType.NINES.longStringId))
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__golds)
+                    .updateLabel(resources.getString(GoldsType.NINES.longStringId))
             return
         }
         val goldsType = if (round != null) GoldsType.getGoldsType(round!!) else GoldsType.defaultGoldsType
-        text_archer_round_stats__golds.updateLabel(resources.getString(goldsType.longStringId))
-        text_archer_round_stats__golds.updateText(arrows!!.count { goldsType.isGold(it) }.toString())
+        requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__golds)
+                .updateLabel(resources.getString(goldsType.longStringId))
+        requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__golds)
+                .updateText(arrows!!.count { goldsType.isGold(it) }.toString())
     }
 
     private fun calculateHandicapAndPredictedScore(innerTenArcher: Boolean = false) {
         if (round == null || arrowCounts.isNullOrEmpty() || roundDistances.isNullOrEmpty() || arrows.isNullOrEmpty()) {
-            text_archer_round_stats__handicap.visibility = View.GONE
-            text_archer_round_stats__predicted_score.visibility = View.GONE
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__handicap).visibility = View.GONE
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__predicted_score).visibility =
+                    View.GONE
             return
         }
 
@@ -163,18 +172,23 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
          * Display
          */
         if (handicap != null) {
-            text_archer_round_stats__handicap.updateText(handicap.toString())
-            text_archer_round_stats__handicap.visibility = View.VISIBLE
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__handicap)
+                    .updateText(handicap.toString())
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__handicap).visibility =
+                    View.VISIBLE
         }
         else {
-            text_archer_round_stats__handicap.visibility = View.GONE
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__handicap).visibility = View.GONE
         }
         if (predictedScore != null) {
-            text_archer_round_stats__predicted_score.updateText(predictedScore.toString())
-            text_archer_round_stats__predicted_score.visibility = View.VISIBLE
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__predicted_score)
+                    .updateText(predictedScore.toString())
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__predicted_score).visibility =
+                    View.VISIBLE
         }
         else {
-            text_archer_round_stats__predicted_score.visibility = View.GONE
+            requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__predicted_score).visibility =
+                    View.GONE
         }
     }
 
@@ -194,8 +208,10 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             else -> R.string.archer_round_stats__surplus_arrows
         }
 
-        text_archer_round_stats__remaining_arrows.updateLabel(resources.getString(labelId))
-        text_archer_round_stats__remaining_arrows.updateText(remainingText)
+        requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__remaining_arrows)
+                .updateLabel(resources.getString(labelId))
+        requireView().findViewById<LabelledTextView>(R.id.text_archer_round_stats__remaining_arrows)
+                .updateText(remainingText)
     }
 
     override fun getArcherRoundId(): Int {

@@ -5,10 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
@@ -17,7 +20,6 @@ import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresAdapter
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresEntryViewHolder
-import kotlinx.android.synthetic.main.fragment_view_scores.*
 
 class ViewScoresFragment : Fragment(), ActionBarHelp {
     companion object {
@@ -25,6 +27,7 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
     }
 
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
+    lateinit var recyclerView: RecyclerView
 
     /**
      * Displayed when there's no information to display in the table
@@ -50,7 +53,8 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         setMultiSelectMode(viewScoresViewModel.isInSelectMode)
 
         val viewScoresListAdapter = ViewScoresAdapter(viewScoresViewModel)
-        recycler_view_scores.adapter = viewScoresListAdapter
+        recyclerView = view.findViewById(R.id.recycler_view_scores)
+        recyclerView.adapter = viewScoresListAdapter
         viewScoresViewModel.getViewScoreData().observe(viewLifecycleOwner, {
             CustomLogger.customLogger.i(LOG_TAG, "New list")
             viewScoresListAdapter.submitList(it?.getData())
@@ -65,11 +69,11 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
             }
         })
 
-        button_view_scores__start_multi_select.setOnClickListener {
+        view.findViewById<ImageButton>(R.id.button_view_scores__start_multi_select).setOnClickListener {
             setMultiSelectMode(true)
         }
 
-        button_view_scores__cancel_selection.setOnClickListener {
+        view.findViewById<ImageButton>(R.id.button_view_scores__cancel_selection).setOnClickListener {
             setMultiSelectMode(false)
             val changedItems = viewScoresViewModel.setAllSelected(false)
             changedItems.forEach { itemId ->
@@ -82,7 +86,7 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         /*
          * If all items are selected, deselect all items. Else, select all items
          */
-        button_view_scores__select_all_or_none.setOnClickListener {
+        view.findViewById<ImageButton>(R.id.button_view_scores__select_all_or_none).setOnClickListener {
             val allSelected = viewScoresListAdapter.currentList.all { it.isSelected }
             val changedItems = viewScoresViewModel.setAllSelected(!allSelected)
             changedItems.forEach { itemId ->
@@ -92,26 +96,31 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
             }
         }
 
-        button_view_scores__selection_action.setOnClickListener {
+        view.findViewById<ImageButton>(R.id.button_view_scores__selection_action).setOnClickListener {
             view.findNavController().navigate(R.id.emailFragment)
         }
     }
 
     private fun setMultiSelectMode(isInSelectMode: Boolean) {
         viewScoresViewModel.isInSelectMode = isInSelectMode
-        button_view_scores__start_multi_select.visibility = if (isInSelectMode) View.GONE else View.VISIBLE
+        requireView().findViewById<ImageButton>(R.id.button_view_scores__start_multi_select).visibility =
+                if (isInSelectMode) View.GONE else View.VISIBLE
 
         val multiSelectItemsVisibility = if (isInSelectMode) View.VISIBLE else View.GONE
-        label_view_scores__multi_select.visibility = multiSelectItemsVisibility
-        button_view_scores__cancel_selection.visibility = multiSelectItemsVisibility
-        button_view_scores__select_all_or_none.visibility = multiSelectItemsVisibility
-        button_view_scores__selection_action.visibility = multiSelectItemsVisibility
+        requireView().findViewById<TextView>(R.id.label_view_scores__multi_select).visibility =
+                multiSelectItemsVisibility
+        requireView().findViewById<ImageButton>(R.id.button_view_scores__cancel_selection).visibility =
+                multiSelectItemsVisibility
+        requireView().findViewById<ImageButton>(R.id.button_view_scores__select_all_or_none).visibility =
+                multiSelectItemsVisibility
+        requireView().findViewById<ImageButton>(R.id.button_view_scores__selection_action).visibility =
+                multiSelectItemsVisibility
     }
 
     override fun onResume() {
         super.onResume()
         CustomLogger.customLogger.i(LOG_TAG, "Resuming")
-        val adapter = recycler_view_scores.adapter as ViewScoresAdapter?
+        val adapter = recyclerView.adapter as ViewScoresAdapter?
         adapter?.submitList(ViewScoreData.getViewScoreData().getData())
         adapter?.notifyDataSetChanged()
         setMultiSelectMode(viewScoresViewModel.isInSelectMode)
@@ -119,15 +128,15 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
 
     override fun getHelpShowcases(): List<HelpShowcaseItem> {
         val helpShowcases = mutableListOf<ViewHelpShowcaseItem>()
-        val recyclerViewLayoutManager = recycler_view_scores.layoutManager as LinearLayoutManager
+        val recyclerViewLayoutManager = recyclerView.layoutManager as LinearLayoutManager
         val seenItemTypes = mutableSetOf<Int>()
         var priorityOffset = 0
         for (position in recyclerViewLayoutManager.findFirstCompletelyVisibleItemPosition() until recyclerViewLayoutManager.findLastCompletelyVisibleItemPosition()) {
-            if (!seenItemTypes.add(recycler_view_scores.adapter!!.getItemViewType(position))) {
+            if (!seenItemTypes.add(recyclerView.adapter!!.getItemViewType(position))) {
                 continue
             }
             val showcases =
-                    (recycler_view_scores.findViewHolderForAdapterPosition(position) as ViewScoresEntryViewHolder)
+                    (recyclerView.findViewHolderForAdapterPosition(position) as ViewScoresEntryViewHolder)
                             .getHelpShowcases()
             showcases.forEach {
                 if (it.priority == null) {

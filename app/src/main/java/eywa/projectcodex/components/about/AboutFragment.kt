@@ -13,7 +13,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.common.utils.UpdateDefaultRounds.UpdateTaskState
-import kotlinx.android.synthetic.main.fragment_about.*
 
 
 class AboutFragment : Fragment() {
@@ -51,7 +50,7 @@ class AboutFragment : Fragment() {
                         UpdateTaskState.ERROR -> R.string.err__internal_error
                     }
             )
-            text_about__update_default_rounds_progress.text = progressText
+            view.findViewById<TextView>(R.id.text_about__update_default_rounds_progress).text = progressText
         })
 
         view.findViewById<TextView>(R.id.text_about__app_version).text = BuildConfig.VERSION_NAME

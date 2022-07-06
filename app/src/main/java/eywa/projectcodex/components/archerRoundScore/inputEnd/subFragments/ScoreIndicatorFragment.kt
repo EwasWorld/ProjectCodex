@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TableLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import eywa.projectcodex.R
@@ -11,7 +12,6 @@ import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.database.arrowValue.ArrowValue
-import kotlinx.android.synthetic.main.frag_score_indicator.*
 
 
 class ScoreIndicatorFragment : Fragment(), ActionBarHelp {
@@ -25,7 +25,7 @@ class ScoreIndicatorFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
 
         if (onClickListener != null) {
-            table_layout_scores_indicator.setOnClickListener(onClickListener)
+            view.findViewById<TableLayout>(R.id.table_layout_scores_indicator).setOnClickListener(onClickListener)
         }
     }
 

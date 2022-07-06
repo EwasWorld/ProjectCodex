@@ -4,15 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
-import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
+import eywa.projectcodex.common.customViews.LabelledTextView
 import eywa.projectcodex.common.elements.DatePickerDialog
 import eywa.projectcodex.common.elements.TimePickerDialog
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
@@ -22,7 +21,6 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.database.archerRound.ArcherRound
-import kotlinx.android.synthetic.main.fragment_new_score.*
 import java.util.*
 
 class NewScoreFragment : Fragment(), ActionBarHelp {
@@ -97,6 +95,8 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
 
         newScoreViewModel = ViewModelProvider(this).get(NewScoreViewModel::class.java)
+        val roundSpinner = view.findViewById<Spinner>(R.id.spinner_create_round__round)
+        val subRoundSpinner = view.findViewById<Spinner>(R.id.spinner_create_round__round_sub_type)
 
         // True if the fragment is being used to edit an existing round
         val isInEditMode = args.archerRoundId != -1
@@ -118,12 +118,12 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             newScoreViewModel.getArrowsForRound(args.archerRoundId).observe(viewLifecycleOwner, { arrows ->
                 if (arrows != null) arrowsShot = arrows.count()
             })
-            layout_create_round__edit_submit_buttons.visibility = View.VISIBLE
-            layout_create_round__new_submit_buttons.visibility = View.GONE
+            view.findViewById<LinearLayout>(R.id.layout_create_round__edit_submit_buttons).visibility = View.VISIBLE
+            view.findViewById<LinearLayout>(R.id.layout_create_round__new_submit_buttons).visibility = View.GONE
         }
         else {
-            layout_create_round__edit_submit_buttons.visibility = View.GONE
-            layout_create_round__new_submit_buttons.visibility = View.VISIBLE
+            view.findViewById<LinearLayout>(R.id.layout_create_round__edit_submit_buttons).visibility = View.GONE
+            view.findViewById<LinearLayout>(R.id.layout_create_round__new_submit_buttons).visibility = View.VISIBLE
         }
 
         newScoreViewModel.maxId.observe(viewLifecycleOwner, { maxId ->
@@ -135,10 +135,10 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         })
 
         updateDateTime()
-        text_create_round__date.setOnClickListener {
+        view.findViewById<TextView>(R.id.text_create_round__date).setOnClickListener {
             datePickerDialog.show(childFragmentManager, "date picker")
         }
-        text_create_round__time.setOnClickListener {
+        view.findViewById<TextView>(R.id.text_create_round__time).setOnClickListener {
             timePickerDialog.show(childFragmentManager, "time picker")
         }
 
@@ -147,9 +147,11 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             updateDefaultRoundsState = state
             val isInProgress = updateDefaultRoundsState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS
             fun getVisibility(isShown: Boolean) = if (isShown) View.VISIBLE else View.GONE
-            text_create_round__default_rounds_updating_warning.visibility = getVisibility(isInProgress)
-            text_create_round__default_rounds_updating_status.visibility = getVisibility(isInProgress)
-            layout_create_round__round.visibility = getVisibility(!isInProgress)
+            view.findViewById<TextView>(R.id.text_create_round__default_rounds_updating_warning).visibility =
+                    getVisibility(isInProgress)
+            view.findViewById<LabelledTextView>(R.id.text_create_round__default_rounds_updating_status).visibility =
+                    getVisibility(isInProgress)
+            view.findViewById<LinearLayout>(R.id.layout_create_round__round).visibility = getVisibility(!isInProgress)
         })
         newScoreViewModel.updateDefaultRoundsProgressMessage.observe(viewLifecycleOwner, { message ->
             val newText = when {
@@ -159,12 +161,13 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                 }
                 else -> ""
             }
-            text_create_round__default_rounds_updating_status.updateText(newText)
+            view.findViewById<LabelledTextView>(R.id.text_create_round__default_rounds_updating_status)
+                    .updateText(newText)
         })
 
         // Update the spinners if the database updates (spinners don't display correctly at the start without this)
         newScoreViewModel.allRounds.observe(viewLifecycleOwner, {
-            spinner_create_round__round.adapter = ArrayAdapter(
+            roundSpinner.adapter = ArrayAdapter(
                     requireActivity().applicationContext, R.layout.spinner_light_background,
                     roundSelection.getAvailableRounds()
             )
@@ -172,11 +175,11 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                 setValuesFromArcherRound(true)
             }
             else {
-                spinner_create_round__round.setSelection(roundSelection.noRoundPosition)
+                roundSpinner.setSelection(roundSelection.noRoundPosition)
             }
         })
 
-        button_create_round__submit.setOnClickListener {
+        view.findViewById<Button>(R.id.button_create_round__submit).setOnClickListener {
             val roundId = roundSelection.getSelectedRoundId()
             val roundSubtypeId = if (roundId != null) roundSelection.getSelectedSubtypeId() else null
             // TODO Check date locales (I want to store in UTC)
@@ -189,15 +192,15 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             }
         }
 
-        button_create_round__reset.setOnClickListener {
+        view.findViewById<Button>(R.id.button_create_round__reset).setOnClickListener {
             setValuesFromArcherRound()
         }
 
-        button_create_round__cancel.setOnClickListener {
+        view.findViewById<Button>(R.id.button_create_round__cancel).setOnClickListener {
             requireView().findNavController().popBackStack()
         }
 
-        button_create_round__complete.setOnClickListener {
+        view.findViewById<Button>(R.id.button_create_round__complete).setOnClickListener {
             val roundId = roundSelection.getSelectedRoundId()
             val roundSubtypeId = if (roundId != null) roundSelection.getSelectedSubtypeId() else null
             // TODO Check date locales (I want to store in UTC)
@@ -216,7 +219,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             requireView().findNavController().popBackStack()
         }
 
-        spinner_create_round__round.onItemSelectedListener = object : OnItemSelectedListener {
+        roundSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -232,11 +235,13 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                  * Check the round can be used
                  */
                 var displayArrowCountWarning = false
+                val warningMessageView =
+                        requireView().findViewById<TextView>(R.id.text_create_round__too_many_arrows_warning)
                 if (isInEditMode) {
                     val arrowsInSelectedRound = roundSelection.getTotalArrowsInRound()
                     if (arrowsInSelectedRound != null && arrowsInSelectedRound < arrowsShot) {
                         displayArrowCountWarning = true
-                        text_create_round__too_many_arrows_warning.text = resourceStringReplace(
+                        warningMessageView.text = resourceStringReplace(
                                 resources.getString(R.string.err_create_round__too_many_arrows),
                                 mapOf(
                                         "round" to roundSelection.getSelectedRoundName()!!,
@@ -244,13 +249,13 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                                         "round arrows" to arrowsInSelectedRound.toString()
                                 )
                         )
-                        text_create_round__too_many_arrows_warning.visibility = View.VISIBLE
-                        button_create_round__complete.isEnabled = false
+                        warningMessageView.visibility = View.VISIBLE
+                        requireView().findViewById<Button>(R.id.button_create_round__complete).isEnabled = false
                     }
                 }
                 if (!displayArrowCountWarning) {
-                    text_create_round__too_many_arrows_warning.visibility = View.GONE
-                    button_create_round__complete.isEnabled = true
+                    warningMessageView.visibility = View.GONE
+                    requireView().findViewById<Button>(R.id.button_create_round__complete).isEnabled = true
                 }
 
                 /*
@@ -258,9 +263,12 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                  */
                 if (position == roundSelection.noRoundPosition) {
                     roundSelection.selectedSubtypePosition = null
-                    layout_create_round__round_sub_type.visibility = View.GONE
-                    text_create_round__arrow_count_indicator.visibility = View.GONE
-                    text_create_round__distance_indicator.visibility = View.GONE
+                    requireView().findViewById<LinearLayout>(R.id.layout_create_round__round_sub_type).visibility =
+                            View.GONE
+                    requireView().findViewById<LabelledTextView>(R.id.text_create_round__arrow_count_indicator).visibility =
+                            View.GONE
+                    requireView().findViewById<LabelledTextView>(R.id.text_create_round__distance_indicator).visibility =
+                            View.GONE
                     return
                 }
 
@@ -270,11 +278,14 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                 val roundSubTypes = roundSelection.getRoundSubtypes()
                 if (roundSubTypes.isNullOrEmpty()) {
                     roundSelection.selectedSubtypePosition = null
-                    layout_create_round__round_sub_type.visibility = View.GONE
+                    requireView().findViewById<LinearLayout>(R.id.layout_create_round__round_sub_type).visibility =
+                            View.GONE
                 }
                 else {
-                    spinner_create_round__round_sub_type.adapter = ArrayAdapter(
-                            requireActivity().applicationContext, R.layout.spinner_light_background, roundSubTypes
+                    subRoundSpinner.adapter = ArrayAdapter(
+                            requireActivity().applicationContext,
+                            R.layout.spinner_light_background,
+                            roundSubTypes
                     )
 
                     if (resetModeSubTypeId != null) {
@@ -282,7 +293,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                                 roundSelection.getSelectedRoundId(), resetModeSubTypeId!!
                         )
                         if (subTypePos != null) {
-                            spinner_create_round__round_sub_type.setSelection(subTypePos)
+                            subRoundSpinner.setSelection(subTypePos)
                         }
                         else {
                             roundSelection.selectedSubtypePosition = null
@@ -290,7 +301,8 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                         resetModeSubTypeId = null
                     }
 
-                    layout_create_round__round_sub_type.visibility = View.VISIBLE
+                    requireView().findViewById<LinearLayout>(R.id.layout_create_round__round_sub_type).visibility =
+                            View.VISIBLE
                 }
 
                 setDistanceIndicatorText(roundSelection)
@@ -300,11 +312,14 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                  */
                 val arrowCountText = roundSelection.getArrowCountIndicatorText()
                 if (arrowCountText != null) {
-                    text_create_round__arrow_count_indicator.updateText(arrowCountText)
-                    text_create_round__arrow_count_indicator.visibility = View.VISIBLE
+                    requireView().findViewById<LabelledTextView>(R.id.text_create_round__arrow_count_indicator)
+                            .updateText(arrowCountText)
+                    requireView().findViewById<LabelledTextView>(R.id.text_create_round__arrow_count_indicator).visibility =
+                            View.VISIBLE
                 }
                 else {
-                    text_create_round__arrow_count_indicator.visibility = View.GONE
+                    requireView().findViewById<LabelledTextView>(R.id.text_create_round__arrow_count_indicator).visibility =
+                            View.GONE
                 }
             }
         }
@@ -312,7 +327,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         /**
          * Update distance indicators
          */
-        spinner_create_round__round_sub_type.onItemSelectedListener = object : OnItemSelectedListener {
+        subRoundSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -343,7 +358,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
             val roundPos = roundSelection.getPositionOfRound(ar.roundId)
             if (roundPos != null) {
                 resetModeSubTypeId = ar.roundSubTypeId
-                spinner_create_round__round.setSelection(roundPos)
+                requireView().findViewById<Spinner>(R.id.spinner_create_round__round).setSelection(roundPos)
             }
             else {
                 roundSelection.selectedRoundPosition = roundSelection.noRoundPosition
@@ -357,11 +372,14 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
     fun setDistanceIndicatorText(roundSelection: RoundSelection) {
         val distanceText = roundSelection.getDistanceIndicatorText()
         if (distanceText != null) {
-            text_create_round__distance_indicator.updateText(distanceText)
-            text_create_round__distance_indicator.visibility = View.VISIBLE
+            requireView().findViewById<LabelledTextView>(R.id.text_create_round__distance_indicator)
+                    .updateText(distanceText)
+            requireView().findViewById<LabelledTextView>(R.id.text_create_round__distance_indicator).visibility =
+                    View.VISIBLE
         }
         else {
-            text_create_round__distance_indicator.visibility = View.GONE
+            requireView().findViewById<LabelledTextView>(R.id.text_create_round__distance_indicator).visibility =
+                    View.GONE
         }
     }
 
@@ -382,7 +400,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                         .setShapePadding(0)
                         .build()
         )
-        if (layout_create_round__round_sub_type.visibility == View.VISIBLE) {
+        if (requireView().findViewById<LinearLayout>(R.id.layout_create_round__round_sub_type).visibility == View.VISIBLE) {
             mainList.addAll(
                     listOf(
                             ViewHelpShowcaseItem.Builder()

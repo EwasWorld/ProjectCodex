@@ -16,7 +16,6 @@ import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerRoundScore.inputEnd.ScoreButtonPressedListener
 import eywa.projectcodex.exceptions.UserException
-import kotlinx.android.synthetic.main.frag_end_inputs.*
 
 
 class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp {
@@ -70,10 +69,10 @@ class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        button_end_inputs__clear.setOnClickListener {
+        view.findViewById<Button>(R.id.button_end_inputs__clear).setOnClickListener {
             clearEnd()
         }
-        button_end_inputs__backspace.setOnClickListener {
+        view.findViewById<Button>(R.id.button_end_inputs__backspace).setOnClickListener {
             try {
                 end.removeLastArrowFromEnd()
                 updateEndStringAndTotal()
@@ -82,11 +81,11 @@ class EndInputsFragment : Fragment(), ScoreButtonPressedListener, ActionBarHelp 
                 ToastSpamPrevention.displayToast(requireContext(), getString(R.string.err_input_end__end_empty))
             }
         }
-        button_end_inputs__reset.setOnClickListener {
+        view.findViewById<Button>(R.id.button_end_inputs__reset).setOnClickListener {
             end.reset()
             updateEndStringAndTotal()
         }
-        text_end_inputs__inputted_arrows.setOnClickListener {
+        view.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).setOnClickListener {
             if (end.isEditEnd()) {
                 ToastSpamPrevention.displayToast(
                         requireContext(),

@@ -5,6 +5,7 @@ import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.viewScores.listAdapter.ViewScoresAdapter
@@ -165,18 +166,17 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
     }
 
     fun getScoreSummary(resources: Resources): String {
-        TODO("Not yet implemented")
-//        return resourceStringReplace(
-//                resources.getString(R.string.email_round_summary),
-//                mapOf(
-//                        Pair("roundName", displayName ?: resources.getString(R.string.create_round__no_round)),
-//                        Pair("date", DateTimeFormat.SHORT_DATE_FORMAT.format(archerRound.dateShot)),
-//                        Pair("hits", hits.toString()),
-//                        Pair("score", score.toString()),
-//                        Pair("goldsType", resources.getString(goldsType.longStringId)),
-//                        Pair("golds", golds.toString()),
-//                )
-//        )
+        return resourceStringReplace(
+                resources.getString(R.string.email_round_summary),
+                mapOf(
+                        Pair("roundName", displayName ?: resources.getString(R.string.create_round__no_round)),
+                        Pair("date", DateTimeFormat.SHORT_DATE_FORMAT.format(archerRound.dateShot)),
+                        Pair("hits", hits.toString()),
+                        Pair("score", score.toString()),
+                        Pair("goldsType", resources.getString(goldsType.longStringId)),
+                        Pair("golds", golds.toString()),
+                )
+        )
     }
 
     fun getType(): ViewScoresAdapter.ViewScoresEntryType {
