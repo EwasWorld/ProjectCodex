@@ -67,7 +67,7 @@ interface ActionBarHelp {
             }
             helpItemsList[displayedIndex].show(
                     activity = activity,
-                    hasNextItem = displayedIndex == helpItemsList.lastIndex,
+                    hasNextItem = displayedIndex != helpItemsList.lastIndex,
                     goToNextItemListener = {
                         displayedIndex++
                         showHelpItem(helpItemsList, activity)
