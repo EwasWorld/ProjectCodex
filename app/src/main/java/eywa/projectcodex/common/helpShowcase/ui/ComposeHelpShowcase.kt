@@ -1,18 +1,12 @@
 package eywa.projectcodex.common.helpShowcase.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterExitState.Visible
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.*
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,104 +31,70 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-@OptIn(ExperimentalAnimationApi::class)
+/**
+ * @param animationState 1 for fully visible, 0 for fully invisible (expanded off screen)
+ */
 @Composable
-fun ComposeHelpShowcase(state: ComposeHelpShowcaseState) {
-    AnimatedVisibility(
-            visibleState = state.shown,
-            enter = EnterTransition.None,
-            exit = ExitTransition.None
+fun ComposeHelpShowcase(
+        state: ComposeHelpShowcaseState,
+        @FloatRange(from = 0.0, to = 1.0) animationState: Float = 1f,
+) {
+    require(animationState in 0f..1f) { "Invalid animation state" }
+
+    val scale = (state.maximisedOvalScale - 1f) * (1f - animationState) + 1f
+    val overlayColor = colorResource(id = R.color.colorPrimaryDark)
+    Canvas(
+            modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.85f)
+                    .clickable(onClick = state.overlayClickedListener)
     ) {
-        val animationDuration = 300
-        val scale by transition.animateFloat(
-                targetValueByState = { if (it == Visible) 1f else state.maximisedOvalScale },
-                transitionSpec = {
-                    tween(
-                            durationMillis = animationDuration,
-                            easing = if (targetState == Visible) LinearOutSlowInEasing else FastOutLinearInEasing
-                    )
-                },
-                label = "ComposeHelpShowcase scale",
+        drawRect(
+                color = overlayColor,
+                topLeft = Offset(0f, 0f),
+                size = this.size
         )
-        val textAlpha by transition.animateFloat(
-                targetValueByState = { if (it == Visible) 1f else 0f },
-                transitionSpec = {
-                    tween(
-                            durationMillis = animationDuration,
-                            easing = if (targetState == Visible) LinearOutSlowInEasing else FastOutLinearInEasing
-                    )
-                },
-                label = "ComposeHelpShowcase textAlpha",
+        drawOval(
+                color = Color.Transparent,
+                blendMode = BlendMode.Clear,
+                topLeft = state.scaledOvalOffset(scale),
+                size = state.scaledOvalSize(scale),
         )
+    }
 
-        val overlayColor = colorResource(id = R.color.colorPrimaryDark)
-        Canvas(
+    Column(
+            modifier = Modifier
+                    .offset { state.textAreaTopLeft }
+                    .height(with(LocalDensity.current) { state.textAreaHeight.toDp() })
+                    .padding(16.dp),
+            verticalArrangement = state.textAreaVerticalArrangement
+    ) {
+        Text(
+                text = state.title,
+                fontSize = 30.sp,
                 modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(0.85f)
-                        .clickable(onClick = state.overlayClickedListener)
-        ) {
-            drawRect(
-                    color = overlayColor,
-                    topLeft = Offset(0f, 0f),
-                    size = this.size
-            )
-            drawOval(
-                    color = Color.Transparent,
-                    blendMode = BlendMode.Clear,
-                    topLeft = state.scaledOvalOffset(scale),
-                    size = state.scaledOvalSize(scale),
-            )
-        }
-
-        Column(
+                        .padding(
+                                start = 5.dp,
+                                bottom = 15.dp,
+                        )
+                        .alpha(animationState),
+                color = colorResource(id = R.color.colorLightAccent)
+        )
+        val messageAlpha = if (state.message.isNotBlank() && state.title.isNotBlank()) 0.5f else 1f
+        Text(
+                text = state.message,
+                fontSize = 20.sp,
                 modifier = Modifier
-                        .offset { state.textAreaTopLeft }
-                        .height(with(LocalDensity.current) { state.textAreaHeight.toDp() })
-                        .padding(16.dp),
-                verticalArrangement = state.textAreaVerticalArrangement
-        ) {
-            Text(
-                    text = state.title,
-                    fontSize = 30.sp,
-                    modifier = Modifier
-                            .padding(
-                                    start = 5.dp,
-                                    bottom = 15.dp,
-                            )
-                            .alpha(textAlpha),
-                    color = colorResource(id = R.color.colorLightAccent)
-            )
-            val messageAlpha = if (state.message.isNotBlank() && state.title.isNotBlank()) 0.5f else 1f
-            Text(
-                    text = state.message,
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                            .padding(start = 5.dp)
-                            .alpha(textAlpha * messageAlpha),
-                    color = Color.White
-            )
-            state.nextItemListener?.let { nextButtonListener ->
-                ClickableText(
-                        text = AnnotatedString("Next"),
-                        onClick = { nextButtonListener() },
-                        style = TextStyle.Default.copy(
-                                fontSize = 22.sp,
-                                color = Color.White
-                        ),
-                        modifier = Modifier
-                                .padding(
-                                        horizontal = 5.dp,
-                                        vertical = 10.dp,
-                                )
-                                .alpha(textAlpha),
-                )
-            }
+                        .padding(start = 5.dp)
+                        .alpha(animationState * messageAlpha),
+                color = Color.White
+        )
+        if (state.hasNextItem) {
             ClickableText(
-                    text = AnnotatedString("Close help"),
-                    onClick = { state.closeListener() },
+                    text = AnnotatedString("Next"),
+                    onClick = { state.nextItemListener() },
                     style = TextStyle.Default.copy(
-                            fontSize = 18.sp,
+                            fontSize = 22.sp,
                             color = Color.White
                     ),
                     modifier = Modifier
@@ -142,16 +102,31 @@ fun ComposeHelpShowcase(state: ComposeHelpShowcaseState) {
                                     horizontal = 5.dp,
                                     vertical = 10.dp,
                             )
-                            .alpha(textAlpha),
+                            .alpha(animationState),
             )
         }
+        ClickableText(
+                text = AnnotatedString("Close help"),
+                onClick = { state.closeListener() },
+                style = TextStyle.Default.copy(
+                        fontSize = 18.sp,
+                        color = Color.White
+                ),
+                modifier = Modifier
+                        .padding(
+                                horizontal = 5.dp,
+                                vertical = 10.dp,
+                        )
+                        .alpha(animationState),
+        )
     }
 }
 
 class ComposeHelpShowcaseState(
         val title: String,
         val message: String,
-        val nextItemListener: (() -> Unit)? = null,
+        val hasNextItem: Boolean,
+        val nextItemListener: () -> Unit,
         val closeListener: () -> Unit,
         val overlayClickedListener: () -> Unit,
         private val ovalTopLeft: Offset,
@@ -159,7 +134,6 @@ class ComposeHelpShowcaseState(
         private val ovalWidth: Float,
         private val screenHeight: Float,
         private val screenWidth: Float,
-        val shown: MutableTransitionState<Boolean>,
 ) {
     private val ovalBottomOffset = ovalTopLeft.y + ovalHeight
     private val isTextAboveOval = ovalTopLeft.y > screenHeight - ovalBottomOffset
@@ -222,13 +196,13 @@ class ComposeHelpShowcaseState(
         fun from(
                 title: String,
                 message: String,
-                nextButtonListener: (() -> Unit)? = null,
+                hasNextItem: Boolean,
+                nextButtonListener: () -> Unit,
                 closeButtonListener: () -> Unit,
                 overlayClickedListener: () -> Unit,
                 viewInfo: LayoutCoordinates,
                 screenHeight: Float,
                 screenWidth: Float,
-                shown: MutableTransitionState<Boolean>,
                 padding: Dp = DEFAULT_PADDING,
                 density: Density,
         ): ComposeHelpShowcaseState {
@@ -250,6 +224,7 @@ class ComposeHelpShowcaseState(
             return ComposeHelpShowcaseState(
                     title = title,
                     message = message,
+                    hasNextItem = hasNextItem,
                     nextItemListener = nextButtonListener,
                     closeListener = closeButtonListener,
                     overlayClickedListener = overlayClickedListener,
@@ -258,7 +233,6 @@ class ComposeHelpShowcaseState(
                     ovalWidth = ovalWidth,
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
-                    shown = shown,
             )
         }
     }
@@ -286,6 +260,7 @@ private fun ComposeHelpShowcasePreview(
                 ComposeHelpShowcaseState(
                         title = "Title",
                         message = "Message",
+                        hasNextItem = param.hasNextItem,
                         nextItemListener = {},
                         closeListener = {},
                         overlayClickedListener = {},
@@ -294,7 +269,6 @@ private fun ComposeHelpShowcasePreview(
                         ovalWidth = param.ovalWidth,
                         screenHeight = this.constraints.minHeight.toFloat(),
                         screenWidth = this.constraints.minWidth.toFloat(),
-                        shown = MutableTransitionState(true),
                 )
         )
     }
@@ -305,6 +279,7 @@ data class ComposeHelpShowcasePreviewParams(
         val ovalTopLeft: Offset,
         val ovalHeight: Float = 100f,
         val ovalWidth: Float = 150f,
+        val hasNextItem: Boolean = true,
 )
 
 class ComposeHelpShowcasePreviewProvider : PreviewParameterProvider<ComposeHelpShowcasePreviewParams> {

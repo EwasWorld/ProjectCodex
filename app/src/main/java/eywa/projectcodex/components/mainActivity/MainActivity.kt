@@ -1,11 +1,16 @@
 package eywa.projectcodex.components.mainActivity
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
@@ -16,9 +21,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcase
 import eywa.projectcodex.common.utils.*
 import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.about.AboutFragment
+import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import java.util.*
 
@@ -28,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     lateinit var navHostFragment: NavHostFragment
-    private lateinit var mainActivityViewModel: MainActivityViewModel
+    private lateinit var viewModel: MainActivityViewModel
     private var defaultRoundsVersion = -1
 
     /**
@@ -37,17 +45,92 @@ class MainActivity : AppCompatActivity() {
      */
     private val customBackStack = mutableListOf<Int>()
 
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mainActivityViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         // Ensure default rounds are up to date
         val sharedPreferences = this.getSharedPreferences()
         if (defaultRoundsVersion < 0) {
             defaultRoundsVersion = sharedPreferences.getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
-            mainActivityViewModel.updateDefaultRounds(resources, sharedPreferences)
+            viewModel.updateDefaultRounds(resources, sharedPreferences)
+        }
+
+        findViewById<ComposeView>(R.id.content_main_compose).apply {
+            setContent {
+                var displayedHelpItem: ComposeHelpShowcaseItem? by remember { mutableStateOf(null) }
+                var hasNextHelpItem by remember { mutableStateOf(false) }
+                // 0 for invisible, 1 for visible
+                val displayedHelpItemAnimationState = remember { Animatable(0f) }
+
+                displayedHelpItem?.let { item ->
+                    ComposeHelpShowcase(
+                            state = item.asState(
+                                    hasNextItem = hasNextHelpItem,
+                                    goToNextItemListener = { viewModel.handle(GoToNextHelpShowcaseItem) },
+                                    endShowcaseListener = { viewModel.handle(CloseHelpShowcase) },
+                                    screenHeight = height.toFloat(),
+                                    screenWidth = width.toFloat(),
+                            ),
+                            animationState = displayedHelpItemAnimationState.value
+                    )
+                }
+
+                LaunchedEffect(key1 = viewModel.state.currentHelpItem) {
+                    if (viewModel.state.currentHelpItem == displayedHelpItem) return@LaunchedEffect
+
+                    val oldItem = displayedHelpItem
+                    val animationDuration = 300
+
+                    // Old item exit transition
+                    if (displayedHelpItem != null) {
+                        displayedHelpItemAnimationState.animateTo(
+                                targetValue = 0f,
+                                animationSpec = tween(
+                                        durationMillis = animationDuration,
+                                        easing = FastOutLinearInEasing
+                                )
+                        )
+                    }
+                    else if (displayedHelpItemAnimationState.targetValue != 0f) {
+                        displayedHelpItemAnimationState.snapTo(0f)
+                    }
+
+                    // Swap to the new item
+                    displayedHelpItem = viewModel.state.currentHelpItem
+                    hasNextHelpItem = viewModel.state.hasNextItem
+
+                    // New item entrance transition
+                    if (displayedHelpItem != null) {
+                        displayedHelpItemAnimationState.animateTo(
+                                targetValue = 1f,
+                                animationSpec = tween(
+                                        durationMillis = animationDuration,
+                                        easing = LinearOutSlowInEasing
+                                )
+                        )
+                    }
+
+                    // Set action bar color based on whether a compose help item is displayed
+                    // TODO Remove when swapped to a compose action bar (help showcase should sit over that one)
+                    if (oldItem == null || displayedHelpItem == null) {
+                        val color =
+                                if (displayedHelpItem != null) R.color.colorPrimaryDarkTransparent else R.color.colorPrimary
+                        supportActionBar?.setBackgroundDrawable(
+                                ColorDrawable(
+                                        getColourResource(
+                                                resources,
+                                                color,
+                                                theme
+                                        )
+                                )
+                        )
+                    }
+                }
+            }
         }
 
         navHostFragment =
@@ -157,10 +240,16 @@ class MainActivity : AppCompatActivity() {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
+        if (viewModel.state.isHelpShowcaseInProgress) {
+            viewModel.handle(GoToNextHelpShowcaseItem)
+            return true
+        }
+
         @Suppress("UNCHECKED_CAST")
         when (item.itemId) {
             R.id.action_bar__help -> {
-                ActionBarHelp.executeHelpPressed(findAllActionBarChildFragments(navHostFragment), this)
+                viewModel.openHelpDialogs(this, findAllActionBarChildFragments(navHostFragment))
             }
             R.id.action_bar__home -> {
                 val aboutFragment =

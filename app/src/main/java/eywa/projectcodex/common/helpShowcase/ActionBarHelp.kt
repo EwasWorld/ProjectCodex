@@ -19,20 +19,24 @@ interface ActionBarHelp {
         private val showcaseInProgressLock = Object()
         private var showcaseInProgress = false
         private var displayedIndex by mutableStateOf(0)
+        private var helpItemsList: List<HelpShowcaseItem> = listOf()
 
         /**
          * Executes the [getHelpShowcases] showcases for all [fragments] in order of priority
          *
          * @param fragments fragments current shown which implement [ActionBarHelp]
          */
-        fun executeHelpPressed(fragments: List<ActionBarHelp>, activity: AppCompatActivity) {
+        fun executeHelpPressed(
+                fragments: List<ActionBarHelp>,
+                activity: AppCompatActivity
+        ): List<ComposeHelpShowcaseItem>? {
             if (fragments.isEmpty()) {
                 CustomLogger.customLogger.d(LOG_TAG, "No help information defined")
                 activity.displayHasNoHelpToast()
-                return
+                return null
             }
             synchronized(showcaseInProgressLock) {
-                if (showcaseInProgress) return
+                if (showcaseInProgress) return null
                 showcaseInProgress = true
             }
             // Using a list over a priority queue as a priority queue is not stable
@@ -52,13 +56,27 @@ interface ActionBarHelp {
                 synchronized(showcaseInProgressLock) {
                     showcaseInProgress = false
                 }
-                return
+                return null
             }
             displayedIndex = 0
-            showHelpItem(helpItemsList, activity)
+            this.helpItemsList = helpItemsList
+
+            if (helpItemsList.all { it is ComposeHelpShowcaseItem }) {
+                return helpItemsList.map { it as ComposeHelpShowcaseItem }
+            }
+
+            showHelpItem(activity)
+            return null
         }
 
-        private fun showHelpItem(helpItemsList: List<HelpShowcaseItem>, activity: AppCompatActivity) {
+        fun markShowcaseComplete() {
+            synchronized(showcaseInProgressLock) {
+                require(helpItemsList.all { it is ComposeHelpShowcaseItem }) { "Can only mark compose showcases as complete" }
+                showcaseInProgress = false
+            }
+        }
+
+        private fun showHelpItem(activity: AppCompatActivity) {
             if (displayedIndex !in helpItemsList.indices) {
                 synchronized(showcaseInProgressLock) {
                     showcaseInProgress = false
@@ -70,7 +88,7 @@ interface ActionBarHelp {
                     hasNextItem = displayedIndex != helpItemsList.lastIndex,
                     goToNextItemListener = {
                         displayedIndex++
-                        showHelpItem(helpItemsList, activity)
+                        showHelpItem(activity)
                     },
                     endShowcaseListener = {
                         synchronized(showcaseInProgressLock) {

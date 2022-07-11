@@ -16,6 +16,10 @@ interface HelpShowcaseItem {
             endShowcaseListener: () -> Unit
     )
 
+    fun hide(
+            activity: AppCompatActivity,
+    )
+
     /**
      * The shape the showcase will use to highlight the given view
      */

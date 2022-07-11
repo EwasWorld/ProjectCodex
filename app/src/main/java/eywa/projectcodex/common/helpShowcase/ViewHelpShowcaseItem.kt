@@ -16,6 +16,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
  */
 class ViewHelpShowcaseItem private constructor() : HelpShowcaseItem, Comparable<ViewHelpShowcaseItem> {
     private var endSequenceOnDismiss = false
+    private var showcaseView: MaterialShowcaseView? = null
 
     /**
      * Displays the current item as a [MaterialShowcaseView].
@@ -78,6 +79,8 @@ class ViewHelpShowcaseItem private constructor() : HelpShowcaseItem, Comparable<
          * Build showcase view
          */
         val showcaseView = showcaseBuilder.build()
+        this.showcaseView = showcaseView
+
         if (hasNextItem) {
             // Set the skip button listener
             //    (done awkwardly since the library doesn't provide an easy way to do this)
@@ -93,6 +96,10 @@ class ViewHelpShowcaseItem private constructor() : HelpShowcaseItem, Comparable<
          * Show showcase view
          */
         showcaseView.show(activity)
+    }
+
+    override fun hide(activity: AppCompatActivity) {
+        showcaseView?.animateOut()
     }
 
     /**
