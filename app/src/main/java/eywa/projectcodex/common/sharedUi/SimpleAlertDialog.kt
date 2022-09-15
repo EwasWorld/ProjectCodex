@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.mainMenu
+package eywa.projectcodex.common.sharedUi
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box

@@ -206,7 +206,7 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testEmptyTable() {
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
-        assertEquals(R.id.mainMenuComposeFragment, navController.currentDestination?.id)
+        assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
     }
 
     @Test

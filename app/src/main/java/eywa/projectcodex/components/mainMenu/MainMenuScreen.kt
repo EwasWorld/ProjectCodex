@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.SimpleAlertDialog
 
 class MainMenuScreen : ActionBarHelp {
     private val mainMenuHelpInfo = ComposeHelpShowcaseMap().apply {

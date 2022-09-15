@@ -23,7 +23,7 @@ import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuComposeFragment
+import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
@@ -232,7 +232,7 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Score A - return to main menu")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         composeTestRule.composeHelpRobot {
@@ -357,7 +357,7 @@ class LargeScaleInstrumentedTest {
     fun testHelpDialogs() {
         touchEveryScreen(listOf(ArcherRoundStatsFragment::class, AboutFragment::class)) { fragmentClass ->
             if (fragmentClass in listOf(
-                        MainMenuComposeFragment::class
+                        MainMenuFragment::class
                 )
             ) {
                 cycleThroughComposeHelpDialogs()
@@ -438,7 +438,7 @@ class LargeScaleInstrumentedTest {
 
         addSimpleTestDataToDb()
 
-        performAction(MainMenuComposeFragment::class)
+        performAction(MainMenuFragment::class)
 
         logMessage(this::class, "Navigating to: About")
         R.id.action_bar__about.click()
@@ -597,7 +597,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (AboutFragment::class))
         logMessage(this::class, " -> press back")
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "New score")
@@ -606,7 +606,7 @@ class LargeScaleInstrumentedTest {
         }
         logMessage(this::class, " -> press back")
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "New score -> Input end")
@@ -617,7 +617,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
         logMessage(this::class, " -> press back")
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "New score -> Score pad")
@@ -637,7 +637,7 @@ class LargeScaleInstrumentedTest {
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "Main menu 2")
@@ -654,7 +654,7 @@ class LargeScaleInstrumentedTest {
         }
         logMessage(this::class, " -> press back")
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "Email score")
@@ -668,7 +668,7 @@ class LargeScaleInstrumentedTest {
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Score pad")
@@ -681,7 +681,7 @@ class LargeScaleInstrumentedTest {
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Score pad -> Score stats")
@@ -698,7 +698,7 @@ class LargeScaleInstrumentedTest {
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Score pad -> Many")
@@ -723,7 +723,7 @@ class LargeScaleInstrumentedTest {
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Edit end")
@@ -742,7 +742,7 @@ class LargeScaleInstrumentedTest {
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Insert end")
@@ -761,7 +761,7 @@ class LargeScaleInstrumentedTest {
         pressBack()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
         pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "Main menu 3")
@@ -784,7 +784,7 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "Main menu 1")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "About")
@@ -792,7 +792,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (AboutFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "New score")
@@ -801,7 +801,7 @@ class LargeScaleInstrumentedTest {
         }
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "New score -> Input end")
@@ -812,7 +812,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "New score -> Score pad")
@@ -830,12 +830,12 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "Main menu 2")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds")
@@ -844,7 +844,7 @@ class LargeScaleInstrumentedTest {
         }
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "Email score")
@@ -856,7 +856,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Score pad")
@@ -867,7 +867,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Score pad -> Score stats")
@@ -880,7 +880,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Score pad -> Many")
@@ -899,7 +899,7 @@ class LargeScaleInstrumentedTest {
         }
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Edit end")
@@ -914,7 +914,7 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "View rounds -> Insert end")
@@ -929,12 +929,12 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
         logMessage(this::class, " -> press home")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
         logMessage(this::class, "Main menu 3")
         R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuComposeFragment::class))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
         ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
     }
