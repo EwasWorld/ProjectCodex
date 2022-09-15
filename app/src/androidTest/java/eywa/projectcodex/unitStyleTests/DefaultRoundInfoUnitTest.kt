@@ -8,7 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import eywa.projectcodex.R
-import eywa.projectcodex.TestUtils
+import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.latchAwaitTimeSeconds
 import eywa.projectcodex.common.latchAwaitTimeUnit
 import eywa.projectcodex.common.utils.SharedPrefs
@@ -83,7 +83,7 @@ class DefaultRoundInfoUnitTest {
         val observerBuilder = LiveDataObserver.Builder()
         val observer = observerBuilder
                 .setStateObserver(LiveDataObserver.SimpleStateObserver(observerBuilder.latchCountDownFunction()))
-                .setMessageObserver(Observer { msg ->
+                .setMessageObserver({ msg ->
                     println(msg)
                     msg?.let { message ->
                         if (message.contains(" of ")) {
@@ -167,7 +167,7 @@ class DefaultRoundInfoUnitTest {
 
         mockInfo.verifyUpdate(
                 TestData.YORK_ALL_ROUND_OBJECTS.plus(TestData.ST_GEORGE_ALL_ROUND_OBJECTS)
-                        .map { it to UpdateType.NEW }.toMap()
+                        .associateWith { UpdateType.NEW }
         )
         verify(sharedPref.second).putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, 1)
     }
@@ -246,7 +246,7 @@ class DefaultRoundInfoUnitTest {
                         TestData.YORK_ARROW_COUNT_OBJECTS[0],
                         TestData.YORK_SUB_TYPE_OBJECTS[0],
                         TestData.YORK_DISTANCE_OBJECTS[0]
-                ).map { it to UpdateType.UPDATE }.toMap()
+                ).associateWith { UpdateType.UPDATE }
         )
     }
 
@@ -281,7 +281,7 @@ class DefaultRoundInfoUnitTest {
         observer.awaitCompletion()
         observer.finishObserving()
 
-        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.DELETE }.toMap())
+        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.associateWith { UpdateType.DELETE })
     }
 
     /**
@@ -299,7 +299,7 @@ class DefaultRoundInfoUnitTest {
         )
         val observerBuilder = LiveDataObserver.Builder()
         val observer = observerBuilder
-                .setStateObserver(Observer { state ->
+                .setStateObserver({ state ->
                     if (expectedStates.isEmpty()) {
                         Assert.fail("No more states expected but state changed to $state")
                     }
@@ -326,7 +326,7 @@ class DefaultRoundInfoUnitTest {
         observer.awaitCompletion()
         observer.finishObserving()
 
-        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
+        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.associateWith { UpdateType.NEW })
     }
 
     /**
@@ -345,7 +345,7 @@ class DefaultRoundInfoUnitTest {
         )
         val observerBuilder = LiveDataObserver.Builder()
         val observer = observerBuilder
-                .setStateObserver(Observer { state ->
+                .setStateObserver({ state ->
                     if (expectedStates.isEmpty()) {
                         Assert.fail("No more states expected but state changed to $state")
                     }
@@ -458,7 +458,7 @@ class DefaultRoundInfoUnitTest {
         observer.awaitCompletion()
         observer.finishObserving()
 
-        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
+        mockInfo.verifyUpdate(TestData.YORK_ALL_ROUND_OBJECTS.associateWith { UpdateType.NEW })
 
         Assert.assertEquals(0, RoundRepo.repositoryWriteLock.holdCount)
         Assert.assertTrue(RoundRepo.repositoryWriteLock.tryLock())
@@ -526,7 +526,7 @@ class DefaultRoundInfoUnitTest {
         observer.awaitCompletion()
         observer.finishObserving()
 
-        mockInfo.verifyUpdate(TestData.ST_GEORGE_ALL_ROUND_OBJECTS.map { it to UpdateType.NEW }.toMap())
+        mockInfo.verifyUpdate(TestData.ST_GEORGE_ALL_ROUND_OBJECTS.associateWith { UpdateType.NEW })
     }
 
     /**
@@ -1092,10 +1092,10 @@ class DefaultRoundInfoUnitTest {
                 desiredState: UpdateDefaultRounds.UpdateTaskState = UpdateDefaultRounds.UpdateTaskState.COMPLETE
         ) {
             val observer = Observer<UpdateDefaultRounds.UpdateTaskState> { state ->
-                @Suppress("NON_EXHAUSTIVE_WHEN")
                 when (state) {
                     desiredState -> latchCountDown()
                     UpdateDefaultRounds.UpdateTaskState.ERROR -> Assert.fail("Update error - unexpected state: $state")
+                    else -> {}
                 }
             }
         }
@@ -1189,10 +1189,10 @@ class DefaultRoundInfoUnitTest {
                                     ArgumentCaptor.forClass(Int::class.java)
                             )
                     )
-            ).map {
+            ).associate {
                 @Suppress("UNCHECKED_CAST")
                 it.clazz to (it as DbObjects<Any>)
-            }.toMap()
+            }
 
             /*
              * Set up captors and verify times called
@@ -1284,7 +1284,7 @@ class DefaultRoundInfoUnitTest {
              * Stores the captured items left to be checked (earliest captured items first)
              */
             private val mainCaptorValues by lazy {
-                ArrayBlockingQueue<T>(captor.allValues.size, false, captor.allValues)
+                ArrayBlockingQueue(captor.allValues.size, false, captor.allValues)
             }
 
             /**

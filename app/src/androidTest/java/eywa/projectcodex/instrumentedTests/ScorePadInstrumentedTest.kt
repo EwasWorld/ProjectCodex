@@ -3,6 +3,7 @@ package eywa.projectcodex.instrumentedTests
 import android.app.Activity
 import android.content.res.Resources
 import android.os.Bundle
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
@@ -21,7 +22,6 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.R
-import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.archeryObjects.GoldsType
@@ -42,7 +42,9 @@ import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModul
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.*
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -52,6 +54,12 @@ class ScorePadInstrumentedTest {
             SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
         }
     }
+
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(60)
 
     private val endSize = 6
 
@@ -124,7 +132,7 @@ class ScorePadInstrumentedTest {
         runBlocking {
             db.archerRoundDao().insert(
                     ArcherRound(
-                            1, TestData.generateDate(), 1, true, roundId = roundId, roundSubTypeId = roundId
+                            1, TestUtils.generateDate(), 1, true, roundId = roundId, roundSubTypeId = roundId
                     )
             )
         }
@@ -133,7 +141,7 @@ class ScorePadInstrumentedTest {
     private fun setupFragment(arrowsForDatabase: List<ArrowValue>? = null, hasRound: Boolean = false) {
         check(activityScenario == null) { "Activity scenario already in use for this test" }
 
-        arrows = arrowsForDatabase ?: TestData.generateArrowValues(36, 1)
+        arrows = arrowsForDatabase ?: TestUtils.generateArrowValues(1, 36)
 
         navController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
@@ -160,15 +168,15 @@ class ScorePadInstrumentedTest {
     private fun setupActivity(arrowsForDatabase: List<ArrowValue>? = null, waitForRow: Int) {
         check(fragScenario == null) { "Fragment scenario already in use for this test" }
 
-        arrows = arrowsForDatabase ?: TestData.generateArrowValues(36, 1)
-        activityScenario = ActivityScenario.launch(MainActivity::class.java)
+        arrows = arrowsForDatabase ?: TestUtils.generateArrowValues(1, 36)
+        activityScenario = composeTestRule.activityRule.scenario
         activityScenario!!.onActivity {
             setupDb()
             resources = it.resources
         }
         activityScenario!!.recreate()
 
-        CustomConditionWaiter.waitForScorePadToOpen(activityScenario!!, arrows)
+        CustomConditionWaiter.waitForScorePadToOpen(composeTestRule, arrows)
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (waitForRow))
     }
 
@@ -241,10 +249,10 @@ class ScorePadInstrumentedTest {
     @Test
     fun testEditEnd() {
         val firstArrows = listOf(
-                TestData.ARROWS[11], TestData.ARROWS[9], TestData.ARROWS[9],
-                TestData.ARROWS[9], TestData.ARROWS[7], TestData.ARROWS[6]
+                TestUtils.ARROWS[11], TestUtils.ARROWS[9], TestUtils.ARROWS[9],
+                TestUtils.ARROWS[9], TestUtils.ARROWS[7], TestUtils.ARROWS[6]
         )
-        val nextArrows = List(endSize) { TestData.ARROWS[1] }
+        val nextArrows = List(endSize) { TestUtils.ARROWS[1] }
         setupActivity(
                 listOf(firstArrows, nextArrows).flatten()
                         .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) },
@@ -253,17 +261,17 @@ class ScorePadInstrumentedTest {
 
         onView(withText("X-9-9-9-7-6")).perform(click())
         CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadEditEnd)
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class))
         onView(withId(R.id.button_end_inputs__clear)).perform(click())
         val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
         for (i in 0 until endSize) {
             scoreButton.perform(click())
         }
         onView(withId(R.id.button_edit_end__complete)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (2))
 
-        val newArrows = listOf(List(endSize) { TestData.ARROWS[2] }, nextArrows).flatten()
+        val newArrows = listOf(List(endSize) { TestUtils.ARROWS[2] }, nextArrows).flatten()
                 .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
 
         checkData(newArrows)
@@ -289,15 +297,15 @@ class ScorePadInstrumentedTest {
         /*
          * Edit an end
          */
-        val firstEnd = End(arrows.subList(0, 6), TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
+        val firstEnd = End(arrows.subList(0, 6), TestUtils.ARROW_PLACEHOLDER, TestUtils.ARROW_DELIMINATOR)
         firstEnd.reorderScores()
-        onView(withText(firstEnd.toString())).perform(click())
+        onView(withIndex(withText(firstEnd.toString()), 0)).perform(click())
         CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadEditEnd)
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class))
     }
 
     private fun checkEditEndCancelledCorrectly() {
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (0))
 
         checkData(arrows)
@@ -307,13 +315,13 @@ class ScorePadInstrumentedTest {
     fun testDeleteEnd() {
         var genArrowNumber = 1
         val expectedArrowsGrouped = List(6) { index ->
-            List(endSize) { TestData.ARROWS[index].toArrowValue(1, genArrowNumber++) }
+            List(endSize) { TestUtils.ARROWS[index].toArrowValue(1, genArrowNumber++) }
         }
         setupActivity(expectedArrowsGrouped.flatten(), waitForRow = 0)
 
         val deleteEndIndex = 1
         val endToClick =
-                End(expectedArrowsGrouped[deleteEndIndex], TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
+                End(expectedArrowsGrouped[deleteEndIndex], TestUtils.ARROW_PLACEHOLDER, TestUtils.ARROW_DELIMINATOR)
         endToClick.reorderScores()
         onView(withText(endToClick.toString())).perform(click())
         CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadDeleteEnd)
@@ -337,21 +345,21 @@ class ScorePadInstrumentedTest {
     @Test
     fun testInsertEnd() {
         val firstArrows = listOf(
-                TestData.ARROWS[11], TestData.ARROWS[9], TestData.ARROWS[9],
-                TestData.ARROWS[9], TestData.ARROWS[7], TestData.ARROWS[6]
+                TestUtils.ARROWS[11], TestUtils.ARROWS[9], TestUtils.ARROWS[9],
+                TestUtils.ARROWS[9], TestUtils.ARROWS[7], TestUtils.ARROWS[6]
         )
         setupActivity(
                 listOf(
-                        List(endSize) { TestData.ARROWS[1] },
+                        List(endSize) { TestUtils.ARROWS[1] },
                         firstArrows,
-                        List(endSize * 2) { TestData.ARROWS[1] }
+                        List(endSize * 2) { TestUtils.ARROWS[1] }
                 ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) },
                 waitForRow = 4
         )
 
         onView(withText("X-9-9-9-7-6")).perform(click())
         CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadInsertEnd)
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (InsertEndFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (InsertEndFragment::class))
 
         R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
         val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
@@ -359,14 +367,14 @@ class ScorePadInstrumentedTest {
             scoreButton.perform(click())
         }
         onView(withId(R.id.button_insert_end__complete)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (5))
 
         val newArrows = listOf(
-                List(endSize) { TestData.ARROWS[1] },
-                List(endSize) { TestData.ARROWS[2] }, /* New end */
+                List(endSize) { TestUtils.ARROWS[1] },
+                List(endSize) { TestUtils.ARROWS[2] }, /* New end */
                 firstArrows, /* Clicked end */
-                List(endSize * 2) { TestData.ARROWS[1] }
+                List(endSize * 2) { TestUtils.ARROWS[1] }
         ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
 
         checkData(newArrows)

@@ -22,7 +22,7 @@ class MainMenuComposeFragment : Fragment(), ActionBarHelp {
         return ComposeView(requireContext()).apply {
             setContent {
                 CodexTheme {
-                    mainMenuScreen.MainMenuScreen(
+                    mainMenuScreen.ComposeContent(
                             isExitDialogOpen = isAlertDialogShown.value,
                             onExitAlertClicked = { isPositiveButton ->
                                 isAlertDialogShown.value = false

@@ -89,10 +89,6 @@
             android:id="@+id/actionInputEndFragmentToScorePadFragment"
             app:destination="@id/scorePadFragment"
             />
-        <action
-            android:id="@+id/actionInputEndFragmentToMainMenuFragment"
-            app:destination="@id/mainMenuFragment"
-            />
         <argument
             android:name="archerRoundId"
             app:argType="integer"

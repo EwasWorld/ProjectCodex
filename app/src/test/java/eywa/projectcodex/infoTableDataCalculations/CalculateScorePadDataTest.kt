@@ -2,7 +2,7 @@ package eywa.projectcodex.infoTableDataCalculations
 
 import android.content.res.Resources
 import eywa.projectcodex.R
-import eywa.projectcodex.TestData
+import eywa.projectcodex.common.TestData
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell

@@ -57,12 +57,6 @@ android {
         }
         sourceSets {
             androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
-            androidTest {
-                java.srcDirs += "src/sharedTest/java"
-            }
-            test {
-                java.srcDirs += "src/sharedTest/java"
-            }
         }
     }
     buildTypes {

@@ -15,7 +15,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.R
-import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
@@ -30,7 +29,9 @@ import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 
@@ -47,6 +48,9 @@ class InputEndInstrumentedTest {
         }
 
     }
+
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(60)
 
     private lateinit var scenario: FragmentScenario<InputEndFragment>
     private lateinit var navController: TestNavHostController
@@ -74,9 +78,9 @@ class InputEndInstrumentedTest {
             RoundDistance(2, 3, 1, 50)
     )
     private val archerRounds = listOf(
-            ArcherRound(1, TestData.generateDate(), 1, true),
-            ArcherRound(2, TestData.generateDate(), 1, true, roundId = 1),
-            ArcherRound(3, TestData.generateDate(), 1, true, roundId = 2),
+            ArcherRound(1, TestUtils.generateDate(), 1, true),
+            ArcherRound(2, TestUtils.generateDate(), 1, true, roundId = 1),
+            ArcherRound(3, TestUtils.generateDate(), 1, true, roundId = 2),
     )
 
     /**

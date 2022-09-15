@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.common
 
 import android.content.res.Resources
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData

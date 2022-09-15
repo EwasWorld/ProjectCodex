@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.common
 
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.utils.DefaultRoundInfo

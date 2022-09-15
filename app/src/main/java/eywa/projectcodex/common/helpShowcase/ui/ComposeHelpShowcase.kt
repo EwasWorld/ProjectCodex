@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -102,7 +103,8 @@ fun ComposeHelpShowcase(
                                     horizontal = 5.dp,
                                     vertical = 10.dp,
                             )
-                            .alpha(animationState),
+                            .alpha(animationState)
+                            .testTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON),
             )
         }
         ClickableText(
@@ -117,7 +119,8 @@ fun ComposeHelpShowcase(
                                 horizontal = 5.dp,
                                 vertical = 10.dp,
                         )
-                        .alpha(animationState),
+                        .alpha(animationState)
+                        .testTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON),
         )
     }
 }
@@ -288,4 +291,9 @@ class ComposeHelpShowcasePreviewProvider : PreviewParameterProvider<ComposeHelpS
             ComposeHelpShowcasePreviewParams("Text above", Offset(10f, 1300f)),
             ComposeHelpShowcasePreviewParams("Roughly on button", Offset(430f, 850f), ovalWidth = 220f),
     )
+}
+
+object ComposeHelpShowcaseTestTag {
+    const val NEXT_BUTTON = "HELP_NEXT_BUTTON"
+    const val CLOSE_BUTTON = "HELP_CLOSE_BUTTON"
 }

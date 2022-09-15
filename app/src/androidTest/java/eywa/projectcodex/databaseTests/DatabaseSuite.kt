@@ -5,13 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import eywa.projectcodex.common.CommonStrings
 import eywa.projectcodex.database.ScoresRoomDatabase
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
 
-@RunWith(Suite::class)
-@Suite.SuiteClasses(
-        GeneralDatabaseTests::class, ArcherRoundsTest::class, ArrowValueTest::class, MigrationTests::class
-)
 class DatabaseSuite {
     companion object {
         /**

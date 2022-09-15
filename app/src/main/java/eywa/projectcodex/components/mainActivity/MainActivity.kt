@@ -8,7 +8,10 @@ import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
@@ -26,9 +29,9 @@ import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcase
 import eywa.projectcodex.common.utils.*
 import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.about.AboutFragment
-import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
-import java.util.*
+import eywa.projectcodex.components.mainActivity.MainActivityIntent.CloseHelpShowcase
+import eywa.projectcodex.components.mainActivity.MainActivityIntent.GoToNextHelpShowcaseItem
+import eywa.projectcodex.components.mainMenu.MainMenuComposeFragment
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -173,8 +176,8 @@ class MainActivity : AppCompatActivity() {
 
             fun clearBackStackAndReturnToMainMenu() {
                 CustomLogger.customLogger.i(LOG_TAG, "Popping backstack to main menu")
-                if (!navController.popBackStack(R.id.mainMenuFragment, false)) {
-                    navController.navigate(R.id.mainMenuFragment)
+                if (!navController.popBackStack(R.id.mainMenuComposeFragment, false)) {
+                    navController.navigate(R.id.mainMenuComposeFragment)
                 }
             }
 
@@ -186,7 +189,7 @@ class MainActivity : AppCompatActivity() {
                 if (customBackStack.isEmpty()) {
                     if (!navController.popBackStack()) {
                         // If there was nowhere to pop to, go to the main menu
-                        navController.navigate(R.id.mainMenuFragment)
+                        navController.navigate(R.id.mainMenuComposeFragment)
                     }
                     return@addCallback
                 }
@@ -253,7 +256,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_bar__home -> {
                 val aboutFragment =
-                        navHostFragment.childFragmentManager.fragments.filterIsInstance<MainMenuFragment>()
+                        navHostFragment.childFragmentManager.fragments.filterIsInstance<MainMenuComposeFragment>()
                                 .firstOrNull()
                 if (aboutFragment != null && aboutFragment.isVisible) {
                     ToastSpamPrevention.displayToast(
@@ -261,7 +264,7 @@ class MainActivity : AppCompatActivity() {
                             resources.getString(R.string.err_action_bar__home_already_displayed)
                     )
                 }
-                navHostFragment.findNavController().navigate(R.id.mainMenuFragment)
+                navHostFragment.findNavController().navigate(R.id.mainMenuComposeFragment)
             }
             R.id.action_bar__about -> {
                 val aboutFragment =

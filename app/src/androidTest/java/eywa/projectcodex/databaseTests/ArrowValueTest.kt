@@ -2,7 +2,7 @@ package eywa.projectcodex.databaseTests
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import eywa.projectcodex.TestData
+import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.retrieveValue
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -40,8 +40,8 @@ class ArrowValueTest {
      */
     @Test
     fun basicTest() {
-        val arrows1 = TestData.generateArrowValues(6, 1)
-        val arrows2 = TestData.generateArrowValues(12, 2)
+        val arrows1 = TestUtils.generateArrowValues(1, 6)
+        val arrows2 = TestUtils.generateArrowValues(2, 12)
 
         /*
          * Add and retrieve
@@ -72,8 +72,8 @@ class ArrowValueTest {
 
     @Test
     fun deleteSpecificArrowNumbersTest() {
-        val arrows1 = TestData.generateArrowValues(18, 1)
-        val arrows2 = TestData.generateArrowValues(18, 2)
+        val arrows1 = TestUtils.generateArrowValues(1, 18)
+        val arrows2 = TestUtils.generateArrowValues(2, 18)
         for (arrow in arrows1.plus(arrows2)) {
             runBlocking {
                 arrowValueDao.insert(arrow)
@@ -110,7 +110,7 @@ class ArrowValueTest {
         for (arrowNumber in 1..24) {
             runBlocking {
                 arrowValueDao.insert(
-                        TestData.ARROWS[arrowNumber % TestData.ARROWS.size].toArrowValue(archerRoundId, arrowNumber)
+                        TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowValue(archerRoundId, arrowNumber)
                 )
             }
         }
@@ -130,8 +130,8 @@ class ArrowValueTest {
          */
         val expectedArrows = mutableListOf<ArrowValue>()
         for (arrowNumber in 1..(24 - count)) {
-            val testDataIndex = (if (arrowNumber < from) arrowNumber else arrowNumber + count) % TestData.ARROWS.size
-            expectedArrows.add(TestData.ARROWS[testDataIndex].toArrowValue(archerRoundId, arrowNumber))
+            val testDataIndex = (if (arrowNumber < from) arrowNumber else arrowNumber + count) % TestUtils.ARROWS.size
+            expectedArrows.add(TestUtils.ARROWS[testDataIndex].toArrowValue(archerRoundId, arrowNumber))
         }
         val retrievedArrows = arrowValueDao.getArrowValuesForRound(archerRoundId).retrieveValue()!!
         Assert.assertEquals(expectedArrows.toSet(), retrievedArrows.toSet())
@@ -146,7 +146,7 @@ class ArrowValueTest {
         for (arrowNumber in 1..24) {
             runBlocking {
                 arrowValueDao.insert(
-                        TestData.ARROWS[arrowNumber % TestData.ARROWS.size].toArrowValue(archerRoundId, arrowNumber)
+                        TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowValue(archerRoundId, arrowNumber)
                 )
             }
         }
@@ -158,7 +158,7 @@ class ArrowValueTest {
         val at = 5
         var newArrowId = at
         val newArrows = (7 until 14).map {
-            TestData.ARROWS[it % TestData.ARROWS.size].toArrowValue(
+            TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowValue(
                     archerRoundId, newArrowId++
             )
         }

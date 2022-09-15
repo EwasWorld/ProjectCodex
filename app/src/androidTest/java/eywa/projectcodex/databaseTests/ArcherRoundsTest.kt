@@ -2,7 +2,7 @@ package eywa.projectcodex.databaseTests
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import eywa.projectcodex.TestData
+import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.retrieveValue
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -53,7 +53,14 @@ class ArcherRoundsTest {
         /*
          * Add and retrieve
          */
-        val archerRounds = TestData.generateArcherRounds(6, 2)
+        val archerRounds = listOf(
+                ArcherRound(1, TestUtils.generateDate(), 1, false),
+                ArcherRound(2, TestUtils.generateDate(), 2, false),
+                ArcherRound(3, TestUtils.generateDate(), 1, false),
+                ArcherRound(4, TestUtils.generateDate(), 1, false),
+                ArcherRound(5, TestUtils.generateDate(), 2, false),
+                ArcherRound(6, TestUtils.generateDate(), 1, false),
+        )
         var currentMax = -1
         for (archerRound in archerRounds) {
             runBlocking {
@@ -100,8 +107,15 @@ class ArcherRoundsTest {
         /*
          * Create data and populate tables
          */
-        val archerRounds = TestData.generateArcherRounds(6, 2, listOf(1, 2, null))
-        val rounds = TestData.generateRounds(3)
+        val archerRounds = listOf(
+                ArcherRound(1, TestUtils.generateDate(), 1, false, roundId = 1),
+                ArcherRound(2, TestUtils.generateDate(), 2, false, roundId = 2),
+                ArcherRound(3, TestUtils.generateDate(), 1, false),
+                ArcherRound(4, TestUtils.generateDate(), 1, false, roundId = 1),
+                ArcherRound(5, TestUtils.generateDate(), 2, false, roundId = 2),
+                ArcherRound(6, TestUtils.generateDate(), 1, false),
+        )
+        val rounds = TestUtils.ROUNDS.take(3)
 
         for (archerRound in archerRounds) {
             runBlocking {
@@ -139,9 +153,16 @@ class ArcherRoundsTest {
         /*
          * Create data and populate tables
          */
-        val archerRounds = TestData.generateArcherRounds(6, 2, listOf(1, 2, null), listOf(1, null, null))
-        val rounds = TestData.generateRounds(3)
-        val roundSubTypes = TestData.generateSubTypes(3)
+        val archerRounds = listOf(
+                ArcherRound(1, TestUtils.generateDate(), 1, false, roundId = 1, roundSubTypeId = 1),
+                ArcherRound(2, TestUtils.generateDate(), 2, false, roundId = 2),
+                ArcherRound(3, TestUtils.generateDate(), 1, false),
+                ArcherRound(4, TestUtils.generateDate(), 1, false, roundId = 1, roundSubTypeId = 1),
+                ArcherRound(5, TestUtils.generateDate(), 2, false, roundId = 2),
+                ArcherRound(6, TestUtils.generateDate(), 1, false),
+        )
+        val rounds = TestUtils.ROUNDS.take(3)
+        val roundSubTypes = TestUtils.ROUND_SUB_TYPES
 
         for (archerRound in archerRounds) {
             runBlocking {

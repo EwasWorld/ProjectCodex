@@ -10,11 +10,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.R
-import eywa.projectcodex.TestData
-import eywa.projectcodex.common.CommonSetupTeardownFns
-import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.common.labelledTextViewTextEquals
-import eywa.projectcodex.common.visibilityIs
+import eywa.projectcodex.common.*
 import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -26,13 +22,18 @@ import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import java.util.*
 import kotlin.math.max
 
 @RunWith(AndroidJUnit4::class)
 class ArcherRoundStatsInstrumentedTest {
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(60)
+
     private lateinit var scenario: FragmentScenario<ArcherRoundStatsFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
@@ -68,8 +69,8 @@ class ArcherRoundStatsInstrumentedTest {
                     1,
                     true
             ),
-            ArcherRound(2, TestData.generateDate(), 1, true, roundId = 1),
-            ArcherRound(3, TestData.generateDate(), 1, true, roundId = 2, roundSubTypeId = 1)
+            ArcherRound(2, TestUtils.generateDate(), 1, true, roundId = 1),
+            ArcherRound(3, TestUtils.generateDate(), 1, true, roundId = 2, roundSubTypeId = 1)
     )
 
     /**
@@ -140,9 +141,9 @@ class ArcherRoundStatsInstrumentedTest {
 
         var arrowNumber = 1
         arrows = listOf(
-                List(6) { TestData.ARROWS[10].toArrowValue(archerRoundId, arrowNumber++) },
-                List(38) { TestData.ARROWS[5].toArrowValue(archerRoundId, arrowNumber++) },
-                List(4) { TestData.ARROWS[0].toArrowValue(archerRoundId, arrowNumber++) }
+                List(6) { TestUtils.ARROWS[10].toArrowValue(archerRoundId, arrowNumber++) },
+                List(38) { TestUtils.ARROWS[5].toArrowValue(archerRoundId, arrowNumber++) },
+                List(4) { TestUtils.ARROWS[0].toArrowValue(archerRoundId, arrowNumber++) }
         ).flatten()
         setup(archerRoundId)
 
@@ -163,7 +164,7 @@ class ArcherRoundStatsInstrumentedTest {
         val round = roundsInput.find { it.roundId == archerRound.roundId }!!
 
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestData.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
         setup(archerRoundId)
 
         R.id.text_archer_round_stats__round.visibilityIs(ViewMatchers.Visibility.VISIBLE)
@@ -183,7 +184,7 @@ class ArcherRoundStatsInstrumentedTest {
     fun testRoundWithSubTypeEmptyScore() {
         val archerRoundId = ArcherRoundTypes.SUBTYPE.archerRoundId
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestData.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
         setup(archerRoundId)
 
         R.id.text_archer_round_stats__round.visibilityIs(ViewMatchers.Visibility.VISIBLE)

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
@@ -14,16 +15,12 @@ import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import eywa.projectcodex.R
-import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -32,6 +29,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.allOf
@@ -39,12 +37,16 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class EmailScoresInstrumentedTest {
     @get:Rule
-    val rule = ActivityScenarioRule(MainActivity::class.java)
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(60)
 
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var navController: NavController
@@ -74,19 +76,19 @@ class EmailScoresInstrumentedTest {
             RoundSubType(2, 2, "Sub Type 2")
     )
     private val archerRounds = listOf(
-            ArcherRound(1, TestData.generateDate(2024), 1, true),
-            ArcherRound(2, TestData.generateDate(2023), 1, true, roundId = 1),
-            ArcherRound(3, TestData.generateDate(2022), 1, true, roundId = 2, roundSubTypeId = 1),
-            ArcherRound(4, TestData.generateDate(2021), 1, true),
-            ArcherRound(5, TestData.generateDate(2020), 1, true)
+            ArcherRound(1, TestUtils.generateDate(2024), 1, true),
+            ArcherRound(2, TestUtils.generateDate(2023), 1, true, roundId = 1),
+            ArcherRound(3, TestUtils.generateDate(2022), 1, true, roundId = 2, roundSubTypeId = 1),
+            ArcherRound(4, TestUtils.generateDate(2021), 1, true),
+            ArcherRound(5, TestUtils.generateDate(2020), 1, true)
     )
     private val arrows = archerRounds.mapIndexed { i, archerRound ->
         val round = rounds.find { it.roundId == archerRound.roundId }
         val arrowsInRound = arrowCounts.sumOf { if (it.roundId == round?.roundId) it.roundId else 0 }
         val desiredCount = if (arrowsInRound == 0) (arrowsPerArrowCount * 2 - i * 6) else (arrowsInRound + i * 6)
-        val testDataSize = TestData.ARROWS.size
+        val testDataSize = TestUtils.ARROWS.size
         List(desiredCount) {
-            TestData.ARROWS[testDataSize - 1 - it % testDataSize].toArrowValue(
+            TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].toArrowValue(
                     archerRound.archerRoundId,
                     it
             )
@@ -120,7 +122,7 @@ class EmailScoresInstrumentedTest {
 
     @Before
     fun setup() {
-        scenario = rule.scenario // ActivityScenario.launch(MainActivity::class.java)
+        scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
             db = DatabaseDaggerTestModule.scoresRoomDatabase
             addSimpleTestDataToDb()
@@ -143,6 +145,8 @@ class EmailScoresInstrumentedTest {
         const val FINAL_SUBJECT = "Archery Scores$APPEND_SUBJECT"
         const val START_TEXT = "Hi friend,\nHere are my scores!"
         const val END_TEXT = "From your friend"
+
+        @Suppress("unused") // See later to-do comment
         const val URI =
                 "content://eywa.projectcodex.fileProvider/external_files/Android/data/eywa.projectcodex/files/emailAttachment.csv"
 
@@ -164,9 +168,9 @@ class EmailScoresInstrumentedTest {
 
     @Test
     fun testEmailScoreWithAttachment() {
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class.java.name))
-        R.id.button_main_menu__view_scores.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class.java.name))
+        composeTestRule.mainMenuRobot {
+            clickViewScores()
+        }
 
         val roundDate = DateTimeFormat.SHORT_DATE_FORMAT.format(archerRounds[0].dateShot)
         CustomConditionWaiter.waitForTextToAppear(
@@ -175,7 +179,7 @@ class EmailScoresInstrumentedTest {
         )
         CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsEmail)
         onView(withText(CommonStrings.Menus.viewRoundsEmail)).perform(ViewActions.click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class.java.name))
+        CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
 
         typeInfo()
 

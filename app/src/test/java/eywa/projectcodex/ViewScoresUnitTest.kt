@@ -1,6 +1,8 @@
 package eywa.projectcodex
 
 import android.content.res.Resources
+import eywa.projectcodex.common.TestData
+import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData

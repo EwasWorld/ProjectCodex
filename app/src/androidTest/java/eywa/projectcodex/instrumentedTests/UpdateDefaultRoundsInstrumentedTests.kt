@@ -12,10 +12,8 @@ import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.rounds.RoundRepo
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -32,6 +30,9 @@ class UpdateDefaultRoundsInstrumentedTests {
         }
 
     }
+
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(60)
 
     private lateinit var scenario: ActivityScenario<MainActivity>
 

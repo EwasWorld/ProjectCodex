@@ -8,6 +8,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
@@ -47,20 +48,37 @@ fun SimpleAlertDialog(
     if (isOpen) {
         AlertDialog(
                 onDismissRequest = onDismissListener,
-                title = { Text(stringResource(id = title)) },
+                title = {
+                    Text(
+                            text = stringResource(id = title),
+                            modifier = Modifier.testTag(SimpleAlertDialogTestTag.POSITIVE_TITLE)
+                    )
+                },
                 text = { Text(stringResource(id = message)) },
                 confirmButton = {
-                    Button(onClick = onPositiveButtonClickListener) {
+                    Button(
+                            onClick = onPositiveButtonClickListener,
+                            modifier = Modifier.testTag(SimpleAlertDialogTestTag.POSITIVE_BUTTON)
+                    ) {
                         Text(stringResource(id = positiveButton))
                     }
                 },
                 dismissButton = {
-                    Button(onClick = onNegativeButtonClickListener) {
+                    Button(
+                            onClick = onNegativeButtonClickListener,
+                            modifier = Modifier.testTag(SimpleAlertDialogTestTag.NEGATIVE_BUTTON)
+                    ) {
                         Text(stringResource(id = negativeButton))
                     }
                 }
         )
     }
+}
+
+object SimpleAlertDialogTestTag {
+    const val POSITIVE_TITLE = "SIMPLE_ALERT_DIALOG_TITLE"
+    const val POSITIVE_BUTTON = "SIMPLE_ALERT_DIALOG_POSITIVE_BUTTON"
+    const val NEGATIVE_BUTTON = "SIMPLE_ALERT_DIALOG_NEGATIVE_BUTTON"
 }
 
 @Preview(showBackground = true)

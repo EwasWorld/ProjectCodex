@@ -17,7 +17,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
-import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
@@ -36,9 +35,14 @@ import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 
 class ViewScoresInstrumentedTest {
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(60)
+
     private lateinit var scenario: FragmentScenario<ViewScoresFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
@@ -100,10 +104,10 @@ class ViewScoresInstrumentedTest {
                 RoundDistance(2, 1, 2, 50)
         )
         archerRounds = listOf(
-                ArcherRound(1, TestData.generateDate(), 1, false),
-                ArcherRound(2, TestData.generateDate(), 1, false, roundId = 1),
-                ArcherRound(3, TestData.generateDate(), 1, false, roundId = 2),
-                ArcherRound(4, TestData.generateDate(), 1, false, roundId = 2, roundSubTypeId = 2)
+                ArcherRound(1, TestUtils.generateDate(), 1, false),
+                ArcherRound(2, TestUtils.generateDate(), 1, false, roundId = 1),
+                ArcherRound(3, TestUtils.generateDate(), 1, false, roundId = 2),
+                ArcherRound(4, TestUtils.generateDate(), 1, false, roundId = 2, roundSubTypeId = 2)
         ).map { archerRound ->
             ArcherRoundWithRoundInfoAndName(
                     archerRound,
@@ -115,7 +119,7 @@ class ViewScoresInstrumentedTest {
         }
         arrows = archerRounds.map { archerRound ->
             val archerRoundId = archerRound.archerRound.archerRoundId
-            List(36) { arrowNumber -> TestData.ARROWS[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
+            List(36) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
         }
 
         addToDbAndRetrieveAdapter()
@@ -202,7 +206,7 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testEmptyTable() {
         onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
-        assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
+        assertEquals(R.id.mainMenuComposeFragment, navController.currentDestination?.id)
     }
 
     @Test
@@ -282,15 +286,15 @@ class ViewScoresInstrumentedTest {
     fun testConvertRound() {
         archerRounds = listOf(
                 ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(1, TestData.generateDate(2020), 1, false)
+                        ArcherRound(1, TestUtils.generateDate(2020), 1, false)
                 ),
                 ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(2, TestData.generateDate(2019), 1, false)
+                        ArcherRound(2, TestUtils.generateDate(2019), 1, false)
                 )
         )
         arrows = listOf(
-                TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
-                TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(2, i + 1) }
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(2, i + 1) }
         )
         addToDbAndRetrieveAdapter()
         val expectedData = generateExpectedData()
@@ -320,12 +324,12 @@ class ViewScoresInstrumentedTest {
         arrows = listOf(
                 // 5-zone arrows
                 listOf(
-                        TestData.ARROWS[0], TestData.ARROWS[1], TestData.ARROWS[1], TestData.ARROWS[3],
-                        TestData.ARROWS[3], TestData.ARROWS[5], TestData.ARROWS[5], TestData.ARROWS[7],
-                        TestData.ARROWS[7], TestData.ARROWS[9], TestData.ARROWS[9], TestData.ARROWS[9]
+                        TestUtils.ARROWS[0], TestUtils.ARROWS[1], TestUtils.ARROWS[1], TestUtils.ARROWS[3],
+                        TestUtils.ARROWS[3], TestUtils.ARROWS[5], TestUtils.ARROWS[5], TestUtils.ARROWS[7],
+                        TestUtils.ARROWS[7], TestUtils.ARROWS[9], TestUtils.ARROWS[9], TestUtils.ARROWS[9]
                 ).mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
                 // 10-zone arrows
-                TestData.ARROWS.dropLast(1).plus(TestData.ARROWS[10])
+                TestUtils.ARROWS.dropLast(1).plus(TestUtils.ARROWS[10])
                         .mapIndexed { i, arrow -> arrow.toArrowValue(2, i) }
         )
         checkData(generateExpectedData().getData().withIndex(), false)
@@ -334,8 +338,11 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testMultiSelections() {
         val size = 4
-        archerRounds = TestData.generateArcherRounds(size, 1).map { ArcherRoundWithRoundInfoAndName(it) }
-        arrows = List(size) { i -> TestData.generateArrowValues(36 + i * 6, archerRounds[i].archerRound.archerRoundId) }
+        archerRounds = TestUtils.generateArcherRounds(size).map { ArcherRoundWithRoundInfoAndName(it) }
+        arrows = List(size) { i ->
+            val roundId = archerRounds[i].archerRound.archerRoundId
+            TestUtils.generateArrowValues(roundId, 36, roundId)
+        }
         addToDbAndRetrieveAdapter()
         val expectedData = generateExpectedData().getData()
 

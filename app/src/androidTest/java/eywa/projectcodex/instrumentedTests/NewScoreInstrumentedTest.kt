@@ -18,33 +18,35 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
-import eywa.projectcodex.TestData
 import eywa.projectcodex.common.*
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
 class NewScoreInstrumentedTest {
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(60)
+
     // TODO Check date is within 1min of current date
     private lateinit var scenario: FragmentScenario<NewScoreFragment>
     private lateinit var navController: TestNavHostController
     private lateinit var db: ScoresRoomDatabase
     private var currentArcherRounds: List<ArcherRound> = listOf()
     private val noRoundDisplayName = "No Round"
-    private val roundsListSizes = 3
-    private val roundsInput = TestData.generateRounds(roundsListSizes)
-    private val subtypesInput = TestData.generateSubTypes(roundsListSizes - 1, roundsListSizes, roundsListSizes)
-    private val arrowCountsInput = TestData.ROUND_ARROW_COUNTS
+    private val roundsInput = TestUtils.ROUNDS.take(3)
+    private val subtypesInput = TestUtils.ROUND_SUB_TYPES
+    private val arrowCountsInput = TestUtils.ROUND_ARROW_COUNTS
     private val archerRoundInput = ArcherRound(
             1,
             Calendar.Builder().setDate(2019, 5, 10).setTimeOfDay(17, 12, 13).build().time,
@@ -54,21 +56,13 @@ class NewScoreInstrumentedTest {
             roundSubTypeId = 2
     )
 
-    // Distances should always be the largest
-    private val distancesInput = TestData.generateDistances(roundsListSizes - 1, roundsListSizes, roundsListSizes)
-            .plus(
-                    listOf(
-                            RoundDistance(roundsListSizes, 1, 1, 70),
-                            RoundDistance(roundsListSizes, 2, 1, 60),
-                            RoundDistance(roundsListSizes, 3, 1, 50)
-                    )
-            )
+    private val distancesInput = TestUtils.ROUND_DISTANCES
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
      * with all desired information
      */
-    fun setup(archerRoundId: Int = -1) {
+    private fun setup(archerRoundId: Int = -1) {
         navController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
         val args = Bundle()
@@ -109,9 +103,9 @@ class NewScoreInstrumentedTest {
         scenario.onFragment {
             Navigation.setViewNavController(it.requireView(), navController)
 
-            db.archerRoundDao().getAllArcherRounds().observe(it.requireActivity(), { obArcherRounds ->
+            db.archerRoundDao().getAllArcherRounds().observe(it.requireActivity()) { obArcherRounds ->
                 currentArcherRounds = obArcherRounds
-            })
+            }
         }
     }
 
@@ -141,7 +135,7 @@ class NewScoreInstrumentedTest {
     @Test
     fun addAnotherRound() {
         setup()
-        val ar = ArcherRound(2, TestData.generateDate(), 1, true)
+        val ar = ArcherRound(2, TestUtils.generateDate(), 1, true)
         scenario.onFragment {
             runBlocking {
                 db.archerRoundDao().insert(ar)
@@ -182,7 +176,7 @@ class NewScoreInstrumentedTest {
         val roundsBeforeCreate = currentArcherRounds
         assertEquals(1, roundsBeforeCreate.size)
 
-        val selectedRound = roundsInput[1]
+        val selectedRound = roundsInput[0]
         R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
         val selectedSubtype = subtypesInput.filter { it.roundId == selectedRound.roundId }[1]
         R.id.spinner_create_round__round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
@@ -192,7 +186,7 @@ class NewScoreInstrumentedTest {
         assertEquals(2, roundsAfterCreate.size)
         assertEquals(archerRoundInput, roundsAfterCreate[0])
         assertEquals(selectedRound.roundId, roundsAfterCreate[1].roundId)
-        assertEquals(selectedSubtype.roundId, roundsAfterCreate[1].roundSubTypeId)
+        assertEquals(selectedSubtype.subTypeId, roundsAfterCreate[1].roundSubTypeId)
     }
 
     /**
@@ -237,7 +231,7 @@ class NewScoreInstrumentedTest {
          * Check switches correctly and indicators are correct
          */
         val subTypedRound = roundsInput[0]
-        val unSubTypedRound = roundsInput[roundsListSizes - 1]
+        val unSubTypedRound = roundsInput[1]
 
         // no round -> subtype
         var selectedRound = subTypedRound
@@ -253,7 +247,7 @@ class NewScoreInstrumentedTest {
         // subtype -> no subtype
         selectedRound = unSubTypedRound
         R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
-        R.id.text_create_round__arrow_count_indicator.labelledTextEquals("5.8, 5, 4.2")
+        R.id.text_create_round__arrow_count_indicator.labelledTextEquals("5, 4, 3")
         R.id.text_create_round__distance_indicator.labelledTextEquals(
                 expectedDistances(selectedRound.roundId, 1, selectedRound.isMetric)
         )

@@ -64,7 +64,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             setGolds()
             calculateHandicapAndPredictedScore()
         })
-        archerRoundStatsViewModel.archerRoundWithInfo.observe(viewLifecycleOwner, { info ->
+        archerRoundStatsViewModel.archerRoundWithInfo.observe(viewLifecycleOwner) { info ->
             info?.let { archerRoundWithInfo ->
                 val archerRound = archerRoundWithInfo.archerRound
                 this.archerRound = archerRound
@@ -82,22 +82,24 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 roundName = archerRoundWithInfo.displayName
                 setFragmentTitle()
 
+                // TODO_CURRENT Better null safety in this class :O
+                if (archerRoundWithInfo.round == null) return@observe
                 round = archerRoundWithInfo.round!!
                 view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__round)
                         .updateText(archerRoundWithInfo.roundSubTypeName ?: round!!.displayName)
                 archerRoundStatsViewModel.getArrowCountsForRound(round!!.roundId)
-                        .observe(viewLifecycleOwner, { counts ->
+                        .observe(viewLifecycleOwner) { counts ->
                             counts?.let { dbArrowCounts ->
                                 arrowCounts = dbArrowCounts
                                 setRemainingArrowsText()
                                 calculateHandicapAndPredictedScore()
                             }
-                        })
+                        }
                 archerRoundStatsViewModel.getDistancesForRound(round!!.roundId, archerRound.roundSubTypeId)
-                        .observe(viewLifecycleOwner, {
+                        .observe(viewLifecycleOwner) {
                             roundDistances = it
                             calculateHandicapAndPredictedScore()
-                        })
+                        }
 
                 view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__round).visibility = View.VISIBLE
                 view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__remaining_arrows).visibility =
@@ -105,7 +107,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 setGolds()
                 calculateHandicapAndPredictedScore()
             }
-        })
+        }
     }
 
     private fun setFragmentTitle() {

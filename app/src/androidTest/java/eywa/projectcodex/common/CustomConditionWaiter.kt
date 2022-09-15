@@ -22,15 +22,15 @@ import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
+import kotlin.reflect.KClass
 
 class CustomConditionWaiter {
     companion object {
@@ -39,38 +39,30 @@ class CustomConditionWaiter {
         /**
          * Wait for a particular fragment to appear on the screen
          */
-        fun waitForFragmentToShow(scenario: ActivityScenario<MainActivity>, fragmentClassName: String) {
+        fun waitForFragmentToShow(scenario: ActivityScenario<MainActivity>, fragment: KClass<out Fragment>) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
-                    var found = false
-                    scenario.onActivity {
-                        val fragments = it.navHostFragment.childFragmentManager.fragments
-                        for (fragment in fragments) {
-                            if (fragment.javaClass.name == fragmentClassName) {
-                                found = true
-                            }
-                        }
-                    }
-                    if (!found) {
+                    val isShowing = TestUtils.isFragmentShowing(scenario, fragment)
+                    if (!isShowing) {
                         // Don't clog up the main thread in the onActivity method, wait a moment before trying again
                         Thread.sleep(DEFAULT_THREAD_SLEEP)
                     }
-                    return found
+                    return isShowing
                 }
 
                 override fun getDescription(): String {
-                    return "Wait for $fragmentClassName to appear"
+                    return "Wait for ${fragment.simpleName} to appear"
                 }
             })
         }
 
         fun waitForScorePadToOpen(
-                scenario: ActivityScenario<MainActivity>,
+                composeTestRule: ComposeTestRule<MainActivity>,
                 arrows: Iterable<ArrowValue>,
                 goldsType: GoldsType = GoldsType.NINES
         ) {
             waitForScorePadToOpen(
-                    scenario,
+                    composeTestRule,
                     "%d/%d/%d".format(
                             arrows.count { it.score != 0 },
                             arrows.sumOf { it.score },
@@ -83,11 +75,12 @@ class CustomConditionWaiter {
          * and clicks on it to open the score pad
          * @param hsgToClick the hits/score/golds string to click (in the form 0/0/0 where 0s are positive integers)
          */
-        fun waitForScorePadToOpen(scenario: ActivityScenario<MainActivity>, hsgToClick: String) {
+        fun waitForScorePadToOpen(composeTestRule: ComposeTestRule<MainActivity>, hsgToClick: String) {
             R.id.action_bar__home.click()
-            waitForFragmentToShow(scenario, MainMenuFragment::class.java.name)
-            R.id.button_main_menu__view_scores.click()
-            waitForFragmentToShow(scenario, ViewScoresFragment::class.java.name)
+
+            composeTestRule.mainMenuRobot {
+                clickViewScores()
+            }
 
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
@@ -102,7 +95,7 @@ class CustomConditionWaiter {
                     return "Wait for $hsgToClick to appear"
                 }
             })
-            waitForFragmentToShow(scenario, ScorePadFragment::class.java.name)
+            waitForFragmentToShow(composeTestRule.activityRule.scenario, ScorePadFragment::class)
         }
 
         /**

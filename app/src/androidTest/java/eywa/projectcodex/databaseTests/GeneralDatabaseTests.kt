@@ -2,7 +2,7 @@ package eywa.projectcodex.databaseTests
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import eywa.projectcodex.TestData
+import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.retrieveValue
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.*
@@ -57,7 +57,7 @@ class GeneralDatabaseTests {
         /*
          * Add and retrieve
          */
-        val rounds = TestData.generateRounds().toMutableList()
+        val rounds = TestUtils.ROUNDS.toMutableList()
 
         for (round in rounds) {
             runBlocking {
@@ -125,7 +125,7 @@ class GeneralDatabaseTests {
         /*
          * Add and retrieve
          */
-        val arrowCounts = TestData.generateArrowCounts(5).toMutableList()
+        val arrowCounts = TestUtils.ROUND_ARROW_COUNTS.toMutableList()
         for (arrowCount in arrowCounts) {
             runBlocking {
                 roundArrowCountDao.insert(arrowCount)
@@ -162,7 +162,7 @@ class GeneralDatabaseTests {
         /*
          * Add and retrieve
          */
-        val subTypes = TestData.generateSubTypes(5).toMutableList()
+        val subTypes = TestUtils.ROUND_SUB_TYPES.toMutableList()
         for (subType in subTypes) {
             runBlocking {
                 roundSubTypeDao.insert(subType)
@@ -199,7 +199,7 @@ class GeneralDatabaseTests {
         /*
          * Add and retrieve
          */
-        val distances = TestData.generateDistances(5).toMutableList()
+        val distances = TestUtils.ROUND_DISTANCES.toMutableList()
         for (distance in distances) {
             runBlocking {
                 roundDistanceDao.insert(distance)
