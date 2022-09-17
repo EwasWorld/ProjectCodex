@@ -18,31 +18,34 @@ fun SimpleAlertDialog(
         isOpen: Boolean,
         @StringRes title: Int,
         @StringRes message: Int,
-        @StringRes positiveButton: Int,
-        @StringRes negativeButton: Int,
+        @StringRes positiveButtonText: Int,
+        @StringRes negativeButtonText: Int? = null,
         onDialogActionClicked: (Boolean) -> Unit,
 ) {
     SimpleAlertDialog(
             isOpen = isOpen,
             title = title,
             message = message,
-            positiveButton = positiveButton,
-            negativeButton = negativeButton,
+            positiveButtonText = positiveButtonText,
+            negativeButtonText = negativeButtonText,
             onPositiveButtonClickListener = { onDialogActionClicked(true) },
-            onNegativeButtonClickListener = { onDialogActionClicked(false) },
+            onNegativeButtonClickListener = negativeButtonText?.let { { onDialogActionClicked(false) } },
             onDismissListener = { onDialogActionClicked(false) }
     )
 }
 
+/**
+ * @throws NullPointerException if [onNegativeButtonClickListener] is not-null but [negativeButtonText] is null
+ */
 @Composable
 fun SimpleAlertDialog(
         isOpen: Boolean,
         @StringRes title: Int,
         @StringRes message: Int,
-        @StringRes positiveButton: Int,
-        @StringRes negativeButton: Int,
+        @StringRes positiveButtonText: Int,
+        @StringRes negativeButtonText: Int? = null,
         onPositiveButtonClickListener: () -> Unit,
-        onNegativeButtonClickListener: () -> Unit,
+        onNegativeButtonClickListener: (() -> Unit)? = null,
         onDismissListener: () -> Unit,
 ) {
     if (isOpen) {
@@ -60,15 +63,17 @@ fun SimpleAlertDialog(
                             onClick = onPositiveButtonClickListener,
                             modifier = Modifier.testTag(SimpleAlertDialogTestTag.POSITIVE_BUTTON)
                     ) {
-                        Text(stringResource(id = positiveButton))
+                        Text(stringResource(id = positiveButtonText))
                     }
                 },
-                dismissButton = {
-                    Button(
-                            onClick = onNegativeButtonClickListener,
-                            modifier = Modifier.testTag(SimpleAlertDialogTestTag.NEGATIVE_BUTTON)
-                    ) {
-                        Text(stringResource(id = negativeButton))
+                dismissButton = onNegativeButtonClickListener?.let {
+                    {
+                        Button(
+                                onClick = onNegativeButtonClickListener,
+                                modifier = Modifier.testTag(SimpleAlertDialogTestTag.NEGATIVE_BUTTON)
+                        ) {
+                            Text(stringResource(id = negativeButtonText!!))
+                        }
                     }
                 }
         )
@@ -89,8 +94,22 @@ fun PreviewSimpleAlertDialog() {
                 isOpen = true,
                 title = R.string.main_menu__exit_app_dialog_title,
                 message = R.string.main_menu__exit_app_dialog_body,
-                positiveButton = R.string.main_menu__exit_app_dialog_exit,
-                negativeButton = R.string.general_cancel,
+                positiveButtonText = R.string.main_menu__exit_app_dialog_exit,
+                negativeButtonText = R.string.general_cancel,
+                onDialogActionClicked = { }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSimpleAlertDialog_LessText() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        SimpleAlertDialog(
+                isOpen = true,
+                title = R.string.err_table_view__no_data,
+                message = R.string.err_view_score__no_rounds,
+                positiveButtonText = R.string.err_view_score__return_to_main_menu,
                 onDialogActionClicked = { }
         )
     }

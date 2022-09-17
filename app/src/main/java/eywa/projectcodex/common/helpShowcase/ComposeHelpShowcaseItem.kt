@@ -9,6 +9,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseState
 
+/**
+ * @param priority Lower number = higher priority
+ */
 class ComposeHelpShowcaseItem(
         @StringRes var helpTitle: Int,
         @StringRes private var helpBody: Int,

@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/viewScoresFragment"
-        android:name="eywa.projectcodex.components.viewScores.ViewScoresFragment"
+        android:name="eywa.projectcodex.components.viewScores.ViewScoresComposeFragment"
         android:label="fragment_view_scores"
         tools:layout="@layout/fragment_view_scores"
         >

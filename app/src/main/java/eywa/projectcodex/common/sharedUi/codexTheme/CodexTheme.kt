@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.codexTheme
+package eywa.projectcodex.common.sharedUi.codexTheme
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable

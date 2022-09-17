@@ -172,7 +172,7 @@ class EmailScoresInstrumentedTest {
             clickViewScores()
         }
 
-        val roundDate = DateTimeFormat.SHORT_DATE_FORMAT.format(archerRounds[0].dateShot)
+        val roundDate = DateTimeFormat.SHORT_DATE.format(archerRounds[0].dateShot)
         CustomConditionWaiter.waitForTextToAppear(
                 roundDate,
                 CustomConditionWaiter.Companion.ClickType.LONG_CLICK

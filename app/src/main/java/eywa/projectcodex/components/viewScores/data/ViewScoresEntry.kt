@@ -47,11 +47,18 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
             }
         }
 
-    var hitsScoreGolds = ""
+    var hitsScoreGolds: String? = null
         private set
         get() {
             synchronized(this) {
-                return "%s/%s/%s".format(hits?.toString() ?: "-", score?.toString() ?: "-", golds?.toString() ?: "-")
+                hits?.let { h ->
+                    score?.let { s ->
+                        golds?.let { g ->
+                            return "$h/$s/$g"
+                        }
+                    }
+                }
+                return null
             }
         }
 
@@ -124,7 +131,7 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
                     CustomLogger.customLogger.e(
                             LOG_TAG,
                             "Failed to get handicap for round with id $id (date shot: %s)"
-                                    .format(DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(archerRound.dateShot))
+                                    .format(DateTimeFormat.SHORT_DATE_TIME.format(archerRound.dateShot))
                     )
                     CustomLogger.customLogger.e(LOG_TAG, "Handicap Error: " + e.message)
                     return null
@@ -170,7 +177,7 @@ class ViewScoresEntry(initialInfo: ArcherRoundWithRoundInfoAndName) {
                 resources.getString(R.string.email_round_summary),
                 mapOf(
                         Pair("roundName", displayName ?: resources.getString(R.string.create_round__no_round)),
-                        Pair("date", DateTimeFormat.SHORT_DATE_FORMAT.format(archerRound.dateShot)),
+                        Pair("date", DateTimeFormat.SHORT_DATE.format(archerRound.dateShot)),
                         Pair("hits", hits.toString()),
                         Pair("score", score.toString()),
                         Pair("goldsType", resources.getString(goldsType.longStringId)),

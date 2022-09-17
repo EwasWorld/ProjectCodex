@@ -5,13 +5,21 @@ import java.util.*
 
 // TODO Locale-based date/time format
 enum class DateTimeFormat(val pattern: String) {
-    LONG_DATE_FORMAT("dd MMM yy"),
-    SHORT_DATE_FORMAT("dd/MM/yy"),
-    TIME_FORMAT("HH:mm"),
-    LONG_DATE_TIME_FORMAT("${LONG_DATE_FORMAT.pattern} ${TIME_FORMAT.pattern}"),
-    SHORT_DATE_TIME_FORMAT("${SHORT_DATE_FORMAT.pattern} ${TIME_FORMAT.pattern}");
+    // 1 Jan 21
+    LONG_DATE("d MMM yy"),
+    LONG_DAY_MONTH("d MMM"),
+
+    // 01/01/21
+    SHORT_DATE("dd/MM/yy"),
+
+    TIME_24_HOUR("HH:mm"),
+    TIME_12_HOUR("hh:mm a"),
+
+    LONG_DATE_TIME("${LONG_DATE.pattern} ${TIME_24_HOUR.pattern}"),
+    SHORT_DATE_TIME("${SHORT_DATE.pattern} ${TIME_24_HOUR.pattern}"),
+    ;
 
     fun format(date: Date): String {
-        return SimpleDateFormat(this.pattern).format(date)
+        return SimpleDateFormat(pattern).format(date)
     }
 }

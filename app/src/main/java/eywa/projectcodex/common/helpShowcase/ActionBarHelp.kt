@@ -45,7 +45,7 @@ interface ActionBarHelp {
             for (fragment in fragments) {
                 val fragmentPriority = fragment.getHelpPriority() ?: HelpShowcaseItem.DEFAULT_HELP_PRIORITY
                 fragment.getHelpShowcases().forEach {
-                    it.priority = fragmentPriority
+                    it.priority = it.priority ?: fragmentPriority
                     helpItemsList.add(it)
                 }
             }

@@ -17,7 +17,7 @@ data class ArcherRound(
         val archerRoundId: Int,
         var dateShot: Date,
         val archerId: Int,
-        val countsTowardsHandicap: Boolean,
+        val countsTowardsHandicap: Boolean = true,
         val bowId: Int? = null,
         val roundId: Int? = null,
         val roundSubTypeId: Int? = null,

@@ -83,7 +83,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         }
         TimePickerDialog(
                 getString(R.string.create_round__time_shot_time_picker_title), null, date.get(Calendar.HOUR_OF_DAY),
-                date.get(Calendar.MINUTE), DateTimeFormat.TIME_FORMAT.pattern.contains("HH"), okListener
+                date.get(Calendar.MINUTE), DateTimeFormat.TIME_24_HOUR.pattern.contains("HH"), okListener
         )
     }
 
@@ -340,9 +340,9 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
 
     private fun updateDateTime() {
         requireView().findViewById<TextView>(R.id.text_create_round__date).text =
-                DateTimeFormat.LONG_DATE_FORMAT.format(date.time)
+                DateTimeFormat.LONG_DATE.format(date.time)
         requireView().findViewById<TextView>(R.id.text_create_round__time).text =
-                DateTimeFormat.TIME_FORMAT.format(date.time)
+                DateTimeFormat.TIME_24_HOUR.format(date.time)
     }
 
     private fun setValuesFromArcherRound(spinnersOnly: Boolean = false) {

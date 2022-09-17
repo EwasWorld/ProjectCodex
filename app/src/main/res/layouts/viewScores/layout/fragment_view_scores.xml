@@ -44,7 +44,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:background="@null"
-            android:contentDescription="@string/view_scores_menu__multi_select"
+            android:contentDescription="@string/view_scores_menu__multi_select_title"
             tools:visibility="gone"
             />
 
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/extra_small_margins"
             android:paddingHorizontal="@dimen/extra_small_margins"
-            android:text="@string/view_scores_menu__multi_select"
+            android:text="@string/view_scores_menu__multi_select_title"
             style="@style/GeneralText"
             android:textStyle="bold"
             android:visibility="gone"
@@ -80,7 +80,7 @@
             android:layout_height="@dimen/view_scores__icon_bar_icon"
             android:layout_marginHorizontal="@dimen/extra_small_margins"
             android:background="@null"
-            android:contentDescription="@string/view_scores_menu__multi_select_next"
+            android:contentDescription="@string/view_scores_menu__multi_select_email"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_email_icon"
             android:visibility="gone"

@@ -70,7 +70,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 this.archerRound = archerRound
 
                 view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__date).updateText(
-                        DateTimeFormat.LONG_DATE_TIME_FORMAT.format(archerRound.dateShot)
+                        DateTimeFormat.LONG_DATE_TIME.format(archerRound.dateShot)
                 )
 
                 if (archerRound.roundId == null) {
@@ -82,7 +82,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
                 roundName = archerRoundWithInfo.displayName
                 setFragmentTitle()
 
-                // TODO_CURRENT Better null safety in this class :O
+                // TODO Better null safety in this class :O
                 if (archerRoundWithInfo.round == null) return@observe
                 round = archerRoundWithInfo.round!!
                 view.findViewById<LabelledTextView>(R.id.text_archer_round_stats__round)
@@ -165,7 +165,7 @@ class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
             CustomLogger.customLogger.e(
                     ViewScoresEntry.LOG_TAG,
                     "Failed to get handicap for round with id ${args.archerRoundId} (date shot: %s)"
-                            .format(DateTimeFormat.SHORT_DATE_TIME_FORMAT.format(archerRound!!.dateShot))
+                            .format(DateTimeFormat.SHORT_DATE_TIME.format(archerRound!!.dateShot))
             )
             CustomLogger.customLogger.e(ViewScoresEntry.LOG_TAG, "Handicap Error: " + e.message)
         }

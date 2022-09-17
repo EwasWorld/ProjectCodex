@@ -10,8 +10,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.codexTheme.CodexTheme
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import kotlin.system.exitProcess
 
 class MainMenuFragment : Fragment(), ActionBarHelp {

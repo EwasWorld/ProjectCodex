@@ -15,8 +15,7 @@ class ComposeHelpShowcaseMap {
     private val helpInfoMap = mutableMapOf<Int, ComposeHelpShowcaseItem>()
 
     fun add(item: ComposeHelpShowcaseItem) {
-        val oldItem = helpInfoMap.put(item.helpTitle, item)
-        check(oldItem == null) { "Duplicate help item" }
+        helpInfoMap[item.helpTitle] = item
     }
 
     fun updateItem(@StringRes key: Int, layoutCoordinates: LayoutCoordinates) =

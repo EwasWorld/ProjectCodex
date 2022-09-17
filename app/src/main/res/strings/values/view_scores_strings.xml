@@ -2,17 +2,25 @@
 <resources>
     <string name="view_score__title">All Scores</string>
     <string name="view_score__hsg">H/S/G</string>
+    <string name="view_score__hsg_placeholder">-/-/-</string>
     <string name="view_score__handicap">HC</string>
+    <string name="view_score__handicap_placeholder">-</string>
+    <string name="view_scores_menu__action_label">Open action menu</string>
     <string name="view_scores_menu__score_pad">Score pad</string>
     <string name="view_scores_menu__continue">Continue scoring</string>
     <string name="view_scores_menu__delete">Delete</string>
     <string name="view_scores_menu__edit">Edit info</string>
     <string name="view_scores_menu__email_score">Email score</string>
+    <string name="view_score__handicap_full">Handicap</string>
+    <string name="view_score__no_arrows_shot">No arrows shot</string>
+    <string name="view_score__hits">Hits</string>
+    <string name="view_score__score">Score</string>
+    <string name="view_score__golds">Golds</string>
 
-    <string name="view_scores_menu__multi_select">Multi-select</string>
+    <string name="view_scores_menu__multi_select_title">Multi-select</string>
     <string name="view_scores_menu__multi_select_all_or_none">Select all or none</string>
     <string name="view_scores_menu__multi_select_cancel">Cancel multi-select mode</string>
-    <string name="view_scores_menu__multi_select_next">Action all selected items</string>
+    <string name="view_scores_menu__multi_select_email">Action all selected items</string>
 
     <!-- Convert score -->
     <string name="view_scores_menu__convert">Convert</string>
@@ -25,9 +33,12 @@
 
     <!-- Errors -->
     <string name="err_view_score__no_rounds">There are no rounds to show</string>
+    <string name="err_view_score__return_to_main_menu">Return to main menu</string>
     <string name="err_view_score__round_already_complete">This round is already complete</string>
 
     <!-- Help info -->
+    <string name="help_view_score__row_title">Row actions</string>
+    <string name="help_view_score__row_body">Click on a row to open the score pad, press and hold for more actions</string>
     <string name="help_view_score__hsg_title">Hits/Score/Golds</string>
     <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. The label above indicates how golds are being counted: G for 9+, 10 for 10s and Xs, X for Xs only.</string>
     <string name="help_view_score__handicap_title">Handicap</string>

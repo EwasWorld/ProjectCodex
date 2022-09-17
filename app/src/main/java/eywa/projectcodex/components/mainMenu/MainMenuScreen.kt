@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.mainMenu
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,13 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.SimpleAlertDialog
 
 class MainMenuScreen : ActionBarHelp {
-    private val mainMenuHelpInfo = ComposeHelpShowcaseMap().apply {
+    private val helpInfo = ComposeHelpShowcaseMap().apply {
         add(
                 ComposeHelpShowcaseItem(
                         R.string.help_main_menu__new_score_title,
@@ -32,7 +32,6 @@ class MainMenuScreen : ActionBarHelp {
         )
     }
 
-    @SuppressLint("NotConstructor")
     @Composable
     fun ComposeContent(
             isExitDialogOpen: Boolean,
@@ -52,14 +51,14 @@ class MainMenuScreen : ActionBarHelp {
                     text = stringResource(id = R.string.main_menu__new_score),
                     onClick = onStartNewScoreClicked,
                     modifier = Modifier
-                            .updateHelpDialogPosition(mainMenuHelpInfo, R.string.help_main_menu__new_score_title)
+                            .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__new_score_title)
                             .testTag(TestTag.NEW_SCORE),
             )
             CodexButton(
                     text = stringResource(id = R.string.main_menu__view_scores),
                     onClick = onViewScoresClicked,
                     modifier = Modifier
-                            .updateHelpDialogPosition(mainMenuHelpInfo, R.string.help_main_menu__view_scores_title)
+                            .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__view_scores_title)
                             .testTag(TestTag.VIEW_SCORES),
             )
 
@@ -67,18 +66,29 @@ class MainMenuScreen : ActionBarHelp {
                     isOpen = isExitDialogOpen,
                     title = R.string.main_menu__exit_app_dialog_title,
                     message = R.string.main_menu__exit_app_dialog_body,
-                    positiveButton = R.string.main_menu__exit_app_dialog_exit,
-                    negativeButton = R.string.general_cancel,
+                    positiveButtonText = R.string.main_menu__exit_app_dialog_exit,
+                    negativeButtonText = R.string.general_cancel,
                     onDialogActionClicked = onExitAlertClicked
             )
         }
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = mainMenuHelpInfo.getItems()
+    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
     override fun getHelpPriority(): Int? = null
 
     object TestTag {
         const val NEW_SCORE = "MAIN_MENU_NEW_SCORE_BUTTON"
         const val VIEW_SCORES = "MAIN_MENU_VIEW_SCORE_BUTTON"
+    }
+
+    @Preview
+    @Composable
+    fun PreviewMainMenuScreen() {
+        ComposeContent(
+                isExitDialogOpen = false,
+                onExitAlertClicked = {},
+                onStartNewScoreClicked = { },
+                onViewScoresClicked = {}
+        )
     }
 }
