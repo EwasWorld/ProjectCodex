@@ -25,7 +25,6 @@ import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.getColourResource
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
-import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.exceptions.UserException
 import java.io.File
@@ -40,7 +39,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
 
     private val args: EmailScoresFragmentArgs by navArgs()
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
-    private var allEntries: ViewScoreData? = null
+    private var allEntries: List<ViewScoresEntry>? = null
     private val formErrors = FormErrors()
     private val endSize = 6
 
@@ -113,10 +112,9 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.email_scores__title)
 
-        viewScoresViewModel.getViewScoreData().observe(viewLifecycleOwner, {
-            allEntries = it
-            displaySelectedEntries()
-        })
+
+        allEntries = viewScoresViewModel.state.data
+        displaySelectedEntries()
 
         view.findViewById<Button>(R.id.button_email_scores__send).setOnClickListener {
             try {
@@ -179,7 +177,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
      * @return the archer round given by [args] else all entries where [ViewScoresEntry.isSelected] is true
      */
     private fun getSelectedEntries(): List<ViewScoresEntry>? {
-        allEntries?.getData()?.let { entries ->
+        allEntries?.let { entries ->
             if (args.archerRoundId >= 0) {
                 val entry = entries.find { it.id == args.archerRoundId }
                         ?: throw IllegalArgumentException("Could not find round with ID: ${args.archerRoundId}")

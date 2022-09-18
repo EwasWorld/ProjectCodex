@@ -1,18 +1,30 @@
 package eywa.projectcodex.components.viewScores
 
+import androidx.annotation.StringRes
+import eywa.projectcodex.R
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import kotlinx.coroutines.Job
 
-enum class ConvertScore(private val convert: (ArrowValue) -> ArrowValue) {
-    TO_FIVE_ZONE({
-        val scoreChange = when {
-            it.score == 0 -> 0
-            it.score % 2 == 0 -> -1
-            else -> 0
-        }
-        ArrowValue(it.archerRoundId, it.arrowNumber, it.score + scoreChange, false)
-    }),
-    XS_TO_TENS({ ArrowValue(it.archerRoundId, it.arrowNumber, it.score, false) });
+enum class ConvertScore(
+        @StringRes val title: Int,
+        private val convert: (ArrowValue) -> ArrowValue
+) {
+    XS_TO_TENS(
+            title = R.string.view_scores__convert_xs_to_tens,
+            convert = { ArrowValue(it.archerRoundId, it.arrowNumber, it.score, false) }
+    ),
+    TO_FIVE_ZONE(
+            title = R.string.view_scores__convert_to_five_zone,
+            convert = {
+                val scoreChange = when {
+                    it.score == 0 -> 0
+                    it.score % 2 == 0 -> -1
+                    else -> 0
+                }
+                ArrowValue(it.archerRoundId, it.arrowNumber, it.score + scoreChange, false)
+            }
+    ),
+    ;
 
     /**
      * @return the database update job if any arrows were updated, else null

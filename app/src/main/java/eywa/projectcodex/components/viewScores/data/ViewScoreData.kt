@@ -10,7 +10,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 /**
  * Stores the list of [ViewScoresEntry]s to be displayed by the [ViewScoresFragment]
  */
-class ViewScoreData private constructor() {
+class ViewScoreData {
     companion object {
         private var INSTANCE: ViewScoreData? = null
 

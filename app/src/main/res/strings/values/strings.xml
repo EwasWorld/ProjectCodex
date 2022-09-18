@@ -60,6 +60,7 @@
 
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__internal_error">Internal error occurred</string>
+    <string name="err__try_again_error">Unexpected error occurred, please try again</string>
 
     <string name="placeholder_0">0</string>
 </resources>

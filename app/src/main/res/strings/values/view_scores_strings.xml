@@ -27,7 +27,7 @@
     <string name="view_scores__convert_xs_to_tens">Xs to 10s</string>
     <string name="view_scores__convert_to_five_zone">10-zone to 5-zone</string>
     <string name="view_score__convert_score_dialog_title">Convert score</string>
-    <string name="view_score__convert_score_dialog_body">Converts the selected score to a different scoring type.\nWARNING: this is irreversible</string>
+    <string name="view_score__convert_score_dialog_body">Converts the selected entry to a different scoring type. WARNING: this is irreversible</string>
     <string name="view_score__convert_score_started_message">Begun conversion</string>
     <string name="view_score__convert_score_completed_message">Finished conversion</string>
 

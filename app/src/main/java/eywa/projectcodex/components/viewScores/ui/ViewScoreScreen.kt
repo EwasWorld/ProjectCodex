@@ -3,6 +3,7 @@ package eywa.projectcodex.components.viewScores.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,17 +24,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
-import eywa.projectcodex.common.sharedUi.CodexColors
+import eywa.projectcodex.common.sharedUi.RadioButtonDialogContent
 import eywa.projectcodex.common.sharedUi.SimpleAlertDialog
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.components.viewScores.ConvertScore
+import eywa.projectcodex.components.viewScores.ViewScoreDropdownMenuItem
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import kotlin.reflect.KClass
 
@@ -65,20 +69,26 @@ class ViewScoreScreen : ActionBarHelp {
      */
     private var unobstructedHeight: Float = 0f
 
+    // TODO_CURRENT Make the list of params smaller?
     @Composable
     fun ComposeContent(
             entries: List<ViewScoresEntry>,
-            openContextMenu: Int?,
-            dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
-            entryClickedListener: () -> Unit,
-            entryLongClickedListener: () -> Unit,
+            convertDialogSelectedIndex: Int?,
+            contextMenuOpenForIndex: Int?,
+            dropdownMenuItems: Map<KClass<ViewScoresEntry>, List<ViewScoreDropdownMenuItem>>,
+            dropdownMenuItemClicked: (ViewScoreDropdownMenuItem) -> Unit,
+            entryClickedListener: (entryIndex: Int) -> Unit,
+            entryLongClickedListener: (entryIndex: Int) -> Unit,
             isInMultiSelectMode: Boolean,
-            multiSelectClickedListener: () -> Unit,
+            startMultiSelectListener: () -> Unit,
             selectAllOrNoneClickedListener: () -> Unit,
             emailSelectedClickedListener: () -> Unit,
-            cancelMultiSelectClickedListener: () -> Unit,
+            cancelMultiSelectListener: () -> Unit,
             closeDropdownMenuListener: () -> Unit,
             noRoundsDialogOkListener: () -> Unit,
+            convertDialogDismissedListener: () -> Unit,
+            convertDialogActionListener: (ConvertScore) -> Unit,
+            convertDialogSelectionChangedListener: (Int) -> Unit,
     ) {
         if (entries.isEmpty()) {
             SimpleAlertDialog(
@@ -88,6 +98,29 @@ class ViewScoreScreen : ActionBarHelp {
                     positiveButtonText = R.string.err_view_score__return_to_main_menu,
                     onDialogActionClicked = { noRoundsDialogOkListener() },
             )
+        }
+        else if (convertDialogSelectedIndex != null) {
+            Dialog(
+                    onDismissRequest = convertDialogDismissedListener
+            ) {
+                RadioButtonDialogContent(
+                        title = R.string.view_score__convert_score_dialog_title,
+                        message = R.string.view_score__convert_score_dialog_body,
+                        radioButtonText = ConvertScore.values().map { it.title },
+                        positiveButtonText = R.string.general_ok,
+                        negativeButtonText = R.string.general_cancel,
+                        onDialogActionClicked = { action, selectedIndex ->
+                            if (action) {
+                                convertDialogActionListener(ConvertScore.values()[selectedIndex])
+                            }
+                            else {
+                                convertDialogDismissedListener()
+                            }
+                        },
+                        currentlySelectedIndex = convertDialogSelectedIndex,
+                        selectionChangedListener = convertDialogSelectionChangedListener,
+                )
+            }
         }
 
         entryClasses = entries.map { it::class }
@@ -111,6 +144,8 @@ class ViewScoreScreen : ActionBarHelp {
         ) {
             LazyColumn(
                     state = lazyListState,
+                    contentPadding = PaddingValues(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 items(entries.size) { entryIndex ->
                     val entry = entries[entryIndex]
@@ -118,38 +153,34 @@ class ViewScoreScreen : ActionBarHelp {
                     val genericHelpInfo = genericEntryHelpInfo[entryIndex]
 
                     Box {
-                        Column {
-                            if (entryIndex == 0) {
-                                Spacer(modifier = Modifier.height(ITEM_PADDING))
-                            }
+                        Surface(
+                                border = BorderStroke(SELECTED_ITEM_BORDER_STROKE, CodexColors.COLOR_PRIMARY_DARK)
+                                        .takeIf { isInMultiSelectMode && entry.isSelected },
+                                color = CodexColors.COLOR_LIGHT_ACCENT,
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
+                        ) {
                             ViewScoreEntryRow(
                                     entry = entry,
-                                    isInMultiSelectMode = isInMultiSelectMode,
-                                    entryClickedListener = entryClickedListener,
-                                    entryLongClickedListener = entryLongClickedListener,
-                                    dropdownMenuItems = dropdownMenuItems,
+                                    entryClickedListener = { entryClickedListener(entryIndex) },
+                                    entryLongClickedListener = { entryLongClickedListener(entryIndex) },
+                                    dropdownMenuItems = dropdownMenuItems[entry::class],
                                     addHelpInfoEntry = { specificHelpInfo.add(it) },
                                     updateHelpInfoModifier = { title ->
                                         Modifier.updateHelpDialogPosition(specificHelpInfo, title)
                                     },
-                                    updateGenericHelpInfoModifier = {
-                                        val title = R.string.help_view_score__row_title
-                                        Modifier.updateHelpDialogPosition(genericHelpInfo, title)
-                                    },
                             )
-                            if (entryIndex == entries.lastIndex) {
-                                Spacer(modifier = Modifier.height(ITEM_PADDING))
-                            }
                         }
                         DropdownMenu(
-                                expanded = entryIndex == openContextMenu,
+                                expanded = entryIndex == contextMenuOpenForIndex,
                                 onDismissRequest = closeDropdownMenuListener
                         ) {
-                            dropdownMenuItems?.forEach { item ->
-                                DropdownMenuItem(onClick = item.onClick) {
+                            dropdownMenuItems[entry::class]?.forEach { item ->
+                                DropdownMenuItem(onClick = { dropdownMenuItemClicked(item) }) {
                                     Text(
-                                            text = item.title,
-                                            style = ViewScoresTextStyle.NORMAL
+                                            text = stringResource(id = item.title),
+                                            style = CodexTypography.NORMAL
                                     )
                                 }
                             }
@@ -170,10 +201,10 @@ class ViewScoreScreen : ActionBarHelp {
 
                 MultiSelectBar(
                         isInMultiSelectMode = isInMultiSelectMode,
-                        multiSelectClickedListener = multiSelectClickedListener,
+                        multiSelectClickedListener = startMultiSelectListener,
                         selectAllOrNoneClickedListener = selectAllOrNoneClickedListener,
                         emailSelectedClickedListener = emailSelectedClickedListener,
-                        cancelMultiSelectClickedListener = cancelMultiSelectClickedListener,
+                        cancelMultiSelectClickedListener = cancelMultiSelectListener,
                 )
             }
         }
@@ -256,7 +287,7 @@ class ViewScoreScreen : ActionBarHelp {
                 ) {
                     Text(
                             text = stringResource(id = R.string.view_scores_menu__multi_select_title),
-                            style = ViewScoresTextStyle.NORMAL.copy(
+                            style = CodexTypography.NORMAL.copy(
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                             ),
@@ -306,7 +337,6 @@ class ViewScoreScreen : ActionBarHelp {
     override fun getHelpPriority(): Int? = null
 
     companion object {
-        val ITEM_PADDING = 3.dp
         val SELECTED_ITEM_BORDER_STROKE = 2.dp
     }
 
@@ -317,18 +347,6 @@ class ViewScoreScreen : ActionBarHelp {
         GENERIC_ROW_ACTIONS, SPECIFIC_ROW_ACTION, MULTI_SELECT
     }
 
-    // TODO_CURRENT Add NORMAL to theme?
-    object ViewScoresTextStyle {
-        val NORMAL = TextStyle.Default.copy(
-                color = Color.Black,
-                fontSize = 20.sp,
-        )
-
-        val SMALL = NORMAL.copy(
-                color = Color.Black.copy(alpha = 0.55f),
-                fontSize = 14.sp,
-        )
-    }
 
     object TestTag {
     }
@@ -344,10 +362,15 @@ class ViewScoreScreen : ActionBarHelp {
             ComposeContent(
                     PreviewEntryProvider.generateEntries(20),
                     null,
-                    listOf(),
+                    null,
+                    mapOf(),
+                    {},
                     {},
                     {},
                     false,
+                    {},
+                    {},
+                    {},
                     {},
                     {},
                     {},
@@ -369,10 +392,15 @@ class ViewScoreScreen : ActionBarHelp {
             ComposeContent(
                     PreviewEntryProvider.generateEntries(20),
                     null,
-                    listOf(),
+                    null,
+                    mapOf(),
+                    {},
                     {},
                     {},
                     true,
+                    {},
+                    {},
+                    {},
                     {},
                     {},
                     {},
@@ -396,10 +424,15 @@ class ViewScoreScreen : ActionBarHelp {
                 ComposeContent(
                         listOf(),
                         null,
-                        listOf(),
+                        null,
+                        mapOf(),
+                        {},
                         {},
                         {},
                         false,
+                        {},
+                        {},
+                        {},
                         {},
                         {},
                         {},
@@ -411,8 +444,3 @@ class ViewScoreScreen : ActionBarHelp {
         }
     }
 }
-
-data class ViewScoresDropdownMenuItem(
-        val title: String,
-        val onClick: () -> Unit,
-)

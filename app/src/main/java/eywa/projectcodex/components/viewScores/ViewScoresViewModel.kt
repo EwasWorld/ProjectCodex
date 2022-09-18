@@ -1,6 +1,9 @@
 package eywa.projectcodex.components.viewScores
 
 import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
@@ -14,10 +17,36 @@ import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class ViewScoresState(
+        val isInMultiSelectMode: Boolean = false,
+        val openContextMenuEntryIndex: Int? = null,
+        val convertDialogSelectedIndex: Int? = null,
+        val data: List<ViewScoresEntry> = listOf(),
+)
+
+sealed class ViewScoresIntent {
+    data class OpenContextMenu(val entryIndex: Int) : ViewScoresIntent()
+    object CloseContextMenu : ViewScoresIntent()
+
+    data class SetMultiSelectMode(val isInMultiSelectMode: Boolean) : ViewScoresIntent()
+
+    /**
+     * @param forceIsSelectedTo If non-null, forces all item's isSelected to be this value.
+     *      Otherwise, if all items are selected, deselect all items.
+     *      Otherwise, select all items
+     */
+    data class SelectAllOrNone(val forceIsSelectedTo: Boolean? = null) : ViewScoresIntent()
+    object OpenConvertMenu : ViewScoresIntent()
+    object CloseConvertAndContextMenu : ViewScoresIntent()
+    data class UpdateConvertMenuSelectedIndex(val selectedIndex: Int) : ViewScoresIntent()
+}
+
 /**
+ * TODO_CURRENT Turn functions into intents
  * @see ArcherRoundScoreViewModel
  */
 class ViewScoresViewModel(application: Application) : AndroidViewModel(application),
@@ -25,11 +54,12 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
     @Inject
     lateinit var db: ScoresRoomDatabase
 
+    var state by mutableStateOf(ViewScoresState())
+        private set
+
     init {
         (application as App).appComponent.inject(this)
     }
-
-    var isInSelectMode = false
 
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
@@ -41,6 +71,49 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
     private val allDistances = roundRepo.roundDistances
     private val viewScoresData = ViewScoresLiveData(allArrows, allArcherRounds, allArrowCounts, allDistances)
 
+    init {
+        viewModelScope.launch {
+            viewScoresData.asFlow().collect {
+                // TODO_CURRENT Still having issues with update after convert - by reference change isn't picked up
+                state = state.copy(data = it.getData())
+            }
+        }
+    }
+
+    fun handle(action: ViewScoresIntent) {
+        when (action) {
+            ViewScoresIntent.CloseContextMenu -> {
+                state = state.copy(openContextMenuEntryIndex = null)
+            }
+            is ViewScoresIntent.OpenContextMenu -> {
+                state = state.copy(openContextMenuEntryIndex = action.entryIndex)
+            }
+            is ViewScoresIntent.SetMultiSelectMode -> {
+                if (!action.isInMultiSelectMode) {
+                    // TODO_CURRENT Deselect all items
+                }
+                state = state.copy(isInMultiSelectMode = action.isInMultiSelectMode)
+            }
+            is ViewScoresIntent.SelectAllOrNone -> {
+                val selectAll = action.forceIsSelectedTo
+                        ?: !state.data.all { it.isSelected }
+                // TODO_CURRENT Select/deselect all
+            }
+            ViewScoresIntent.CloseConvertAndContextMenu -> {
+                state = state.copy(
+                        convertDialogSelectedIndex = null,
+                        openContextMenuEntryIndex = null,
+                )
+            }
+            is ViewScoresIntent.OpenConvertMenu -> {
+                state = state.copy(convertDialogSelectedIndex = 0)
+            }
+            is ViewScoresIntent.UpdateConvertMenuSelectedIndex -> {
+                state = state.copy(convertDialogSelectedIndex = action.selectedIndex)
+            }
+        }
+    }
+
     /**
      * Deletes the specified round and all its arrows
      */
@@ -51,10 +124,6 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
 
     override fun updateArrowValues(vararg arrows: ArrowValue) = viewModelScope.launch {
         arrowValuesRepo.update(*arrows)
-    }
-
-    fun getViewScoreData(): LiveData<ViewScoreData> {
-        return viewScoresData
     }
 
     /**

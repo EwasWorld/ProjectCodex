@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.SimpleAlertDialog
 
 class MainMenuScreen : ActionBarHelp {
@@ -32,6 +33,7 @@ class MainMenuScreen : ActionBarHelp {
         )
     }
 
+    // TODO Fix button focus order - currently app starts focussed on the help icon in the action bar
     @Composable
     fun ComposeContent(
             isExitDialogOpen: Boolean,
@@ -49,6 +51,7 @@ class MainMenuScreen : ActionBarHelp {
 
             CodexButton(
                     text = stringResource(id = R.string.main_menu__new_score),
+                    buttonStyle = CodexButtonDefaults.ButtonOnPrimary,
                     onClick = onStartNewScoreClicked,
                     modifier = Modifier
                             .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__new_score_title)
@@ -56,6 +59,7 @@ class MainMenuScreen : ActionBarHelp {
             )
             CodexButton(
                     text = stringResource(id = R.string.main_menu__view_scores),
+                    buttonStyle = CodexButtonDefaults.ButtonOnPrimary,
                     onClick = onViewScoresClicked,
                     modifier = Modifier
                             .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__view_scores_title)

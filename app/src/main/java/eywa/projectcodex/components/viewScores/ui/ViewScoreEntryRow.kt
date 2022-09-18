@@ -3,10 +3,8 @@ package eywa.projectcodex.components.viewScores.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,9 +19,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.sharedUi.CodexColors
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.viewScores.ViewScoreDropdownMenuItem
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import java.util.*
 
@@ -38,49 +38,35 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 @Composable
 internal fun ViewScoreEntryRow(
         entry: ViewScoresEntry,
-        isInMultiSelectMode: Boolean,
-        dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
+        dropdownMenuItems: List<ViewScoreDropdownMenuItem>?,
         entryClickedListener: () -> Unit,
         entryLongClickedListener: () -> Unit,
         addHelpInfoEntry: (ComposeHelpShowcaseItem) -> Unit,
         updateHelpInfoModifier: Modifier.(Int) -> Modifier,
-        updateGenericHelpInfoModifier: Modifier.() -> Modifier
 ) {
     getHelpInfoEntries().forEach { addHelpInfoEntry(it) }
 
-    Box(
-            modifier = Modifier.padding(ViewScoreScreen.ITEM_PADDING)
-    ) {
-        Surface(
-                border = BorderStroke(ViewScoreScreen.SELECTED_ITEM_BORDER_STROKE, CodexColors.COLOR_PRIMARY_DARK)
-                        .takeIf { isInMultiSelectMode && entry.isSelected },
-                color = CodexColors.COLOR_LIGHT_ACCENT,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .pointerInput(null) {
-                            detectTapGestures(
-                                    onPress = { entryClickedListener() },
-                                    onLongPress = { entryLongClickedListener() },
-                            )
-                        }
-                        .customSemantics(entry, dropdownMenuItems, entryClickedListener)
-                        .updateGenericHelpInfoModifier()
-        ) {
-            Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.Top,
-                    modifier = Modifier.padding(
+    Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier
+                    .padding(
                             start = 8.dp,
                             end = 15.dp,
                             top = 5.dp,
                             bottom = 5.dp,
                     )
-            ) {
-                DisplayDateAndRoundName(entry)
-                DisplayHsg(entry, updateHelpInfoModifier)
-                DisplayHandicap(entry, updateHelpInfoModifier)
-            }
-        }
+                    .pointerInput(null) {
+                        detectTapGestures(
+                                onTap = { entryClickedListener() },
+                                onLongPress = { entryLongClickedListener() },
+                        )
+                    }
+                    .customSemantics(entry, dropdownMenuItems, entryClickedListener)
+    ) {
+        DisplayDateAndRoundName(entry)
+        DisplayHsg(entry, updateHelpInfoModifier)
+        DisplayHandicap(entry, updateHelpInfoModifier)
     }
 }
 
@@ -93,12 +79,12 @@ private fun RowScope.DisplayDateAndRoundName(entry: ViewScoresEntry) {
     ) {
         Text(
                 text = DateTimeFormat.SHORT_DATE_TIME.format(entry.archerRound.dateShot),
-                style = ViewScoreScreen.ViewScoresTextStyle.SMALL,
+                style = CodexTypography.SMALL_DIMMED,
         )
         Text(
                 text = entry.displayName
                         ?: stringResource(R.string.create_round__no_round),
-                style = ViewScoreScreen.ViewScoresTextStyle.NORMAL,
+                style = CodexTypography.NORMAL,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = 6.dp)
@@ -118,13 +104,13 @@ private fun DisplayHsg(
     ) {
         Text(
                 text = stringResource(id = R.string.view_score__hsg),
-                style = ViewScoreScreen.ViewScoresTextStyle.SMALL,
+                style = CodexTypography.SMALL_DIMMED,
         )
         @Suppress("RemoveRedundantQualifierName")
         Text(
                 text = entry.hitsScoreGolds
                         ?: stringResource(id = R.string.view_score__hsg_placeholder),
-                style = ViewScoreScreen.ViewScoresTextStyle.NORMAL,
+                style = CodexTypography.NORMAL,
                 modifier = Modifier.updateHelpInfoModifier(R.string.help_view_score__hsg_title)
         )
     }
@@ -141,7 +127,7 @@ private fun DisplayHandicap(
     ) {
         Text(
                 text = stringResource(id = R.string.view_score__handicap),
-                style = ViewScoreScreen.ViewScoresTextStyle.SMALL,
+                style = CodexTypography.SMALL_DIMMED,
         )
         Box(
                 contentAlignment = Alignment.Center
@@ -150,13 +136,13 @@ private fun DisplayHandicap(
             Text(
                     text = entry.handicap?.toString()
                             ?: stringResource(id = R.string.view_score__handicap_placeholder),
-                    style = ViewScoreScreen.ViewScoresTextStyle.NORMAL,
+                    style = CodexTypography.NORMAL,
                     modifier = Modifier.updateHelpInfoModifier(R.string.help_view_score__handicap_title)
             )
             // Force width to always accommodate "00" - this will forces columns into alignment
             Text(
                     text = "00",
-                    style = ViewScoreScreen.ViewScoresTextStyle.NORMAL.copy(color = Color.Transparent),
+                    style = CodexTypography.NORMAL.copy(color = Color.Transparent),
             )
         }
     }
@@ -177,17 +163,18 @@ private fun getHelpInfoEntries() = listOf(
 
 private fun Modifier.customSemantics(
         entry: ViewScoresEntry,
-        dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
+        dropdownMenuItems: List<ViewScoreDropdownMenuItem>?,
         entryClickedListener: () -> Unit,
 ) = composed {
     val semanticsString = viewScoreRowAccessibilityString(entry)
     val semanticsOnClickLabel = stringResource(id = R.string.view_scores_menu__score_pad)
+    val itemCustomActions = dropdownMenuItems?.map {
+        CustomAccessibilityAction(stringResource(id = it.title)) { it.onClick; true }
+    } ?: listOf()
 
     clearAndSetSemantics {
         contentDescription = semanticsString
-        customActions = dropdownMenuItems?.map {
-            CustomAccessibilityAction(it.title) { it.onClick(); true }
-        } ?: listOf()
+        customActions = itemCustomActions
         onClick(semanticsOnClickLabel) { entryClickedListener(); true }
     }
 }
@@ -255,13 +242,11 @@ fun Preview() {
     CodexTheme {
         ViewScoreEntryRow(
                 entry = PreviewEntryProvider.generateEntries(1).first(),
-                isInMultiSelectMode = false,
                 dropdownMenuItems = listOf(),
                 entryClickedListener = {},
                 entryLongClickedListener = {},
                 addHelpInfoEntry = {},
                 updateHelpInfoModifier = { Modifier },
-                updateGenericHelpInfoModifier = { Modifier }
         )
     }
 }

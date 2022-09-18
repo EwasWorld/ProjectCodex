@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.sharedUi
+package eywa.projectcodex.common.sharedUi.codexTheme
 
 import androidx.compose.ui.graphics.Color
 

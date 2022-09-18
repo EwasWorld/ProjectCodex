@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.*
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -255,8 +256,8 @@ private fun ComposeHelpShowcasePreview(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CodexButton(text = "Hello") {}
-        CodexButton(text = "Hello") {}
+        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.ButtonOnPrimary) {}
+        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.ButtonOnPrimary) {}
     }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         ComposeHelpShowcase(
