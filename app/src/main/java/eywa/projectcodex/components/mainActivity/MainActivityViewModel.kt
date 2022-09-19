@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -50,24 +49,3 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 }
 
-data class MainActivityState(
-        internal val helpItems: List<ComposeHelpShowcaseItem>? = null,
-        internal val currentHelpItemIndex: Int? = null,
-) {
-    val isHelpShowcaseInProgress: Boolean
-        get() = !helpItems.isNullOrEmpty() && currentHelpItemIndex in helpItems.indices
-    val currentHelpItem: ComposeHelpShowcaseItem?
-        get() = currentHelpItemIndex?.let { helpItems?.get(it) }
-    val hasNextItem: Boolean
-        get() = currentHelpItemIndex != null && currentHelpItemIndex != helpItems?.lastIndex
-
-    fun nextHelpItem(): MainActivityState {
-        if (!hasNextItem) return clearHelpItems()
-        return copy(currentHelpItemIndex = currentHelpItemIndex?.plus(1))
-    }
-
-    fun clearHelpItems(): MainActivityState {
-        ActionBarHelp.markShowcaseComplete()
-        return copy(helpItems = null, currentHelpItemIndex = null)
-    }
-}

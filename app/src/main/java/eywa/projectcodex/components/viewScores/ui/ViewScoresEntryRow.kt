@@ -23,8 +23,8 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.viewScores.ViewScoreDropdownMenuItem
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import java.util.*
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
@@ -36,9 +36,9 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
  *      (this function does not create a dropdown menu)
  */
 @Composable
-internal fun ViewScoreEntryRow(
+internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
-        dropdownMenuItems: List<ViewScoreDropdownMenuItem>?,
+        dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
         entryClickedListener: () -> Unit,
         entryLongClickedListener: () -> Unit,
         addHelpInfoEntry: (ComposeHelpShowcaseItem) -> Unit,
@@ -163,10 +163,10 @@ private fun getHelpInfoEntries() = listOf(
 
 private fun Modifier.customSemantics(
         entry: ViewScoresEntry,
-        dropdownMenuItems: List<ViewScoreDropdownMenuItem>?,
+        dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
         entryClickedListener: () -> Unit,
 ) = composed {
-    val semanticsString = viewScoreRowAccessibilityString(entry)
+    val semanticsString = viewScoresRowAccessibilityString(entry)
     val semanticsOnClickLabel = stringResource(id = R.string.view_scores_menu__score_pad)
     val itemCustomActions = dropdownMenuItems?.map {
         CustomAccessibilityAction(stringResource(id = it.title)) { it.onClick; true }
@@ -180,7 +180,7 @@ private fun Modifier.customSemantics(
 }
 
 @Composable
-private fun viewScoreRowAccessibilityString(entry: ViewScoresEntry): String {
+private fun viewScoresRowAccessibilityString(entry: ViewScoresEntry): String {
     @Composable
     fun accessibilityString(@StringRes title: Int, value: String?, @StringRes alt: Int? = null) =
             value?.let { stringResource(title) + " $it" } ?: alt?.let { stringResource(it) }
@@ -240,8 +240,8 @@ private fun viewScoreRowAccessibilityString(entry: ViewScoresEntry): String {
 @Composable
 fun Preview() {
     CodexTheme {
-        ViewScoreEntryRow(
-                entry = PreviewEntryProvider.generateEntries(1).first(),
+        ViewScoresEntryRow(
+                entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
                 dropdownMenuItems = listOf(),
                 entryClickedListener = {},
                 entryLongClickedListener = {},

@@ -8,7 +8,7 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
-import eywa.projectcodex.components.viewScores.ui.ViewScoreEntryRow
+import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -16,7 +16,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 
 /**
- * Stores all the information relating to an [ArcherRound] so that it can be displayed in a [ViewScoreEntryRow]
+ * Stores all the information relating to an [ArcherRound] so that it can be displayed in a [ViewScoresEntryRow]
  */
 data class ViewScoresEntry(
         private val initialInfo: ArcherRoundWithRoundInfoAndName,

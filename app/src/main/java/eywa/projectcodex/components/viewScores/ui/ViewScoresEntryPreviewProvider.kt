@@ -16,7 +16,7 @@ import java.util.*
  * Used to generate data for [ViewScoreScreen]
  */
 @RequiresApi(Build.VERSION_CODES.O)
-object PreviewEntryProvider {
+object ViewScoresEntryPreviewProvider {
     private val dates = listOf(
             Calendar.Builder().setDate(2021, 6, 17).setTimeOfDay(18, 5, 1).build().time,
             Calendar.Builder().setDate(2023, 5, 12).setTimeOfDay(9, 47, 1).build().time,

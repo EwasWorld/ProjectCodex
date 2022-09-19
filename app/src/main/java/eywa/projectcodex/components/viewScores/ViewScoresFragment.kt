@@ -10,27 +10,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
-import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.ViewScoreScreen
+import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 
-// TODO_CURRENT Remove 'compose' from name
-class ViewScoresComposeFragment : Fragment(), ActionBarHelp {
+class ViewScoresFragment : Fragment(), ActionBarHelp {
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
     private var viewScoreScreen = ViewScoreScreen()
 
     private val dropDownMenuItems = mapOf(
             ViewScoresEntry::class to listOf(
-                    ViewScoreDropdownMenuItem.SCORE_PAD,
-                    ViewScoreDropdownMenuItem.CONTINUE,
-                    ViewScoreDropdownMenuItem.EMAIL_SCORE,
-                    ViewScoreDropdownMenuItem.EDIT_INFO,
-                    ViewScoreDropdownMenuItem.DELETE,
-                    ViewScoreDropdownMenuItem.CONVERT,
+                    ViewScoresDropdownMenuItem.SCORE_PAD,
+                    ViewScoresDropdownMenuItem.CONTINUE,
+                    ViewScoresDropdownMenuItem.EMAIL_SCORE,
+                    ViewScoresDropdownMenuItem.EDIT_INFO,
+                    ViewScoresDropdownMenuItem.DELETE,
+                    ViewScoresDropdownMenuItem.CONVERT,
             )
     )
 
@@ -68,7 +67,7 @@ class ViewScoresComposeFragment : Fragment(), ActionBarHelp {
                                     return@ComposeContent
                                 }
 
-                                ViewScoreDropdownMenuItem.SCORE_PAD.onClick(
+                                ViewScoresDropdownMenuItem.SCORE_PAD.onClick(
                                         viewScoresViewModel.state.data[it], viewScoresViewModel, requireView()
                                 )
                             },
@@ -142,59 +141,4 @@ class ViewScoresComposeFragment : Fragment(), ActionBarHelp {
     companion object {
         const val LOG_TAG = "ViewScores"
     }
-}
-
-sealed class ViewScoreEffect {
-
-}
-
-enum class ViewScoreDropdownMenuItem(
-        @StringRes val title: Int,
-        /**
-         * Returns true if the action was successfully handled
-         */
-        val onClick: (ViewScoresEntry, ViewScoresViewModel, View) -> Boolean,
-        /**
-         * Only display this dropdown menu item if this returns true
-         */
-        val showCondition: ((ViewScoresEntry) -> Boolean)? = null,
-) {
-    SCORE_PAD(R.string.view_scores_menu__score_pad, { entry, _, view ->
-        val args = Bundle().apply { putInt("archerRoundId", entry.id) }
-        view.findNavController().navigate(R.id.scorePadFragment, args)
-        true
-    }),
-    CONTINUE(R.string.view_scores_menu__continue, { entry, _, view ->
-        if (entry.isRoundComplete()) {
-            CustomLogger.customLogger.w(ViewScoresComposeFragment.LOG_TAG, "Tried to continue completed round")
-            ToastSpamPrevention.displayToast(
-                    view.context,
-                    view.resources.getString(R.string.err_view_score__round_already_complete)
-            )
-            false
-        }
-        else {
-            val args = Bundle().apply { putInt("archerRoundId", entry.id) }
-            view.findNavController().navigate(R.id.inputEndFragment, args)
-            true
-        }
-    }, { entry -> !entry.isRoundComplete() }),
-    EMAIL_SCORE(R.string.view_scores_menu__email_score, { entry, _, view ->
-        val args = Bundle().apply { putInt("archerRoundId", entry.id) }
-        view.findNavController().navigate(R.id.emailFragment, args)
-        true
-    }),
-    EDIT_INFO(R.string.view_scores_menu__edit, { entry, _, view ->
-        val args = Bundle().apply { putInt("archerRoundId", entry.id) }
-        view.findNavController().navigate(R.id.newScoreFragment, args)
-        true
-    }),
-    DELETE(R.string.view_scores_menu__delete, { entry, viewModel, _ ->
-        viewModel.deleteRound(entry.id)
-        true
-    }),
-    CONVERT(R.string.view_scores_menu__convert, { _, viewModel, _ ->
-        viewModel.handle(ViewScoresIntent.OpenConvertMenu)
-        false
-    }),
 }

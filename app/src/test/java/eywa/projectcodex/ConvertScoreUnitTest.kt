@@ -3,7 +3,7 @@ package eywa.projectcodex
 import eywa.projectcodex.common.TestData
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.components.viewScores.ConvertScore
+import eywa.projectcodex.components.viewScores.utils.ConvertScore
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import kotlinx.coroutines.Job
 import org.junit.Assert

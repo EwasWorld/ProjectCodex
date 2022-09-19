@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.utils.ConvertScore
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -22,32 +23,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class ViewScoresState(
-        val isInMultiSelectMode: Boolean = false,
-        val openContextMenuEntryIndex: Int? = null,
-        val convertDialogSelectedIndex: Int? = null,
-        val data: List<ViewScoresEntry> = listOf(),
-)
-
-sealed class ViewScoresIntent {
-    data class OpenContextMenu(val entryIndex: Int) : ViewScoresIntent()
-    object CloseContextMenu : ViewScoresIntent()
-
-    data class SetMultiSelectMode(val isInMultiSelectMode: Boolean) : ViewScoresIntent()
-
-    data class ToggleEntrySelected(val entryIndex: Int) : ViewScoresIntent()
-
-    /**
-     * @param forceIsSelectedTo If non-null, forces all item's isSelected to be this value.
-     *      Otherwise, if all items are selected, deselect all items.
-     *      Otherwise, select all items
-     */
-    data class SelectAllOrNone(val forceIsSelectedTo: Boolean? = null) : ViewScoresIntent()
-    object OpenConvertMenu : ViewScoresIntent()
-    object CloseConvertAndContextMenu : ViewScoresIntent()
-    data class UpdateConvertMenuSelectedIndex(val selectedIndex: Int) : ViewScoresIntent()
-}
 
 /**
  * TODO_CURRENT Turn functions into intents
