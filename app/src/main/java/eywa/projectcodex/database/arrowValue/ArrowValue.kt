@@ -7,8 +7,8 @@ import eywa.projectcodex.common.archeryObjects.getArrowValueString
 data class ArrowValue(
         val archerRoundId: Int,
         val arrowNumber: Int,
-        var score: Int,
-        var isX: Boolean
+        val score: Int,
+        val isX: Boolean
 ) {
     override fun toString(): String {
         return "$archerRoundId-$arrowNumber: " + getArrowValueString(score, isX)

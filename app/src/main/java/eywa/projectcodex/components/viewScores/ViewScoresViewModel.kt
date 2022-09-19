@@ -4,10 +4,11 @@ import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
-import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -18,6 +19,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,6 +35,8 @@ sealed class ViewScoresIntent {
     object CloseContextMenu : ViewScoresIntent()
 
     data class SetMultiSelectMode(val isInMultiSelectMode: Boolean) : ViewScoresIntent()
+
+    data class ToggleEntrySelected(val entryIndex: Int) : ViewScoresIntent()
 
     /**
      * @param forceIsSelectedTo If non-null, forces all item's isSelected to be this value.
@@ -65,18 +69,49 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val roundRepo: RoundRepo = RoundRepo(db)
 
-    private val allArrows = arrowValuesRepo.allArrowValues
-    private val allArcherRounds = archerRoundsRepo.allArcherRoundsWithRoundInfoAndName
-    private val allArrowCounts = roundRepo.roundArrowCounts
-    private val allDistances = roundRepo.roundDistances
-    private val viewScoresData = ViewScoresLiveData(allArrows, allArcherRounds, allArrowCounts, allDistances)
+    data class ViewScoresFlowData(
+            val archerRounds: List<ArcherRoundWithRoundInfoAndName>? = null,
+            val arrowValues: List<ArrowValue>? = null,
+            val arrowCounts: List<RoundArrowCount>? = null,
+            val distances: List<RoundDistance>? = null,
+    )
 
     init {
         viewModelScope.launch {
-            viewScoresData.asFlow().collect {
-                // TODO_CURRENT Still having issues with update after convert - by reference change isn't picked up
-                state = state.copy(data = it.getData())
-            }
+            archerRoundsRepo.allArcherRoundsWithRoundInfoAndName.asFlow()
+                    .combine(arrowValuesRepo.allArrowValues.asFlow()) { archerRoundInfo, arrowValues ->
+                        ViewScoresFlowData(archerRoundInfo, arrowValues)
+                    }
+                    .combine(roundRepo.roundArrowCounts.asFlow()) { flowData, arrowCounts ->
+                        flowData.copy(arrowCounts = arrowCounts)
+                    }
+                    .combine(roundRepo.roundDistances.asFlow()) { flowData, distances ->
+                        flowData.copy(distances = distances)
+                    }
+                    .collect { flowData ->
+                        val arrowValuesMap = flowData.arrowValues?.groupBy { arrow -> arrow.archerRoundId }
+                        val arrowCountsMap = flowData.arrowCounts?.groupBy { arrowCount -> arrowCount.roundId }
+                        val distancesMap = flowData.distances
+                                ?.groupBy { distance -> distance.roundId }
+                                ?.mapValues { entry ->
+                                    entry.value.groupBy { distance -> distance.subTypeId }
+                                }
+                        val previousSelectedEntries = state.data.associate { it.id to it.isSelected }
+
+                        state = state.copy(
+                                data = flowData.archerRounds?.map { roundInfo ->
+                                    val roundId = roundInfo.round?.roundId
+                                    val subtypeId = roundInfo.archerRound.roundSubTypeId ?: 1
+                                    ViewScoresEntry(
+                                            initialInfo = roundInfo,
+                                            arrows = arrowValuesMap?.get(roundInfo.id),
+                                            arrowCounts = roundId?.let { arrowCountsMap?.get(roundId) },
+                                            distances = roundId?.let { distancesMap?.get(roundId)?.get(subtypeId) },
+                                            isSelected = previousSelectedEntries[roundInfo.id] ?: false,
+                                    )
+                                }?.sortedByDescending { it.archerRound.dateShot } ?: listOf()
+                        )
+                    }
         }
     }
 
@@ -89,15 +124,21 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
                 state = state.copy(openContextMenuEntryIndex = action.entryIndex)
             }
             is ViewScoresIntent.SetMultiSelectMode -> {
+                var newState = state.copy(isInMultiSelectMode = action.isInMultiSelectMode)
                 if (!action.isInMultiSelectMode) {
-                    // TODO_CURRENT Deselect all items
+                    newState = newState.copy(data = state.data.map { it.copy(isSelected = false) })
                 }
-                state = state.copy(isInMultiSelectMode = action.isInMultiSelectMode)
+                state = newState
+            }
+            is ViewScoresIntent.ToggleEntrySelected -> {
+                val entry = state.data[action.entryIndex]
+                val newList = state.data.toMutableList()
+                newList[action.entryIndex] = entry.copy(isSelected = !entry.isSelected)
+                state = state.copy(data = newList)
             }
             is ViewScoresIntent.SelectAllOrNone -> {
-                val selectAll = action.forceIsSelectedTo
-                        ?: !state.data.all { it.isSelected }
-                // TODO_CURRENT Select/deselect all
+                val selectAll = action.forceIsSelectedTo ?: !state.data.all { it.isSelected }
+                state = state.copy(data = state.data.map { it.copy(isSelected = selectAll) })
             }
             ViewScoresIntent.CloseConvertAndContextMenu -> {
                 state = state.copy(
@@ -124,95 +165,5 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
 
     override fun updateArrowValues(vararg arrows: ArrowValue) = viewModelScope.launch {
         arrowValuesRepo.update(*arrows)
-    }
-
-    /**
-     * Sets [isSelected] for all items
-     * @return the IDs of the [ViewScoresEntry] that changed
-     */
-    fun setAllSelected(isSelected: Boolean): Set<Int> {
-        return viewScoresData.setAllSelected(isSelected)
-    }
-
-    /**
-     * Creates [LiveData] for [ViewScoreData] out of the inputted LiveData
-     */
-    class ViewScoresLiveData(
-            private val arrowsLiveData: LiveData<List<ArrowValue>>,
-            private val archerRoundsLiveData: LiveData<List<ArcherRoundWithRoundInfoAndName>>,
-            private val arrowCountsLiveData: LiveData<List<RoundArrowCount>>,
-            private val distancesLiveData: LiveData<List<RoundDistance>>
-    ) : MediatorLiveData<ViewScoreData>() {
-        /**
-         * True when all sources have been added to the live data
-         */
-        private var initialised = false
-        private var arrows: List<ArrowValue>? = null
-        private var arrowCounts: List<RoundArrowCount>? = null
-        private var distances: List<RoundDistance>? = null
-
-        init {
-            value = ViewScoreData.getViewScoreData()
-        }
-
-        /**
-         * Add sources here because [addSource] doesn't work when the [MediatorLiveData] doesn't have any observers.
-         */
-        override fun onActive() {
-            super.onActive()
-            if (initialised) return
-            initialised = true
-
-            /*
-             * value = value lines because otherwise this.onChanged isn't called and the view doesn't update properly
-             */
-            super.addSource(arrowsLiveData) {
-                arrows = it
-                if (value?.updateArrows(it) == true) {
-                    value = value
-                }
-            }
-            super.addSource(archerRoundsLiveData) { archerRound ->
-                if (value?.updateArcherRounds(archerRound) == true) {
-                    /*
-                     * Arrows, arrowCounts, and distances are only saved in the ViewScoreEntrys after archerRounds have
-                     *   been set. This means whenever we update archerRounds we much make sure that these are also set
-                     */
-                    arrows?.let { value?.updateArrows(it) }
-                    arrowCounts?.let { value?.updateArrowCounts(it) }
-                    distances?.let { value?.updateDistances(it) }
-
-                    value = value
-                }
-            }
-            super.addSource(arrowCountsLiveData) {
-                arrowCounts = it
-                if (value?.updateArrowCounts(it) == true) {
-                    value = value
-                }
-            }
-            super.addSource(distancesLiveData) {
-                distances = it
-                if (value?.updateDistances(it) == true) {
-                    value = value
-                }
-            }
-        }
-
-        /**
-         * Sets [isSelected] for all items
-         * @return the IDs of the [ViewScoresEntry] that changed
-         */
-        fun setAllSelected(isSelected: Boolean): Set<Int> {
-            return value?.setAllSelected(isSelected) ?: setOf()
-        }
-
-        override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
-            throw UnsupportedOperationException()
-        }
-
-        override fun <S : Any?> removeSource(toRemote: LiveData<S>) {
-            throw UnsupportedOperationException()
-        }
     }
 }

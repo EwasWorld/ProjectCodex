@@ -1,11 +1,9 @@
 package eywa.projectcodex.components.viewScores
 
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
@@ -20,7 +18,7 @@ import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.ViewScoreScreen
 
-// TODO_CURRENT Remove 'compose' from name and delete old frag
+// TODO_CURRENT Remove 'compose' from name
 class ViewScoresComposeFragment : Fragment(), ActionBarHelp {
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
     private var viewScoreScreen = ViewScoreScreen()
@@ -36,45 +34,48 @@ class ViewScoresComposeFragment : Fragment(), ActionBarHelp {
             )
     )
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
                 CodexTheme {
-                    val state = viewScoresViewModel.state
                     val generalError = stringResource(id = R.string.err__try_again_error)
 
                     viewScoreScreen.ComposeContent(
-                            entries = state.data,
-                            convertDialogSelectedIndex = state.convertDialogSelectedIndex,
-                            contextMenuOpenForIndex = state.openContextMenuEntryIndex,
+                            entries = viewScoresViewModel.state.data,
+                            convertDialogSelectedIndex = viewScoresViewModel.state.convertDialogSelectedIndex,
+                            contextMenuOpenForIndex = viewScoresViewModel.state.openContextMenuEntryIndex,
                             dropdownMenuItems = dropDownMenuItems,
                             dropdownMenuItemClicked = {
-                                val entryIndex = state.openContextMenuEntryIndex
-                                if (entryIndex !in state.data.indices) {
+                                val entryIndex = viewScoresViewModel.state.openContextMenuEntryIndex
+                                if (entryIndex !in viewScoresViewModel.state.data.indices) {
                                     ToastSpamPrevention.displayToast(requireContext(), generalError)
                                     return@ComposeContent
                                 }
-                                val entry = state.data[entryIndex!!]
+                                val entry = viewScoresViewModel.state.data[entryIndex!!]
                                 if (it.onClick(entry, viewScoresViewModel, requireView())) {
                                     viewScoresViewModel.handle(ViewScoresIntent.CloseContextMenu)
                                 }
                             },
                             entryClickedListener = {
-                                if (it !in state.data.indices) {
+                                if (it !in viewScoresViewModel.state.data.indices) {
                                     ToastSpamPrevention.displayToast(requireContext(), generalError)
                                     return@ComposeContent
                                 }
 
-                                val args = Bundle().apply {
-                                    putInt("archerRoundId", state.data[it].id)
+                                // TODO_CURRENT make sure this is read properly accessibility
+                                if (viewScoresViewModel.state.isInMultiSelectMode) {
+                                    viewScoresViewModel.handle(ViewScoresIntent.ToggleEntrySelected(it))
+                                    return@ComposeContent
                                 }
-                                requireView().findNavController().navigate(R.id.scorePadFragment, args)
+
+                                ViewScoreDropdownMenuItem.SCORE_PAD.onClick(
+                                        viewScoresViewModel.state.data[it], viewScoresViewModel, requireView()
+                                )
                             },
                             entryLongClickedListener = {
                                 viewScoresViewModel.handle(ViewScoresIntent.OpenContextMenu(it))
                             },
-                            isInMultiSelectMode = state.isInMultiSelectMode,
+                            isInMultiSelectMode = viewScoresViewModel.state.isInMultiSelectMode,
                             startMultiSelectListener = {
                                 viewScoresViewModel.handle(ViewScoresIntent.SetMultiSelectMode(true))
                             },
@@ -103,14 +104,19 @@ class ViewScoresComposeFragment : Fragment(), ActionBarHelp {
                                     )
                                 }
 
-                                val arrows = state.data[state.openContextMenuEntryIndex!!].arrows!!
+                                val arrows =
+                                        viewScoresViewModel.state.data[viewScoresViewModel.state.openContextMenuEntryIndex!!].arrows
                                 viewScoresViewModel.handle(ViewScoresIntent.CloseConvertAndContextMenu)
-
-                                toast(R.string.view_score__convert_score_started_message)
                                 val onCompletion = {
                                     toast(R.string.view_score__convert_score_completed_message)
                                 }
 
+                                toast(R.string.view_score__convert_score_started_message)
+
+                                if (arrows == null) {
+                                    onCompletion()
+                                    return@ComposeContent
+                                }
                                 selectedConversionType.convertScore(arrows, viewScoresViewModel)
                                         ?.invokeOnCompletion { onCompletion() }
                                         ?: onCompletion()
@@ -147,7 +153,11 @@ enum class ViewScoreDropdownMenuItem(
         /**
          * Returns true if the action was successfully handled
          */
-        val onClick: (ViewScoresEntry, ViewScoresViewModel, View) -> Boolean
+        val onClick: (ViewScoresEntry, ViewScoresViewModel, View) -> Boolean,
+        /**
+         * Only display this dropdown menu item if this returns true
+         */
+        val showCondition: ((ViewScoresEntry) -> Boolean)? = null,
 ) {
     SCORE_PAD(R.string.view_scores_menu__score_pad, { entry, _, view ->
         val args = Bundle().apply { putInt("archerRoundId", entry.id) }
@@ -168,7 +178,7 @@ enum class ViewScoreDropdownMenuItem(
             view.findNavController().navigate(R.id.inputEndFragment, args)
             true
         }
-    }),
+    }, { entry -> !entry.isRoundComplete() }),
     EMAIL_SCORE(R.string.view_scores_menu__email_score, { entry, _, view ->
         val args = Bundle().apply { putInt("archerRoundId", entry.id) }
         view.findNavController().navigate(R.id.emailFragment, args)

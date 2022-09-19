@@ -235,7 +235,7 @@ private fun viewScoreRowAccessibilityString(entry: ViewScoresEntry): String {
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(
         showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY
+        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
 )
 @Composable
 fun Preview() {

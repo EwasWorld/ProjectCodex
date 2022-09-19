@@ -18,7 +18,6 @@ import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
 import eywa.projectcodex.common.*
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoreData
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.ScoresRoomDatabase

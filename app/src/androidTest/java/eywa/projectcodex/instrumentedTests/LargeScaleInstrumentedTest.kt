@@ -25,7 +25,6 @@ import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.newScore.NewScoreFragment
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound

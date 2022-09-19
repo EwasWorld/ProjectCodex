@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 object CodexColors {
     val COLOR_PRIMARY = Color(Raw.COLOR_PRIMARY)
     val COLOR_PRIMARY_LIGHT = Color(0xFFB3EAFF)
-    val COLOR_LIGHT_ACCENT = Color(0xFFCCF1FF)
+    val COLOR_LIGHT_ACCENT = Color(Raw.COLOR_LIGHT_ACCENT)
     val COLOR_EXTRA_LIGHT_ACCENT = Color(0xFFE2F7FF)
     val COLOR_ACCENT = Color(0xFF5FEFB3)
     val COLOR_PRIMARY_DARK = Color(0xFF14248F)
@@ -35,5 +35,6 @@ object CodexColors {
 
     object Raw {
         const val COLOR_PRIMARY = 0xFF69BEFF
+        const val COLOR_LIGHT_ACCENT = 0xFFCCF1FF
     }
 }

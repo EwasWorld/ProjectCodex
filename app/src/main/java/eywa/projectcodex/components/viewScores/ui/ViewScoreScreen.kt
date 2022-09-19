@@ -177,11 +177,13 @@ class ViewScoreScreen : ActionBarHelp {
                                 onDismissRequest = closeDropdownMenuListener
                         ) {
                             dropdownMenuItems[entry::class]?.forEach { item ->
-                                DropdownMenuItem(onClick = { dropdownMenuItemClicked(item) }) {
-                                    Text(
-                                            text = stringResource(id = item.title),
-                                            style = CodexTypography.NORMAL
-                                    )
+                                if (item.showCondition == null || item.showCondition.invoke(entry)) {
+                                    DropdownMenuItem(onClick = { dropdownMenuItemClicked(item) }) {
+                                        Text(
+                                                text = stringResource(id = item.title),
+                                                style = CodexTypography.NORMAL
+                                        )
+                                    }
                                 }
                             }
                         }

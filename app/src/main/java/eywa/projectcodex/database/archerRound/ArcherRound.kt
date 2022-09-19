@@ -15,21 +15,31 @@ const val ARCHER_ROUNDS_TABLE_NAME = "archer_rounds"
 data class ArcherRound(
         @PrimaryKey(autoGenerate = true)
         val archerRoundId: Int,
-        var dateShot: Date,
+        val dateShot: Date,
         val archerId: Int,
         val countsTowardsHandicap: Boolean = true,
         val bowId: Int? = null,
         val roundId: Int? = null,
         val roundSubTypeId: Int? = null,
         val goalScore: Int? = null,
-        var shootStatus: String? = null
+        val shootStatus: String? = null
 )
 
 data class ArcherRoundWithRoundInfoAndName(
-        @Embedded(prefix = "ar_") var archerRound: ArcherRound,
-        @Embedded var round: Round? = null,
-        var roundSubTypeName: String? = null
+        @Embedded(prefix = "ar_") val archerRound: ArcherRound,
+        @Embedded val round: Round? = null,
+        val roundSubTypeName: String? = null
 ) {
+    init {
+        require(archerRound.roundId == round?.roundId) { "Mismatched round id" }
+        require(
+                roundSubTypeName == null && archerRound.roundSubTypeId == null
+                        || roundSubTypeName != null && archerRound.roundSubTypeId != null
+        ) { "Mismatched subtype nullness" }
+    }
+
     val displayName: String?
         get() = roundSubTypeName ?: round?.displayName
+    val id: Int
+        get() = archerRound.archerRoundId
 }

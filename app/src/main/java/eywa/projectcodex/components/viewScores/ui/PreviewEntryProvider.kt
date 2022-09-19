@@ -43,30 +43,26 @@ object PreviewEntryProvider {
 
     fun generateEntries(size: Int) = List(size) { index ->
         val displayName = roundNames[index % roundNames.size]
+        val hsg = desiredHsg[index % desiredHsg.size]
+        val hasRoundInfo = index % 5 != 1 && displayName != null
         ViewScoresEntry(
-                ArcherRoundWithRoundInfoAndName(
+                initialInfo = ArcherRoundWithRoundInfoAndName(
                         archerRound = ArcherRound(
                                 archerRoundId = index + 1,
                                 dateShot = dates[index % dates.size],
                                 archerId = 1,
+                                roundId = displayName?.let { 1 }
                         ),
                         round = displayName?.let {
                             Round(1, "", displayName, true, true, listOf())
                         },
                         roundSubTypeName = null
-                )
-        ).apply {
-            desiredHsg[index % desiredHsg.size]?.let { hsg ->
-                updateArrows(generateArrows(index + 1, hsg))
-                if (index % 5 != 1 && displayName != null) {
-                    updateArrowCounts(listOf(RoundArrowCount(1, 1, 1.0, hsg[0] + 1)))
-                    updateDistances(listOf(RoundDistance(1, 1, 1, 20)))
-                }
-            }
-            if (index % 3 != 1) {
-                isSelected = true
-            }
-        }
+                ),
+                arrows = hsg?.let { generateArrows(index + 1, hsg) },
+                arrowCounts = if (!hasRoundInfo) null else hsg?.let { listOf(RoundArrowCount(1, 1, 1.0, hsg[0] + 1)) },
+                distances = if (!hasRoundInfo) null else listOf(RoundDistance(1, 1, 1, 20)),
+                isSelected = index % 3 != 1,
+        )
     }
 
     private fun generateArrows(archerRoundId: Int, hsg: List<Int>) =
