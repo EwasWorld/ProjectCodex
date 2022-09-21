@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.utils.ConvertScore
+import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -29,7 +29,7 @@ import javax.inject.Inject
  * @see ArcherRoundScoreViewModel
  */
 class ViewScoresViewModel(application: Application) : AndroidViewModel(application),
-        ConvertScore.ConvertScoreViewModel {
+        ConvertScoreType.ConvertScoreViewModel {
     @Inject
     lateinit var db: ScoresRoomDatabase
 
@@ -92,12 +92,6 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
 
     fun handle(action: ViewScoresIntent) {
         when (action) {
-            ViewScoresIntent.CloseContextMenu -> {
-                state = state.copy(openContextMenuEntryIndex = null)
-            }
-            is ViewScoresIntent.OpenContextMenu -> {
-                state = state.copy(openContextMenuEntryIndex = action.entryIndex)
-            }
             is ViewScoresIntent.SetMultiSelectMode -> {
                 var newState = state.copy(isInMultiSelectMode = action.isInMultiSelectMode)
                 if (!action.isInMultiSelectMode) {
@@ -114,18 +108,6 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
             is ViewScoresIntent.SelectAllOrNone -> {
                 val selectAll = action.forceIsSelectedTo ?: !state.data.all { it.isSelected }
                 state = state.copy(data = state.data.map { it.copy(isSelected = selectAll) })
-            }
-            ViewScoresIntent.CloseConvertAndContextMenu -> {
-                state = state.copy(
-                        convertDialogSelectedIndex = null,
-                        openContextMenuEntryIndex = null,
-                )
-            }
-            is ViewScoresIntent.OpenConvertMenu -> {
-                state = state.copy(convertDialogSelectedIndex = 0)
-            }
-            is ViewScoresIntent.UpdateConvertMenuSelectedIndex -> {
-                state = state.copy(convertDialogSelectedIndex = action.selectedIndex)
             }
         }
     }

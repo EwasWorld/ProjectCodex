@@ -11,25 +11,24 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
-import eywa.projectcodex.common.sharedUi.RadioButtonDialogContent
-import eywa.projectcodex.common.sharedUi.SimpleAlertDialog
+import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.utils.ConvertScore
+import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import kotlin.reflect.KClass
 
@@ -61,59 +60,22 @@ class ViewScoreScreen : ActionBarHelp {
      */
     private var unobstructedHeight: Float = 0f
 
-    // TODO_CURRENT Make the list of params smaller?
     @Composable
     fun ComposeContent(
             entries: List<ViewScoresEntry>,
-            convertDialogSelectedIndex: Int?,
-            contextMenuOpenForIndex: Int?,
+            dropdownMenuState: ViewScoresDropdownMenuState = remember { ViewScoresDropdownMenuState() },
             dropdownMenuItems: Map<KClass<ViewScoresEntry>, List<ViewScoresDropdownMenuItem>>,
-            dropdownMenuItemClicked: (ViewScoresDropdownMenuItem) -> Unit,
-            entryClickedListener: (entryIndex: Int) -> Unit,
-            entryLongClickedListener: (entryIndex: Int) -> Unit,
             isInMultiSelectMode: Boolean,
-            startMultiSelectListener: () -> Unit,
-            selectAllOrNoneClickedListener: () -> Unit,
-            emailSelectedClickedListener: () -> Unit,
-            cancelMultiSelectListener: () -> Unit,
-            closeDropdownMenuListener: () -> Unit,
-            noRoundsDialogOkListener: () -> Unit,
-            convertDialogDismissedListener: () -> Unit,
-            convertDialogActionListener: (ConvertScore) -> Unit,
-            convertDialogSelectionChangedListener: (Int) -> Unit,
+            listener: ViewScoreScreenListener,
     ) {
-        if (entries.isEmpty()) {
-            SimpleAlertDialog(
-                    isOpen = true,
-                    title = R.string.err_table_view__no_data,
-                    message = R.string.err_view_score__no_rounds,
-                    positiveButtonText = R.string.err_view_score__return_to_main_menu,
-                    onDialogActionClicked = { noRoundsDialogOkListener() },
-            )
-        }
-        else if (convertDialogSelectedIndex != null) {
-            Dialog(
-                    onDismissRequest = convertDialogDismissedListener
-            ) {
-                RadioButtonDialogContent(
-                        title = R.string.view_score__convert_score_dialog_title,
-                        message = R.string.view_score__convert_score_dialog_body,
-                        radioButtonText = ConvertScore.values().map { it.title },
-                        positiveButtonText = R.string.general_ok,
-                        negativeButtonText = R.string.general_cancel,
-                        onDialogActionClicked = { action, selectedIndex ->
-                            if (action) {
-                                convertDialogActionListener(ConvertScore.values()[selectedIndex])
-                            }
-                            else {
-                                convertDialogDismissedListener()
-                            }
-                        },
-                        currentlySelectedIndex = convertDialogSelectedIndex,
-                        selectionChangedListener = convertDialogSelectionChangedListener,
-                )
-            }
-        }
+        listener.helpShowcaseInfo = helpInfo
+        listener.contextMenuState = dropdownMenuState
+
+        ViewScoresDialogs(
+                entries.isEmpty(),
+                dropdownMenuState.isConvertScoreOpen,
+                listener
+        )
 
         entryClasses = entries.map { it::class }
         specificEntryHelpInfo = List(entries.size) { ComposeHelpShowcaseMap() }
@@ -140,70 +102,133 @@ class ViewScoreScreen : ActionBarHelp {
                     verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 items(entries.size) { entryIndex ->
-                    val entry = entries[entryIndex]
-                    val specificHelpInfo = specificEntryHelpInfo[entryIndex]
-                    val genericHelpInfo = genericEntryHelpInfo[entryIndex]
+                    ViewScoresListItem(
+                            entry = entries[entryIndex],
+                            entryIndex = entryIndex,
+                            dropdownMenuItems = dropdownMenuItems,
+                            dropdownMenuState = dropdownMenuState,
+                            isInMultiSelectMode = isInMultiSelectMode,
+                            listener = listener,
+                    )
+                }
+            }
 
-                    Box {
-                        Surface(
-                                border = BorderStroke(SELECTED_ITEM_BORDER_STROKE, CodexColors.COLOR_PRIMARY_DARK)
-                                        .takeIf { isInMultiSelectMode && entry.isSelected },
-                                color = CodexColors.COLOR_LIGHT_ACCENT,
-                                modifier = Modifier
-                                        .fillMaxWidth()
-                                        .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
-                        ) {
-                            ViewScoresEntryRow(
-                                    entry = entry,
-                                    entryClickedListener = { entryClickedListener(entryIndex) },
-                                    entryLongClickedListener = { entryLongClickedListener(entryIndex) },
-                                    dropdownMenuItems = dropdownMenuItems[entry::class],
-                                    addHelpInfoEntry = { specificHelpInfo.add(it) },
-                                    updateHelpInfoModifier = { title ->
-                                        Modifier.updateHelpDialogPosition(specificHelpInfo, title)
-                                    },
-                            )
-                        }
-                        DropdownMenu(
-                                expanded = entryIndex == contextMenuOpenForIndex,
-                                onDismissRequest = closeDropdownMenuListener
-                        ) {
-                            dropdownMenuItems[entry::class]?.forEach { item ->
-                                if (item.showCondition == null || item.showCondition.invoke(entry)) {
-                                    DropdownMenuItem(onClick = { dropdownMenuItemClicked(item) }) {
-                                        Text(
-                                                text = stringResource(id = item.title),
-                                                style = CodexTypography.NORMAL
-                                        )
+            UnobstructedBox {
+                ViewScoresMultiSelectBar(
+                        listener = listener,
+                        modifier = Modifier.padding(bottom = 20.dp),
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun UnobstructedBox(
+            bottomObstruction: @Composable () -> Unit
+    ) {
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+        ) {
+            BoxWithConstraints(
+                    modifier = Modifier.weight(1f)
+            ) {
+                with(LocalDensity.current) { unobstructedHeight = maxHeight.toPx() }
+            }
+
+            bottomObstruction()
+        }
+    }
+
+    @Composable
+    fun ViewScoresListItem(
+            entry: ViewScoresEntry,
+            entryIndex: Int,
+            dropdownMenuState: ViewScoresDropdownMenuState,
+            dropdownMenuItems: Map<KClass<ViewScoresEntry>, List<ViewScoresDropdownMenuItem>>,
+            isInMultiSelectMode: Boolean,
+            listener: ViewScoreScreenListener,
+    ) {
+        val specificHelpInfo = specificEntryHelpInfo[entryIndex]
+        val genericHelpInfo = genericEntryHelpInfo[entryIndex]
+
+        Box {
+            Surface(
+                    border = BorderStroke(SELECTED_ITEM_BORDER_STROKE, CodexColors.COLOR_PRIMARY_DARK)
+                            .takeIf { isInMultiSelectMode && entry.isSelected },
+                    color = CodexColors.COLOR_LIGHT_ACCENT,
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
+            ) {
+                ViewScoresEntryRow(
+                        entry = entry,
+                        dropdownMenuItems = dropdownMenuItems[entry::class],
+                        listener = listener,
+                        helpInfo = specificHelpInfo
+                )
+            }
+            DropdownMenu(
+                    expanded = dropdownMenuState.isContextMenuOpenForItem(entryIndex),
+                    onDismissRequest = { dropdownMenuState.close() }
+            ) {
+                dropdownMenuItems[entry::class]?.forEach { item ->
+                    if (item.showCondition == null || item.showCondition.invoke(entry)) {
+                        DropdownMenuItem(
+                                onClick = {
+                                    if (listener.dropdownMenuItemClicked(dropdownMenuState.lastOpenedForIndex, item)) {
+                                        dropdownMenuState.close()
                                     }
                                 }
-                            }
+                        ) {
+                            Text(
+                                    text = stringResource(id = item.title),
+                                    style = CodexTypography.NORMAL
+                            )
                         }
                     }
                 }
             }
+        }
+    }
 
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-            ) {
-                BoxWithConstraints(
-                        modifier = Modifier.weight(1f)
-                ) {
-                    with(LocalDensity.current) { unobstructedHeight = maxHeight.toPx() }
-                }
+    @Composable
+    fun ViewScoresDialogs(
+            isEmptyList: Boolean,
+            convertDialogOpen: Boolean,
+            listener: ViewScoreScreenListener,
+    ) {
+        var isAnyDialogShown = false
+        SimpleDialog(
+                isShown = isEmptyList && !isAnyDialogShown,
+                onDismissListener = { listener.noRoundsDialogDismissedListener() }
+        ) {
+            SimpleDialogContent(
+                    title = R.string.err_table_view__no_data,
+                    message = R.string.err_view_score__no_rounds,
+                    positiveButton = ButtonState(
+                            text = R.string.err_view_score__return_to_main_menu,
+                            onClick = { listener.noRoundsDialogDismissedListener() }
+                    ),
+            )
+        }
+        isAnyDialogShown = isAnyDialogShown || isEmptyList
 
-                ViewScoresMultiSelectBar(
-                        isInMultiSelectMode = isInMultiSelectMode,
-                        multiSelectClickedListener = startMultiSelectListener,
-                        selectAllOrNoneClickedListener = selectAllOrNoneClickedListener,
-                        emailSelectedClickedListener = emailSelectedClickedListener,
-                        cancelMultiSelectClickedListener = cancelMultiSelectListener,
-                        addHelpInfo = { helpInfo.add(it) },
-                        updateHelpDialogPosition = { Modifier.updateHelpDialogPosition(helpInfo, it) },
-                        modifier = Modifier.padding(bottom = 20.dp),
-                )
-            }
+        SimpleDialog(
+                isShown = convertDialogOpen && !isAnyDialogShown,
+                onDismissListener = { listener.convertScoreDialogDismissedListener() }
+        ) {
+            RadioButtonDialogContent(
+                    title = R.string.view_score__convert_score_dialog_title,
+                    message = R.string.view_score__convert_score_dialog_body,
+                    positiveButtonText = R.string.general_ok,
+                    onPositiveButtonPressed = { listener.convertDialogActionListener(it) },
+                    negativeButton = ButtonState(
+                            text = R.string.general_cancel,
+                            onClick = { listener.convertScoreDialogDismissedListener() }
+                    ),
+                    state = rememberRadioButtonDialogState(items = ConvertScoreType.values().toList()),
+            )
         }
     }
 
@@ -231,6 +256,45 @@ class ViewScoreScreen : ActionBarHelp {
         val SELECTED_ITEM_BORDER_STROKE = 2.dp
     }
 
+    abstract class ViewScoreScreenListener : MultiSelectBarListener, ViewScoresEntryListener {
+        internal lateinit var helpShowcaseInfo: ComposeHelpShowcaseMap
+        internal lateinit var contextMenuState: ViewScoresDropdownMenuState
+
+        final override fun addHelpShowcase(item: ComposeHelpShowcaseItem) {
+            helpShowcaseInfo.add(item)
+        }
+
+        final override fun updateHelpDialogPosition(helpTitle: Int, layoutCoordinates: LayoutCoordinates) {
+            helpShowcaseInfo.updateItem(helpTitle, layoutCoordinates)
+        }
+
+        override fun entryLongClicked(entryId: Int) {
+            contextMenuState.openForIndex(entryId)
+        }
+
+        /**
+         * @return true if the action was successful
+         */
+        abstract fun dropdownMenuItemClicked(entryIndex: Int?, menuItem: ViewScoresDropdownMenuItem): Boolean
+
+        /**
+         * @return true if the action was successful
+         */
+        override fun dropdownMenuItemClicked(menuItem: ViewScoresDropdownMenuItem): Boolean =
+                dropdownMenuItemClicked(contextMenuState.lastOpenedForIndex, menuItem)
+
+        abstract fun noRoundsDialogDismissedListener()
+        abstract fun convertDialogActionListener(entryIndex: Int?, convertType: ConvertScoreType)
+
+        fun convertDialogActionListener(convertType: ConvertScoreType) {
+            convertDialogActionListener(contextMenuState.lastOpenedForIndex, convertType)
+        }
+
+        fun convertScoreDialogDismissedListener() {
+            contextMenuState.isConvertScoreOpen = false
+        }
+    }
+
     /**
      * Ordinals are used for [ComposeHelpShowcaseItem.priority]
      */
@@ -238,8 +302,52 @@ class ViewScoreScreen : ActionBarHelp {
         GENERIC_ROW_ACTIONS, SPECIFIC_ROW_ACTION, MULTI_SELECT
     }
 
+    @Stable
+    interface ViewScoresDropdownMenuState {
+        var isConvertScoreOpen: Boolean
+        var isDropdownOpen: Boolean
+        var lastOpenedForIndex: Int?
+
+        fun isContextMenuOpenForItem(entryIndex: Int) = isDropdownOpen && entryIndex == lastOpenedForIndex
+
+        fun openForIndex(entryIndex: Int) {
+            isDropdownOpen = true
+            lastOpenedForIndex = entryIndex
+        }
+
+        fun close() {
+            isDropdownOpen = false
+        }
+    }
+
+    private class ViewScoresDropdownMenuStateImpl(
+            isDropdownOpen: Boolean = false,
+            isConvertScoreOpen: Boolean = false,
+            lastOpenedForIndex: Int? = null
+    ) : ViewScoresDropdownMenuState {
+        override var isDropdownOpen by mutableStateOf(isDropdownOpen)
+        override var isConvertScoreOpen by mutableStateOf(isConvertScoreOpen)
+        override var lastOpenedForIndex by mutableStateOf(lastOpenedForIndex)
+    }
+
+    private fun ViewScoresDropdownMenuState(
+            isDropdownOpen: Boolean = false,
+            isConvertScoreOpen: Boolean = false,
+            lastOpenedForIndex: Int? = null
+    ): ViewScoresDropdownMenuState =
+            ViewScoresDropdownMenuStateImpl(isDropdownOpen, isConvertScoreOpen, lastOpenedForIndex)
 
     object TestTag {
+    }
+
+    private val listenersForPreviews = object : ViewScoreScreenListener() {
+        override fun dropdownMenuItemClicked(entryIndex: Int?, menuItem: ViewScoresDropdownMenuItem): Boolean = true
+        override fun noRoundsDialogDismissedListener() {}
+        override fun convertDialogActionListener(entryIndex: Int?, convertType: ConvertScoreType) {}
+        override fun entryClicked(entryId: Int) {}
+        override fun entryLongClicked(entryId: Int) {}
+        override fun selectAllOrNoneClicked() {}
+        override fun emailClicked() {}
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -248,26 +356,13 @@ class ViewScoreScreen : ActionBarHelp {
             backgroundColor = CodexColors.Raw.COLOR_PRIMARY
     )
     @Composable
-    fun PreviewViewScoresScreen() {
+    fun ViewScoresScreen_Preview() {
         CodexTheme {
             ComposeContent(
-                    ViewScoresEntryPreviewProvider.generateEntries(20),
-                    null,
-                    null,
-                    mapOf(),
-                    {},
-                    {},
-                    {},
-                    false,
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
+                    entries = ViewScoresEntryPreviewProvider.generateEntries(20),
+                    dropdownMenuItems = mapOf(),
+                    isInMultiSelectMode = false,
+                    listener = listenersForPreviews,
             )
         }
     }
@@ -278,26 +373,13 @@ class ViewScoreScreen : ActionBarHelp {
             backgroundColor = CodexColors.Raw.COLOR_PRIMARY
     )
     @Composable
-    fun PreviewViewScoresScreen_MultiSelectMode() {
+    fun MultiSelectMode_ViewScoresScreen_Preview() {
         CodexTheme {
             ComposeContent(
-                    ViewScoresEntryPreviewProvider.generateEntries(20),
-                    null,
-                    null,
-                    mapOf(),
-                    {},
-                    {},
-                    {},
-                    true,
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
-                    {},
+                    entries = ViewScoresEntryPreviewProvider.generateEntries(20),
+                    dropdownMenuItems = mapOf(),
+                    isInMultiSelectMode = true,
+                    listener = listenersForPreviews,
             )
         }
     }
@@ -309,27 +391,41 @@ class ViewScoreScreen : ActionBarHelp {
             device = Devices.PIXEL_2
     )
     @Composable
-    fun PreviewViewScoresScreen_NoEntries() {
+    fun NoEntries_ViewScoresScreen_Preview() {
         CodexTheme {
             Box(modifier = Modifier.fillMaxSize()) {
                 ComposeContent(
-                        listOf(),
-                        null,
-                        null,
-                        mapOf(),
-                        {},
-                        {},
-                        {},
-                        false,
-                        {},
-                        {},
-                        {},
-                        {},
-                        {},
-                        {},
-                        {},
-                        {},
-                        {},
+                        entries = listOf(),
+                        dropdownMenuItems = mapOf(),
+                        isInMultiSelectMode = false,
+                        listener = listenersForPreviews,
+                )
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Preview(
+            showBackground = true,
+            backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+            device = Devices.PIXEL_2
+    )
+    @Composable
+    fun ConvertScore_ViewScoresScreen_Preview() {
+        CodexTheme {
+            Box(modifier = Modifier.fillMaxSize()) {
+                ComposeContent(
+                        entries = ViewScoresEntryPreviewProvider.generateEntries(20),
+                        dropdownMenuState = remember {
+                            ViewScoresDropdownMenuState(
+                                    isDropdownOpen = false,
+                                    isConvertScoreOpen = true,
+                                    lastOpenedForIndex = 2
+                            )
+                        },
+                        dropdownMenuItems = mapOf(),
+                        isInMultiSelectMode = false,
+                        listener = listenersForPreviews,
                 )
             }
         }

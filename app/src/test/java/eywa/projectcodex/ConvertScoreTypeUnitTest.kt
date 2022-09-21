@@ -3,7 +3,7 @@ package eywa.projectcodex
 import eywa.projectcodex.common.TestData
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.components.viewScores.utils.ConvertScore
+import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import kotlinx.coroutines.Job
 import org.junit.Assert
@@ -14,17 +14,17 @@ import org.mockito.Captor
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 
-class ConvertScoreUnitTest {
+class ConvertScoreTypeUnitTest {
     @Captor
     private lateinit var arrowValueCaptor: ArgumentCaptor<ArrowValue>
-    private lateinit var convertScoreViewModel: ConvertScore.ConvertScoreViewModel
+    private lateinit var convertScoreTypeViewModel: ConvertScoreType.ConvertScoreViewModel
     private var job: Job? = null
 
     @Before
     fun setup() {
-        convertScoreViewModel = mock(ConvertScore.ConvertScoreViewModel::class.java)
+        convertScoreTypeViewModel = mock(ConvertScoreType.ConvertScoreViewModel::class.java)
         job = mock(Job::class.java)
-        Mockito.`when`(convertScoreViewModel.updateArrowValues(TestUtils.anyMatcher())).thenReturn(job)
+        Mockito.`when`(convertScoreTypeViewModel.updateArrowValues(TestUtils.anyMatcher())).thenReturn(job)
         arrowValueCaptor = ArgumentCaptor.forClass(ArrowValue::class.java)
     }
 
@@ -33,7 +33,10 @@ class ConvertScoreUnitTest {
         // Only the X will become a 10
         val expectedArrows = listOf(TestData.ARROWS[10].toArrowValue(1, 11))
         val returnedJob =
-                ConvertScore.XS_TO_TENS.convertScore(TestData.ARROWS.toList().toArrowValues(), convertScoreViewModel)
+                ConvertScoreType.XS_TO_TENS.convertScore(
+                        TestData.ARROWS.toList().toArrowValues(),
+                        convertScoreTypeViewModel
+                )
 
         Assert.assertEquals(job, returnedJob)
         setUpArgumentCaptor(true)
@@ -51,7 +54,10 @@ class ConvertScoreUnitTest {
                 TestData.ARROWS[9].toArrowValue(1, 11), // Was X
         )
         val returnedJob =
-                ConvertScore.TO_FIVE_ZONE.convertScore(TestData.ARROWS.toList().toArrowValues(), convertScoreViewModel)
+                ConvertScoreType.TO_FIVE_ZONE.convertScore(
+                        TestData.ARROWS.toList().toArrowValues(),
+                        convertScoreTypeViewModel
+                )
 
         Assert.assertEquals(job, returnedJob)
         setUpArgumentCaptor(true)
@@ -60,8 +66,8 @@ class ConvertScoreUnitTest {
 
     @Test
     fun testConvertXsToTensNoChanges() {
-        val returnedJob = ConvertScore.XS_TO_TENS.convertScore(
-                TestData.ARROWS.dropLast(1).toList().toArrowValues(), convertScoreViewModel
+        val returnedJob = ConvertScoreType.XS_TO_TENS.convertScore(
+                TestData.ARROWS.dropLast(1).toList().toArrowValues(), convertScoreTypeViewModel
         )
         Assert.assertEquals(null, returnedJob)
         setUpArgumentCaptor(false)
@@ -69,7 +75,7 @@ class ConvertScoreUnitTest {
 
     @Test
     fun testConvertToFiveZoneScoreNoChanges() {
-        val returnedJob = ConvertScore.TO_FIVE_ZONE.convertScore(
+        val returnedJob = ConvertScoreType.TO_FIVE_ZONE.convertScore(
                 listOf(
                         TestData.ARROWS[0],
                         TestData.ARROWS[1],
@@ -78,7 +84,7 @@ class ConvertScoreUnitTest {
                         TestData.ARROWS[7],
                         TestData.ARROWS[9]
                 ).toArrowValues(),
-                convertScoreViewModel
+                convertScoreTypeViewModel
         )
         Assert.assertEquals(null, returnedJob)
         setUpArgumentCaptor(false)
@@ -92,13 +98,13 @@ class ConvertScoreUnitTest {
             this.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) }
 
     /**
-     * Verifies the number of times [ConvertScore.ConvertScoreViewModel.updateArrowValues] is called and captures all
+     * Verifies the number of times [ConvertScoreType.ConvertScoreViewModel.updateArrowValues] is called and captures all
      * parameters passed to it in [arrowValueCaptor]
-     * @param isCalled true if the [ConvertScore.ConvertScoreViewModel.updateArrowValues] should be called once
+     * @param isCalled true if the [ConvertScoreType.ConvertScoreViewModel.updateArrowValues] should be called once
      */
     private fun setUpArgumentCaptor(isCalled: Boolean) {
         val times = if (isCalled) 1 else 0
-        Mockito.verify(convertScoreViewModel, Mockito.times(times))
+        Mockito.verify(convertScoreTypeViewModel, Mockito.times(times))
                 .updateArrowValues(TestUtils.capture(arrowValueCaptor))
     }
 }

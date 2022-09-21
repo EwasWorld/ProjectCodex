@@ -7,7 +7,7 @@ import androidx.compose.ui.test.performClick
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
-import eywa.projectcodex.common.sharedUi.SimpleAlertDialogTestTag
+import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
@@ -39,6 +39,6 @@ class MainMenuRobot(private val composeTestRule: ComposeTestRule<MainActivity>) 
     }
 
     fun clickCancelOnExitDialog() {
-        composeTestRule.onNode(hasTestTag(SimpleAlertDialogTestTag.NEGATIVE_BUTTON)).performClick()
+        composeTestRule.onNode(hasTestTag(SimpleDialogTestTag.NEGATIVE_BUTTON)).performClick()
     }
 }

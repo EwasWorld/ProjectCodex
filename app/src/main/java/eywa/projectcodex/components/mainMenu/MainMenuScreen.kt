@@ -13,9 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
-import eywa.projectcodex.common.sharedUi.CodexButton
-import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
-import eywa.projectcodex.common.sharedUi.SimpleAlertDialog
+import eywa.projectcodex.common.sharedUi.*
 
 class MainMenuScreen : ActionBarHelp {
     private val helpInfo = ComposeHelpShowcaseMap().apply {
@@ -66,14 +64,21 @@ class MainMenuScreen : ActionBarHelp {
                             .testTag(TestTag.VIEW_SCORES),
             )
 
-            SimpleAlertDialog(
-                    isOpen = isExitDialogOpen,
-                    title = R.string.main_menu__exit_app_dialog_title,
-                    message = R.string.main_menu__exit_app_dialog_body,
-                    positiveButtonText = R.string.main_menu__exit_app_dialog_exit,
-                    negativeButtonText = R.string.general_cancel,
-                    onDialogActionClicked = onExitAlertClicked
-            )
+            SimpleDialog(
+                    isShown = isExitDialogOpen,
+                    onDismissListener = { onExitAlertClicked(false) }
+            ) {
+                SimpleDialogContent(
+                        title = R.string.main_menu__exit_app_dialog_title,
+                        message = R.string.main_menu__exit_app_dialog_body,
+                        positiveButton = ButtonState(R.string.main_menu__exit_app_dialog_exit) {
+                            onExitAlertClicked(
+                                    true
+                            )
+                        },
+                        negativeButton = ButtonState(R.string.general_cancel) { onExitAlertClicked(false) },
+                )
+            }
         }
     }
 

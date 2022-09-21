@@ -8,6 +8,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 fun Modifier.updateHelpDialogPosition(helpItemsMap: ComposeHelpShowcaseMap, @StringRes key: Int) =
         onGloballyPositioned { helpItemsMap.updateItem(key, it) }
 
+fun Modifier.updateHelpDialogPosition(listener: HelpShowcaseListener, @StringRes title: Int) =
+        onGloballyPositioned { listener.updateHelpDialogPosition(title, it) }
+
 class ComposeHelpShowcaseMap {
     /**
      * Map<titleStringId, ShowcaseItem>
@@ -22,4 +25,9 @@ class ComposeHelpShowcaseMap {
             helpInfoMap[key]!!.updateLayoutCoordinates(layoutCoordinates)
 
     fun getItems() = helpInfoMap.values.toList()
+}
+
+interface HelpShowcaseListener {
+    fun addHelpShowcase(item: ComposeHelpShowcaseItem)
+    fun updateHelpDialogPosition(@StringRes helpTitle: Int, layoutCoordinates: LayoutCoordinates)
 }

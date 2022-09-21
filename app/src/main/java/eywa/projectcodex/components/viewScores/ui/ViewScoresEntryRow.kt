@@ -19,6 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -28,6 +30,12 @@ import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import java.util.*
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
+
+interface ViewScoresEntryListener {
+    fun entryClicked(entryId: Int)
+    fun entryLongClicked(entryId: Int)
+    fun dropdownMenuItemClicked(menuItem: ViewScoresDropdownMenuItem): Boolean
+}
 
 /**
  * Displays a [ViewScoresEntry]
@@ -39,12 +47,10 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
         dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
-        entryClickedListener: () -> Unit,
-        entryLongClickedListener: () -> Unit,
-        addHelpInfoEntry: (ComposeHelpShowcaseItem) -> Unit,
-        updateHelpInfoModifier: Modifier.(Int) -> Modifier,
+        listener: ViewScoresEntryListener,
+        helpInfo: ComposeHelpShowcaseMap,
 ) {
-    getHelpInfoEntries().forEach { addHelpInfoEntry(it) }
+    getHelpInfoEntries().forEach { helpInfo.add(it) }
 
     Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -58,20 +64,25 @@ internal fun ViewScoresEntryRow(
                     )
                     .pointerInput(null) {
                         detectTapGestures(
-                                onTap = { entryClickedListener() },
-                                onLongPress = { entryLongClickedListener() },
+                                onTap = { listener.entryClicked(entry.id) },
+                                onLongPress = { listener.entryLongClicked(entry.id) },
                         )
                     }
-                    .customSemantics(entry, dropdownMenuItems, entryClickedListener)
+                    .customSemantics(
+                            entry = entry,
+                            dropdownMenuItems = dropdownMenuItems,
+                            onDropdownMenuItemClicked = { listener.dropdownMenuItemClicked(it) },
+                            entryClickedListener = { listener.entryClicked(entry.id) }
+                    )
     ) {
-        DisplayDateAndRoundName(entry)
-        DisplayHsg(entry, updateHelpInfoModifier)
-        DisplayHandicap(entry, updateHelpInfoModifier)
+        DateAndRoundNameColumn(entry)
+        HsgColumn(entry, helpInfo)
+        HandicapColumn(entry, helpInfo)
     }
 }
 
 @Composable
-private fun RowScope.DisplayDateAndRoundName(entry: ViewScoresEntry) {
+private fun RowScope.DateAndRoundNameColumn(entry: ViewScoresEntry) {
     Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = columnVerticalArrangement,
@@ -94,9 +105,9 @@ private fun RowScope.DisplayDateAndRoundName(entry: ViewScoresEntry) {
 
 
 @Composable
-private fun DisplayHsg(
+private fun HsgColumn(
         entry: ViewScoresEntry,
-        updateHelpInfoModifier: Modifier.(Int) -> Modifier
+        helpInfo: ComposeHelpShowcaseMap,
 ) {
     Column(
             horizontalAlignment = Alignment.End,
@@ -111,15 +122,15 @@ private fun DisplayHsg(
                 text = entry.hitsScoreGolds
                         ?: stringResource(id = R.string.view_score__hsg_placeholder),
                 style = CodexTypography.NORMAL,
-                modifier = Modifier.updateHelpInfoModifier(R.string.help_view_score__hsg_title)
+                modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__hsg_title)
         )
     }
 }
 
 @Composable
-private fun DisplayHandicap(
+private fun HandicapColumn(
         entry: ViewScoresEntry,
-        updateHelpInfoModifier: Modifier.(Int) -> Modifier
+        helpInfo: ComposeHelpShowcaseMap,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -137,7 +148,7 @@ private fun DisplayHandicap(
                     text = entry.handicap?.toString()
                             ?: stringResource(id = R.string.view_score__handicap_placeholder),
                     style = CodexTypography.NORMAL,
-                    modifier = Modifier.updateHelpInfoModifier(R.string.help_view_score__handicap_title)
+                    modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__handicap_title)
             )
             // Force width to always accommodate "00" - this will forces columns into alignment
             Text(
@@ -164,12 +175,13 @@ private fun getHelpInfoEntries() = listOf(
 private fun Modifier.customSemantics(
         entry: ViewScoresEntry,
         dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
+        onDropdownMenuItemClicked: (ViewScoresDropdownMenuItem) -> Unit,
         entryClickedListener: () -> Unit,
 ) = composed {
     val semanticsString = viewScoresRowAccessibilityString(entry)
     val semanticsOnClickLabel = stringResource(id = R.string.view_scores_menu__score_pad)
     val itemCustomActions = dropdownMenuItems?.map {
-        CustomAccessibilityAction(stringResource(id = it.title)) { it.onClick; true }
+        CustomAccessibilityAction(stringResource(id = it.title)) { onDropdownMenuItemClicked(it); true }
     } ?: listOf()
 
     clearAndSetSemantics {
@@ -182,54 +194,34 @@ private fun Modifier.customSemantics(
 @Composable
 private fun viewScoresRowAccessibilityString(entry: ViewScoresEntry): String {
     @Composable
-    fun accessibilityString(@StringRes title: Int, value: String?, @StringRes alt: Int? = null) =
+    fun accessibilityString(@StringRes title: Int, value: Int?, @StringRes alt: Int? = null) =
             value?.let { stringResource(title) + " $it" } ?: alt?.let { stringResource(it) }
 
-    val strings = mutableListOf<String?>()
-
-    val wasThisYear = Calendar.getInstance().apply {
+    val dateFormat = Calendar.getInstance().apply {
         set(
                 // y/m/d
                 get(Calendar.YEAR), 0, 1,
                 // hr/min/s
                 1, 1, 1
         )
-    }.time.before(entry.archerRound.dateShot)
-
-    strings.add(
-            (if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE)
-                    .format(entry.archerRound.dateShot)
-    )
-    strings.add(entry.displayName)
-    strings.add(
-            accessibilityString(
-                    title = R.string.view_score__score,
-                    value = entry.score?.toString(),
-                    alt = R.string.view_score__no_arrows_shot
-            )
-    )
-    strings.add(
-            accessibilityString(
-                    title = R.string.view_score__handicap_full,
-                    value = entry.handicap?.toString(),
-            )
-    )
-    if (entry.score != null) {
-        strings.add(
-                accessibilityString(
-                        title = R.string.view_score__golds,
-                        value = entry.golds?.toString(),
-                )
-        )
-        strings.add(
-                accessibilityString(
-                        title = R.string.view_score__hits,
-                        value = entry.hits?.toString(),
-                )
-        )
+    }.time.before(entry.archerRound.dateShot).let { wasThisYear ->
+        if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE
     }
 
-    return strings.filterNotNull().joinToString()
+    return listOfNotNull(
+            dateFormat.format(entry.archerRound.dateShot),
+            entry.displayName,
+            accessibilityString(
+                    title = R.string.view_score__score, value = entry.score, alt = R.string.view_score__no_arrows_shot
+            ),
+            accessibilityString(title = R.string.view_score__handicap_full, value = entry.handicap),
+            entry.golds?.let {
+                accessibilityString(title = R.string.view_score__golds, value = entry.golds)
+            },
+            entry.hits?.let {
+                accessibilityString(title = R.string.view_score__hits, value = entry.hits)
+            }
+    ).joinToString()
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -238,15 +230,17 @@ private fun viewScoresRowAccessibilityString(entry: ViewScoresEntry): String {
         backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
 )
 @Composable
-fun Preview() {
+fun ViewScoresEntryRow_Preview() {
     CodexTheme {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
                 dropdownMenuItems = listOf(),
-                entryClickedListener = {},
-                entryLongClickedListener = {},
-                addHelpInfoEntry = {},
-                updateHelpInfoModifier = { Modifier },
+                listener = object : ViewScoresEntryListener {
+                    override fun entryClicked(entryId: Int) {}
+                    override fun entryLongClicked(entryId: Int) {}
+                    override fun dropdownMenuItemClicked(menuItem: ViewScoresDropdownMenuItem): Boolean = true
+                },
+                helpInfo = ComposeHelpShowcaseMap(),
         )
     }
 }
