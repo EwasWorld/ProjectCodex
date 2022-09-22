@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.HasDisplayTitle
 import eywa.projectcodex.database.arrowValue.ArrowValue
-import kotlinx.coroutines.Job
 
 enum class ConvertScoreType(
         @StringRes override val displayTitle: Int,
@@ -28,23 +27,9 @@ enum class ConvertScoreType(
     ;
 
     /**
-     * @return the database update job if any arrows were updated, else null
+     * @return updated arrow values, if any
      */
-    fun convertScore(arrows: List<ArrowValue>, convertScoreViewModel: ConvertScoreViewModel): Job? {
-        val newArrows = mutableListOf<ArrowValue>()
-        for (arrow in arrows) {
-            val newArrow = convert(arrow)
-            if (newArrow != arrow) {
-                newArrows.add(newArrow)
-            }
-        }
-        if (newArrows.isNotEmpty()) {
-            return convertScoreViewModel.updateArrowValues(*newArrows.toTypedArray())
-        }
-        return null
-    }
-
-    interface ConvertScoreViewModel {
-        fun updateArrowValues(vararg arrows: ArrowValue): Job
+    fun convertScore(arrows: List<ArrowValue>): List<ArrowValue> = arrows.mapNotNull { arrow ->
+        convert(arrow).takeIf { it != arrow }
     }
 }

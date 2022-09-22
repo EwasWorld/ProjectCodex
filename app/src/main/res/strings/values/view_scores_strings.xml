@@ -22,6 +22,10 @@
     <string name="view_scores_menu__multi_select_cancel">Cancel multi-select mode</string>
     <string name="view_scores_menu__multi_select_email">Action all selected items</string>
 
+    <string name="view_scores__select_entry">Select</string>
+    <string name="view_scores__deselect_entry">Deselect</string>
+    <string name="view_scores__selected">Selected</string>
+
     <!-- Convert score -->
     <string name="view_scores_menu__convert">Convert</string>
     <string name="view_scores__convert_xs_to_tens">Xs to 10s</string>

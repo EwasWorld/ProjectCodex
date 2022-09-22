@@ -2,8 +2,10 @@ package eywa.projectcodex.components.viewScores.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -14,10 +16,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,6 +69,7 @@ class ViewScoreScreen : ActionBarHelp {
     fun ComposeContent(
             entries: List<ViewScoresEntry>,
             dropdownMenuState: ViewScoresDropdownMenuState = remember { ViewScoresDropdownMenuState() },
+            entrySingleClickActions: Map<KClass<ViewScoresEntry>, ViewScoresDropdownMenuItem>,
             dropdownMenuItems: Map<KClass<ViewScoresEntry>, List<ViewScoresDropdownMenuItem>>,
             isInMultiSelectMode: Boolean,
             listener: ViewScoreScreenListener,
@@ -102,10 +108,12 @@ class ViewScoreScreen : ActionBarHelp {
                     verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 items(entries.size) { entryIndex ->
+                    val entry = entries[entryIndex]
                     ViewScoresListItem(
-                            entry = entries[entryIndex],
+                            entry = entry,
                             entryIndex = entryIndex,
-                            dropdownMenuItems = dropdownMenuItems,
+                            singleClickAction = entrySingleClickActions[entry::class],
+                            dropdownMenuItems = dropdownMenuItems[entry::class],
                             dropdownMenuState = dropdownMenuState,
                             isInMultiSelectMode = isInMultiSelectMode,
                             listener = listener,
@@ -117,6 +125,7 @@ class ViewScoreScreen : ActionBarHelp {
                 ViewScoresMultiSelectBar(
                         listener = listener,
                         modifier = Modifier.padding(bottom = 20.dp),
+                        isInMultiSelectMode = isInMultiSelectMode,
                 )
             }
         }
@@ -145,12 +154,26 @@ class ViewScoreScreen : ActionBarHelp {
             entry: ViewScoresEntry,
             entryIndex: Int,
             dropdownMenuState: ViewScoresDropdownMenuState,
-            dropdownMenuItems: Map<KClass<ViewScoresEntry>, List<ViewScoresDropdownMenuItem>>,
+            singleClickAction: ViewScoresDropdownMenuItem?,
+            dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
             isInMultiSelectMode: Boolean,
             listener: ViewScoreScreenListener,
     ) {
+        val context = LocalContext.current
+        fun stringFromRes(@StringRes resId: Int) = context.resources.getString(resId)
+
         val specificHelpInfo = specificEntryHelpInfo[entryIndex]
         val genericHelpInfo = genericEntryHelpInfo[entryIndex]
+
+        val singleClickListener: () -> Unit =
+                if (isInMultiSelectMode) {
+                    { listener.toggleEntrySelected(entryIndex) }
+                }
+                else {
+                    { singleClickAction?.let { listener.dropdownMenuItemClicked(entry, singleClickAction) } }
+                }
+
+        val semanticsString = viewScoresEntryRowAccessibilityString(entry, isInMultiSelectMode)
 
         Box {
             Surface(
@@ -163,20 +186,46 @@ class ViewScoreScreen : ActionBarHelp {
             ) {
                 ViewScoresEntryRow(
                         entry = entry,
-                        dropdownMenuItems = dropdownMenuItems[entry::class],
-                        listener = listener,
-                        helpInfo = specificHelpInfo
+                        helpInfo = specificHelpInfo,
+                        modifier = Modifier
+                                .pointerInput(entryIndex, isInMultiSelectMode) {
+                                    detectTapGestures(
+                                            onTap = { singleClickListener() },
+                                            onLongPress = {
+                                                if (!dropdownMenuItems.isNullOrEmpty()) {
+                                                    dropdownMenuState.openForIndex(entryIndex)
+                                                }
+                                            },
+                                    )
+                                }
+                                .clearAndSetSemantics {
+                                    contentDescription = semanticsString
+                                    customActions = dropdownMenuItems?.map {
+                                        CustomAccessibilityAction(stringFromRes(it.title)) {
+                                            listener.dropdownMenuItemClicked(entry, it)
+                                            true
+                                        }
+                                    } ?: listOf()
+                                    onClick(
+                                            label = when {
+                                                !isInMultiSelectMode -> singleClickAction?.title
+                                                entry.isSelected -> R.string.view_scores__deselect_entry
+                                                else -> R.string.view_scores__select_entry
+                                            }?.let { stringFromRes(it) },
+                                            action = { singleClickListener(); true }
+                                    )
+                                }
                 )
             }
             DropdownMenu(
                     expanded = dropdownMenuState.isContextMenuOpenForItem(entryIndex),
                     onDismissRequest = { dropdownMenuState.close() }
             ) {
-                dropdownMenuItems[entry::class]?.forEach { item ->
+                dropdownMenuItems?.forEach { item ->
                     if (item.showCondition == null || item.showCondition.invoke(entry)) {
                         DropdownMenuItem(
                                 onClick = {
-                                    if (listener.dropdownMenuItemClicked(dropdownMenuState.lastOpenedForIndex, item)) {
+                                    if (listener.dropdownMenuItemClicked(entry, item)) {
                                         dropdownMenuState.close()
                                     }
                                 }
@@ -256,7 +305,8 @@ class ViewScoreScreen : ActionBarHelp {
         val SELECTED_ITEM_BORDER_STROKE = 2.dp
     }
 
-    abstract class ViewScoreScreenListener : MultiSelectBarListener, ViewScoresEntryListener {
+    // TODO_CURRENT Can this separate into an interface and a class?
+    abstract class ViewScoreScreenListener : MultiSelectBarListener {
         internal lateinit var helpShowcaseInfo: ComposeHelpShowcaseMap
         internal lateinit var contextMenuState: ViewScoresDropdownMenuState
 
@@ -268,25 +318,18 @@ class ViewScoreScreen : ActionBarHelp {
             helpShowcaseInfo.updateItem(helpTitle, layoutCoordinates)
         }
 
-        override fun entryLongClicked(entryId: Int) {
-            contextMenuState.openForIndex(entryId)
-        }
-
         /**
          * @return true if the action was successful
          */
-        abstract fun dropdownMenuItemClicked(entryIndex: Int?, menuItem: ViewScoresDropdownMenuItem): Boolean
+        abstract fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean
 
-        /**
-         * @return true if the action was successful
-         */
-        override fun dropdownMenuItemClicked(menuItem: ViewScoresDropdownMenuItem): Boolean =
-                dropdownMenuItemClicked(contextMenuState.lastOpenedForIndex, menuItem)
+        abstract fun toggleEntrySelected(entryIndex: Int)
 
         abstract fun noRoundsDialogDismissedListener()
         abstract fun convertDialogActionListener(entryIndex: Int?, convertType: ConvertScoreType)
 
         fun convertDialogActionListener(convertType: ConvertScoreType) {
+            contextMenuState.isConvertScoreOpen = false
             convertDialogActionListener(contextMenuState.lastOpenedForIndex, convertType)
         }
 
@@ -341,13 +384,15 @@ class ViewScoreScreen : ActionBarHelp {
     }
 
     private val listenersForPreviews = object : ViewScoreScreenListener() {
-        override fun dropdownMenuItemClicked(entryIndex: Int?, menuItem: ViewScoresDropdownMenuItem): Boolean = true
+        override fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean =
+                true
+
+        override fun toggleMultiSelectMode() {}
         override fun noRoundsDialogDismissedListener() {}
         override fun convertDialogActionListener(entryIndex: Int?, convertType: ConvertScoreType) {}
-        override fun entryClicked(entryId: Int) {}
-        override fun entryLongClicked(entryId: Int) {}
         override fun selectAllOrNoneClicked() {}
         override fun emailClicked() {}
+        override fun toggleEntrySelected(entryIndex: Int) {}
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -360,6 +405,7 @@ class ViewScoreScreen : ActionBarHelp {
         CodexTheme {
             ComposeContent(
                     entries = ViewScoresEntryPreviewProvider.generateEntries(20),
+                    entrySingleClickActions = mapOf(),
                     dropdownMenuItems = mapOf(),
                     isInMultiSelectMode = false,
                     listener = listenersForPreviews,
@@ -377,6 +423,7 @@ class ViewScoreScreen : ActionBarHelp {
         CodexTheme {
             ComposeContent(
                     entries = ViewScoresEntryPreviewProvider.generateEntries(20),
+                    entrySingleClickActions = mapOf(),
                     dropdownMenuItems = mapOf(),
                     isInMultiSelectMode = true,
                     listener = listenersForPreviews,
@@ -396,6 +443,7 @@ class ViewScoreScreen : ActionBarHelp {
             Box(modifier = Modifier.fillMaxSize()) {
                 ComposeContent(
                         entries = listOf(),
+                        entrySingleClickActions = mapOf(),
                         dropdownMenuItems = mapOf(),
                         isInMultiSelectMode = false,
                         listener = listenersForPreviews,
@@ -423,6 +471,7 @@ class ViewScoreScreen : ActionBarHelp {
                                     lastOpenedForIndex = 2
                             )
                         },
+                        entrySingleClickActions = mapOf(),
                         dropdownMenuItems = mapOf(),
                         isInMultiSelectMode = false,
                         listener = listenersForPreviews,

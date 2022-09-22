@@ -8,6 +8,7 @@ import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
+import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.ViewScoreScreen
@@ -54,7 +55,7 @@ enum class ViewScoresDropdownMenuItem(
         true
     }),
     DELETE(R.string.view_scores_menu__delete, { entry, viewModel, _, _ ->
-        viewModel.deleteRound(entry.id)
+        viewModel.handle(ViewScoresIntent.DeleteRound(entry.id))
         true
     }),
     CONVERT(R.string.view_scores_menu__convert, { _, _, _, state ->

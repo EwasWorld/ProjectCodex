@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -25,11 +24,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * TODO_CURRENT Turn functions into intents
  * @see ArcherRoundScoreViewModel
  */
-class ViewScoresViewModel(application: Application) : AndroidViewModel(application),
-        ConvertScoreType.ConvertScoreViewModel {
+class ViewScoresViewModel(application: Application) : AndroidViewModel(application) {
     @Inject
     lateinit var db: ScoresRoomDatabase
 
@@ -92,9 +89,10 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
 
     fun handle(action: ViewScoresIntent) {
         when (action) {
-            is ViewScoresIntent.SetMultiSelectMode -> {
-                var newState = state.copy(isInMultiSelectMode = action.isInMultiSelectMode)
-                if (!action.isInMultiSelectMode) {
+            is ViewScoresIntent.ToggleMultiSelectMode -> {
+                var newState = state.copy(isInMultiSelectMode = !state.isInMultiSelectMode)
+                // If currently in multiselect mode (thus toggling off), deselect all items
+                if (state.isInMultiSelectMode) {
                     newState = newState.copy(data = state.data.map { it.copy(isSelected = false) })
                 }
                 state = newState
@@ -109,18 +107,13 @@ class ViewScoresViewModel(application: Application) : AndroidViewModel(applicati
                 val selectAll = action.forceIsSelectedTo ?: !state.data.all { it.isSelected }
                 state = state.copy(data = state.data.map { it.copy(isSelected = selectAll) })
             }
+            is ViewScoresIntent.DeleteRound -> viewModelScope.launch {
+                archerRoundsRepo.deleteRound(action.archerRoundId)
+                arrowValuesRepo.deleteRoundsArrows(action.archerRoundId)
+            }
+            is ViewScoresIntent.UpdateArrowValues -> viewModelScope.launch {
+                arrowValuesRepo.update(*action.arrows.toTypedArray())
+            }
         }
-    }
-
-    /**
-     * Deletes the specified round and all its arrows
-     */
-    fun deleteRound(archerRoundId: Int) = viewModelScope.launch {
-        archerRoundsRepo.deleteRound(archerRoundId)
-        arrowValuesRepo.deleteRoundsArrows(archerRoundId)
-    }
-
-    override fun updateArrowValues(vararg arrows: ArrowValue) = viewModelScope.launch {
-        arrowValuesRepo.update(*arrows)
     }
 }

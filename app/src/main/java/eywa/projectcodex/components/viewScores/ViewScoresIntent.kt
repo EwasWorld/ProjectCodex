@@ -1,7 +1,10 @@
 package eywa.projectcodex.components.viewScores
 
+import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.arrowValue.ArrowValue
+
 sealed class ViewScoresIntent {
-    data class SetMultiSelectMode(val isInMultiSelectMode: Boolean) : ViewScoresIntent()
+    object ToggleMultiSelectMode : ViewScoresIntent()
 
     data class ToggleEntrySelected(val entryIndex: Int) : ViewScoresIntent()
 
@@ -11,4 +14,11 @@ sealed class ViewScoresIntent {
      *      Otherwise, select all items
      */
     data class SelectAllOrNone(val forceIsSelectedTo: Boolean? = null) : ViewScoresIntent()
+
+    /**
+     * Deletes the specified [ArcherRound] and all its [ArrowValue]s
+     */
+    data class DeleteRound(val archerRoundId: Int) : ViewScoresIntent()
+
+    data class UpdateArrowValues(val arrows: List<ArrowValue>) : ViewScoresIntent()
 }

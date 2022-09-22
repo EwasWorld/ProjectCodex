@@ -32,12 +32,17 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
             )
     )
 
+    private val entrySingleClickActions = mapOf(
+            ViewScoresEntry::class to ViewScoresDropdownMenuItem.SCORE_PAD,
+    )
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
                 CodexTheme {
                     viewScoreScreen.ComposeContent(
                             entries = viewScoresViewModel.state.data,
+                            entrySingleClickActions = entrySingleClickActions,
                             dropdownMenuItems = dropDownMenuItems,
                             isInMultiSelectMode = viewScoresViewModel.state.isInMultiSelectMode,
                             listener = ViewScoreScreenListenerImpl(viewScoresViewModel, requireView()) {
@@ -70,32 +75,15 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
             private val view: View,
             private val displayToast: (messageId: Int) -> Unit
     ) : ViewScoreScreen.ViewScoreScreenListener() {
-        override fun dropdownMenuItemClicked(entryIndex: Int?, menuItem: ViewScoresDropdownMenuItem): Boolean {
-            if (entryIndex !in viewScoresViewModel.state.data.indices) {
-                displayToast(R.string.err__try_again_error)
-                return false
-            }
-            val entry = viewScoresViewModel.state.data[entryIndex!!]
+        override fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean {
             return menuItem.onClick(entry, viewScoresViewModel, view, contextMenuState)
         }
 
-        // TODO_CURRENT put this elsewhere?
-        override fun entryClicked(entryId: Int) {
-            if (entryId !in viewScoresViewModel.state.data.indices) {
-                displayToast(R.string.err__try_again_error)
-                return
-            }
+        override fun toggleEntrySelected(entryIndex: Int) =
+                viewScoresViewModel.handle(ViewScoresIntent.ToggleEntrySelected(entryIndex))
 
-            // TODO_CURRENT make sure this is read properly accessibility
-            if (viewScoresViewModel.state.isInMultiSelectMode) {
-                viewScoresViewModel.handle(ViewScoresIntent.ToggleEntrySelected(entryId))
-                return
-            }
-
-            ViewScoresDropdownMenuItem.SCORE_PAD.onClick(
-                    viewScoresViewModel.state.data[entryId], viewScoresViewModel, view, contextMenuState
-            )
-        }
+        override fun toggleMultiSelectMode() =
+                viewScoresViewModel.handle(ViewScoresIntent.ToggleMultiSelectMode)
 
         override fun selectAllOrNoneClicked() = viewScoresViewModel.handle(ViewScoresIntent.SelectAllOrNone())
 
@@ -110,9 +98,10 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
                 displayToast(R.string.err__try_again_error)
                 return
             }
-            viewScoresViewModel.state.data[entryIndex].arrows?.let {
-                convertType.convertScore(it, viewScoresViewModel)
-            }
+            viewScoresViewModel.state.data[entryIndex].arrows
+                    ?.let { oldArrows -> convertType.convertScore(oldArrows) }
+                    ?.takeIf { it.isNotEmpty() }
+                    ?.let { viewScoresViewModel.handle(ViewScoresIntent.UpdateArrowValues(it)) }
         }
     }
 }

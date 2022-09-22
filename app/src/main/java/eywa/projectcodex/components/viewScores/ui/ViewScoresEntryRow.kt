@@ -3,7 +3,6 @@ package eywa.projectcodex.components.viewScores.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -11,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,48 +29,26 @@ import java.util.*
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 
-interface ViewScoresEntryListener {
-    fun entryClicked(entryId: Int)
-    fun entryLongClicked(entryId: Int)
-    fun dropdownMenuItemClicked(menuItem: ViewScoresDropdownMenuItem): Boolean
-}
-
 /**
  * Displays a [ViewScoresEntry]
- *
- * @param dropdownMenuItems required to add custom actions in the semantics
- *      (this function does not create a dropdown menu)
  */
 @Composable
 internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
-        dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
-        listener: ViewScoresEntryListener,
         helpInfo: ComposeHelpShowcaseMap,
+        modifier: Modifier = Modifier,
 ) {
     getHelpInfoEntries().forEach { helpInfo.add(it) }
 
     Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.Top,
-            modifier = Modifier
+            modifier = modifier
                     .padding(
                             start = 8.dp,
                             end = 15.dp,
                             top = 5.dp,
                             bottom = 5.dp,
-                    )
-                    .pointerInput(null) {
-                        detectTapGestures(
-                                onTap = { listener.entryClicked(entry.id) },
-                                onLongPress = { listener.entryLongClicked(entry.id) },
-                        )
-                    }
-                    .customSemantics(
-                            entry = entry,
-                            dropdownMenuItems = dropdownMenuItems,
-                            onDropdownMenuItemClicked = { listener.dropdownMenuItemClicked(it) },
-                            entryClickedListener = { listener.entryClicked(entry.id) }
                     )
     ) {
         DateAndRoundNameColumn(entry)
@@ -174,12 +150,14 @@ private fun getHelpInfoEntries() = listOf(
 
 private fun Modifier.customSemantics(
         entry: ViewScoresEntry,
+        @StringRes singleClickActionLabel: Int?,
+        singleClickAction: () -> Unit,
         dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
         onDropdownMenuItemClicked: (ViewScoresDropdownMenuItem) -> Unit,
-        entryClickedListener: () -> Unit,
+        isInMultiSelectMode: Boolean,
 ) = composed {
-    val semanticsString = viewScoresRowAccessibilityString(entry)
-    val semanticsOnClickLabel = stringResource(id = R.string.view_scores_menu__score_pad)
+    val semanticsString = viewScoresEntryRowAccessibilityString(entry, isInMultiSelectMode)
+    val semanticsOnClickLabel = singleClickActionLabel?.let { stringResource(id = singleClickActionLabel) }
     val itemCustomActions = dropdownMenuItems?.map {
         CustomAccessibilityAction(stringResource(id = it.title)) { onDropdownMenuItemClicked(it); true }
     } ?: listOf()
@@ -187,12 +165,15 @@ private fun Modifier.customSemantics(
     clearAndSetSemantics {
         contentDescription = semanticsString
         customActions = itemCustomActions
-        onClick(semanticsOnClickLabel) { entryClickedListener(); true }
+        onClick(semanticsOnClickLabel) { singleClickAction(); true }
     }
 }
 
 @Composable
-private fun viewScoresRowAccessibilityString(entry: ViewScoresEntry): String {
+fun viewScoresEntryRowAccessibilityString(
+        entry: ViewScoresEntry,
+        isInMultiSelectMode: Boolean,
+): String {
     @Composable
     fun accessibilityString(@StringRes title: Int, value: Int?, @StringRes alt: Int? = null) =
             value?.let { stringResource(title) + " $it" } ?: alt?.let { stringResource(it) }
@@ -211,6 +192,7 @@ private fun viewScoresRowAccessibilityString(entry: ViewScoresEntry): String {
     return listOfNotNull(
             dateFormat.format(entry.archerRound.dateShot),
             entry.displayName,
+            if (entry.isSelected && isInMultiSelectMode) stringResource(id = R.string.view_scores__selected) else null,
             accessibilityString(
                     title = R.string.view_score__score, value = entry.score, alt = R.string.view_score__no_arrows_shot
             ),
@@ -234,12 +216,6 @@ fun ViewScoresEntryRow_Preview() {
     CodexTheme {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
-                dropdownMenuItems = listOf(),
-                listener = object : ViewScoresEntryListener {
-                    override fun entryClicked(entryId: Int) {}
-                    override fun entryLongClicked(entryId: Int) {}
-                    override fun dropdownMenuItemClicked(menuItem: ViewScoresDropdownMenuItem): Boolean = true
-                },
                 helpInfo = ComposeHelpShowcaseMap(),
         )
     }
