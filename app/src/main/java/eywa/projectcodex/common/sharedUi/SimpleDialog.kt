@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
@@ -60,7 +59,8 @@ fun SimpleDialogContent(
 ) {
     Surface(
             shape = RoundedCornerShape(28.dp),
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth(),
+            color = CodexTheme.colors.dialogBackground
     ) {
         Column(
                 modifier = Modifier.padding(24.dp),
@@ -68,12 +68,12 @@ fun SimpleDialogContent(
         ) {
             Text(
                     text = stringResource(id = title),
-                    style = CodexTypography.DIALOG_TITLE,
+                    style = CodexTypography.DIALOG_TITLE.copy(color = CodexTheme.colors.onDialogBackground),
                     modifier = Modifier.testTag(SimpleDialogTestTag.TITLE),
             )
             Text(
                     text = stringResource(id = message),
-                    style = CodexTypography.DIALOG_TEXT,
+                    style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
             )
 
             content?.invoke()
@@ -86,14 +86,14 @@ fun SimpleDialogContent(
                 negativeButton?.let {
                     CodexButton(
                             text = stringResource(id = negativeButton.text),
-                            buttonStyle = CodexButtonDefaults.AlertDialogNegativeButton,
+                            buttonStyle = CodexButtonDefaults.DialogNegativeButton,
                             onClick = negativeButton.onClick,
                             modifier = Modifier.testTag(SimpleDialogTestTag.NEGATIVE_BUTTON),
                     )
                 }
                 CodexButton(
                         text = stringResource(id = positiveButton.text),
-                        buttonStyle = CodexButtonDefaults.AlertDialogPositiveButton,
+                        buttonStyle = CodexButtonDefaults.DialogPositiveButton,
                         onClick = positiveButton.onClick,
                         modifier = Modifier.testTag(SimpleDialogTestTag.POSITIVE_BUTTON),
                 )
@@ -122,7 +122,7 @@ fun DialogPreviewHelper(
         ) {
             Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = CodexColors.COLOR_PRIMARY,
+                    color = CodexTheme.colors.appBackground,
             ) {
                 Text(
                         text = LoremIpsum(300).values.joinToString(" ")

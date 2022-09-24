@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -90,7 +89,7 @@ class ViewScoresScreen : ActionBarHelp {
         Box(
                 modifier = Modifier
                         .fillMaxSize()
-                        .background(colorResource(id = R.color.colorPrimary))
+                        .background(CodexTheme.colors.appBackground)
         ) {
             LazyColumn(
                     state = lazyListState,

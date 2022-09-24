@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.res.stringResource
@@ -28,7 +27,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseListener
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
@@ -64,7 +62,7 @@ internal fun ViewScoresMultiSelectBar(
             Icon(
                     imageVector = imageVector,
                     contentDescription = contentDescription,
-                    tint = Color.White,
+                    tint = CodexTheme.colors.onFloatingActions,
                     modifier = Modifier
                             .scale(1.2f)
                             .updateHelpDialogPosition(listener, helpTitle)
@@ -74,7 +72,7 @@ internal fun ViewScoresMultiSelectBar(
 
     Surface(
             shape = RoundedCornerShape(CornerSize(35.dp)),
-            color = CodexColors.COLOR_PRIMARY_DARK,
+            color = CodexTheme.colors.floatingActions,
             modifier = modifier
     ) {
         if (!isInMultiSelectMode) {
@@ -94,7 +92,7 @@ internal fun ViewScoresMultiSelectBar(
                 Text(
                         text = stringResource(id = R.string.view_scores_menu__multi_select_title),
                         style = CodexTypography.NORMAL.copy(
-                                color = Color.White,
+                                color = CodexTheme.colors.onFloatingActions,
                                 fontWeight = FontWeight.Bold,
                         ),
                         modifier = Modifier.padding(start = 20.dp, end = 15.dp)

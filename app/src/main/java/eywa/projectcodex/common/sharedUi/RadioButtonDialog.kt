@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 
@@ -75,12 +75,12 @@ fun <T : HasDisplayTitle> RadioButtonDialogContent(
                         selected = index == state.selectedIndex,
                         onClick = { state.selectedIndex = index },
                         colors = RadioButtonDefaults.colors(
-                                selectedColor = CodexColors.COLOR_PRIMARY,
+                                selectedColor = CodexTheme.colors.dialogRadioButton,
                         )
                 )
                 Text(
                         text = stringResource(id = item.displayTitle),
-                        style = CodexTypography.DIALOG_TEXT,
+                        style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
                 )
             }
         }

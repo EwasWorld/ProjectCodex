@@ -82,12 +82,14 @@ private fun DateAndRoundNameColumn(entry: ViewScoresEntry, modifier: Modifier = 
     ) {
         Text(
                 text = DateTimeFormat.SHORT_DATE_TIME.format(entry.archerRound.dateShot),
-                style = CodexTypography.SMALL_DIMMED,
+                style = CodexTypography.SMALL.copy(
+                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
+                ),
         )
         Text(
                 text = entry.displayName
                         ?: stringResource(R.string.create_round__no_round),
-                style = CodexTypography.NORMAL,
+                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = 6.dp)
@@ -107,13 +109,15 @@ private fun HsgColumn(
     ) {
         Text(
                 text = stringResource(id = R.string.view_score__hsg),
-                style = CodexTypography.SMALL_DIMMED,
+                style = CodexTypography.SMALL.copy(
+                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
+                ),
         )
         @Suppress("RemoveRedundantQualifierName")
         Text(
                 text = entry.hitsScoreGolds
                         ?: stringResource(id = R.string.view_score__hsg_placeholder),
-                style = CodexTypography.NORMAL,
+                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__hsg_title)
         )
     }
@@ -130,7 +134,9 @@ private fun HandicapColumn(
     ) {
         Text(
                 text = stringResource(id = R.string.view_score__handicap),
-                style = CodexTypography.SMALL_DIMMED,
+                style = CodexTypography.SMALL.copy(
+                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
+                ),
         )
         Box(
                 contentAlignment = Alignment.Center
@@ -139,7 +145,7 @@ private fun HandicapColumn(
             Text(
                     text = entry.handicap?.toString()
                             ?: stringResource(id = R.string.view_score__handicap_placeholder),
-                    style = CodexTypography.NORMAL,
+                    style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                     modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__handicap_title)
             )
             // Force width to always accommodate "00" - this will forces columns into alignment

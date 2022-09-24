@@ -21,7 +21,7 @@ import androidx.compose.ui.semantics.onClick
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
@@ -86,9 +86,11 @@ fun ViewScoresListItem(
 
     Box {
         Surface(
-                border = BorderStroke(ViewScoresScreen.SELECTED_ITEM_BORDER_STROKE, CodexColors.COLOR_PRIMARY_DARK)
-                        .takeIf { isInMultiSelectMode && entry.isSelected },
-                color = CodexColors.COLOR_LIGHT_ACCENT,
+                border = BorderStroke(
+                        width = ViewScoresScreen.SELECTED_ITEM_BORDER_STROKE,
+                        color = CodexTheme.colors.listItemOnAppBackgroundBoarder
+                ).takeIf { isInMultiSelectMode && entry.isSelected },
+                color = CodexTheme.colors.listItemOnAppBackground,
                 modifier = Modifier
                         .fillMaxWidth()
                         .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)

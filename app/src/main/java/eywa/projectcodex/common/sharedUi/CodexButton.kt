@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import java.util.*
 
@@ -22,45 +22,58 @@ fun CodexButton(
             modifier = modifier,
             onClick = onClick,
             colors = ButtonDefaults.buttonColors(
-                    backgroundColor = buttonStyle.backgroundColor,
-                    contentColor = buttonStyle.textColor
+                    backgroundColor = buttonStyle.getBackgroundColor(),
+                    contentColor = buttonStyle.getTextColor()
             ),
             elevation = if (buttonStyle.hasElevation) ButtonDefaults.elevation() else null
     ) {
         Text(
                 text = text.uppercase(Locale.getDefault()),
-                style = buttonStyle.textStyle.copy(color = buttonStyle.textColor)
+                style = buttonStyle.textStyle.copy(color = buttonStyle.getTextColor())
         )
     }
 }
 
 abstract class CodexButtonStyle {
-    abstract val backgroundColor: Color
-    abstract val textColor: Color
     open val hasElevation: Boolean = true
     open val textStyle: TextStyle = TextStyle.Default
+
+    @Composable
+    abstract fun getBackgroundColor(): Color
+
+    @Composable
+    abstract fun getTextColor(): Color
 }
 
 abstract class ColouredButton : CodexButtonStyle()
 
 abstract class TextButton : CodexButtonStyle() {
-    final override val backgroundColor: Color = Color.Transparent
     final override val hasElevation = false
+
+    @Composable
+    override fun getBackgroundColor() = Color.Transparent
 }
 
 sealed class CodexButtonDefaults : CodexButtonStyle() {
-    object ButtonOnPrimary : ColouredButton() {
-        override val backgroundColor: Color = Color.LightGray
-        override val textColor: Color = Color.Black
+    object ButtonOnAppBackground : ColouredButton() {
+        @Composable
+        override fun getBackgroundColor() = CodexTheme.colors.filledButton
+
+        @Composable
+        override fun getTextColor() = CodexTheme.colors.onFilledButton
     }
 
-    object AlertDialogPositiveButton : TextButton() {
-        override val textColor: Color = CodexColors.COLOR_PRIMARY
+    object DialogPositiveButton : TextButton() {
         override val textStyle: TextStyle = CodexTypography.DIALOG_BUTTON
+
+        @Composable
+        override fun getTextColor() = CodexTheme.colors.dialogPositiveText
     }
 
-    object AlertDialogNegativeButton : TextButton() {
-        override val textColor: Color = CodexColors.BLACK.copy(alpha = 0.55f)
+    object DialogNegativeButton : TextButton() {
         override val textStyle: TextStyle = CodexTypography.DIALOG_BUTTON
+
+        @Composable
+        override fun getTextColor() = CodexTheme.colors.dialogNegativeText
     }
 }

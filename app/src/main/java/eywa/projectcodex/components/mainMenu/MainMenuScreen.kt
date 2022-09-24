@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 
 class MainMenuScreen : ActionBarHelp {
     private val helpInfo = ComposeHelpShowcaseMap().apply {
@@ -42,14 +42,14 @@ class MainMenuScreen : ActionBarHelp {
         Column(
                 modifier = Modifier
                         .fillMaxSize()
-                        .background(colorResource(id = R.color.colorPrimary)),
+                        .background(CodexTheme.colors.appBackground),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             CodexButton(
                     text = stringResource(id = R.string.main_menu__new_score),
-                    buttonStyle = CodexButtonDefaults.ButtonOnPrimary,
+                    buttonStyle = CodexButtonDefaults.ButtonOnAppBackground,
                     onClick = onStartNewScoreClicked,
                     modifier = Modifier
                             .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__new_score_title)
@@ -57,7 +57,7 @@ class MainMenuScreen : ActionBarHelp {
             )
             CodexButton(
                     text = stringResource(id = R.string.main_menu__view_scores),
-                    buttonStyle = CodexButtonDefaults.ButtonOnPrimary,
+                    buttonStyle = CodexButtonDefaults.ButtonOnAppBackground,
                     onClick = onViewScoresClicked,
                     modifier = Modifier
                             .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__view_scores_title)
