@@ -21,7 +21,7 @@ fun DrawScope.drawX(
     drawLine(
             color = colour,
             start = Offset(topLeft.x, bottomRight.y),
-            end = Offset(bottomRight.y, topLeft.y),
+            end = Offset(bottomRight.x, topLeft.y),
             strokeWidth = strokeWidth
     )
 }

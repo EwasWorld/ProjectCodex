@@ -63,6 +63,7 @@ class ViewScoresScreen : ActionBarHelp {
             isInMultiSelectMode: Boolean,
             listener: ViewScoreScreenListener,
     ) {
+        helpInfo.clear()
         listener.helpShowcaseInfo = helpInfo
         listener.contextMenuState = listState
 

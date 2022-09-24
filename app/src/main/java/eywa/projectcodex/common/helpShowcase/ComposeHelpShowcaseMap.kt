@@ -25,6 +25,8 @@ class ComposeHelpShowcaseMap {
             helpInfoMap[key]!!.updateLayoutCoordinates(layoutCoordinates)
 
     fun getItems() = helpInfoMap.values.toList()
+
+    fun clear() = helpInfoMap.clear()
 }
 
 interface HelpShowcaseListener {

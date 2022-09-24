@@ -10,6 +10,10 @@ object CodexTypography {
             fontWeight = FontWeight(400),
     )
 
+    val SMALL = NORMAL.copy(
+            fontSize = 14.sp,
+    )
+
     val DIALOG_TITLE = NORMAL.copy(
             fontSize = 24.sp,
     )
@@ -21,9 +25,5 @@ object CodexTypography {
     val DIALOG_BUTTON = NORMAL.copy(
             fontSize = 14.sp,
             fontWeight = FontWeight(500),
-    )
-
-    val SMALL = NORMAL.copy(
-            fontSize = 14.sp,
     )
 }

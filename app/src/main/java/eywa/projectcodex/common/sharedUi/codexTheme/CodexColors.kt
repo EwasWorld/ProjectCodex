@@ -40,6 +40,11 @@ data class CodexThemeColors(
         val dialogPositiveText: Color = CodexColors.COLOR_PRIMARY,
         val dialogNegativeText: Color = Color.Black.copy(alpha = 0.55f),
 
+        val helpShowcaseScrim: Color = CodexColors.COLOR_PRIMARY_DARK.copy(alpha = 0.9f),
+        val helpShowcaseTitle: Color = CodexColors.COLOR_LIGHT_ACCENT,
+        val helpShowcaseMessage: Color = Color.White.copy(alpha = 0.7f),
+        val helpShowcaseButton: Color = Color.White,
+
         // Buttons
         val filledButton: Color = Color.LightGray,
         val onFilledButton: Color = Color.Black,

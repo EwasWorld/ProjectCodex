@@ -18,9 +18,8 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -29,9 +28,14 @@ import androidx.compose.ui.unit.*
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+
+// TODO Better above/below logic - can it default to below unless there isn't enough room rather than taking the larger?
+// TODO Look at alignment? Right align if oval is on the right?
 
 /**
  * @param animationState 1 for fully visible, 0 for fully invisible (expanded off screen)
@@ -44,85 +48,83 @@ fun ComposeHelpShowcase(
     require(animationState in 0f..1f) { "Invalid animation state" }
 
     val scale = (state.maximisedOvalScale - 1f) * (1f - animationState) + 1f
-    val overlayColor = colorResource(id = R.color.colorPrimaryDark)
-    Canvas(
-            modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.85f)
-                    .clickable(onClick = state.overlayClickedListener)
-    ) {
-        drawRect(
-                color = overlayColor,
-                topLeft = Offset(0f, 0f),
-                size = this.size
-        )
-        drawOval(
-                color = Color.Transparent,
-                blendMode = BlendMode.Clear,
-                topLeft = state.scaledOvalOffset(scale),
-                size = state.scaledOvalSize(scale),
-        )
-    }
+    val overlayColor = CodexTheme.colors.helpShowcaseScrim
 
-    Column(
-            modifier = Modifier
-                    .offset { state.textAreaTopLeft }
-                    .height(with(LocalDensity.current) { state.textAreaHeight.toDp() })
-                    .padding(16.dp),
-            verticalArrangement = state.textAreaVerticalArrangement
+    Box(
+            contentAlignment = Alignment.TopStart
     ) {
-        Text(
-                text = state.title,
-                fontSize = 30.sp,
+        Canvas(
                 modifier = Modifier
-                        .padding(
-                                start = 5.dp,
-                                bottom = 15.dp,
-                        )
-                        .alpha(animationState),
-                color = colorResource(id = R.color.colorLightAccent)
-        )
-        val messageAlpha = if (state.message.isNotBlank() && state.title.isNotBlank()) 0.5f else 1f
-        Text(
-                text = state.message,
-                fontSize = 20.sp,
-                modifier = Modifier
-                        .padding(start = 5.dp)
-                        .alpha(animationState * messageAlpha),
-                color = Color.White
-        )
-        if (state.hasNextItem) {
-            ClickableText(
-                    text = AnnotatedString("Next"),
-                    onClick = { state.nextItemListener() },
-                    style = TextStyle.Default.copy(
-                            fontSize = 22.sp,
-                            color = Color.White
-                    ),
-                    modifier = Modifier
-                            .padding(
-                                    horizontal = 5.dp,
-                                    vertical = 10.dp,
-                            )
-                            .alpha(animationState)
-                            .testTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON),
+                        .fillMaxSize()
+                        // The clear oval doesn't work unless this is <1 - can't remember why, maybe the graphics layer?
+                        .alpha(0.998f)
+                        .clickable(onClick = state.overlayClickedListener)
+        ) {
+            drawRect(
+                    color = overlayColor,
+                    topLeft = Offset(0f, 0f),
+                    size = this.size
+            )
+            drawOval(
+                    color = Color.Transparent,
+                    blendMode = BlendMode.Clear,
+                    topLeft = state.scaledOvalOffset(scale),
+                    size = state.scaledOvalSize(scale),
             )
         }
-        ClickableText(
-                text = AnnotatedString("Close help"),
-                onClick = { state.closeListener() },
-                style = TextStyle.Default.copy(
-                        fontSize = 18.sp,
-                        color = Color.White
-                ),
+
+        Column(
                 modifier = Modifier
-                        .padding(
-                                horizontal = 5.dp,
-                                vertical = 10.dp,
-                        )
-                        .alpha(animationState)
-                        .testTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON),
-        )
+                        .offset { state.textAreaTopLeft }
+                        .height(with(LocalDensity.current) { state.textAreaHeight.toDp() })
+                        .padding(16.dp)
+                        .padding(horizontal = 5.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp, state.textAreaVerticalArrangement),
+        ) {
+            Text(
+                    text = state.title,
+                    style = CodexTypography.NORMAL.copy(
+                            fontSize = 30.sp,
+                            color = CodexTheme.colors.helpShowcaseTitle,
+                    ),
+                    modifier = Modifier
+                            .padding(bottom = 5.dp)
+                            .alpha(animationState)
+            )
+            Text(
+                    text = state.message,
+                    style = CodexTypography.NORMAL.copy(
+                            fontSize = 20.sp,
+                            color = CodexTheme.colors.helpShowcaseMessage,
+                    ),
+                    modifier = Modifier.alpha(animationState)
+            )
+            if (state.hasNextItem) {
+                ClickableText(
+                        text = AnnotatedString(stringResource(id = R.string.general_next)),
+                        onClick = { state.nextItemListener() },
+                        style = CodexTypography.NORMAL.copy(
+                                fontSize = 22.sp,
+                                color = CodexTheme.colors.helpShowcaseButton
+                        ),
+                        modifier = Modifier
+                                .padding(bottom = 5.dp)
+                                .alpha(animationState)
+                                .testTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
+                )
+            }
+            ClickableText(
+                    text = AnnotatedString(stringResource(id = R.string.action_bar__close_help)),
+                    onClick = { state.closeListener() },
+                    style = CodexTypography.NORMAL.copy(
+                            fontSize = 18.sp,
+                            color = CodexTheme.colors.helpShowcaseButton
+                    ),
+                    modifier = Modifier
+                            .alpha(animationState)
+                            .testTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+            )
+        }
     }
 }
 
@@ -139,6 +141,11 @@ class ComposeHelpShowcaseState(
         private val screenHeight: Float,
         private val screenWidth: Float,
 ) {
+    init {
+        require(title.isNotBlank()) { "Showcase title cannot be blank" }
+        require(message.isNotBlank()) { "Showcase message cannot be blank" }
+    }
+
     private val ovalBottomOffset = ovalTopLeft.y + ovalHeight
     private val isTextAboveOval = ovalTopLeft.y > screenHeight - ovalBottomOffset
 
@@ -147,7 +154,7 @@ class ComposeHelpShowcaseState(
             x = 0,
             y = if (isTextAboveOval) 0 else ovalBottomOffset.roundToInt()
     )
-    val textAreaVerticalArrangement = if (isTextAboveOval) Arrangement.Bottom else Arrangement.Top
+    val textAreaVerticalArrangement = if (isTextAboveOval) Alignment.Bottom else Alignment.Top
 
     /**
      * The minimum scale factor that the oval needs to be multiplied by so that none of it is visible on the screen
@@ -280,7 +287,7 @@ private fun ComposeHelpShowcasePreview(
 
 data class ComposeHelpShowcasePreviewParams(
         val name: String,
-        val ovalTopLeft: Offset,
+        val ovalTopLeft: Offset = Offset(10f, 100f),
         val ovalHeight: Float = 100f,
         val ovalWidth: Float = 150f,
         val hasNextItem: Boolean = true,
@@ -291,6 +298,7 @@ class ComposeHelpShowcasePreviewProvider : PreviewParameterProvider<ComposeHelpS
             ComposeHelpShowcasePreviewParams("Text below", Offset(10f, 100f)),
             ComposeHelpShowcasePreviewParams("Text above", Offset(10f, 1300f)),
             ComposeHelpShowcasePreviewParams("Roughly on button", Offset(430f, 850f), ovalWidth = 220f),
+            ComposeHelpShowcasePreviewParams("No next", hasNextItem = false),
     )
 }
 

@@ -56,16 +56,16 @@ internal fun ViewScoresMultiSelectBar(
                         helpBody = helpBody,
                         priority = ViewScoresScreen.HelpItemPriority.MULTI_SELECT.ordinal
                 )
-
         )
-        IconButton(onClick = onClick) {
+        IconButton(
+                onClick = onClick,
+                modifier = Modifier.updateHelpDialogPosition(listener, helpTitle)
+        ) {
             Icon(
                     imageVector = imageVector,
                     contentDescription = contentDescription,
                     tint = CodexTheme.colors.onFloatingActions,
-                    modifier = Modifier
-                            .scale(1.2f)
-                            .updateHelpDialogPosition(listener, helpTitle)
+                    modifier = Modifier.scale(1.2f)
             )
         }
     }
@@ -76,7 +76,6 @@ internal fun ViewScoresMultiSelectBar(
             modifier = modifier
     ) {
         if (!isInMultiSelectMode) {
-            // TODO_CURRENT Help bubble looks off centre
             MultiSelectIconButton(
                     onClick = { listener.toggleMultiSelectMode() },
                     imageVector = Icons.Default.SelectAll,
