@@ -34,7 +34,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
 interface MultiSelectBarListener : HelpShowcaseListener {
     fun selectAllOrNoneClicked()
-    fun emailClicked()
+    fun multiSelectEmailClicked()
     fun toggleMultiSelectMode()
 }
 
@@ -56,7 +56,7 @@ internal fun ViewScoresMultiSelectBar(
                 ComposeHelpShowcaseItem(
                         helpTitle = helpTitle,
                         helpBody = helpBody,
-                        priority = ViewScoreScreen.HelpItemPriority.MULTI_SELECT.ordinal
+                        priority = ViewScoresScreen.HelpItemPriority.MULTI_SELECT.ordinal
                 )
 
         )
@@ -107,7 +107,7 @@ internal fun ViewScoresMultiSelectBar(
                         helpBody = R.string.help_view_score__select_all_or_none_body,
                 )
                 MultiSelectIconButton(
-                        onClick = { listener.emailClicked() },
+                        onClick = { listener.multiSelectEmailClicked() },
                         imageVector = Icons.Outlined.Email,
                         contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_email),
                         helpTitle = R.string.help_view_score__action_multi_select_title,
@@ -129,7 +129,7 @@ private val listenersForPreviews = object : MultiSelectBarListener {
     override fun addHelpShowcase(item: ComposeHelpShowcaseItem) {}
     override fun updateHelpDialogPosition(helpTitle: Int, layoutCoordinates: LayoutCoordinates) {}
     override fun selectAllOrNoneClicked() {}
-    override fun emailClicked() {}
+    override fun multiSelectEmailClicked() {}
     override fun toggleMultiSelectMode() {}
 }
 

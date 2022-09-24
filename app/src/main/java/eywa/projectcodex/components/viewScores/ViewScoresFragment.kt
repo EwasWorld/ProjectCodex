@@ -13,13 +13,14 @@ import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.ui.ViewScoreScreen
+import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
+import eywa.projectcodex.components.viewScores.ui.rememberViewScoresListActionState
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 
 class ViewScoresFragment : Fragment(), ActionBarHelp {
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
-    private var viewScoreScreen = ViewScoreScreen()
+    private var viewScoresScreen = ViewScoresScreen()
 
     private val dropDownMenuItems = mapOf(
             ViewScoresEntry::class to listOf(
@@ -40,10 +41,12 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         return ComposeView(requireContext()).apply {
             setContent {
                 CodexTheme {
-                    viewScoreScreen.ComposeContent(
+                    viewScoresScreen.ComposeContent(
                             entries = viewScoresViewModel.state.data,
-                            entrySingleClickActions = entrySingleClickActions,
-                            dropdownMenuItems = dropDownMenuItems,
+                            rememberViewScoresListActionState(
+                                    singleClickActions = entrySingleClickActions,
+                                    dropdownMenuItems = dropDownMenuItems
+                            ),
                             isInMultiSelectMode = viewScoresViewModel.state.isInMultiSelectMode,
                             listener = ViewScoreScreenListenerImpl(viewScoresViewModel, requireView()) {
                                 ToastSpamPrevention.displayToast(
@@ -63,8 +66,8 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
         activity?.title = getString(R.string.view_score__title)
     }
 
-    override fun getHelpShowcases() = viewScoreScreen.getHelpShowcases()
-    override fun getHelpPriority() = viewScoreScreen.getHelpPriority()
+    override fun getHelpShowcases() = viewScoresScreen.getHelpShowcases()
+    override fun getHelpPriority() = viewScoresScreen.getHelpPriority()
 
     companion object {
         const val LOG_TAG = "ViewScores"
@@ -74,12 +77,12 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
             private val viewScoresViewModel: ViewScoresViewModel,
             private val view: View,
             private val displayToast: (messageId: Int) -> Unit
-    ) : ViewScoreScreen.ViewScoreScreenListener() {
+    ) : ViewScoresScreen.ViewScoreScreenListener() {
         override fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean {
             return menuItem.onClick(entry, viewScoresViewModel, view, contextMenuState)
         }
 
-        override fun toggleEntrySelected(entryIndex: Int) =
+        override fun toggleListItemSelected(entryIndex: Int) =
                 viewScoresViewModel.handle(ViewScoresIntent.ToggleEntrySelected(entryIndex))
 
         override fun toggleMultiSelectMode() =
@@ -87,13 +90,13 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
 
         override fun selectAllOrNoneClicked() = viewScoresViewModel.handle(ViewScoresIntent.SelectAllOrNone())
 
-        override fun emailClicked() = view.findNavController().navigate(R.id.emailFragment)
+        override fun multiSelectEmailClicked() = view.findNavController().navigate(R.id.emailFragment)
 
         override fun noRoundsDialogDismissedListener() {
             view.findNavController().popBackStack()
         }
 
-        override fun convertDialogActionListener(entryIndex: Int?, convertType: ConvertScoreType) {
+        override fun convertScoreDialogOkListener(entryIndex: Int?, convertType: ConvertScoreType) {
             if (entryIndex == null) {
                 displayToast(R.string.err__try_again_error)
                 return

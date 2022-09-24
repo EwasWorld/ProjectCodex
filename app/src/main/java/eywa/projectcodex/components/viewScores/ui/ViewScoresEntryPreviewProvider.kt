@@ -13,7 +13,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import java.util.*
 
 /**
- * Used to generate data for [ViewScoreScreen]
+ * Used to generate data for [ViewScoresScreen]
  */
 @RequiresApi(Build.VERSION_CODES.O)
 object ViewScoresEntryPreviewProvider {

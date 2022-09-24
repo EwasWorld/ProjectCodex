@@ -8,10 +8,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.*
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,7 +24,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import java.util.*
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
@@ -36,9 +35,25 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
         helpInfo: ComposeHelpShowcaseMap,
+        isInMultiSelectMode: Boolean,
         modifier: Modifier = Modifier,
 ) {
-    getHelpInfoEntries().forEach { helpInfo.add(it) }
+    val semanticsString = viewScoresEntryRowAccessibilityString(entry, isInMultiSelectMode)
+
+    helpInfo.add(
+            ComposeHelpShowcaseItem(
+                    helpTitle = R.string.help_view_score__hsg_title,
+                    helpBody = R.string.help_view_score__hsg_body,
+                    priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
+            )
+    )
+    helpInfo.add(
+            ComposeHelpShowcaseItem(
+                    helpTitle = R.string.help_view_score__handicap_title,
+                    helpBody = R.string.help_view_score__handicap_body,
+                    priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
+            )
+    )
 
     Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -50,19 +65,20 @@ internal fun ViewScoresEntryRow(
                             top = 5.dp,
                             bottom = 5.dp,
                     )
+                    .semantics { contentDescription = semanticsString }
     ) {
-        DateAndRoundNameColumn(entry)
+        DateAndRoundNameColumn(entry, Modifier.weight(1f))
         HsgColumn(entry, helpInfo)
         HandicapColumn(entry, helpInfo)
     }
 }
 
 @Composable
-private fun RowScope.DateAndRoundNameColumn(entry: ViewScoresEntry) {
+private fun DateAndRoundNameColumn(entry: ViewScoresEntry, modifier: Modifier = Modifier) {
     Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = columnVerticalArrangement,
-            modifier = Modifier.weight(1f)
+            modifier = modifier
     ) {
         Text(
                 text = DateTimeFormat.SHORT_DATE_TIME.format(entry.archerRound.dateShot),
@@ -135,42 +151,8 @@ private fun HandicapColumn(
     }
 }
 
-private fun getHelpInfoEntries() = listOf(
-        ComposeHelpShowcaseItem(
-                helpTitle = R.string.help_view_score__hsg_title,
-                helpBody = R.string.help_view_score__hsg_body,
-                priority = ViewScoreScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
-        ),
-        ComposeHelpShowcaseItem(
-                helpTitle = R.string.help_view_score__handicap_title,
-                helpBody = R.string.help_view_score__handicap_body,
-                priority = ViewScoreScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
-        )
-)
-
-private fun Modifier.customSemantics(
-        entry: ViewScoresEntry,
-        @StringRes singleClickActionLabel: Int?,
-        singleClickAction: () -> Unit,
-        dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
-        onDropdownMenuItemClicked: (ViewScoresDropdownMenuItem) -> Unit,
-        isInMultiSelectMode: Boolean,
-) = composed {
-    val semanticsString = viewScoresEntryRowAccessibilityString(entry, isInMultiSelectMode)
-    val semanticsOnClickLabel = singleClickActionLabel?.let { stringResource(id = singleClickActionLabel) }
-    val itemCustomActions = dropdownMenuItems?.map {
-        CustomAccessibilityAction(stringResource(id = it.title)) { onDropdownMenuItemClicked(it); true }
-    } ?: listOf()
-
-    clearAndSetSemantics {
-        contentDescription = semanticsString
-        customActions = itemCustomActions
-        onClick(semanticsOnClickLabel) { singleClickAction(); true }
-    }
-}
-
 @Composable
-fun viewScoresEntryRowAccessibilityString(
+private fun viewScoresEntryRowAccessibilityString(
         entry: ViewScoresEntry,
         isInMultiSelectMode: Boolean,
 ): String {
@@ -217,6 +199,7 @@ fun ViewScoresEntryRow_Preview() {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
                 helpInfo = ComposeHelpShowcaseMap(),
+                isInMultiSelectMode = false,
         )
     }
 }

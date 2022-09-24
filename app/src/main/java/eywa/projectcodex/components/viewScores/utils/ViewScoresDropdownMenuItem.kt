@@ -11,14 +11,14 @@ import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.ui.ViewScoreScreen
+import eywa.projectcodex.components.viewScores.ui.ViewScoresListActionState
 
 enum class ViewScoresDropdownMenuItem(
         @StringRes val title: Int,
         /**
          * Returns true if the action was successfully handled
          */
-        val onClick: (ViewScoresEntry, ViewScoresViewModel, View, ViewScoreScreen.ViewScoresDropdownMenuState) -> Boolean,
+        val onClick: (ViewScoresEntry, ViewScoresViewModel, View, ViewScoresListActionState) -> Boolean,
         /**
          * Only display this dropdown menu item if this returns true
          */
