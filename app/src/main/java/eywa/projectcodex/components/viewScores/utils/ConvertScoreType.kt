@@ -29,7 +29,7 @@ enum class ConvertScoreType(
     /**
      * @return updated arrow values, if any
      */
-    fun convertScore(arrows: List<ArrowValue>): List<ArrowValue> = arrows.mapNotNull { arrow ->
+    fun convertScore(arrows: List<ArrowValue>) = arrows.mapNotNull { arrow ->
         convert(arrow).takeIf { it != arrow }
     }
 }
