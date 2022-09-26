@@ -71,10 +71,12 @@ class ViewScoresRobot(
     }
 
     fun chooseConvertDialogOption(convertType: String) {
-        composeTestRule.onNode(
-                hasTestTag(SimpleDialogTestTag.TITLE)
-                        .and(hasText("Convert score"))
-        ).assertIsDisplayed()
+        CustomConditionWaiter.waitForComposeCondition("Waiting for convert dialog to display") {
+            composeTestRule.onNode(
+                    hasTestTag(SimpleDialogTestTag.TITLE)
+                            .and(hasText(CONVERT_SCORE_DIALOG_TITLE))
+            ).assertIsDisplayed()
+        }
         composeTestRule
                 .onAllNodesWithTag(RadioButtonDialogTestTag.RADIO_BUTTON)
                 .filterToOne(hasText(convertType))
@@ -82,12 +84,50 @@ class ViewScoresRobot(
     }
 
     fun clickConvertDialogOk() {
-        composeTestRule.onNode(
-                hasTestTag(SimpleDialogTestTag.TITLE)
-                        .and(hasText("Convert score"))
-        ).assertIsDisplayed()
+        CustomConditionWaiter.waitForComposeCondition("Waiting for convert dialog to display") {
+            composeTestRule.onNode(
+                    hasTestTag(SimpleDialogTestTag.TITLE)
+                            .and(hasText(CONVERT_SCORE_DIALOG_TITLE))
+            ).assertIsDisplayed()
+        }
         composeTestRule
                 .onNodeWithTag(SimpleDialogTestTag.POSITIVE_BUTTON)
+                .performClick()
+    }
+
+    fun clickConvertDialogCancel() {
+        CustomConditionWaiter.waitForComposeCondition("Waiting for convert dialog to display") {
+            composeTestRule.onNode(
+                    hasTestTag(SimpleDialogTestTag.TITLE)
+                            .and(hasText(CONVERT_SCORE_DIALOG_TITLE))
+            ).assertIsDisplayed()
+        }
+        composeTestRule
+                .onNodeWithTag(SimpleDialogTestTag.NEGATIVE_BUTTON)
+                .performClick()
+    }
+
+    fun clickDeleteDialogOk() {
+        CustomConditionWaiter.waitForComposeCondition("Waiting for delete dialog to display") {
+            composeTestRule.onNode(
+                    hasTestTag(SimpleDialogTestTag.TITLE)
+                            .and(hasText(DELETE_ENTRY_DIALOG_TITLE))
+            ).assertIsDisplayed()
+        }
+        composeTestRule
+                .onNodeWithTag(SimpleDialogTestTag.POSITIVE_BUTTON)
+                .performClick()
+    }
+
+    fun clickDeleteDialogCancel() {
+        CustomConditionWaiter.waitForComposeCondition("Waiting for delete dialog to display") {
+            composeTestRule.onNode(
+                    hasTestTag(SimpleDialogTestTag.TITLE)
+                            .and(hasText(DELETE_ENTRY_DIALOG_TITLE))
+            ).assertIsDisplayed()
+        }
+        composeTestRule
+                .onNodeWithTag(SimpleDialogTestTag.NEGATIVE_BUTTON)
                 .performClick()
     }
 
@@ -153,5 +193,10 @@ class ViewScoresRobot(
         const val CONVERT_MENU_ITEM = "Convert"
         const val CONVERT_XS_TO_TENS_OPTION = "Xs to 10s"
         const val CONVERT_TEN_ZONE_TO_FIVE_ZONE_OPTION = "10-zone to 5-zone"
+    }
+
+    companion object {
+        private const val CONVERT_SCORE_DIALOG_TITLE = "Convert score"
+        private const val DELETE_ENTRY_DIALOG_TITLE = "Delete entry"
     }
 }

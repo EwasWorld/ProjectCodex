@@ -262,7 +262,13 @@ class ViewScoresInstrumentedTest {
 
                 longClickRow(0)
                 clickDropdownMenuItem(ViewScoresRobot.CommonStrings.DELETE_MENU_ITEM)
-                // TODO_CURRENT make an 'are you sure' popup
+                clickDeleteDialogCancel()
+
+                waitForRowCount(2)
+
+                longClickRow(0)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.DELETE_MENU_ITEM)
+                clickDeleteDialogOk()
 
                 waitForRowCount(1)
                 waitForHsg(0, "36/360/36")
@@ -287,6 +293,17 @@ class ViewScoresInstrumentedTest {
                 waitForRowCount(2)
                 waitForHsg(0, "11/65/3")
                 waitForHsg(1, "11/65/3")
+                // TODO Add checks of the score pad
+
+                /*
+                 * Cancelled
+                 */
+                longClickRow(0)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONVERT_MENU_ITEM)
+                chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_TEN_ZONE_TO_FIVE_ZONE_OPTION)
+                clickConvertDialogCancel()
+                waitForHsg(0, "11/65/3")
+                waitForHsg(1, "11/65/3")
 
                 /*
                  * Xs to 10s
@@ -296,7 +313,7 @@ class ViewScoresInstrumentedTest {
                 chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_XS_TO_TENS_OPTION)
                 clickConvertDialogOk()
                 waitForHsg(0, "11/65/3")
-                // TODO Check score pad
+                waitForHsg(1, "11/65/3")
 
 
                 /*
@@ -306,8 +323,8 @@ class ViewScoresInstrumentedTest {
                 clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONVERT_MENU_ITEM)
                 chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_TEN_ZONE_TO_FIVE_ZONE_OPTION)
                 clickConvertDialogOk()
+                waitForHsg(0, "11/65/3")
                 waitForHsg(1, "11/59/3")
-                // TODO Check score pad
             }
         }
     }

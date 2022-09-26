@@ -71,12 +71,14 @@ class MainMenuScreen : ActionBarHelp {
                 SimpleDialogContent(
                         title = R.string.main_menu__exit_app_dialog_title,
                         message = R.string.main_menu__exit_app_dialog_body,
-                        positiveButton = ButtonState(R.string.main_menu__exit_app_dialog_exit) {
-                            onExitAlertClicked(
-                                    true
-                            )
-                        },
-                        negativeButton = ButtonState(R.string.general_cancel) { onExitAlertClicked(false) },
+                        positiveButton = ButtonState(
+                                text = stringResource(R.string.main_menu__exit_app_dialog_exit),
+                                onClick = { onExitAlertClicked(true) },
+                        ),
+                        negativeButton = ButtonState(
+                                text = stringResource(R.string.general_cancel),
+                                onClick = { onExitAlertClicked(false) },
+                        ),
                 )
             }
         }

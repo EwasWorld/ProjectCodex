@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
@@ -144,7 +145,7 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                     message = R.string.view_score__convert_score_dialog_body,
                     positiveButtonText = R.string.general_ok,
                     onPositiveButtonPressed = {},
-                    negativeButton = ButtonState(R.string.general_cancel) {},
+                    negativeButton = ButtonState(stringResource(R.string.general_cancel)) {},
                     state = rememberRadioButtonDialogState(items = ConvertScoreType.values().toList())
             )
         }

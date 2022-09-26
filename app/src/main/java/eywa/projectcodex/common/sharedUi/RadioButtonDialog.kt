@@ -60,7 +60,7 @@ fun <T : HasDisplayTitle> RadioButtonDialogContent(
             message = message,
             negativeButton = negativeButton,
             positiveButton = ButtonState(
-                    text = positiveButtonText,
+                    text = stringResource(positiveButtonText),
                     onClick = { onPositiveButtonPressed(state.currentItem) }
             ),
     ) {
@@ -104,7 +104,7 @@ fun RadioButtonDialog_Preview() {
                 message = R.string.view_score__convert_score_dialog_body,
                 positiveButtonText = R.string.general_ok,
                 onPositiveButtonPressed = {},
-                negativeButton = ButtonState(R.string.general_cancel) {},
+                negativeButton = ButtonState(stringResource(R.string.general_cancel)) {},
                 state = rememberRadioButtonDialogState(items = ConvertScoreType.values().toList())
         )
     }

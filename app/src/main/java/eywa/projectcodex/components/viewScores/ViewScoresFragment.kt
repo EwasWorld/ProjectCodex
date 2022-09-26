@@ -79,7 +79,7 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
             private val displayToast: (messageId: Int) -> Unit
     ) : ViewScoresScreen.ViewScoreScreenListener() {
         override fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean {
-            return menuItem.onClick(entry, viewScoresViewModel, view, contextMenuState)
+            return menuItem.onClick(entry, view, contextMenuState)
         }
 
         override fun toggleListItemSelected(entryIndex: Int) =
@@ -105,6 +105,14 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
                     ?.let { oldArrows -> convertType.convertScore(oldArrows) }
                     ?.takeIf { it.isNotEmpty() }
                     ?.let { viewScoresViewModel.handle(ViewScoresIntent.UpdateArrowValues(it)) }
+        }
+
+        override fun deleteDialogOkListener(entryIndex: Int?) {
+            if (entryIndex == null) {
+                displayToast(R.string.err__try_again_error)
+                return
+            }
+            viewScoresViewModel.handle(ViewScoresIntent.DeleteRound(viewScoresViewModel.state.data[entryIndex].id))
         }
     }
 }

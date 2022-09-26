@@ -21,7 +21,7 @@ import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
@@ -69,12 +69,6 @@ class ViewScoresScreen : ActionBarHelp {
         listener.helpShowcaseInfo = helpInfo
         listener.contextMenuState = listState
 
-        ViewScoresDialogs(
-                entries.isEmpty(),
-                listState.isConvertScoreOpen,
-                listener
-        )
-
         entryClasses = entries.map { it::class }
         specificEntryHelpInfo = List(entries.size) { ComposeHelpShowcaseMap() }
         genericEntryHelpInfo = List(entries.size) {
@@ -88,6 +82,17 @@ class ViewScoresScreen : ActionBarHelp {
                 )
             }
         }
+
+        SetOfDialogs(
+                entries.isEmpty() to { ViewScoresEmptyListDialog(isShown = it, listener = listener) },
+                listState.isConvertScoreOpen to { ViewScoresConvertScoreDialog(isShown = it, listener = listener) },
+                listState.isDeleteDialogOpen to {
+                    ViewScoresDeleteEntryDialog(
+                            isShown = it,
+                            listener = listener,
+                            entry = listener.contextMenuState.lastOpenedForIndex?.let { i -> entries.getOrNull(i) })
+                },
+        )
 
         Box(
                 modifier = Modifier
@@ -150,46 +155,6 @@ class ViewScoresScreen : ActionBarHelp {
         }
     }
 
-    @Composable
-    fun ViewScoresDialogs(
-            isEmptyList: Boolean,
-            convertDialogOpen: Boolean,
-            listener: ViewScoreScreenListener,
-    ) {
-        var isAnyDialogShown = false
-        SimpleDialog(
-                isShown = isEmptyList && !isAnyDialogShown,
-                onDismissListener = { listener.noRoundsDialogDismissedListener() }
-        ) {
-            SimpleDialogContent(
-                    title = R.string.err_table_view__no_data,
-                    message = R.string.err_view_score__no_rounds,
-                    positiveButton = ButtonState(
-                            text = R.string.err_view_score__return_to_main_menu,
-                            onClick = { listener.noRoundsDialogDismissedListener() }
-                    ),
-            )
-        }
-        isAnyDialogShown = isAnyDialogShown || isEmptyList
-
-        SimpleDialog(
-                isShown = convertDialogOpen && !isAnyDialogShown,
-                onDismissListener = { listener.convertScoreDialogDismissedListener() }
-        ) {
-            RadioButtonDialogContent(
-                    title = R.string.view_score__convert_score_dialog_title,
-                    message = R.string.view_score__convert_score_dialog_body,
-                    positiveButtonText = R.string.general_ok,
-                    onPositiveButtonPressed = { listener.convertScoreDialogOkListener(it) },
-                    negativeButton = ButtonState(
-                            text = R.string.general_cancel,
-                            onClick = { listener.convertScoreDialogDismissedListener() }
-                    ),
-                    state = rememberRadioButtonDialogState(items = ConvertScoreType.values().toList()),
-            )
-        }
-    }
-
     override fun getHelpShowcases(): List<HelpShowcaseItem> {
         val mainItems = helpInfo.getItems()
 
@@ -230,6 +195,15 @@ class ViewScoresScreen : ActionBarHelp {
         override fun convertScoreDialogDismissedListener() {
             contextMenuState.isConvertScoreOpen = false
         }
+
+        override fun deleteDialogDismissedListener() {
+            contextMenuState.isDeleteDialogOpen = false
+        }
+
+        override fun deleteDialogOkListener() {
+            contextMenuState.isDeleteDialogOpen = false
+            deleteDialogOkListener(contextMenuState.lastOpenedForIndex)
+        }
     }
 
     /**
@@ -259,6 +233,7 @@ class ViewScoresScreen : ActionBarHelp {
         override fun selectAllOrNoneClicked() {}
         override fun multiSelectEmailClicked() {}
         override fun toggleListItemSelected(entryIndex: Int) {}
+        override fun deleteDialogOkListener(entryIndex: Int?) {}
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

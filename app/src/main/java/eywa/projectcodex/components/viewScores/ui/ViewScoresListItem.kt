@@ -136,11 +136,15 @@ interface ListActionListener {
     fun convertScoreDialogOkListener(entryIndex: Int?, convertType: ConvertScoreType)
     fun convertScoreDialogOkListener(convertType: ConvertScoreType)
     fun convertScoreDialogDismissedListener()
+    fun deleteDialogOkListener(entryIndex: Int?)
+    fun deleteDialogOkListener()
+    fun deleteDialogDismissedListener()
 }
 
 @Stable
 interface ViewScoresListActionState {
     var isConvertScoreOpen: Boolean
+    var isDeleteDialogOpen: Boolean
     var isDropdownOpen: Boolean
     var lastOpenedForIndex: Int?
     var singleClickActions: Map<KClass<ViewScoresEntry>, ViewScoresDropdownMenuItem>
@@ -163,10 +167,12 @@ private class ViewScoresListActionStateImpl(
         override var dropdownMenuItems: Map<KClass<ViewScoresEntry>, List<ViewScoresDropdownMenuItem>>,
         isDropdownOpen: Boolean = false,
         isConvertScoreOpen: Boolean = false,
+        isDeleteDialogOpen: Boolean = false,
         lastOpenedForIndex: Int? = null
 ) : ViewScoresListActionState {
     override var isDropdownOpen by mutableStateOf(isDropdownOpen)
     override var isConvertScoreOpen by mutableStateOf(isConvertScoreOpen)
+    override var isDeleteDialogOpen by mutableStateOf(isDeleteDialogOpen)
     override var lastOpenedForIndex by mutableStateOf(lastOpenedForIndex)
 }
 
@@ -176,13 +182,15 @@ fun rememberViewScoresListActionState(
         dropdownMenuItems: Map<KClass<ViewScoresEntry>, List<ViewScoresDropdownMenuItem>>,
         isDropdownOpen: Boolean = false,
         isConvertScoreOpen: Boolean = false,
+        isDeleteDialogOpen: Boolean = false,
         lastOpenedForIndex: Int? = null
 ): ViewScoresListActionState = remember {
     ViewScoresListActionStateImpl(
-            singleClickActions,
-            dropdownMenuItems,
-            isDropdownOpen,
-            isConvertScoreOpen,
-            lastOpenedForIndex
+            singleClickActions = singleClickActions,
+            dropdownMenuItems = dropdownMenuItems,
+            isDropdownOpen = isDropdownOpen,
+            isConvertScoreOpen = isConvertScoreOpen,
+            isDeleteDialogOpen = isDeleteDialogOpen,
+            lastOpenedForIndex = lastOpenedForIndex
     )
 }

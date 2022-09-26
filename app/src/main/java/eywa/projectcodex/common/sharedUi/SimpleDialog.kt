@@ -20,9 +20,23 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
 data class ButtonState(
-        @StringRes val text: Int,
+        val text: String,
         val onClick: () -> Unit
 )
+
+/**
+ * Used to display a single dialog from a set of dialogs.
+ * Passes true to the first Dialog whose IsShown is true and false to all others.
+ *
+ * @param dialogs List<Pair<IsShown, Dialog>>
+ */
+@Composable
+fun SetOfDialogs(vararg dialogs: Pair<Boolean, @Composable (isShown: Boolean) -> Unit>) {
+    dialogs.fold(false) { isAnyDialogShown, (showCondition, content) ->
+        content(showCondition && !isAnyDialogShown)
+        return@fold isAnyDialogShown || showCondition
+    }
+}
 
 @Composable
 fun SimpleDialog(
@@ -46,12 +60,34 @@ fun SimpleDialog(
 }
 
 /**
- * @param content extra content placed between the message and the buttons
+ * @see SimpleDialogContent(String, String, ButtonState, ButtonState, Modifier, (@Composable () -> Unit)?)
  */
 @Composable
 fun SimpleDialogContent(
         @StringRes title: Int,
         @StringRes message: Int,
+        positiveButton: ButtonState,
+        negativeButton: ButtonState? = null,
+        modifier: Modifier = Modifier,
+        content: (@Composable () -> Unit)? = null
+) {
+    SimpleDialogContent(
+            title = stringResource(id = title),
+            message = stringResource(id = message),
+            positiveButton = positiveButton,
+            negativeButton = negativeButton,
+            modifier = modifier,
+            content = content
+    )
+}
+
+/**
+ * @param content extra content placed between the message and the buttons
+ */
+@Composable
+fun SimpleDialogContent(
+        title: String,
+        message: String,
         positiveButton: ButtonState,
         negativeButton: ButtonState? = null,
         modifier: Modifier = Modifier,
@@ -67,12 +103,12 @@ fun SimpleDialogContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                    text = stringResource(id = title),
+                    text = title,
                     style = CodexTypography.DIALOG_TITLE.copy(color = CodexTheme.colors.onDialogBackground),
                     modifier = Modifier.testTag(SimpleDialogTestTag.TITLE),
             )
             Text(
-                    text = stringResource(id = message),
+                    text = message,
                     style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
             )
 
@@ -85,14 +121,14 @@ fun SimpleDialogContent(
             ) {
                 negativeButton?.let {
                     CodexButton(
-                            text = stringResource(id = negativeButton.text),
+                            text = negativeButton.text,
                             buttonStyle = CodexButtonDefaults.DialogNegativeButton,
                             onClick = negativeButton.onClick,
                             modifier = Modifier.testTag(SimpleDialogTestTag.NEGATIVE_BUTTON),
                     )
                 }
                 CodexButton(
-                        text = stringResource(id = positiveButton.text),
+                        text = positiveButton.text,
                         buttonStyle = CodexButtonDefaults.DialogPositiveButton,
                         onClick = positiveButton.onClick,
                         modifier = Modifier.testTag(SimpleDialogTestTag.POSITIVE_BUTTON),
@@ -139,8 +175,8 @@ fun TwoButton_SimpleDialog_Preview() {
         SimpleDialogContent(
                 title = R.string.main_menu__exit_app_dialog_title,
                 message = R.string.main_menu__exit_app_dialog_body,
-                positiveButton = ButtonState(R.string.main_menu__exit_app_dialog_exit) {},
-                negativeButton = ButtonState(R.string.general_cancel) {},
+                positiveButton = ButtonState(stringResource(R.string.main_menu__exit_app_dialog_exit)) {},
+                negativeButton = ButtonState(stringResource(R.string.general_cancel)) {},
         )
     }
 }
@@ -152,7 +188,7 @@ fun SingleButton_SimpleDialog_Preview() {
         SimpleDialogContent(
                 title = R.string.err_table_view__no_data,
                 message = R.string.err_view_score__no_rounds,
-                positiveButton = ButtonState(R.string.err_view_score__return_to_main_menu) {},
+                positiveButton = ButtonState(stringResource(R.string.err_view_score__return_to_main_menu)) {},
         )
     }
 }
@@ -167,8 +203,8 @@ fun TwoButton_Tablet_SimpleDialog_Preview() {
         SimpleDialogContent(
                 title = R.string.main_menu__exit_app_dialog_title,
                 message = R.string.main_menu__exit_app_dialog_body,
-                positiveButton = ButtonState(R.string.main_menu__exit_app_dialog_exit) {},
-                negativeButton = ButtonState(R.string.general_cancel) {},
+                positiveButton = ButtonState(stringResource(R.string.main_menu__exit_app_dialog_exit)) {},
+                negativeButton = ButtonState(stringResource(R.string.general_cancel)) {},
         )
     }
 }
@@ -182,7 +218,7 @@ fun SingleButton_Tablet_SimpleDialog_Preview() {
         SimpleDialogContent(
                 title = R.string.err_table_view__no_data,
                 message = R.string.err_view_score__no_rounds,
-                positiveButton = ButtonState(R.string.err_view_score__return_to_main_menu) {},
+                positiveButton = ButtonState(stringResource(R.string.err_view_score__return_to_main_menu)) {},
         )
     }
 }
