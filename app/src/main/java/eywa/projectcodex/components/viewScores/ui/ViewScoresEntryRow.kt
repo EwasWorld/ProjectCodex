@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.viewScores.ui
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
@@ -10,8 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,11 +35,8 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
         helpInfo: ComposeHelpShowcaseMap,
-        isInMultiSelectMode: Boolean,
         modifier: Modifier = Modifier,
 ) {
-    val semanticsString = viewScoresEntryRowAccessibilityString(entry, isInMultiSelectMode)
-
     helpInfo.add(
             ComposeHelpShowcaseItem(
                     helpTitle = R.string.help_view_score__hsg_title,
@@ -65,7 +62,6 @@ internal fun ViewScoresEntryRow(
                             top = 5.dp,
                             bottom = 5.dp,
                     )
-                    .semantics { contentDescription = semanticsString }
     ) {
         DateAndRoundNameColumn(entry, Modifier.weight(1f))
         HsgColumn(entry, helpInfo)
@@ -152,19 +148,15 @@ private fun HandicapColumn(
             Text(
                     text = "00",
                     style = CodexTypography.NORMAL.copy(color = Color.Transparent),
+                    modifier = Modifier.clearAndSetSemantics { }
             )
         }
     }
 }
 
-@Composable
-private fun viewScoresEntryRowAccessibilityString(
-        entry: ViewScoresEntry,
-        isInMultiSelectMode: Boolean,
-): String {
-    @Composable
-    fun accessibilityString(@StringRes title: Int, value: Int?, @StringRes alt: Int? = null) =
-            value?.let { stringResource(title) + " $it" } ?: alt?.let { stringResource(it) }
+fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEntry): String {
+    fun accessibilityString(@StringRes title: Int, value: Int?) =
+            value?.let { context.resources.getString(title) + " $it" }
 
     val dateFormat = Calendar.getInstance().apply {
         set(
@@ -180,17 +172,11 @@ private fun viewScoresEntryRowAccessibilityString(
     return listOfNotNull(
             dateFormat.format(entry.archerRound.dateShot),
             entry.displayName,
-            if (entry.isSelected && isInMultiSelectMode) stringResource(id = R.string.view_scores__selected) else null,
-            accessibilityString(
-                    title = R.string.view_score__score, value = entry.score, alt = R.string.view_score__no_arrows_shot
-            ),
+            accessibilityString(title = R.string.view_score__score, value = entry.score)
+                    ?: context.resources.getString(R.string.view_score__no_arrows_shot),
             accessibilityString(title = R.string.view_score__handicap_full, value = entry.handicap),
-            entry.golds?.let {
-                accessibilityString(title = R.string.view_score__golds, value = entry.golds)
-            },
-            entry.hits?.let {
-                accessibilityString(title = R.string.view_score__hits, value = entry.hits)
-            }
+            entry.golds?.let { accessibilityString(title = R.string.view_score__golds, value = entry.golds) },
+            entry.hits?.let { accessibilityString(title = R.string.view_score__hits, value = entry.hits) },
     ).joinToString()
 }
 
@@ -205,7 +191,6 @@ fun ViewScoresEntryRow_Preview() {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
                 helpInfo = ComposeHelpShowcaseMap(),
-                isInMultiSelectMode = false,
         )
     }
 }

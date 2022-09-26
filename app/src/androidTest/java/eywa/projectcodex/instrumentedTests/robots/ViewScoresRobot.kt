@@ -128,11 +128,20 @@ class ViewScoresRobot(
                 .let { tag -> composeTestRule.onNodeWithTag(tag).assertIsDisplayed() }
     }
 
+    fun checkEntriesNotSelectable() {
+        composeTestRule.onAllNodesWithTag(TestTag.LIST_ITEM).assertAll(isSelectable().not())
+    }
+
     /**
-     * Check that [rowIndexes] are selected and all other rows are not selected
+     * Check that all rows are selectable
+     * and that [rowIndexes] are selected and all other rows are not selected
      */
-    fun checkEntriesSelected(rowIndexes: Iterable<Int>) {
-        // TODO_CURRENT
+    fun checkEntriesSelected(rowIndexes: Iterable<Int>, totalEntries: Int) {
+        repeat(totalEntries) {
+            val node = composeTestRule.onAllNodesWithTag(TestTag.LIST_ITEM)[it]
+            node.assertIsSelectable()
+            if (rowIndexes.contains(it)) node.assertIsSelected() else node.assertIsNotSelected()
+        }
     }
 
     object CommonStrings {

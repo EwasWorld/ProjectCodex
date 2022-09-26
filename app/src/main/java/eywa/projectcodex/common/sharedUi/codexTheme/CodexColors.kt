@@ -28,7 +28,7 @@ val LocalCodexThemeColors = staticCompositionLocalOf { CodexThemeColors() }
 data class CodexThemeColors(
         val appBackground: Color = CodexColors.COLOR_PRIMARY,
         val listItemOnAppBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
-        val listItemOnAppBackgroundBoarder: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val listItemOnAppBackgroundBorder: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onListItemAppOnBackground: Color = Color.Black,
         val floatingActions: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onFloatingActions: Color = Color.White,
@@ -135,7 +135,8 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                             }
                         },
                         isInMultiSelectMode = false,
-                        modifier = Modifier.align(Alignment.BottomCenter)
+                        isEveryItemSelected = false,
+                        modifier = Modifier.align(Alignment.BottomCenter),
                 )
             }
             RadioButtonDialogContent(

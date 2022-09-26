@@ -17,10 +17,12 @@
     <string name="view_score__score">Score</string>
     <string name="view_score__golds">Golds</string>
 
-    <string name="view_scores_menu__multi_select_title">Multi-select</string>
-    <string name="view_scores_menu__multi_select_all_or_none">Select all or none</string>
-    <string name="view_scores_menu__multi_select_cancel">Cancel multi-select mode</string>
-    <string name="view_scores_menu__multi_select_email">Action all selected items</string>
+    <string name="view_scores__multi_select_title">Multi-select</string>
+    <string name="view_scores__multi_select_start">Start multi-select mode</string>
+    <string name="view_scores__multi_select_cancel">Cancel multi-select mode</string>
+    <string name="view_scores__multi_select_all">Select all items</string>
+    <string name="view_scores__multi_deselect_all">Deselect all items</string>
+    <string name="view_scores__multi_select_email">Email all selected items</string>
 
     <string name="view_scores__select_entry">Select</string>
     <string name="view_scores__deselect_entry">Deselect</string>
@@ -54,5 +56,5 @@
     <string name="help_view_score__action_multi_select_title">Email selected entries</string>
     <string name="help_view_score__action_multi_select_body">Email all selected entries</string>
     <string name="help_view_score__select_all_or_none_title">Select all</string>
-    <string name="help_view_score__select_all_or_none_body">Select all entries. (if all entries are selected, deselects all entries</string>
+    <string name="help_view_score__select_all_or_none_body">Select all entries. If all entries are selected, deselects all entries</string>
 </resources>

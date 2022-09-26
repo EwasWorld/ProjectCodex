@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -78,7 +79,8 @@ fun <T : HasDisplayTitle> RadioButtonDialogContent(
                         onClick = { state.selectedIndex = index },
                         colors = RadioButtonDefaults.colors(
                                 selectedColor = CodexTheme.colors.dialogRadioButton,
-                        )
+                        ),
+                        modifier = Modifier.clearAndSetSemantics { }
                 )
                 Text(
                         text = stringResource(id = item.displayTitle),

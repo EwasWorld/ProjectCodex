@@ -34,7 +34,7 @@ import java.sql.Date
 
 class ViewScoresInstrumentedTest {
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(160)
+    val testTimeout: Timeout = Timeout.seconds(20)
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
@@ -327,50 +327,52 @@ class ViewScoresInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForRowCount(4)
+                val rowCount = 4
+
+                waitForRowCount(rowCount)
                 checkMultiSelectMode(false)
 
                 clickStartMultiSelectMode()
                 checkMultiSelectMode(true)
-                checkEntriesSelected(listOf())
+                checkEntriesSelected(listOf(), rowCount)
 
                 // Select item
                 clickRow(0)
-                checkEntriesSelected(listOf(0))
+                checkEntriesSelected(listOf(0), rowCount)
 
                 // Deselect item
                 clickRow(0)
-                checkEntriesSelected(listOf())
+                checkEntriesSelected(listOf(), rowCount)
 
                 // Select all items from none
                 clickMultiSelectSelectAll()
-                checkEntriesSelected(0..3)
+                checkEntriesSelected(0..3, rowCount)
 
                 // Deselect all from all selected
                 clickMultiSelectSelectAll()
-                checkEntriesSelected(listOf())
+                checkEntriesSelected(listOf(), rowCount)
 
                 // Select two items
                 clickRow(1)
                 clickRow(2)
-                checkEntriesSelected(listOf(1, 2))
+                checkEntriesSelected(listOf(1, 2), rowCount)
 
                 // Deselect one
                 clickRow(2)
-                checkEntriesSelected(listOf(1))
+                checkEntriesSelected(listOf(1), rowCount)
 
                 // Select all items from a single selected
                 clickMultiSelectSelectAll()
-                checkEntriesSelected(0..3)
+                checkEntriesSelected(0..3, rowCount)
 
                 // Deselect one item
                 clickRow(1)
-                checkEntriesSelected(listOf(0, 2, 3))
+                checkEntriesSelected(listOf(0, 2, 3), rowCount)
                 checkMultiSelectMode(true)
 
                 // Cancel
                 clickCancelMultiSelectMode()
-                checkEntriesSelected(listOf())
+                checkEntriesNotSelectable()
                 checkMultiSelectMode(false)
             }
         }
@@ -388,7 +390,8 @@ class ViewScoresInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForRowCount(4)
+                val rowCount = 4
+                waitForRowCount(rowCount)
                 waitForHsg(0, "1/1/0")
                 waitForHsg(1, "1/2/0")
                 waitForHsg(2, "1/3/0")
@@ -396,7 +399,7 @@ class ViewScoresInstrumentedTest {
 
                 clickStartMultiSelectMode()
                 clickMultiSelectSelectAll()
-                checkEntriesSelected(0..3)
+                checkEntriesSelected(0..3, rowCount)
                 checkMultiSelectMode(true)
 
                 clickMultiSelectEmail()

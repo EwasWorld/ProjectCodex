@@ -42,6 +42,7 @@ internal fun ViewScoresMultiSelectBar(
         listener: MultiSelectBarListener,
         modifier: Modifier = Modifier,
         isInMultiSelectMode: Boolean,
+        isEveryItemSelected: Boolean,
 ) {
     @Composable
     fun MultiSelectIconButton(
@@ -81,7 +82,7 @@ internal fun ViewScoresMultiSelectBar(
             MultiSelectIconButton(
                     onClick = { listener.toggleMultiSelectMode() },
                     imageVector = Icons.Default.SelectAll,
-                    contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_title),
+                    contentDescription = stringResource(id = R.string.view_scores__multi_select_start),
                     helpTitle = R.string.help_view_score__start_multi_select_title,
                     helpBody = R.string.help_view_score__start_multi_select_body,
                     modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_START),
@@ -92,7 +93,7 @@ internal fun ViewScoresMultiSelectBar(
                     verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                        text = stringResource(id = R.string.view_scores_menu__multi_select_title),
+                        text = stringResource(id = R.string.view_scores__multi_select_title),
                         style = CodexTypography.NORMAL.copy(
                                 color = CodexTheme.colors.onFloatingActions,
                                 fontWeight = FontWeight.Bold,
@@ -102,7 +103,14 @@ internal fun ViewScoresMultiSelectBar(
                 MultiSelectIconButton(
                         onClick = { listener.selectAllOrNoneClicked() },
                         imageVector = Icons.Default.SelectAll,
-                        contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_all_or_none),
+                        contentDescription = stringResource(
+                                id = if (isEveryItemSelected) {
+                                    R.string.view_scores__multi_deselect_all
+                                }
+                                else {
+                                    R.string.view_scores__multi_select_all
+                                }
+                        ),
                         helpTitle = R.string.help_view_score__select_all_or_none_title,
                         helpBody = R.string.help_view_score__select_all_or_none_body,
                         modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_ALL),
@@ -110,7 +118,7 @@ internal fun ViewScoresMultiSelectBar(
                 MultiSelectIconButton(
                         onClick = { listener.multiSelectEmailClicked() },
                         imageVector = Icons.Outlined.Email,
-                        contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_email),
+                        contentDescription = stringResource(id = R.string.view_scores__multi_select_email),
                         helpTitle = R.string.help_view_score__action_multi_select_title,
                         helpBody = R.string.help_view_score__action_multi_select_body,
                         modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_EMAIL),
@@ -118,7 +126,7 @@ internal fun ViewScoresMultiSelectBar(
                 MultiSelectIconButton(
                         onClick = { listener.toggleMultiSelectMode() },
                         imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_email),
+                        contentDescription = stringResource(id = R.string.view_scores__multi_select_cancel),
                         helpTitle = R.string.help_view_score__cancel_multi_select_title,
                         helpBody = R.string.help_view_score__cancel_multi_select_body,
                         modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_CANCEL),
@@ -143,6 +151,7 @@ fun Collapsed_MultiSelectBar_Preview() {
         ViewScoresMultiSelectBar(
                 listener = listenersForPreviews,
                 isInMultiSelectMode = false,
+                isEveryItemSelected = false,
         )
     }
 }
@@ -154,6 +163,7 @@ fun Expanded_MultiSelectBar_Preview() {
         ViewScoresMultiSelectBar(
                 listener = listenersForPreviews,
                 isInMultiSelectMode = true,
+                isEveryItemSelected = false,
         )
     }
 }

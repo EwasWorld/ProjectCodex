@@ -15,10 +15,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.customActions
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.*
+import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -41,7 +39,8 @@ fun ViewScoresListItem(
         isInMultiSelectMode: Boolean,
         listActionState: ViewScoresListActionState,
         listener: ListActionListener,
-        content: @Composable (clickModifier: Modifier) -> Unit,
+        semanticsContentDescription: String,
+        content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
     fun stringFromRes(@StringRes resId: Int) = context.resources.getString(resId)
@@ -57,48 +56,50 @@ fun ViewScoresListItem(
                 { singleClickAction?.let { listener.dropdownMenuItemClicked(entry, singleClickAction) } }
             }
 
-    val clickModifier = Modifier
-            .pointerInput(entryIndex, isInMultiSelectMode) {
-                detectTapGestures(
-                        onTap = { singleClickListener() },
-                        onLongPress = {
-                            if (!dropdownMenuItems.isNullOrEmpty()) {
-                                listActionState.openForIndex(entryIndex)
-                            }
-                        },
-                )
-            }
-            .semantics(mergeDescendants = true) {
-                customActions = dropdownMenuItems?.map {
-                    CustomAccessibilityAction(stringFromRes(it.title)) {
-                        listener.dropdownMenuItemClicked(entry, it)
-                        true
+    Box(
+            modifier = Modifier
+                    .testTag(ViewScoresScreen.TestTag.LIST_ITEM)
+                    .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
+                    .pointerInput(entryIndex, isInMultiSelectMode) {
+                        detectTapGestures(
+                                onTap = { singleClickListener() },
+                                onLongPress = {
+                                    if (!dropdownMenuItems.isNullOrEmpty()) {
+                                        listActionState.openForIndex(entryIndex)
+                                    }
+                                },
+                        )
                     }
-                } ?: listOf()
-                onClick(
-                        label = when {
-                            !isInMultiSelectMode -> singleClickAction?.title
-                            entry.isSelected -> R.string.view_scores__deselect_entry
-                            else -> R.string.view_scores__select_entry
-                        }?.let { stringFromRes(it) },
-                        action = { singleClickListener(); true }
-                )
-            }
+                    .clearAndSetSemantics {
+                        contentDescription = semanticsContentDescription
+                        if (isInMultiSelectMode) {
+                            selected = entry.isSelected
+                        }
 
-    Box {
+                        onClick(
+                                label = when {
+                                    !isInMultiSelectMode -> singleClickAction?.title
+                                    entry.isSelected -> R.string.view_scores__deselect_entry
+                                    else -> R.string.view_scores__select_entry
+                                }?.let { stringFromRes(it) },
+                                action = { singleClickListener(); true }
+                        )
+
+                        customActions = dropdownMenuItems?.map {
+                            CustomAccessibilityAction(stringFromRes(it.title)) {
+                                listener.dropdownMenuItemClicked(entry, it)
+                                true
+                            }
+                        } ?: listOf()
+                    }
+    ) {
         Surface(
-                border = BorderStroke(
-                        width = ViewScoresScreen.SELECTED_ITEM_BORDER_STROKE,
-                        color = CodexTheme.colors.listItemOnAppBackgroundBoarder
-                ).takeIf { isInMultiSelectMode && entry.isSelected },
+                border = BorderStroke(2.dp, CodexTheme.colors.listItemOnAppBackgroundBorder)
+                        .takeIf { isInMultiSelectMode && entry.isSelected },
                 color = CodexTheme.colors.listItemOnAppBackground,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
-                        .testTag(ViewScoresScreen.TestTag.LIST_ITEM)
-        ) {
-            content(clickModifier)
-        }
+                content = content,
+                modifier = Modifier.fillMaxWidth()
+        )
         DropdownMenu(
                 expanded = listActionState.isContextMenuOpenForItem(entryIndex),
                 onDismissRequest = { listActionState.close() }

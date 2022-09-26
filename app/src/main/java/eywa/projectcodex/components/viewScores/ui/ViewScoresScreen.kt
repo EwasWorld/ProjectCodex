@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Devices
@@ -107,13 +108,14 @@ class ViewScoresScreen : ActionBarHelp {
                             listActionState = listState,
                             isInMultiSelectMode = isInMultiSelectMode,
                             listener = listener,
-                            genericHelpInfo = genericEntryHelpInfo[entryIndex]
-                    ) { clickModifier ->
+                            genericHelpInfo = genericEntryHelpInfo[entryIndex],
+                            semanticsContentDescription = viewScoresEntryRowAccessibilityString(
+                                    LocalContext.current, entry
+                            )
+                    ) {
                         ViewScoresEntryRow(
                                 entry = entry,
                                 helpInfo = specificEntryHelpInfo[entryIndex],
-                                modifier = clickModifier,
-                                isInMultiSelectMode = isInMultiSelectMode,
                         )
                     }
                 }
@@ -124,6 +126,7 @@ class ViewScoresScreen : ActionBarHelp {
                         listener = listener,
                         modifier = Modifier.padding(bottom = 20.dp),
                         isInMultiSelectMode = isInMultiSelectMode,
+                        isEveryItemSelected = entries.all { it.isSelected },
                 )
             }
         }
@@ -206,10 +209,6 @@ class ViewScoresScreen : ActionBarHelp {
     }
 
     override fun getHelpPriority(): Int? = null
-
-    companion object {
-        val SELECTED_ITEM_BORDER_STROKE = 2.dp
-    }
 
     abstract class ViewScoreScreenListener : MultiSelectBarListener, ListActionListener {
         internal lateinit var helpShowcaseInfo: ComposeHelpShowcaseMap
