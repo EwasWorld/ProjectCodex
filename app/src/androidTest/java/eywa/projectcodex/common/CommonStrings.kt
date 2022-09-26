@@ -11,14 +11,6 @@ class CommonStrings {
             const val scorePadInsertEnd = "Insert end above"
             const val scorePadDeleteEnd = "Delete end"
             const val scorePadEditEnd = "Edit end"
-
-            const val viewRoundsShowScorePad = "Score pad"
-            const val viewRoundsContinue = "Continue scoring"
-            const val viewRoundsDelete = "Delete"
-            const val viewRoundsConvert = "Convert"
-            const val viewRoundsConvertToTens = "Xs to 10s"
-            const val viewRoundsConvertToFiveZone = "10-zone to 5-zone"
-            const val viewRoundsEmail = "Email score"
         }
     }
 

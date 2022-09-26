@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +50,7 @@ internal fun ViewScoresMultiSelectBar(
             contentDescription: String?,
             @StringRes helpTitle: Int,
             @StringRes helpBody: Int,
+            modifier: Modifier = Modifier,
     ) {
         listener.addHelpShowcase(
                 ComposeHelpShowcaseItem(
@@ -59,7 +61,7 @@ internal fun ViewScoresMultiSelectBar(
         )
         IconButton(
                 onClick = onClick,
-                modifier = Modifier.updateHelpDialogPosition(listener, helpTitle)
+                modifier = modifier.updateHelpDialogPosition(listener, helpTitle)
         ) {
             Icon(
                     imageVector = imageVector,
@@ -82,6 +84,7 @@ internal fun ViewScoresMultiSelectBar(
                     contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_title),
                     helpTitle = R.string.help_view_score__start_multi_select_title,
                     helpBody = R.string.help_view_score__start_multi_select_body,
+                    modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_START),
             )
         }
         else {
@@ -102,6 +105,7 @@ internal fun ViewScoresMultiSelectBar(
                         contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_all_or_none),
                         helpTitle = R.string.help_view_score__select_all_or_none_title,
                         helpBody = R.string.help_view_score__select_all_or_none_body,
+                        modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_ALL),
                 )
                 MultiSelectIconButton(
                         onClick = { listener.multiSelectEmailClicked() },
@@ -109,6 +113,7 @@ internal fun ViewScoresMultiSelectBar(
                         contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_email),
                         helpTitle = R.string.help_view_score__action_multi_select_title,
                         helpBody = R.string.help_view_score__action_multi_select_body,
+                        modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_EMAIL),
                 )
                 MultiSelectIconButton(
                         onClick = { listener.toggleMultiSelectMode() },
@@ -116,6 +121,7 @@ internal fun ViewScoresMultiSelectBar(
                         contentDescription = stringResource(id = R.string.view_scores_menu__multi_select_email),
                         helpTitle = R.string.help_view_score__cancel_multi_select_title,
                         helpBody = R.string.help_view_score__cancel_multi_select_body,
+                        modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_CANCEL),
                 )
             }
         }

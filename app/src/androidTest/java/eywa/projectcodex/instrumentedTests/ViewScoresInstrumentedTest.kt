@@ -1,25 +1,17 @@
 package eywa.projectcodex.instrumentedTests
 
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
-import androidx.navigation.Navigation
-import androidx.navigation.testing.TestNavHostController
-import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.*
-import com.azimolabs.conditionwatcher.ConditionWatcher
-import com.azimolabs.conditionwatcher.Instruction
-import eywa.projectcodex.R
-import eywa.projectcodex.common.*
-import eywa.projectcodex.components.viewScores.data.ViewScoreData
-import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.navigation.NavController
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.pressBack
+import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.common.CustomConditionWaiter
+import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
+import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
+import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.components.newScore.NewScoreFragment
+import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -29,23 +21,27 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
+import java.sql.Date
 
 class ViewScoresInstrumentedTest {
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(60)
+    val testTimeout: Timeout = Timeout.seconds(160)
 
-    private lateinit var scenario: FragmentScenario<ViewScoresFragment>
-    private lateinit var navController: TestNavHostController
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    private lateinit var scenario: ActivityScenario<MainActivity>
+    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
-    private lateinit var layoutManager: RecyclerView.LayoutManager
     private var archerRounds: List<ArcherRoundWithRoundInfoAndName> = listOf()
     private var rounds = listOf<Round>()
     private var roundSubTypes = listOf<RoundSubType>()
@@ -62,29 +58,45 @@ class ViewScoresInstrumentedTest {
         roundDistances = listOf()
         arrows = listOf()
 
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+        scenario = composeTestRule.activityRule.scenario
 
-        // Start initialised so we can add to the database before the onCreate methods are called
-        scenario = launchFragmentInContainer(initialState = Lifecycle.State.INITIALIZED)
-        scenario.onFragment {
+        scenario.onActivity {
             db = DatabaseDaggerTestModule.scoresRoomDatabase
-            navController.setGraph(R.navigation.nav_graph)
-            navController.setCurrentDestination(R.id.viewScoresFragment)
-        }
-
-        scenario.moveToState(Lifecycle.State.RESUMED)
-        scenario.onFragment {
-            Navigation.setViewNavController(it.requireView(), navController)
+            navController = it.navHostFragment.navController
         }
     }
 
     @After
     fun afterEach() {
-        CommonSetupTeardownFns.teardownScenario(scenario)
-        ViewScoreData.clearInstance()
+        CommonSetupTeardownFns.teardownScenario(composeTestRule.activityRule)
     }
 
-    private fun generateBasicDataAndAddToDb() {
+    private fun populateDb() {
+        scenario.onActivity {
+            runBlocking {
+                rounds.forEach { db.roundDao().insert(it) }
+                roundSubTypes.forEach { db.roundSubTypeDao().insert(it) }
+                roundArrowCounts.forEach { db.roundArrowCountDao().insert(it) }
+                roundDistances.forEach { db.roundDistanceDao().insert(it) }
+                archerRounds.forEach { db.archerRoundDao().insert(it.archerRound) }
+                arrows.flatten().forEach { db.arrowValueDao().insert(it) }
+            }
+        }
+    }
+
+    // TODO_CURRENT Test semantics string?
+
+    @Test
+    fun testEmptyTable() {
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                clickOkOnEmptyTableDialog()
+            }
+        }
+    }
+
+    @Test
+    fun testViewScoresEntry_Values() {
         rounds = listOf(
                 Round(1, "metricround", "Metric Round", true, true, listOf()),
                 Round(2, "imperialround", "Imperial Round", true, true, listOf()),
@@ -103,10 +115,11 @@ class ViewScoresInstrumentedTest {
                 RoundDistance(2, 1, 2, 50)
         )
         archerRounds = listOf(
-                ArcherRound(1, TestUtils.generateDate(), 1, false),
-                ArcherRound(2, TestUtils.generateDate(), 1, false, roundId = 1),
-                ArcherRound(3, TestUtils.generateDate(), 1, false, roundId = 2),
-                ArcherRound(4, TestUtils.generateDate(), 1, false, roundId = 2, roundSubTypeId = 2)
+                ArcherRound(1, Date.valueOf("2013-1-1"), 1),
+                ArcherRound(2, Date.valueOf("2012-2-2"), 1, roundId = 1),
+                ArcherRound(3, Date.valueOf("2011-3-3"), 1, roundId = 2),
+                ArcherRound(4, Date.valueOf("2010-4-4"), 1, roundId = 2, roundSubTypeId = 2),
+                ArcherRound(5, Date.valueOf("2009-5-5"), 1),
         ).map { archerRound ->
             ArcherRoundWithRoundInfoAndName(
                     archerRound,
@@ -118,324 +131,279 @@ class ViewScoresInstrumentedTest {
         }
         arrows = archerRounds.map { archerRound ->
             val archerRoundId = archerRound.archerRound.archerRoundId
-            List(36) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
+            List(1) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
         }
 
-        addToDbAndRetrieveAdapter()
-    }
+        populateDb()
 
-    private fun ViewScoresEntry.getExpectedHsg(): String {
-        val score = this.id * 36
-        return "36/$score/0"
-    }
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(5)
 
-    private fun addToDbAndRetrieveAdapter() {
-        scenario.onFragment {
-            runBlocking {
-                archerRounds.forEach {
-                    db.archerRoundDao().insert(it.archerRound)
-                }
-                arrows.flatten().forEach {
-                    db.arrowValueDao().insert(it)
-                }
-                rounds.forEach {
-                    db.roundDao().insert(it)
-                }
-                roundSubTypes.forEach {
-                    db.roundSubTypeDao().insert(it)
-                }
-                roundArrowCounts.forEach {
-                    db.roundArrowCountDao().insert(it)
-                }
-                roundDistances.forEach {
-                    db.roundDistanceDao().insert(it)
-                }
+                waitForHsg(0, "1/1/0")
+                waitForHandicap(0, null)
+                waitForRoundName(0, null)
+                waitForDate(0, "01/01/13")
+
+                waitForHsg(1, "1/2/0")
+                waitForHandicap(1, 64)
+                waitForRoundName(1, "Metric Round")
+                waitForDate(1, "02/02/12")
+
+                waitForHsg(2, "1/3/0")
+                waitForHandicap(2, 63)
+                waitForRoundName(2, "Imperial Round")
+                waitForDate(2, "03/03/11")
+
+                waitForHsg(3, "1/4/0")
+                waitForHandicap(3, 64)
+                waitForRoundName(3, "Sub Type 2")
+                waitForDate(3, "04/04/10")
+
+                waitForHsg(4, "1/5/0")
+                waitForHandicap(4, null)
+                waitForRoundName(4, null)
+                waitForDate(4, "05/05/09")
             }
         }
-        retrieveUpdatedAdapter()
     }
 
-    private fun retrieveUpdatedAdapter() {
-        scenario.onFragment { fragment ->
-            layoutManager =
-                    fragment.requireActivity().findViewById<RecyclerView>(R.id.recycler_view_scores).layoutManager!!
-        }
-    }
-
-    private fun generateExpectedData(): ViewScoreData {
-        val expectedData = ViewScoreData.createInstance()
-        expectedData.updateArcherRounds(archerRounds)
-        expectedData.updateArrows(arrows.flatten())
-        expectedData.updateArrowCounts(roundArrowCounts)
-        expectedData.updateDistances(roundDistances)
-
-        // Quick check
-        assertEquals(archerRounds.size, expectedData.getData().size)
-        return expectedData
-    }
-
-    private fun checkData(
-            indexedExpectedData: Iterable<IndexedValue<ViewScoresEntry>>,
-            useExpectedHsg: Boolean = true
-    ) {
-        for (indexedItem in indexedExpectedData) {
-            scenario.onFragment {
-                layoutManager.scrollToPosition(indexedItem.index)
-            }
-            CustomConditionWaiter.waitForTextToAppear(
-                    if (useExpectedHsg) indexedItem.value.getExpectedHsg() else indexedItem.value.hitsScoreGolds,
-                    R.id.text_vs_round_item__hsg,
-                    indexedItem.index
-            )
-            CustomConditionWaiter.waitForTextToAppear(
-                    indexedItem.value.handicap?.toString() ?: "-",
-                    R.id.text_vs_round_item__handicap,
-                    indexedItem.index
-            )
-        }
-    }
-
+    /**
+     * Test actions that do not change the data in the database
+     */
     @Test
-    fun testTableValues() {
-        generateBasicDataAndAddToDb()
-        val expectedData = generateExpectedData()
-        checkData(expectedData.getData().withIndex())
-    }
+    fun testViewScoresEntry_NonDestructiveActions() {
+        val roundId = 1
+        rounds = TestUtils.ROUNDS.filter { it.roundId == roundId }
+        roundArrowCounts = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == roundId }
+        roundSubTypes = TestUtils.ROUND_SUB_TYPES.filter { it.roundId == roundId }
+        roundDistances = TestUtils.ROUND_DISTANCES.filter { it.roundId == roundId }
 
-    @Test
-    fun testEmptyTable() {
-        onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
-        assertEquals(R.id.mainMenuFragment, navController.currentDestination?.id)
-    }
-
-    @Test
-    fun testOpenScorePad() {
-        generateBasicDataAndAddToDb()
-        val expectedData = generateExpectedData()
-
-        val clickedItem = expectedData.getData()[0]
-        CustomConditionWaiter.waitForTextToAppear(clickedItem.getExpectedHsg())
-        onView(withIndex(withText(clickedItem.getExpectedHsg()), 0)).perform(longClick())
-        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsShowScorePad)
-        onView(withText(CommonStrings.Menus.viewRoundsShowScorePad)).perform(click())
-
-        assertEquals(R.id.scorePadFragment, navController.currentDestination?.id)
-        assertEquals(clickedItem.id, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
-    }
-
-    @Test
-    fun testContinueRound() {
-        generateBasicDataAndAddToDb()
-        val expectedData = generateExpectedData()
-
-        val clickedItem = expectedData.getData().find { it.round?.roundId == 1 }!!
-        CustomConditionWaiter.waitForTextToAppear(clickedItem.getExpectedHsg())
-        onView(withIndex(withText(clickedItem.getExpectedHsg()), 0)).perform(longClick())
-        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsContinue)
-        CustomConditionWaiter.waitFor(2000)
-        onView(withText(CommonStrings.Menus.viewRoundsContinue)).perform(click())
-
-        assertEquals(R.id.inputEndFragment, navController.currentDestination?.id)
-        assertEquals(clickedItem.id, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
-    }
-
-    @Test
-    fun testDeleteRow() {
-        generateBasicDataAndAddToDb()
-        val expectedData = generateExpectedData()
-
-        val deleteItem = expectedData.getData().filterIndexed { i, entry ->
-            i != 0 && entry.round != null
-        }.first()
-        CustomConditionWaiter.waitForTextToAppear(deleteItem.getExpectedHsg())
-        onView(withIndex(withText(deleteItem.getExpectedHsg()), 0)).perform(longClick())
-        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsDelete)
-        onView(withText(CommonStrings.Menus.viewRoundsDelete)).perform(click())
-
-        ConditionWatcher.waitForCondition(object : Instruction() {
-            override fun getDescription(): String {
-                return "wait for row to be removed"
-            }
-
-            override fun checkCondition(): Boolean {
-                return expectedData.getData().size - 1 == layoutManager.childCount
-            }
-        })
-
-        checkData(expectedData.getData().minus(deleteItem).withIndex())
-    }
-
-    @Test
-    fun testContinueCompletedRound() {
-        generateBasicDataAndAddToDb()
-        val expectedData = generateExpectedData()
-
-        val clickedItem = expectedData.getData().find { it.round?.roundId == 2 }!!
-        CustomConditionWaiter.waitForTextToAppear(
-                clickedItem.getExpectedHsg(),
-                CustomConditionWaiter.Companion.ClickType.LONG_CLICK
-        )
-        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
-        onView(withText(CommonStrings.Menus.viewRoundsContinue)).withFailureHandler { _, _ ->
-            onView(withText(CommonStrings.Menus.viewRoundsContinue)).check(matches(not(isDisplayed())))
-        }.check(doesNotExist())
-    }
-
-    @Test
-    fun testConvertRound() {
         archerRounds = listOf(
-                ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(1, TestUtils.generateDate(2020), 1, false)
-                ),
-                ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(2, TestUtils.generateDate(2019), 1, false)
-                )
+                // No round
+                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestUtils.generateDate(2020), 1)),
+                // Completed round
+                ArcherRoundWithRoundInfoAndName(ArcherRound(2, TestUtils.generateDate(2019), 1, roundId = 1)),
         )
         arrows = listOf(
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(2, i + 1) }
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
+                // Add the correct number of arrows to complete the round
+                List(roundArrowCounts.sumOf { it.arrowCount }) {
+                    TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowValue(2, it)
+                },
         )
-        addToDbAndRetrieveAdapter()
-        val expectedData = generateExpectedData()
+        populateDb()
 
-        // Convert first score
-        val expectedHsg = expectedData.getData().find { it.id == 1 }!!.hitsScoreGolds
-        CustomConditionWaiter.waitForTextToAppear(expectedHsg)
-        onView(withIndex(withText(expectedHsg), 0)).perform(longClick())
-        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
-        onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
-        onView(withText(CommonStrings.Menus.viewRoundsConvertToFiveZone)).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        clickAlertDialog(CommonStrings.Dialogs.viewRoundsConvertTitle)
-        CustomConditionWaiter.waitForToast("Finished conversion")
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(2)
 
-        // Convert second score (sum should be unique)
-        onView(withIndex(withText(expectedData.getData().find { it.id == 2 }!!.hitsScoreGolds), 0)).perform(longClick())
-        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsConvert)
-        onView(withText(CommonStrings.Menus.viewRoundsConvert)).perform(click())
-        onView(withText(CommonStrings.Menus.viewRoundsConvertToTens)).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        clickAlertDialog(CommonStrings.Dialogs.viewRoundsConvertTitle)
-        CustomConditionWaiter.waitForToast("Finished conversion")
-        retrieveUpdatedAdapter()
+                val archerRoundId = 1
+                val rowId = 0
 
-        // Change arrows so we generate expected data again
-        arrows = listOf(
-                // 5-zone arrows
-                listOf(
-                        TestUtils.ARROWS[0], TestUtils.ARROWS[1], TestUtils.ARROWS[1], TestUtils.ARROWS[3],
-                        TestUtils.ARROWS[3], TestUtils.ARROWS[5], TestUtils.ARROWS[5], TestUtils.ARROWS[7],
-                        TestUtils.ARROWS[7], TestUtils.ARROWS[9], TestUtils.ARROWS[9], TestUtils.ARROWS[9]
-                ).mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
-                // 10-zone arrows
-                TestUtils.ARROWS.dropLast(1).plus(TestUtils.ARROWS[10])
-                        .mapIndexed { i, arrow -> arrow.toArrowValue(2, i) }
-        )
-        checkData(generateExpectedData().getData().withIndex(), false)
+                // Single click - score pad
+                clickRow(rowId)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                pressBack()
+
+                // Long click - score pad
+                longClickRow(rowId)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.SCORE_PAD_MENU_ITEM)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                pressBack()
+
+                // Long click - continue
+                longClickRow(rowId)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONTINUE_MENU_ITEM)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
+                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                pressBack()
+
+                // Long click - continue not exist
+                longClickRow(1)
+                checkDropdownMenuItemNotThere(ViewScoresRobot.CommonStrings.CONTINUE_MENU_ITEM)
+
+                // Long click - email
+                longClickRow(rowId)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
+                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                pressBack()
+
+                // Long click - edit
+                longClickRow(rowId)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EDIT_MENU_ITEM)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (NewScoreFragment::class))
+                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                pressBack()
+            }
+        }
     }
 
     @Test
-    fun testMultiSelections() {
+    fun testViewScoresEntry_Delete() {
+        archerRounds = listOf(
+                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestUtils.generateDate(2020), 1)),
+                ArcherRoundWithRoundInfoAndName(ArcherRound(2, TestUtils.generateDate(2019), 1)),
+        )
+        arrows = listOf(
+                List(36) { TestUtils.ARROWS[1].toArrowValue(1, it) },
+                List(36) { TestUtils.ARROWS[10].toArrowValue(2, it) },
+        )
+        populateDb()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(2)
+                waitForHsg(0, "36/36/0")
+                waitForHsg(1, "36/360/36")
+
+                longClickRow(0)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.DELETE_MENU_ITEM)
+                // TODO_CURRENT make an 'are you sure' popup
+
+                waitForRowCount(1)
+                waitForHsg(0, "36/360/36")
+            }
+        }
+    }
+
+    @Test
+    fun testViewScoresEntry_Convert() {
+        archerRounds = listOf(
+                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestUtils.generateDate(2020), 1)),
+                ArcherRoundWithRoundInfoAndName(ArcherRound(2, TestUtils.generateDate(2019), 1)),
+        )
+        arrows = listOf(
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(2, i) },
+        )
+        populateDb()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(2)
+                waitForHsg(0, "11/65/3")
+                waitForHsg(1, "11/65/3")
+
+                /*
+                 * Xs to 10s
+                 */
+                longClickRow(0)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONVERT_MENU_ITEM)
+                chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_XS_TO_TENS_OPTION)
+                clickConvertDialogOk()
+                waitForHsg(0, "11/65/3")
+                // TODO Check score pad
+
+
+                /*
+                 * 10-zone to 5-zone
+                 */
+                longClickRow(1)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONVERT_MENU_ITEM)
+                chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_TEN_ZONE_TO_FIVE_ZONE_OPTION)
+                clickConvertDialogOk()
+                waitForHsg(1, "11/59/3")
+                // TODO Check score pad
+            }
+        }
+    }
+
+    /**
+     * Test selecting and deselecting items
+     */
+    @Test
+    fun testMultiSelect_Selections() {
         val size = 4
         archerRounds = TestUtils.generateArcherRounds(size).map { ArcherRoundWithRoundInfoAndName(it) }
         arrows = List(size) { i ->
             val roundId = archerRounds[i].archerRound.archerRoundId
             TestUtils.generateArrowValues(roundId, 36, roundId)
         }
-        addToDbAndRetrieveAdapter()
-        val expectedData = generateExpectedData().getData()
+        populateDb()
 
-        CustomConditionWaiter.waitForTextToAppear(expectedData[0].hitsScoreGolds)
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(4)
+                checkMultiSelectMode(false)
 
-        for (i in 0 until size) {
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
-        }
-        R.id.button_view_scores__start_multi_select.click()
+                clickStartMultiSelectMode()
+                checkMultiSelectMode(true)
+                checkEntriesSelected(listOf())
 
-        /*
-         * Select a single item
-         */
-        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
-        for (i in 0 until size) {
-            var matcher = isSelected()
-            if (i != 1) {
-                matcher = not(matcher)
+                // Select item
+                clickRow(0)
+                checkEntriesSelected(listOf(0))
+
+                // Deselect item
+                clickRow(0)
+                checkEntriesSelected(listOf())
+
+                // Select all items from none
+                clickMultiSelectSelectAll()
+                checkEntriesSelected(0..3)
+
+                // Deselect all from all selected
+                clickMultiSelectSelectAll()
+                checkEntriesSelected(listOf())
+
+                // Select two items
+                clickRow(1)
+                clickRow(2)
+                checkEntriesSelected(listOf(1, 2))
+
+                // Deselect one
+                clickRow(2)
+                checkEntriesSelected(listOf(1))
+
+                // Select all items from a single selected
+                clickMultiSelectSelectAll()
+                checkEntriesSelected(0..3)
+
+                // Deselect one item
+                clickRow(1)
+                checkEntriesSelected(listOf(0, 2, 3))
+                checkMultiSelectMode(true)
+
+                // Cancel
+                clickCancelMultiSelectMode()
+                checkEntriesSelected(listOf())
+                checkMultiSelectMode(false)
             }
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
         }
+    }
 
-        /*
-         * Deselect the item
-         */
-        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
-        for (i in 0 until size) {
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
+    @Test
+    fun testMultiSelect_Email() {
+        val size = 4
+        archerRounds = TestUtils.generateArcherRounds(size).map { ArcherRoundWithRoundInfoAndName(it) }
+        arrows = List(size) { i ->
+            val roundId = archerRounds[i].archerRound.archerRoundId
+            TestUtils.generateArrowValues(roundId, 36, roundId)
         }
+        populateDb()
 
-        /*
-         * Select all items from none then deselect all
-         */
-        R.id.button_view_scores__select_all_or_none.click()
-        for (i in 0 until size) {
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(isSelected()))
-        }
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(4)
+                waitForHsg(0, "1/1/0")
+                waitForHsg(1, "1/2/0")
+                waitForHsg(2, "1/3/0")
+                waitForHsg(3, "1/4/0")
 
-        R.id.button_view_scores__select_all_or_none.click()
-        for (i in 0 until size) {
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
-        }
+                clickStartMultiSelectMode()
+                clickMultiSelectSelectAll()
+                checkEntriesSelected(0..3)
+                checkMultiSelectMode(true)
 
-        /*
-         * Select two items
-         */
-        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
-        onView(withText(expectedData[2].hitsScoreGolds)).perform(click())
-        for (i in 0 until size) {
-            var matcher = isSelected()
-            if (i != 1 && i != 2) {
-                matcher = not(matcher)
+                clickMultiSelectEmail()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
+
+                // TODO_CURRENT Check email scores shows correct items
             }
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
-        }
-
-        /*
-         * Deselect one item
-         */
-        onView(withText(expectedData[2].hitsScoreGolds)).perform(click())
-        for (i in 0 until size) {
-            var matcher = isSelected()
-            if (i != 1) {
-                matcher = not(matcher)
-            }
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
-        }
-
-        /*
-         * Select all items from single selection
-         */
-        R.id.button_view_scores__select_all_or_none.click()
-        for (i in 0 until size) {
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(isSelected()))
-        }
-
-        /*
-         * Deselect one item
-         */
-        onView(withText(expectedData[1].hitsScoreGolds)).perform(click())
-        for (i in 0 until size) {
-            var matcher = isSelected()
-            if (i == 1) {
-                matcher = not(matcher)
-            }
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(matcher))
-        }
-
-        /*
-         * Cancel
-         */
-        R.id.button_view_scores__cancel_selection.click()
-        for (i in 0 until size) {
-            onView(withIndex(withId(R.id.layout_vs_round_item), i)).check(matches(not(isSelected())))
         }
     }
 }

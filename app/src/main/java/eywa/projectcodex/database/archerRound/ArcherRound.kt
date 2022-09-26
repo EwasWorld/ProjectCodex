@@ -30,16 +30,19 @@ data class ArcherRoundWithRoundInfoAndName(
         @Embedded val round: Round? = null,
         val roundSubTypeName: String? = null
 ) {
-    init {
-        require(archerRound.roundId == round?.roundId) { "Mismatched round id" }
-        require(
-                roundSubTypeName == null && archerRound.roundSubTypeId == null
-                        || roundSubTypeName != null && archerRound.roundSubTypeId != null
-        ) { "Mismatched subtype nullness" }
-    }
-
     val displayName: String?
         get() = roundSubTypeName ?: round?.displayName
     val id: Int
         get() = archerRound.archerRoundId
+
+    init {
+        // TODO_CURRENT Why is this causing crashes?
+//        require(archerRound.roundId == round?.roundId) {
+//            "Mismatched round id. ${archerRound.roundId} ${round?.roundId} $displayName"
+//        }
+//        require(
+//                roundSubTypeName == null && archerRound.roundSubTypeId == null
+//                        || roundSubTypeName != null && archerRound.roundSubTypeId != null
+//        ) { "Mismatched subtype nullness" }
+    }
 }

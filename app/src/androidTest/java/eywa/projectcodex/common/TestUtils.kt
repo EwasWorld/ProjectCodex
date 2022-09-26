@@ -112,7 +112,7 @@ object TestUtils {
     }
 
     fun generateArcherRounds(roundsToGenerate: Int): List<ArcherRound> = List(roundsToGenerate) { generateDate() }
-            .sorted()
+            .sortedDescending()
             .mapIndexed { index, date ->
                 ArcherRound(index + 1, date, 1, false)
             }

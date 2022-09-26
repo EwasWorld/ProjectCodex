@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
@@ -64,12 +65,13 @@ fun <T : HasDisplayTitle> RadioButtonDialogContent(
     ) {
         state.items.forEachIndexed { index, item ->
             Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                             .fillMaxWidth()
                             .selectable(selected = index == state.selectedIndex) {
                                 state.selectedIndex = index
-                            },
-                    verticalAlignment = Alignment.CenterVertically,
+                            }
+                            .testTag(RadioButtonDialogTestTag.RADIO_BUTTON)
             ) {
                 RadioButton(
                         selected = index == state.selectedIndex,
@@ -85,6 +87,10 @@ fun <T : HasDisplayTitle> RadioButtonDialogContent(
             }
         }
     }
+}
+
+object RadioButtonDialogTestTag {
+    const val RADIO_BUTTON = "RADIO_BUTTON_DIALOG_RADIO_BUTTON"
 }
 
 @Preview

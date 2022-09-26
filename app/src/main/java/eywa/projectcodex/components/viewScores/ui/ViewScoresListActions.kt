@@ -13,11 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -67,7 +68,7 @@ fun ViewScoresListItem(
                         },
                 )
             }
-            .clearAndSetSemantics {
+            .semantics(mergeDescendants = true) {
                 customActions = dropdownMenuItems?.map {
                     CustomAccessibilityAction(stringFromRes(it.title)) {
                         listener.dropdownMenuItemClicked(entry, it)
@@ -94,6 +95,7 @@ fun ViewScoresListItem(
                 modifier = Modifier
                         .fillMaxWidth()
                         .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
+                        .testTag(ViewScoresScreen.TestTag.LIST_ITEM)
         ) {
             content(clickModifier)
         }
@@ -108,7 +110,8 @@ fun ViewScoresListItem(
                                 if (listener.dropdownMenuItemClicked(entry, item)) {
                                     listActionState.close()
                                 }
-                            }
+                            },
+                            modifier = Modifier.testTag(ViewScoresScreen.TestTag.DROPDOWN_MENU_ITEM)
                     ) {
                         Text(
                                 text = stringResource(id = item.title),

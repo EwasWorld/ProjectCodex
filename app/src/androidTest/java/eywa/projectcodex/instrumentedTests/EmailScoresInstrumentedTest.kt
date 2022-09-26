@@ -8,13 +8,10 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.*
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import eywa.projectcodex.R
@@ -29,6 +26,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
@@ -168,18 +166,16 @@ class EmailScoresInstrumentedTest {
 
     @Test
     fun testEmailScoreWithAttachment() {
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-
         val roundDate = DateTimeFormat.SHORT_DATE.format(archerRounds[0].dateShot)
-        CustomConditionWaiter.waitForTextToAppear(
-                roundDate,
-                CustomConditionWaiter.Companion.ClickType.LONG_CLICK
-        )
-        CustomConditionWaiter.waitForMenuToAppear(CommonStrings.Menus.viewRoundsEmail)
-        onView(withText(CommonStrings.Menus.viewRoundsEmail)).perform(ViewActions.click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForDate(0, roundDate)
+                longClickRow(0)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
+            }
+        }
 
         typeInfo()
 

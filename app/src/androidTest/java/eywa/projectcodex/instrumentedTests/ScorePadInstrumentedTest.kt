@@ -176,7 +176,7 @@ class ScorePadInstrumentedTest {
         }
         activityScenario!!.recreate()
 
-        CustomConditionWaiter.waitForScorePadToOpen(composeTestRule, arrows)
+        CustomConditionWaiter.waitForScorePadToOpen(composeTestRule = composeTestRule, arrows = arrows, rowIndex = 0)
         CustomConditionWaiter.waitForRowToAppear(getTableView(), (waitForRow))
     }
 

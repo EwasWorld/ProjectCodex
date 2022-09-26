@@ -59,43 +59,34 @@ class CustomConditionWaiter {
         fun waitForScorePadToOpen(
                 composeTestRule: ComposeTestRule<MainActivity>,
                 arrows: Iterable<ArrowValue>,
-                goldsType: GoldsType = GoldsType.NINES
+                goldsType: GoldsType = GoldsType.NINES,
+                rowIndex: Int
         ) {
             waitForScorePadToOpen(
                     composeTestRule,
                     "%d/%d/%d".format(
                             arrows.count { it.score != 0 },
                             arrows.sumOf { it.score },
-                            arrows.count { goldsType.isGold(it) })
+                            arrows.count { goldsType.isGold(it) }),
+                    rowIndex
             )
         }
 
         /**
          * Returns to the main menu, clicks view scores, then waits for the given hits/score/golds string to appear
          * and clicks on it to open the score pad
-         * @param hsgToClick the hits/score/golds string to click (in the form 0/0/0 where 0s are positive integers)
+         * @param expectedHsg the hits/score/golds string to click (in the form 0/0/0 where 0s are positive integers)
          */
-        fun waitForScorePadToOpen(composeTestRule: ComposeTestRule<MainActivity>, hsgToClick: String) {
+        fun waitForScorePadToOpen(composeTestRule: ComposeTestRule<MainActivity>, expectedHsg: String, rowIndex: Int) {
             R.id.action_bar__home.click()
 
             composeTestRule.mainMenuRobot {
-                clickViewScores()
+                clickViewScores {
+                    waitForHsg(rowIndex, expectedHsg)
+                    clickRow(rowIndex)
+                    waitForFragmentToShow(composeTestRule.activityRule.scenario, ScorePadFragment::class)
+                }
             }
-
-            ConditionWatcher.waitForCondition(object : Instruction() {
-                override fun checkCondition(): Boolean {
-                    val failureHandler = CustomWaiterFailHandle()
-                    onView(withText(hsgToClick))
-                            .withFailureHandler(failureHandler)
-                            .perform(click())
-                    return !failureHandler.wasTriggered
-                }
-
-                override fun getDescription(): String {
-                    return "Wait for $hsgToClick to appear"
-                }
-            })
-            waitForFragmentToShow(composeTestRule.activityRule.scenario, ScorePadFragment::class)
         }
 
         /**
@@ -307,6 +298,25 @@ class CustomConditionWaiter {
             }
             activityScenario?.let { it.onActivity { state.removeObserver(observer) } }
             fragmentScenario?.let { it.onFragment { state.removeObserver(observer) } }
+        }
+
+        fun waitForComposeCondition(description: String? = null, assertion: () -> Unit) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun getDescription(): String {
+                    return description ?: "Waiting compose condition"
+                }
+
+                override fun checkCondition(): Boolean {
+                    try {
+                        assertion()
+                        return true
+                    }
+                    catch (e: AssertionError) {
+                        println(e)
+                    }
+                    return false
+                }
+            })
         }
     }
 

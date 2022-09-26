@@ -8,7 +8,6 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
@@ -25,6 +24,7 @@ import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.newScore.NewScoreFragment
+import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -33,6 +33,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.composeHelpRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -107,11 +108,10 @@ class LargeScaleInstrumentedTest {
         ConditionWatcher.setTimeoutLimit(15000)
         composeTestRule.mainMenuRobot {
             logMessage(this::class, "View rounds (nothing inputted)")
-            clickViewScores()
-        }
-        clickAlertDialog(CommonStrings.Dialogs.emptyTable)
+            clickViewScores {
+                clickOkOnEmptyTableDialog()
+            }
 
-        composeTestRule.mainMenuRobot {
             logMessage(this::class, "Start score A - default date, with round")
             clickNewScore()
         }
@@ -245,13 +245,16 @@ class LargeScaleInstrumentedTest {
 
         logMessage(this::class, "View rounds (score A inputted)")
         composeTestRule.mainMenuRobot {
-            clickViewScores()
+            clickViewScores {
+                waitForHsg(0, "18/48/0")
+
+                logMessage(this::class, "Score A - View round insert end - 1")
+                clickRow(0)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+            }
         }
 
 
-        logMessage(this::class, "Score A - View round insert end - 1")
-        CustomConditionWaiter.waitForTextToAppear("18/48/0", CustomConditionWaiter.Companion.ClickType.CLICK)
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
         R.id.inputEndFragment.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
         completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
@@ -356,7 +359,7 @@ class LargeScaleInstrumentedTest {
     fun testHelpDialogs() {
         touchEveryScreen(listOf(ArcherRoundStatsFragment::class, AboutFragment::class)) { fragmentClass ->
             if (fragmentClass in listOf(
-                        MainMenuFragment::class
+                        MainMenuFragment::class, ViewScoresFragment::class
                 )
             ) {
                 cycleThroughComposeHelpDialogs()
@@ -366,8 +369,10 @@ class LargeScaleInstrumentedTest {
             cycleThroughHelpDialogs()
 
             if (fragmentClass == ViewScoresFragment::class) {
-                R.id.button_view_scores__start_multi_select.click()
-                cycleThroughHelpDialogs()
+                with(ViewScoresRobot(composeTestRule)) {
+                    clickStartMultiSelectMode()
+                }
+                cycleThroughComposeHelpDialogs()
             }
         }
     }
@@ -490,14 +495,15 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
         pressBack()
         composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        performAction(ViewScoresFragment::class)
+            clickViewScores {
+                performAction(ViewScoresFragment::class)
 
-        logMessage(this::class, "Navigating to: Email")
-        onView(withIndex(withId(R.id.layout_vs_round_item), 0)).perform(longClick())
-        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.viewRoundsEmail)
-        performAction(EmailScoresFragment::class)
+                logMessage(this::class, "Navigating to: Email")
+                longClickRow(0)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
+                performAction(EmailScoresFragment::class)
+            }
+        }
     }
 
     /**
@@ -542,8 +548,9 @@ class LargeScaleInstrumentedTest {
             }
         }
         CustomConditionWaiter.waitForScorePadToOpen(
-                composeTestRule,
-                "%d/%d/%d".format(arrowCount, arrowScore * arrowCount, 0)
+                composeTestRule = composeTestRule,
+                expectedHsg = "$arrowCount/${arrowScore * arrowCount}/0",
+                rowIndex = 0
         )
         var tableView: TableView? = null
         scenario.onActivity {
@@ -586,7 +593,6 @@ class LargeScaleInstrumentedTest {
         pressBack()
         pressBack()
         composeTestRule.mainMenuRobot {
-            checkExitDialogShowing()
             clickCancelOnExitDialog()
         }
 
@@ -642,7 +648,6 @@ class LargeScaleInstrumentedTest {
         logMessage(this::class, "Main menu 2")
         pressBack()
         composeTestRule.mainMenuRobot {
-            checkExitDialogShowing()
             clickCancelOnExitDialog()
         }
 
@@ -650,123 +655,127 @@ class LargeScaleInstrumentedTest {
         logMessage(this::class, "View rounds")
         composeTestRule.mainMenuRobot {
             clickViewScores()
-        }
-        logMessage(this::class, " -> press back")
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+            logMessage(this::class, " -> press back")
+            pressBack()
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
-        logMessage(this::class, "Email score")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(longClick())
-        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.viewRoundsEmail)
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
-        logMessage(this::class, " -> press back")
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            val rowIndex = 0
+            logMessage(this::class, "Email score")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                longClickRow(rowIndex)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
+
+                logMessage(this::class, " -> press back")
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+
+                pressBack()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
-        logMessage(this::class, "View rounds -> Score pad")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        logMessage(this::class, " -> press back")
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            logMessage(this::class, "View rounds -> Score pad")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+
+                logMessage(this::class, " -> press back")
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+
+                pressBack()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
-        logMessage(this::class, "View rounds -> Score pad -> Score stats")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        R.id.archerRoundStatsFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
-        logMessage(this::class, " -> press back")
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            logMessage(this::class, "View rounds -> Score pad -> Score stats")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+
+                R.id.archerRoundStatsFragment.click()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
+                logMessage(this::class, " -> press back")
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                pressBack()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
-        logMessage(this::class, "View rounds -> Score pad -> Many")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        R.id.archerRoundStatsFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
-        repeat(6) {
-            R.id.scorePadFragment.click()
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-            R.id.inputEndFragment.click()
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
-        }
-        logMessage(this::class, " -> press back")
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            logMessage(this::class, "View rounds -> Score pad -> Many")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                R.id.archerRoundStatsFragment.click()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
+                repeat(6) {
+                    R.id.scorePadFragment.click()
+                    CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                    R.id.inputEndFragment.click()
+                    CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
+                }
+                logMessage(this::class, " -> press back")
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                pressBack()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
-        logMessage(this::class, "View rounds -> Edit end")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        onView(withText("2-2-2-2-2-2")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class))
-        logMessage(this::class, " -> press back")
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            logMessage(this::class, "View rounds -> Edit end")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                onView(withText("2-2-2-2-2-2")).perform(click())
+                CustomConditionWaiter.waitFor(500)
+                onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class))
+                logMessage(this::class, " -> press back")
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                pressBack()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
-        logMessage(this::class, "View rounds -> Insert end")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        onView(withText("2-2-2-2-2-2")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
-        logMessage(this::class, " -> press back")
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
-        pressBack()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            logMessage(this::class, "View rounds -> Insert end")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                onView(withText("2-2-2-2-2-2")).perform(click())
+                CustomConditionWaiter.waitFor(500)
+                onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
+                logMessage(this::class, " -> press back")
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                pressBack()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                pressBack()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
-        logMessage(this::class, "Main menu 3")
-        pressBack()
-        composeTestRule.mainMenuRobot {
-            checkExitDialogShowing()
+            logMessage(this::class, "Main menu 3")
+            pressBack()
             clickCancelOnExitDialog()
         }
 
@@ -837,103 +846,104 @@ class LargeScaleInstrumentedTest {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
 
+        val rowIndex = 0
         logMessage(this::class, "View rounds")
         composeTestRule.mainMenuRobot {
             clickViewScores()
+            logMessage(this::class, " -> press home")
+            R.id.action_bar__home.click()
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "Email score")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                longClickRow(rowIndex)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
+                logMessage(this::class, " -> press home")
+                R.id.action_bar__home.click()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "View rounds -> Score pad")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                logMessage(this::class, " -> press home")
+                R.id.action_bar__home.click()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "View rounds -> Score pad -> Score stats")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                R.id.archerRoundStatsFragment.click()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
+                logMessage(this::class, " -> press home")
+                R.id.action_bar__home.click()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "View rounds -> Score pad -> Many")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                R.id.archerRoundStatsFragment.click()
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
+                repeat(6) {
+                    R.id.scorePadFragment.click()
+                    CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                    R.id.inputEndFragment.click()
+                    CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
+                }
+                logMessage(this::class, " -> press home")
+                R.id.action_bar__home.click()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "View rounds -> Edit end")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                onView(withText("2-2-2-2-2-2")).perform(click())
+                CustomConditionWaiter.waitFor(500)
+                onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class))
+                logMessage(this::class, " -> press home")
+                R.id.action_bar__home.click()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "View rounds -> Insert end")
+            clickViewScores {
+                waitForHsg(rowIndex, "6/12/0")
+                clickRow(rowIndex)
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                onView(withText("2-2-2-2-2-2")).perform(click())
+                CustomConditionWaiter.waitFor(500)
+                onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
+                CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
+                logMessage(this::class, " -> press home")
+                R.id.action_bar__home.click()
+            }
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "Main menu 3")
+            R.id.action_bar__home.click()
+            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
         }
-        logMessage(this::class, " -> press home")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        logMessage(this::class, "Email score")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(longClick())
-        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.viewRoundsEmail)
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
-        logMessage(this::class, " -> press home")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        logMessage(this::class, "View rounds -> Score pad")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        logMessage(this::class, " -> press home")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        logMessage(this::class, "View rounds -> Score pad -> Score stats")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        R.id.archerRoundStatsFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
-        logMessage(this::class, " -> press home")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        logMessage(this::class, "View rounds -> Score pad -> Many")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        R.id.archerRoundStatsFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
-        repeat(6) {
-            R.id.scorePadFragment.click()
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-            R.id.inputEndFragment.click()
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
-        }
-        logMessage(this::class, " -> press home")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        logMessage(this::class, "View rounds -> Edit end")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        onView(withText("2-2-2-2-2-2")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class))
-        logMessage(this::class, " -> press home")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        logMessage(this::class, "View rounds -> Insert end")
-        composeTestRule.mainMenuRobot {
-            clickViewScores()
-        }
-        onView(withText("6/12/0")).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        onView(withText("2-2-2-2-2-2")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
-        logMessage(this::class, " -> press home")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        logMessage(this::class, "Main menu 3")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
 
         ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
     }

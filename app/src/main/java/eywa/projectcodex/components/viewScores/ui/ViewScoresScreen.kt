@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -95,7 +96,8 @@ class ViewScoresScreen : ActionBarHelp {
             LazyColumn(
                     state = lazyListState,
                     contentPadding = PaddingValues(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.testTag(TestTag.LAZY_COLUMN)
             ) {
                 items(entries.size) { entryIndex ->
                     val entry = entries[entryIndex]
@@ -239,6 +241,13 @@ class ViewScoresScreen : ActionBarHelp {
     }
 
     object TestTag {
+        const val LAZY_COLUMN = "VIEW_SCORES_LAZY_COLUMN"
+        const val LIST_ITEM = "VIEW_SCORES_LIST_ITEM"
+        const val MULTI_SELECT_START = "VIEW_SCORES_MULTI_SELECT_START"
+        const val MULTI_SELECT_CANCEL = "VIEW_SCORES_MULTI_SELECT_CANCEL"
+        const val MULTI_SELECT_ALL = "VIEW_SCORES_MULTI_SELECT_ALL"
+        const val MULTI_SELECT_EMAIL = "VIEW_SCORES_MULTI_SELECT_EMAIL"
+        const val DROPDOWN_MENU_ITEM = "VIEW_SCORES_DROPDOWN_MENU_ITEM"
     }
 
     private val listenersForPreviews = object : ViewScoreScreenListener() {
