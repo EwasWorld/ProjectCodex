@@ -5,6 +5,9 @@ import java.util.*
 
 // TODO Locale-based date/time format
 enum class DateTimeFormat(val pattern: String) {
+    // 1 Jan 2021
+    LONG_DATE_FULL_YEAR("d MMM yyyy"),
+
     // 1 Jan 21
     LONG_DATE("d MMM yy"),
     LONG_DAY_MONTH("d MMM"),

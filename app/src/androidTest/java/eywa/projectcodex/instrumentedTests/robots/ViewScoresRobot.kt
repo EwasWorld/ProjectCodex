@@ -137,15 +137,14 @@ class ViewScoresRobot(
         }
     }
 
-    fun waitForHsg(rowIndex: Int, hsg: String?) {
-        waitForTextInRow(rowIndex, hsg ?: "-/-/-")
-    }
-
+    fun waitForHsg(rowIndex: Int, hsg: String?) = waitForTextInRow(rowIndex, hsg ?: "-/-/-")
     fun waitForDate(rowIndex: Int, date: String) = waitForTextInRow(rowIndex, date)
-
     fun waitForHandicap(rowIndex: Int, handicap: Int?) = waitForTextInRow(rowIndex, handicap?.toString() ?: "-")
-
     fun waitForRoundName(rowIndex: Int, roundName: String?) = waitForTextInRow(rowIndex, roundName ?: "No Round")
+
+    fun checkContentDescription(rowIndex: Int, description: String) {
+        performOnRowItem(rowIndex) { assert(hasContentDescription(description)) }
+    }
 
     fun clickStartMultiSelectMode() {
         composeTestRule.onNodeWithTag(TestTag.MULTI_SELECT_START).performClick()

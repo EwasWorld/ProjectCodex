@@ -166,7 +166,7 @@ fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEnt
                 1, 1, 1
         )
     }.time.before(entry.archerRound.dateShot).let { wasThisYear ->
-        if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE
+        if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE_FULL_YEAR
     }
 
     return listOfNotNull(

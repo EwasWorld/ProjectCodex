@@ -31,6 +31,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
 import java.sql.Date
+import java.util.*
 
 class ViewScoresInstrumentedTest {
     @get:Rule
@@ -84,8 +85,6 @@ class ViewScoresInstrumentedTest {
         }
     }
 
-    // TODO_CURRENT Test semantics string?
-
     @Test
     fun testEmptyTable() {
         composeTestRule.mainMenuRobot {
@@ -114,8 +113,17 @@ class ViewScoresInstrumentedTest {
                 RoundDistance(2, 1, 1, 60),
                 RoundDistance(2, 1, 2, 50)
         )
+        val firstOfThisYear = Calendar.Builder()
+                .setFields(
+                        Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR),
+                        Calendar.MONTH, Calendar.JANUARY,
+                        Calendar.DAY_OF_MONTH, 1,
+                        Calendar.HOUR_OF_DAY, 10,
+                )
+                .build()
+                .time
         archerRounds = listOf(
-                ArcherRound(1, Date.valueOf("2013-1-1"), 1),
+                ArcherRound(1, firstOfThisYear, 1),
                 ArcherRound(2, Date.valueOf("2012-2-2"), 1, roundId = 1),
                 ArcherRound(3, Date.valueOf("2011-3-3"), 1, roundId = 2),
                 ArcherRound(4, Date.valueOf("2010-4-4"), 1, roundId = 2, roundSubTypeId = 2),
@@ -143,27 +151,32 @@ class ViewScoresInstrumentedTest {
                 waitForHsg(0, "1/1/0")
                 waitForHandicap(0, null)
                 waitForRoundName(0, null)
-                waitForDate(0, "01/01/13")
+                // Not checking the date as the year will change, other row's date checks are sufficient
+                checkContentDescription(0, "1 Jan, Score 1, Golds 0, Hits 1")
 
                 waitForHsg(1, "1/2/0")
                 waitForHandicap(1, 64)
                 waitForRoundName(1, "Metric Round")
                 waitForDate(1, "02/02/12")
+                checkContentDescription(1, "2 Feb 2012, Metric Round, Score 2, Handicap 64, Golds 0, Hits 1")
 
                 waitForHsg(2, "1/3/0")
                 waitForHandicap(2, 63)
                 waitForRoundName(2, "Imperial Round")
                 waitForDate(2, "03/03/11")
+                checkContentDescription(2, "3 Mar 2011, Imperial Round, Score 3, Handicap 63, Golds 0, Hits 1")
 
                 waitForHsg(3, "1/4/0")
                 waitForHandicap(3, 64)
                 waitForRoundName(3, "Sub Type 2")
                 waitForDate(3, "04/04/10")
+                checkContentDescription(3, "4 Apr 2010, Sub Type 2, Score 4, Handicap 64, Golds 0, Hits 1")
 
                 waitForHsg(4, "1/5/0")
                 waitForHandicap(4, null)
                 waitForRoundName(4, null)
                 waitForDate(4, "05/05/09")
+                checkContentDescription(4, "5 May 2009, Score 5, Golds 0, Hits 1")
             }
         }
     }

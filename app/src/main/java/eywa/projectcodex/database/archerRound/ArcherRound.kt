@@ -36,7 +36,7 @@ data class ArcherRoundWithRoundInfoAndName(
         get() = archerRound.archerRoundId
 
     init {
-        // TODO_CURRENT Why is this causing crashes?
+        // TODO Why is this causing crashes?
 //        require(archerRound.roundId == round?.roundId) {
 //            "Mismatched round id. ${archerRound.roundId} ${round?.roundId} $displayName"
 //        }
