@@ -9,11 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
 class MainMenuScreen : ActionBarHelp {
     private val helpInfo = ComposeHelpShowcaseMap().apply {
@@ -43,13 +46,15 @@ class MainMenuScreen : ActionBarHelp {
                 modifier = Modifier
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             CodexButton(
                     text = stringResource(id = R.string.main_menu__new_score),
-                    buttonStyle = CodexButtonDefaults.ButtonOnAppBackground,
+                    buttonStyle = object : CodexButtonDefaults.DefaultButton() {
+                        override val textStyle: TextStyle = CodexTypography.NORMAL
+                    },
                     onClick = onStartNewScoreClicked,
                     modifier = Modifier
                             .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__new_score_title)
@@ -57,7 +62,9 @@ class MainMenuScreen : ActionBarHelp {
             )
             CodexButton(
                     text = stringResource(id = R.string.main_menu__view_scores),
-                    buttonStyle = CodexButtonDefaults.ButtonOnAppBackground,
+                    buttonStyle = object : CodexButtonDefaults.DefaultButton() {
+                        override val textStyle: TextStyle = CodexTypography.NORMAL
+                    },
                     onClick = onViewScoresClicked,
                     modifier = Modifier
                             .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__view_scores_title)

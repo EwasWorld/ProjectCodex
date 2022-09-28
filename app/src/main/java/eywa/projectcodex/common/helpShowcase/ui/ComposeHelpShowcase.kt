@@ -263,8 +263,8 @@ private fun ComposeHelpShowcasePreview(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.ButtonOnAppBackground) {}
-        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.ButtonOnAppBackground) {}
+        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.DefaultButton()) {}
+        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.DefaultButton()) {}
     }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         ComposeHelpShowcase(

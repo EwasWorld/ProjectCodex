@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="main_menu__title">Main Menu</string>
-    <string name="main_menu__new_score">Begin New Score</string>
-    <string name="main_menu__view_scores">View Scores</string>
+    <string name="main_menu__new_score">Begin new score</string>
+    <string name="main_menu__view_scores">View scores</string>
 
     <string name="main_menu__exit_app_dialog_title">Going so soon?</string>
     <string name="main_menu__exit_app_dialog_body">I hate to say goodbye</string>

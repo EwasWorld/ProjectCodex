@@ -27,12 +27,20 @@ val LocalCodexThemeColors = staticCompositionLocalOf { CodexThemeColors() }
 
 @Immutable
 data class CodexThemeColors(
+        val unassignedColor: Color = Color.Transparent,
+
         val appBackground: Color = CodexColors.COLOR_PRIMARY,
         val listItemOnAppBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
         val listItemOnAppBackgroundBorder: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onListItemAppOnBackground: Color = Color.Black,
         val floatingActions: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onFloatingActions: Color = Color.White,
+
+        val textOnPrimary: Color = Color.White,
+        val surfaceOnBackground: Color = CodexColors.COLOR_EXTRA_LIGHT_ACCENT,
+        val disabledOnSurfaceOnBackground: Color = Color.LightGray.copy(alpha = 0.5f),
+        val textFieldFocussedOutline: Color = CodexColors.COLOR_ACCENT,
+        val textFieldUnfocussedOutline: Color = CodexColors.COLOR_PRIMARY.copy(alpha = 0.5f),
 
         // Dialogs
         val dialogBackground: Color = Color.White,
@@ -47,16 +55,23 @@ data class CodexThemeColors(
         val helpShowcaseButton: Color = Color.White,
 
         // Buttons
-        val filledButton: Color = Color.LightGray,
-        val onFilledButton: Color = Color.Black,
+        val disabledButton: Color = Color.LightGray.copy(alpha = 0.7f),
+        val onDisabledButton: Color = Color.Gray.copy(alpha = 0.8f),
+        val filledButton: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val onFilledButton: Color = Color.White,
+        val chipOnPrimarySelected: Color = CodexColors.COLOR_PRIMARY_LIGHT,
+        val chipOnPrimarySelectedText: Color = CodexColors.COLOR_ON_PRIMARY_LIGHT,
+        val chipOnPrimaryUnselected: Color = Color.White,
 )
 
 object CodexColors {
     val COLOR_PRIMARY = Color(Raw.COLOR_PRIMARY)
     val COLOR_PRIMARY_LIGHT = Color(0xFFB3EAFF)
+    val COLOR_ON_PRIMARY_LIGHT = Color(0xFF136E91)
     val COLOR_LIGHT_ACCENT = Color(Raw.COLOR_LIGHT_ACCENT)
     val COLOR_EXTRA_LIGHT_ACCENT = Color(0xFFE2F7FF)
     val COLOR_ACCENT = Color(0xFF5FEFB3)
+    val COLOR_ON_ACCENT = Color(0xFF0A613D)
     val COLOR_PRIMARY_DARK = Color(0xFF14248F)
     val COLOR_PRIMARY_DARK_TRANSPARENT = Color(0xDA14248F)
     val COLOR_ACCENT_DARK = Color(0xFF317882)
@@ -98,7 +113,7 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                         .background(CodexTheme.colors.appBackground)
                         .padding(20.dp)
         ) {
-            CodexButton(text = "Button", buttonStyle = CodexButtonDefaults.ButtonOnAppBackground) {}
+            CodexButton(text = "Button", buttonStyle = CodexButtonDefaults.DefaultButton()) {}
 
             Box {
                 Column {
