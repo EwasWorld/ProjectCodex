@@ -55,6 +55,11 @@ class ViewScoresRobot(
                 .performClick()
     }
 
+    fun clickEmailDropdownMenuItem(block: EmailScoreRobot.() -> Unit = {}) {
+        clickDropdownMenuItem(CommonStrings.EMAIL_MENU_ITEM)
+        EmailScoreRobot(composeTestRule).apply { block() }
+    }
+
     fun checkDropdownMenuItemNotThere(menuItem: String) {
         // Check at least one menu item is showing
         composeTestRule
@@ -158,8 +163,9 @@ class ViewScoresRobot(
         composeTestRule.onNodeWithTag(TestTag.MULTI_SELECT_CANCEL).performClick()
     }
 
-    fun clickMultiSelectEmail() {
+    fun clickMultiSelectEmail(block: EmailScoreRobot.() -> Unit = {}) {
         composeTestRule.onNodeWithTag(TestTag.MULTI_SELECT_EMAIL).performClick()
+        EmailScoreRobot(composeTestRule).apply { block() }
     }
 
     fun checkMultiSelectMode(isInMultiSelectMode: Boolean = true) {

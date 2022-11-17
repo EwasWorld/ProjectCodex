@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -35,7 +36,7 @@ fun CodexTextField(
         onValueChange = state.onValueChange,
         placeholderText = placeholderText,
         labelText = labelText,
-        modifier = modifier,
+        modifier = modifier.testTag(state.testTag),
         singleLine = singleLine,
         enabled = enabled,
         colors = colors,
@@ -103,6 +104,7 @@ fun CodexTextField(
 data class CodexTextFieldState(
         val text: String,
         val onValueChange: (String) -> Unit,
+        val testTag: String,
 )
 
 object CodexTextField {

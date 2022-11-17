@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Devices
@@ -160,6 +161,7 @@ class EmailScoresScreen : ActionBarHelp {
                                     modifier = Modifier
                                             .padding(15.dp)
                                             .fillMaxWidth()
+                                            .testTag(TestTag.SCORE_TEXT)
                             )
                         }
                         CodexTextField(
@@ -183,6 +185,7 @@ class EmailScoresScreen : ActionBarHelp {
                     modifier = Modifier
                             .padding(30.dp)
                             .updateHelpDialogPosition(helpInfo, R.string.help_email_scores__send_title)
+                            .testTag(TestTag.SEND_BUTTON)
             ) {
                 Icon(
                         Icons.Default.Send,
@@ -260,6 +263,12 @@ class EmailScoresScreen : ActionBarHelp {
     override fun getHelpPriority(): Int? = null
 
     object TestTag {
+        private const val prefix = "EMAIL_SCORE_"
+        const val SCORE_TEXT = "${prefix}SCORE_TEXT"
+        const val SEND_BUTTON = "${prefix}SEND_BUTTON"
+
+        fun forTextField(field: EmailScoresTextField) = "${prefix}TEXT_FIELD_" + field.toString()
+        fun forCheckbox(field: EmailScoresCheckbox) = "${prefix}CHECK_BOX_" + field.toString()
     }
 
     @Preview(
@@ -274,30 +283,36 @@ class EmailScoresScreen : ActionBarHelp {
                     error = null,
                     toState = CodexTextFieldState(
                             text = "",
-                            onValueChange = {}
+                            onValueChange = {},
+                            testTag = "",
                     ),
                     subjectState = CodexTextFieldState(
                             text = stringResource(id = R.string.email_default_message_subject),
-                            onValueChange = {}
+                            onValueChange = {},
+                            testTag = "",
                     ),
                     messageHeaderState = CodexTextFieldState(
                             text = stringResource(id = R.string.email_scores__message_footer_placeholder),
-                            onValueChange = {}
+                            onValueChange = {},
+                            testTag = "",
                     ),
                     messageScoreText = stringResource(id = R.string.email_round_summary_sample_text),
                     messageFooterState = CodexTextFieldState(
                             text = stringResource(id = R.string.email_default_message_header),
-                            onValueChange = {}
+                            onValueChange = {},
+                            testTag = "",
                     ),
                     fullScoreSheetState = CodexChipState(
                             selected = true,
                             enabled = true,
-                            onToggle = {}
+                            onToggle = {},
+                            testTag = "",
                     ),
                     distanceTotalsSheetState = CodexChipState(
                             selected = false,
                             enabled = false,
-                            onToggle = {}
+                            onToggle = {},
+                            testTag = "",
                     ),
                     onSubmit = {},
                     onErrorOkClicked = {},

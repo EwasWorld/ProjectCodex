@@ -7,6 +7,7 @@ import androidx.test.espresso.Espresso.pressBack
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
@@ -432,10 +433,14 @@ class ViewScoresInstrumentedTest {
                 checkEntriesSelected(0..3, rowCount)
                 checkMultiSelectMode(true)
 
-                clickMultiSelectEmail()
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
-
-                // TODO_CURRENT Check email scores shows correct items
+                clickMultiSelectEmail {
+                    checkScoreText(
+                            archerRounds.withIndex().joinToString("\n\n") { (index, round) ->
+                                val date = DateTimeFormat.SHORT_DATE.format(round.archerRound.dateShot)
+                                "No Round - $date\nHits: 1, Score: ${index + 1}, Golds (Golds): 0"
+                            }
+                    )
+                }
             }
         }
     }

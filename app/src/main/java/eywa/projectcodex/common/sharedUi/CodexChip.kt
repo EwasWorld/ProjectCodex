@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,8 @@ fun CodexChip(
         selected = state.selected,
         enabled = state.enabled,
         modifier = modifier,
-        onToggle = state.onToggle
+        onToggle = state.onToggle,
+        testTag = state.testTag,
 )
 
 /**
@@ -44,6 +46,7 @@ fun CodexChip(
 fun CodexChip(
         text: String,
         selected: Boolean,
+        testTag: String,
         enabled: Boolean = true,
         modifier: Modifier = Modifier,
         onToggle: () -> Unit
@@ -73,6 +76,7 @@ fun CodexChip(
                 modifier = clickModifier
                         .height(32.dp)
                         .padding(start = 8.dp, end = 16.dp)
+                        .testTag(testTag)
         ) {
             if (selected) {
                 Icon(
@@ -97,6 +101,7 @@ data class CodexChipState(
         val selected: Boolean,
         val enabled: Boolean = true,
         val onToggle: () -> Unit,
+        val testTag: String,
 )
 
 @Preview(
@@ -113,14 +118,14 @@ fun CodexChip_Preview() {
             Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                CodexChip(text = "First chip", selected = true, enabled = true, onToggle = {})
-                CodexChip(text = "Chip 2", selected = false, enabled = true, onToggle = {})
+                CodexChip(text = "First chip", selected = true, enabled = true, onToggle = {}, testTag = "")
+                CodexChip(text = "Chip 2", selected = false, enabled = true, onToggle = {}, testTag = "")
             }
             Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                CodexChip(text = "Chip 3", selected = true, enabled = false, onToggle = {})
-                CodexChip(text = "Another chip", selected = false, enabled = false, onToggle = {})
+                CodexChip(text = "Chip 3", selected = true, enabled = false, onToggle = {}, testTag = "")
+                CodexChip(text = "Another chip", selected = false, enabled = false, onToggle = {}, testTag = "")
             }
         }
     }

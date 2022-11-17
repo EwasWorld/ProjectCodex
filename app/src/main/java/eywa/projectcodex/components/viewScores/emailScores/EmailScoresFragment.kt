@@ -59,6 +59,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
     private fun EmailScoresTextField.asState() = CodexTextFieldState(
             text = emailScoresViewModel.state.getText(this),
             onValueChange = { emailScoresViewModel.handle(EmailScoresIntent.UpdateText(it, this)) },
+            testTag = EmailScoresScreen.TestTag.forTextField(this),
     )
 
     private fun EmailScoresCheckbox.asState(enabled: Boolean = true) = emailScoresViewModel.state.isChecked(this).let {
@@ -66,6 +67,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
                 selected = it,
                 onToggle = { emailScoresViewModel.handle(EmailScoresIntent.UpdateBoolean(!it, this)) },
                 enabled = enabled,
+                testTag = EmailScoresScreen.TestTag.forCheckbox(this),
         )
     }
 

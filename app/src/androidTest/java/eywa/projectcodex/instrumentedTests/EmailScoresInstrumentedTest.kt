@@ -14,11 +14,12 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
-import eywa.projectcodex.R
-import eywa.projectcodex.common.*
+import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
+import eywa.projectcodex.components.viewScores.emailScores.EmailScoresCheckbox
+import eywa.projectcodex.components.viewScores.emailScores.EmailScoresTextField
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
@@ -26,7 +27,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
-import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
+import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
@@ -140,45 +141,30 @@ class EmailScoresInstrumentedTest {
         const val EMAIL_1 = "test@email.com"
         const val EMAIL_2 = "test2@email.com"
         const val APPEND_SUBJECT = " Cheese"
-        const val FINAL_SUBJECT = "Archery Scores$APPEND_SUBJECT"
+        const val INITIAL_SUBJECT = "Archery Scores"
+        const val FINAL_SUBJECT = "$INITIAL_SUBJECT$APPEND_SUBJECT"
         const val START_TEXT = "Hi friend,\nHere are my scores!"
         const val END_TEXT = "From your friend"
 
         @Suppress("unused") // See later to-do comment
-        const val URI =
-                "content://eywa.projectcodex.fileProvider/external_files/Android/data/eywa.projectcodex/files/emailAttachment.csv"
+        const val URI = "content://eywa.projectcodex.uiTests.fileProvider" +
+                "/external_files/Android/data/eywa.projectcodex.uiTests/files" +
+                "/emailAttachment.csv"
 
         fun getMessage(scores: String) = "$START_TEXT\n\n$scores\n\n$END_TEXT\n\n\n\nSent from Codex Archery Aide app"
     }
 
-    private fun typeInfo() {
-        R.id.input_text_email_scores__to.write("${EmailTestData.EMAIL_1};${EmailTestData.EMAIL_2}")
-        R.id.input_text_email_scores__subject.write(EmailTestData.APPEND_SUBJECT)
-        R.id.input_text_email_scores__message_start.scrollTo()
-        R.id.input_text_email_scores__message_start.clearText()
-        R.id.input_text_email_scores__message_start.write(EmailTestData.START_TEXT)
-        CustomConditionWaiter.waitFor(500)
-        R.id.input_text_email_scores__message_end.scrollTo()
-        R.id.input_text_email_scores__message_end.clearText()
-        R.id.input_text_email_scores__message_end.write(EmailTestData.END_TEXT)
+    private fun EmailScoreRobot.typeInfo() {
+        typeText(EmailScoresTextField.TO, "${EmailTestData.EMAIL_1};${EmailTestData.EMAIL_2}")
+        typeText(EmailScoresTextField.SUBJECT, EmailTestData.APPEND_SUBJECT)
+        typeText(EmailScoresTextField.MESSAGE_HEADER, EmailTestData.START_TEXT, true)
+        typeText(EmailScoresTextField.MESSAGE_FOOTER, EmailTestData.END_TEXT, true)
         Espresso.closeSoftKeyboard()
     }
 
     @Test
     fun testEmailScoreWithAttachment() {
         val roundDate = DateTimeFormat.SHORT_DATE.format(archerRounds[0].dateShot)
-
-        composeTestRule.mainMenuRobot {
-            clickViewScores {
-                waitForDate(0, roundDate)
-                longClickRow(0)
-                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
-            }
-        }
-
-        typeInfo()
-
         val scoresString = "No Round - $roundDate\nHits: 22, Score: 130, Golds (Golds): 6"
         val expected = allOf(
                 hasAction(Intent.ACTION_SEND),
@@ -196,14 +182,29 @@ class EmailScoresInstrumentedTest {
                         `is`(EmailTestData.getMessage(scoresString))
                 ),
                 // TODO URI for attachment is not matching for some reason
+                // TODO Check contents of attachment
 //                hasExtra(
 //                        `is`(Intent.EXTRA_STREAM),
 //                        `is`(EmailTestData.URI)
 //                )
         )
 
-        intending(expected).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
-        R.id.button_email_scores__send.click()
-        intended(expected)
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForDate(0, roundDate)
+                longClickRow(0)
+                clickEmailDropdownMenuItem {
+                    checkTextFieldText(EmailScoresTextField.SUBJECT, EmailTestData.INITIAL_SUBJECT)
+                    checkScoreText(scoresString)
+                    clickCheckbox(EmailScoresCheckbox.FULL_SCORE_SHEET)
+                    checkCheckboxState(EmailScoresCheckbox.FULL_SCORE_SHEET, true)
+                    typeInfo()
+
+                    intending(expected).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
+                    clickSend()
+                    intended(expected)
+                }
+            }
+        }
     }
 }
