@@ -90,7 +90,13 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
 
         override fun selectAllOrNoneClicked() = viewScoresViewModel.handle(ViewScoresIntent.SelectAllOrNone())
 
-        override fun multiSelectEmailClicked() = view.findNavController().navigate(R.id.emailFragment)
+        override fun multiSelectEmailClicked() {
+            if (viewScoresViewModel.state.data.all { !it.isSelected }) {
+                displayToast(R.string.err_view_score__no_rounds_selected)
+                return
+            }
+            view.findNavController().navigate(R.id.emailFragment)
+        }
 
         override fun noRoundsDialogDismissedListener() {
             view.findNavController().popBackStack()

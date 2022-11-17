@@ -13,41 +13,49 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
-object CodexTextField {
-    @Composable
-    fun transparentOutlinedTextFieldColors(
-            focussedColor: Color = CodexTheme.colors.textFieldFocussedOutline,
-            unfocussedColor: Color = CodexTheme.colors.textFieldUnfocussedOutline
-    ) = TextFieldDefaults.outlinedTextFieldColors(
-            textColor = CodexTypography.NORMAL.color,
-            backgroundColor = Color.Transparent,
-            focusedBorderColor = focussedColor,
-            unfocusedBorderColor = unfocussedColor,
-            disabledBorderColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
-            focusedLabelColor = focussedColor,
-            unfocusedLabelColor = unfocussedColor,
-            disabledLabelColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
-    )
-}
 
+@Composable
+fun CodexTextField(
+        state: CodexTextFieldState,
+        placeholderText: String?,
+        labelText: String? = null,
+        modifier: Modifier = Modifier,
+        singleLine: Boolean = false,
+        enabled: Boolean = true,
+        colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
+        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+        keyboardActions: KeyboardActions = KeyboardActions.Default,
+) = CodexTextField(
+        text = state.text,
+        onValueChange = state.onValueChange,
+        placeholderText = placeholderText,
+        labelText = labelText,
+        modifier = modifier,
+        singleLine = singleLine,
+        enabled = enabled,
+        colors = colors,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CodexTextField(
         text: String,
+        onValueChange: (String) -> Unit,
         placeholderText: String?,
         labelText: String? = null,
-        onValueChange: (String) -> Unit,
         modifier: Modifier = Modifier,
         singleLine: Boolean = false,
         enabled: Boolean = true,
-        colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors()
+        colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
+        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+        keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -59,13 +67,8 @@ fun CodexTextField(
             enabled = enabled,
             singleLine = singleLine,
             visualTransformation = VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                    onDone = {
-//                                        keyboardController?.hide()
-                        // do something here
-                    }
-            ),
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
     ) { innerTextField ->
         TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = text,
@@ -95,4 +98,26 @@ fun CodexTextField(
                 colors = colors,
         )
     }
+}
+
+data class CodexTextFieldState(
+        val text: String,
+        val onValueChange: (String) -> Unit,
+)
+
+object CodexTextField {
+    @Composable
+    fun transparentOutlinedTextFieldColors(
+            focussedColor: Color = CodexTheme.colors.textFieldFocussedOutline,
+            unfocussedColor: Color = CodexTheme.colors.textFieldUnfocussedOutline
+    ) = TextFieldDefaults.outlinedTextFieldColors(
+            textColor = CodexTypography.NORMAL.color,
+            backgroundColor = Color.Transparent,
+            focusedBorderColor = focussedColor,
+            unfocusedBorderColor = unfocussedColor,
+            disabledBorderColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
+            focusedLabelColor = focussedColor,
+            unfocusedLabelColor = unfocussedColor,
+            disabledLabelColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
+    )
 }

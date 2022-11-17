@@ -27,35 +27,54 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 @Composable
 fun CodexChip(
         text: String,
-        isChecked: Boolean,
-        isDisabled: Boolean = false,
-        onClick: () -> Unit
+        state: CodexChipState,
+        modifier: Modifier = Modifier,
+) = CodexChip(
+        text = text,
+        selected = state.selected,
+        enabled = state.enabled,
+        modifier = modifier,
+        onToggle = state.onToggle
+)
+
+/**
+ * Text should be no more than 20 characters
+ */
+@Composable
+fun CodexChip(
+        text: String,
+        selected: Boolean,
+        enabled: Boolean = true,
+        modifier: Modifier = Modifier,
+        onToggle: () -> Unit
 ) {
     val surfaceColor = when {
-        !isChecked -> Color.Transparent
-        !isDisabled -> CodexTheme.colors.chipOnPrimarySelected
+        !selected -> Color.Transparent
+        enabled -> CodexTheme.colors.chipOnPrimarySelected
         else -> CodexTheme.colors.disabledButton
     }
     val onColor = when {
-        isDisabled -> CodexTheme.colors.onDisabledButton
-        isChecked -> CodexTheme.colors.chipOnPrimarySelectedText
+        !enabled -> CodexTheme.colors.onDisabledButton
+        selected -> CodexTheme.colors.chipOnPrimarySelectedText
         else -> CodexTheme.colors.chipOnPrimaryUnselected
     }
+    val clickModifier = if (!enabled) Modifier else Modifier.selectable(selected = selected, onClick = onToggle)
 
+    // TODO Animate
     Surface(
-            border = if (isChecked) null else BorderStroke(Dp.Hairline, onColor),
+            border = if (selected) null else BorderStroke(Dp.Hairline, onColor),
             shape = RoundedCornerShape(8.dp),
             color = surfaceColor,
+            modifier = modifier
     ) {
         Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                        .selectable(selected = isChecked, onClick = onClick)
+                modifier = clickModifier
                         .height(32.dp)
                         .padding(start = 8.dp, end = 16.dp)
         ) {
-            if (isChecked) {
+            if (selected) {
                 Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
@@ -74,6 +93,12 @@ fun CodexChip(
     }
 }
 
+data class CodexChipState(
+        val selected: Boolean,
+        val enabled: Boolean = true,
+        val onToggle: () -> Unit,
+)
+
 @Preview(
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY
@@ -88,14 +113,14 @@ fun CodexChip_Preview() {
             Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                CodexChip(text = "First chip", isChecked = true, isDisabled = false, onClick = {})
-                CodexChip(text = "Chip 2", isChecked = false, isDisabled = false, onClick = {})
+                CodexChip(text = "First chip", selected = true, enabled = true, onToggle = {})
+                CodexChip(text = "Chip 2", selected = false, enabled = true, onToggle = {})
             }
             Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                CodexChip(text = "Chip 3", isChecked = true, isDisabled = true, onClick = {})
-                CodexChip(text = "Another chip", isChecked = false, isDisabled = true, onClick = {})
+                CodexChip(text = "Chip 3", selected = true, enabled = false, onToggle = {})
+                CodexChip(text = "Another chip", selected = false, enabled = false, onToggle = {})
             }
         }
     }

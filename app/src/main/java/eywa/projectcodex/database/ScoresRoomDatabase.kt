@@ -19,7 +19,7 @@ import java.util.*
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class
         ],
         version = 4,
-        exportSchema = true
+        exportSchema = true // Needs a schema location in the build.gradle too to export!
 )
 @TypeConverters(ScoresRoomDatabase.Converters::class)
 abstract class ScoresRoomDatabase : RoomDatabase() {

@@ -7,7 +7,8 @@
     <string name="email_default_message_footer">From</string>
     <string name="email_default_message_signature">Sent from Codex Archery Aide app</string>
     <string name="email_round_summary">{roundName} - {date}\nHits: {hits}, Score: {score}, Golds ({goldsType}): {golds}</string>
-    <string name="email_empty_round_summary">No scores selected</string>
+    <string name="email_scores__no_entries_dialog_title">Internal error</string>
+    <string name="email_scores__no_entries_dialog_body">Could not find any selected entries to email. Please select at least one score and try again</string>
 
     <string name="email_scores__to">To</string>
     <string name="email_scores__to_placeholder">example1@email.com, example2@email.com</string>
@@ -22,7 +23,8 @@
     <string name="email_scores__edit_icon_description">Edit scores to send</string>
 
     <string name="err_email_scores__no_items_selected">No entries selected</string>
-    <string name="err_email_scores__no_app_found">No email app found on phone</string>
+    <string name="err_email_scores__no_app_found">No email app found on phone. Please install one and try again</string>
+    <string name="err_email_scores__attachment_creation">Error creating attachment, please try again</string>
 
     <string name="help_email_scores__to_title">To</string>
     <string name="help_email_scores__to_body">A list of email addresses to send to, separated by a comma \',\'</string>

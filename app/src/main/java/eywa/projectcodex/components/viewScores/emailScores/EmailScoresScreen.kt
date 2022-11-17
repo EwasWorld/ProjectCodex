@@ -1,130 +1,247 @@
 package eywa.projectcodex.components.viewScores.emailScores
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.sharedUi.CodexButton
-import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
-import eywa.projectcodex.common.sharedUi.CodexChip
-import eywa.projectcodex.common.sharedUi.CodexTextField
+import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
-// TODO_CURRENT Check screen layout when soft keyboard is up
-// TODO_CURRENT Check keyboard actions
+
 class EmailScoresScreen : ActionBarHelp {
     private val helpInfo = ComposeHelpShowcaseMap()
 
     @Composable
-    fun ComposeContent() {
-        Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                        .fillMaxSize()
-                        .background(CodexTheme.colors.appBackground)
-                        .padding(10.dp)
-        ) {
-            RoundedSurface {
-                CodexTextField(
-                        text = "",
-                        onValueChange = {},
-                        placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
-                        labelText = stringResource(id = R.string.email_scores__to),
-                        modifier = Modifier
-                                .padding(10.dp)
-                                .fillMaxWidth()
-                )
-            }
-            RoundedSurface {
-                CodexTextField(
-                        text = stringResource(id = R.string.email_default_message_subject),
-                        onValueChange = {},
-                        placeholderText = stringResource(id = R.string.email_default_message_subject),
-                        labelText = stringResource(id = R.string.email_scores__subject),
-                        modifier = Modifier
-                                .padding(10.dp)
-                                .fillMaxWidth()
-                )
-            }
-            Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.horizontalScroll(rememberScrollState())
-            ) {
-                Text(
-                        text = "Attachment:",
-                        style = CodexTypography.SMALL.copy(CodexTheme.colors.textOnPrimary)
-                )
-                CodexChip(
-                        text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),
-                        isChecked = true,
-                        onClick = {},
-                )
-                CodexChip(
-                        text = stringResource(id = R.string.email_scores__full_score_sheet_with_distance_totals),
-                        isChecked = true,
-                        isDisabled = true,
-                        onClick = {},
-                )
-            }
-            RoundedSurface {
-                Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                                .verticalScroll(rememberScrollState())
-                                .padding(10.dp)
-                ) {
-                    CodexTextField(
-                            text = stringResource(id = R.string.email_default_message_header),
-                            onValueChange = {},
-                            placeholderText = stringResource(id = R.string.email_scores__message_header_placeholder),
-                            modifier = Modifier.fillMaxWidth()
+    fun ComposeContent(
+            error: EmailScoresError?,
+            toState: CodexTextFieldState,
+            subjectState: CodexTextFieldState,
+            messageHeaderState: CodexTextFieldState,
+            messageScoreText: String,
+            messageFooterState: CodexTextFieldState,
+            fullScoreSheetState: CodexChipState,
+            distanceTotalsSheetState: CodexChipState,
+            onSubmit: () -> Unit,
+            onErrorOkClicked: () -> Unit,
+    ) {
+        @Composable
+        fun stringOrEmptyString(@StringRes id: Int?) = id?.let { stringResource(id) } ?: ""
+
+        SimpleDialog(isShown = error != null, onDismissListener = onErrorOkClicked) {
+            SimpleDialogContent(
+                    title = stringOrEmptyString(error?.title),
+                    message = stringOrEmptyString(error?.message),
+                    positiveButton = ButtonState(
+                            text = stringOrEmptyString(error?.buttonText),
+                            onClick = onErrorOkClicked,
                     )
-                    RoundedSurface(
-                            color = CodexTheme.colors.disabledOnSurfaceOnBackground,
-                            modifier = Modifier.padding(horizontal = 5.dp)
-                    ) {
-                        Text(
-                                text = stringResource(id = R.string.email_round_summary_sample_text),
-                                style = CodexTypography.SMALL,
-                                modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxWidth()
-                        )
-                    }
-                    CodexTextField(
-                            text = stringResource(id = R.string.email_default_message_footer),
-                            onValueChange = {},
-                            placeholderText = stringResource(id = R.string.email_scores__message_footer_placeholder),
-                            modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-            CodexButton(
-                    text = stringResource(id = R.string.email_scores__send),
-                    buttonStyle = CodexButtonDefaults.DefaultButton(),
-                    onClick = {},
             )
         }
+
+        HelpDialogs()
+        Box(
+                contentAlignment = Alignment.BottomEnd,
+                modifier = Modifier.fillMaxSize()
+        ) {
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .background(CodexTheme.colors.appBackground)
+                            .padding(15.dp)
+            ) {
+                RoundedSurface(
+                        modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_email_scores__to_title)
+                ) {
+                    CodexTextField(
+                            state = toState,
+                            placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
+                            labelText = stringResource(id = R.string.email_scores__to),
+                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                            modifier = Modifier
+                                    .padding(10.dp)
+                                    .fillMaxWidth()
+                    )
+                }
+                RoundedSurface(
+                        modifier = Modifier.updateHelpDialogPosition(
+                                helpInfo,
+                                R.string.help_email_scores__subject_title
+                        )
+                ) {
+                    CodexTextField(
+                            state = subjectState,
+                            placeholderText = stringResource(id = R.string.email_default_message_subject),
+                            labelText = stringResource(id = R.string.email_scores__subject),
+                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                            modifier = Modifier
+                                    .padding(10.dp)
+                                    .fillMaxWidth()
+                    )
+                }
+                Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState())
+                ) {
+                    Text(
+                            text = "Attachment:",
+                            style = CodexTypography.SMALL.copy(CodexTheme.colors.textOnPrimary)
+                    )
+                    CodexChip(
+                            text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),
+                            state = fullScoreSheetState,
+                            modifier = Modifier.updateHelpDialogPosition(
+                                    helpInfo,
+                                    R.string.help_email_scores__full_score_sheet_attachment_title
+                            )
+                    )
+                    CodexChip(
+                            text = stringResource(id = R.string.email_scores__full_score_sheet_with_distance_totals),
+                            state = distanceTotalsSheetState,
+                            modifier = Modifier.updateHelpDialogPosition(
+                                    helpInfo,
+                                    R.string.help_email_scores__include_distance_totals_title
+                            )
+                    )
+                }
+                RoundedSurface {
+                    Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.padding(10.dp)
+                    ) {
+                        CodexTextField(
+                                state = messageHeaderState,
+                                placeholderText = stringResource(id = R.string.email_scores__message_header_placeholder),
+                                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .updateHelpDialogPosition(
+                                                helpInfo,
+                                                R.string.help_email_scores__message_start_title
+                                        )
+                        )
+                        RoundedSurface(
+                                color = CodexTheme.colors.disabledOnSurfaceOnBackground,
+                                modifier = Modifier
+                                        .padding(horizontal = 5.dp)
+                                        .updateHelpDialogPosition(helpInfo, R.string.help_email_scores__scores_title)
+                        ) {
+                            Text(
+                                    text = messageScoreText,
+                                    style = CodexTypography.SMALL,
+                                    modifier = Modifier
+                                            .padding(15.dp)
+                                            .fillMaxWidth()
+                            )
+                        }
+                        CodexTextField(
+                                state = messageFooterState,
+                                placeholderText = stringResource(id = R.string.email_scores__message_footer_placeholder),
+                                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .updateHelpDialogPosition(
+                                                helpInfo,
+                                                R.string.help_email_scores__message_end_title
+                                        )
+                        )
+                    }
+                }
+            }
+            FloatingActionButton(
+                    backgroundColor = CodexTheme.colors.floatingActions,
+                    contentColor = CodexTheme.colors.onFloatingActions,
+                    onClick = onSubmit,
+                    modifier = Modifier
+                            .padding(30.dp)
+                            .updateHelpDialogPosition(helpInfo, R.string.help_email_scores__send_title)
+            ) {
+                Icon(
+                        Icons.Default.Send,
+                        contentDescription = stringResource(R.string.email_scores__send)
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun HelpDialogs() {
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__to_title,
+                        helpBody = R.string.help_email_scores__to_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__subject_title,
+                        helpBody = R.string.help_email_scores__subject_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__message_start_title,
+                        helpBody = R.string.help_email_scores__message_start_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__scores_title,
+                        helpBody = R.string.help_email_scores__scores_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__message_end_title,
+                        helpBody = R.string.help_email_scores__message_end_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__full_score_sheet_attachment_title,
+                        helpBody = R.string.help_email_scores__full_score_sheet_attachment_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__include_distance_totals_title,
+                        helpBody = R.string.help_email_scores__include_distance_totals_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_email_scores__send_title,
+                        helpBody = R.string.help_email_scores__send_body,
+                )
+        )
     }
 
     @Composable
@@ -153,7 +270,38 @@ class EmailScoresScreen : ActionBarHelp {
     @Composable
     fun EmailScoresScreen_Preview() {
         CodexTheme {
-            ComposeContent()
+            ComposeContent(
+                    error = null,
+                    toState = CodexTextFieldState(
+                            text = "",
+                            onValueChange = {}
+                    ),
+                    subjectState = CodexTextFieldState(
+                            text = stringResource(id = R.string.email_default_message_subject),
+                            onValueChange = {}
+                    ),
+                    messageHeaderState = CodexTextFieldState(
+                            text = stringResource(id = R.string.email_scores__message_footer_placeholder),
+                            onValueChange = {}
+                    ),
+                    messageScoreText = stringResource(id = R.string.email_round_summary_sample_text),
+                    messageFooterState = CodexTextFieldState(
+                            text = stringResource(id = R.string.email_default_message_header),
+                            onValueChange = {}
+                    ),
+                    fullScoreSheetState = CodexChipState(
+                            selected = true,
+                            enabled = true,
+                            onToggle = {}
+                    ),
+                    distanceTotalsSheetState = CodexChipState(
+                            selected = false,
+                            enabled = false,
+                            onToggle = {}
+                    ),
+                    onSubmit = {},
+                    onErrorOkClicked = {},
+            )
         }
     }
 }

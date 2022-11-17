@@ -8,25 +8,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
-import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.common.utils.getColourResource
+import eywa.projectcodex.common.sharedUi.CodexChipState
+import eywa.projectcodex.common.sharedUi.CodexTextFieldState
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.exceptions.UserException
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileWriter
 
@@ -38,9 +41,11 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
     }
 
     private val args: EmailScoresFragmentArgs by navArgs()
+
+    // TODO Remove this view model
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
-    private var allEntries: List<ViewScoresEntry>? = null
-    private val formErrors = FormErrors()
+    private val emailScoresViewModel: EmailScoresViewModel by viewModels()
+    private var emailScoresScreen = EmailScoresScreen()
     private val endSize = 6
 
     private val columnHeaderOrder = listOf(
@@ -51,8 +56,71 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
             ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_email_scores, container, false)
+    private fun EmailScoresTextField.asState() = CodexTextFieldState(
+            text = emailScoresViewModel.state.getText(this),
+            onValueChange = { emailScoresViewModel.handle(EmailScoresIntent.UpdateText(it, this)) },
+    )
+
+    private fun EmailScoresCheckbox.asState(enabled: Boolean = true) = emailScoresViewModel.state.isChecked(this).let {
+        CodexChipState(
+                selected = it,
+                onToggle = { emailScoresViewModel.handle(EmailScoresIntent.UpdateBoolean(!it, this)) },
+                enabled = enabled,
+        )
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                CodexTheme {
+                    LaunchedEffect(Unit) {
+                        launch {
+                            emailScoresViewModel.effects.collect { effect ->
+                                @Suppress("REDUNDANT_ELSE_IN_WHEN")
+                                when (effect) {
+                                    EmailScoresEffect.NavigateUp -> requireView().findNavController().popBackStack()
+                                    else -> throw NotImplementedError()
+                                }
+                            }
+                        }
+                    }
+
+                    if (getSelectedEntries().isEmpty()) {
+                        emailScoresViewModel.handle(EmailScoresIntent.OpenError(EmailScoresError.NO_SELECTED_ENTRIES))
+                    }
+
+                    // TODO Change to entries coming in from the navigation therefore can call this every time on startup?
+                    val initialValuesIntent = EmailScoresIntent.SetInitialValues(
+                            subject = stringResource(R.string.email_default_message_subject),
+                            messageHeader = stringResource(R.string.email_default_message_header),
+                            messageFooter = stringResource(R.string.email_default_message_footer),
+                    )
+                    rememberSaveable(getSelectedEntries().map { it.id }) {
+                        // TODO Is this the right place to do this?
+                        emailScoresViewModel.handle(initialValuesIntent)
+                        mutableStateOf(true)
+                    }
+
+                    val messageScoreText = getSelectedEntries().joinToString("\n\n") { entry ->
+                        entry.getScoreSummary(resources)
+                    }
+                    emailScoresScreen.ComposeContent(
+                            error = emailScoresViewModel.state.error,
+                            toState = EmailScoresTextField.TO.asState(),
+                            subjectState = EmailScoresTextField.SUBJECT.asState(),
+                            messageHeaderState = EmailScoresTextField.MESSAGE_HEADER.asState(),
+                            messageScoreText = messageScoreText,
+                            messageFooterState = EmailScoresTextField.MESSAGE_FOOTER.asState(),
+                            fullScoreSheetState = EmailScoresCheckbox.FULL_SCORE_SHEET.asState(),
+                            distanceTotalsSheetState = EmailScoresCheckbox.DISTANCE_TOTAL.asState(
+                                    emailScoresViewModel.state.isChecked(EmailScoresCheckbox.FULL_SCORE_SHEET)
+                            ),
+                            onSubmit = { sendButtonListener(messageScoreText) },
+                            onErrorOkClicked = { emailScoresViewModel.handle(EmailScoresIntent.CloseError) },
+                    )
+                }
+            }
+        }
     }
 
     /**
@@ -64,10 +132,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
      * @throws UserException
      */
     private fun createAttachment(includeDistanceHeaders: Boolean): Uri {
-        val selectedEntries = getSelectedEntries()!!
-        if (selectedEntries.isNullOrEmpty()) {
-            throw UserException(R.string.err_email_scores__no_items_selected)
-        }
+        val selectedEntries = getSelectedEntries()
 
         /*
          * Create file
@@ -111,173 +176,69 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.email_scores__title)
+    }
 
+    private fun sendButtonListener(messageScoreText: String) {
+        fun EmailScoresTextField.getText() = emailScoresViewModel.state.getText(this).trim()
 
-        allEntries = viewScoresViewModel.state.data
-        displaySelectedEntries()
-
-        view.findViewById<Button>(R.id.button_email_scores__send).setOnClickListener {
+        var uri: Uri? = null
+        if (emailScoresViewModel.state.isChecked(EmailScoresCheckbox.FULL_SCORE_SHEET)) {
             try {
-                formErrors.throwFirstFormErrorAsUserException()
-
-                var uri: Uri? = null
-                if (view.findViewById<CheckBox>(R.id.check_box_email_scores__attach_full).isChecked) {
-                    uri =
-                            createAttachment(view.findViewById<CheckBox>(R.id.check_box_email_scores__include_distance).isChecked)
-                }
-                val message = "%s\n\n%s\n\n%s\n\n\n\n%s".format(
-                        view.findViewById<TextView>(R.id.input_text_email_scores__message_start).text.trim(),
-                        view.findViewById<TextView>(R.id.text_email_scores__message_scores).text.trim(),
-                        view.findViewById<TextView>(R.id.input_text_email_scores__message_end).text.trim(),
-                        resources.getString(R.string.email_default_message_signature)
-                )
-                val emails = view.findViewById<TextView>(R.id.input_text_email_scores__to).text
-                        .split(",", ";", " ")
-                        .map { it.trim() }
-                        .filter { it.isNotEmpty() }
-
-                val emailSelectorIntent = Intent(Intent.ACTION_SENDTO).apply {
-                    data = Uri.parse("mailto:")
-                }
-                val emailIntent = Intent(Intent.ACTION_SEND).apply {
-                    data = Uri.parse("mailto:")
-                    putExtra(Intent.EXTRA_EMAIL, emails.toTypedArray())
-                    putExtra(
-                            Intent.EXTRA_SUBJECT,
-                            view.findViewById<EditText>(R.id.input_text_email_scores__subject).text.toString()
-                    )
-                    putExtra(Intent.EXTRA_TEXT, message)
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    selector = emailSelectorIntent
-                }
-
-                try {
-                    requireContext().startActivity(emailIntent)
-                }
-                catch (e: ActivityNotFoundException) {
-                    throw UserException(R.string.err_email_scores__no_app_found)
-                }
+                uri = createAttachment(emailScoresViewModel.state.isChecked(EmailScoresCheckbox.DISTANCE_TOTAL))
             }
-            catch (e: UserException) {
-                ToastSpamPrevention.displayToast(requireContext(), e.getUserMessage(resources))
-            }
+            // TODO Exception catch is very broad
             catch (e: Exception) {
-                if (!e.message.isNullOrBlank()) CustomLogger.customLogger.e(LOG_TAG, e.message!!)
-                ToastSpamPrevention.displayToast(requireContext(), getString(R.string.err__internal_error))
+                if (!e.message.isNullOrBlank()) {
+                    CustomLogger.customLogger.e(LOG_TAG, "Email attachment creation error: ${e.message!!}")
+                }
+                emailScoresViewModel.handle(EmailScoresIntent.OpenError(EmailScoresError.ERROR_CREATING_ATTACHMENT))
+                return
             }
         }
+        val message = "%s\n\n%s\n\n%s\n\n\n\n%s".format(
+                EmailScoresTextField.MESSAGE_HEADER.getText(),
+                messageScoreText.trim(),
+                EmailScoresTextField.MESSAGE_FOOTER.getText(),
+                resources.getString(R.string.email_default_message_signature)
+        )
+        val emails = EmailScoresTextField.TO.getText()
+                .split(",", ";", " ")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
 
-        view.findViewById<CheckBox>(R.id.check_box_email_scores__attach_full)
-                .setOnCheckedChangeListener { _, isChecked ->
-                    view.findViewById<CheckBox>(R.id.check_box_email_scores__include_distance).isEnabled = isChecked
-                }
+        val emailSelectorIntent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:")
+        }
+        val emailIntent = Intent(Intent.ACTION_SEND).apply {
+            data = Uri.parse("mailto:")
+            putExtra(Intent.EXTRA_EMAIL, emails.toTypedArray())
+            putExtra(Intent.EXTRA_SUBJECT, EmailScoresTextField.SUBJECT.getText())
+            putExtra(Intent.EXTRA_TEXT, message)
+            putExtra(Intent.EXTRA_STREAM, uri)
+            selector = emailSelectorIntent
+        }
+
+        try {
+            requireContext().startActivity(emailIntent)
+        }
+        catch (e: ActivityNotFoundException) {
+            emailScoresViewModel.handle(EmailScoresIntent.OpenError(EmailScoresError.NO_EMAIL_APP_FOUND))
+        }
     }
 
     /**
      * @return the archer round given by [args] else all entries where [ViewScoresEntry.isSelected] is true
      */
-    private fun getSelectedEntries(): List<ViewScoresEntry>? {
-        allEntries?.let { entries ->
-            if (args.archerRoundId >= 0) {
-                val entry = entries.find { it.id == args.archerRoundId }
-                        ?: throw IllegalArgumentException("Could not find round with ID: ${args.archerRoundId}")
-                return listOf(entry)
-            }
-            return entries.filter { it.isSelected }
+    private fun getSelectedEntries(): List<ViewScoresEntry> {
+        val entries = viewScoresViewModel.state.data
+        if (args.archerRoundId >= 0) {
+            val entry = entries.find { it.id == args.archerRoundId }
+                    ?: throw IllegalArgumentException("Could not find round with ID: ${args.archerRoundId}")
+            return listOf(entry)
         }
-        return null
+        return entries.filter { it.isSelected }
     }
 
-    private fun displaySelectedEntries() {
-        val selectedItems = getSelectedEntries()
-        if (selectedItems.isNullOrEmpty()) {
-            formErrors.addFormError(R.string.err_email_scores__no_items_selected)
-            requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).text =
-                    resources.getString(R.string.email_empty_round_summary)
-            requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).setTextColor(
-                    getColourResource(resources, R.color.warningText, requireContext().theme)
-            )
-            return
-        }
-
-        requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).setTextColor(
-                getColourResource(resources, R.color.offBlack, requireContext().theme)
-        )
-        requireView().findViewById<TextView>(R.id.text_email_scores__message_scores).text = selectedItems
-                .joinToString("\n\n") { entry ->
-                    entry.getScoreSummary(resources)
-                }
-        formErrors.removeFormError(R.string.err_email_scores__no_items_selected)
-    }
-
-    override fun getHelpShowcases(): List<HelpShowcaseItem> {
-        return listOf(
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.input_text_email_scores__to)
-                        .setHelpTitleId(R.string.help_email_scores__to_title)
-                        .setHelpBodyId(R.string.help_email_scores__to_body)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.input_text_email_scores__subject)
-                        .setHelpTitleId(R.string.help_email_scores__subject_title)
-                        .setHelpBodyId(R.string.help_email_scores__subject_body)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.input_text_email_scores__message_start)
-                        .setHelpTitleId(R.string.help_email_scores__message_start_title)
-                        .setHelpBodyId(R.string.help_email_scores__message_start_body)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.text_email_scores__message_scores)
-                        .setHelpTitleId(R.string.help_email_scores__scores_title)
-                        .setHelpBodyId(R.string.help_email_scores__scores_body)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.input_text_email_scores__message_end)
-                        .setHelpTitleId(R.string.help_email_scores__message_end_title)
-                        .setHelpBodyId(R.string.help_email_scores__message_end_body)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.check_box_email_scores__attach_full)
-                        .setHelpTitleId(R.string.help_email_scores__full_score_sheet_attachment_title)
-                        .setHelpBodyId(R.string.help_email_scores__full_score_sheet_attachment_body)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.check_box_email_scores__include_distance)
-                        .setHelpTitleId(R.string.help_email_scores__include_distance_totals_title)
-                        .setHelpBodyId(R.string.help_email_scores__include_distance_totals_body)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.button_email_scores__send)
-                        .setHelpTitleId(R.string.help_email_scores__send_title)
-                        .setHelpBodyId(R.string.help_email_scores__send_body)
-                        .build()
-        )
-    }
-
-    override fun getHelpPriority(): Int? {
-        return null
-    }
-
-    private class FormErrors {
-        private val formErrorResourceIds = mutableSetOf<Int>()
-
-        fun addFormError(resourceId: Int) {
-            formErrorResourceIds.add(resourceId)
-        }
-
-        fun removeFormError(resourceId: Int) {
-            formErrorResourceIds.remove(resourceId)
-        }
-
-        /**
-         * If there are any form errors, throw the first as a [UserException], else do nothing
-         */
-        fun throwFirstFormErrorAsUserException() {
-            if (formErrorResourceIds.isNullOrEmpty()) {
-                return
-            }
-            throw UserException(formErrorResourceIds.first())
-        }
-    }
+    override fun getHelpShowcases() = emailScoresScreen.getHelpShowcases()
+    override fun getHelpPriority() = emailScoresScreen.getHelpPriority()
 }

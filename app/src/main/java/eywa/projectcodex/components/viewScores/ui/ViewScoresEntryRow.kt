@@ -137,7 +137,6 @@ private fun HandicapColumn(
         Box(
                 contentAlignment = Alignment.Center
         ) {
-            @Suppress("RemoveRedundantQualifierName")
             Text(
                     text = entry.handicap?.toString()
                             ?: stringResource(id = R.string.view_score__handicap_placeholder),

@@ -5,6 +5,7 @@
     <string name="short_boolean_false">N</string>
     <string name="units_meters_short">m</string>
     <string name="units_yards_short">yd</string>
+    <string name="units_cm_short">cm</string>
 
     <!-- Action bar -->
     <string name="action_bar__help">help</string>
@@ -50,6 +51,7 @@
 
     <!-- General -->
     <string name="general_ok">OK</string>
+    <string name="general_back">Back</string>
     <string name="general_cancel">Cancel</string>
     <string name="general_cancelling">Cancelling</string>
     <string name="general_cancelled">Cancelled</string>
@@ -58,8 +60,11 @@
     <string name="general_next">Next</string>
     <string name="general__reset_edits">Reset</string>
     <string name="general_delete">Delete</string>
+    <string name="general_colon_separator">:</string>
+    <string name="general_comma_separator">, </string>
 
     <!-- TODO Make a more informative message on what to do next -->
+    <string name="err__general_error_dialog_title">Error</string>
     <string name="err__internal_error">Internal error occurred</string>
     <string name="err__try_again_error">Unexpected error occurred, please try again</string>
 

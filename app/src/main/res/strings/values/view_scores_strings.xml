@@ -44,6 +44,7 @@
     <string name="err_view_score__no_rounds">There are no rounds to show</string>
     <string name="err_view_score__return_to_main_menu">Return to main menu</string>
     <string name="err_view_score__round_already_complete">This round is already complete</string>
+    <string name="err_view_score__no_rounds_selected">Select an entry to email</string>
 
     <!-- Help info -->
     <string name="help_view_score__row_title">Row actions</string>

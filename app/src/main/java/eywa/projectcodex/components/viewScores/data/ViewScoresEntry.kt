@@ -63,9 +63,8 @@ data class ViewScoresEntry(
                 null
             }
             else {
-                var field: Int? = null
                 try {
-                    field = Handicap.getHandicapForRound(
+                    Handicap.getHandicapForRound(
                             round, arrowCounts, distances, arrows.sumOf { it.score }, false, arrows.size
                     )
                 }
@@ -77,8 +76,8 @@ data class ViewScoresEntry(
                                     + e.message
                     )
                     CustomLogger.customLogger.e(LOG_TAG, "Handicap Error: " + e.message)
+                    null
                 }
-                field
             }
 
     fun getScorePadData(endSize: Int, resources: Resources): ScorePadData? {
