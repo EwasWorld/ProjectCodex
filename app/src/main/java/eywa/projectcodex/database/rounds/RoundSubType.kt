@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.rounds
 
 import androidx.room.Entity
+import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 
 /**
  * Distinguishes distance variations of the same round. E.g. Long National, National, Short National, etc.
@@ -24,4 +25,7 @@ data class RoundSubType(
          * @see gents
          */
         val ladies: Int? = null
-)
+) : NamedItem {
+    override val label: String
+        get() = name!!
+}

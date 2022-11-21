@@ -16,6 +16,7 @@
     <string name="email_scores__message">Message</string>
     <string name="email_scores__message_header_placeholder">Hi,</string>
     <string name="email_scores__message_footer_placeholder">From</string>
+    <string name="email_scores__attachments_title">"Attachment:"</string>
     <string name="email_scores__full_score_sheet_as_attachment">Full score sheet</string>
     <string name="email_scores__full_score_sheet_with_distance_totals">Distance totals</string>
     <string name="email_scores__send">Send</string>

@@ -1,8 +1,16 @@
 package eywa.projectcodex.common.sharedUi.codexTheme
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
+
+@Composable
+fun TextStyle.asClickableStyle() = copy(
+        color = CodexTheme.colors.linkText,
+        textDecoration = TextDecoration.Underline,
+)
 
 object CodexTypography {
     val NORMAL = TextStyle.Default.copy(

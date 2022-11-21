@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.sharedUi
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,9 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
@@ -28,7 +30,29 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 @Composable
 fun CodexChip(
         text: String,
+        state: CodexNewChipState,
+        modifier: Modifier = Modifier,
+        colours: ChipColours = ChipColours.Defaults.onPrimary(),
+        onToggle: () -> Unit,
+) = CodexChip(
+        text = text,
+        selected = state.selected,
+        enabled = state.enabled,
+        modifier = modifier,
+        onToggle = onToggle,
+        testTag = state.testTag,
+        colours = colours,
+)
+
+/**
+ * Text should be no more than 20 characters
+ */
+@Deprecated("Replaced with CodexNewChipState", ReplaceWith(""))
+@Composable
+fun CodexChip(
+        text: String,
         state: CodexChipState,
+        colours: ChipColours = ChipColours.Defaults.onPrimary(),
         modifier: Modifier = Modifier,
 ) = CodexChip(
         text = text,
@@ -37,6 +61,7 @@ fun CodexChip(
         modifier = modifier,
         onToggle = state.onToggle,
         testTag = state.testTag,
+        colours = colours,
 )
 
 /**
@@ -49,17 +74,18 @@ fun CodexChip(
         testTag: String,
         enabled: Boolean = true,
         modifier: Modifier = Modifier,
+        colours: ChipColours = ChipColours.Defaults.onPrimary(),
         onToggle: () -> Unit
 ) {
     val surfaceColor = when {
         !selected -> Color.Transparent
-        enabled -> CodexTheme.colors.chipOnPrimarySelected
-        else -> CodexTheme.colors.disabledButton
+        enabled -> colours.selectedBackgroundColour
+        else -> colours.disabledSelectedBackgroundColour
     }
     val onColor = when {
-        !enabled -> CodexTheme.colors.onDisabledButton
-        selected -> CodexTheme.colors.chipOnPrimarySelectedText
-        else -> CodexTheme.colors.chipOnPrimaryUnselected
+        !enabled -> colours.disabledContentContent
+        selected -> colours.selectedContentColour
+        else -> colours.notSelectedContentColour
     }
     val clickModifier = if (!enabled) Modifier else Modifier.selectable(selected = selected, onClick = onToggle)
 
@@ -97,6 +123,35 @@ fun CodexChip(
     }
 }
 
+data class ChipColours(
+        val selectedBackgroundColour: Color,
+        val disabledSelectedBackgroundColour: Color,
+        val notSelectedContentColour: Color,
+        val selectedContentColour: Color,
+        val disabledContentContent: Color,
+) {
+    object Defaults {
+        @Composable
+        fun onPrimary() = ChipColours(
+                selectedBackgroundColour = CodexTheme.colors.chipOnPrimarySelected,
+                disabledSelectedBackgroundColour = CodexTheme.colors.disabledButton,
+                notSelectedContentColour = CodexTheme.colors.chipOnPrimaryUnselected,
+                selectedContentColour = CodexTheme.colors.chipOnPrimarySelectedText,
+                disabledContentContent = CodexTheme.colors.disabledButton,
+        )
+
+        @Composable
+        fun onDialog() = ChipColours(
+                selectedBackgroundColour = CodexTheme.colors.chipOnDialogSelected,
+                disabledSelectedBackgroundColour = CodexTheme.colors.disabledButton,
+                notSelectedContentColour = CodexTheme.colors.chipOnDialogUnselected,
+                selectedContentColour = CodexTheme.colors.chipOnDialogSelectedText,
+                disabledContentContent = CodexTheme.colors.disabledButton,
+        )
+    }
+}
+
+@Deprecated("Removed onToggle", ReplaceWith("CodexNewChipState"))
 data class CodexChipState(
         val selected: Boolean,
         val enabled: Boolean = true,
@@ -104,29 +159,61 @@ data class CodexChipState(
         val testTag: String,
 )
 
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY
+data class CodexNewChipState(
+        val selected: Boolean,
+        val enabled: Boolean = true,
+        val testTag: String,
 )
+
+@Preview
 @Composable
-fun CodexChip_Preview() {
+fun CodexChip_Preview(
+        @PreviewParameter(CodexChipPreviewParamProvider::class) params: CodexChipPreviewParams,
+) {
     CodexTheme {
+        val colours = params.chipColours()
         Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier
+                        .background(params.previewBackground())
+                        .padding(10.dp)
         ) {
             Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                CodexChip(text = "First chip", selected = true, enabled = true, onToggle = {}, testTag = "")
-                CodexChip(text = "Chip 2", selected = false, enabled = true, onToggle = {}, testTag = "")
+                CodexChip(
+                        text = "First chip", selected = true, enabled = true,
+                        onToggle = {}, testTag = "", colours = colours,
+                )
+                CodexChip(
+                        text = "Chip 2", selected = false, enabled = true,
+                        onToggle = {}, testTag = "", colours = colours,
+                )
             }
             Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                CodexChip(text = "Chip 3", selected = true, enabled = false, onToggle = {}, testTag = "")
-                CodexChip(text = "Another chip", selected = false, enabled = false, onToggle = {}, testTag = "")
+                CodexChip(
+                        text = "Chip 3", selected = true, enabled = false,
+                        onToggle = {}, testTag = "", colours = colours,
+                )
+                CodexChip(
+                        text = "Another chip", selected = false, enabled = false,
+                        onToggle = {}, testTag = "", colours = colours,
+                )
             }
         }
     }
 }
+
+data class CodexChipPreviewParams(
+        val previewBackground: @Composable () -> Color,
+        val chipColours: @Composable () -> ChipColours,
+)
+
+class CodexChipPreviewParamProvider : CollectionPreviewParameterProvider<CodexChipPreviewParams>(
+        listOf(
+                CodexChipPreviewParams({ CodexTheme.colors.appBackground }) { ChipColours.Defaults.onPrimary() },
+                CodexChipPreviewParams({ CodexTheme.colors.dialogBackground }) { ChipColours.Defaults.onDialog() },
+        )
+)

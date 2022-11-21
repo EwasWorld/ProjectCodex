@@ -18,6 +18,7 @@ fun CodexButton(
         text: String,
         buttonStyle: CodexButtonStyle,
         modifier: Modifier = Modifier,
+        enabled: Boolean = true,
         onClick: () -> Unit,
 ) {
     Button(
@@ -28,7 +29,8 @@ fun CodexButton(
                     contentColor = buttonStyle.getTextColor()
             ),
             elevation = if (buttonStyle.hasElevation) ButtonDefaults.elevation() else null,
-            shape = RoundedCornerShape(100)
+            shape = RoundedCornerShape(100),
+            enabled = enabled,
     ) {
         Text(
                 text = text,
@@ -62,6 +64,8 @@ abstract class TextButton : CodexButtonStyle() {
 
 sealed class CodexButtonDefaults : CodexButtonStyle() {
     open class DefaultButton : ColouredButton() {
+        override val textStyle: TextStyle = CodexTypography.NORMAL
+
         @Composable
         override fun getBackgroundColor() = CodexTheme.colors.filledButton
 

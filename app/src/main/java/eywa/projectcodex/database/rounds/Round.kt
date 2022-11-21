@@ -2,6 +2,7 @@ package eywa.projectcodex.database.rounds
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 
 const val ROUND_TABLE_NAME = "rounds"
 
@@ -27,4 +28,7 @@ data class Round(
         val permittedFaces: List<String>,
         val isDefaultRound: Boolean = false,
         val fiveArrowEnd: Boolean = false
-)
+) : NamedItem {
+    override val label: String
+        get() = displayName
+}

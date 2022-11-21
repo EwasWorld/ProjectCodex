@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
@@ -26,7 +26,7 @@ import java.util.*
 class NewScoreFragment : Fragment(), ActionBarHelp {
     private val args: NewScoreFragmentArgs by navArgs()
 
-    private lateinit var newScoreViewModel: NewScoreViewModel
+    private val newScoreViewModel: NewScoreViewModel by viewModels()
 
     /**
      * Round information for the two round selection spinners
@@ -94,7 +94,6 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        newScoreViewModel = ViewModelProvider(this).get(NewScoreViewModel::class.java)
         val roundSpinner = view.findViewById<Spinner>(R.id.spinner_create_round__round)
         val subRoundSpinner = view.findViewById<Spinner>(R.id.spinner_create_round__round_sub_type)
 
@@ -242,7 +241,7 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                     if (arrowsInSelectedRound != null && arrowsInSelectedRound < arrowsShot) {
                         displayArrowCountWarning = true
                         warningMessageView.text = resourceStringReplace(
-                                resources.getString(R.string.err_create_round__too_many_arrows),
+                                resources.getString(R.string.err_create_round__too_many_arrows_old),
                                 mapOf(
                                         "round" to roundSelection.getSelectedRoundName()!!,
                                         "shot arrows" to arrowsShot.toString(),

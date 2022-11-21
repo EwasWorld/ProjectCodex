@@ -87,8 +87,8 @@ fun SimpleDialogContent(
 @Composable
 fun SimpleDialogContent(
         title: String,
-        message: String,
-        positiveButton: ButtonState,
+        message: String? = null,
+        positiveButton: ButtonState? = null,
         negativeButton: ButtonState? = null,
         modifier: Modifier = Modifier,
         content: (@Composable () -> Unit)? = null
@@ -107,10 +107,12 @@ fun SimpleDialogContent(
                     style = CodexTypography.DIALOG_TITLE.copy(color = CodexTheme.colors.onDialogBackground),
                     modifier = Modifier.testTag(SimpleDialogTestTag.TITLE),
             )
-            Text(
-                    text = message,
-                    style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
-            )
+            message?.let {
+                Text(
+                        text = message,
+                        style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
+                )
+            }
 
             content?.invoke()
 
@@ -127,12 +129,14 @@ fun SimpleDialogContent(
                             modifier = Modifier.testTag(SimpleDialogTestTag.NEGATIVE_BUTTON),
                     )
                 }
-                CodexButton(
-                        text = positiveButton.text,
-                        buttonStyle = CodexButtonDefaults.DialogPositiveButton,
-                        onClick = positiveButton.onClick,
-                        modifier = Modifier.testTag(SimpleDialogTestTag.POSITIVE_BUTTON),
-                )
+                positiveButton?.let {
+                    CodexButton(
+                            text = positiveButton.text,
+                            buttonStyle = CodexButtonDefaults.DialogPositiveButton,
+                            onClick = positiveButton.onClick,
+                            modifier = Modifier.testTag(SimpleDialogTestTag.POSITIVE_BUTTON),
+                    )
+                }
             }
         }
     }

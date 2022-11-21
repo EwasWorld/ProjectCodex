@@ -30,13 +30,14 @@ data class CodexThemeColors(
         val unassignedColor: Color = Color.Transparent,
 
         val appBackground: Color = CodexColors.COLOR_PRIMARY,
+        val onAppBackground: Color = Color.White,
+        val warningOnAppBackground: Color = CodexColors.WARNING_TEXT,
+        val errorOnAppBackground: Color = CodexColors.ERROR_TEXT,
+
         val listItemOnAppBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
         val listItemOnAppBackgroundBorder: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onListItemAppOnBackground: Color = Color.Black,
-        val floatingActions: Color = CodexColors.COLOR_PRIMARY_DARK,
-        val onFloatingActions: Color = Color.White,
 
-        val textOnPrimary: Color = Color.White,
         val surfaceOnBackground: Color = CodexColors.COLOR_EXTRA_LIGHT_ACCENT,
         val disabledOnSurfaceOnBackground: Color = Color.LightGray.copy(alpha = 0.5f),
         val textFieldFocussedOutline: Color = CodexColors.COLOR_ACCENT,
@@ -55,13 +56,28 @@ data class CodexThemeColors(
         val helpShowcaseButton: Color = Color.White,
 
         // Buttons
+        val linkText: Color = CodexColors.COLOR_PRIMARY_DARK,
         val disabledButton: Color = Color.LightGray.copy(alpha = 0.7f),
         val onDisabledButton: Color = Color.Gray.copy(alpha = 0.8f),
         val filledButton: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onFilledButton: Color = Color.White,
+        val floatingActions: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val onFloatingActions: Color = Color.White,
+
+        // Chips
         val chipOnPrimarySelected: Color = CodexColors.COLOR_PRIMARY_LIGHT,
         val chipOnPrimarySelectedText: Color = CodexColors.COLOR_ON_PRIMARY_LIGHT,
         val chipOnPrimaryUnselected: Color = Color.White,
+        val chipOnDialogSelected: Color = CodexColors.COLOR_PRIMARY_LIGHT,
+        val chipOnDialogSelectedText: Color = CodexColors.COLOR_ON_PRIMARY_LIGHT,
+        val chipOnDialogUnselected: Color = CodexColors.COLOR_ON_PRIMARY_LIGHT,
+
+        // Pill selector
+        val pillSelectorSelected: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val onPillSelectorSelected: Color = Color.White,
+        val pillSelectorNotSelected: Color = Color.White,
+        val onPillSelectorNotSelected: Color = Color.Black,
+        val pillSelectorBorder: Color = Color.LightGray,
 )
 
 object CodexColors {
@@ -85,7 +101,8 @@ object CodexColors {
 
     val SCORE_PAD_TEXT = OFF_BLACK
     val INPUT_END_TEXT = Color.White
-    val WARNING_TEXT = Color(0xFFD61A00)
+    val WARNING_TEXT = Color(0xFFFFF176)
+    val ERROR_TEXT = Color(0xFFF44336)
 
     val TARGET_FACE_GREEN = Color(0xFF26FF00)
     val TARGET_FACE_WHITE = Color.White

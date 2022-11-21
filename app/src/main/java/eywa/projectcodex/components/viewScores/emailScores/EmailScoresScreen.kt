@@ -113,8 +113,8 @@ class EmailScoresScreen : ActionBarHelp {
                                 .horizontalScroll(rememberScrollState())
                 ) {
                     Text(
-                            text = "Attachment:",
-                            style = CodexTypography.SMALL.copy(CodexTheme.colors.textOnPrimary)
+                            text = stringResource(R.string.email_scores__attachments_title),
+                            style = CodexTypography.SMALL.copy(CodexTheme.colors.onAppBackground)
                     )
                     CodexChip(
                             text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),

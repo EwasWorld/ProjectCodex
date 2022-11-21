@@ -22,7 +22,7 @@ enum class DateTimeFormat(val pattern: String) {
     SHORT_DATE_TIME("${SHORT_DATE.pattern} ${TIME_24_HOUR.pattern}"),
     ;
 
-    fun format(date: Date): String {
-        return SimpleDateFormat(pattern).format(date)
-    }
+    @Deprecated("Use Calendar instead", ReplaceWith(""))
+    fun format(date: Date): String = SimpleDateFormat(pattern).format(date)
+    fun format(date: Calendar): String = SimpleDateFormat(pattern).format(date.time)
 }
