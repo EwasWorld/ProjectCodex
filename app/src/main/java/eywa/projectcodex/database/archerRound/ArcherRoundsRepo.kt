@@ -24,9 +24,7 @@ class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
         return archerRoundDao.getArcherRoundById(archerRoundId)
     }
 
-    suspend fun insert(archerRound: ArcherRound) {
-        archerRoundDao.insert(archerRound)
-    }
+    suspend fun insert(archerRound: ArcherRound) = archerRoundDao.insert(archerRound)
 
     suspend fun deleteRound(archerRoundId: Int) {
         archerRoundDao.deleteRound(archerRoundId)

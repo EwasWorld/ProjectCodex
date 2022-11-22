@@ -6,9 +6,7 @@
     <string name="create_round__imperial_metric">Imperial</string>
     <string name="create_round__date">Date:</string>
     <string name="create_round__default_rounds_updating_warning">Rounds list is being updated. Please wait a few moments for list to update or start scoring without a round.</string>
-    <string name="create_round__default_rounds_updating_warning_heading">Update status:</string>
-    <string name="create_round__default_rounds_updating_warning_progress">%1$d of %2$d</string> <!-- e.g. "1 of 10" -->
-    <string name="create_round__default_rounds_updating_warning_status">Current status</string> <!-- TODO_CURRENT Delete -->
+    <string name="create_round__default_rounds_updating_warning_status">Current status:</string>
     <string name="create_round__round">Round:</string>
     <string name="create_round__round_sub_type">Round Subtype:</string>
     <string name="create_round__no_round">No Round</string>
@@ -27,7 +25,6 @@
     <string name="create_round__select_a_round_filter_metric">Metric</string>
     <string name="create_round__select_a_round_filter_clear_all">Clear filters</string>
 
-    <string name="err_create_round__too_many_arrows_old">This score has too many arrows ({shot arrows}) entered to change the type to {round} (max {round arrows})</string> <!-- TODO_CURRENT Delete -->
     <string name="err_create_round__too_many_arrows">This score has too many arrows (%1$d) entered to change the type to %2$s (max %3$d)</string> <!-- e.g. ... too many arrows (144) ... the type to FITA (max 36) -->
 
     <string name="help_create_round__date_title">Date and Time</string>

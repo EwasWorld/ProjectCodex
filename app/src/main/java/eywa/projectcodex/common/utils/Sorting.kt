@@ -67,7 +67,7 @@ object Sorting {
         }
 
         companion object {
-            fun fromString(value: String, isNumber: Boolean) = if (isNumber) Number(value) else Text(value)
+            fun fromString(value: String, isText: Boolean) = if (isText) Text(value) else Number(value)
         }
     }
 }

@@ -14,6 +14,7 @@ import eywa.projectcodex.database.rounds.Round
 class NewScoreRoundEnabledFilters private constructor(private val filters: Set<NewScoreRoundFilter>) {
     constructor() : this(setOf())
 
+    fun plus(add: NewScoreRoundFilter) = plus(setOf(add))
     fun plus(add: Set<NewScoreRoundFilter>): NewScoreRoundEnabledFilters {
         require(!(add.contains(METRIC) && add.contains(IMPERIAL)))
 
@@ -25,10 +26,13 @@ class NewScoreRoundEnabledFilters private constructor(private val filters: Set<N
         }
 
         newFilters.addAll(add)
-        return NewScoreRoundEnabledFilters(filters)
+        return NewScoreRoundEnabledFilters(newFilters)
     }
 
+    fun minus(remove: NewScoreRoundFilter) = minus(setOf(remove))
     fun minus(remove: Set<NewScoreRoundFilter>) = NewScoreRoundEnabledFilters(filters.minus(remove))
+
+    fun toggle(filter: NewScoreRoundFilter) = if (filters.contains(filter)) minus(filter) else plus(filter)
 
     fun contains(element: NewScoreRoundFilter) = filters.contains(element)
 

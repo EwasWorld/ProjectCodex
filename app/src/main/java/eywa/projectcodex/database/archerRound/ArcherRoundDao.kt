@@ -7,7 +7,7 @@ import eywa.projectcodex.database.rounds.Round
 @Dao
 interface ArcherRoundDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(archerRound: ArcherRound)
+    suspend fun insert(archerRound: ArcherRound): Long
 
     @Update
     suspend fun update(vararg archerRounds: ArcherRound)

@@ -1,11 +1,13 @@
 package eywa.projectcodex.components.newScore
 
+import eywa.projectcodex.common.utils.UpdateCalendarInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundSubType
 
 sealed class NewScoreIntent {
-    data class TimeChanged(val hours: Int, val minutes: Int) : NewScoreIntent()
-    data class DateChanged(val day: Int, val month: Int, val year: Int) : NewScoreIntent()
+    data class Initialise(val roundBeingEditedId: Int?) : NewScoreIntent()
+
+    data class DateChanged(val info: UpdateCalendarInfo) : NewScoreIntent()
 
     object OpenRoundSelectDialog : NewScoreIntent()
     object CloseRoundSelectDialog : NewScoreIntent()
@@ -20,4 +22,5 @@ sealed class NewScoreIntent {
 
     object Submit : NewScoreIntent()
     object CancelEditInfo : NewScoreIntent()
+    object ResetEditInfo : NewScoreIntent()
 }

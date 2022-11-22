@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -35,7 +37,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.Sorting
+import eywa.projectcodex.common.utils.UpdateCalendarInfo
+import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
+import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -57,23 +62,23 @@ class NewScoreScreen : ActionBarHelp {
 
         val displayedRoundText = state.selectedRound?.displayName
                 ?: stringResource(
-                        if (state.allRounds.isEmpty()) {
-                            R.string.create_round__no_rounds_found
+                        if (state.hasRounds) {
+                            R.string.create_round__no_round
                         }
                         else {
-                            R.string.create_round__no_round
+                            R.string.create_round__no_rounds_found
                         }
                 )
         val distanceUnit = state.distanceUnitStringRes?.let { stringResource(it) }
 
         SelectRoundDialog(
-                isShown = state.isSelectRoundOpen,
+                isShown = state.isSelectRoundDialogOpen,
                 displayedRounds = state.roundsOnSelectDialog,
-                enabledFilters = state.enabledSelectRoundDialogFilters,
+                enabledFilters = state.enabledRoundFilters,
                 listener = listener,
         )
         SelectSubtypeDialog(
-                isShown = state.isSelectSubTypeOpen,
+                isShown = state.isSelectSubTypeDialogOpen,
                 subTypes = state.roundSubTypes,
                 getDistance = { state.getFurthestDistance(it).distance },
                 distanceUnit = distanceUnit,
@@ -84,12 +89,13 @@ class NewScoreScreen : ActionBarHelp {
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
+                        .verticalScroll(rememberScrollState())
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground)
                         .padding(25.dp)
         ) {
             DateRow(state, listener)
-            if (state.databaseUpdatingProgress != null) {
+            if (state.databaseUpdatingProgress) {
                 Text(
                         text = stringResource(R.string.create_round__default_rounds_updating_warning),
                         style = CodexTypography.NORMAL.copy(
@@ -97,14 +103,12 @@ class NewScoreScreen : ActionBarHelp {
                                 textAlign = TextAlign.Center,
                         ),
                 )
-                DataRow(
-                        title = R.string.create_round__default_rounds_updating_warning_heading,
-                        extraText = stringResource(
-                                R.string.create_round__default_rounds_updating_warning_progress,
-                                state.databaseUpdatingProgress.first,
-                                state.databaseUpdatingProgress.second,
-                        )
-                )
+                if (state.databaseUpdatingMessage != null) {
+                    DataRow(
+                            title = R.string.create_round__default_rounds_updating_warning_status,
+                            extraText = state.databaseUpdatingMessage?.get()
+                    )
+                }
             }
             else {
                 DataRow(title = R.string.create_round__round) {
@@ -174,12 +178,17 @@ class NewScoreScreen : ActionBarHelp {
                     onClick = { listener(CancelEditInfo) },
             )
             CodexButton(
-                    text = stringResource(R.string.general_complete),
-                    enabled = !state.tooManyArrowsWarningShown,
+                    text = stringResource(R.string.general__reset_edits),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
-                    onClick = { listener(Submit) },
+                    onClick = { listener(ResetEditInfo) },
             )
         }
+        CodexButton(
+                text = stringResource(R.string.general_complete),
+                enabled = !state.tooManyArrowsWarningShown,
+                buttonStyle = CodexButtonDefaults.DefaultButton(),
+                onClick = { listener(Submit) },
+        )
     }
 
     @Composable
@@ -193,24 +202,27 @@ class NewScoreScreen : ActionBarHelp {
         if (state.roundArrowCounts.isNotEmpty()) {
             DataRow(
                     title = R.string.create_round__arrow_count_indicator,
-                    extraText = state.roundArrowCounts.joinToString(separator) {
-                        DecimalFormat("#.#").format(it.arrowCount / 12.0)
-                    }
+                    extraText = state.roundArrowCounts
+                            .sortedBy { it.distanceNumber }
+                            .joinToString(separator) {
+                                DecimalFormat("#.#").format(it.arrowCount / 12.0)
+                            }
             )
         }
-        if (state.roundDistances.isNotEmpty()) {
+        if (state.roundSubtypeDistances.isNotEmpty()) {
             DataRow(
                     title = R.string.create_round__distance_indicator,
-                    extraText = state.roundDistances.joinToString { it.distance.toString() + distanceUnit }
+                    extraText = state.roundSubtypeDistances
+                            .sortedBy { it.distanceNumber }
+                            .joinToString(separator) { it.distance.toString() + distanceUnit }
             )
         }
         if (state.roundArrowCounts.isNotEmpty()) {
             DataRow(
                     title = R.string.create_round__face_size_indicator,
                     extraText = state.roundArrowCounts
-                            .joinToString(separator) {
-                                (it.faceSizeInCm.roundToInt()).toString() + faceSizeUnit
-                            }
+                            .sortedBy { it.distanceNumber }
+                            .joinToString(separator) { (it.faceSizeInCm.roundToInt()).toString() + faceSizeUnit }
             )
         }
     }
@@ -225,7 +237,7 @@ class NewScoreScreen : ActionBarHelp {
             TimePickerDialog(
                     context,
                     { _, hours, minutes ->
-                        listener(TimeChanged(hours = hours, minutes = minutes))
+                        listener(DateChanged(UpdateCalendarInfo(hours = hours, minutes = minutes)))
                     },
                     state.date.get(Calendar.HOUR_OF_DAY),
                     state.date.get(Calendar.MINUTE),
@@ -236,7 +248,7 @@ class NewScoreScreen : ActionBarHelp {
             DatePickerDialog(
                     context,
                     { _, year, month, day ->
-                        listener(DateChanged(day = day, month = month, year = year))
+                        listener(DateChanged(UpdateCalendarInfo(day = day, month = month, year = year)))
                     },
                     state.date.get(Calendar.YEAR),
                     state.date.get(Calendar.MONTH),
@@ -322,7 +334,7 @@ class NewScoreScreen : ActionBarHelp {
                                         modifier = Modifier.padding(end = 5.dp)
                                 )
                             }
-                            items(NewScoreRoundFilter.values() + NewScoreRoundFilter.values()) { filter ->
+                            items(NewScoreRoundFilter.values()) { filter ->
                                 CodexChip(
                                         text = stringResource(filter.chipText),
                                         state = CodexNewChipState(
@@ -347,6 +359,7 @@ class NewScoreScreen : ActionBarHelp {
                                 Sorting.NumericalStringSort.compare(round1.name, round2.name)
                             },
                             onItemClicked = { listener(RoundSelected(it)) },
+                            modifier = Modifier.padding(vertical = 10.dp)
                     )
                 }
             }
@@ -374,7 +387,7 @@ class NewScoreScreen : ActionBarHelp {
                     ),
             ) {
                 ItemSelector(
-                        displayItems = subTypes.sortedBy { getDistance(it) },
+                        displayItems = subTypes.sortedByDescending { getDistance(it) },
                         onItemClicked = { listener(SubTypeSelected(it)) },
                 ) { item ->
                     val distanceString = getDistance(item).toString() + distanceUnit!!
@@ -391,10 +404,12 @@ class NewScoreScreen : ActionBarHelp {
     private fun <T : NamedItem> ItemSelector(
             displayItems: Iterable<T>,
             onItemClicked: (T) -> Unit,
+            modifier: Modifier = Modifier,
             extraContent: (@Composable (T) -> Unit)? = null,
     ) {
         LazyColumn(
-                horizontalAlignment = Alignment.Start
+                horizontalAlignment = Alignment.Start,
+                modifier = modifier,
         ) {
             items(displayItems.toList()) { item ->
                 Box(
@@ -438,120 +453,122 @@ class NewScoreScreen : ActionBarHelp {
     )
     @Composable
     fun NewScoreScreen_Preview(
-            @PreviewParameter(PreviewParamProvider::class) params: NewScoreState
+            @PreviewParameter(NewScorePreviewParamProvider::class) params: NewScoreState
     ) {
         CodexTheme {
-            ComposeContent(
+            NewScoreScreen().ComposeContent(
                     state = params,
                     listener = {},
             )
         }
     }
+}
 
-    object PreviewParamProvider : PreviewParameterProvider<NewScoreState> {
-        private val basePreviewState = NewScoreState(
-                isEditing = false,
-                arrowsShot = null,
-                databaseUpdatingProgress = null,
-                date = Calendar.getInstance(),
-                isSelectRoundOpen = false,
-                isSelectSubTypeOpen = false,
-                selectedRound = null,
-                selectedSubtype = null,
-                allRounds = listOf(),
-                allSubTypes = listOf(),
-                allArrowCounts = listOf(),
-                allDistances = listOf(),
-                enabledSelectRoundDialogFilters = NewScoreRoundEnabledFilters(),
-        )
+class NewScorePreviewParamProvider : PreviewParameterProvider<NewScoreState> {
+    private val editingArcherRound = ArcherRound(1, Calendar.getInstance().time, 1)
 
-        override val values = sequenceOf(
-                // No Round
-                basePreviewState,
+    override val values = sequenceOf(
+            // No Round
+            NewScoreState(),
 
-                // Has Round
-                basePreviewState.previewHelperAddRounds()
-                        .let { it.copy(selectedRound = it.allRounds[0], selectedSubtype = it.allSubTypes[0]) },
+            // Has Round
+            NewScoreState()
+                    .previewHelperAddRounds()
+                    .selectRound(0)
+                    .selectSubType(0),
 
-                // Editing
-                basePreviewState.previewHelperAddRounds().copy(isEditing = true),
+            // Editing
+            NewScoreState().previewHelperAddRounds().copy(roundBeingEdited = editingArcherRound),
 
-                // DbInProgress
-                basePreviewState.previewHelperAddRounds().copy(databaseUpdatingProgress = 3 to 10),
+            // DbInProgress
+            NewScoreState().previewHelperAddRounds().copy(databaseUpdatingProgress = true),
 
-                // TooManyArrows
-                basePreviewState.previewHelperAddRounds()
-                        .let { it.copy(isEditing = true, arrowsShot = 1000, selectedRound = it.allRounds[0]) },
+            // TooManyArrows
+            NewScoreState()
+                    .previewHelperAddRounds()
+                    .selectRound(0)
+                    .copy(roundBeingEdited = editingArcherRound, arrowsShot = 1000),
 
-                // Select Round Dialog
-                basePreviewState.previewHelperAddRounds().copy(isSelectRoundOpen = true),
+            // Select Round Dialog
+            NewScoreState().previewHelperAddRounds().copy(isSelectRoundDialogOpen = true),
 
-                // Select Subtype Dialog
-                basePreviewState.previewHelperAddRounds()
-                        .let { it.copy(selectedRound = it.allRounds[0], isSelectSubTypeOpen = true) },
-        )
+            // Select Subtype Dialog
+            NewScoreState()
+                    .previewHelperAddRounds()
+                    .selectRound(0)
+                    .copy(isSelectSubTypeDialogOpen = true)
+    )
 
-        private fun NewScoreState.previewHelperAddRounds() = copy(
-                allRounds = listOf(
-                        Round(
-                                roundId = 1,
-                                name = "",
-                                displayName = "York",
-                                isOutdoor = true,
-                                isMetric = false,
-                                permittedFaces = listOf(),
-                        ),
-                        Round(
-                                roundId = 2,
-                                name = "",
-                                displayName = "FITA",
-                                isOutdoor = true,
-                                isMetric = true,
-                                permittedFaces = listOf(),
-                        ),
-                        Round(
-                                roundId = 3,
-                                name = "",
-                                displayName = "Long Metric",
-                                isOutdoor = true,
-                                isMetric = true,
-                                permittedFaces = listOf(),
-                        ),
-                ),
-                allSubTypes = listOf(
-                        RoundSubType(
-                                roundId = 1,
-                                subTypeId = 1,
-                                name = "A Subtype",
-                        ),
-                        RoundSubType(
-                                roundId = 1,
-                                subTypeId = 2,
-                                name = "Second Subtype",
-                        ),
-                ),
-                allArrowCounts = listOf(
-                        RoundArrowCount(
-                                roundId = 1,
-                                distanceNumber = 1,
-                                faceSizeInCm = 120.0,
-                                arrowCount = 36,
-                        )
-                ),
-                allDistances = listOf(
-                        RoundDistance(
-                                roundId = 1,
-                                distanceNumber = 1,
-                                subTypeId = 1,
-                                distance = 80,
-                        ),
-                        RoundDistance(
-                                roundId = 1,
-                                distanceNumber = 1,
-                                subTypeId = 2,
-                                distance = 60,
-                        )
-                ),
-        )
-    }
+    private fun NewScoreState.selectRound(roundIndex: Int) = copy(
+            selectedRound = roundsData.rounds!![roundIndex]
+    )
+
+    private fun NewScoreState.selectSubType(subTypeIndex: Int) = copy(
+            selectedSubtype = roundsData.subTypes!![subTypeIndex]
+    )
+
+    private fun NewScoreState.previewHelperAddRounds() = copy(
+            roundsData = NewScoreDbData(
+                    rounds = listOf(
+                            Round(
+                                    roundId = 1,
+                                    name = "",
+                                    displayName = "York",
+                                    isOutdoor = true,
+                                    isMetric = false,
+                                    permittedFaces = listOf(),
+                            ),
+                            Round(
+                                    roundId = 2,
+                                    name = "",
+                                    displayName = "FITA",
+                                    isOutdoor = true,
+                                    isMetric = true,
+                                    permittedFaces = listOf(),
+                            ),
+                            Round(
+                                    roundId = 3,
+                                    name = "",
+                                    displayName = "Long Metric",
+                                    isOutdoor = true,
+                                    isMetric = true,
+                                    permittedFaces = listOf(),
+                            ),
+                    ),
+                    subTypes = listOf(
+                            RoundSubType(
+                                    roundId = 1,
+                                    subTypeId = 1,
+                                    name = "A Subtype",
+                            ),
+                            RoundSubType(
+                                    roundId = 1,
+                                    subTypeId = 2,
+                                    name = "Second Subtype",
+                            ),
+                    ),
+                    arrowCounts = listOf(
+                            RoundArrowCount(
+                                    roundId = 1,
+                                    distanceNumber = 1,
+                                    faceSizeInCm = 120.0,
+                                    arrowCount = 36,
+                            )
+                    ),
+                    distances = listOf(
+                            RoundDistance(
+                                    roundId = 1,
+                                    distanceNumber = 1,
+                                    subTypeId = 1,
+                                    distance = 80,
+                            ),
+                            RoundDistance(
+                                    roundId = 1,
+                                    distanceNumber = 1,
+                                    subTypeId = 2,
+                                    distance = 60,
+                            )
+                    ),
+            )
+    )
 }

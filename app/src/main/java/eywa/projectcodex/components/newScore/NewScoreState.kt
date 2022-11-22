@@ -1,44 +1,61 @@
 package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.R
+import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.database.rounds.RoundArrowCount
-import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import java.util.*
 
+private fun getDefaultDate() = Calendar
+        .getInstance(Locale.getDefault())
+        .apply {
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
 data class NewScoreState(
-        val isEditing: Boolean,
-        val arrowsShot: Int?,
         /**
-         * Pair<progress, totalItems>. Null if the database update is not in progress
+         * Non-null if the fragment is being used to edit an existing round
          */
-        val databaseUpdatingProgress: Pair<Int, Int>?,
-        val date: Calendar,
-        val isSelectRoundOpen: Boolean,
-        val isSelectSubTypeOpen: Boolean,
+        val roundBeingEdited: ArcherRound? = null,
+        /**
+         * Only used if a round is being edited
+         */
+        val arrowsShot: Int? = null,
+        val databaseUpdatingProgress: Boolean = false,
+        val databaseUpdatingMessage: ResOrActual<String>? = null,
+        val date: Calendar = getDefaultDate(),
+        val isSelectRoundDialogOpen: Boolean = false,
+        val isSelectSubTypeDialogOpen: Boolean = false,
         val selectedRound: Round? = null,
         val selectedSubtype: RoundSubType? = null,
-        val allRounds: List<Round>,
-        val allSubTypes: List<RoundSubType>,
-        val allArrowCounts: List<RoundArrowCount>,
-        val allDistances: List<RoundDistance>,
-        val enabledSelectRoundDialogFilters: NewScoreRoundEnabledFilters,
+        val roundsData: NewScoreDbData = NewScoreDbData(),
+        val enabledRoundFilters: NewScoreRoundEnabledFilters = NewScoreRoundEnabledFilters(),
 ) {
+    val hasRounds = !roundsData.rounds.isNullOrEmpty()
+    val isEditing
+        get() = roundBeingEdited != null
+
     val roundArrowCounts
         get() = selectedRound?.roundId?.let { roundId ->
-            allArrowCounts.filter { it.roundId == roundId }.sortedBy { it.distanceNumber }
+            roundsData.arrowCounts?.filter { it.roundId == roundId }
         } ?: listOf()
 
     val roundSubTypes
         get() = selectedRound?.roundId?.let { roundId ->
-            allSubTypes.filter { it.roundId == roundId }.sortedBy { it.subTypeId }
+            roundsData.subTypes?.filter { it.roundId == roundId }
         } ?: listOf()
 
     val roundDistances
         get() = selectedRound?.roundId?.let { roundId ->
-            allDistances.filter { it.roundId == roundId }.sortedBy { it.distanceNumber }
+            roundsData.distances?.filter { it.roundId == roundId }
         } ?: listOf()
+
+    val roundSubtypeDistances
+        get() = selectedSubtype?.subTypeId?.let { subtypeId ->
+            roundDistances.filter { it.subTypeId == subtypeId }
+        } ?: roundDistances
 
     val distanceUnitStringRes
         get() = when {
@@ -47,15 +64,10 @@ data class NewScoreState(
             else -> R.string.units_yards_short
         }
 
-    val displayedSubtype = when {
-        selectedRound == null -> null
-        roundSubTypes.isEmpty() -> null
-        roundSubTypes.size == 1 -> roundSubTypes[0]
-        else -> selectedSubtype
-    }
+    val displayedSubtype = selectedSubtype?.takeIf { selectedRound != null && roundSubTypes.size > 1 }
 
     val roundsOnSelectDialog
-        get() = enabledSelectRoundDialogFilters.filter(allRounds)
+        get() = enabledRoundFilters.filter(roundsData.rounds ?: listOf())
 
     val totalArrowsInSelectedRound
         get() = selectedRound?.let { roundArrowCounts.sumOf { it.arrowCount } }
@@ -63,6 +75,16 @@ data class NewScoreState(
     val tooManyArrowsWarningShown
         get() = selectedRound != null && (arrowsShot ?: 0) > totalArrowsInSelectedRound!!
 
-    fun getFurthestDistance(subType: RoundSubType) = roundDistances
-            .find { it.roundId == subType.roundId && it.subTypeId == subType.subTypeId }!!
+    fun asArcherRound() = ArcherRound(
+            archerRoundId = roundBeingEdited?.archerRoundId ?: 0,
+            // TODO Check date locales (I want to store in UTC)
+            dateShot = date.time,
+            archerId = roundBeingEdited?.archerId ?: 1,
+            roundId = selectedRound?.roundId,
+            roundSubTypeId = selectedSubtype?.subTypeId,
+    )
+
+    fun getFurthestDistance(subType: RoundSubType) = roundsData.distances
+            ?.filter { it.roundId == subType.roundId && it.subTypeId == subType.subTypeId }
+            ?.maxByOrNull { it.distance }!!
 }
