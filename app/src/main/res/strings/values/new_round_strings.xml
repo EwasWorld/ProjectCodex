@@ -34,9 +34,17 @@
     <string name="help_create_round__sub_round_title">Round Subtype</string>
     <string name="help_create_round__sub_round_body">Select which distance is being shot</string>
     <string name="help_create_round__arrow_count_indicator_title">Arrows to be shot</string>
-    <string name="help_create_round__arrow_count_indicator_body">Number of arrows to be shot in dozens at each distance (beginning from the farthest distance) given the selected round</string>
+    <string name="help_create_round__arrow_count_indicator_body">Number of arrows to be shot (in dozens) at each distance (beginning from the farthest distance) given the selected round</string>
     <string name="help_create_round__distance_indicator_title">Distances</string>
-    <string name="help_create_round__distance_indicator_body">The distances to be shot given the selected round</string>
-    <string name="help_create_round__submit_title">Start scoring</string>
-    <string name="help_create_round__submit_body">Create the new score and begin adding arrows</string>
+    <string name="help_create_round__distance_indicator_body">The distances to be shot (beginning from the farthest distance) given the selected round</string>
+    <string name="help_create_round__face_size_indicator_title">Face size</string>
+    <string name="help_create_round__face_size_indicator_body">The target face sizes to be shot (beginning from the farthest distance) at given the selected round</string>
+    <string name="help_create_round__new_submit_title">Start scoring</string>
+    <string name="help_create_round__new_submit_body">Create the new score and begin adding arrows</string>
+    <string name="help_create_round__edit_submit_title">Save edits</string>
+    <string name="help_create_round__edit_submit_body">Update the round with the information entered</string>
+    <string name="help_create_round__edit_reset_title">Reset edits</string>
+    <string name="help_create_round__edit_reset_body">Reset all changes made to the information</string>
+    <string name="help_create_round__edit_cancel_title">Cancel editing</string>
+    <string name="help_create_round__edit_cancel_body">Closes the edit screen without saving the information</string>
 </resources>

@@ -7,13 +7,6 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundSubType
 import java.util.*
 
-private fun getDefaultDate() = Calendar
-        .getInstance(Locale.getDefault())
-        .apply {
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
 data class NewScoreState(
         /**
          * Non-null if the fragment is being used to edit an existing round
@@ -33,7 +26,6 @@ data class NewScoreState(
         val roundsData: NewScoreDbData = NewScoreDbData(),
         val enabledRoundFilters: NewScoreRoundEnabledFilters = NewScoreRoundEnabledFilters(),
 ) {
-    val hasRounds = !roundsData.rounds.isNullOrEmpty()
     val isEditing
         get() = roundBeingEdited != null
 
@@ -64,7 +56,15 @@ data class NewScoreState(
             else -> R.string.units_yards_short
         }
 
-    val displayedSubtype = selectedSubtype?.takeIf { selectedRound != null && roundSubTypes.size > 1 }
+    val displayedSubtype
+        get() = selectedSubtype?.takeIf { selectedRound != null && roundSubTypes.size > 1 }
+
+    val displayedRoundText
+        get() = when {
+            selectedRound != null -> ResOrActual.fromActual(selectedRound.displayName)
+            !roundsData.rounds.isNullOrEmpty() -> ResOrActual.fromRes(R.string.create_round__no_round)
+            else -> ResOrActual.fromRes(R.string.create_round__no_rounds_found)
+        }
 
     val roundsOnSelectDialog
         get() = enabledRoundFilters.filter(roundsData.rounds ?: listOf())
@@ -87,4 +87,13 @@ data class NewScoreState(
     fun getFurthestDistance(subType: RoundSubType) = roundsData.distances
             ?.filter { it.roundId == subType.roundId && it.subTypeId == subType.subTypeId }
             ?.maxByOrNull { it.distance }!!
+
+    companion object {
+        private fun getDefaultDate() = Calendar
+                .getInstance(Locale.getDefault())
+                .apply {
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+    }
 }

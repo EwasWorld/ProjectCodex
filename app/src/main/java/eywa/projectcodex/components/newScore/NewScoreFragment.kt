@@ -12,8 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
 import kotlinx.coroutines.launch
 
 class NewScoreFragment : Fragment(), ActionBarHelp {
@@ -55,63 +53,6 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         )
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> {
-        val mainList = mutableListOf(
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.layout_create_round__date)
-                        .setHelpTitleId(R.string.help_create_round__date_title)
-                        .setHelpBodyId(R.string.help_create_round__date_body)
-                        .setShape(HelpShowcaseItem.Shape.OVAL)
-                        .setShapePadding(0)
-                        .build(),
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.layout_create_round__round)
-                        .setHelpTitleId(R.string.help_create_round__round_title)
-                        .setHelpBodyId(R.string.help_create_round__round_body)
-                        .setShape(HelpShowcaseItem.Shape.OVAL)
-                        .setShapePadding(0)
-                        .build()
-        )
-        if (true) {
-//        if (requireView().findViewById<LinearLayout>(R.id.layout_create_round__round_sub_type).visibility == View.VISIBLE) {
-            mainList.addAll(
-                    listOf(
-                            ViewHelpShowcaseItem.Builder()
-//                                    .setViewId(R.id.layout_create_round__round_sub_type)
-                                    .setHelpTitleId(R.string.help_create_round__sub_round_title)
-                                    .setHelpBodyId(R.string.help_create_round__sub_round_body)
-                                    .setShape(HelpShowcaseItem.Shape.OVAL)
-                                    .setShapePadding(0)
-                                    .build(),
-                            ViewHelpShowcaseItem.Builder()
-//                                    .setViewId(R.id.text_create_round__arrow_count_indicator)
-                                    .setHelpTitleId(R.string.help_create_round__arrow_count_indicator_title)
-                                    .setHelpBodyId(R.string.help_create_round__arrow_count_indicator_body)
-                                    .setShape(HelpShowcaseItem.Shape.OVAL)
-                                    .setShapePadding(0)
-                                    .build(),
-                            ViewHelpShowcaseItem.Builder()
-//                                    .setViewId(R.id.text_create_round__distance_indicator)
-                                    .setHelpTitleId(R.string.help_create_round__distance_indicator_title)
-                                    .setHelpBodyId(R.string.help_create_round__distance_indicator_body)
-                                    .setShape(HelpShowcaseItem.Shape.OVAL)
-                                    .setShapePadding(0)
-                                    .build()
-                    )
-            )
-        }
-        mainList.add(
-                ViewHelpShowcaseItem.Builder()
-                        .setViewId(R.id.button_create_round__submit)
-                        .setHelpTitleId(R.string.help_create_round__submit_title)
-                        .setHelpBodyId(R.string.help_create_round__submit_body)
-                        .setShape(HelpShowcaseItem.Shape.OVAL)
-                        .build()
-        )
-        return mainList
-    }
-
-    override fun getHelpPriority(): Int? {
-        return null
-    }
+    override fun getHelpShowcases() = screen.getHelpShowcases()
+    override fun getHelpPriority() = screen.getHelpPriority()
 }

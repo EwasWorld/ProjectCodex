@@ -26,9 +26,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -58,17 +56,8 @@ class NewScoreScreen : ActionBarHelp {
             state: NewScoreState,
             listener: (NewScoreIntent) -> Unit,
     ) {
-        // TODO_CURRENT Help showcase
+        helpInfo.clear()
 
-        val displayedRoundText = state.selectedRound?.displayName
-                ?: stringResource(
-                        if (state.hasRounds) {
-                            R.string.create_round__no_round
-                        }
-                        else {
-                            R.string.create_round__no_rounds_found
-                        }
-                )
         val distanceUnit = state.distanceUnitStringRes?.let { stringResource(it) }
 
         SelectRoundDialog(
@@ -95,6 +84,7 @@ class NewScoreScreen : ActionBarHelp {
                         .padding(25.dp)
         ) {
             DateRow(state, listener)
+
             if (state.databaseUpdatingProgress) {
                 Text(
                         text = stringResource(R.string.create_round__default_rounds_updating_warning),
@@ -106,42 +96,62 @@ class NewScoreScreen : ActionBarHelp {
                 if (state.databaseUpdatingMessage != null) {
                     DataRow(
                             title = R.string.create_round__default_rounds_updating_warning_status,
-                            extraText = state.databaseUpdatingMessage?.get()
+                            extraText = state.databaseUpdatingMessage.get(),
                     )
                 }
             }
             else {
-                DataRow(title = R.string.create_round__round) {
+                DataRow(
+                        title = R.string.create_round__round,
+                        helpTitle = R.string.help_create_round__round_title,
+                        helpBody = R.string.help_create_round__round_body,
+                ) {
                     Text(
-                            text = displayedRoundText,
+                            text = state.displayedRoundText.get(),
                             style = CodexTypography.NORMAL.asClickableStyle(),
                             modifier = Modifier.clickable { listener(OpenRoundSelectDialog) }
                     )
                 }
-                state.displayedSubtype?.let {
-                    DataRow(title = R.string.create_round__round_sub_type) {
+                state.displayedSubtype?.let { displayedSubtype ->
+                    DataRow(
+                            title = R.string.create_round__round_sub_type,
+                            helpTitle = R.string.help_create_round__sub_round_title,
+                            helpBody = R.string.help_create_round__sub_round_body,
+                    ) {
                         Text(
-                                text = state.displayedSubtype.name!!,
+                                text = displayedSubtype.name!!,
                                 style = CodexTypography.NORMAL.asClickableStyle(),
                                 modifier = Modifier.clickable { listener(OpenSubTypeSelectDialog) }
                         )
                     }
                 }
+
                 RoundInfoHints(state)
             }
 
-            if (state.isEditing) {
-                EditingEndRows(state, listener)
-            }
-            else {
-                CodexButton(
-                        text = stringResource(R.string.create_round__submit),
-                        buttonStyle = CodexButtonDefaults.DefaultButton(),
-                        onClick = { listener(Submit) },
-                        modifier = Modifier.padding(top = 10.dp)
-                )
-            }
+            if (state.isEditing) EditingEndRows(state, listener) else NewScoreEndRows(listener)
         }
+    }
+
+    @Composable
+    private fun NewScoreEndRows(
+            listener: (NewScoreIntent) -> Unit,
+    ) {
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_create_round__new_submit_title,
+                        helpBody = R.string.help_create_round__new_submit_body,
+                )
+        )
+
+        CodexButton(
+                text = stringResource(R.string.create_round__submit),
+                buttonStyle = CodexButtonDefaults.DefaultButton(),
+                onClick = { listener(Submit) },
+                modifier = Modifier
+                        .padding(top = 10.dp)
+                        .updateHelpDialogPosition(helpInfo, R.string.help_create_round__new_submit_title)
+        )
     }
 
     @Composable
@@ -149,6 +159,25 @@ class NewScoreScreen : ActionBarHelp {
             state: NewScoreState,
             listener: (NewScoreIntent) -> Unit,
     ) {
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_create_round__edit_cancel_title,
+                        helpBody = R.string.help_create_round__edit_cancel_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_create_round__edit_reset_title,
+                        helpBody = R.string.help_create_round__edit_reset_body,
+                )
+        )
+        helpInfo.add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_create_round__edit_submit_title,
+                        helpBody = R.string.help_create_round__edit_submit_body,
+                )
+        )
+
         if (state.tooManyArrowsWarningShown) {
             Text(
                     text = stringResource(
@@ -176,11 +205,17 @@ class NewScoreScreen : ActionBarHelp {
                     text = stringResource(R.string.general_cancel),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = { listener(CancelEditInfo) },
+                    modifier = Modifier.updateHelpDialogPosition(
+                            helpInfo, R.string.help_create_round__edit_cancel_title
+                    )
             )
             CodexButton(
                     text = stringResource(R.string.general__reset_edits),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = { listener(ResetEditInfo) },
+                    modifier = Modifier.updateHelpDialogPosition(
+                            helpInfo, R.string.help_create_round__edit_reset_title
+                    )
             )
         }
         CodexButton(
@@ -188,6 +223,9 @@ class NewScoreScreen : ActionBarHelp {
                 enabled = !state.tooManyArrowsWarningShown,
                 buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(Submit) },
+                modifier = Modifier.updateHelpDialogPosition(
+                        helpInfo, R.string.help_create_round__edit_submit_title
+                )
         )
     }
 
@@ -206,7 +244,9 @@ class NewScoreScreen : ActionBarHelp {
                             .sortedBy { it.distanceNumber }
                             .joinToString(separator) {
                                 DecimalFormat("#.#").format(it.arrowCount / 12.0)
-                            }
+                            },
+                    helpTitle = R.string.help_create_round__arrow_count_indicator_title,
+                    helpBody = R.string.help_create_round__arrow_count_indicator_body,
             )
         }
         if (state.roundSubtypeDistances.isNotEmpty()) {
@@ -214,7 +254,9 @@ class NewScoreScreen : ActionBarHelp {
                     title = R.string.create_round__distance_indicator,
                     extraText = state.roundSubtypeDistances
                             .sortedBy { it.distanceNumber }
-                            .joinToString(separator) { it.distance.toString() + distanceUnit }
+                            .joinToString(separator) { it.distance.toString() + distanceUnit },
+                    helpTitle = R.string.help_create_round__distance_indicator_title,
+                    helpBody = R.string.help_create_round__distance_indicator_body,
             )
         }
         if (state.roundArrowCounts.isNotEmpty()) {
@@ -222,7 +264,9 @@ class NewScoreScreen : ActionBarHelp {
                     title = R.string.create_round__face_size_indicator,
                     extraText = state.roundArrowCounts
                             .sortedBy { it.distanceNumber }
-                            .joinToString(separator) { (it.faceSizeInCm.roundToInt()).toString() + faceSizeUnit }
+                            .joinToString(separator) { (it.faceSizeInCm.roundToInt()).toString() + faceSizeUnit },
+                    helpTitle = R.string.help_create_round__face_size_indicator_title,
+                    helpBody = R.string.help_create_round__face_size_indicator_title,
             )
         }
     }
@@ -256,7 +300,11 @@ class NewScoreScreen : ActionBarHelp {
             )
         }
 
-        DataRow(title = R.string.create_round__date) {
+        DataRow(
+                title = R.string.create_round__date,
+                helpTitle = R.string.help_create_round__date_title,
+                helpBody = R.string.help_create_round__date_body,
+        ) {
             Text(
                     text = DateTimeFormat.TIME_24_HOUR.format(state.date),
                     style = CodexTypography.NORMAL.asClickableStyle(),
@@ -273,14 +321,25 @@ class NewScoreScreen : ActionBarHelp {
     @Composable
     private fun DataRow(
             @StringRes title: Int,
+            @StringRes helpTitle: Int? = null,
+            @StringRes helpBody: Int? = null,
+            modifier: Modifier = Modifier,
             extraText: String? = null,
             content: (@Composable RowScope.() -> Unit)? = null
     ) {
+        require(helpTitle == null || helpBody != null) { "If a title is given, a body must be given too" }
         val style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)
+        var rowModifier = modifier
+
+        if (helpTitle != null) {
+            helpInfo.add(ComposeHelpShowcaseItem(helpTitle = helpTitle, helpBody = helpBody!!))
+            rowModifier = rowModifier.then(Modifier.updateHelpDialogPosition(helpInfo, helpTitle))
+        }
+
         Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = rowModifier
         ) {
             Text(
                     text = stringResource(title),
