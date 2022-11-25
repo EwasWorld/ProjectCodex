@@ -3,10 +3,11 @@ package eywa.projectcodex.common.utils
 object Sorting {
     /**
      * Groups strings into numerical and non-numerical sequences then compares those.
+     * Null comes before empty string.
      *
      * The list: ["1", "10", "2"] would be sorted to ["1", "2", "10"]
      */
-    val NumericalStringSort = Comparator { string0: String, string1: String ->
+    val NUMERIC_STRING_SORT = Comparator { string0: String?, string1: String? ->
         fun String.sliced(): List<TextOrNumber> {
             val slicedList = mutableListOf<TextOrNumber>()
 
@@ -34,6 +35,10 @@ object Sorting {
             return slicedList
         }
 
+        if ((string0 == null) && (string1 == null)) return@Comparator 0
+        if (string0 == null) return@Comparator -1
+        if (string1 == null) return@Comparator 1
+
         val sliced0 = string0.sliced()
         val sliced1 = string1.sliced()
 
@@ -47,7 +52,7 @@ object Sorting {
     }
 
     /**
-     * Helper class for [NumericalStringSort]
+     * Helper class for [NUMERIC_STRING_SORT]
      */
     private sealed class TextOrNumber : Comparable<TextOrNumber> {
         data class Text(val value: String) : TextOrNumber() {

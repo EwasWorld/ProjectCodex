@@ -23,6 +23,8 @@
     <string name="create_round__select_a_round_filters_title">Filters:</string>
     <string name="create_round__select_a_round_filter_imperial">Imperial</string>
     <string name="create_round__select_a_round_filter_metric">Metric</string>
+    <string name="create_round__select_a_round_filter_indoor">Indoor</string>
+    <string name="create_round__select_a_round_filter_outdoor">Outdoor</string>
     <string name="create_round__select_a_round_filter_clear_all">Clear filters</string>
 
     <string name="err_create_round__too_many_arrows">This score has too many arrows (%1$d) entered to change the type to %2$s (max %3$d)</string> <!-- e.g. ... too many arrows (144) ... the type to FITA (max 36) -->

@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
+import eywa.projectcodex.components.newScore.helpers.NewScoreRoundFilter
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundSubType
 

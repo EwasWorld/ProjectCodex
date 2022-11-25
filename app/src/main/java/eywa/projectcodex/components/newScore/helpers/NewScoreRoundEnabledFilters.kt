@@ -1,9 +1,5 @@
-package eywa.projectcodex.components.newScore
+package eywa.projectcodex.components.newScore.helpers
 
-import androidx.annotation.StringRes
-import eywa.projectcodex.R
-import eywa.projectcodex.components.newScore.NewScoreRoundFilter.IMPERIAL
-import eywa.projectcodex.components.newScore.NewScoreRoundFilter.METRIC
 import eywa.projectcodex.database.rounds.Round
 
 /**
@@ -16,17 +12,20 @@ class NewScoreRoundEnabledFilters private constructor(private val filters: Set<N
 
     fun plus(add: NewScoreRoundFilter) = plus(setOf(add))
     fun plus(add: Set<NewScoreRoundFilter>): NewScoreRoundEnabledFilters {
-        require(!(add.contains(METRIC) && add.contains(IMPERIAL)))
-
         val newFilters = filters.toMutableSet()
 
-        if (add.contains(METRIC) || add.contains(IMPERIAL)) {
-            newFilters.remove(METRIC)
-            newFilters.remove(IMPERIAL)
+        NewScoreRoundFilter.mutuallyExclusiveSets.forEach { meSet ->
+            val count = add.count { meSet.contains(it) }
+
+            require(count <= 1) {
+                "Items to add contains more than one of: " + meSet.joinToString { it.name }
+            }
+            if (count != 0) {
+                newFilters.removeAll(meSet)
+            }
         }
 
-        newFilters.addAll(add)
-        return NewScoreRoundEnabledFilters(newFilters)
+        return NewScoreRoundEnabledFilters(newFilters.plus(add))
     }
 
     fun minus(remove: NewScoreRoundFilter) = minus(setOf(remove))
@@ -37,15 +36,4 @@ class NewScoreRoundEnabledFilters private constructor(private val filters: Set<N
     fun contains(element: NewScoreRoundFilter) = filters.contains(element)
 
     fun filter(rounds: Iterable<Round>) = rounds.filter { round -> filters.all { it.predicate(round) } }
-}
-
-/**
- * Filters which can be applied to the [NewScoreScreen]'s round selection dialog
- */
-enum class NewScoreRoundFilter(
-        @StringRes val chipText: Int,
-        val predicate: (Round) -> Boolean,
-) {
-    METRIC(R.string.create_round__select_a_round_filter_metric, { it.isMetric }),
-    IMPERIAL(R.string.create_round__select_a_round_filter_imperial, { !it.isMetric }),
 }

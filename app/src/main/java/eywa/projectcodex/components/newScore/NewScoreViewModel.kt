@@ -13,6 +13,7 @@ import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.newScore.NewScoreEffect.PopBackstack
+import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
@@ -87,7 +88,7 @@ class NewScoreViewModel(application: Application) : AndroidViewModel(application
         if (roundBeingEditedId == null) {
             state = state.copy(
                     roundBeingEdited = null,
-                    arrowsShot = null,
+                    roundBeingEditedArrowsShot = null,
             )
             return
         }
@@ -100,7 +101,7 @@ class NewScoreViewModel(application: Application) : AndroidViewModel(application
                     .collect { (archerRound, arrowValues) ->
                         state = state.copy(
                                 roundBeingEdited = archerRound,
-                                arrowsShot = arrowValues.count()
+                                roundBeingEditedArrowsShot = arrowValues.count()
                         ).resetEditInfo()
                     }
         }
@@ -110,7 +111,7 @@ class NewScoreViewModel(application: Application) : AndroidViewModel(application
         when (action) {
             is NewScoreIntent.Initialise -> initialiseRoundBeingEdited(action.roundBeingEditedId)
 
-            is NewScoreIntent.DateChanged -> state = state.copy(date = action.info.updateCalendar(state.date))
+            is NewScoreIntent.DateChanged -> state = state.copy(dateShot = action.info.updateCalendar(state.dateShot))
 
             /*
              * Select round dialog
@@ -189,7 +190,7 @@ class NewScoreViewModel(application: Application) : AndroidViewModel(application
         if (roundBeingEdited == null) return this
 
         return copy(
-                date = Calendar.Builder().setInstant(roundBeingEdited.dateShot).build(),
+                dateShot = Calendar.Builder().setInstant(roundBeingEdited.dateShot).build(),
                 selectedRound = roundsData.rounds?.find { it.roundId == roundBeingEdited.roundId },
                 selectedSubtype = roundBeingEdited.roundSubTypeId?.let { subType ->
                     roundsData.subTypes?.find { it.roundId == roundBeingEdited.roundId && it.subTypeId == subType }

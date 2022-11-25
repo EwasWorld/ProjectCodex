@@ -1,9 +1,9 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.common.TestData
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.testUtils.TestData
 import org.junit.Assert
 import org.junit.Test
 
