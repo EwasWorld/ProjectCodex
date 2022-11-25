@@ -17,10 +17,11 @@ class MainMenuRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, MainMenuFragment::class) {
 
-    fun clickNewScore() {
+    fun clickNewScore(block: NewScoreRobot.() -> Unit = {}) {
         CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
         composeTestRule.onNode(hasTestTag(MainMenuScreen.TestTag.NEW_SCORE)).performClick()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (NewScoreFragment::class))
+        NewScoreRobot(composeTestRule).apply { block() }
     }
 
     fun clickViewScores(block: ViewScoresRobot.() -> Unit = {}) {

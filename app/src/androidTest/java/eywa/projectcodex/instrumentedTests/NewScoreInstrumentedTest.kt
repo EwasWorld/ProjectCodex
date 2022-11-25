@@ -1,28 +1,24 @@
 package eywa.projectcodex.instrumentedTests
 
 import android.os.Bundle
-import android.widget.DatePicker
-import android.widget.Spinner
-import android.widget.TimePicker
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.Navigation
+import androidx.navigation.NavController
 import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.R
-import eywa.projectcodex.common.*
-import eywa.projectcodex.components.newScore.NewScoreFragment
+import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -33,17 +29,20 @@ import org.junit.runner.RunWith
 import java.util.*
 
 
+// TODO FIX
 @RunWith(AndroidJUnit4::class)
 class NewScoreInstrumentedTest {
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(60)
 
     // TODO Check date is within 1min of current date
-    private lateinit var scenario: FragmentScenario<NewScoreFragment>
-    private lateinit var navController: TestNavHostController
+    private lateinit var scenario: ActivityScenario<MainActivity>
+    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
     private var currentArcherRounds: List<ArcherRound> = listOf()
-    private val noRoundDisplayName = "No Round"
     private val roundsInput = TestUtils.ROUNDS.take(3)
     private val subtypesInput = TestUtils.ROUND_SUB_TYPES
     private val arrowCountsInput = TestUtils.ROUND_ARROW_COUNTS
@@ -68,13 +67,9 @@ class NewScoreInstrumentedTest {
         val args = Bundle()
         args.putInt("archerRoundId", archerRoundId)
 
-        // Start initialised so we can add to the database before the onCreate methods are called
-        scenario = launchFragmentInContainer(args, initialState = Lifecycle.State.INITIALIZED)
-        scenario.onFragment {
+        scenario = composeTestRule.activityRule.scenario
+        scenario.onActivity {
             db = DatabaseDaggerTestModule.scoresRoomDatabase
-
-            navController.setGraph(R.navigation.nav_graph)
-            navController.setCurrentDestination(R.id.newScoreFragment)
 
             /*
              * Fill default rounds
@@ -100,10 +95,10 @@ class NewScoreInstrumentedTest {
 
 
         scenario.moveToState(Lifecycle.State.RESUMED)
-        scenario.onFragment {
-            Navigation.setViewNavController(it.requireView(), navController)
+        scenario.onActivity {
+            navController = it.navHostFragment.navController
 
-            db.archerRoundDao().getAllArcherRounds().observe(it.requireActivity()) { obArcherRounds ->
+            db.archerRoundDao().getAllArcherRounds().observe(it) { obArcherRounds ->
                 currentArcherRounds = obArcherRounds
             }
         }
@@ -121,8 +116,14 @@ class NewScoreInstrumentedTest {
     @Test
     fun addRoundNoType() {
         setup()
-        R.id.button_create_round__submit.click()
 
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSubmit()
+            }
+        }
+
+        runBlocking { delay(1000) }
         assertEquals(2, currentArcherRounds.size)
         assertEquals(2, currentArcherRounds[1].archerRoundId)
         assertEquals(null, currentArcherRounds[1].roundId)
@@ -136,13 +137,19 @@ class NewScoreInstrumentedTest {
     fun addAnotherRound() {
         setup()
         val ar = ArcherRound(2, TestUtils.generateDate(), 1, true)
-        scenario.onFragment {
+        scenario.onActivity {
             runBlocking {
                 db.archerRoundDao().insert(ar)
             }
         }
 
-        R.id.button_create_round__submit.click()
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSubmit()
+            }
+        }
+
+        runBlocking { delay(1000) }
         val roundsAfterCreate = currentArcherRounds.toMutableList()
         assertEquals(3, roundsAfterCreate.size)
 
@@ -177,11 +184,20 @@ class NewScoreInstrumentedTest {
         assertEquals(1, roundsBeforeCreate.size)
 
         val selectedRound = roundsInput[0]
-        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
         val selectedSubtype = subtypesInput.filter { it.roundId == selectedRound.roundId }[1]
-        R.id.spinner_create_round__round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSelectedRound()
+                clickRoundDialogRound(selectedRound.displayName)
 
-        R.id.button_create_round__submit.click()
+                clickSelectedSubtype()
+                clickSubtypeDialogSubtype(1)
+
+                clickSubmit()
+            }
+        }
+
+        runBlocking { delay(1000) }
         val roundsAfterCreate = currentArcherRounds.toMutableList()
         assertEquals(2, roundsAfterCreate.size)
         assertEquals(archerRoundInput, roundsAfterCreate[0])
@@ -189,165 +205,26 @@ class NewScoreInstrumentedTest {
         assertEquals(selectedSubtype.subTypeId, roundsAfterCreate[1].roundSubTypeId)
     }
 
-    /**
-     * Test round select spinner options are correct
-     * Test round info indicators are correct
-     * Test spinners and info indicators show and hide correctly
-     */
-    @Test
-    fun roundsSpinner() {
-        setup()
-
-        /*
-         * Check spinner options
-         */
-        var roundSpinner: Spinner? = null
-        ConditionWatcher.waitForCondition(object : Instruction() {
-            override fun getDescription(): String {
-                return "Wait for round spinner to have the correct number of items"
-            }
-
-            override fun checkCondition(): Boolean {
-                scenario.onFragment {
-                    roundSpinner = it.requireActivity().findViewById(R.id.spinner_create_round__round)
-                }
-                // + 1 for 'no rounds'
-                val conditionMet = roundsInput.size + 1 == roundSpinner!!.count
-                if (!conditionMet) {
-                    Thread.sleep(CustomConditionWaiter.DEFAULT_THREAD_SLEEP)
-                }
-                return conditionMet
-            }
-        })
-        for (i in roundsInput.indices) {
-            assertEquals(roundsInput[i].displayName, roundSpinner!!.getItemAtPosition(i + 1) as String)
-        }
-
-        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
-
-        /*
-         * Check switches correctly and indicators are correct
-         */
-        val subTypedRound = roundsInput[0]
-        val unSubTypedRound = roundsInput[1]
-
-        // no round -> subtype
-        var selectedRound = subTypedRound
-        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
-        R.id.text_create_round__arrow_count_indicator.labelledTextEquals(expectedArrowCounts(selectedRound.roundId))
-        R.id.text_create_round__distance_indicator.labelledTextEquals(
-                expectedDistances(selectedRound.roundId, 1, selectedRound.isMetric)
-        )
-        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-
-        // subtype -> no subtype
-        selectedRound = unSubTypedRound
-        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
-        R.id.text_create_round__arrow_count_indicator.labelledTextEquals("5, 4, 3")
-        R.id.text_create_round__distance_indicator.labelledTextEquals(
-                expectedDistances(selectedRound.roundId, 1, selectedRound.isMetric)
-        )
-        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
-
-        // no subtype -> no round
-        R.id.spinner_create_round__round.clickSpinnerItem(noRoundDisplayName)
-        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
-
-        // no round -> no subtype
-        R.id.spinner_create_round__round.clickSpinnerItem(unSubTypedRound.displayName)
-        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
-
-        // no subtype -> subtype
-        R.id.spinner_create_round__round.clickSpinnerItem(subTypedRound.displayName)
-        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.VISIBLE)
-
-        // subtype -> no round
-        R.id.spinner_create_round__round.clickSpinnerItem(noRoundDisplayName)
-        R.id.text_create_round__arrow_count_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.text_create_round__distance_indicator.visibilityIs(ViewMatchers.Visibility.GONE)
-        R.id.spinner_create_round__round_sub_type.visibilityIs(ViewMatchers.Visibility.GONE)
-    }
-
-    /**
-     * Test round subtype select spinner options are correct
-     * Test round info indicators are correct
-     */
-    @Test
-    fun subTypeSpinner() {
-        setup()
-        var subtypeSpinnerTemp: Spinner? = null
-        scenario.onFragment {
-            subtypeSpinnerTemp = it.requireActivity().findViewById(R.id.spinner_create_round__round_sub_type)
-        }
-        val subtypeSpinner = subtypeSpinnerTemp!!
-
-        /*
-         * Check spinner options
-         */
-        val selectedRound = roundsInput[0]
-        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
-        val availableRounds = subtypesInput.filter { it.roundId == selectedRound.roundId }
-        assertEquals(availableRounds.size, subtypeSpinner.count)
-        for (i in availableRounds.indices) {
-            assertEquals(availableRounds[i].name, subtypeSpinner.getItemAtPosition(i) as String)
-        }
-
-        /*
-         * Select a round and check the output
-         */
-        val selectedSubtype = subtypesInput[1]
-        R.id.spinner_create_round__round_sub_type.clickSpinnerItem(selectedSubtype.name!!)
-        R.id.text_create_round__arrow_count_indicator.labelledTextEquals(expectedArrowCounts(selectedRound.roundId))
-        R.id.text_create_round__distance_indicator.labelledTextEquals(
-                expectedDistances(selectedRound.roundId, selectedSubtype.subTypeId, selectedRound.isMetric)
-        )
-    }
-
-    private fun expectedArrowCounts(roundId: Int): String {
-        // `/12` because it's in dozens
-        return arrowCountsInput.filter { it.roundId == roundId }.sortedBy { it.distanceNumber }
-                .map { it.arrowCount / 12 }.joinToString(", ")
-    }
-
-    private fun expectedDistances(roundId: Int, subTypeId: Int, isMetric: Boolean): String {
-        val unit = if (isMetric) "m" else "yd"
-        return distancesInput.filter { it.roundId == roundId && it.subTypeId == subTypeId }
-                .sortedByDescending { it.distance }.joinToString(", ") { it.distance.toString() + unit }
-    }
-
     @Test
     fun testCustomDateTime() {
         setup()
-        R.id.text_create_round__time.click()
-        onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(20, 22))
-        onView(withText("OK")).perform(ViewActions.click())
-
-        R.id.text_create_round__date.click()
-        val calendar = Calendar.getInstance()
-        // Use a different hour/minute to ensure it's not overwriting the time
-        calendar.set(2040, 9, 30, 13, 15, 0)
-        onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
-        onView(withText("OK")).perform(ViewActions.click())
-
-        R.id.text_create_round__time.textEquals("20:22")
-        R.id.text_create_round__date.textEquals("30 Oct 40")
-
         val roundsBeforeCreate = currentArcherRounds.toMutableList()
-        R.id.button_create_round__submit.click()
-        val roundsAfterCreate = currentArcherRounds.toMutableList()
 
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                setTime(20, 22)
+                checkTime("20:22")
+
+                setDate(30, 9, 2040)
+                checkTime("20:22")
+                checkDate("30 Oct 40")
+
+                clickSubmit()
+            }
+        }
+
+        runBlocking { delay(1000) }
+        val roundsAfterCreate = currentArcherRounds.toMutableList()
         for (round in roundsAfterCreate) {
             if (roundsBeforeCreate.contains(round)) continue
             // Date returns year -1900
@@ -364,94 +241,89 @@ class NewScoreInstrumentedTest {
     fun testEditInfo() {
         setup(archerRoundInput.archerRoundId)
 
-        R.id.text_create_round__time.textEquals("17:12")
-        R.id.text_create_round__date.textEquals("10 Jun 19")
-        CustomConditionWaiter.waitForSpinnerTextToAppear(
-                R.id.spinner_create_round__round,
-                roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName
-        )
-        CustomConditionWaiter.waitForSpinnerTextToAppear(
-                R.id.spinner_create_round__round_sub_type,
-                subtypesInput.find {
-                    it.roundId == archerRoundInput.roundId && it.subTypeId == archerRoundInput.roundSubTypeId
-                }!!.name!!
-        )
-
-        /*
-         * Change some stuff
-         */
+        val selectedRound = roundsInput[1]
         val calendar = Calendar.getInstance()
-        // Use a different hour/minute to ensure it's not overwriting the time
         calendar.set(2040, 9, 30, 13, 15, 0)
         calendar.set(Calendar.MILLISECOND, 0)
-        R.id.text_create_round__date.click()
-        onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
-        onView(withText("OK")).perform(ViewActions.click())
-        R.id.text_create_round__time.click()
-        onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(calendar))
-        onView(withText("OK")).perform(ViewActions.click())
 
-        R.id.text_create_round__time.textEquals("13:15")
-        R.id.text_create_round__date.textEquals("30 Oct 40")
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                longClickRow(0)
+                clickEditDropdownMenuItem {
+                    runBlocking { delay(1000) }
 
-        val selectedRound = roundsInput[1]
-        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
+                    checkTime("17:12")
+                    checkDate("10 Jun 19")
 
-        /*
-         * Reset
-         */
-        R.id.button_create_round__reset.click()
+                    checkSelectedRound(roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName)
 
-        R.id.text_create_round__time.textEquals("17:12")
-        R.id.text_create_round__date.textEquals("10 Jun 19")
-        CustomConditionWaiter.waitForSpinnerTextToAppear(
-                R.id.spinner_create_round__round,
-                roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName
-        )
-        CustomConditionWaiter.waitForSpinnerTextToAppear(
-                R.id.spinner_create_round__round_sub_type,
-                subtypesInput.find {
-                    it.roundId == archerRoundInput.roundId && it.subTypeId == archerRoundInput.roundSubTypeId
-                }!!.name!!
-        )
+                    /*
+                     * Change some stuff
+                     */
+                    setTime(calendar)
+                    setDate(calendar)
+                    checkTime("13:15")
+                    checkDate("30 Oct 40")
 
-        /*
-         * Change again
-         */
-        R.id.text_create_round__date.click()
-        onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
-        onView(withText("OK")).perform(ViewActions.click())
-        R.id.text_create_round__time.click()
-        onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(calendar))
-        onView(withText("OK")).perform(ViewActions.click())
-        R.id.text_create_round__time.textEquals("13:15")
-        R.id.text_create_round__date.textEquals("30 Oct 40")
+                    clickSelectedRound()
+                    clickRoundDialogRound(selectedRound.displayName)
 
-        R.id.spinner_create_round__round.clickSpinnerItem(selectedRound.displayName)
+                    /*
+                     * Reset
+                     */
+                    clickReset()
+                    checkTime("17:12")
+                    checkDate("10 Jun 19")
 
-        /*
-         * Save
-         */
-        R.id.button_create_round__complete.click()
-        assertEquals(
-                ArcherRound(
-                        archerRoundInput.archerRoundId,
-                        calendar.time,
-                        archerRoundInput.archerId,
-                        archerRoundInput.countsTowardsHandicap,
-                        roundId = selectedRound.roundId,
-                        roundSubTypeId = 1
-                ),
-                currentArcherRounds.find { it.archerRoundId == archerRoundInput.archerRoundId }
-        )
+                    /*
+                     * Change again
+                     */
+                    setTime(calendar)
+                    setDate(calendar)
+                    checkTime("13:15")
+                    checkDate("30 Oct 40")
+
+                    clickSelectedRound()
+                    clickRoundDialogRound(selectedRound.displayName)
+
+                    /*
+                     * Save
+                     */
+                    clickSubmit()
+                }
+            }
+
+            runBlocking { delay(1000) }
+            assertEquals(
+                    ArcherRound(
+                            archerRoundInput.archerRoundId,
+                            calendar.time,
+                            archerRoundInput.archerId,
+                            archerRoundInput.countsTowardsHandicap,
+                            roundId = selectedRound.roundId,
+                            roundSubTypeId = 1
+                    ),
+                    currentArcherRounds.find { it.archerRoundId == archerRoundInput.archerRoundId }
+            )
+        }
     }
 
     @Test
     fun testEditInfoToNoRound() {
         setup(archerRoundInput.archerRoundId)
 
-        R.id.spinner_create_round__round.clickSpinnerItem("No Round")
-        R.id.button_create_round__complete.click()
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                longClickRow(0)
+                clickEditDropdownMenuItem {
+                    clickSelectedRound()
+                    clickRoundDialogNoRound()
+                    clickSubmit()
+                }
+            }
+        }
+
+        runBlocking { delay(1000) }
         assertEquals(
                 ArcherRound(
                         archerRoundInput.archerRoundId,

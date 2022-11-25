@@ -60,6 +60,11 @@ class ViewScoresRobot(
         EmailScoreRobot(composeTestRule).apply { block() }
     }
 
+    fun clickEditDropdownMenuItem(block: NewScoreRobot.() -> Unit = {}) {
+        clickDropdownMenuItem(CommonStrings.EDIT_MENU_ITEM)
+        NewScoreRobot(composeTestRule).apply { block() }
+    }
+
     fun checkDropdownMenuItemNotThere(menuItem: String) {
         // Check at least one menu item is showing
         composeTestRule

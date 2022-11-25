@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -94,6 +95,7 @@ class NewScoreScreen : ActionBarHelp {
                                 color = CodexTheme.colors.warningOnAppBackground,
                                 textAlign = TextAlign.Center,
                         ),
+                        modifier = Modifier.testTag(TestTag.DATABASE_WARNING)
                 )
                 if (state.databaseUpdatingMessage != null) {
                     DataRow(
@@ -111,7 +113,9 @@ class NewScoreScreen : ActionBarHelp {
                     Text(
                             text = state.displayedRound.get(),
                             style = CodexTypography.NORMAL.asClickableStyle(),
-                            modifier = Modifier.clickable { listener(OpenRoundSelectDialog) }
+                            modifier = Modifier
+                                    .clickable { listener(OpenRoundSelectDialog) }
+                                    .testTag(TestTag.SELECTED_ROUND)
                     )
                 }
                 state.displayedSubtype?.let { displayedSubtype ->
@@ -123,7 +127,9 @@ class NewScoreScreen : ActionBarHelp {
                         Text(
                                 text = displayedSubtype.name!!,
                                 style = CodexTypography.NORMAL.asClickableStyle(),
-                                modifier = Modifier.clickable { listener(OpenSubTypeSelectDialog) }
+                                modifier = Modifier
+                                        .clickable { listener(OpenSubTypeSelectDialog) }
+                                        .testTag(TestTag.SELECTED_SUBTYPE)
                         )
                     }
                 }
@@ -153,6 +159,7 @@ class NewScoreScreen : ActionBarHelp {
                 modifier = Modifier
                         .padding(top = 10.dp)
                         .updateHelpDialogPosition(helpInfo, R.string.help_create_round__new_submit_title)
+                        .testTag(TestTag.SUBMIT_BUTTON)
         )
     }
 
@@ -207,17 +214,21 @@ class NewScoreScreen : ActionBarHelp {
                     text = stringResource(R.string.general_cancel),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = { listener(CancelEditInfo) },
-                    modifier = Modifier.updateHelpDialogPosition(
-                            helpInfo, R.string.help_create_round__edit_cancel_title
-                    )
+                    modifier = Modifier
+                            .updateHelpDialogPosition(
+                                    helpInfo, R.string.help_create_round__edit_cancel_title
+                            )
+                            .testTag(TestTag.CANCEL_BUTTON)
             )
             CodexButton(
                     text = stringResource(R.string.general__reset_edits),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = { listener(ResetEditInfo) },
-                    modifier = Modifier.updateHelpDialogPosition(
-                            helpInfo, R.string.help_create_round__edit_reset_title
-                    )
+                    modifier = Modifier
+                            .updateHelpDialogPosition(
+                                    helpInfo, R.string.help_create_round__edit_reset_title
+                            )
+                            .testTag(TestTag.RESET_BUTTON)
             )
         }
         CodexButton(
@@ -225,9 +236,11 @@ class NewScoreScreen : ActionBarHelp {
                 enabled = !state.tooManyArrowsWarningShown,
                 buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(Submit) },
-                modifier = Modifier.updateHelpDialogPosition(
-                        helpInfo, R.string.help_create_round__edit_submit_title
-                )
+                modifier = Modifier
+                        .updateHelpDialogPosition(
+                                helpInfo, R.string.help_create_round__edit_submit_title
+                        )
+                        .testTag(TestTag.SUBMIT_BUTTON)
         )
     }
 
@@ -310,12 +323,16 @@ class NewScoreScreen : ActionBarHelp {
             Text(
                     text = DateTimeFormat.TIME_24_HOUR.format(state.dateShot),
                     style = CodexTypography.NORMAL.asClickableStyle(),
-                    modifier = Modifier.clickable { timePicker.show() }
+                    modifier = Modifier
+                            .clickable { timePicker.show() }
+                            .testTag(TestTag.TIME_BUTTON)
             )
             Text(
                     text = DateTimeFormat.LONG_DATE.format(state.dateShot),
                     style = CodexTypography.NORMAL.asClickableStyle(),
-                    modifier = Modifier.clickable { datePicker.show() }
+                    modifier = Modifier
+                            .clickable { datePicker.show() }
+                            .testTag(TestTag.DATE_BUTTON)
             )
         }
     }
@@ -378,6 +395,7 @@ class NewScoreScreen : ActionBarHelp {
                             text = stringResource(R.string.create_round__no_round),
                             onClick = { listener(NoRoundSelected) },
                     ),
+                    modifier = Modifier.testTag(TestTag.ROUND_DIALOG)
             ) {
                 Column {
                     Row(
@@ -446,6 +464,7 @@ class NewScoreScreen : ActionBarHelp {
                             text = stringResource(R.string.general_cancel),
                             onClick = { listener(CloseSubTypeSelectDialog) },
                     ),
+                    modifier = Modifier.testTag(TestTag.SUBTYPE_DIALOG)
             ) {
                 ItemSelector(
                         displayItems = subTypes.sortedByDescending { getDistance(it) },
@@ -502,6 +521,16 @@ class NewScoreScreen : ActionBarHelp {
 
     object TestTag {
         private const val PREFIX = "NEW_SCORE_"
+        const val DATABASE_WARNING = "${PREFIX}DATABASE_WARNING"
+        const val SUBMIT_BUTTON = "${PREFIX}SUBMIT"
+        const val CANCEL_BUTTON = "${PREFIX}CANCEL"
+        const val RESET_BUTTON = "${PREFIX}RESET"
+        const val SELECTED_ROUND = "${PREFIX}ROUND_BUTTON"
+        const val ROUND_DIALOG = "${PREFIX}ROUND_DIALOG"
+        const val SELECTED_SUBTYPE = "${PREFIX}SUBTYPE_BUTTON"
+        const val SUBTYPE_DIALOG = "${PREFIX}SUBTYPE_DIALOG"
+        const val DATE_BUTTON = "${PREFIX}DATE_BUTTON"
+        const val TIME_BUTTON = "${PREFIX}TIME_BUTTON"
 
 
         fun fromFilterName(filter: NewScoreRoundFilter) = "${PREFIX}FILTER_${filter.name}"

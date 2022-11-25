@@ -79,7 +79,7 @@ class NewScoreViewModel(application: Application) : AndroidViewModel(application
                                     }
                                     else -> null
                                 }
-                        )
+                        ).resetEditInfo()
                     }
         }
     }
