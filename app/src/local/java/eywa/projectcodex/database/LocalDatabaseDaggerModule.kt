@@ -1,16 +1,18 @@
-package eywa.projectcodex.instrumentedTests.daggerObjects
+package eywa.projectcodex.database
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.components.app.App
-import eywa.projectcodex.database.ScoresRoomDatabase
 import javax.inject.Singleton
 
 
 @Module
-class DatabaseDaggerTestModule {
+@InstallIn(SingletonComponent::class)
+class LocalDatabaseDaggerModule {
     companion object {
         val scoresRoomDatabase by lazy {
             Room.inMemoryDatabaseBuilder(

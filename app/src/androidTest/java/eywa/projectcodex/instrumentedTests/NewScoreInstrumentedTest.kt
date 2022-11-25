@@ -16,7 +16,7 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.database.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -69,7 +69,7 @@ class NewScoreInstrumentedTest {
 
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
-            db = DatabaseDaggerTestModule.scoresRoomDatabase
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase
 
             /*
              * Fill default rounds

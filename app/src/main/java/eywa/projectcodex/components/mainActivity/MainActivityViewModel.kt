@@ -1,29 +1,22 @@
 package eywa.projectcodex.components.mainActivity
 
-import android.app.Application
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
-import eywa.projectcodex.components.app.App
 import eywa.projectcodex.database.ScoresRoomDatabase
 import javax.inject.Inject
 
-class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-    @Inject
-    lateinit var db: ScoresRoomDatabase
-
+@HiltViewModel
+class MainActivityViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewModel() {
     private val mutableState: MutableState<MainActivityState> = mutableStateOf(MainActivityState())
     val state: MainActivityState by mutableState
-
-    init {
-        (application as App).appComponent.inject(this)
-    }
 
     /**
      * @see UpdateDefaultRounds.runUpdate

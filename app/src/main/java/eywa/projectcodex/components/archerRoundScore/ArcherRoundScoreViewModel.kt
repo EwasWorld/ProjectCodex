@@ -1,8 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore
 
-import android.app.Application
 import androidx.lifecycle.*
-import eywa.projectcodex.components.app.App
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -23,13 +22,8 @@ import javax.inject.Inject
  * https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate
  * https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
  */
-class ArcherRoundScoreViewModel(application: Application) : AndroidViewModel(application) {
-    @Inject
-    lateinit var db: ScoresRoomDatabase
-
-    init {
-        (application as App).appComponent.inject(this)
-    }
+@HiltViewModel
+class ArcherRoundScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewModel() {
 
     val archerRoundIdMutableLiveData = MutableLiveData<Int?>(null)
     private var roundRepo: RoundRepo = RoundRepo(db)

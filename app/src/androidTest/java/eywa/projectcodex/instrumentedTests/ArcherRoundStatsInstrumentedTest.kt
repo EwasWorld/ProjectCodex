@@ -19,7 +19,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.database.LocalDatabaseDaggerModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -89,7 +89,7 @@ class ArcherRoundStatsInstrumentedTest {
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = launchFragmentInContainer(args, initialState = Lifecycle.State.INITIALIZED)
         scenario.onFragment {
-            db = DatabaseDaggerTestModule.scoresRoomDatabase
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase
 
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.archerRoundStatsFragment, args)

@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+        google()
+        mavenCentral()
+    }
+}
+
+include ':app'
+rootProject.name = 'ProjectCodex'

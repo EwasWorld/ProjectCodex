@@ -13,12 +13,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ViewHelpShowcaseItem
-import eywa.projectcodex.common.utils.*
+import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
+import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.ArrowInputsFragment
 import eywa.projectcodex.components.archerRoundScore.inputEnd.subFragments.EndInputsFragment
@@ -30,6 +32,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.exceptions.UserException
 
 
+@AndroidEntryPoint
 class InputEndFragment : Fragment(), ActionBarHelp, ArcherRoundBottomNavigationInfo {
     companion object {
         const val LOG_TAG = "InputEndFragment"

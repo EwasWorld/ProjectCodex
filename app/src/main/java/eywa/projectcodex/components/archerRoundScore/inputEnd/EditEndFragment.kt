@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.End
@@ -27,6 +28,7 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
 
 
+@AndroidEntryPoint
 class EditEndFragment : Fragment(), ActionBarHelp {
     private val args: EditEndFragmentArgs by navArgs()
     private val inputEndViewModel: ArcherRoundScoreViewModel by activityViewModels()

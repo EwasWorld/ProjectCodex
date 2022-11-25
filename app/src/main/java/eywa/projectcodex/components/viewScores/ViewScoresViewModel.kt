@@ -1,13 +1,12 @@
 package eywa.projectcodex.components.viewScores
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
-import eywa.projectcodex.components.app.App
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -18,7 +17,6 @@ import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,16 +24,10 @@ import javax.inject.Inject
 /**
  * @see ArcherRoundScoreViewModel
  */
-class ViewScoresViewModel(application: Application) : AndroidViewModel(application) {
-    @Inject
-    lateinit var db: ScoresRoomDatabase
-
+@HiltViewModel
+class ViewScoresViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewModel() {
     var state by mutableStateOf(ViewScoresState())
         private set
-
-    init {
-        (application as App).appComponent.inject(this)
-    }
 
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())

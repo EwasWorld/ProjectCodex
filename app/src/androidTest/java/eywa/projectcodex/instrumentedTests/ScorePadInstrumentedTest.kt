@@ -38,7 +38,7 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.database.LocalDatabaseDaggerModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.*
@@ -116,7 +116,7 @@ class ScorePadInstrumentedTest {
     }
 
     private fun setupDb(hasRound: Boolean = false) {
-        db = DatabaseDaggerTestModule.scoresRoomDatabase
+        db = LocalDatabaseDaggerModule.scoresRoomDatabase
 
         for (arrow in arrows) {
             // Sometimes the test has kittens so it's nice to have a log

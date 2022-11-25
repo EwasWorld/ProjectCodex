@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -18,6 +19,7 @@ import eywa.projectcodex.components.viewScores.ui.rememberViewScoresListActionSt
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 
+@AndroidEntryPoint
 class ViewScoresFragment : Fragment(), ActionBarHelp {
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
     private var viewScoresScreen = ViewScoresScreen()

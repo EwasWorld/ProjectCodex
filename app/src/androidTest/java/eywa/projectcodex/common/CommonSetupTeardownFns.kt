@@ -7,7 +7,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.daggerObjects.DatabaseDaggerTestModule
+import eywa.projectcodex.database.LocalDatabaseDaggerModule
 
 class CommonSetupTeardownFns {
     companion object {
@@ -50,7 +50,7 @@ class CommonSetupTeardownFns {
              *      else the UI can react to the empty database and fail
              */
             scenario.moveToState(Lifecycle.State.DESTROYED)
-            DatabaseDaggerTestModule.teardown()
+            LocalDatabaseDaggerModule.teardown()
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -62,7 +62,7 @@ class CommonSetupTeardownFns {
              *      else the UI can react to the empty database and fail
              */
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-            DatabaseDaggerTestModule.teardown()
+            LocalDatabaseDaggerModule.teardown()
         }
     }
 }

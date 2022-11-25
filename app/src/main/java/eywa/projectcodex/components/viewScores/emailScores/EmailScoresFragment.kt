@@ -19,6 +19,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
@@ -34,6 +35,7 @@ import java.io.File
 import java.io.FileWriter
 
 
+@AndroidEntryPoint
 class EmailScoresFragment : Fragment(), ActionBarHelp {
     companion object {
         private const val EMAIL_ATTACHMENT_FILENAME = "emailAttachment.csv"

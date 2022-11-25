@@ -1,16 +1,15 @@
 package eywa.projectcodex.components.newScore
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.UpdateDefaultRounds
-import eywa.projectcodex.components.app.App
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.newScore.NewScoreEffect.PopBackstack
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
@@ -30,9 +29,8 @@ import javax.inject.Inject
 /**
  * @see ArcherRoundScoreViewModel
  */
-class NewScoreViewModel(application: Application) : AndroidViewModel(application) {
-    @Inject
-    lateinit var db: ScoresRoomDatabase
+@HiltViewModel
+class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewModel() {
 
     var state by mutableStateOf(NewScoreState())
         private set
@@ -40,10 +38,6 @@ class NewScoreViewModel(application: Application) : AndroidViewModel(application
     private val _effects: MutableSharedFlow<NewScoreEffect> =
             MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val effects: Flow<NewScoreEffect> = _effects
-
-    init {
-        (application as App).appComponent.inject(this)
-    }
 
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())

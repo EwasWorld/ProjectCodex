@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
@@ -24,6 +25,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 
 
+@AndroidEntryPoint
 class ArcherRoundStatsFragment : Fragment(), ArcherRoundBottomNavigationInfo {
     companion object {
         private const val LOG_TAG = "ArcherRoundStatsFragment"
