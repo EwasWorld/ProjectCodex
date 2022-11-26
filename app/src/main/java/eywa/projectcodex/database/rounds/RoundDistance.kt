@@ -1,13 +1,24 @@
 package eywa.projectcodex.database.rounds
 
 import androidx.room.Entity
-
-const val ROUND_DISTANCES_TABLE_NAME = "round_distances"
+import androidx.room.ForeignKey
+import eywa.projectcodex.database.rounds.RoundDistance.Companion.TABLE_NAME
 
 /**
  * The actual distances for each round subtype
  */
-@Entity(tableName = ROUND_DISTANCES_TABLE_NAME, primaryKeys = ["roundId", "distanceNumber", "subTypeId"])
+@Entity(
+        tableName = TABLE_NAME,
+        primaryKeys = ["roundId", "distanceNumber", "subTypeId"],
+        foreignKeys = [
+            ForeignKey(
+                    entity = Round::class,
+                    parentColumns = ["roundId"],
+                    childColumns = ["roundId"],
+                    onDelete = ForeignKey.CASCADE,
+            ),
+        ],
+)
 data class RoundDistance(
         val roundId: Int,
         val distanceNumber: Int,
@@ -17,4 +28,8 @@ data class RoundDistance(
          * @see Round.isMetric
          */
         val distance: Int
-)
+) {
+    companion object {
+        const val TABLE_NAME = "round_distances"
+    }
+}

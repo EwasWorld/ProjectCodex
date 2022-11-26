@@ -2,6 +2,7 @@ package eywa.projectcodex.database.arrowValue
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import eywa.projectcodex.database.arrowValue.ArrowValue.Companion.TABLE_NAME
 
 @Dao
 interface ArrowValueDao {
@@ -17,16 +18,16 @@ interface ArrowValueDao {
     /**
      * When returning LiveData, suspend is not needed as LiveData is already async
      */
-    @Query("SELECT * FROM arrow_values WHERE archerRoundId = :archerRoundId")
+    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
     fun getArrowValuesForRound(archerRoundId: Int): LiveData<List<ArrowValue>>
 
-    @Query("SELECT * FROM arrow_values")
+    @Query("SELECT * FROM $TABLE_NAME")
     fun getAllArrowValues(): LiveData<List<ArrowValue>>
 
-    @Query("DELETE FROM arrow_values")
+    @Query("DELETE FROM $TABLE_NAME")
     suspend fun deleteAll()
 
-    @Query("DELETE FROM arrow_values WHERE archerRoundId = :archerRoundId")
+    @Query("DELETE FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
     suspend fun deleteRoundsArrows(archerRoundId: Int)
 
     /**
@@ -35,7 +36,7 @@ interface ArrowValueDao {
      */
     @Query(
             """
-            DELETE FROM arrow_values 
+            DELETE FROM $TABLE_NAME 
             WHERE archerRoundId = :archerRoundId 
                 AND arrowNumber >= :fromArrowNumber
                 AND arrowNumber < :toArrowNumber

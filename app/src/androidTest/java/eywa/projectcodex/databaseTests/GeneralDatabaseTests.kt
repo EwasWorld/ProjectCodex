@@ -120,6 +120,10 @@ class GeneralDatabaseTests {
      */
     @Test
     fun roundArrowCountsTest() {
+        runBlocking {
+            TestUtils.ROUNDS.forEach { roundDao.insert(it) }
+        }
+
         val retrievedArrowCounts = roundArrowCountDao.getAllArrowCounts()
 
         /*
@@ -157,6 +161,10 @@ class GeneralDatabaseTests {
      */
     @Test
     fun roundSubTypesTest() {
+        runBlocking {
+            TestUtils.ROUNDS.forEach { roundDao.insert(it) }
+        }
+
         val retrievedSubTypes = roundSubTypeDao.getAllSubTypes()
 
         /*
@@ -194,6 +202,10 @@ class GeneralDatabaseTests {
      */
     @Test
     fun roundDistancesTest() {
+        runBlocking {
+            TestUtils.ROUNDS.forEach { roundDao.insert(it) }
+        }
+
         val retrievedDistances = roundDistanceDao.getAllDistances()
 
         /*
@@ -227,5 +239,4 @@ class GeneralDatabaseTests {
         }
         assertEquals(distances.filterNot { it.roundId == 2 }.toSet(), retrievedDistances.retrieveValue()!!.toSet())
     }
-
 }

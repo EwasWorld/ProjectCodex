@@ -1,37 +1,74 @@
 package eywa.projectcodex.database.archerRound
 
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
+import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundSubType
 import java.util.*
 
-const val ARCHER_ROUNDS_TABLE_NAME = "archer_rounds"
 
 /**
  * Main information about a round/session an archer has shot
  */
-@Entity(tableName = ARCHER_ROUNDS_TABLE_NAME)
+@Entity(
+        tableName = TABLE_NAME,
+        foreignKeys = [
+            ForeignKey(
+                    entity = Round::class,
+                    parentColumns = ["roundId"],
+                    childColumns = ["roundId"],
+                    onDelete = ForeignKey.SET_NULL,
+            ),
+            ForeignKey(
+                    entity = RoundSubType::class,
+                    parentColumns = ["roundId", "subTypeId"],
+                    childColumns = ["roundId", "roundSubTypeId"],
+                    onDelete = ForeignKey.SET_NULL,
+            ),
+        ],
+)
 data class ArcherRound(
-        @PrimaryKey(autoGenerate = true)
-        val archerRoundId: Int,
+        @PrimaryKey(autoGenerate = true) val archerRoundId: Int,
         val dateShot: Date,
         val archerId: Int,
         val countsTowardsHandicap: Boolean = true,
         val bowId: Int? = null,
-        val roundId: Int? = null,
+        @ColumnInfo(index = true) val roundId: Int? = null,
         val roundSubTypeId: Int? = null,
         val goalScore: Int? = null,
         val shootStatus: String? = null
-)
+) {
+    companion object {
+        const val TABLE_NAME = "archer_rounds"
+    }
+}
 
 data class ArcherRoundWithRoundInfoAndName(
-        @Embedded(prefix = "ar_") val archerRound: ArcherRound,
-        @Embedded val round: Round? = null,
-        val roundSubTypeName: String? = null
+        @Embedded val archerRound: ArcherRound,
+
+        @Relation(
+                parentColumn = "roundId",
+                entityColumn = "roundId",
+        )
+        val round: Round? = null,
+
+        /**
+         * Note this is all subtypes relating to [round] as composite keys are not supported with @Relation.
+         * It might be better to do this as part of the query rather than retrieving all subtypes
+         * but we don't expect more than ~5 subtypes for any given round
+         */
+        @Relation(
+                parentColumn = "roundId",
+                entityColumn = "roundId",
+        )
+        val roundSubTypes: List<RoundSubType>? = null,
 ) {
+    val roundSubType
+        get() = roundSubTypes?.find { it.subTypeId == archerRound.roundSubTypeId }
+
     val displayName: String?
-        get() = roundSubTypeName ?: round?.displayName
+        get() = roundSubType?.name ?: round?.displayName
+
     val id: Int
         get() = archerRound.archerRoundId
 

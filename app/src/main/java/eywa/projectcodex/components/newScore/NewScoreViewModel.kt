@@ -48,17 +48,7 @@ class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewMo
         val roundRepo = RoundRepo(db)
 
         viewModelScope.launch {
-            roundRepo.rounds.asFlow()
-                    .combine(roundRepo.roundSubTypes.asFlow()) { rounds, subTypes ->
-                        DbRoundsData(rounds = rounds, subTypes = subTypes)
-                    }
-                    .combine(roundRepo.roundArrowCounts.asFlow()) { flowData, arrowCounts ->
-                        flowData.copy(arrowCounts = arrowCounts)
-                    }
-                    .combine(roundRepo.roundDistances.asFlow()) { flowData, distances ->
-                        flowData.copy(distances = distances)
-                    }
-                    .collect { state = state.copy(roundsData = it).resetEditInfo() }
+            roundRepo.fullRoundsInfo.collect { state = state.copy(roundsData = it).resetEditInfo() }
         }
         viewModelScope.launch {
             UpdateDefaultRounds.taskProgress.getState().asFlow()
@@ -132,7 +122,7 @@ class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewMo
                         selectedRound = action.round,
                 ).let {
                     // Select the furthest distance if subtypes are available
-                    it.copy(selectedSubtype = it.roundSubTypes.maxByOrNull { subType ->
+                    it.copy(selectedSubtype = it.selectedRoundInfo?.roundSubTypes?.maxByOrNull { subType ->
                         state.getFurthestDistance(subType).distance
                     })
                 }
@@ -183,12 +173,14 @@ class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewMo
     private fun NewScoreState.resetEditInfo(): NewScoreState {
         if (roundBeingEdited == null) return this
 
+        val selectedRoundFullInfo = roundsData?.find { it.round.roundId == roundBeingEdited.roundId }
+
         return copy(
                 // TODO API dates
                 dateShot = Calendar.Builder().setInstant(roundBeingEdited.dateShot).build(),
-                selectedRound = roundsData.rounds?.find { it.roundId == roundBeingEdited.roundId },
+                selectedRound = selectedRoundFullInfo?.round,
                 selectedSubtype = roundBeingEdited.roundSubTypeId?.let { subType ->
-                    roundsData.subTypes?.find { it.roundId == roundBeingEdited.roundId && it.subTypeId == subType }
+                    selectedRoundFullInfo?.roundSubTypes?.find { it.subTypeId == subType }
                 },
         )
     }

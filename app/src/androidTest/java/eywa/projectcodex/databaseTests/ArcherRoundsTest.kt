@@ -117,14 +117,14 @@ class ArcherRoundsTest {
         )
         val rounds = TestUtils.ROUNDS.take(3)
 
-        for (archerRound in archerRounds) {
-            runBlocking {
-                archerRoundDao.insert(archerRound)
-            }
-        }
         for (round in rounds) {
             runBlocking {
                 roundDao.insert(round)
+            }
+        }
+        for (archerRound in archerRounds) {
+            runBlocking {
+                archerRoundDao.insert(archerRound)
             }
         }
 
@@ -164,11 +164,6 @@ class ArcherRoundsTest {
         val rounds = TestUtils.ROUNDS.take(3)
         val roundSubTypes = TestUtils.ROUND_SUB_TYPES
 
-        for (archerRound in archerRounds) {
-            runBlocking {
-                archerRoundDao.insert(archerRound)
-            }
-        }
         for (round in rounds) {
             runBlocking {
                 roundDao.insert(round)
@@ -177,6 +172,11 @@ class ArcherRoundsTest {
         for (roundSubType in roundSubTypes) {
             runBlocking {
                 roundSubTypeDao.insert(roundSubType)
+            }
+        }
+        for (archerRound in archerRounds) {
+            runBlocking {
+                archerRoundDao.insert(archerRound)
             }
         }
 
@@ -194,7 +194,7 @@ class ArcherRoundsTest {
                     roundSubTypes.find {
                         it.roundId == archerRounds[i].roundId && it.subTypeId == archerRounds[i].roundSubTypeId
                     }?.name
-            assertEquals(expectedRoundSubTypeName, retrievedRoundInfo[i].roundSubTypeName)
+            assertEquals(expectedRoundSubTypeName, retrievedRoundInfo[i].roundSubType?.name)
         }
     }
 }

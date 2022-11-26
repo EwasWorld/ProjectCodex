@@ -42,10 +42,7 @@ import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundFilter
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.database.rounds.RoundArrowCount
-import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.rounds.*
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -71,7 +68,7 @@ class NewScoreScreen : ActionBarHelp {
         )
         SelectSubtypeDialog(
                 isShown = state.isSelectSubTypeDialogOpen,
-                subTypes = state.roundSubTypes,
+                subTypes = state.selectedRoundInfo?.roundSubTypes ?: listOf(),
                 getDistance = { state.getFurthestDistance(it).distance },
                 distanceUnit = distanceUnit,
                 listener = listener,
@@ -252,10 +249,12 @@ class NewScoreScreen : ActionBarHelp {
         val faceSizeUnit = stringResource(R.string.units_cm_short)
         val distanceUnit = state.distanceUnitStringRes?.let { stringResource(it) }
 
-        if (state.roundArrowCounts.isNotEmpty()) {
+        val arrowCounts = state.selectedRoundInfo?.roundArrowCounts?.takeIf { it.isNotEmpty() }
+
+        if (arrowCounts != null) {
             DataRow(
                     title = R.string.create_round__arrow_count_indicator,
-                    extraText = state.roundArrowCounts
+                    extraText = arrowCounts
                             .sortedBy { it.distanceNumber }
                             .joinToString(separator) {
                                 DecimalFormat("#.#").format(it.arrowCount / 12.0)
@@ -264,20 +263,20 @@ class NewScoreScreen : ActionBarHelp {
                     helpBody = R.string.help_create_round__arrow_count_indicator_body,
             )
         }
-        if (state.roundSubtypeDistances.isNotEmpty()) {
+        state.roundSubtypeDistances?.takeIf { it.isNotEmpty() }?.let { distances ->
             DataRow(
                     title = R.string.create_round__distance_indicator,
-                    extraText = state.roundSubtypeDistances
+                    extraText = distances
                             .sortedBy { it.distanceNumber }
                             .joinToString(separator) { it.distance.toString() + distanceUnit },
                     helpTitle = R.string.help_create_round__distance_indicator_title,
                     helpBody = R.string.help_create_round__distance_indicator_body,
             )
         }
-        if (state.roundArrowCounts.isNotEmpty()) {
+        if (arrowCounts != null) {
             DataRow(
                     title = R.string.create_round__face_size_indicator,
-                    extraText = state.roundArrowCounts
+                    extraText = arrowCounts
                             .sortedBy { it.distanceNumber }
                             .joinToString(separator) { (it.faceSizeInCm.roundToInt()).toString() + faceSizeUnit },
                     helpTitle = R.string.help_create_round__face_size_indicator_title,
@@ -557,18 +556,16 @@ class NewScoreScreen : ActionBarHelp {
 class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
     val editingArcherRound = ArcherRound(1, Calendar.getInstance().time, 1)
 
-    val outdoorImperialRoundData = DbRoundsData(
-            rounds = listOf(
-                    Round(
-                            roundId = 1,
-                            name = "york",
-                            displayName = "York",
-                            isOutdoor = true,
-                            isMetric = false,
-                            permittedFaces = listOf(),
-                    ),
+    val outdoorImperialRoundData = FullRoundInfo(
+            round = Round(
+                    roundId = 1,
+                    name = "york",
+                    displayName = "York",
+                    isOutdoor = true,
+                    isMetric = false,
+                    permittedFaces = listOf(),
             ),
-            subTypes = listOf(
+            roundSubTypes = listOf(
                     RoundSubType(
                             roundId = 1,
                             subTypeId = 1,
@@ -580,7 +577,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             name = "Hereford",
                     ),
             ),
-            arrowCounts = listOf(
+            roundArrowCounts = listOf(
                     RoundArrowCount(
                             roundId = 1,
                             distanceNumber = 1,
@@ -594,7 +591,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             arrowCount = 24,
                     ),
             ),
-            distances = listOf(
+            roundDistances = listOf(
                     RoundDistance(
                             roundId = 1,
                             distanceNumber = 1,
@@ -622,18 +619,16 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
     )
 
-    val indoorMetricRoundData = DbRoundsData(
-            rounds = listOf(
-                    Round(
-                            roundId = 2,
-                            name = "wa",
-                            displayName = "WA",
-                            isOutdoor = false,
-                            isMetric = true,
-                            permittedFaces = listOf(),
-                    ),
+    val indoorMetricRoundData = FullRoundInfo(
+            round = Round(
+                    roundId = 2,
+                    name = "wa",
+                    displayName = "WA",
+                    isOutdoor = false,
+                    isMetric = true,
+                    permittedFaces = listOf(),
             ),
-            subTypes = listOf(
+            roundSubTypes = listOf(
                     RoundSubType(
                             roundId = 2,
                             subTypeId = 1,
@@ -645,7 +640,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             name = "WA 25m",
                     ),
             ),
-            arrowCounts = listOf(
+            roundArrowCounts = listOf(
                     RoundArrowCount(
                             roundId = 2,
                             distanceNumber = 1,
@@ -653,7 +648,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             arrowCount = 60,
                     ),
             ),
-            distances = listOf(
+            roundDistances = listOf(
                     RoundDistance(
                             roundId = 2,
                             distanceNumber = 1,
@@ -669,24 +664,23 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
     )
 
-    val singleSubtypeRoundData = DbRoundsData(
-            rounds = listOf(
-                    Round(
-                            roundId = 3,
-                            name = "portsmouth",
-                            displayName = "Portsmouth",
-                            isOutdoor = false,
-                            isMetric = false,
-                            permittedFaces = listOf(),
-                    ),
+    val singleSubtypeRoundData = FullRoundInfo(
+            round = Round(
+                    roundId = 3,
+                    name = "portsmouth",
+                    displayName = "Portsmouth",
+                    isOutdoor = false,
+                    isMetric = false,
+                    permittedFaces = listOf(),
             ),
-            subTypes = listOf(
+
+            roundSubTypes = listOf(
                     RoundSubType(
                             roundId = 3,
                             subTypeId = 1,
                     ),
             ),
-            arrowCounts = listOf(
+            roundArrowCounts = listOf(
                     RoundArrowCount(
                             roundId = 3,
                             distanceNumber = 1,
@@ -694,7 +688,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             arrowCount = 60,
                     ),
             ),
-            distances = listOf(
+            roundDistances = listOf(
                     RoundDistance(
                             roundId = 3,
                             distanceNumber = 1,
@@ -704,7 +698,11 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
     )
 
-    val roundsData = outdoorImperialRoundData.plus(indoorMetricRoundData).plus(singleSubtypeRoundData)
+    val roundsData = listOf(
+            outdoorImperialRoundData,
+            indoorMetricRoundData,
+            singleSubtypeRoundData,
+    )
 
     override val values = sequenceOf(
             // No Round
@@ -713,8 +711,8 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // Has Round
             NewScoreState(
                     roundsData = roundsData,
-                    selectedRound = outdoorImperialRoundData.getOnlyRound(),
-                    selectedSubtype = outdoorImperialRoundData.subTypes!!.first(),
+                    selectedRound = outdoorImperialRoundData.round,
+                    selectedSubtype = outdoorImperialRoundData.roundSubTypes!!.first(),
             ),
 
             // Editing
@@ -726,7 +724,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // TooManyArrows
             NewScoreState(
                     roundsData = roundsData,
-                    selectedRound = outdoorImperialRoundData.getOnlyRound(),
+                    selectedRound = outdoorImperialRoundData.round,
                     roundBeingEdited = editingArcherRound,
                     roundBeingEditedArrowsShot = 1000,
             ),
@@ -737,40 +735,8 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // Select Subtype Dialog
             NewScoreState(
                     roundsData = roundsData,
-                    selectedRound = outdoorImperialRoundData.getOnlyRound(),
+                    selectedRound = outdoorImperialRoundData.round,
                     isSelectSubTypeDialogOpen = true,
             )
     )
-
-    /**
-     * @return the only round in [DbRoundsData]
-     * @throws IllegalStateException if it does not have exactly one round
-     */
-    fun DbRoundsData.getOnlyRound() =
-            if ((rounds?.size ?: 0) == 1) {
-                rounds!!.first()
-            }
-            else {
-                throw IllegalStateException("Does not have exactly one round")
-            }
-
-    fun DbRoundsData.plus(other: DbRoundsData): DbRoundsData {
-        val rounds = rounds ?: listOf()
-        val subTypes = subTypes ?: listOf()
-        val arrowCounts = arrowCounts ?: listOf()
-        val distances = distances ?: listOf()
-
-        require(
-                rounds.map { it.roundId }.let { roundIds ->
-                    other.rounds?.any { roundIds.contains(it.roundId) }
-                } != true
-        ) { "Ids overlap" }
-
-        return copy(
-                rounds = rounds + (other.rounds ?: listOf()),
-                subTypes = subTypes + (other.subTypes ?: listOf()),
-                arrowCounts = arrowCounts + (other.arrowCounts ?: listOf()),
-                distances = distances + (other.distances ?: listOf()),
-        )
-    }
 }

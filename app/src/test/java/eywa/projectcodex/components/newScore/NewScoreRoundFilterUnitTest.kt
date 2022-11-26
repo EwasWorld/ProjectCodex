@@ -6,8 +6,8 @@ import org.junit.Test
 
 class NewScoreRoundFilterUnitTest {
     private val paramProvider = NewScoreStatePreviewProvider()
-    private val indoorMetricRound = with(paramProvider) { indoorMetricRoundData.getOnlyRound() }
-    private val outdoorImperialRound = with(paramProvider) { outdoorImperialRoundData.getOnlyRound() }
+    private val indoorMetricRound = with(paramProvider) { indoorMetricRoundData.round }
+    private val outdoorImperialRound = with(paramProvider) { outdoorImperialRoundData.round }
 
     @Test
     fun testMetric() {

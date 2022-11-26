@@ -25,6 +25,12 @@ class ArrowValueTest {
     @Before
     fun createDb() {
         db = DatabaseSuite.createDatabase()
+
+        runBlocking {
+            TestUtils.generateArcherRounds(2)
+                    .forEach { db.archerRoundDao().insert(it) }
+        }
+
         arrowValueDao = db.arrowValueDao()
     }
 

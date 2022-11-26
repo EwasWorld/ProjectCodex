@@ -1,9 +1,23 @@
 package eywa.projectcodex.database.arrowValue
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import eywa.projectcodex.common.archeryObjects.getArrowValueString
+import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.arrowValue.ArrowValue.Companion.TABLE_NAME
 
-@Entity(tableName = "arrow_values", primaryKeys = ["archerRoundId", "arrowNumber"])
+@Entity(
+        tableName = TABLE_NAME,
+        primaryKeys = ["archerRoundId", "arrowNumber"],
+        foreignKeys = [
+            ForeignKey(
+                    entity = ArcherRound::class,
+                    parentColumns = ["archerRoundId"],
+                    childColumns = ["archerRoundId"],
+                    onDelete = ForeignKey.CASCADE,
+            ),
+        ]
+)
 data class ArrowValue(
         val archerRoundId: Int,
         val arrowNumber: Int,
@@ -12,5 +26,9 @@ data class ArrowValue(
 ) {
     override fun toString(): String {
         return "$archerRoundId-$arrowNumber: " + getArrowValueString(score, isX)
+    }
+
+    companion object {
+        const val TABLE_NAME = "arrow_values"
     }
 }

@@ -22,7 +22,7 @@ class NewScoreViewModelUnitTest {
 
     @Test
     fun testClassInitialisation() {
-        setup()
+//        setup()
         // TODO_CURRENT
     }
 }

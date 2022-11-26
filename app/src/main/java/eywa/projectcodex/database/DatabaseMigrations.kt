@@ -23,9 +23,9 @@ class DatabaseMigrations {
             override fun migrate(database: SupportSQLiteDatabase) {
                 val sqlStrings = mutableListOf<String>()
                 /*
-             * Delete arrow_value_table (don't need the data from it)
-             * Create arrow_values to replace it
-             */
+                 * Delete arrow_value_table (don't need the data from it)
+                 * Create arrow_values to replace it
+                 */
                 sqlStrings.add("DROP TABLE `arrow_value_table`")
                 sqlStrings.add(
                         """
@@ -39,8 +39,8 @@ class DatabaseMigrations {
                 )
 
                 /*
-             * Create new tables
-             */
+                 * Create new tables
+                 */
                 sqlStrings.add(
                         """
                         CREATE TABLE `archers` (
@@ -97,14 +97,14 @@ class DatabaseMigrations {
                 val sqlStrings = mutableListOf<String>()
 
                 /*
-             * Delete old rounds tables
-             */
+                 * Delete old rounds tables
+                 */
                 sqlStrings.add("DROP TABLE `round_distances`")
                 sqlStrings.add("DROP TABLE `rounds_references`")
 
                 /*
-             * Create new rounds tables
-             */
+                 * Create new rounds tables
+                 */
                 sqlStrings.add(
                         """
                         CREATE TABLE `rounds` (
@@ -162,8 +162,8 @@ class DatabaseMigrations {
                 sqlStrings.add("DELETE FROM round_sub_types")
 
                 /*
-             * round_sub_type_counts -> round_distances
-             */
+                 * round_sub_type_counts -> round_distances
+                 */
                 sqlStrings.add("DROP TABLE `round_sub_type_counts`")
                 sqlStrings.add(
                         """
@@ -177,8 +177,8 @@ class DatabaseMigrations {
                 )
 
                 /*
-             * Change type of faceSizeInCm
-             */
+                 * Change type of faceSizeInCm
+                 */
                 sqlStrings.add("DROP TABLE `round_arrow_counts`")
                 sqlStrings.add(
                         """
@@ -192,8 +192,8 @@ class DatabaseMigrations {
                 )
 
                 /*
-             * Add displayName column to Rounds
-             */
+                 * Add displayName column to Rounds
+                 */
                 sqlStrings.add("DROP TABLE `rounds`")
                 sqlStrings.add(
                         """
@@ -211,9 +211,9 @@ class DatabaseMigrations {
                 )
 
                 /*
-             * Rename columns in ArcherRound
-             * roundReferenceId, roundDistanceId -> roundId, roundSubTypeId
-             */
+                 * Rename columns in ArcherRound
+                 * roundReferenceId, roundDistanceId -> roundId, roundSubTypeId
+                 */
                 sqlStrings.add("ALTER TABLE archer_rounds RENAME TO archer_rounds_old")
                 sqlStrings.add(
                         """

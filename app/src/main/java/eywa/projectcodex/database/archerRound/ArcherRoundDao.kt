@@ -2,6 +2,7 @@ package eywa.projectcodex.database.archerRound
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.rounds.Round
 
 @Dao
@@ -12,70 +13,33 @@ interface ArcherRoundDao {
     @Update
     suspend fun update(vararg archerRounds: ArcherRound)
 
-    @Query("SELECT MAX(archerRoundId) FROM $ARCHER_ROUNDS_TABLE_NAME")
+    @Query("SELECT MAX(archerRoundId) FROM $TABLE_NAME")
     fun getMaxId(): LiveData<Int>
 
-    @Query("SELECT * FROM $ARCHER_ROUNDS_TABLE_NAME WHERE archerRoundId = :id")
+    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId = :id")
     fun getArcherRoundById(id: Int): LiveData<ArcherRound>
 
     @Query(
             """
                 SELECT rounds.*
-                FROM $ARCHER_ROUNDS_TABLE_NAME INNER JOIN rounds ON archer_rounds.roundId = rounds.roundId
+                FROM $TABLE_NAME INNER JOIN ${Round.TABLE_NAME} ON archer_rounds.roundId = rounds.roundId
                 WHERE archerRoundId = :archerRoundId
             """
     )
     fun getRoundInfo(archerRoundId: Int): LiveData<Round>
 
-    @Query(
-            """
-                SELECT 
-                    archer_rounds.archerRoundId AS ar_archerRoundId,
-                    archer_rounds.dateShot AS ar_dateShot,
-                    archer_rounds.archerId AS ar_archerId,
-                    archer_rounds.countsTowardsHandicap AS ar_countsTowardsHandicap,
-                    archer_rounds.bowId AS ar_bowId,
-                    archer_rounds.roundId AS ar_roundId,
-                    archer_rounds.roundSubTypeId AS ar_roundSubTypeId,
-                    archer_rounds.goalScore AS ar_goalScore,
-                    archer_rounds.shootStatus AS ar_shootStatus, 
-                    rounds.*, 
-                    round_sub_types.name AS roundSubTypeName
-                FROM $ARCHER_ROUNDS_TABLE_NAME 
-                    LEFT JOIN rounds ON archer_rounds.roundId = rounds.roundId
-                    LEFT JOIN round_sub_types ON archer_rounds.roundSubTypeId = round_sub_types.subTypeId
-                                              AND archer_rounds.roundId = round_sub_types.roundId
-            """
-    )
+    @Transaction
+    @Query("SELECT * FROM $TABLE_NAME")
     fun getAllArcherRoundsWithRoundInfoAndName(): LiveData<List<ArcherRoundWithRoundInfoAndName>>
 
-    @Query(
-            """
-                SELECT 
-                    archer_rounds.archerRoundId AS ar_archerRoundId,
-                    archer_rounds.dateShot AS ar_dateShot,
-                    archer_rounds.archerId AS ar_archerId,
-                    archer_rounds.countsTowardsHandicap AS ar_countsTowardsHandicap,
-                    archer_rounds.bowId AS ar_bowId,
-                    archer_rounds.roundId AS ar_roundId,
-                    archer_rounds.roundSubTypeId AS ar_roundSubTypeId,
-                    archer_rounds.goalScore AS ar_goalScore,
-                    archer_rounds.shootStatus AS ar_shootStatus, 
-                    rounds.*, 
-                    round_sub_types.name AS roundSubTypeName
-                FROM $ARCHER_ROUNDS_TABLE_NAME 
-                    LEFT JOIN rounds ON archer_rounds.roundId = rounds.roundId
-                    LEFT JOIN round_sub_types ON archer_rounds.roundSubTypeId = round_sub_types.subTypeId
-                                              AND archer_rounds.roundId = round_sub_types.roundId
-                WHERE ar_archerRoundId == :archerRoundId
-            """
-    )
+    @Transaction
+    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId")
     fun getArcherRoundWithRoundInfoAndName(archerRoundId: Int): LiveData<ArcherRoundWithRoundInfoAndName>
 
-    @Query("SELECT * FROM $ARCHER_ROUNDS_TABLE_NAME")
+    @Query("SELECT * FROM $TABLE_NAME")
     fun getAllArcherRounds(): LiveData<List<ArcherRound>>
 
-    @Query("DELETE FROM $ARCHER_ROUNDS_TABLE_NAME WHERE archerRoundId = :archerRoundId")
+    @Query("DELETE FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
     suspend fun deleteRound(archerRoundId: Int)
 
     // TODO Remove custom type example when from-to filter has been implemented

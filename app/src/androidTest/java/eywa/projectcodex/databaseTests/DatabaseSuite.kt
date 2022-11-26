@@ -17,7 +17,9 @@ class DatabaseSuite {
         fun createDatabase(): ScoresRoomDatabase {
             val context = ApplicationProvider.getApplicationContext<Context>()
             context.deleteDatabase(CommonStrings.testDatabaseName)
-            return Room.inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java).allowMainThreadQueries()
+            return Room
+                    .inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java)
+                    .allowMainThreadQueries()
                     .build()
         }
     }

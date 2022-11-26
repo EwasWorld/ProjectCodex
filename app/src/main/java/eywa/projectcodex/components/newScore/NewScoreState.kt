@@ -4,6 +4,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundSubType
 import java.util.*
@@ -23,7 +24,7 @@ data class NewScoreState(
         val databaseUpdatingProgress: Boolean = false,
         val databaseUpdatingMessage: ResOrActual<String>? = null,
 
-        val roundsData: DbRoundsData = DbRoundsData(),
+        val roundsData: List<FullRoundInfo>? = null,
 
         /*
          * Dialogs
@@ -42,37 +43,18 @@ data class NewScoreState(
     val isEditing
         get() = roundBeingEdited != null
 
-    /**
-     * All arrow counts for [selectedRound]
-     */
-    val roundArrowCounts
+    val selectedRoundInfo
         get() = selectedRound?.roundId?.let { roundId ->
-            roundsData.arrowCounts?.filter { it.roundId == roundId }
-        } ?: listOf()
-
-    /**
-     * All subtypes for [selectedRound]
-     */
-    val roundSubTypes
-        get() = selectedRound?.roundId?.let { roundId ->
-            roundsData.subTypes?.filter { it.roundId == roundId }
-        } ?: listOf()
-
-    /**
-     * All distances for [selectedRound]
-     */
-    val roundDistances
-        get() = selectedRound?.roundId?.let { roundId ->
-            roundsData.distances?.filter { it.roundId == roundId }
-        } ?: listOf()
+            roundsData?.find { it.round.roundId == roundId }
+        }
 
     /**
      * All distances for [selectedSubtype]
      */
     val roundSubtypeDistances
         get() = selectedSubtype?.subTypeId?.let { subtypeId ->
-            roundDistances.filter { it.subTypeId == subtypeId }
-        } ?: roundDistances
+            selectedRoundInfo?.roundDistances?.filter { it.subTypeId == subtypeId }
+        } ?: selectedRoundInfo?.roundDistances
 
     /**
      * Resource id of the unit for [selectedRound]'s distances (e.g. yd/m)
@@ -89,7 +71,7 @@ data class NewScoreState(
      */
     val displayedSubtype
         get() = when {
-            selectedRound != null && roundSubTypes.size > 1 -> selectedSubtype!!
+            selectedRound != null && (selectedRoundInfo?.roundSubTypes?.size ?: 0) > 1 -> selectedSubtype!!
             else -> null
         }
 
@@ -101,7 +83,7 @@ data class NewScoreState(
     val displayedRound
         get() = when {
             selectedRound != null -> ResOrActual.fromActual(selectedRound.displayName)
-            roundsData.rounds.isNullOrEmpty() -> ResOrActual.fromRes(R.string.create_round__no_rounds_found)
+            roundsData.isNullOrEmpty() -> ResOrActual.fromRes(R.string.create_round__no_rounds_found)
             else -> ResOrActual.fromRes(R.string.create_round__no_round)
         }
 
@@ -109,13 +91,13 @@ data class NewScoreState(
      * Rounds to be displayed on the round select dialog. Filtered by [enabledRoundFilters]
      */
     val roundsOnSelectDialog
-        get() = enabledRoundFilters.filter(roundsData.rounds ?: listOf())
+        get() = enabledRoundFilters.filter(roundsData?.map { it.round } ?: listOf())
 
     /**
      * Number of arrows to be shot for [selectedRound]
      */
     val totalArrowsInSelectedRound
-        get() = selectedRound?.let { roundArrowCounts.sumOf { it.arrowCount } }
+        get() = selectedRoundInfo?.roundArrowCounts?.sumOf { it.arrowCount }
 
     /**
      * True if there are more [roundBeingEditedArrowsShot] than there are [totalArrowsInSelectedRound]
@@ -137,8 +119,10 @@ data class NewScoreState(
             roundSubTypeId = selectedSubtype?.subTypeId,
     )
 
-    fun getFurthestDistance(subType: RoundSubType) = roundsData.distances
-            ?.filter { it.roundId == subType.roundId && it.subTypeId == subType.subTypeId }
+    fun getFurthestDistance(subType: RoundSubType) = roundsData
+            ?.find { it.round.roundId == subType.roundId }
+            ?.roundDistances
+            ?.filter { it.subTypeId == subType.subTypeId }
             ?.maxByOrNull { it.distance }!!
 
     companion object {

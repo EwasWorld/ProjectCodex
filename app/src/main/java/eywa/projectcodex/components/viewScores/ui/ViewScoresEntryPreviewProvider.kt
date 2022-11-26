@@ -56,7 +56,7 @@ object ViewScoresEntryPreviewProvider {
                         round = displayName?.let {
                             Round(1, "", displayName, true, true, listOf())
                         },
-                        roundSubTypeName = null
+                        roundSubTypes = listOf(),
                 ),
                 arrows = hsg?.let { generateArrows(index + 1, hsg) },
                 arrowCounts = if (!hasRoundInfo) null else hsg?.let { listOf(RoundArrowCount(1, 1, 1.0, hsg[0] + 1)) },

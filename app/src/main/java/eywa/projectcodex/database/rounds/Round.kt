@@ -1,15 +1,16 @@
 package eywa.projectcodex.database.rounds
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
-
-const val ROUND_TABLE_NAME = "rounds"
+import eywa.projectcodex.database.rounds.Round.Companion.TABLE_NAME
 
 /**
  * Main round information
  */
-@Entity(tableName = ROUND_TABLE_NAME)
+@Entity(tableName = TABLE_NAME)
 data class Round(
         @PrimaryKey(autoGenerate = true)
         val roundId: Int,
@@ -31,4 +32,21 @@ data class Round(
 ) : NamedItem {
     override val label: String
         get() = displayName
+
+    companion object {
+        const val TABLE_NAME = "rounds"
+    }
 }
+
+data class FullRoundInfo(
+        @Embedded val round: Round,
+
+        @Relation(parentColumn = "roundId", entityColumn = "roundId")
+        val roundSubTypes: List<RoundSubType>? = null,
+
+        @Relation(parentColumn = "roundId", entityColumn = "roundId")
+        val roundArrowCounts: List<RoundArrowCount>? = null,
+
+        @Relation(parentColumn = "roundId", entityColumn = "roundId")
+        val roundDistances: List<RoundDistance>? = null,
+)

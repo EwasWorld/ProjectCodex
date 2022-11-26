@@ -1,6 +1,7 @@
 package eywa.projectcodex.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -22,7 +23,7 @@ class DatabaseDaggerModule {
                         .addMigrations(
                                 DatabaseMigrations.MIGRATION_1_2,
                                 DatabaseMigrations.MIGRATION_2_3,
-                                DatabaseMigrations.MIGRATION_3_4
+                                DatabaseMigrations.MIGRATION_3_4,
                         ).build()
         /*
          * Write ahead mode suspected of causes issues with the instrumented test,

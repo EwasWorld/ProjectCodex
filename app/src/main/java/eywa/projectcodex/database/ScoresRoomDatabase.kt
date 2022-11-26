@@ -1,9 +1,6 @@
 package eywa.projectcodex.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
+import androidx.room.*
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archer.ArcherDao
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -18,8 +15,11 @@ import java.util.*
             ArcherRound::class, Archer::class, ArrowValue::class,
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class
         ],
-        version = 4,
-        exportSchema = true // Needs a schema location in the build.gradle too to export!
+        version = 5,
+        autoMigrations = [
+            AutoMigration(from = 4, to = 5)
+        ],
+        exportSchema = true, // Needs a schema location in the build.gradle too to export!
 )
 @TypeConverters(ScoresRoomDatabase.Converters::class)
 abstract class ScoresRoomDatabase : RoomDatabase() {

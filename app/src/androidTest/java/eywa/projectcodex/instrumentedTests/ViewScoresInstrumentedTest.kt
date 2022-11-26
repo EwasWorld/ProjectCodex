@@ -13,6 +13,7 @@ import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
+import eywa.projectcodex.database.LocalDatabaseDaggerModule
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -21,7 +22,6 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -133,9 +133,7 @@ class ViewScoresInstrumentedTest {
             ArcherRoundWithRoundInfoAndName(
                     archerRound,
                     rounds.find { it.roundId == archerRound.roundId },
-                    roundSubTypes.find {
-                        it.roundId == archerRound.roundId && it.subTypeId == archerRound.roundSubTypeId
-                    }?.name
+                    roundSubTypes
             )
         }
         arrows = archerRounds.map { archerRound ->

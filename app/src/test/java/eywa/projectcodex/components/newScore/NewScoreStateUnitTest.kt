@@ -2,9 +2,6 @@ package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.database.rounds.RoundArrowCount
-import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.rounds.RoundSubType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -26,46 +23,16 @@ class NewScoreStateUnitTest {
     }
 
     @Test
-    fun testRoundArrowCounts() {
+    fun testRoundInfo() {
         with(paramProvider) {
             val state = NewScoreState(roundsData = roundsData)
             assertEquals(
-                    listOf<RoundArrowCount>(),
-                    state.roundArrowCounts,
+                    null,
+                    state.selectedRoundInfo,
             )
             assertEquals(
-                    outdoorImperialRoundData.arrowCounts,
-                    state.copy(selectedRound = outdoorImperialRoundData.getOnlyRound()).roundArrowCounts,
-            )
-        }
-    }
-
-    @Test
-    fun testRoundSubTypes() {
-        with(paramProvider) {
-            val state = NewScoreState(roundsData = roundsData)
-            assertEquals(
-                    listOf<RoundSubType>(),
-                    state.roundSubTypes,
-            )
-            assertEquals(
-                    outdoorImperialRoundData.subTypes,
-                    state.copy(selectedRound = outdoorImperialRoundData.getOnlyRound()).roundSubTypes,
-            )
-        }
-    }
-
-    @Test
-    fun testRoundDistances() {
-        with(paramProvider) {
-            val state = NewScoreState(roundsData = roundsData)
-            assertEquals(
-                    listOf<RoundDistance>(),
-                    state.roundDistances,
-            )
-            assertEquals(
-                    outdoorImperialRoundData.distances,
-                    state.copy(selectedRound = outdoorImperialRoundData.getOnlyRound()).roundDistances,
+                    outdoorImperialRoundData,
+                    state.copy(selectedRound = outdoorImperialRoundData.round).selectedRoundInfo,
             )
         }
     }
@@ -75,14 +42,14 @@ class NewScoreStateUnitTest {
         with(paramProvider) {
             val state = NewScoreState(roundsData = roundsData)
             assertEquals(
-                    listOf<RoundDistance>(),
+                    null,
                     state.roundSubtypeDistances,
             )
             assertEquals(
-                    outdoorImperialRoundData.distances!!.subList(0, 2),
+                    outdoorImperialRoundData.roundDistances!!.subList(0, 2),
                     state.copy(
-                            selectedRound = outdoorImperialRoundData.getOnlyRound(),
-                            selectedSubtype = outdoorImperialRoundData.subTypes!![0]
+                            selectedRound = outdoorImperialRoundData.round,
+                            selectedSubtype = outdoorImperialRoundData.roundSubTypes!![0]
                     ).roundSubtypeDistances,
             )
         }
@@ -98,11 +65,11 @@ class NewScoreStateUnitTest {
             )
             assertEquals(
                     R.string.units_meters_short,
-                    state.copy(selectedRound = indoorMetricRoundData.getOnlyRound()).distanceUnitStringRes,
+                    state.copy(selectedRound = indoorMetricRoundData.round).distanceUnitStringRes,
             )
             assertEquals(
                     R.string.units_yards_short,
-                    state.copy(selectedRound = outdoorImperialRoundData.getOnlyRound()).distanceUnitStringRes,
+                    state.copy(selectedRound = outdoorImperialRoundData.round).distanceUnitStringRes,
             )
         }
     }
@@ -119,15 +86,15 @@ class NewScoreStateUnitTest {
             assertEquals(
                     null,
                     state.copy(
-                            selectedRound = singleSubtypeRoundData.getOnlyRound(),
-                            selectedSubtype = singleSubtypeRoundData.subTypes!![0]
+                            selectedRound = singleSubtypeRoundData.round,
+                            selectedSubtype = singleSubtypeRoundData.roundSubTypes!![0]
                     ).displayedSubtype,
             )
             assertEquals(
-                    outdoorImperialRoundData.subTypes!![0],
+                    outdoorImperialRoundData.roundSubTypes!![0],
                     state.copy(
-                            selectedRound = outdoorImperialRoundData.getOnlyRound(),
-                            selectedSubtype = outdoorImperialRoundData.subTypes!![0],
+                            selectedRound = outdoorImperialRoundData.round,
+                            selectedSubtype = outdoorImperialRoundData.roundSubTypes!![0],
                     ).displayedSubtype,
             )
         }
@@ -145,10 +112,10 @@ class NewScoreStateUnitTest {
                     NewScoreState(roundsData = roundsData).displayedRound,
             )
             assertEquals(
-                    ResOrActual.fromActual(outdoorImperialRoundData.getOnlyRound().displayName),
+                    ResOrActual.fromActual(outdoorImperialRoundData.round.displayName),
                     NewScoreState(
                             roundsData = roundsData,
-                            selectedRound = outdoorImperialRoundData.getOnlyRound(),
+                            selectedRound = outdoorImperialRoundData.round,
                     ).displayedRound,
             )
         }
@@ -164,7 +131,7 @@ class NewScoreStateUnitTest {
             )
             assertEquals(
                     36 + 24,
-                    state.copy(selectedRound = outdoorImperialRoundData.getOnlyRound()).totalArrowsInSelectedRound,
+                    state.copy(selectedRound = outdoorImperialRoundData.round).totalArrowsInSelectedRound,
             )
         }
     }
@@ -186,14 +153,14 @@ class NewScoreStateUnitTest {
                     false,
                     state.copy(
                             roundBeingEditedArrowsShot = 2,
-                            selectedRound = outdoorImperialRoundData.getOnlyRound(),
+                            selectedRound = outdoorImperialRoundData.round,
                     ).tooManyArrowsWarningShown,
             )
             assertEquals(
                     true,
                     state.copy(
                             roundBeingEditedArrowsShot = 1000,
-                            selectedRound = outdoorImperialRoundData.getOnlyRound(),
+                            selectedRound = outdoorImperialRoundData.round,
                     ).tooManyArrowsWarningShown,
             )
         }

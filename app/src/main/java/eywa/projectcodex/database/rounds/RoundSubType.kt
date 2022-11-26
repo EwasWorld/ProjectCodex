@@ -1,12 +1,25 @@
 package eywa.projectcodex.database.rounds
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
+import eywa.projectcodex.database.rounds.RoundSubType.Companion.TABLE_NAME
 
 /**
  * Distinguishes distance variations of the same round. E.g. Long National, National, Short National, etc.
  */
-@Entity(tableName = "round_sub_types", primaryKeys = ["roundId", "subTypeId"])
+@Entity(
+        tableName = TABLE_NAME,
+        primaryKeys = ["roundId", "subTypeId"],
+        foreignKeys = [
+            ForeignKey(
+                    entity = Round::class,
+                    parentColumns = ["roundId"],
+                    childColumns = ["roundId"],
+                    onDelete = ForeignKey.CASCADE,
+            ),
+        ]
+)
 data class RoundSubType(
         val roundId: Int,
         val subTypeId: Int,
@@ -28,4 +41,8 @@ data class RoundSubType(
 ) : NamedItem {
     override val label: String
         get() = name!!
+
+    companion object {
+        const val TABLE_NAME = "round_sub_types"
+    }
 }

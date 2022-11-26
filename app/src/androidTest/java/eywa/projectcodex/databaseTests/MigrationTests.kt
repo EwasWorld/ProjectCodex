@@ -15,9 +15,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// TODO It is recommended you make a test that goes through of all migrations (i.e. from version 1 through to the current versions)
 /**
  * Note: there are no migration tests from version 1 because there is no exported schema of version 1
+ *
+ * Note: It is recommended you make a test that goes through of all migrations
+ * (i.e. from version 1 through to the current versions)
  */
 @RunWith(AndroidJUnit4::class)
 class MigrationTests {
