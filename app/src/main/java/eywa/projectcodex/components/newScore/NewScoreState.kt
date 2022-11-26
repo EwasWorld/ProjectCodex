@@ -23,7 +23,7 @@ data class NewScoreState(
         val databaseUpdatingProgress: Boolean = false,
         val databaseUpdatingMessage: ResOrActual<String>? = null,
 
-        val roundsData: NewScoreDbData = NewScoreDbData(),
+        val roundsData: DbRoundsData = DbRoundsData(),
 
         /*
          * Dialogs

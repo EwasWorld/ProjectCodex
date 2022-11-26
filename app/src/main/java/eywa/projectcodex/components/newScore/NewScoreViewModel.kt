@@ -16,7 +16,7 @@ import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +50,7 @@ class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewMo
         viewModelScope.launch {
             roundRepo.rounds.asFlow()
                     .combine(roundRepo.roundSubTypes.asFlow()) { rounds, subTypes ->
-                        NewScoreDbData(rounds = rounds, subTypes = subTypes)
+                        DbRoundsData(rounds = rounds, subTypes = subTypes)
                     }
                     .combine(roundRepo.roundArrowCounts.asFlow()) { flowData, arrowCounts ->
                         flowData.copy(arrowCounts = arrowCounts)
@@ -184,6 +184,7 @@ class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewMo
         if (roundBeingEdited == null) return this
 
         return copy(
+                // TODO API dates
                 dateShot = Calendar.Builder().setInstant(roundBeingEdited.dateShot).build(),
                 selectedRound = roundsData.rounds?.find { it.roundId == roundBeingEdited.roundId },
                 selectedSubtype = roundBeingEdited.roundSubTypeId?.let { subType ->
@@ -193,9 +194,3 @@ class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewMo
     }
 }
 
-data class NewScoreDbData(
-        val rounds: List<Round>? = null,
-        val subTypes: List<RoundSubType>? = null,
-        val arrowCounts: List<RoundArrowCount>? = null,
-        val distances: List<RoundDistance>? = null,
-)

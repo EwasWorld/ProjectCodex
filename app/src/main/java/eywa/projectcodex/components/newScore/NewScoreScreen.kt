@@ -557,7 +557,7 @@ class NewScoreScreen : ActionBarHelp {
 class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
     val editingArcherRound = ArcherRound(1, Calendar.getInstance().time, 1)
 
-    val outdoorImperialRoundData = NewScoreDbData(
+    val outdoorImperialRoundData = DbRoundsData(
             rounds = listOf(
                     Round(
                             roundId = 1,
@@ -622,7 +622,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
     )
 
-    val indoorMetricRoundData = NewScoreDbData(
+    val indoorMetricRoundData = DbRoundsData(
             rounds = listOf(
                     Round(
                             roundId = 2,
@@ -669,7 +669,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
     )
 
-    val singleSubtypeRoundData = NewScoreDbData(
+    val singleSubtypeRoundData = DbRoundsData(
             rounds = listOf(
                     Round(
                             roundId = 3,
@@ -743,10 +743,10 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
     )
 
     /**
-     * @return the only round in [NewScoreDbData]
+     * @return the only round in [DbRoundsData]
      * @throws IllegalStateException if it does not have exactly one round
      */
-    fun NewScoreDbData.getOnlyRound() =
+    fun DbRoundsData.getOnlyRound() =
             if ((rounds?.size ?: 0) == 1) {
                 rounds!!.first()
             }
@@ -754,7 +754,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                 throw IllegalStateException("Does not have exactly one round")
             }
 
-    fun NewScoreDbData.plus(other: NewScoreDbData): NewScoreDbData {
+    fun DbRoundsData.plus(other: DbRoundsData): DbRoundsData {
         val rounds = rounds ?: listOf()
         val subTypes = subTypes ?: listOf()
         val arrowCounts = arrowCounts ?: listOf()

@@ -156,6 +156,7 @@ dependencies {
     def mockito_version = "4.0.0"
     implementation("org.mockito:mockito-core:$mockito_version")
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_version"
 
     def archTestingVersion = "2.1.0"
     testImplementation "androidx.arch.core:core-testing:$archTestingVersion"
