@@ -21,6 +21,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.R
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.archeryObjects.End
@@ -38,7 +40,7 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.*
@@ -47,6 +49,7 @@ import org.junit.Test
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class ScorePadInstrumentedTest {
     companion object {
@@ -60,6 +63,9 @@ class ScorePadInstrumentedTest {
 
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(60)
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
 
     private val endSize = 6
 
@@ -168,6 +174,7 @@ class ScorePadInstrumentedTest {
     private fun setupActivity(arrowsForDatabase: List<ArrowValue>? = null, waitForRow: Int) {
         check(fragScenario == null) { "Fragment scenario already in use for this test" }
 
+        hiltRule.inject()
         arrows = arrowsForDatabase ?: TestUtils.generateArrowValues(1, 36)
         activityScenario = composeTestRule.activityRule.scenario
         activityScenario!!.onActivity {

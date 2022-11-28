@@ -12,6 +12,8 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.evrencoskun.tableview.TableView
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.R
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.utils.SharedPrefs
@@ -32,7 +34,7 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.composeHelpRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -46,6 +48,7 @@ import kotlin.reflect.jvm.jvmName
 /**
  * These tests span more than one screen and require an [ActivityScenario]
  */
+@HiltAndroidTest
 class LargeScaleInstrumentedTest {
     companion object {
         init {
@@ -59,6 +62,9 @@ class LargeScaleInstrumentedTest {
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(120)
 
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
     private lateinit var navController: NavController
@@ -69,6 +75,7 @@ class LargeScaleInstrumentedTest {
 
     @Before
     fun setup() {
+        hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
 
         // Note clearing the database instance after launching the activity causes issues with live data
@@ -116,7 +123,6 @@ class LargeScaleInstrumentedTest {
             clickNewScore()
         }
 
-        CustomConditionWaiter.waitForUpdateRoundsTaskToFinish(scenario)
         R.id.spinner_create_round__round.clickSpinnerItem("Short Metric")
         R.id.button_create_round__submit.click()
         CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))

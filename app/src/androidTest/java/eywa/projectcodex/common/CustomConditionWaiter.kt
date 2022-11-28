@@ -3,8 +3,6 @@ package eywa.projectcodex.common
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.FailureHandler
@@ -19,7 +17,6 @@ import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -28,8 +25,6 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
-import org.junit.Assert
-import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KClass
 
 class CustomConditionWaiter {
@@ -268,36 +263,6 @@ class CustomConditionWaiter {
          */
         fun waitFor(milli: Int) {
             waitFor(milli.toLong())
-        }
-
-        fun waitForUpdateRoundsTaskToFinish(scenario: ActivityScenario<MainActivity>) {
-            waitForUpdateRoundsTaskToFinish(activityScenario = scenario)
-        }
-
-        fun waitForUpdateRoundsTaskToFinish(scenario: FragmentScenario<*>) {
-            waitForUpdateRoundsTaskToFinish(fragmentScenario = scenario as FragmentScenario<Fragment>)
-        }
-
-        private fun waitForUpdateRoundsTaskToFinish(
-                activityScenario: ActivityScenario<MainActivity>? = null,
-                fragmentScenario: FragmentScenario<Fragment>? = null
-        ) {
-            check(activityScenario == null || fragmentScenario == null) { "Either activity or fragment scenario must be null" }
-            check(activityScenario != null || fragmentScenario != null) { "Activity and fragment scenario cannot both be null" }
-            val state = UpdateDefaultRounds.taskProgress.getState()
-            val completeLatch = CountDownLatch(1)
-            val observer = Observer { taskState: UpdateDefaultRounds.UpdateTaskState ->
-                if (taskState.isCompletedState) {
-                    completeLatch.countDown()
-                }
-            }
-            activityScenario?.let { it.onActivity { state.observeForever(observer) } }
-            fragmentScenario?.let { it.onFragment { state.observeForever(observer) } }
-            if (!completeLatch.await(latchAwaitTimeSeconds, latchAwaitTimeUnit)) {
-                Assert.fail("Update task did not finish")
-            }
-            activityScenario?.let { it.onActivity { state.removeObserver(observer) } }
-            fragmentScenario?.let { it.onFragment { state.removeObserver(observer) } }
         }
 
         fun waitForComposeCondition(description: String? = null, assertion: () -> Unit) {

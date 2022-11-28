@@ -19,7 +19,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule

@@ -7,9 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.R
-import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.common.utils.UpdateDefaultRounds
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScoreViewModel
 import eywa.projectcodex.components.newScore.NewScoreEffect.PopBackstack
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
@@ -30,7 +28,10 @@ import javax.inject.Inject
  * @see ArcherRoundScoreViewModel
  */
 @HiltViewModel
-class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewModel() {
+class NewScoreViewModel @Inject constructor(
+        val db: ScoresRoomDatabase,
+        updateDefaultRoundsTask: UpdateDefaultRoundsTask,
+) : ViewModel() {
 
     var state by mutableStateOf(NewScoreState())
         private set
@@ -51,20 +52,9 @@ class NewScoreViewModel @Inject constructor(val db: ScoresRoomDatabase) : ViewMo
             roundRepo.fullRoundsInfo.collect { state = state.copy(roundsData = it).resetEditInfo() }
         }
         viewModelScope.launch {
-            UpdateDefaultRounds.taskProgress.getState().asFlow()
-                    .combine(UpdateDefaultRounds.taskProgress.getMessage().asFlow()) { a, b -> a to b }
-                    .collect { (updateState, message) ->
-                        state = state.copy(
-                                databaseUpdatingProgress = updateState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS,
-                                databaseUpdatingMessage = when {
-                                    message != null -> ResOrActual.fromActual(message)
-                                    updateState == UpdateDefaultRounds.UpdateTaskState.IN_PROGRESS -> {
-                                        ResOrActual.fromRes(R.string.about__update_default_rounds_in_progress)
-                                    }
-                                    else -> null
-                                }
-                        ).resetEditInfo()
-                    }
+            updateDefaultRoundsTask.state.collect {
+                state = state.copy(updateDefaultRoundsState = it).resetEditInfo()
+            }
         }
     }
 

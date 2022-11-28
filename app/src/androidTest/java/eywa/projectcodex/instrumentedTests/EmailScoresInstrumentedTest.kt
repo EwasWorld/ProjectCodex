@@ -14,6 +14,8 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.DateTimeFormat
@@ -26,7 +28,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -39,6 +41,7 @@ import org.junit.Test
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class EmailScoresInstrumentedTest {
     @get:Rule
@@ -46,6 +49,9 @@ class EmailScoresInstrumentedTest {
 
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(60)
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var navController: NavController
@@ -121,6 +127,7 @@ class EmailScoresInstrumentedTest {
 
     @Before
     fun setup() {
+        hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
             db = LocalDatabaseDaggerModule.scoresRoomDatabase

@@ -2,6 +2,7 @@ package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.FullRoundInfo
@@ -19,10 +20,9 @@ data class NewScoreState(
          */
         val roundBeingEditedArrowsShot: Int? = null,
         /**
-         * True if the database currently being updated. Should block round selection while this is true
+         * Should block round selection while this is true
          */
-        val databaseUpdatingProgress: Boolean = false,
-        val databaseUpdatingMessage: ResOrActual<String>? = null,
+        val updateDefaultRoundsState: UpdateDefaultRoundsState? = null,
 
         val roundsData: List<FullRoundInfo>? = null,
 
@@ -42,6 +42,18 @@ data class NewScoreState(
 ) {
     val isEditing
         get() = roundBeingEdited != null
+
+    val isUpdateDefaultRoundsInProgress
+        get() = when (updateDefaultRoundsState) {
+            UpdateDefaultRoundsState.Initialising,
+            is UpdateDefaultRoundsState.StartProcessingNew,
+            is UpdateDefaultRoundsState.DeletingOld -> true
+
+            null,
+            is UpdateDefaultRoundsState.TemporaryError,
+            is UpdateDefaultRoundsState.InternalError,
+            is UpdateDefaultRoundsState.Complete -> false
+        }
 
     val selectedRoundInfo
         get() = selectedRound?.roundId?.let { roundId ->

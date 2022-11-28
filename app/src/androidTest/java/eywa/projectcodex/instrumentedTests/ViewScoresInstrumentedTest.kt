@@ -4,6 +4,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
@@ -13,7 +15,6 @@ import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -22,6 +23,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -34,9 +36,13 @@ import org.junit.rules.Timeout
 import java.sql.Date
 import java.util.*
 
+@HiltAndroidTest
 class ViewScoresInstrumentedTest {
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(20)
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
@@ -53,6 +59,7 @@ class ViewScoresInstrumentedTest {
 
     @Before
     fun beforeEach() {
+        hiltRule.inject()
         archerRounds = listOf()
         rounds = listOf()
         roundSubTypes = listOf()

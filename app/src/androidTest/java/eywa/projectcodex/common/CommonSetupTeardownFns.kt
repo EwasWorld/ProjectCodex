@@ -5,9 +5,8 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import eywa.projectcodex.common.utils.UpdateDefaultRounds
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 
 class CommonSetupTeardownFns {
     companion object {
@@ -29,17 +28,10 @@ class CommonSetupTeardownFns {
         }
 
         /**
-         * - Ensures [UpdateDefaultRounds] is complete
          * - Clears the database instance
          * - Resets shared preferences
          */
         private fun teardownScenarioWithoutClosing(scenario: ActivityScenario<MainActivity>) {
-            /*
-             * Wait for the update rounds task to complete so it doesn't interfere with other tests
-             * It runs in a separate thread which will not be stopped on scenario close
-             */
-            CustomConditionWaiter.waitForUpdateRoundsTaskToFinish(scenario)
-
             /*
              * General cleanup
              */

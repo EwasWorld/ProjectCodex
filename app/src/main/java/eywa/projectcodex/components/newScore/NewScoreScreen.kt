@@ -38,6 +38,8 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.Sorting
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
 import eywa.projectcodex.common.utils.get
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
+import eywa.projectcodex.common.utils.updateDefaultRounds.asDisplayString
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundFilter
@@ -85,7 +87,7 @@ class NewScoreScreen : ActionBarHelp {
         ) {
             DateRow(state, listener)
 
-            if (state.databaseUpdatingProgress) {
+            if (state.isUpdateDefaultRoundsInProgress) {
                 Text(
                         text = stringResource(R.string.create_round__default_rounds_updating_warning),
                         style = CodexTypography.NORMAL.copy(
@@ -94,12 +96,10 @@ class NewScoreScreen : ActionBarHelp {
                         ),
                         modifier = Modifier.testTag(TestTag.DATABASE_WARNING)
                 )
-                if (state.databaseUpdatingMessage != null) {
-                    DataRow(
-                            title = R.string.create_round__default_rounds_updating_warning_status,
-                            extraText = state.databaseUpdatingMessage.get(),
-                    )
-                }
+                DataRow(
+                        title = R.string.create_round__default_rounds_updating_warning_status,
+                        extraText = state.updateDefaultRoundsState.asDisplayString(LocalContext.current.resources),
+                )
             }
             else {
                 DataRow(
@@ -719,7 +719,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             NewScoreState(roundsData = roundsData, roundBeingEdited = editingArcherRound),
 
             // DbInProgress
-            NewScoreState(roundsData = roundsData, databaseUpdatingProgress = true),
+            NewScoreState(roundsData = roundsData, updateDefaultRoundsState = UpdateDefaultRoundsState.DeletingOld(1)),
 
             // TooManyArrows
             NewScoreState(

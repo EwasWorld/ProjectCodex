@@ -10,13 +10,15 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.R
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -30,6 +32,7 @@ import java.util.*
 
 
 // TODO FIX
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class NewScoreInstrumentedTest {
     @get:Rule
@@ -37,6 +40,9 @@ class NewScoreInstrumentedTest {
 
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(60)
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
 
     // TODO Check date is within 1min of current date
     private lateinit var scenario: ActivityScenario<MainActivity>
@@ -67,6 +73,7 @@ class NewScoreInstrumentedTest {
         val args = Bundle()
         args.putInt("archerRoundId", archerRoundId)
 
+        hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
             db = LocalDatabaseDaggerModule.scoresRoomDatabase

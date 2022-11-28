@@ -1,13 +1,14 @@
-package eywa.projectcodex.database
+package eywa.projectcodex.hiltModules
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import eywa.projectcodex.database.DatabaseMigrations
+import eywa.projectcodex.database.ScoresRoomDatabase
 
 import javax.inject.Singleton
 

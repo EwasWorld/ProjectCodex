@@ -8,7 +8,6 @@ import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -27,8 +26,10 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcase
-import eywa.projectcodex.common.utils.*
-import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
+import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
+import eywa.projectcodex.common.utils.ToastSpamPrevention
+import eywa.projectcodex.common.utils.findInstanceOf
+import eywa.projectcodex.common.utils.getColourResource
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.CloseHelpShowcase
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.GoToNextHelpShowcaseItem
@@ -42,7 +43,6 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var navHostFragment: NavHostFragment
     private val viewModel: MainActivityViewModel by viewModels()
-    private var defaultRoundsVersion = -1
 
     /**
      * Stores destination IDs of fragments which will be returned to when the back button is pressed
@@ -50,18 +50,12 @@ class MainActivity : AppCompatActivity() {
      */
     private val customBackStack = mutableListOf<Int>()
 
-    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
 
-        // Ensure default rounds are up to date
-        val sharedPreferences = this.getSharedPreferences()
-        if (defaultRoundsVersion < 0) {
-            defaultRoundsVersion = sharedPreferences.getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
-            viewModel.updateDefaultRounds(resources, sharedPreferences)
-        }
+        viewModel.updateDefaultRounds()
 
         findViewById<ComposeView>(R.id.content_main_compose).apply {
             setContent {

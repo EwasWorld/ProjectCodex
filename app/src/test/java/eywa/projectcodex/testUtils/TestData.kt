@@ -1,8 +1,8 @@
 package eywa.projectcodex.testUtils
 
 import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.common.utils.DefaultRoundInfo
-import eywa.projectcodex.common.utils.DefaultRoundInfoHelper.Companion.formatNameString
+import eywa.projectcodex.common.utils.updateDefaultRounds.DefaultRoundInfoHelper.Companion.formatToDbName
+import eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects.DefaultRoundInfo
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -180,7 +180,7 @@ class TestData {
             rounds.add(
                     Round(
                             roundId,
-                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            formatToDbName(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             true, false, listOf(), false, false
                     )
             )
@@ -188,7 +188,7 @@ class TestData {
             rounds.add(
                     Round(
                             roundId,
-                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            formatToDbName(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             true, true, listOf(), false, false
                     )
             )
@@ -196,7 +196,7 @@ class TestData {
             rounds.add(
                     Round(
                             roundId,
-                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            formatToDbName(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             false, false, listOf(), false, false
                     )
             )
@@ -204,7 +204,7 @@ class TestData {
             rounds.add(
                     Round(
                             roundId,
-                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            formatToDbName(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             false, true, listOf(), true, false
                     )
             )
@@ -212,20 +212,20 @@ class TestData {
             rounds.add(
                     Round(
                             roundId,
-                            formatNameString(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
+                            formatToDbName(CORE_ROUND_NAMES[roundId - 1]), CORE_ROUND_NAMES[roundId - 1],
                             false, true, listOf(), true, true
                     )
             )
             roundId++
             rounds.add(
-                    Round(roundId, formatNameString("00"), "00", false, true, CORE_ROUND_FACES.asList(), true, false)
+                    Round(roundId, formatToDbName("00"), "00", false, true, CORE_ROUND_FACES.asList(), true, false)
             )
 
             while (rounds.size < size) {
                 var name: String
                 do {
                     name = Random.nextInt(1000).toString()
-                } while (rounds.find { formatNameString(it.displayName) == name } != null)
+                } while (rounds.find { formatToDbName(it.displayName) == name } != null)
 
                 roundId++
                 rounds.add(

@@ -6,11 +6,11 @@
     <string name="about__app_version_label">App Version:</string>
     <string name="about__update_default_rounds_progress_label">Rounds status:</string>
     <string name="about__update_default_rounds_initialising">Initialising…</string>
-    <string name="about__update_default_rounds_progress">Processing round {current} of {total}</string>
+    <string name="about__update_default_rounds_progress">Processing round %1$d of %2$d</string> <!-- Processing round 1 of 10 -->
     <string name="about__update_default_rounds_deleting">Cleaning stale rounds</string>
-    <string name="about__update_default_rounds_up_to_date">Already up to date</string>
+    <string name="about__update_default_rounds_up_to_date">Up to date</string>
     <string name="about__update_default_rounds_not_started">Not started</string>
-    <string name="about__update_default_rounds_in_progress">In progress</string>
 
+    <string name="err_about__update_default_rounds_failed">Internal error occurred, please contact the developer</string>
     <string name="err_about__update_default_rounds_no_lock">Update default rounds failed. Database is currently in use, try again later</string>
 </resources>

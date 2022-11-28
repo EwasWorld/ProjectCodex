@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.newScore
 
 import androidx.lifecycle.MutableLiveData
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundDao
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
@@ -15,9 +16,10 @@ import org.mockito.kotlin.mock
 class NewScoreViewModelUnitTest {
     private lateinit var sut: NewScoreViewModel
     private val dbMock = DatabaseMock()
+    private val updateDefaultRoundsTask: UpdateDefaultRoundsTask = mock { }
 
     fun setup() {
-        sut = NewScoreViewModel(dbMock.db)
+//        sut = NewScoreViewModel(dbMock.db, updateDefaultRoundsTask)
     }
 
     @Test

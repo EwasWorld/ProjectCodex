@@ -1,4 +1,4 @@
-package eywa.projectcodex.database
+package eywa.projectcodex.hiltModules
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.components.app.App
+import eywa.projectcodex.database.ScoresRoomDatabase
 import javax.inject.Singleton
 
 

@@ -1,6 +1,5 @@
 package eywa.projectcodex.common.utils
 
-import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.VisibleForTesting
@@ -16,7 +15,7 @@ enum class SharedPrefs(val key: String) {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         var sharedPreferencesCustomName: String? = null
 
-        fun Activity.getSharedPreferences(): SharedPreferences = this.getSharedPreferences(
+        fun Context.getSharedPreferences(): SharedPreferences = this.getSharedPreferences(
                 sharedPreferencesCustomName ?: this.resources.getString(R.string.app_name),
                 Context.MODE_PRIVATE
         )

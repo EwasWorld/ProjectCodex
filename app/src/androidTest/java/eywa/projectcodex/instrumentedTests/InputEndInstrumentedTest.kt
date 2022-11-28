@@ -14,6 +14,8 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.R
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.utils.SharedPrefs
@@ -23,12 +25,13 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
@@ -40,6 +43,7 @@ import org.junit.runner.RunWith
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class InputEndInstrumentedTest {
     companion object {
@@ -51,6 +55,9 @@ class InputEndInstrumentedTest {
 
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(60)
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: FragmentScenario<InputEndFragment>
     private lateinit var navController: TestNavHostController
@@ -129,6 +136,11 @@ class InputEndInstrumentedTest {
         scenario.onFragment {
             Navigation.setViewNavController(it.requireView(), navController)
         }
+    }
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
     }
 
     @After

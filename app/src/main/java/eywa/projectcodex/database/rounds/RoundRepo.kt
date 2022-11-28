@@ -1,12 +1,10 @@
 package eywa.projectcodex.database.rounds
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import kotlinx.coroutines.flow.Flow
-import java.util.concurrent.locks.ReentrantLock
 
 /**
  * @see ArrowValuesRepo
@@ -15,7 +13,7 @@ class RoundRepo(
         private val roundDao: RoundDao,
         private val roundArrowCountDao: RoundArrowCountDao,
         private val roundSubTypeDao: RoundSubTypeDao,
-        private val roundDistanceDao: RoundDistanceDao
+        private val roundDistanceDao: RoundDistanceDao,
 ) {
     val fullRoundsInfo: Flow<List<FullRoundInfo>> = roundDao.getAllRoundsFullInfo()
     val rounds: LiveData<List<Round>> = roundDao.getAllRounds()
@@ -27,7 +25,7 @@ class RoundRepo(
             db.roundDao(),
             db.roundArrowCountDao(),
             db.roundSubTypeDao(),
-            db.roundDistanceDao()
+            db.roundDistanceDao(),
     )
 
     fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
@@ -51,8 +49,6 @@ class RoundRepo(
      * with the same [Round.roundId]
      */
     suspend fun updateRounds(updateItems: Map<Any, UpdateType>) {
-        check(repositoryWriteLock.isHeldByCurrentThread) { "Repository write lock not acquired" }
-
         val newRounds = updateItems.filter { it.value == UpdateType.NEW && it.key is Round }
         newRounds.forEach { newRound ->
             require(
@@ -82,13 +78,6 @@ class RoundRepo(
 
 
     companion object {
-        var repositoryWriteLock = ReentrantLock()
-
-        @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-        fun reCreateLock() {
-            repositoryWriteLock = ReentrantLock()
-        }
-
         /**
          * Sort [Round]s to be at the start
          */
