@@ -9,7 +9,7 @@
 
     <!-- Extra info -->
     <string name="input_end__round_indicator_label">Remaining Arrows in Round:</string>
-    <string name="input_end__round_indicator_at">at</string>
+    <string name="input_end__round_indicator_at">%1$d at %2$d%3$s</string> <!-- "60 at 100yd" i.e. 60 arrows remaining to be shot at 100 yards -->
     <string name="input_end__round_complete">Round Complete</string>
     <string name="input_end__archer_name_header">Archer</string>
     <string name="input_end__archer_score_header">Score</string>
@@ -18,11 +18,11 @@
 
     <!-- Edit end -->
     <string name="edit_end__title">Edit End</string>
-    <string name="edit_end__edit_info">Editing end {end number}</string>
+    <string name="edit_end__edit_info">Editing end %1$d</string> <!-- Editing end 4 -->
 
     <!-- Insert end -->
     <string name="insert_end__title">Insert End</string>
-    <string name="insert_end__info">Inserting end\nbetween ends {end before} and {end after}</string>
+    <string name="insert_end__info">Inserting end\nbetween ends %1$d and %2$d</string> <!-- Inserting end between ends 2 and 3 -->
     <string name="insert_end__info_at_start">Inserting end\nat the beginning</string>
 
     <!-- Errors -->

@@ -13,6 +13,16 @@ fun TextStyle.asClickableStyle() = copy(
 )
 
 object CodexTypography {
+    val X_LARGE = TextStyle.Default.copy(
+            fontSize = 40.sp,
+            fontWeight = FontWeight(400),
+    )
+
+    val LARGE = TextStyle.Default.copy(
+            fontSize = 30.sp,
+            fontWeight = FontWeight(400),
+    )
+
     val NORMAL = TextStyle.Default.copy(
             fontSize = 20.sp,
             fontWeight = FontWeight(400),
@@ -28,10 +38,8 @@ object CodexTypography {
 
     val DIALOG_TEXT = NORMAL.copy(
             fontSize = 14.sp,
-    )
-
-    val DIALOG_BUTTON = NORMAL.copy(
-            fontSize = 14.sp,
             fontWeight = FontWeight(500),
     )
+
+    val TEXT_BUTTON = NORMAL
 }

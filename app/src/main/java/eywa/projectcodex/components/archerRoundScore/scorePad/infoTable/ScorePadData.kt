@@ -13,6 +13,7 @@ import kotlin.math.min
 /**
  * @see calculateScorePadData
  */
+@Deprecated("Rewritten in ScorePadDataNew")
 class ScorePadData(
         arrows: List<ArrowValue>,
         endSize: Int,

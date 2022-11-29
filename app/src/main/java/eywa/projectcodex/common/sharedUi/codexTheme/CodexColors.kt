@@ -35,6 +35,8 @@ data class CodexThemeColors(
         val errorOnAppBackground: Color = CodexColors.ERROR_TEXT,
 
         val listItemOnAppBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
+        val listHeaderItemOnAppBackground: Color = Color(0xFFBCFFE8),
+        val listAccentRowItemOnAppBackground: Color = Color(0xFFDEF6FF),
         val listItemOnAppBackgroundBorder: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onListItemAppOnBackground: Color = Color.Black,
 
@@ -63,6 +65,7 @@ data class CodexThemeColors(
         val onFilledButton: Color = Color.White,
         val floatingActions: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onFloatingActions: Color = Color.White,
+        val textButtonOnPrimary: Color = Color.Black,
 
         // Chips
         val chipOnPrimarySelected: Color = CodexColors.COLOR_PRIMARY_LIGHT,
@@ -78,7 +81,21 @@ data class CodexThemeColors(
         val pillSelectorNotSelected: Color = Color.White,
         val onPillSelectorNotSelected: Color = Color.Black,
         val pillSelectorBorder: Color = Color.LightGray,
-)
+
+        val targetFaceGreen: Color = CodexColors.TARGET_FACE_GREEN,
+        val onTargetFaceGreen: Color = Color.Black,
+        val targetFaceWhite: Color = CodexColors.TARGET_FACE_WHITE,
+        val onTargetFaceWhite: Color = Color.Black,
+        val targetFaceBlack: Color = CodexColors.TARGET_FACE_BLACK,
+        val onTargetFaceBlack: Color = Color.White,
+        val targetFaceBlue: Color = CodexColors.TARGET_FACE_BLUE,
+        val onTargetFaceBlue: Color = Color.Black,
+        val targetFaceRed: Color = CodexColors.TARGET_FACE_RED,
+        val onTargetFaceRed: Color = Color.Black,
+        val targetFaceGold: Color = CodexColors.TARGET_FACE_GOLD,
+        val onTargetFaceGold: Color = Color.Black,
+
+        )
 
 object CodexColors {
     val COLOR_PRIMARY = Color(Raw.COLOR_PRIMARY)

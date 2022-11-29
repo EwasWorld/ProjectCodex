@@ -57,6 +57,7 @@ abstract class ColouredButton : CodexButtonStyle()
 
 abstract class TextButton : CodexButtonStyle() {
     final override val hasElevation = false
+    override val textStyle: TextStyle = CodexTypography.TEXT_BUTTON
 
     @Composable
     override fun getBackgroundColor() = Color.Transparent
@@ -78,16 +79,17 @@ sealed class CodexButtonDefaults : CodexButtonStyle() {
     }
 
     object DialogPositiveButton : TextButton() {
-        override val textStyle: TextStyle = CodexTypography.DIALOG_BUTTON
-
         @Composable
         override fun getTextColor() = CodexTheme.colors.dialogPositiveText
     }
 
     object DialogNegativeButton : TextButton() {
-        override val textStyle: TextStyle = CodexTypography.DIALOG_BUTTON
-
         @Composable
         override fun getTextColor() = CodexTheme.colors.dialogNegativeText
+    }
+
+    object DefaultTextButton : TextButton() {
+        @Composable
+        override fun getTextColor() = CodexTheme.colors.textButtonOnPrimary
     }
 }

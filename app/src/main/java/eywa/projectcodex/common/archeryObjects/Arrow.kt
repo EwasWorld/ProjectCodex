@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.archeryObjects
 
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrowValue.arrowScoreAsString
 
 /**
  * @param arrow the arrow value as a string
@@ -28,6 +29,7 @@ fun isX(arrowScore: String): Boolean {
     return arrowScore == "X" || arrowScore == "x"
 }
 
+@Deprecated("Use arrowScoreAs String")
 fun getArrowValueString(score: Int, isX: Boolean): String {
     // TODO Hardcoded string
     return when {
@@ -50,4 +52,6 @@ class Arrow(val score: Int, val isX: Boolean) {
     fun toArrowValue(archerRoundId: Int, arrowNumber: Int): ArrowValue {
         return ArrowValue(archerRoundId, arrowNumber, score, isX)
     }
+
+    fun asString() = arrowScoreAsString(score, isX)
 }

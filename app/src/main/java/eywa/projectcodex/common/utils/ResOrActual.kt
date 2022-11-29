@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.utils
 
+import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
@@ -9,7 +10,8 @@ class ResOrActual<T> private constructor(val res: Int?, val actual: T?) {
     }
 
     @Composable
-    fun get(getFromRes: @Composable (Int) -> T) = actual ?: getFromRes(res!!)
+    internal fun getComposable(getFromRes: @Composable (Int) -> T) = actual ?: getFromRes(res!!)
+    internal fun get(getFromRes: (Int) -> T) = actual ?: getFromRes(res!!)
 
     override fun equals(other: Any?): Boolean {
         if (other !is ResOrActual<*>) return false
@@ -29,4 +31,5 @@ class ResOrActual<T> private constructor(val res: Int?, val actual: T?) {
 }
 
 @Composable
-fun ResOrActual<String>.get() = get(getFromRes = { stringResource(it) })
+fun ResOrActual<String>.get() = getComposable(getFromRes = { stringResource(it) })
+fun ResOrActual<String>.get(resources: Resources) = get(getFromRes = { resources.getString(it) })

@@ -8,6 +8,7 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.rounds.distanceUnitStringRes
 import java.util.*
 
 data class NewScoreState(
@@ -40,11 +41,10 @@ data class NewScoreState(
         val selectedRound: Round? = null,
         val selectedSubtype: RoundSubType? = null,
 ) {
-    val isEditing
-        get() = roundBeingEdited != null
+    val isEditing by lazy { roundBeingEdited != null }
 
-    val isUpdateDefaultRoundsInProgress
-        get() = when (updateDefaultRoundsState) {
+    val isUpdateDefaultRoundsInProgress by lazy {
+        when (updateDefaultRoundsState) {
             UpdateDefaultRoundsState.Initialising,
             is UpdateDefaultRoundsState.StartProcessingNew,
             is UpdateDefaultRoundsState.DeletingOld -> true
@@ -54,68 +54,69 @@ data class NewScoreState(
             is UpdateDefaultRoundsState.InternalError,
             is UpdateDefaultRoundsState.Complete -> false
         }
+    }
 
-    val selectedRoundInfo
-        get() = selectedRound?.roundId?.let { roundId ->
+    val selectedRoundInfo by lazy {
+        selectedRound?.roundId?.let { roundId ->
             roundsData?.find { it.round.roundId == roundId }
         }
+    }
 
     /**
      * All distances for [selectedSubtype]
      */
-    val roundSubtypeDistances
-        get() = selectedSubtype?.subTypeId?.let { subtypeId ->
+    val roundSubtypeDistances by lazy {
+        selectedSubtype?.subTypeId?.let { subtypeId ->
             selectedRoundInfo?.roundDistances?.filter { it.subTypeId == subtypeId }
         } ?: selectedRoundInfo?.roundDistances
+    }
 
     /**
      * Resource id of the unit for [selectedRound]'s distances (e.g. yd/m)
      */
-    val distanceUnitStringRes
-        get() = when {
-            selectedRound == null -> null
-            selectedRound.isMetric -> R.string.units_meters_short
-            else -> R.string.units_yards_short
-        }
+    val distanceUnitStringRes by lazy { selectedRound?.distanceUnitStringRes() }
 
     /**
      * The subtype to display on the screen. No subtype is shown if no round selected or if there's only one subtype
      */
-    val displayedSubtype
-        get() = when {
+    val displayedSubtype by lazy {
+        when {
             selectedRound != null && (selectedRoundInfo?.roundSubTypes?.size ?: 0) > 1 -> selectedSubtype!!
             else -> null
         }
+    }
 
     /**
      * The round to display on the screen. Round name when one is selected, 'No Round' if no round is selected,
      * 'No rounds in database' if nothing in the database
      * TODO Turn no rounds into a different field and show a warning message instead
      */
-    val displayedRound
-        get() = when {
+    val displayedRound by lazy {
+        when {
             selectedRound != null -> ResOrActual.fromActual(selectedRound.displayName)
             roundsData.isNullOrEmpty() -> ResOrActual.fromRes(R.string.create_round__no_rounds_found)
             else -> ResOrActual.fromRes(R.string.create_round__no_round)
         }
+    }
 
     /**
      * Rounds to be displayed on the round select dialog. Filtered by [enabledRoundFilters]
      */
-    val roundsOnSelectDialog
-        get() = enabledRoundFilters.filter(roundsData?.map { it.round } ?: listOf())
+    val roundsOnSelectDialog by lazy {
+        enabledRoundFilters.filter(roundsData?.map { it.round } ?: listOf())
+    }
 
     /**
      * Number of arrows to be shot for [selectedRound]
      */
-    val totalArrowsInSelectedRound
-        get() = selectedRoundInfo?.roundArrowCounts?.sumOf { it.arrowCount }
+    val totalArrowsInSelectedRound by lazy { selectedRoundInfo?.roundArrowCounts?.sumOf { it.arrowCount } }
 
     /**
      * True if there are more [roundBeingEditedArrowsShot] than there are [totalArrowsInSelectedRound]
      */
-    val tooManyArrowsWarningShown
-        get() = selectedRound != null && (roundBeingEditedArrowsShot ?: 0) > totalArrowsInSelectedRound!!
+    val tooManyArrowsWarningShown by lazy {
+        selectedRound != null && (roundBeingEditedArrowsShot ?: 0) > totalArrowsInSelectedRound!!
+    }
 
     /**
      * Convert the information on the screen to an [ArcherRound].

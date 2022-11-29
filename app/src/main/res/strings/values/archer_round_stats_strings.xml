@@ -2,14 +2,14 @@
 <resources>
     <string name="archer_round_stats__title">Round Statistics</string>
 
-    <string name="archer_round_stats__date">Date shot</string>
-    <string name="archer_round_stats__round">Round</string>
-    <string name="archer_round_stats__hits">Hits</string>
-    <string name="archer_round_stats__score">Score</string>
-    <string name="archer_round_stats__golds">Golds</string>
-    <string name="archer_round_stats__total_arrows">Total arrows shot</string>
-    <string name="archer_round_stats__remaining_arrows">Remaining arrows</string>
-    <string name="archer_round_stats__surplus_arrows">Surplus arrows</string>
-    <string name="archer_round_stats__handicap">Handicap</string>
-    <string name="archer_round_stats__predicted_score">Predicted score</string>
+    <string name="archer_round_stats__date">Date shot:</string>
+    <string name="archer_round_stats__round">Round:</string>
+    <string name="archer_round_stats__hits">Hits:</string>
+    <string name="archer_round_stats__score">Score:</string>
+    <string name="archer_round_stats__golds">Golds:</string>
+    <string name="archer_round_stats__total_arrows">Total arrows shot:</string>
+    <string name="archer_round_stats__remaining_arrows">Remaining arrows:</string>
+    <string name="archer_round_stats__surplus_arrows">Surplus arrows:</string>
+    <string name="archer_round_stats__handicap">Handicap:</string>
+    <string name="archer_round_stats__predicted_score">Predicted score:</string>
 </resources>
