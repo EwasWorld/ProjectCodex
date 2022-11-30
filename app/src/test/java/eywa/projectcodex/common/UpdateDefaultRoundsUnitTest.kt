@@ -26,8 +26,6 @@ import kotlin.math.roundToLong
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UpdateDefaultRoundsUnitTest {
-    // TODO_CURRENT See unit style tests in android test too
-
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var sut: UpdateDefaultRoundsTask
 

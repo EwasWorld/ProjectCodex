@@ -17,7 +17,9 @@ fun EditEndScreen(
 ) {
     InputEndScaffold(
             showReset = true,
-            state = state,
+            inputArrows = state.inputArrows,
+            round = state.fullArcherRoundInfo.round,
+            endSize = state.inputEndSize,
             contentText = stringResource(R.string.edit_end__edit_info, state.isEditingEndNumber!! + 1),
             showCancelButton = true,
             listener = listener,

@@ -10,7 +10,15 @@ object ArcherRoundPreviewHelper {
     val provider = NewScoreStatePreviewProvider()
     val round = provider.outdoorImperialRoundData
 
+    val inputArrows = listOf(
+            Arrow(10, true),
+            Arrow(10, false),
+            Arrow(3, false),
+            Arrow(0, false),
+    )
+
     val SIMPLE = ArcherRoundState(
+            currentScreen = ArcherRoundScreen.INPUT_END,
             fullArcherRoundInfo = FullArcherRoundInfo(
                     archerRound = provider.editingArcherRound,
                     arrows = List(50) { ArrowValue(1, it, 7, false) },
@@ -20,12 +28,7 @@ object ArcherRoundPreviewHelper {
                     allRoundDistances = round.roundDistances,
             ),
             goldsType = GoldsType.NINES,
-            inputArrows = listOf(
-                    Arrow(10, true),
-                    Arrow(10, false),
-                    Arrow(3, false),
-                    Arrow(0, false),
-            ),
+            inputArrows = inputArrows,
     )
 
     val FEW_ARROWS = SIMPLE.copy(

@@ -18,7 +18,7 @@ sealed class ScorePadRow {
     abstract val golds: Int
     open val runningTotal: Int? = null
 
-    abstract fun getRowHeader(): Int?
+    abstract fun getRowHeader(): ResOrActual<String>
     abstract fun getContent(resources: Resources): String
 
     fun getContent(columnHeader: ScorePadDataNew.ColumnHeader, resources: Resources) = when (columnHeader) {
@@ -30,15 +30,19 @@ sealed class ScorePadRow {
                 ?: resources.getString(R.string.score_pad__running_total_placeholder)
     }
 
-    data class General(
+    /**
+     * @param endNumber 1-indexed
+     */
+    data class End(
+            val endNumber: Int,
             val arrowValues: List<ResOrActual<String>>,
             override val hits: Int,
             override val score: Int,
             override val golds: Int,
             override val runningTotal: Int,
     ) : ScorePadRow() {
-        constructor(arrows: List<ArrowValue>, goldsType: GoldsType, runningTotal: Int)
-                : this(
+        constructor(endNumber: Int, arrows: List<ArrowValue>, goldsType: GoldsType, runningTotal: Int) : this(
+                endNumber,
                 arrows.map { it.asString() },
                 arrows.getHits(),
                 arrows.getScore(),
@@ -49,7 +53,7 @@ sealed class ScorePadRow {
         override fun getContent(resources: Resources): String = arrowValues
                 .joinToString(resources.getString(R.string.end_to_string_arrow_deliminator)) { it.get(resources) }
 
-        override fun getRowHeader(): Int? = null
+        override fun getRowHeader() = ResOrActual.fromActual(endNumber.toString())
     }
 
     data class DistanceTotal(
@@ -69,7 +73,7 @@ sealed class ScorePadRow {
                 resources.getString(distanceUnit),
         )
 
-        override fun getRowHeader(): Int? = R.string.score_pad__distance_total_row_header
+        override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
     }
 
     data class SurplusTotal(
@@ -82,7 +86,7 @@ sealed class ScorePadRow {
 
         override fun getContent(resources: Resources): String = resources.getString(R.string.score_pad__surplus_total)
 
-        override fun getRowHeader(): Int? = R.string.score_pad__distance_total_row_header
+        override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
     }
 
     data class GrandTotal(
@@ -95,7 +99,7 @@ sealed class ScorePadRow {
 
         override fun getContent(resources: Resources): String = resources.getString(R.string.score_pad__grand_total)
 
-        override fun getRowHeader(): Int? = R.string.score_pad__grand_total_row_header
+        override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__grand_total_row_header)
     }
 }
 
@@ -137,7 +141,6 @@ class ScorePadDataNew(
             tableData.addAll(
                     calculateTotalsForDistance(
                             arrows = remainingArrows,
-                            runningTotal = 0,
                             endSize = endSize,
                             goldsType = goldsType,
                     )
@@ -157,6 +160,9 @@ class ScorePadDataNew(
                                 runningTotal = tableData.mapNotNull { it.runningTotal }.maxOrNull(),
                                 endSize = endSize,
                                 goldsType = goldsType,
+                                endNumber = tableData
+                                        .filterIsInstance<ScorePadRow.End>()
+                                        .maxOfOrNull { it.endNumber }
                         )
                 )
                 if (remainingArrows.isEmpty()) break
@@ -182,6 +188,9 @@ class ScorePadDataNew(
         return tableData
     }
 
+    /**
+     * @param endNumber 1-indexed
+     */
     private fun calculateTotalsForDistance(
             arrows: MutableList<ArrowValue>,
             distance: RoundDistance? = null,
@@ -189,7 +198,8 @@ class ScorePadDataNew(
             @StringRes distanceUnit: Int? = null,
             isSurplus: Boolean = false,
             addDistanceTotal: Boolean = false,
-            runningTotal: Int?,
+            endNumber: Int? = null,
+            runningTotal: Int? = null,
             endSize: Int,
             goldsType: GoldsType,
     ): List<ScorePadRow> {
@@ -204,11 +214,12 @@ class ScorePadDataNew(
         arrows.removeAll(distanceArrows)
 
         val tableData = mutableListOf<ScorePadRow>()
-        var dRunningTotal = runningTotal ?: 0
+        var currentRunningTotal = runningTotal ?: 0
+        var currentEndNumber = endNumber ?: 1
         for (endArrows in distanceArrows.chunked(endSize)) {
-            dRunningTotal += endArrows.getScore()
+            currentRunningTotal += endArrows.getScore()
             tableData.add(
-                    ScorePadRow.General(endArrows, goldsType, dRunningTotal)
+                    ScorePadRow.End(++currentEndNumber, endArrows, goldsType, currentRunningTotal)
             )
         }
 

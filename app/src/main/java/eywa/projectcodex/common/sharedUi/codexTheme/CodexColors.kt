@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.ArrowButtonGroup
 import eywa.projectcodex.components.viewScores.ui.MultiSelectBarListener
 import eywa.projectcodex.components.viewScores.ui.ViewScoresMultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
@@ -35,15 +36,18 @@ data class CodexThemeColors(
         val errorOnAppBackground: Color = CodexColors.ERROR_TEXT,
 
         val listItemOnAppBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
-        val listHeaderItemOnAppBackground: Color = Color(0xFFBCFFE8),
-        val listAccentRowItemOnAppBackground: Color = Color(0xFFDEF6FF),
+        val listAccentRowItemOnAppBackground: Color = Color(0xFFC4FFF6),
         val listItemOnAppBackgroundBorder: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onListItemAppOnBackground: Color = Color.Black,
 
         val surfaceOnBackground: Color = CodexColors.COLOR_EXTRA_LIGHT_ACCENT,
+        val onSurfaceOnBackground: Color = Color.Black,
         val disabledOnSurfaceOnBackground: Color = Color.LightGray.copy(alpha = 0.5f),
         val textFieldFocussedOutline: Color = CodexColors.COLOR_ACCENT,
         val textFieldUnfocussedOutline: Color = CodexColors.COLOR_PRIMARY.copy(alpha = 0.5f),
+
+        val bottomNavBar: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val onBottomNavBar: Color = Color.White,
 
         // Dialogs
         val dialogBackground: Color = Color.White,
@@ -58,7 +62,7 @@ data class CodexThemeColors(
         val helpShowcaseButton: Color = Color.White,
 
         // Buttons
-        val linkText: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val linkText: Color = CodexColors.COLOR_PRIMARY_DARK, // Text string that's been turned into a link
         val disabledButton: Color = Color.LightGray.copy(alpha = 0.7f),
         val onDisabledButton: Color = Color.Gray.copy(alpha = 0.8f),
         val filledButton: Color = CodexColors.COLOR_PRIMARY_DARK,
@@ -135,7 +139,10 @@ object CodexColors {
 }
 
 // TODO Create a showcase fragment for this that's only visible in debug
-@Preview
+@Preview(
+        heightDp = 1300,
+        widthDp = 480,
+)
 @Composable
 fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme: AppTheme) {
     CodexTheme(theme) {
@@ -147,7 +154,29 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                         .background(CodexTheme.colors.appBackground)
                         .padding(20.dp)
         ) {
-            CodexButton(text = "Button", buttonStyle = CodexButtonDefaults.DefaultButton()) {}
+            Text(
+                    text = "Text on background",
+                    style = CodexTypography.NORMAL,
+                    color = CodexTheme.colors.onAppBackground,
+            )
+
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                CodexButton(text = "Default button", buttonStyle = CodexButtonDefaults.DefaultButton()) {}
+                CodexButton(text = "Text button", buttonStyle = CodexButtonDefaults.DefaultTextButton) {}
+            }
+
+            Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                CodexChip(text = "Chip 1", selected = true, testTag = "") {}
+                CodexChip(text = "Chip 2", selected = false, testTag = "") {}
+                CodexChip(text = "Chip 3", selected = true, enabled = false, testTag = "") {}
+                CodexChip(text = "Chip 4", selected = false, enabled = false, testTag = "") {}
+            }
 
             Box {
                 Column {
@@ -163,11 +192,13 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                             ) {
                                 Text(
                                         text = "Title",
-                                        style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)
+                                        style = CodexTypography.NORMAL,
+                                        color = CodexTheme.colors.onListItemAppOnBackground,
                                 )
                                 Text(
                                         text = "Content",
-                                        style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)
+                                        style = CodexTypography.NORMAL,
+                                        color = CodexTheme.colors.onListItemAppOnBackground,
                                 )
                             }
                         }
@@ -189,6 +220,30 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                         modifier = Modifier.align(Alignment.BottomCenter),
                 )
             }
+
+            Row {
+                repeat(5) { columnIndex ->
+                    Column {
+                        repeat(6) { rowIndex ->
+                            val color = when {
+                                rowIndex in listOf(0, 3, 5) || columnIndex == 0 ->
+                                    CodexTheme.colors.listAccentRowItemOnAppBackground
+                                else -> CodexTheme.colors.listItemOnAppBackground
+                            }
+                            Text(
+                                    text = "XXX",
+                                    style = CodexTypography.NORMAL,
+                                    color = CodexTheme.colors.onListItemAppOnBackground,
+                                    modifier = Modifier
+                                            .padding(2.dp)
+                                            .background(color)
+                                            .padding(5.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
             RadioButtonDialogContent(
                     title = R.string.view_score__convert_score_dialog_title,
                     message = R.string.view_score__convert_score_dialog_body,
@@ -197,6 +252,8 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                     negativeButton = ButtonState(stringResource(R.string.general_cancel)) {},
                     state = rememberRadioButtonDialogState(items = ConvertScoreType.values().toList())
             )
+
+            ArrowButtonGroup(null) {}
         }
     }
 }

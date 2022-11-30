@@ -27,7 +27,9 @@ fun InputEndScreen(
 ) {
     InputEndScaffold(
             showReset = false,
-            state = state,
+            inputArrows = state.inputArrows,
+            round = state.fullArcherRoundInfo.round,
+            endSize = state.inputEndSize,
             showCancelButton = false,
             submitButtonText = stringResource(R.string.input_end__next_end),
             listener = listener,
@@ -137,7 +139,7 @@ fun RemainingArrowsIndicator(
         heightDp = 700,
 )
 @Composable
-fun InputEndScreen() {
+fun InputEndScreen_Preview() {
     CodexTheme {
         InputEndScreen(ArcherRoundPreviewHelper.FEW_ARROWS) {}
     }

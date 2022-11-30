@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="archer_round_settings__title">Settings</string>
+
+    <string name="archer_round_settings__input_end_size">Input end size:</string>
+    <string name="archer_round_settings__score_pad_end_size">Score pad end size:</string>
+</resources>

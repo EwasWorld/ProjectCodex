@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -27,6 +28,7 @@ fun CodexTextField(
         labelText: String? = null,
         modifier: Modifier = Modifier,
         singleLine: Boolean = false,
+        textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -38,6 +40,7 @@ fun CodexTextField(
         labelText = labelText,
         modifier = modifier.testTag(state.testTag),
         singleLine = singleLine,
+        textStyle = textStyle,
         enabled = enabled,
         colors = colors,
         keyboardOptions = keyboardOptions,
@@ -53,6 +56,7 @@ fun CodexTextField(
         labelText: String? = null,
         modifier: Modifier = Modifier,
         singleLine: Boolean = false,
+        textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -67,6 +71,7 @@ fun CodexTextField(
             interactionSource = interactionSource,
             enabled = enabled,
             singleLine = singleLine,
+            textStyle = textStyle,
             visualTransformation = VisualTransformation.None,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,

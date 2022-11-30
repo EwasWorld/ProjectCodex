@@ -26,7 +26,9 @@ fun InsertEndScreen(
 
     InputEndScaffold(
             showReset = false,
-            state = state,
+            inputArrows = state.inputArrows,
+            round = state.fullArcherRoundInfo.round,
+            endSize = state.inputEndSize,
             contentText = insertLocationString,
             showCancelButton = true,
             listener = listener,

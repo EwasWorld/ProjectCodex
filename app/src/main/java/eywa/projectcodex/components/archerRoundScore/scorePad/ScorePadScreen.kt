@@ -1,10 +1,10 @@
 package eywa.projectcodex.components.archerRoundScore.scorePad
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.annotation.StringRes
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,9 +15,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.get
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ColumnHeader
@@ -30,18 +34,19 @@ private val COLUMN_HEADER_ORDER = listOf(
         ColumnHeader.HITS,
         ColumnHeader.SCORE,
         ColumnHeader.GOLDS,
-        ColumnHeader.RUNNING_TOTAL
+        ColumnHeader.RUNNING_TOTAL,
 )
 
 @Composable
 fun ScorePadScreen(
-        data: ScorePadDataNew
+        dropdownMenuOpenForEndNumber: Int?,
+        data: ScorePadDataNew,
+        listener: (ScorePadIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
 
     // TODO Make the row and column headers stick
     Row(
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
             modifier = Modifier
                     .horizontalScroll(rememberScrollState())
                     .verticalScroll(rememberScrollState())
@@ -49,25 +54,26 @@ fun ScorePadScreen(
                     .padding(5.dp)
     ) {
         Column(
-                verticalArrangement = Arrangement.spacedBy(3.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.width(IntrinsicSize.Max)
         ) {
             // Placeholder for the first row which is the column header for other columns
             Cell(text = "", rowType = null, columnType = null)
-            var endNumber = 1
             data.data.forEach { rowData ->
+                val modifier = if (rowData !is ScorePadRow.End) Modifier
+                else Modifier.clickable { listener(RowClicked(rowData.endNumber)) }
+
                 Cell(
-                        text = rowData.getRowHeader()?.let { stringResource(it) } ?: (endNumber++).toString(),
+                        text = rowData.getRowHeader().get(),
                         rowType = rowData::class,
                         columnType = null,
+                        modifier = modifier,
                 )
             }
         }
 
         COLUMN_HEADER_ORDER.forEach { columnHeader ->
             Column(
-                    verticalArrangement = Arrangement.spacedBy(3.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.width(IntrinsicSize.Max)
             ) {
@@ -78,11 +84,23 @@ fun ScorePadScreen(
                 )
 
                 data.data.forEach { rowData ->
-                    Cell(
-                            text = rowData.getContent(columnHeader, resources),
-                            rowType = rowData::class,
-                            columnType = columnHeader,
-                    )
+                    val modifier = if (rowData !is ScorePadRow.End) Modifier
+                    else Modifier.clickable { listener(RowClicked(rowData.endNumber)) }
+
+                    Box {
+                        Cell(
+                                text = rowData.getContent(columnHeader, resources),
+                                rowType = rowData::class,
+                                columnType = columnHeader,
+                                modifier = modifier,
+                        )
+                        DropdownMenu(
+                                expanded = dropdownMenuOpenForEndNumber != null
+                                        && columnHeader == ColumnHeader.CONTENT
+                                        && (rowData as? ScorePadRow.End)?.endNumber == dropdownMenuOpenForEndNumber,
+                                listener = listener,
+                        )
+                    }
                 }
             }
         }
@@ -100,14 +118,14 @@ private fun Cell(
         columnType: ColumnHeader?,
         modifier: Modifier = Modifier,
 ) {
-    val isTotalRow = rowType != null && rowType != ScorePadRow.General::class
+    val isTotalRow = rowType != null && rowType != ScorePadRow.End::class
     val isHeaderOrTotal = isTotalRow || rowType == null || columnType == null
 
     val backgroundColour = when {
         isTotalRow -> CodexTheme.colors.listAccentRowItemOnAppBackground
         rowType == null && columnType == null -> null
         rowType != null && columnType != null -> CodexTheme.colors.listItemOnAppBackground
-        else -> CodexTheme.colors.listHeaderItemOnAppBackground
+        else -> CodexTheme.colors.listAccentRowItemOnAppBackground
     }
     val backgroundModifier = backgroundColour?.let { Modifier.background(it) } ?: Modifier
 
@@ -119,9 +137,38 @@ private fun Cell(
             ),
             modifier = modifier
                     .fillMaxWidth()
+                    .padding(2.dp)
                     .then(backgroundModifier)
                     .padding(vertical = 5.dp, horizontal = 10.dp)
     )
+}
+
+@Composable
+private fun DropdownMenu(
+        expanded: Boolean,
+        listener: (ScorePadIntent) -> Unit
+) {
+    DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { listener(CloseDropdownMenu) }
+    ) {
+        DropdownMenuItem.values().forEach { item ->
+            DropdownMenuItem(
+                    onClick = { listener(item.action) },
+            ) {
+                Text(
+                        text = stringResource(id = item.title),
+                        style = CodexTypography.NORMAL
+                )
+            }
+        }
+    }
+}
+
+private enum class DropdownMenuItem(@StringRes val title: Int, val action: ScorePadIntent) {
+    EDIT_END(R.string.score_pad_menu__edit, EditEndClicked),
+    INSERT_END(R.string.score_pad_menu__insert, InsertEndClicked),
+    DELETE_END(R.string.score_pad_menu__delete, DeleteEndClicked),
 }
 
 @Preview(
@@ -131,6 +178,6 @@ private fun Cell(
 @Composable
 fun ScorePadScreen_Preview() {
     CodexTheme {
-        ScorePadScreen(ArcherRoundPreviewHelper.SIMPLE.scorePadData)
+        ScorePadScreen(null, ArcherRoundPreviewHelper.SIMPLE.scorePadData) {}
     }
 }

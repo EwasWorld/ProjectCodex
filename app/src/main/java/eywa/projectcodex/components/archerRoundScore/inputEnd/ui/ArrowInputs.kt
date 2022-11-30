@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.archerRoundScore.inputEnd.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -12,6 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -21,44 +21,43 @@ import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
-
+import eywa.projectcodex.database.rounds.Round
 
 @Composable
 fun ArrowInputs(
         showReset: Boolean,
-        state: ArcherRoundState,
+        inputArrows: List<Arrow>,
+        round: Round?,
+        endSize: Int,
         listener: (ArcherRoundIntent.ArrowInputsIntent) -> Unit,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-                text = state.inputArrows.sumOf { it.score }.toString(),
+                text = inputArrows.sumOf { it.score }.toString(),
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
         )
         @Suppress("SimplifiableCallChain")
         Text(
-                text = state.inputArrows
+                text = inputArrows
                         .map { it.asString().get() }
                         .plus(
-                                List(state.inputEndSize - state.inputArrows.size) {
+                                List(endSize - inputArrows.size) {
                                     stringResource(R.string.end_to_string_arrow_placeholder)
                                 }
                         )
                         .joinToString(stringResource(R.string.end_to_string_arrow_deliminator)),
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
-                modifier = Modifier
-                        .padding(bottom = 15.dp)
-                        .clickable { listener(ChangeEndSizeClicked) }
+                modifier = Modifier.padding(bottom = 15.dp)
         )
 
-        ArrowButtonGroup(round = state.fullArcherRoundInfo.round, onClick = { listener(ArrowInputted(it)) })
+        ArrowButtonGroup(round = round, onClick = { listener(ArrowInputted(it)) })
 
         Row {
-            if (showReset && state.isEditing) {
+            if (showReset) {
                 CodexButton(
                         text = stringResource(R.string.general__reset_edits),
                         buttonStyle = CodexButtonDefaults.DefaultTextButton,
@@ -87,6 +86,11 @@ fun ArrowInputs(
 fun ArrowInputs_Preview(
 ) {
     CodexTheme {
-        ArrowInputs(true, ArcherRoundPreviewHelper.SIMPLE) {}
+        ArrowInputs(
+                true,
+                ArcherRoundPreviewHelper.inputArrows,
+                ArcherRoundPreviewHelper.round.round,
+                6,
+        ) {}
     }
 }
