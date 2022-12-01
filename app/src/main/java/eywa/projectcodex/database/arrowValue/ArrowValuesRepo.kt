@@ -75,7 +75,7 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
     }
 
     suspend fun insertEnd(allArrowsInRound: List<ArrowValue>, toInsert: List<ArrowValue>) {
-        if (toInsert.isNullOrEmpty()) return
+        if (toInsert.isEmpty()) return
         val distinctByArcherRoundIds = allArrowsInRound.distinctBy { it.archerRoundId }
         require(distinctByArcherRoundIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
         require(allArrowsInRound.isNotEmpty()) { "Must provide arrows to shift" }

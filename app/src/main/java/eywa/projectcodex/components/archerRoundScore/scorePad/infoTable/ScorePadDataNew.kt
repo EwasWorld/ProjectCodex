@@ -156,7 +156,7 @@ class ScorePadDataNew(
                                 arrowCount = info.roundArrowCounts!!
                                         .find { it.distanceNumber == distance.distanceNumber },
                                 distanceUnit = distanceUnit,
-                                addDistanceTotal = info.roundDistances!!.size > 1 || info.hasSurplusArrows!!,
+                                addDistanceTotal = info.roundDistances.size > 1 || info.hasSurplusArrows!!,
                                 runningTotal = tableData.mapNotNull { it.runningTotal }.maxOrNull(),
                                 endSize = endSize,
                                 goldsType = goldsType,
@@ -215,7 +215,7 @@ class ScorePadDataNew(
 
         val tableData = mutableListOf<ScorePadRow>()
         var currentRunningTotal = runningTotal ?: 0
-        var currentEndNumber = endNumber ?: 1
+        var currentEndNumber = endNumber ?: 0
         for (endArrows in distanceArrows.chunked(endSize)) {
             currentRunningTotal += endArrows.getScore()
             tableData.add(

@@ -129,6 +129,12 @@ class MainActivity : AppCompatActivity() {
         navHostFragment = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
                 ?: throw IllegalStateException("No NavHost found")) as NavHostFragment
 
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (getBackStackBehaviour(destination) != BackStackBehaviour.NONE) {
+                customBackStack.add(destination.id)
+            }
+        }
+
         onBackPressedDispatcher.addCallback(this) {
             val navController = navHostFragment.navController
 

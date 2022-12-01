@@ -4,19 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundEffect.*
-import eywa.projectcodex.components.newScore.*
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundEffect.Error
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -25,7 +25,12 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
 
     private val viewModel: ArcherRoundViewModel by viewModels()
 
-    // TODO_CURRENT Use screen
+    private val backButtonCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            viewModel.handle(ArcherRoundIntent.ScreenCancelClicked)
+        }
+    }
+
 //    private val screen = ArcherRoundScreen()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -39,7 +44,6 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
         lifecycleScope.launch {
             viewModel.effects.collect { effect ->
                 when (effect) {
-                    NavigateUp -> findNavController().popBackStack()
                     is Error -> {
                         context?.let {
                             val message = when (effect) {
@@ -56,6 +60,10 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
 
         return ComposeView(requireContext()).apply {
             setContent {
+                LaunchedEffect(viewModel.state.interruptBackButtonListener) {
+                    backButtonCallback.isEnabled = viewModel.state.interruptBackButtonListener
+                }
+
                 ArcherRoundScreen(viewModel.state) { viewModel.handle(it) }
             }
         }
@@ -64,6 +72,8 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.archer_round_title)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backButtonCallback)
     }
 
     // TODO_CURRENT help showcases

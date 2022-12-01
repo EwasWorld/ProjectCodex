@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -33,7 +36,18 @@ private fun style(textAlign: TextAlign = TextAlign.Start) =
 fun ArcherRoundStatsScreen(
         state: FullArcherRoundInfo,
         goldsType: GoldsType,
+        noArrowsListener: () -> Unit,
 ) {
+    SimpleDialog(isShown = state.arrowsShot <= 0, onDismissListener = noArrowsListener) {
+        SimpleDialogContent(
+                title = stringResource(R.string.archer_round_stats__no_arrows_dialog_title),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.archer_round_stats__no_arrows_dialog_button),
+                        onClick = noArrowsListener,
+                ),
+        )
+    }
+
     Column(
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -47,55 +61,55 @@ fun ArcherRoundStatsScreen(
                     title = R.string.archer_round_stats__date,
                     text = DateTimeFormat.LONG_DATE_TIME.format(state.archerRound.dateShot),
             )
-            if (state.round != null) {
+            DataRow(
+                    title = R.string.archer_round_stats__round,
+                    text = state.round?.displayName ?: stringResource(R.string.archer_round_stats__no_round)
+            )
+        }
+
+        if (state.arrowsShot > 0) {
+            Section {
                 DataRow(
-                        title = R.string.archer_round_stats__round,
-                        text = state.round.displayName
+                        title = R.string.archer_round_stats__hits,
+                        text = state.hits.toString(),
+                )
+                DataRow(
+                        title = R.string.archer_round_stats__score,
+                        text = state.score.toString(),
+                )
+                DataRow(
+                        title = R.string.archer_round_stats__golds,
+                        text = state.golds(goldsType).toString(),
                 )
             }
-        }
 
-        Section {
-            DataRow(
-                    title = R.string.archer_round_stats__hits,
-                    text = state.hits.toString(),
-            )
-            DataRow(
-                    title = R.string.archer_round_stats__score,
-                    text = state.score.toString(),
-            )
-            DataRow(
-                    title = R.string.archer_round_stats__golds,
-                    text = state.golds(goldsType).toString(),
-            )
-        }
-
-        if (state.round != null) {
-            Section {
-                state.remainingArrows!!.let { remaining ->
-                    if (remaining == 0) {
-                        Text(
-                                text = stringResource(R.string.input_end__round_complete),
-                                style = style(),
-                        )
+            if (state.round != null) {
+                Section {
+                    state.remainingArrows!!.let { remaining ->
+                        if (remaining == 0) {
+                            Text(
+                                    text = stringResource(R.string.input_end__round_complete),
+                                    style = style(),
+                            )
+                        }
+                        else {
+                            val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
+                            else R.string.archer_round_stats__surplus_arrows
+                            DataRow(
+                                    title = heading,
+                                    text = abs(remaining).toString(),
+                            )
+                        }
                     }
-                    else {
-                        val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
-                        else R.string.archer_round_stats__surplus_arrows
-                        DataRow(
-                                title = heading,
-                                text = abs(remaining).toString(),
-                        )
-                    }
+                    DataRow(
+                            title = R.string.archer_round_stats__handicap,
+                            text = state.handicap.toString(),
+                    )
+                    DataRow(
+                            title = R.string.archer_round_stats__predicted_score,
+                            text = state.predictedScore.toString(),
+                    )
                 }
-                DataRow(
-                        title = R.string.archer_round_stats__handicap,
-                        text = state.handicap.toString(),
-                )
-                DataRow(
-                        title = R.string.archer_round_stats__predicted_score,
-                        text = state.predictedScore.toString(),
-                )
             }
         }
     }
@@ -124,6 +138,6 @@ fun ArcherRoundStatsScreen_Preview() {
         ArcherRoundStatsScreen(
                 ArcherRoundPreviewHelper.SIMPLE.fullArcherRoundInfo,
                 GoldsType.NINES,
-        )
+        ) {}
     }
 }

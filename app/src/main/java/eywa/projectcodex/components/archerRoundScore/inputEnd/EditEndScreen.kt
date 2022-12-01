@@ -20,7 +20,7 @@ fun EditEndScreen(
             inputArrows = state.currentScreenInputArrows,
             round = state.fullArcherRoundInfo.round,
             endSize = state.currentScreenEndSize,
-            contentText = stringResource(R.string.edit_end__edit_info, state.scorePadSelectedRow!! + 1),
+            contentText = stringResource(R.string.edit_end__edit_info, state.scorePadSelectedEnd!! + 1),
             showCancelButton = true,
             listener = listener,
     )
@@ -34,6 +34,6 @@ fun EditEndScreen(
 @Composable
 fun EditEndScreen_Preview() {
     CodexTheme {
-        EditEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(scorePadSelectedRow = 0)) {}
+        EditEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 0)) {}
     }
 }

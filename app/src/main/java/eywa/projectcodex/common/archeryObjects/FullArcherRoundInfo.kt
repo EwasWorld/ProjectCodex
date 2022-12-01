@@ -41,7 +41,7 @@ data class FullArcherRoundInfo(
     val arrowsShot by lazy { arrows?.size ?: 0 }
 
     val remainingArrows by lazy {
-        roundArrowCounts?.sumOf { it.arrowCount }?.minus(arrowsShot)
+        roundArrowCounts?.takeIf { it.isNotEmpty() }?.sumOf { it.arrowCount }?.minus(arrowsShot)
     }
 
     /**

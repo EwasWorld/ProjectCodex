@@ -21,10 +21,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.get
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
@@ -41,13 +45,49 @@ private val COLUMN_HEADER_ORDER = listOf(
         ColumnHeader.RUNNING_TOTAL,
 )
 
-// TODO_CURRENT Don't allow insert if full
 @Composable
 fun ScorePadScreen(
+        isRoundFull: Boolean,
+        displayDeleteEndConfirmationDialog: Boolean,
         dropdownMenuOpenForEndNumber: Int?,
         data: ScorePadDataNew,
-        listener: (ScorePadIntent) -> Unit,
+        listener: (ArcherRoundIntent) -> Unit,
 ) {
+    SimpleDialog(
+            isShown = data.isNullOrEmpty(),
+            onDismissListener = { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.archer_round_stats__no_arrows_dialog_title),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.archer_round_stats__no_arrows_dialog_button),
+                        onClick = { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) },
+                ),
+        )
+    }
+    SimpleDialog(
+            isShown = displayDeleteEndConfirmationDialog,
+            onDismissListener = { listener(ArcherRoundIntent.DeleteEndDialogCancelClicked) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.score_pad_menu__delete_dialog_title),
+                message = stringResource(
+                        R.string.score_pad_menu__delete_dialog_body,
+                        dropdownMenuOpenForEndNumber ?: -1
+                ),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_delete),
+                        onClick = { listener(ArcherRoundIntent.DeleteEndDialogOkClicked) },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { listener(ArcherRoundIntent.DeleteEndDialogCancelClicked) },
+                ),
+        )
+    }
+
+    if (data.isNullOrEmpty()) return
+
     // TODO Make the row and column headers stick
     Row(
             verticalAlignment = Alignment.Top,
@@ -93,6 +133,7 @@ fun ScorePadScreen(
                                 listener = listener,
                         )
                         DropdownMenu(
+                                isRoundFull = isRoundFull,
                                 expanded = dropdownMenuOpenForEndNumber != null
                                         && columnHeader == ColumnHeader.CONTENT
                                         && (rowData as? ScorePadRow.End)?.endNumber == dropdownMenuOpenForEndNumber,
@@ -153,6 +194,7 @@ private fun Cell(
 
 @Composable
 private fun DropdownMenu(
+        isRoundFull: Boolean,
         expanded: Boolean,
         listener: (ScorePadIntent) -> Unit
 ) {
@@ -161,6 +203,8 @@ private fun DropdownMenu(
             onDismissRequest = { listener(CloseDropdownMenu) }
     ) {
         DropdownMenuItem.values().forEach { item ->
+            if (isRoundFull && item == DropdownMenuItem.INSERT_END) return@forEach
+
             DropdownMenuItem(
                     onClick = { listener(item.action) },
             ) {
@@ -186,6 +230,11 @@ private enum class DropdownMenuItem(@StringRes val title: Int, val action: Score
 @Composable
 fun ScorePadScreen_Preview() {
     CodexTheme {
-        ScorePadScreen(null, ArcherRoundPreviewHelper.SIMPLE.scorePadData) {}
+        ScorePadScreen(
+                isRoundFull = false,
+                displayDeleteEndConfirmationDialog = false,
+                dropdownMenuOpenForEndNumber = null,
+                data = ArcherRoundPreviewHelper.SIMPLE.scorePadData,
+        ) {}
     }
 }

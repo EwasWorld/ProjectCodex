@@ -17,12 +17,14 @@ private const val DEFAULT_END_SIZE = 6
 
 sealed class ArcherRoundState {
     open val showNavBar: Boolean = false
+    open val interruptBackButtonListener = false
 
     data class Loading(
             val currentScreen: ArcherRoundScreen? = null,
             val fullArcherRoundInfo: FullArcherRoundInfo? = null,
     ) : ArcherRoundState()
 
+    // TODO Disable submit functions while waiting for a submit action to return
     data class Loaded(
             val currentScreen: ArcherRoundScreen,
             val fullArcherRoundInfo: FullArcherRoundInfo,
@@ -30,10 +32,11 @@ sealed class ArcherRoundState {
                     fullArcherRoundInfo.round?.let { GoldsType.getGoldsType(it) } ?: GoldsType.defaultGoldsType,
             val inputEndSize: Int? = DEFAULT_END_SIZE,
             val scorePadEndSize: Int? = DEFAULT_END_SIZE,
-            val scorePadSelectedRow: Int? = null,
+            val scorePadSelectedEnd: Int? = null,
             val inputArrows: List<Arrow> = listOf(),
             val subScreenInputArrows: List<Arrow> = listOf(),
             val displayRoundCompletedDialog: Boolean = false,
+            val displayDeleteEndConfirmationDialog: Boolean = false,
     ) : ArcherRoundState() {
         val scorePadData by lazy {
             ScorePadDataNew(
@@ -45,8 +48,11 @@ sealed class ArcherRoundState {
 
         override val showNavBar: Boolean = currentScreen.isMainScreen
 
-        val scorePadSelectedRowFirstArrowNumber by lazy {
-            (scorePadEndSize ?: DEFAULT_END_SIZE) * (scorePadSelectedRow!! - 1)
+        override val interruptBackButtonListener: Boolean = !currentScreen.isMainScreen
+
+        val scorePadSelectedEndFirstArrowNumber by lazy {
+            // +1 because arrowNumbers are 1-indexed
+            (scorePadEndSize ?: DEFAULT_END_SIZE) * (scorePadSelectedEnd!! - 1) + 1
         }
 
         /**

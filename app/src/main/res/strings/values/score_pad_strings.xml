@@ -13,6 +13,8 @@
     <string name="score_pad_menu__edit">Edit end</string>
     <string name="score_pad_menu__insert">Insert end above</string>
     <string name="score_pad_menu__delete">Delete end</string>
+    <string name="score_pad_menu__delete_dialog_title">Delete end</string>
+    <string name="score_pad_menu__delete_dialog_body">Are you sure you want to delete end %1$d</string> <!-- end 3 -->
 
     <string name="help_score_pad__open_menu_title">Edit</string>
 </resources>

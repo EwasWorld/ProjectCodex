@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="archer_round_stats__title">Round Statistics</string>
+    <string name="archer_round_stats__title">Round Stats</string>
 
     <string name="archer_round_stats__date">Date shot:</string>
     <string name="archer_round_stats__round">Round:</string>
@@ -12,4 +12,7 @@
     <string name="archer_round_stats__surplus_arrows">Surplus arrows:</string>
     <string name="archer_round_stats__handicap">Handicap:</string>
     <string name="archer_round_stats__predicted_score">Predicted score:</string>
+    <string name="archer_round_stats__no_arrows_dialog_title">No arrows entered</string>
+    <string name="archer_round_stats__no_arrows_dialog_button">Go to input end</string>
+    <string name="archer_round_stats__no_round">N/A</string>
 </resources>

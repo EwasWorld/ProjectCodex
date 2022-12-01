@@ -42,25 +42,23 @@ fun ArrowButtonGroup(
 private fun TenZoneArrowButtonGroup(
         onClick: (Arrow) -> Unit
 ) {
-    RowSection {
-        GeneralTargetScoreButton.M.Button(onClick)
-        ColumnSection {
-            RowSection {
-                GeneralTargetScoreButton.ONE.Button(onClick)
-                GeneralTargetScoreButton.TWO.Button(onClick)
-                GeneralTargetScoreButton.THREE.Button(onClick)
-                GeneralTargetScoreButton.FOUR.Button(onClick)
-                GeneralTargetScoreButton.FIVE.Button(onClick)
-            }
-            RowSection {
-                GeneralTargetScoreButton.SIX.Button(onClick)
-                GeneralTargetScoreButton.SEVEN.Button(onClick)
-                GeneralTargetScoreButton.EIGHT.Button(onClick)
-                GeneralTargetScoreButton.NINE.Button(onClick)
-                GeneralTargetScoreButton.TEN.Button(onClick)
-            }
+    ColumnSection {
+        RowSection {
+            GeneralTargetScoreButton.M.Button(onClick)
+            GeneralTargetScoreButton.ONE.Button(onClick)
+            GeneralTargetScoreButton.TWO.Button(onClick)
+            GeneralTargetScoreButton.THREE.Button(onClick)
+            GeneralTargetScoreButton.FOUR.Button(onClick)
+            GeneralTargetScoreButton.FIVE.Button(onClick)
         }
-        GeneralTargetScoreButton.X.Button(onClick)
+        RowSection {
+            GeneralTargetScoreButton.SIX.Button(onClick)
+            GeneralTargetScoreButton.SEVEN.Button(onClick)
+            GeneralTargetScoreButton.EIGHT.Button(onClick)
+            GeneralTargetScoreButton.NINE.Button(onClick)
+            GeneralTargetScoreButton.TEN.Button(onClick)
+            GeneralTargetScoreButton.X.Button(onClick)
+        }
     }
 }
 

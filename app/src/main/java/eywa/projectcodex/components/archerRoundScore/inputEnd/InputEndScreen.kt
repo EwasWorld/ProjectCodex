@@ -20,6 +20,7 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
 
+// TODO No more arrows to add - prevent accidental opening of this screen
 @Composable
 fun InputEndScreen(
         state: ArcherRoundState.Loaded,
@@ -43,7 +44,7 @@ fun InputEndScreen(
 }
 
 @Composable
-fun ScoreIndicator(
+private fun ScoreIndicator(
         totalScore: Int,
         arrowsShot: Int,
 ) {
@@ -76,7 +77,7 @@ fun ScoreIndicator(
 }
 
 @Composable
-fun ScoreIndicatorCell(
+private fun ScoreIndicatorCell(
         text: String,
         isHeader: Boolean,
 ) {
@@ -94,7 +95,7 @@ fun ScoreIndicatorCell(
 }
 
 @Composable
-fun RemainingArrowsIndicator(
+private fun RemainingArrowsIndicator(
         fullArcherRoundInfo: FullArcherRoundInfo
 ) {
     fullArcherRoundInfo.remainingArrowsAtDistances?.let {

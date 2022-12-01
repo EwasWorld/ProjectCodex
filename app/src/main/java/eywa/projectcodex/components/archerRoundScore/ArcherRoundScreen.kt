@@ -3,8 +3,10 @@ package eywa.projectcodex.components.archerRoundScore
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
@@ -42,16 +44,28 @@ fun ArcherRoundScreen(
     Column {
         Box(
                 modifier = Modifier
+                        .fillMaxSize()
                         .weight(1f)
                         .background(CodexTheme.colors.appBackground)
         ) {
             when (state) {
-                is Loading -> CircularProgressIndicator()
+                is Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 is Loaded -> when (state.currentScreen) {
                     ArcherRoundScreen.INPUT_END -> InputEndScreen(state, listener)
                     ArcherRoundScreen.SCORE_PAD ->
-                        ScorePadScreen(state.scorePadSelectedRow, state.scorePadData, listener)
-                    ArcherRoundScreen.STATS -> ArcherRoundStatsScreen(state.fullArcherRoundInfo, state.goldsType)
+                        ScorePadScreen(
+                                isRoundFull = (state.fullArcherRoundInfo.remainingArrows ?: 1) == 0,
+                                displayDeleteEndConfirmationDialog = state.displayDeleteEndConfirmationDialog,
+                                dropdownMenuOpenForEndNumber = state.scorePadSelectedEnd
+                                        .takeIf { !state.displayDeleteEndConfirmationDialog },
+                                data = state.scorePadData,
+                                listener = listener
+                        )
+                    ArcherRoundScreen.STATS -> ArcherRoundStatsScreen(
+                            state = state.fullArcherRoundInfo,
+                            goldsType = state.goldsType,
+                            noArrowsListener = { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) },
+                    )
                     ArcherRoundScreen.SETTINGS ->
                         ArcherRoundSettingsScreen(state.inputEndSize, state.scorePadEndSize, listener)
                     ArcherRoundScreen.INSERT_END -> InsertEndScreen(state, listener)

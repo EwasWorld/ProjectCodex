@@ -15,7 +15,7 @@ fun InsertEndScreen(
         state: ArcherRoundState.Loaded,
         listener: (ArcherRoundIntent) -> Unit,
 ) {
-    val endNumber = state.scorePadSelectedRow!!
+    val endNumber = state.scorePadSelectedEnd!!
 
     val insertLocationString = if (endNumber == 0) {
         stringResource(R.string.insert_end__info_at_start)
@@ -43,6 +43,6 @@ fun InsertEndScreen(
 @Composable
 fun InsertEndScreen_Preview() {
     CodexTheme {
-        InsertEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(scorePadSelectedRow = 1)) {}
+        InsertEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 1)) {}
     }
 }
