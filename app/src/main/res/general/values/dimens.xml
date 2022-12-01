@@ -15,22 +15,4 @@
 
     <dimen name="about__margins">5dp</dimen>
 
-    <dimen name="create_round__text_size">@dimen/medium_text_size</dimen>
-    <dimen name="create_round__margins">10dp</dimen>
-    <dimen name="create_round__submit_top_margin">30dp</dimen>
-
-    <dimen name="info_table__main_margins">10dp</dimen>
-    <dimen name="info_table__cell_height">40dp</dimen>
-    <dimen name="info_table__column_header_height">30dp</dimen>
-    <dimen name="info_table__row_header_width">50dp</dimen>
-    <dimen name="info_table__text_size">20sp</dimen>
-    <dimen name="info_table__cell_margins">5dp</dimen>
-    <dimen name="info_table__padding">5dp</dimen>
-
-    <dimen name="view_scores__item_margin">3dp</dimen>
-    <dimen name="view_scores__icon_bar_height">70dp</dimen>
-    <dimen name="view_scores__icon_bar_corner_radius">35dp</dimen>
-    <dimen name="view_scores__icon_bar_icon">48dp</dimen>
-
-    <dimen name="edit_text_rounded_corner_radius">5dp</dimen>
 </resources>

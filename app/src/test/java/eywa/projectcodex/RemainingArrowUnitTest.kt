@@ -1,6 +1,5 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.components.archerRoundScore.inputEnd.RemainingArrows
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.testUtils.TestData

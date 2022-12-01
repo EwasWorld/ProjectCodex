@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd.ui
+package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

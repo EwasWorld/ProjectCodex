@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd.ui
+package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ExperimentalMaterialApi
@@ -17,9 +17,9 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.get
-import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.arrowButton.ArrowButton
-import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.arrowButton.GeneralTargetScoreButton
-import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.arrowButton.WorcesterTargetScoreButton
+import eywa.projectcodex.components.archerRoundScore.inputEnd.arrowButton.ArrowButton
+import eywa.projectcodex.components.archerRoundScore.inputEnd.arrowButton.GeneralTargetScoreButton
+import eywa.projectcodex.components.archerRoundScore.inputEnd.arrowButton.WorcesterTargetScoreButton
 import eywa.projectcodex.database.rounds.Round
 
 private val SPACING = 5.dp

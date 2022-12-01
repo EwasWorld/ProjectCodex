@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/info_table__row_header_width"
-    android:layout_height="@dimen/info_table__cell_height"
-    />

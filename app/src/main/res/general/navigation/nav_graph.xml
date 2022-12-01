@@ -26,14 +26,6 @@
         android:label="fragment_view_scores"
         >
         <action
-            android:id="@+id/actionViewScoresFragmentToScorePadFragment"
-            app:destination="@id/scorePadFragment"
-            />
-        <action
-            android:id="@+id/actionViewScoresFragmentToInputEndFragment"
-            app:destination="@id/inputEndFragment"
-            />
-        <action
             android:id="@+id/action_viewScoresFragment_to_newScoreFragment"
             app:destination="@id/newScoreFragment"
             />
@@ -51,10 +43,6 @@
         android:name="eywa.projectcodex.components.newScore.NewScoreFragment"
         android:label="fragment_new_score"
         >
-        <action
-            android:id="@+id/actionNewScoreFragmentToInputEndFragment"
-            app:destination="@id/inputEndFragment"
-            />
         <argument
             android:name="backStackBehaviour"
             app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
@@ -85,155 +73,15 @@
             />
     </fragment>
     <fragment
-        android:id="@+id/inputEndFragment"
-        android:name="eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment"
-        android:label="fragment_input_end"
-        tools:layout="@layout/fragment_input_end"
-        >
-        <action
-            android:id="@+id/actionInputEndFragmentToScorePadFragment"
-            app:destination="@id/scorePadFragment"
-            />
-        <argument
-            android:name="archerRoundId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="showArcherRoundNavBar"
-            app:argType="boolean"
-            android:defaultValue="true"
-            />
-        <argument
-            android:name="backStackBehaviour"
-            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
-            android:defaultValue="SINGLE"
-            />
-        <action
-            android:id="@+id/action_inputEndFragment_to_archerRoundStatsFragment"
-            app:destination="@id/archerRoundStatsFragment"
-            />
-    </fragment>
-    <fragment
-        android:id="@+id/scorePadFragment"
-        android:name="eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment"
-        android:label="activity_view_scores"
-        tools:layout="@layout/fragment_score_pad"
-        >
-        <argument
-            android:name="archerRoundId"
-            app:argType="integer"
-            />
-        <action
-            android:id="@+id/actionScorePadFragmentToEditEndFragment"
-            app:destination="@id/editEndFragment"
-            />
-        <action
-            android:id="@+id/actionScorePadFragmentToInsertEndFragment"
-            app:destination="@id/insertEndFragment"
-            />
-        <argument
-            android:name="showArcherRoundNavBar"
-            app:argType="boolean"
-            android:defaultValue="true"
-            />
-        <argument
-            android:name="backStackBehaviour"
-            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
-            android:defaultValue="SINGLE"
-            />
-    </fragment>
-    <fragment
-        android:id="@+id/editEndFragment"
-        android:name="eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment"
-        android:label="EditEndFragment"
-        tools:layout="@layout/fragment_edit_end"
-        >
-        <argument
-            android:name="endSize"
-            app:argType="integer"
-            />
-        <argument
-            android:name="archerRoundId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="firstArrowId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="backStackBehaviour"
-            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
-            android:defaultValue="NONE"
-            />
-        <action
-            android:id="@+id/actionEditEndFragmentToScorePadFragment"
-            app:destination="@id/scorePadFragment"
-            app:popUpTo="@id/scorePadFragment"
-            app:popUpToInclusive="true"
-            />
-    </fragment>
-    <fragment
-        android:id="@+id/insertEndFragment"
-        android:name="eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment"
-        android:label="fragment_insert_end"
-        tools:layout="@layout/fragment_insert_end"
-        >
-        <argument
-            android:name="endSize"
-            app:argType="integer"
-            />
-        <argument
-            android:name="archerRoundId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="firstArrowId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="backStackBehaviour"
-            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
-            android:defaultValue="NONE"
-            />
-        <action
-            android:id="@+id/actionInsertEndFragmentToScorePadFragment"
-            app:destination="@id/scorePadFragment"
-            app:popUpTo="@id/scorePadFragment"
-            app:popUpToInclusive="true"
-            />
-    </fragment>
-    <fragment
         android:id="@+id/aboutFragment"
         android:name="eywa.projectcodex.components.about.AboutFragment"
         android:label="fragment_about"
         tools:layout="@layout/fragment_about"
         />
     <fragment
-        android:id="@+id/archerRoundStatsFragment"
-        android:name="eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsFragment"
-        android:label="ArcherRoundStatsFragment"
-        tools:layout="@layout/fragment_archer_round_stats"
-        >
-        <argument
-            android:name="archerRoundId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="showArcherRoundNavBar"
-            app:argType="boolean"
-            android:defaultValue="true"
-            />
-        <argument
-            android:name="backStackBehaviour"
-            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
-            android:defaultValue="SINGLE"
-            />
-    </fragment>
-    <fragment
         android:id="@+id/emailFragment"
         android:name="eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment"
         android:label="fragment_about"
-        tools:layout="@layout/fragment_email_scores"
         >
         <argument
             android:name="archerRoundId"

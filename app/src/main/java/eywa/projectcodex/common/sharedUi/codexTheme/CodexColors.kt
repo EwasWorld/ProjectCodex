@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.*
-import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.ArrowButtonGroup
+import eywa.projectcodex.components.archerRoundScore.inputEnd.ArrowButtonGroup
 import eywa.projectcodex.components.viewScores.ui.MultiSelectBarListener
 import eywa.projectcodex.components.viewScores.ui.ViewScoresMultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType

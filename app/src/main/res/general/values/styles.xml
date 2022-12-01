@@ -6,50 +6,6 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="CreateRoundLinearLayout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:gravity">center</item>
-        <item name="android:layout_marginTop">@dimen/create_round__margins</item>
-        <item name="android:layout_marginBottom">@dimen/create_round__margins</item>
-    </style>
-
-    <style name="CreateRoundLabel">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:layout_marginRight">@dimen/create_round__margins</item>
-        <item name="android:layout_marginEnd">@dimen/create_round__margins</item>
-        <item name="android:textColor">@color/offBlack</item>
-        <item name="android:textSize">@dimen/create_round__text_size</item>
-    </style>
-
-    <style name="InputArrowScoreButtons">
-        <item name="android:tag">score_button</item>
-        <item name="android:minWidth">45dp</item>
-        <item name="android:layout_marginEnd">5dp</item>
-        <item name="android:layout_marginRight">5dp</item>
-        <item name="android:layout_marginStart">5dp</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:layout_marginBottom">5dp</item>
-    </style>
-
-    <style name="InputEndTableHeader" parent="InputEndTableItem">
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="InputEndTableItem">
-        <item name="android:textColor">@color/inputEndText</item>
-        <item name="android:textSize">@dimen/large_text_size</item>
-        <item name="android:gravity">center</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingBottom">5dp</item>
-    </style>
-
     <style name="GeneralText">
         <item name="android:textColor">@color/inputEndText</item>
         <item name="android:textSize">20sp</item>
@@ -64,35 +20,5 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="TableViewStyle">
-        <item name="android:layout_margin">@dimen/info_table__main_margins</item>
-        <item name="selected_color">@color/colorAccent</item>
-        <item name="unselected_color">@color/colorLightAccent</item>
-        <item name="separator_color">@color/colorPrimary</item>
-        <item name="shadow_color">@color/colorAccent</item>
-    </style>
-
-    <style name="ListCell">
-        <item name="android:layout_gravity">center</item>
-        <item name="android:paddingLeft">@dimen/info_table__padding</item>
-        <item name="android:paddingRight">@dimen/info_table__padding</item>
-        <item name="android:paddingTop">@dimen/info_table__padding</item>
-        <item name="android:paddingBottom">@dimen/info_table__padding</item>
-        <item name="android:textColor">@color/scorePadText</item>
-        <item name="android:textSize">@dimen/info_table__text_size</item>
-    </style>
-
-    <style name="Spinner">
-        <item name="android:popupBackground">@color/colorLightAccent</item>
-    </style>
-
-    <style name="UserInputText" parent="GeneralText">
-        <item name="android:background">@drawable/edit_text_rounded_corners_states</item>
-        <item name="android:padding">15dp</item>
-        <item name="android:radius">100dp</item>
-        <item name="android:textColorHint">@color/grey</item>
-        <item name="android:textColor">@color/offBlack</item>
-        <item name="android:gravity">left</item>
-    </style>
 
 </resources>

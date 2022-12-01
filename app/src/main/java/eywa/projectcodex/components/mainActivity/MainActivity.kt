@@ -4,7 +4,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -18,17 +17,13 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcase
-import eywa.projectcodex.common.utils.ArcherRoundBottomNavigationInfo
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.common.utils.findInstanceOf
 import eywa.projectcodex.common.utils.getColourResource
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.CloseHelpShowcase
@@ -131,40 +126,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        navHostFragment =
-                (supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-                        ?: throw IllegalStateException("No NavHost found")) as NavHostFragment
-        val bottomNav = findViewById<BottomNavigationView>(R.id.menu_archer_rounds_bottom_nav)
-        bottomNav.setupWithNavController(navHostFragment.navController)
-        bottomNav.setOnNavigationItemSelectedListener { item ->
-            val roundInfo = findInstanceOf<ArcherRoundBottomNavigationInfo>(navHostFragment)
-            check(roundInfo != null) { "No ArcherRoundBottomNavigation found" }
-
-            if (item.itemId == R.id.inputEndFragment && roundInfo.isRoundComplete()) {
-                ToastSpamPrevention.displayToast(
-                        this,
-                        resources.getString(R.string.err_archer_round_nav__round_completed)
-                )
-                return@setOnNavigationItemSelectedListener false
-            }
-            val args = Bundle()
-            args.putInt("archerRoundId", roundInfo.getArcherRoundId())
-            navHostFragment.navController.navigate(item.itemId, args)
-            true
-        }
-
-        navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
-            if (arguments?.getBoolean("showArcherRoundNavBar", false) == true) {
-                bottomNav.visibility = View.VISIBLE
-            }
-            else {
-                bottomNav.visibility = View.GONE
-            }
-
-            if (getBackStackBehaviour(destination) != BackStackBehaviour.NONE) {
-                customBackStack.add(destination.id)
-            }
-        }
+        navHostFragment = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+                ?: throw IllegalStateException("No NavHost found")) as NavHostFragment
 
         onBackPressedDispatcher.addCallback(this) {
             val navController = navHostFragment.navController
@@ -196,18 +159,6 @@ class MainActivity : AppCompatActivity() {
              */
             while (customBackStack.isNotEmpty() && customBackStack.last() == nextDestination) {
                 customBackStack.removeLast()
-            }
-
-            /*
-             * Check it's not illegally moving to input end on a completed round
-             */
-            if (nextDestination == R.id.inputEndFragment) {
-                findInstanceOf<ArcherRoundBottomNavigationInfo>(navHostFragment)?.let { roundInfo ->
-                    if (roundInfo.isRoundComplete()) {
-                        clearBackStackAndReturnToMainMenu()
-                        return@addCallback
-                    }
-                }
             }
 
             if (getBackStackBehaviour(navController.currentDestination) == BackStackBehaviour.SINGLE) {

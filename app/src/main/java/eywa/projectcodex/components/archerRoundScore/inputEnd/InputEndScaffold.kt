@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd.ui
+package eywa.projectcodex.components.archerRoundScore.inputEnd
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text

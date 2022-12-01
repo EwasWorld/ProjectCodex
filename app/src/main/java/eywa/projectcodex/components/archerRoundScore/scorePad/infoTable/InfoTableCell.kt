@@ -2,6 +2,7 @@ package eywa.projectcodex.components.archerRoundScore.scorePad.infoTable
 
 import com.evrencoskun.tableview.sort.ISortableModel
 
+@Deprecated("")
 class InfoTableCell(private val cellContent: Any?, private val cellId: String, val style: CellStyle? = null) :
         ISortableModel {
     override fun getContent(): Any? {

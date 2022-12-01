@@ -15,9 +15,9 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loaded
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loading
 import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsScreen
-import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.EditEndScreen
-import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.InputEndScreen
-import eywa.projectcodex.components.archerRoundScore.inputEnd.ui.InsertEndScreen
+import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndScreen
+import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndScreen
+import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndScreen
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
 
