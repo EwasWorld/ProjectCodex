@@ -7,6 +7,7 @@ import androidx.navigation.findNavController
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ToastSpamPrevention
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundScreen
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.ViewScoresListActionState
@@ -23,8 +24,11 @@ enum class ViewScoresDropdownMenuItem(
         val showCondition: ((ViewScoresEntry) -> Boolean)? = null,
 ) {
     SCORE_PAD(R.string.view_scores_menu__score_pad, { entry, view, _ ->
-        val args = Bundle().apply { putInt("archerRoundId", entry.id) }
-        view.findNavController().navigate(R.id.scorePadFragment, args)
+        val args = Bundle().apply {
+            putString("screen", ArcherRoundScreen.SCORE_PAD.name)
+            putInt("archerRoundId", entry.id)
+        }
+        view.findNavController().navigate(R.id.archerRoundFragment, args)
         true
     }),
     CONTINUE(R.string.view_scores_menu__continue, { entry, view, _ ->
@@ -37,8 +41,11 @@ enum class ViewScoresDropdownMenuItem(
             false
         }
         else {
-            val args = Bundle().apply { putInt("archerRoundId", entry.id) }
-            view.findNavController().navigate(R.id.inputEndFragment, args)
+            val args = Bundle().apply {
+                putString("screen", ArcherRoundScreen.INPUT_END.name)
+                putInt("archerRoundId", entry.id)
+            }
+            view.findNavController().navigate(R.id.archerRoundFragment, args)
             true
         }
     }, { entry -> !entry.isRoundComplete() }),

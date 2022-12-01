@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asPlaceholderStyle
 
 
 @Composable
@@ -88,7 +89,7 @@ fun CodexTextField(
                     {
                         Text(
                                 text = placeholderText,
-                                style = CodexTypography.SMALL,
+                                style = textStyle.asPlaceholderStyle(),
                         )
                     }
 
@@ -97,7 +98,7 @@ fun CodexTextField(
                     {
                         Text(
                                 text = labelText,
-                                style = CodexTypography.SMALL,
+                                style = textStyle,
                         )
                     }
                 },

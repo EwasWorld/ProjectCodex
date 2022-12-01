@@ -24,7 +24,6 @@
         android:id="@+id/viewScoresFragment"
         android:name="eywa.projectcodex.components.viewScores.ViewScoresFragment"
         android:label="fragment_view_scores"
-        tools:layout="@layout/fragment_view_scores"
         >
         <action
             android:id="@+id/actionViewScoresFragmentToScorePadFragment"
@@ -42,12 +41,15 @@
             android:id="@+id/action_viewScoresFragment_to_emailFragment"
             app:destination="@id/emailFragment"
             />
+        <action
+            android:id="@+id/action_viewScoresFragment_to_archerRoundFragment"
+            app:destination="@id/archerRoundFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/newScoreFragment"
         android:name="eywa.projectcodex.components.newScore.NewScoreFragment"
         android:label="fragment_new_score"
-        tools:layout="@layout/fragment_new_score"
         >
         <action
             android:id="@+id/actionNewScoreFragmentToInputEndFragment"
@@ -62,6 +64,24 @@
             android:name="archerRoundId"
             app:argType="integer"
             android:defaultValue="-1"
+            />
+        <action
+            android:id="@+id/action_newScoreFragment_to_archerRoundFragment"
+            app:destination="@id/archerRoundFragment"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/archerRoundFragment"
+        android:name="eywa.projectcodex.components.archerRoundScore.ArcherRoundFragment"
+        android:label="fragment_archer_round"
+        >
+        <argument
+            android:name="archerRoundId"
+            app:argType="integer"
+            />
+        <argument
+            android:name="screen"
+            app:argType="string"
             />
     </fragment>
     <fragment

@@ -2,6 +2,7 @@ package eywa.projectcodex.components.archerRoundScore
 
 import androidx.compose.material.BottomNavigation
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.common.sharedUi.CodexBottomNavItem
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -10,10 +11,12 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 fun ArcherRoundBottomNavBar(
         currentScreen: ArcherRoundScreen?,
         listener: (ArcherRoundScreen) -> Unit,
+        modifier: Modifier = Modifier,
 ) {
     BottomNavigation(
             backgroundColor = CodexTheme.colors.bottomNavBar,
             contentColor = CodexTheme.colors.onBottomNavBar,
+            modifier = modifier
     ) {
         ArcherRoundScreen.values().filter { it.bottomNavItemInfo != null }.forEach {
             val navItemInfo = it.bottomNavItemInfo!!

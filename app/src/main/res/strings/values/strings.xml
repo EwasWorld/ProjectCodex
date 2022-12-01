@@ -68,5 +68,9 @@
     <string name="err__internal_error">Internal error occurred</string>
     <string name="err__try_again_error">Unexpected error occurred, please try again</string>
 
+
+    <!-- TODO Remove after compose-based nav -->
+    <string name="archer_round_title">Score</string>
+
     <string name="placeholder_0">0</string>
 </resources>

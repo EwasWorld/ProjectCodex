@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.archerRoundScore.archerRoundStats
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,9 +38,8 @@ fun ArcherRoundStatsScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                    .verticalScroll(rememberScrollState())
                     .fillMaxSize()
-                    .background(CodexTheme.colors.appBackground)
+                    .verticalScroll(rememberScrollState())
                     .padding(25.dp)
     ) {
         Section {

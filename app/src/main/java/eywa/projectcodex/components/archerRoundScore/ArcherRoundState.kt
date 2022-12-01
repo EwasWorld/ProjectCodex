@@ -13,6 +13,8 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundScreen.INPUT_END
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundScreen.INSERT_END
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 
+private const val DEFAULT_END_SIZE = 6
+
 sealed class ArcherRoundState {
     open val showNavBar: Boolean = false
 
@@ -26,19 +28,26 @@ sealed class ArcherRoundState {
             val fullArcherRoundInfo: FullArcherRoundInfo,
             val goldsType: GoldsType =
                     fullArcherRoundInfo.round?.let { GoldsType.getGoldsType(it) } ?: GoldsType.defaultGoldsType,
-            val inputEndSize: Int = 6,
-            val scorePadEndSize: Int = 6,
+            val inputEndSize: Int? = DEFAULT_END_SIZE,
+            val scorePadEndSize: Int? = DEFAULT_END_SIZE,
             val scorePadSelectedRow: Int? = null,
-            val scorePadDropdownOpenForEndNumber: Int? = null,
             val inputArrows: List<Arrow> = listOf(),
             val subScreenInputArrows: List<Arrow> = listOf(),
             val displayRoundCompletedDialog: Boolean = false,
     ) : ArcherRoundState() {
-        val scorePadData by lazy { ScorePadDataNew(fullArcherRoundInfo, scorePadEndSize, goldsType) }
+        val scorePadData by lazy {
+            ScorePadDataNew(
+                    fullArcherRoundInfo,
+                    scorePadEndSize ?: DEFAULT_END_SIZE,
+                    goldsType
+            )
+        }
 
         override val showNavBar: Boolean = currentScreen.isMainScreen
 
-        val scorePadSelectedRowFirstArrowNumber by lazy { scorePadEndSize * (scorePadSelectedRow!! - 1) }
+        val scorePadSelectedRowFirstArrowNumber by lazy {
+            (scorePadEndSize ?: DEFAULT_END_SIZE) * (scorePadSelectedRow!! - 1)
+        }
 
         /**
          * The end size for the [currentScreen].
@@ -49,7 +58,7 @@ sealed class ArcherRoundState {
          * - [ArcherRoundScreen.INSERT_END] caps at arrows remaining
          */
         val currentScreenEndSize by lazy {
-            val endSize = if (currentScreen == INPUT_END) inputEndSize else scorePadEndSize
+            val endSize = (if (currentScreen == INPUT_END) inputEndSize else scorePadEndSize) ?: DEFAULT_END_SIZE
             val maxArrows = when {
                 displayRoundCompletedDialog -> null
                 fullArcherRoundInfo.round == null -> null
@@ -77,22 +86,22 @@ sealed class ArcherRoundState {
 enum class ArcherRoundScreen(val bottomNavItemInfo: ArcherRoundBottomNavItemInfo? = null) {
     INPUT_END(
             ArcherRoundBottomNavItemInfo(
-                    notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
-                    selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
+                    notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
+                    selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
                     label = R.string.input_end__title,
             )
     ),
     SCORE_PAD(
             ArcherRoundBottomNavItemInfo(
-                    notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_filled),
-                    selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_outline),
+                    notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_outline),
+                    selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_filled),
                     label = R.string.score_pad__title,
             )
     ),
     STATS(
             ArcherRoundBottomNavItemInfo(
-                    notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
-                    selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
+                    notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
+                    selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
                     label = R.string.archer_round_stats__title,
             )
     ),
@@ -108,7 +117,7 @@ enum class ArcherRoundScreen(val bottomNavItemInfo: ArcherRoundBottomNavItemInfo
     INSERT_END,
     ;
 
-    val isMainScreen = bottomNavItemInfo == null
+    val isMainScreen = bottomNavItemInfo != null
 }
 
 data class ArcherRoundBottomNavItemInfo(

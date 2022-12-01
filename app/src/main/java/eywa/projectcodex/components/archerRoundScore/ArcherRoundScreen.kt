@@ -1,17 +1,17 @@
 package eywa.projectcodex.components.archerRoundScore
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loaded
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loading
 import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsScreen
@@ -41,17 +41,16 @@ fun ArcherRoundScreen(
 
     Column {
         Box(
-                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                        .fillMaxSize()
                         .weight(1f)
+                        .background(CodexTheme.colors.appBackground)
         ) {
             when (state) {
                 is Loading -> CircularProgressIndicator()
                 is Loaded -> when (state.currentScreen) {
                     ArcherRoundScreen.INPUT_END -> InputEndScreen(state, listener)
                     ArcherRoundScreen.SCORE_PAD ->
-                        ScorePadScreen(state.scorePadDropdownOpenForEndNumber, state.scorePadData, listener)
+                        ScorePadScreen(state.scorePadSelectedRow, state.scorePadData, listener)
                     ArcherRoundScreen.STATS -> ArcherRoundStatsScreen(state.fullArcherRoundInfo, state.goldsType)
                     ArcherRoundScreen.SETTINGS ->
                         ArcherRoundSettingsScreen(state.inputEndSize, state.scorePadEndSize, listener)

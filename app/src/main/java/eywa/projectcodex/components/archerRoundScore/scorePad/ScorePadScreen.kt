@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +41,7 @@ private val COLUMN_HEADER_ORDER = listOf(
         ColumnHeader.RUNNING_TOTAL,
 )
 
+// TODO_CURRENT Don't allow insert if full
 @Composable
 fun ScorePadScreen(
         dropdownMenuOpenForEndNumber: Int?,
@@ -48,10 +50,11 @@ fun ScorePadScreen(
 ) {
     // TODO Make the row and column headers stick
     Row(
+            verticalAlignment = Alignment.Top,
             modifier = Modifier
+                    .fillMaxSize()
                     .horizontalScroll(rememberScrollState())
                     .verticalScroll(rememberScrollState())
-                    .fillMaxSize()
                     .padding(5.dp)
     ) {
         Column(
@@ -132,7 +135,9 @@ private fun Cell(
     }
 
     Text(
-            text = text ?: rowData!!.getRowHeader().get(),
+            text = text
+                    ?: columnType?.let { rowData!!.getContent(it, LocalContext.current.resources) }
+                    ?: rowData!!.getRowHeader().get(),
             style = CodexTypography.NORMAL.copy(
                     textAlign = TextAlign.Center,
                     fontWeight = if (isHeaderOrTotal) FontWeight.Bold else FontWeight.Normal,

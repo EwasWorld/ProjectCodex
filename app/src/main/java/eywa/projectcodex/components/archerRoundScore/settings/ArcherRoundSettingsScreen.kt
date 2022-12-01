@@ -1,6 +1,6 @@
 package eywa.projectcodex.components.archerRoundScore.settings
 
-import androidx.compose.foundation.background
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,24 +32,25 @@ import eywa.projectcodex.components.archerRoundScore.DataRow
 
 @Composable
 fun ArcherRoundSettingsScreen(
-        inputEndSize: Int,
-        scorePadEndSize: Int,
+        inputEndSize: Int?,
+        scorePadEndSize: Int?,
         listener: (SettingsIntent) -> Unit,
 ) {
     Column(
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                    .verticalScroll(rememberScrollState())
                     .fillMaxSize()
-                    .background(CodexTheme.colors.appBackground)
+                    .verticalScroll(rememberScrollState())
                     .padding(25.dp)
     ) {
         NumberSetting(
+                title = R.string.archer_round_settings__input_end_size,
                 currentValue = inputEndSize,
                 onValueChanged = { listener(InputEndSizeChanged(it)) },
         )
         NumberSetting(
+                title = R.string.archer_round_settings__score_pad_end_size,
                 currentValue = scorePadEndSize,
                 onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
         )
@@ -60,13 +61,14 @@ fun ArcherRoundSettingsScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun NumberSetting(
-        currentValue: Int,
-        onValueChanged: (Int) -> Unit,
+        @StringRes title: Int,
+        currentValue: Int?,
+        onValueChanged: (Int?) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     DataRow(
-            title = R.string.archer_round_settings__input_end_size,
+            title = title,
     ) {
         Surface(
                 color = CodexTheme.colors.surfaceOnBackground,
@@ -74,11 +76,11 @@ private fun NumberSetting(
         ) {
             CodexTextField(
                     state = CodexTextFieldState(
-                            text = currentValue.toString(),
-                            onValueChange = { onValueChanged(it.toInt()) },
+                            text = currentValue?.toString() ?: "",
+                            onValueChange = { onValueChanged(it.takeIf { it.isNotBlank() }?.toInt()) },
                             testTag = "",
                     ),
-                    placeholderText = null,
+                    placeholderText = "6",
                     textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onSurfaceOnBackground),
                     keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,

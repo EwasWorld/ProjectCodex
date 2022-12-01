@@ -12,6 +12,11 @@ fun TextStyle.asClickableStyle() = copy(
         textDecoration = TextDecoration.Underline,
 )
 
+@Composable
+fun TextStyle.asPlaceholderStyle() = copy(
+        color = color.copy(color.alpha * 0.3f),
+)
+
 object CodexTypography {
     val X_LARGE = TextStyle.Default.copy(
             fontSize = 40.sp,

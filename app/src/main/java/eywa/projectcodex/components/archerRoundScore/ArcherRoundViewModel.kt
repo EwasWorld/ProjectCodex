@@ -104,8 +104,12 @@ class ArcherRoundViewModel @Inject constructor(
         check(arrows.size <= currentScreenEndSize) { "Too many arrows have been inputted" }
 
         viewModelScope.launch {
+            if (arrows.size < currentScreenEndSize) {
+                _effects.emit(ArcherRoundEffect.Error.NotEnoughArrowsInputted)
+                return@launch
+            }
+
             arrowValuesRepo.insert(*arrows.toTypedArray())
-            _effects.emit(ArcherRoundEffect.NavigateUp)
         }
     }
 
@@ -120,6 +124,11 @@ class ArcherRoundViewModel @Inject constructor(
         check(arrows.size <= currentScreenEndSize) { "Too many arrows have been marked for edit" }
 
         viewModelScope.launch {
+            if (arrows.size < currentScreenEndSize) {
+                _effects.emit(ArcherRoundEffect.Error.NotEnoughArrowsInputted)
+                return@launch
+            }
+
             arrowValuesRepo.update(*arrows.toTypedArray())
             _effects.emit(ArcherRoundEffect.NavigateUp)
         }
@@ -154,7 +163,7 @@ class ArcherRoundViewModel @Inject constructor(
                 }
             }
             ArrowInputsIntent.BackspaceArrowsInputted -> (state as Loaded).let {
-                if (it.currentScreenEndSize == 0) {
+                if (it.currentScreenInputArrows.isEmpty()) {
                     viewModelScope.launch { _effects.emit(ArcherRoundEffect.Error.NoArrowsCannotBackSpace) }
                 }
                 else {
@@ -181,7 +190,7 @@ class ArcherRoundViewModel @Inject constructor(
 
         when (action) {
             ScorePadIntent.CloseDropdownMenu ->
-                state = (state as Loaded).copy(scorePadDropdownOpenForEndNumber = null)
+                state = (state as Loaded).copy(scorePadSelectedRow = null)
             ScorePadIntent.DeleteEndClicked -> viewModelScope.launch {
                 (state as Loaded).let {
                     arrowValuesRepo.deleteEnd(

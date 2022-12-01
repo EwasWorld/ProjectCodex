@@ -29,8 +29,8 @@ sealed class ArcherRoundIntent {
     }
 
     sealed class SettingsIntent : ArcherRoundIntent() {
-        data class InputEndSizeChanged(val endSize: Int) : SettingsIntent()
-        data class ScorePadEndSizeChanged(val endSize: Int) : SettingsIntent()
+        data class InputEndSizeChanged(val endSize: Int?) : SettingsIntent()
+        data class ScorePadEndSizeChanged(val endSize: Int?) : SettingsIntent()
     }
 
     data class NavBarClicked(val screen: ArcherRoundScreen) : ArcherRoundIntent()
