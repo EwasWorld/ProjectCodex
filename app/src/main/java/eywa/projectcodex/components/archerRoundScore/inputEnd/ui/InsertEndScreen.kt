@@ -12,10 +12,10 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
 
 @Composable
 fun InsertEndScreen(
-        state: ArcherRoundState,
+        state: ArcherRoundState.Loaded,
         listener: (ArcherRoundIntent) -> Unit,
 ) {
-    val endNumber = state.isInsertingEndNumber!!
+    val endNumber = state.scorePadSelectedRow!!
 
     val insertLocationString = if (endNumber == 0) {
         stringResource(R.string.insert_end__info_at_start)
@@ -26,9 +26,9 @@ fun InsertEndScreen(
 
     InputEndScaffold(
             showReset = false,
-            inputArrows = state.inputArrows,
+            inputArrows = state.currentScreenInputArrows,
             round = state.fullArcherRoundInfo.round,
-            endSize = state.inputEndSize,
+            endSize = state.currentScreenEndSize,
             contentText = insertLocationString,
             showCancelButton = true,
             listener = listener,
@@ -43,6 +43,6 @@ fun InsertEndScreen(
 @Composable
 fun InsertEndScreen_Preview() {
     CodexTheme {
-        InsertEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(isInsertingEndNumber = 1)) {}
+        InsertEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(scorePadSelectedRow = 1)) {}
     }
 }

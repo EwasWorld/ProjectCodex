@@ -3,6 +3,8 @@ package eywa.projectcodex.components.archerRoundScore
 import eywa.projectcodex.common.archeryObjects.Arrow
 
 sealed class ArcherRoundIntent {
+    data class Initialise(val screen: ArcherRoundScreen, val archerRoundId: Int) : ArcherRoundIntent()
+
     sealed class ArrowInputsIntent : ArcherRoundIntent() {
         data class ArrowInputted(val arrow: Arrow) : ArrowInputsIntent()
         object ResetArrowsInputted : ArrowInputsIntent()
@@ -11,6 +13,11 @@ sealed class ArcherRoundIntent {
     }
 
     sealed class ScorePadIntent : ArcherRoundIntent() {
+        /**
+         * @param endNumber 1-indexed
+         */
+        data class RowLongClicked(val endNumber: Int) : ScorePadIntent()
+
         /**
          * @param endNumber 1-indexed
          */
@@ -26,7 +33,9 @@ sealed class ArcherRoundIntent {
         data class ScorePadEndSizeChanged(val endSize: Int) : SettingsIntent()
     }
 
-    data class NavBarClicked(val item: ArcherRoundScreen) : ArcherRoundIntent()
+    data class NavBarClicked(val screen: ArcherRoundScreen) : ArcherRoundIntent()
     object ScreenSubmitClicked : ArcherRoundIntent()
     object ScreenCancelClicked : ArcherRoundIntent()
+
+    object RoundCompleteDialogOkClicked : ArcherRoundIntent()
 }

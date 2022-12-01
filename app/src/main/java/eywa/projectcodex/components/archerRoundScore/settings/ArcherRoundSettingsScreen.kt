@@ -53,6 +53,7 @@ fun ArcherRoundSettingsScreen(
                 currentValue = scorePadEndSize,
                 onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
         )
+        // TODO Change golds type
     }
 }
 

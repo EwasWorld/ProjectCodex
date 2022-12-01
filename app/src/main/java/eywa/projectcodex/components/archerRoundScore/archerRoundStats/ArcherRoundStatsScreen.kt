@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -23,7 +24,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.DataRow
-import eywa.projectcodex.database.archerRound.FullArcherRoundInfo
 import kotlin.math.abs
 
 @Composable

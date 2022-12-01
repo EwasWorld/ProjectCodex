@@ -8,19 +8,20 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 
 @Composable
 fun ArcherRoundBottomNavBar(
-        currentScreen: ArcherRoundScreen,
+        currentScreen: ArcherRoundScreen?,
         listener: (ArcherRoundScreen) -> Unit,
 ) {
     BottomNavigation(
             backgroundColor = CodexTheme.colors.bottomNavBar,
             contentColor = CodexTheme.colors.onBottomNavBar,
     ) {
-        ArcherRoundScreen.values().forEach {
+        ArcherRoundScreen.values().filter { it.bottomNavItemInfo != null }.forEach {
+            val navItemInfo = it.bottomNavItemInfo!!
             CodexBottomNavItem(
-                    icon = it.notSelectedIcon,
-                    selectedIcon = it.selectedIcon ?: it.notSelectedIcon,
-                    label = stringResource(it.label),
-                    contentDescription = stringResource(it.label),
+                    icon = navItemInfo.notSelectedIcon,
+                    selectedIcon = navItemInfo.selectedIcon ?: navItemInfo.notSelectedIcon,
+                    label = stringResource(navItemInfo.label),
+                    contentDescription = stringResource(navItemInfo.label),
                     isCurrentDestination = currentScreen == it,
                     onClick = { listener(it) },
             )

@@ -1,15 +1,19 @@
 package eywa.projectcodex.components.archerRoundScore.scorePad
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,7 +30,6 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ColumnHeader
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadRow
-import kotlin.reflect.KClass
 
 
 private val COLUMN_HEADER_ORDER = listOf(
@@ -43,8 +46,6 @@ fun ScorePadScreen(
         data: ScorePadDataNew,
         listener: (ScorePadIntent) -> Unit,
 ) {
-    val resources = LocalContext.current.resources
-
     // TODO Make the row and column headers stick
     Row(
             modifier = Modifier
@@ -58,16 +59,14 @@ fun ScorePadScreen(
                 modifier = Modifier.width(IntrinsicSize.Max)
         ) {
             // Placeholder for the first row which is the column header for other columns
-            Cell(text = "", rowType = null, columnType = null)
+            Cell(
+                    text = "",
+                    listener = listener,
+            )
             data.data.forEach { rowData ->
-                val modifier = if (rowData !is ScorePadRow.End) Modifier
-                else Modifier.clickable { listener(RowClicked(rowData.endNumber)) }
-
                 Cell(
-                        text = rowData.getRowHeader().get(),
-                        rowType = rowData::class,
-                        columnType = null,
-                        modifier = modifier,
+                        rowData = rowData,
+                        listener = listener,
                 )
             }
         }
@@ -79,20 +78,16 @@ fun ScorePadScreen(
             ) {
                 Cell(
                         text = stringResource(columnHeader.getShortResourceId(data.goldsType)),
-                        rowType = null,
                         columnType = columnHeader,
+                        listener = listener,
                 )
 
                 data.data.forEach { rowData ->
-                    val modifier = if (rowData !is ScorePadRow.End) Modifier
-                    else Modifier.clickable { listener(RowClicked(rowData.endNumber)) }
-
                     Box {
                         Cell(
-                                text = rowData.getContent(columnHeader, resources),
-                                rowType = rowData::class,
+                                rowData = rowData,
                                 columnType = columnHeader,
-                                modifier = modifier,
+                                listener = listener,
                         )
                         DropdownMenu(
                                 expanded = dropdownMenuOpenForEndNumber != null
@@ -108,38 +103,46 @@ fun ScorePadScreen(
 }
 
 /**
- * @param rowType null for the column headers row
  * @param columnType null for the row headers column
  */
 @Composable
 private fun Cell(
-        text: String,
-        rowType: KClass<out ScorePadRow>?,
-        columnType: ColumnHeader?,
-        modifier: Modifier = Modifier,
+        text: String? = null,
+        rowData: ScorePadRow? = null,
+        columnType: ColumnHeader? = null,
+        listener: (ScorePadIntent) -> Unit,
 ) {
-    val isTotalRow = rowType != null && rowType != ScorePadRow.End::class
-    val isHeaderOrTotal = isTotalRow || rowType == null || columnType == null
+    val isTotalRow = rowData != null && rowData !is ScorePadRow.End
+    val isHeaderOrTotal = isTotalRow || rowData == null || columnType == null
 
     val backgroundColour = when {
         isTotalRow -> CodexTheme.colors.listAccentRowItemOnAppBackground
-        rowType == null && columnType == null -> null
-        rowType != null && columnType != null -> CodexTheme.colors.listItemOnAppBackground
+        rowData == null && columnType == null -> null
+        rowData != null && columnType != null -> CodexTheme.colors.listItemOnAppBackground
         else -> CodexTheme.colors.listAccentRowItemOnAppBackground
     }
     val backgroundModifier = backgroundColour?.let { Modifier.background(it) } ?: Modifier
 
+    val clickModifier = if (rowData !is ScorePadRow.End) Modifier
+    else Modifier.pointerInput(rowData) {
+        detectTapGestures(
+                onTap = { listener(RowClicked(rowData.endNumber)) },
+                onLongPress = { listener(RowLongClicked(rowData.endNumber)) },
+        )
+    }
+
     Text(
-            text = text,
+            text = text ?: rowData!!.getRowHeader().get(),
             style = CodexTypography.NORMAL.copy(
                     textAlign = TextAlign.Center,
                     fontWeight = if (isHeaderOrTotal) FontWeight.Bold else FontWeight.Normal,
             ),
-            modifier = modifier
+            modifier = Modifier
                     .fillMaxWidth()
                     .padding(2.dp)
                     .then(backgroundModifier)
                     .padding(vertical = 5.dp, horizontal = 10.dp)
+                    .then(clickModifier)
     )
 }
 

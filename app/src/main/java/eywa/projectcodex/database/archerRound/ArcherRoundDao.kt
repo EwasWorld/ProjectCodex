@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.rounds.Round
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArcherRoundDao {
@@ -41,6 +42,9 @@ interface ArcherRoundDao {
 
     @Query("DELETE FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
     suspend fun deleteRound(archerRoundId: Int)
+
+    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId")
+    fun getFullArcherRoundInfo(archerRoundId: Int): Flow<DatabaseFullArcherRoundInfo>
 
     // TODO Remove custom type example when from-to filter has been implemented
 //    @Entity

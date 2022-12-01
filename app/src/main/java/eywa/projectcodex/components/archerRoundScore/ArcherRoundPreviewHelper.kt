@@ -1,9 +1,10 @@
 package eywa.projectcodex.components.archerRoundScore
 
 import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.newScore.NewScoreStatePreviewProvider
-import eywa.projectcodex.database.archerRound.FullArcherRoundInfo
+import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 
 object ArcherRoundPreviewHelper {
@@ -17,15 +18,17 @@ object ArcherRoundPreviewHelper {
             Arrow(0, false),
     )
 
-    val SIMPLE = ArcherRoundState(
+    val SIMPLE = ArcherRoundState.Loaded(
             currentScreen = ArcherRoundScreen.INPUT_END,
             fullArcherRoundInfo = FullArcherRoundInfo(
-                    archerRound = provider.editingArcherRound,
-                    arrows = List(50) { ArrowValue(1, it, 7, false) },
-                    round = round.round,
-                    roundArrowCounts = round.roundArrowCounts,
-                    allRoundSubTypes = round.roundSubTypes,
-                    allRoundDistances = round.roundDistances,
+                    DatabaseFullArcherRoundInfo(
+                            archerRound = provider.editingArcherRound,
+                            arrows = List(50) { ArrowValue(1, it, 7, false) },
+                            round = round.round,
+                            roundArrowCounts = round.roundArrowCounts,
+                            allRoundSubTypes = round.roundSubTypes,
+                            allRoundDistances = round.roundDistances,
+                    )
             ),
             goldsType = GoldsType.NINES,
             inputArrows = inputArrows,

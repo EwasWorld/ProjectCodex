@@ -20,6 +20,8 @@ class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
         return archerRoundDao.getArcherRoundWithRoundInfoAndName(archerRoundId)
     }
 
+    fun getFullArcherRoundInfo(archerRoundId: Int) = archerRoundDao.getFullArcherRoundInfo(archerRoundId)
+
     fun getArcherRound(archerRoundId: Int): LiveData<ArcherRound> {
         return archerRoundDao.getArcherRoundById(archerRoundId)
     }

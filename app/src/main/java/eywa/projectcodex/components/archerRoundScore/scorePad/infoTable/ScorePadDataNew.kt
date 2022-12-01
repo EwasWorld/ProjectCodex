@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.get
-import eywa.projectcodex.database.archerRound.FullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.*
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance

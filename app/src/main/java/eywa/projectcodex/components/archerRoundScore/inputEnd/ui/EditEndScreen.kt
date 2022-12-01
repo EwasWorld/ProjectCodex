@@ -12,15 +12,15 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
 
 @Composable
 fun EditEndScreen(
-        state: ArcherRoundState,
+        state: ArcherRoundState.Loaded,
         listener: (ArcherRoundIntent) -> Unit,
 ) {
     InputEndScaffold(
             showReset = true,
-            inputArrows = state.inputArrows,
+            inputArrows = state.currentScreenInputArrows,
             round = state.fullArcherRoundInfo.round,
-            endSize = state.inputEndSize,
-            contentText = stringResource(R.string.edit_end__edit_info, state.isEditingEndNumber!! + 1),
+            endSize = state.currentScreenEndSize,
+            contentText = stringResource(R.string.edit_end__edit_info, state.scorePadSelectedRow!! + 1),
             showCancelButton = true,
             listener = listener,
     )
@@ -34,6 +34,6 @@ fun EditEndScreen(
 @Composable
 fun EditEndScreen_Preview() {
     CodexTheme {
-        EditEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(isEditingEndNumber = 0)) {}
+        EditEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(scorePadSelectedRow = 0)) {}
     }
 }
