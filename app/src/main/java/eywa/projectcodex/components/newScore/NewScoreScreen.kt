@@ -34,6 +34,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.Sorting
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
@@ -43,8 +44,8 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.asDisplayString
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundFilter
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundSubType
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -554,154 +555,10 @@ class NewScoreScreen : ActionBarHelp {
 }
 
 class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
-    val editingArcherRound = ArcherRound(1, Calendar.getInstance().time, 1)
-
-    val outdoorImperialRoundData = FullRoundInfo(
-            round = Round(
-                    roundId = 1,
-                    name = "york",
-                    displayName = "York",
-                    isOutdoor = true,
-                    isMetric = false,
-                    permittedFaces = listOf(),
-            ),
-            roundSubTypes = listOf(
-                    RoundSubType(
-                            roundId = 1,
-                            subTypeId = 1,
-                            name = "York",
-                    ),
-                    RoundSubType(
-                            roundId = 1,
-                            subTypeId = 2,
-                            name = "Hereford",
-                    ),
-            ),
-            roundArrowCounts = listOf(
-                    RoundArrowCount(
-                            roundId = 1,
-                            distanceNumber = 1,
-                            faceSizeInCm = 120.0,
-                            arrowCount = 36,
-                    ),
-                    RoundArrowCount(
-                            roundId = 1,
-                            distanceNumber = 2,
-                            faceSizeInCm = 120.0,
-                            arrowCount = 24,
-                    ),
-            ),
-            roundDistances = listOf(
-                    RoundDistance(
-                            roundId = 1,
-                            distanceNumber = 1,
-                            subTypeId = 1,
-                            distance = 100,
-                    ),
-                    RoundDistance(
-                            roundId = 1,
-                            distanceNumber = 2,
-                            subTypeId = 1,
-                            distance = 80,
-                    ),
-                    RoundDistance(
-                            roundId = 1,
-                            distanceNumber = 1,
-                            subTypeId = 2,
-                            distance = 80,
-                    ),
-                    RoundDistance(
-                            roundId = 1,
-                            distanceNumber = 2,
-                            subTypeId = 2,
-                            distance = 60,
-                    ),
-            ),
-    )
-
-    val indoorMetricRoundData = FullRoundInfo(
-            round = Round(
-                    roundId = 2,
-                    name = "wa",
-                    displayName = "WA",
-                    isOutdoor = false,
-                    isMetric = true,
-                    permittedFaces = listOf(),
-            ),
-            roundSubTypes = listOf(
-                    RoundSubType(
-                            roundId = 2,
-                            subTypeId = 1,
-                            name = "WA 18m",
-                    ),
-                    RoundSubType(
-                            roundId = 2,
-                            subTypeId = 2,
-                            name = "WA 25m",
-                    ),
-            ),
-            roundArrowCounts = listOf(
-                    RoundArrowCount(
-                            roundId = 2,
-                            distanceNumber = 1,
-                            faceSizeInCm = 60.0,
-                            arrowCount = 60,
-                    ),
-            ),
-            roundDistances = listOf(
-                    RoundDistance(
-                            roundId = 2,
-                            distanceNumber = 1,
-                            subTypeId = 1,
-                            distance = 18,
-                    ),
-                    RoundDistance(
-                            roundId = 2,
-                            distanceNumber = 1,
-                            subTypeId = 2,
-                            distance = 25,
-                    ),
-            ),
-    )
-
-    val singleSubtypeRoundData = FullRoundInfo(
-            round = Round(
-                    roundId = 3,
-                    name = "portsmouth",
-                    displayName = "Portsmouth",
-                    isOutdoor = false,
-                    isMetric = false,
-                    permittedFaces = listOf(),
-            ),
-
-            roundSubTypes = listOf(
-                    RoundSubType(
-                            roundId = 3,
-                            subTypeId = 1,
-                    ),
-            ),
-            roundArrowCounts = listOf(
-                    RoundArrowCount(
-                            roundId = 3,
-                            distanceNumber = 1,
-                            faceSizeInCm = 80.0,
-                            arrowCount = 60,
-                    ),
-            ),
-            roundDistances = listOf(
-                    RoundDistance(
-                            roundId = 3,
-                            distanceNumber = 1,
-                            subTypeId = 1,
-                            distance = 20,
-                    ),
-            ),
-    )
-
     val roundsData = listOf(
-            outdoorImperialRoundData,
-            indoorMetricRoundData,
-            singleSubtypeRoundData,
+            RoundPreviewHelper.outdoorImperialRoundData,
+            RoundPreviewHelper.indoorMetricRoundData,
+            RoundPreviewHelper.singleSubtypeRoundData,
     )
 
     override val values = sequenceOf(
@@ -711,12 +568,12 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // Has Round
             NewScoreState(
                     roundsData = roundsData,
-                    selectedRound = outdoorImperialRoundData.round,
-                    selectedSubtype = outdoorImperialRoundData.roundSubTypes!!.first(),
+                    selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
+                    selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes!!.first(),
             ),
 
             // Editing
-            NewScoreState(roundsData = roundsData, roundBeingEdited = editingArcherRound),
+            NewScoreState(roundsData = roundsData, roundBeingEdited = RoundPreviewHelper.archerRoundNoRound),
 
             // DbInProgress
             NewScoreState(roundsData = roundsData, updateDefaultRoundsState = UpdateDefaultRoundsState.DeletingOld(1)),
@@ -724,8 +581,8 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // TooManyArrows
             NewScoreState(
                     roundsData = roundsData,
-                    selectedRound = outdoorImperialRoundData.round,
-                    roundBeingEdited = editingArcherRound,
+                    selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
+                    roundBeingEdited = RoundPreviewHelper.archerRoundNoRound,
                     roundBeingEditedArrowsShot = 1000,
             ),
 
@@ -735,7 +592,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // Select Subtype Dialog
             NewScoreState(
                     roundsData = roundsData,
-                    selectedRound = outdoorImperialRoundData.round,
+                    selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
                     isSelectSubTypeDialogOpen = true,
             )
     )

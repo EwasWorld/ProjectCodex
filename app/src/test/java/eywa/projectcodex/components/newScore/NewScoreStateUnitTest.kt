@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.ResOrActual
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -13,7 +14,7 @@ class NewScoreStateUnitTest {
         with(paramProvider) {
             assertEquals(
                     true,
-                    NewScoreState(roundBeingEdited = editingArcherRound).isEditing
+                    NewScoreState(roundBeingEdited = RoundPreviewHelper.archerRoundNoRound).isEditing
             )
             assertEquals(
                     false,
@@ -31,8 +32,8 @@ class NewScoreStateUnitTest {
                     state.selectedRoundInfo,
             )
             assertEquals(
-                    outdoorImperialRoundData,
-                    state.copy(selectedRound = outdoorImperialRoundData.round).selectedRoundInfo,
+                    RoundPreviewHelper.outdoorImperialRoundData,
+                    state.copy(selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round).selectedRoundInfo,
             )
         }
     }
@@ -46,10 +47,10 @@ class NewScoreStateUnitTest {
                     state.roundSubtypeDistances,
             )
             assertEquals(
-                    outdoorImperialRoundData.roundDistances!!.subList(0, 2),
+                    RoundPreviewHelper.outdoorImperialRoundData.roundDistances!!.subList(0, 2),
                     state.copy(
-                            selectedRound = outdoorImperialRoundData.round,
-                            selectedSubtype = outdoorImperialRoundData.roundSubTypes!![0]
+                            selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
+                            selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes!![0]
                     ).roundSubtypeDistances,
             )
         }
@@ -65,11 +66,11 @@ class NewScoreStateUnitTest {
             )
             assertEquals(
                     R.string.units_meters_short,
-                    state.copy(selectedRound = indoorMetricRoundData.round).distanceUnitStringRes,
+                    state.copy(selectedRound = RoundPreviewHelper.indoorMetricRoundData.round).distanceUnitStringRes,
             )
             assertEquals(
                     R.string.units_yards_short,
-                    state.copy(selectedRound = outdoorImperialRoundData.round).distanceUnitStringRes,
+                    state.copy(selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round).distanceUnitStringRes,
             )
         }
     }
@@ -86,15 +87,15 @@ class NewScoreStateUnitTest {
             assertEquals(
                     null,
                     state.copy(
-                            selectedRound = singleSubtypeRoundData.round,
-                            selectedSubtype = singleSubtypeRoundData.roundSubTypes!![0]
+                            selectedRound = RoundPreviewHelper.singleSubtypeRoundData.round,
+                            selectedSubtype = RoundPreviewHelper.singleSubtypeRoundData.roundSubTypes!![0]
                     ).displayedSubtype,
             )
             assertEquals(
-                    outdoorImperialRoundData.roundSubTypes!![0],
+                    RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes!![0],
                     state.copy(
-                            selectedRound = outdoorImperialRoundData.round,
-                            selectedSubtype = outdoorImperialRoundData.roundSubTypes!![0],
+                            selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
+                            selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes!![0],
                     ).displayedSubtype,
             )
         }
@@ -112,10 +113,10 @@ class NewScoreStateUnitTest {
                     NewScoreState(roundsData = roundsData).displayedRound,
             )
             assertEquals(
-                    ResOrActual.fromActual(outdoorImperialRoundData.round.displayName),
+                    ResOrActual.fromActual(RoundPreviewHelper.outdoorImperialRoundData.round.displayName),
                     NewScoreState(
                             roundsData = roundsData,
-                            selectedRound = outdoorImperialRoundData.round,
+                            selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
                     ).displayedRound,
             )
         }
@@ -131,7 +132,8 @@ class NewScoreStateUnitTest {
             )
             assertEquals(
                     36 + 24,
-                    state.copy(selectedRound = outdoorImperialRoundData.round).totalArrowsInSelectedRound,
+                    state.copy(selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round)
+                            .totalArrowsInSelectedRound,
             )
         }
     }
@@ -153,14 +155,14 @@ class NewScoreStateUnitTest {
                     false,
                     state.copy(
                             roundBeingEditedArrowsShot = 2,
-                            selectedRound = outdoorImperialRoundData.round,
+                            selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
                     ).tooManyArrowsWarningShown,
             )
             assertEquals(
                     true,
                     state.copy(
                             roundBeingEditedArrowsShot = 1000,
-                            selectedRound = outdoorImperialRoundData.round,
+                            selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
                     ).tooManyArrowsWarningShown,
             )
         }

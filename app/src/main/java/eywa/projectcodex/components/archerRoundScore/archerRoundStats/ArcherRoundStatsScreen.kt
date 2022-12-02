@@ -24,7 +24,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.DataRow
 import kotlin.math.abs
 
@@ -136,7 +136,7 @@ private fun Section(
 fun ArcherRoundStatsScreen_Preview() {
     CodexTheme {
         ArcherRoundStatsScreen(
-                ArcherRoundPreviewHelper.SIMPLE.fullArcherRoundInfo,
+                ArcherRoundsPreviewHelper.SIMPLE.fullArcherRoundInfo,
                 GoldsType.NINES,
         ) {}
     }

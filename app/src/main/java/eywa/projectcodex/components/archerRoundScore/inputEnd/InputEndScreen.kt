@@ -17,8 +17,8 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 
 // TODO No more arrows to add - prevent accidental opening of this screen
 @Composable
@@ -142,6 +142,6 @@ private fun RemainingArrowsIndicator(
 @Composable
 fun InputEndScreen_Preview() {
     CodexTheme {
-        InputEndScreen(ArcherRoundPreviewHelper.FEW_ARROWS) {}
+        InputEndScreen(ArcherRoundsPreviewHelper.FEW_ARROWS) {}
     }
 }

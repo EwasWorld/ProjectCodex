@@ -7,8 +7,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 
 @Composable
 fun EditEndScreen(
@@ -34,6 +34,6 @@ fun EditEndScreen(
 @Composable
 fun EditEndScreen_Preview() {
     CodexTheme {
-        EditEndScreen(ArcherRoundPreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 0)) {}
+        EditEndScreen(ArcherRoundsPreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 0)) {}
     }
 }

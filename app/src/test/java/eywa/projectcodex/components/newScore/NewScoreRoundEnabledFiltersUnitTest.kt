@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.newScore
 
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.components.newScore.helpers.NewScoreRoundFilter.*
 import eywa.projectcodex.database.rounds.Round
@@ -7,9 +8,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class NewScoreRoundEnabledFiltersUnitTest {
-    private val paramProvider = NewScoreStatePreviewProvider()
-    private val indoorMetricRound = with(paramProvider) { indoorMetricRoundData.round }
-    private val outdoorImperialRound = with(paramProvider) { outdoorImperialRoundData.round }
+    private val indoorMetricRound = RoundPreviewHelper.indoorMetricRoundData.round
+    private val outdoorImperialRound = RoundPreviewHelper.outdoorImperialRoundData.round
     private val rounds = listOf(
             indoorMetricRound,
             outdoorImperialRound,

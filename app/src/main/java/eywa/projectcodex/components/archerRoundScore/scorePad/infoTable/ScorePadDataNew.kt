@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.archerRoundScore.scorePad.infoTable
 
-import android.annotation.SuppressLint
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
@@ -12,104 +11,12 @@ import eywa.projectcodex.database.arrowValue.*
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 
-sealed class ScorePadRow {
-    abstract val hits: Int
-    abstract val score: Int
-    abstract val golds: Int
-    open val runningTotal: Int? = null
-
-    abstract fun getRowHeader(): ResOrActual<String>
-    abstract fun getContent(resources: Resources): String
-
-    fun getContent(columnHeader: ScorePadDataNew.ColumnHeader, resources: Resources) = when (columnHeader) {
-        ScorePadDataNew.ColumnHeader.CONTENT -> getContent(resources)
-        ScorePadDataNew.ColumnHeader.HITS -> hits.toString()
-        ScorePadDataNew.ColumnHeader.SCORE -> score.toString()
-        ScorePadDataNew.ColumnHeader.GOLDS -> golds.toString()
-        ScorePadDataNew.ColumnHeader.RUNNING_TOTAL -> runningTotal?.toString()
-                ?: resources.getString(R.string.score_pad__running_total_placeholder)
-    }
-
-    /**
-     * @param endNumber 1-indexed
-     */
-    data class End(
-            val endNumber: Int,
-            val arrowValues: List<ResOrActual<String>>,
-            override val hits: Int,
-            override val score: Int,
-            override val golds: Int,
-            override val runningTotal: Int,
-    ) : ScorePadRow() {
-        constructor(endNumber: Int, arrows: List<ArrowValue>, goldsType: GoldsType, runningTotal: Int) : this(
-                endNumber,
-                arrows.map { it.asString() },
-                arrows.getHits(),
-                arrows.getScore(),
-                arrows.getGolds(goldsType),
-                runningTotal
-        )
-
-        override fun getContent(resources: Resources): String = arrowValues
-                .joinToString(resources.getString(R.string.end_to_string_arrow_deliminator)) { it.get(resources) }
-
-        override fun getRowHeader() = ResOrActual.fromActual(endNumber.toString())
-    }
-
-    data class DistanceTotal(
-            val distance: Int,
-            @StringRes val distanceUnit: Int,
-            override val hits: Int,
-            override val score: Int,
-            override val golds: Int,
-    ) : ScorePadRow() {
-        constructor(arrows: List<ArrowValue>, goldsType: GoldsType, distance: Int, @StringRes distanceUnit: Int)
-                : this(distance, distanceUnit, arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
-
-        @SuppressLint("StringFormatInvalid") // You are wrong, the fat controller laughed
-        override fun getContent(resources: Resources): String = resources.getString(
-                R.string.score_pad__distance_total,
-                distance,
-                resources.getString(distanceUnit),
-        )
-
-        override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
-    }
-
-    data class SurplusTotal(
-            override val hits: Int,
-            override val score: Int,
-            override val golds: Int,
-    ) : ScorePadRow() {
-        constructor(arrows: List<ArrowValue>, goldsType: GoldsType)
-                : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
-
-        override fun getContent(resources: Resources): String = resources.getString(R.string.score_pad__surplus_total)
-
-        override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
-    }
-
-    data class GrandTotal(
-            override val hits: Int,
-            override val score: Int,
-            override val golds: Int,
-    ) : ScorePadRow() {
-        constructor(arrows: List<ArrowValue>, goldsType: GoldsType)
-                : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
-
-        override fun getContent(resources: Resources): String = resources.getString(R.string.score_pad__grand_total)
-
-        override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__grand_total_row_header)
-    }
-}
-
-
 class ScorePadDataNew(
         info: FullArcherRoundInfo,
         endSize: Int,
         val goldsType: GoldsType,
 ) {
-    val data: MutableList<ScorePadRow> = calculateScorePadData(info, endSize, goldsType)
+    val data = generateData(info, endSize, goldsType)
 
     /**
      * Calculates totals for each end, distance, and the round
@@ -119,11 +26,11 @@ class ScorePadDataNew(
      * @return an list of rows each containing their end string, hits, score, and golds etc.
      * Has rows for distance totals and a grand total in appropriate places
      */
-    private fun calculateScorePadData(
+    private fun generateData(
             info: FullArcherRoundInfo,
             endSize: Int,
             goldsType: GoldsType,
-    ): MutableList<ScorePadRow> {
+    ): List<ScorePadRow> {
         require(endSize > 0) { "endSize must be >0" }
         if (info.arrows.isNullOrEmpty()) return mutableListOf()
 
@@ -139,7 +46,7 @@ class ScorePadDataNew(
         // No round info: add all arrows
         if (info.round == null) {
             tableData.addAll(
-                    calculateTotalsForDistance(
+                    generateRowsForDistance(
                             arrows = remainingArrows,
                             endSize = endSize,
                             goldsType = goldsType,
@@ -150,7 +57,7 @@ class ScorePadDataNew(
             // Has round info: add distance totals
             for (distance in info.roundDistances!!) {
                 tableData.addAll(
-                        calculateTotalsForDistance(
+                        generateRowsForDistance(
                                 arrows = remainingArrows,
                                 distance = distance,
                                 arrowCount = info.roundArrowCounts!!
@@ -162,7 +69,7 @@ class ScorePadDataNew(
                                 goldsType = goldsType,
                                 endNumber = tableData
                                         .filterIsInstance<ScorePadRow.End>()
-                                        .maxOfOrNull { it.endNumber }
+                                        .maxOfOrNull { it.endNumber },
                         )
                 )
                 if (remainingArrows.isEmpty()) break
@@ -170,13 +77,16 @@ class ScorePadDataNew(
             // If too many arrows
             if (remainingArrows.isNotEmpty()) {
                 tableData.addAll(
-                        calculateTotalsForDistance(
+                        generateRowsForDistance(
                                 arrows = remainingArrows,
                                 isSurplus = true,
                                 addDistanceTotal = true,
                                 runningTotal = tableData.mapNotNull { it.runningTotal }.maxOrNull(),
                                 endSize = endSize,
                                 goldsType = goldsType,
+                                endNumber = tableData
+                                        .filterIsInstance<ScorePadRow.End>()
+                                        .maxOfOrNull { it.endNumber }
                         )
                 )
             }
@@ -191,7 +101,7 @@ class ScorePadDataNew(
     /**
      * @param endNumber 1-indexed
      */
-    private fun calculateTotalsForDistance(
+    private fun generateRowsForDistance(
             arrows: MutableList<ArrowValue>,
             distance: RoundDistance? = null,
             arrowCount: RoundArrowCount? = null,
@@ -315,8 +225,109 @@ class ScorePadDataNew(
         }
     }
 
+    sealed class ScorePadRow {
+        protected abstract val hits: Int
+        protected abstract val score: Int
+        protected abstract val golds: Int
+        internal open val runningTotal: Int? = null
+
+        abstract fun getRowHeader(): ResOrActual<String>
+        protected abstract fun getArrowsString(resources: Resources): String
+
+        fun getContent(columnHeader: ColumnHeader, resources: Resources) = when (columnHeader) {
+            ColumnHeader.ARROWS -> getArrowsString(resources)
+            ColumnHeader.HITS -> hits.toString()
+            ColumnHeader.SCORE -> score.toString()
+            ColumnHeader.GOLDS -> golds.toString()
+            ColumnHeader.RUNNING_TOTAL -> runningTotal?.toString()
+                    ?: resources.getString(R.string.score_pad__running_total_placeholder)
+        }
+
+        /**
+         * @param endNumber 1-indexed
+         */
+        data class End(
+                internal val endNumber: Int,
+                private val arrowValues: List<ResOrActual<String>>,
+                override val hits: Int,
+                override val score: Int,
+                override val golds: Int,
+                override val runningTotal: Int,
+        ) : ScorePadRow() {
+            internal constructor(
+                    endNumber: Int,
+                    arrows: List<ArrowValue>,
+                    goldsType: GoldsType,
+                    runningTotal: Int,
+            ) : this(
+                    endNumber,
+                    arrows.map { it.asString() },
+                    arrows.getHits(),
+                    arrows.getScore(),
+                    arrows.getGolds(goldsType),
+                    runningTotal
+            )
+
+            override fun getArrowsString(resources: Resources): String = arrowValues
+                    .joinToString(resources.getString(R.string.end_to_string_arrow_deliminator)) { it.get(resources) }
+
+            override fun getRowHeader() = ResOrActual.fromActual(endNumber.toString())
+        }
+
+        data class DistanceTotal(
+                private val distance: Int,
+                @StringRes private val distanceUnit: Int,
+                override val hits: Int,
+                override val score: Int,
+                override val golds: Int,
+        ) : ScorePadRow() {
+            internal constructor(
+                    arrows: List<ArrowValue>,
+                    goldsType: GoldsType,
+                    distance: Int,
+                    @StringRes distanceUnit: Int
+            ) : this(distance, distanceUnit, arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
+
+            override fun getArrowsString(resources: Resources): String = resources.getString(
+                    R.string.score_pad__distance_total,
+                    distance,
+                    resources.getString(distanceUnit),
+            )
+
+            override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
+        }
+
+        data class SurplusTotal(
+                override val hits: Int,
+                override val score: Int,
+                override val golds: Int,
+        ) : ScorePadRow() {
+            constructor(arrows: List<ArrowValue>, goldsType: GoldsType)
+                    : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
+
+            override fun getArrowsString(resources: Resources): String =
+                    resources.getString(R.string.score_pad__surplus_total)
+
+            override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
+        }
+
+        data class GrandTotal(
+                override val hits: Int,
+                override val score: Int,
+                override val golds: Int,
+        ) : ScorePadRow() {
+            constructor(arrows: List<ArrowValue>, goldsType: GoldsType)
+                    : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
+
+            override fun getArrowsString(resources: Resources): String =
+                    resources.getString(R.string.score_pad__grand_total)
+
+            override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__grand_total_row_header)
+        }
+    }
+
     enum class ColumnHeader(private val resourceId: Int? = null) {
-        CONTENT(R.string.score_pad__end_string_header),
+        ARROWS(R.string.score_pad__end_string_header),
         HITS(R.string.table_hits_header),
         SCORE(R.string.table_score_header),
         GOLDS,
@@ -324,21 +335,7 @@ class ScorePadDataNew(
         ;
 
         fun getShortResourceId(goldsType: GoldsType) = if (this == GOLDS) goldsType.shortStringId else resourceId!!
-        fun getLongResourceId(goldsType: GoldsType) = if (this == GOLDS) goldsType.longStringId else resourceId!!
     }
 
     data class ScorePadDetailsString(val headerRow: String?, val details: String)
-
-
-    companion object {
-        /**
-         * @param columnOrder the resource IDs of each of the column headers in order
-         * @param goldsType the goldsType to get the golds column header from
-         */
-        fun getColumnHeadersForTable(
-                columnOrder: List<ColumnHeader>,
-                resources: Resources,
-                goldsType: GoldsType,
-        ) = columnOrder.map { resources.getString(it.getShortResourceId(goldsType)) }
-    }
 }

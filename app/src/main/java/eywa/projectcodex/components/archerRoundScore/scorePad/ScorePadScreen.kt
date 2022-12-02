@@ -31,14 +31,14 @@ import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent.*
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ColumnHeader
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadRow
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ScorePadRow
 
 
 private val COLUMN_HEADER_ORDER = listOf(
-        ColumnHeader.CONTENT,
+        ColumnHeader.ARROWS,
         ColumnHeader.HITS,
         ColumnHeader.SCORE,
         ColumnHeader.GOLDS,
@@ -135,7 +135,7 @@ fun ScorePadScreen(
                         DropdownMenu(
                                 isRoundFull = isRoundFull,
                                 expanded = dropdownMenuOpenForEndNumber != null
-                                        && columnHeader == ColumnHeader.CONTENT
+                                        && columnHeader == ColumnHeader.ARROWS
                                         && (rowData as? ScorePadRow.End)?.endNumber == dropdownMenuOpenForEndNumber,
                                 listener = listener,
                         )
@@ -234,7 +234,7 @@ fun ScorePadScreen_Preview() {
                 isRoundFull = false,
                 displayDeleteEndConfirmationDialog = false,
                 dropdownMenuOpenForEndNumber = null,
-                data = ArcherRoundPreviewHelper.SIMPLE.scorePadData,
+                data = ArcherRoundsPreviewHelper.SIMPLE.scorePadData,
         ) {}
     }
 }

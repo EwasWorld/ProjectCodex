@@ -20,7 +20,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent.*
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundPreviewHelper
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.database.rounds.Round
 
 @Composable
@@ -88,8 +88,8 @@ fun ArrowInputs_Preview(
     CodexTheme {
         ArrowInputs(
                 true,
-                ArcherRoundPreviewHelper.inputArrows,
-                ArcherRoundPreviewHelper.round.round,
+                ArcherRoundsPreviewHelper.inputArrows,
+                ArcherRoundsPreviewHelper.round.round,
                 6,
         ) {}
     }
