@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd
+package eywa.projectcodex.components.archerRoundScore.arrowInputs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,30 +21,29 @@ import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.database.rounds.Round
 
 @Composable
 fun ArrowInputs(
-        showReset: Boolean,
-        inputArrows: List<Arrow>,
-        round: Round?,
-        endSize: Int,
+        state: ArrowInputsState,
+        showResetButton: Boolean,
         listener: (ArcherRoundIntent.ArrowInputsIntent) -> Unit,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-                text = inputArrows.sumOf { it.score }.toString(),
+                text = state.getEnteredArrows().sumOf { it.score }.toString(),
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
         )
         @Suppress("SimplifiableCallChain")
         Text(
-                text = inputArrows
+                text = state.getEnteredArrows()
                         .map { it.asString().get() }
                         .plus(
-                                List(endSize - inputArrows.size) {
+                                List(state.getEndSize() - state.getEnteredArrows().size) {
                                     stringResource(R.string.end_to_string_arrow_placeholder)
                                 }
                         )
@@ -54,10 +53,10 @@ fun ArrowInputs(
                 modifier = Modifier.padding(bottom = 15.dp)
         )
 
-        ArrowButtonGroup(round = round, onClick = { listener(ArrowInputted(it)) })
+        ArrowButtonGroup(round = state.getRound(), onClick = { listener(ArrowInputted(it)) })
 
         Row {
-            if (showReset) {
+            if (showResetButton) {
                 CodexButton(
                         text = stringResource(R.string.general__reset_edits),
                         buttonStyle = CodexButtonDefaults.DefaultTextButton,
@@ -87,10 +86,12 @@ fun ArrowInputs_Preview(
 ) {
     CodexTheme {
         ArrowInputs(
-                true,
-                ArcherRoundsPreviewHelper.inputArrows,
-                ArcherRoundsPreviewHelper.round.round,
-                6,
+                object : ArrowInputsState {
+                    override fun getRound(): Round = ArcherRoundsPreviewHelper.round.round
+                    override fun getEnteredArrows(): List<Arrow> = ArcherRoundsPreviewHelper.inputArrows
+                    override fun getEndSize(): Int = 6
+                },
+                true
         ) {}
     }
 }

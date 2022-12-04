@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.common.sharedUi.CodexBottomNavItem
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 
 @Composable
 fun ArcherRoundBottomNavBar(

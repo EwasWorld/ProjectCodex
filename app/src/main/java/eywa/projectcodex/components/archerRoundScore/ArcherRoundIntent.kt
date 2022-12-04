@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore
 
 import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 
 sealed class ArcherRoundIntent {
     data class Initialise(val screen: ArcherRoundScreen, val archerRoundId: Int) : ArcherRoundIntent()

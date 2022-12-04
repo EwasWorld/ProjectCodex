@@ -36,7 +36,7 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel.handle(
                 ArcherRoundIntent.Initialise(
-                        screen = ArcherRoundScreen.valueOf(args.screen),
+                        screen = eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.valueOf(args.screen),
                         archerRoundId = args.archerRoundId,
                 )
         )

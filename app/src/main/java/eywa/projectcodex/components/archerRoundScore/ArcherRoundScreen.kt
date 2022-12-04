@@ -14,14 +14,16 @@ import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loaded
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loading
 import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsScreen
-import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndScreen
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndScreen
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndScreen
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd.EditEndScreen
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndScreen
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loaded
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loading
 
 @Composable
 fun ArcherRoundScreen(
@@ -52,22 +54,12 @@ fun ArcherRoundScreen(
                 is Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 is Loaded -> when (state.currentScreen) {
                     ArcherRoundScreen.INPUT_END -> InputEndScreen(state, listener)
-                    ArcherRoundScreen.SCORE_PAD ->
-                        ScorePadScreen(
-                                isRoundFull = (state.fullArcherRoundInfo.remainingArrows ?: 1) == 0,
-                                displayDeleteEndConfirmationDialog = state.displayDeleteEndConfirmationDialog,
-                                dropdownMenuOpenForEndNumber = state.scorePadSelectedEnd
-                                        .takeIf { !state.displayDeleteEndConfirmationDialog },
-                                data = state.scorePadData,
-                                listener = listener
-                        )
+                    ArcherRoundScreen.SCORE_PAD -> ScorePadScreen(state = state, listener = listener)
                     ArcherRoundScreen.STATS -> ArcherRoundStatsScreen(
-                            state = state.fullArcherRoundInfo,
-                            goldsType = state.goldsType,
+                            state = state,
                             noArrowsListener = { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) },
                     )
-                    ArcherRoundScreen.SETTINGS ->
-                        ArcherRoundSettingsScreen(state.inputEndSize, state.scorePadEndSize, listener)
+                    ArcherRoundScreen.SETTINGS -> ArcherRoundSettingsScreen(state, listener)
                     ArcherRoundScreen.INSERT_END -> InsertEndScreen(state, listener)
                     ArcherRoundScreen.EDIT_END -> EditEndScreen(state, listener)
                 }

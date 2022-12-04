@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd
+package eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,21 +17,19 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
 
 // TODO No more arrows to add - prevent accidental opening of this screen
 @Composable
 fun InputEndScreen(
-        state: ArcherRoundState.Loaded,
+        state: InputEndState,
         listener: (ArcherRoundIntent) -> Unit,
 ) {
-    InputEndScaffold(
-            showReset = false,
-            inputArrows = state.currentScreenInputArrows,
-            round = state.fullArcherRoundInfo.round,
-            endSize = state.currentScreenEndSize,
+    ArrowInputsScaffold(
+            state = state,
             showCancelButton = false,
+            showResetButton = false,
             submitButtonText = stringResource(R.string.input_end__next_end),
             listener = listener,
     ) {
@@ -142,6 +140,6 @@ private fun RemainingArrowsIndicator(
 @Composable
 fun InputEndScreen_Preview() {
     CodexTheme {
-        InputEndScreen(ArcherRoundsPreviewHelper.FEW_ARROWS) {}
+        InputEndScreen(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
     }
 }

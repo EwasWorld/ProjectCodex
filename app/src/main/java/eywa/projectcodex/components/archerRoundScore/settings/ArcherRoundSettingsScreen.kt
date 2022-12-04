@@ -32,8 +32,7 @@ import eywa.projectcodex.components.archerRoundScore.DataRow
 
 @Composable
 fun ArcherRoundSettingsScreen(
-        inputEndSize: Int?,
-        scorePadEndSize: Int?,
+        state: ArcherRoundSettingsState,
         listener: (SettingsIntent) -> Unit,
 ) {
     Column(
@@ -46,12 +45,12 @@ fun ArcherRoundSettingsScreen(
     ) {
         NumberSetting(
                 title = R.string.archer_round_settings__input_end_size,
-                currentValue = inputEndSize,
+                currentValue = state.inputEndSize,
                 onValueChanged = { listener(InputEndSizeChanged(it)) },
         )
         NumberSetting(
                 title = R.string.archer_round_settings__score_pad_end_size,
-                currentValue = scorePadEndSize,
+                currentValue = state.scorePadEndSize,
                 onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
         )
         // TODO Change golds type
@@ -102,8 +101,10 @@ private fun NumberSetting(
 fun ArcherRoundSettingsScreen_Preview() {
     CodexTheme {
         ArcherRoundSettingsScreen(
-                inputEndSize = 3,
-                scorePadEndSize = 6,
+                object : ArcherRoundSettingsState {
+                    override val inputEndSize: Int = 3
+                    override val scorePadEndSize: Int = 6
+                }
         ) {}
     }
 }

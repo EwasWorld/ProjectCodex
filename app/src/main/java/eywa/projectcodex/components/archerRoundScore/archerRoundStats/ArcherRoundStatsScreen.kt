@@ -15,8 +15,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
@@ -34,11 +32,10 @@ private fun style(textAlign: TextAlign = TextAlign.Start) =
 
 @Composable
 fun ArcherRoundStatsScreen(
-        state: FullArcherRoundInfo,
-        goldsType: GoldsType,
+        state: ArcherRoundStatsState,
         noArrowsListener: () -> Unit,
 ) {
-    SimpleDialog(isShown = state.arrowsShot <= 0, onDismissListener = noArrowsListener) {
+    SimpleDialog(isShown = state.fullArcherRoundInfo.arrowsShot <= 0, onDismissListener = noArrowsListener) {
         SimpleDialogContent(
                 title = stringResource(R.string.archer_round_stats__no_arrows_dialog_title),
                 positiveButton = ButtonState(
@@ -59,33 +56,34 @@ fun ArcherRoundStatsScreen(
         Section {
             DataRow(
                     title = R.string.archer_round_stats__date,
-                    text = DateTimeFormat.LONG_DATE_TIME.format(state.archerRound.dateShot),
+                    text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.archerRound.dateShot),
             )
             DataRow(
                     title = R.string.archer_round_stats__round,
-                    text = state.round?.displayName ?: stringResource(R.string.archer_round_stats__no_round)
+                    text = state.fullArcherRoundInfo.displayName
+                            ?: stringResource(R.string.archer_round_stats__no_round)
             )
         }
 
-        if (state.arrowsShot > 0) {
+        if (state.fullArcherRoundInfo.arrowsShot > 0) {
             Section {
                 DataRow(
                         title = R.string.archer_round_stats__hits,
-                        text = state.hits.toString(),
+                        text = state.fullArcherRoundInfo.hits.toString(),
                 )
                 DataRow(
                         title = R.string.archer_round_stats__score,
-                        text = state.score.toString(),
+                        text = state.fullArcherRoundInfo.score.toString(),
                 )
                 DataRow(
                         title = R.string.archer_round_stats__golds,
-                        text = state.golds(goldsType).toString(),
+                        text = state.fullArcherRoundInfo.golds(state.goldsType).toString(),
                 )
             }
 
-            if (state.round != null) {
+            if (state.fullArcherRoundInfo.round != null) {
                 Section {
-                    state.remainingArrows!!.let { remaining ->
+                    state.fullArcherRoundInfo.remainingArrows!!.let { remaining ->
                         if (remaining == 0) {
                             Text(
                                     text = stringResource(R.string.input_end__round_complete),
@@ -103,11 +101,11 @@ fun ArcherRoundStatsScreen(
                     }
                     DataRow(
                             title = R.string.archer_round_stats__handicap,
-                            text = state.handicap.toString(),
+                            text = state.fullArcherRoundInfo.handicap.toString(),
                     )
                     DataRow(
                             title = R.string.archer_round_stats__predicted_score,
-                            text = state.predictedScore.toString(),
+                            text = state.fullArcherRoundInfo.predictedScore.toString(),
                     )
                 }
             }
@@ -136,8 +134,7 @@ private fun Section(
 fun ArcherRoundStatsScreen_Preview() {
     CodexTheme {
         ArcherRoundStatsScreen(
-                ArcherRoundsPreviewHelper.SIMPLE.fullArcherRoundInfo,
-                GoldsType.NINES,
+                ArcherRoundsPreviewHelper.SIMPLE,
         ) {}
     }
 }

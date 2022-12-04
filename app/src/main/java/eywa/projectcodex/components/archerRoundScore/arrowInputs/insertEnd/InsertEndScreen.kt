@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd
+package eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -7,21 +7,28 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
 
 @Composable
-fun EditEndScreen(
-        state: ArcherRoundState.Loaded,
+fun InsertEndScreen(
+        state: InsertEndState,
         listener: (ArcherRoundIntent) -> Unit,
 ) {
-    InputEndScaffold(
-            showReset = true,
-            inputArrows = state.currentScreenInputArrows,
-            round = state.fullArcherRoundInfo.round,
-            endSize = state.currentScreenEndSize,
-            contentText = stringResource(R.string.edit_end__edit_info, state.scorePadSelectedEnd!! + 1),
+    val endNumber = state.getSelectedEndNumber()
+
+    val insertLocationString = if (endNumber == 1) {
+        stringResource(R.string.insert_end__info_at_start)
+    }
+    else {
+        stringResource(R.string.insert_end__info, endNumber - 1, endNumber)
+    }
+
+    ArrowInputsScaffold(
+            state = state,
             showCancelButton = true,
+            showResetButton = false,
+            contentText = insertLocationString,
             listener = listener,
     )
 }
@@ -32,8 +39,8 @@ fun EditEndScreen(
         heightDp = 700,
 )
 @Composable
-fun EditEndScreen_Preview() {
+fun InsertEndScreen_Preview() {
     CodexTheme {
-        EditEndScreen(ArcherRoundsPreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 0)) {}
+        InsertEndScreen(ArcherRoundsPreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 1)) {}
     }
 }

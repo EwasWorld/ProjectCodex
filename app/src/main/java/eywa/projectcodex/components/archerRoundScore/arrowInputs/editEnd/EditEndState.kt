@@ -1,0 +1,6 @@
+package eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd
+
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsState
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.HasSelectedEndNumber
+
+interface EditEndState : ArrowInputsState, HasSelectedEndNumber

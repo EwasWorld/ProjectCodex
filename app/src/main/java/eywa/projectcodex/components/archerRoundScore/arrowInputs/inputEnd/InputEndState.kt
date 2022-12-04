@@ -1,0 +1,6 @@
+package eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd
+
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsState
+import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo
+
+interface InputEndState : ArrowInputsState, HasFullArcherRoundInfo

@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundScreen
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint

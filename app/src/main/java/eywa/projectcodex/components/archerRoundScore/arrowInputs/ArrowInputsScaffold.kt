@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd
+package eywa.projectcodex.components.archerRoundScore.arrowInputs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -9,30 +9,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
-import eywa.projectcodex.database.rounds.Round
 
 @Composable
-fun InputEndScaffold(
-        showReset: Boolean,
-        inputArrows: List<Arrow>,
-        round: Round?,
-        endSize: Int,
-        contentText: String,
+fun ArrowInputsScaffold(
+        state: ArrowInputsState,
         showCancelButton: Boolean,
+        showResetButton: Boolean,
+        contentText: String,
         submitButtonText: String = stringResource(R.string.general_complete),
         listener: (ArcherRoundIntent) -> Unit,
-) = InputEndScaffold(
-        showReset = showReset,
-        inputArrows = inputArrows,
-        round = round,
-        endSize = endSize,
+) = ArrowInputsScaffold(
+        state = state,
         showCancelButton = showCancelButton,
+        showResetButton = showResetButton,
         submitButtonText = submitButtonText,
         listener = listener,
 ) {
@@ -45,12 +39,10 @@ fun InputEndScaffold(
 }
 
 @Composable
-fun InputEndScaffold(
-        showReset: Boolean,
-        inputArrows: List<Arrow>,
-        round: Round?,
-        endSize: Int,
+fun ArrowInputsScaffold(
+        state: ArrowInputsState,
         showCancelButton: Boolean,
+        showResetButton: Boolean,
         submitButtonText: String = stringResource(R.string.general_complete),
         listener: (ArcherRoundIntent) -> Unit,
         content: @Composable () -> Unit,
@@ -66,7 +58,7 @@ fun InputEndScaffold(
         content()
         Spacer(modifier = Modifier.weight(1f))
 
-        ArrowInputs(showReset, inputArrows, round, endSize, listener)
+        ArrowInputs(state, showResetButton, listener)
 
         Row(
                 horizontalArrangement = Arrangement.spacedBy(20.dp)

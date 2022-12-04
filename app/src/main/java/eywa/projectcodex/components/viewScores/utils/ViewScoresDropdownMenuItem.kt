@@ -7,7 +7,7 @@ import androidx.navigation.findNavController
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundScreen
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.ViewScoresListActionState

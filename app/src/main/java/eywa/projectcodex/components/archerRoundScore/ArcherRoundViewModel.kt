@@ -9,9 +9,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundScreen.*
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loaded
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundState.Loading
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loaded
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loading
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.inputEnd.arrowButton
+package eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
