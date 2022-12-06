@@ -17,7 +17,7 @@ import com.azimolabs.conditionwatcher.Instruction
 import com.evrencoskun.tableview.TableView
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -79,7 +79,7 @@ class CustomConditionWaiter {
                 clickViewScores {
                     waitForHsg(rowIndex, expectedHsg)
                     clickRow(rowIndex)
-                    waitForFragmentToShow(composeTestRule.activityRule.scenario, ScorePadFragment::class)
+                    waitForFragmentToShow(composeTestRule.activityRule.scenario, ArcherRoundFragment::class)
                 }
             }
         }

@@ -20,6 +20,7 @@ fun RowScope.CodexBottomNavItem(
         label: String,
         contentDescription: String,
         isCurrentDestination: Boolean,
+        modifier: Modifier = Modifier,
         badgeContent: String? = null,
         onClick: () -> Unit,
 ) {
@@ -48,6 +49,6 @@ fun RowScope.CodexBottomNavItem(
                         overflow = TextOverflow.Ellipsis,
                 )
             },
-            modifier = Modifier.semantics { this.contentDescription = contentDescription }
+            modifier = modifier.semantics { this.contentDescription = contentDescription }
     )
 }

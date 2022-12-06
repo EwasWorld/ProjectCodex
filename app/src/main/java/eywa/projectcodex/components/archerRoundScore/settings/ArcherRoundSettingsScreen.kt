@@ -21,90 +21,111 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.CodexTextFieldState
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.SettingsIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.SettingsIntent.InputEndSizeChanged
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.DataRow
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
-@Composable
-fun ArcherRoundSettingsScreen(
-        state: ArcherRoundSettingsState,
-        listener: (SettingsIntent) -> Unit,
-) {
-    Column(
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(25.dp)
+class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
+    @Composable
+    override fun ComposeContent(
+            state: ArcherRoundState.Loaded,
+            listener: (ArcherRoundIntent) -> Unit,
     ) {
-        NumberSetting(
-                title = R.string.archer_round_settings__input_end_size,
-                currentValue = state.inputEndSize,
-                onValueChanged = { listener(InputEndSizeChanged(it)) },
-        )
-        NumberSetting(
-                title = R.string.archer_round_settings__score_pad_end_size,
-                currentValue = state.scorePadEndSize,
-                onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
-        )
-        // TODO Change golds type
+        ScreenContent(state, listener)
     }
-}
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun NumberSetting(
-        @StringRes title: Int,
-        currentValue: Int?,
-        onValueChanged: (Int?) -> Unit,
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
+        // TODO_CURRENT Help info
+        return listOf()
+    }
 
-    DataRow(
-            title = title,
+    override fun getHelpPriority(): Int? = null
+
+    @Composable
+    private fun ScreenContent(
+            state: ArcherRoundSettingsState,
+            listener: (SettingsIntent) -> Unit,
     ) {
-        Surface(
-                color = CodexTheme.colors.surfaceOnBackground,
-                shape = RoundedCornerShape(5.dp),
+        Column(
+                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(25.dp)
         ) {
-            CodexTextField(
-                    state = CodexTextFieldState(
-                            text = currentValue?.toString() ?: "",
-                            onValueChange = { onValueChanged(it.takeIf { it.isNotBlank() }?.toInt()) },
-                            testTag = "",
-                    ),
-                    placeholderText = "6",
-                    textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onSurfaceOnBackground),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                            onDone = { keyboardController?.hide() },
-                    ),
+            NumberSetting(
+                    title = R.string.archer_round_settings__input_end_size,
+                    currentValue = state.inputEndSize,
+                    onValueChanged = { listener(InputEndSizeChanged(it)) },
             )
+            NumberSetting(
+                    title = R.string.archer_round_settings__score_pad_end_size,
+                    currentValue = state.scorePadEndSize,
+                    onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
+            )
+            // TODO Change golds type
         }
     }
-}
 
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
-@Composable
-fun ArcherRoundSettingsScreen_Preview() {
-    CodexTheme {
-        ArcherRoundSettingsScreen(
-                object : ArcherRoundSettingsState {
-                    override val inputEndSize: Int = 3
-                    override val scorePadEndSize: Int = 6
-                }
-        ) {}
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Composable
+    private fun NumberSetting(
+            @StringRes title: Int,
+            currentValue: Int?,
+            onValueChanged: (Int?) -> Unit,
+    ) {
+        val keyboardController = LocalSoftwareKeyboardController.current
+
+        DataRow(
+                title = title,
+        ) {
+            Surface(
+                    color = CodexTheme.colors.surfaceOnBackground,
+                    shape = RoundedCornerShape(5.dp),
+            ) {
+                CodexTextField(
+                        state = CodexTextFieldState(
+                                text = currentValue?.toString() ?: "",
+                                onValueChange = { onValueChanged(it.takeIf { it.isNotBlank() }?.toInt()) },
+                                testTag = "",
+                        ),
+                        placeholderText = "6",
+                        textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onSurfaceOnBackground),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                                onDone = { keyboardController?.hide() },
+                        ),
+                )
+            }
+        }
+    }
+
+    @Preview(
+            showBackground = true,
+            backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+    )
+    @Composable
+    fun ArcherRoundSettingsScreen_Preview() {
+        CodexTheme {
+            ScreenContent(
+                    object : ArcherRoundSettingsState {
+                        override val inputEndSize: Int = 3
+                        override val scorePadEndSize: Int = 6
+                    }
+            ) {}
+        }
     }
 }

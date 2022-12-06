@@ -11,7 +11,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 import kotlin.reflect.KClass
 
 abstract class BaseRobot(
-        protected val composeTestRule: ComposeTestRule<MainActivity>,
+        val composeTestRule: ComposeTestRule<MainActivity>,
         fragment: KClass<out Fragment>
 ) {
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario

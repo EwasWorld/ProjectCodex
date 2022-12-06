@@ -16,6 +16,7 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.newScore.NewScoreScreen.TestTag
+import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import java.util.*
 
 class NewScoreRobot(
@@ -77,7 +78,12 @@ class NewScoreRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
-    fun clickSubmit() {
+    fun clickSubmitNewScore(block: InputEndRobot.() -> Unit = {}) {
+        clickElement(TestTag.SUBMIT_BUTTON)
+        InputEndRobot(composeTestRule).apply { block() }
+    }
+
+    fun clickSubmitEditScore() {
         clickElement(TestTag.SUBMIT_BUTTON)
     }
 

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.archerRoundStats
+package eywa.projectcodex.components.archerRoundScore.stats
 
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo

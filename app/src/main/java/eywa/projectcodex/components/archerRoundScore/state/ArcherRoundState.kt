@@ -9,34 +9,25 @@ import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
-import eywa.projectcodex.components.archerRoundScore.archerRoundStats.ArcherRoundStatsState
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd.EditEndScreen
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd.EditEndState
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndScreen
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndState
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd.InsertEndState
+import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadState
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
+import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.INPUT_END
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.INSERT_END
+import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsScreen
+import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsState
 import eywa.projectcodex.database.rounds.Round
 
 private const val DEFAULT_END_SIZE = 6
-
-interface HasRound {
-    fun getRound(): Round?
-}
-
-interface HasFullArcherRoundInfo {
-    val fullArcherRoundInfo: FullArcherRoundInfo
-}
-
-interface HasEnteredArrows {
-    fun getEnteredArrows(): List<Arrow>
-}
-
-interface HasEndSize {
-    fun getEndSize(): Int
-}
 
 sealed class ArcherRoundState {
     open val showNavBar: Boolean = false
@@ -130,34 +121,47 @@ enum class ArcherRoundScreen(val bottomNavItemInfo: ArcherRoundBottomNavItemInfo
                     selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
                     label = R.string.input_end__title,
             )
-    ),
+    ) {
+        override fun getScreen() = InputEndScreen()
+    },
     SCORE_PAD(
             ArcherRoundBottomNavItemInfo(
                     notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_outline),
                     selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_filled),
                     label = R.string.score_pad__title,
             )
-    ),
+    ) {
+        override fun getScreen() = ScorePadScreen()
+    },
     STATS(
             ArcherRoundBottomNavItemInfo(
                     notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
                     selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
                     label = R.string.archer_round_stats__title,
             )
-    ),
+    ) {
+        override fun getScreen() = ArcherRoundStatsScreen()
+    },
     SETTINGS(
             ArcherRoundBottomNavItemInfo(
                     notSelectedIcon = CodexIconInfo.VectorIcon(Icons.Outlined.Settings),
                     selectedIcon = CodexIconInfo.VectorIcon(Icons.Filled.Settings),
                     label = R.string.archer_round_settings__title,
             )
-    ),
+    ) {
+        override fun getScreen() = ArcherRoundSettingsScreen()
+    },
 
-    EDIT_END,
-    INSERT_END,
+    EDIT_END {
+        override fun getScreen() = EditEndScreen()
+    },
+    INSERT_END {
+        override fun getScreen() = InsertEndScreen()
+    },
     ;
 
     val isMainScreen = bottomNavItemInfo != null
+    abstract fun getScreen(): ArcherRoundSubScreen
 }
 
 data class ArcherRoundBottomNavItemInfo(

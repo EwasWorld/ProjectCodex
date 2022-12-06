@@ -9,10 +9,21 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen.TestTag
+import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
+import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, ViewScoresFragment::class) {
+    fun waitForLoad() {
+        CustomConditionWaiter.waitForComposeCondition {
+            composeTestRule
+                    .onAllNodesWithTag(TestTag.LIST_ITEM, true)
+                    .onFirst()
+                    .assertIsDisplayed()
+        }
+    }
+
     fun clickOkOnEmptyTableDialog() {
         composeTestRule.onNode(
                 hasTestTag(SimpleDialogTestTag.TITLE)
@@ -42,7 +53,11 @@ class ViewScoresRobot(
                 .action()
     }
 
-    fun clickRow(rowIndex: Int) = performOnRowItem(rowIndex) { performClick() }
+    fun clickRow(rowIndex: Int, block: ScorePadRobot.() -> Unit = {}) {
+        performOnRowItem(rowIndex) { performClick() }
+        ScorePadRobot(composeTestRule).apply { block() }
+    }
+
     fun longClickRow(rowIndex: Int) = performOnRowItem(rowIndex) { performTouchInput { longClick() } }
 
     fun clickDropdownMenuItem(menuItem: String) {
@@ -63,6 +78,16 @@ class ViewScoresRobot(
     fun clickEditDropdownMenuItem(block: NewScoreRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.EDIT_MENU_ITEM)
         NewScoreRobot(composeTestRule).apply { block() }
+    }
+
+    fun clickContinueDropdownMenuItem(block: InputEndRobot.() -> Unit = {}) {
+        clickDropdownMenuItem(CommonStrings.CONTINUE_MENU_ITEM)
+        InputEndRobot(composeTestRule).apply { block() }
+    }
+
+    fun clickScorePadDropdownMenuItem(block: ScorePadRobot.() -> Unit = {}) {
+        clickDropdownMenuItem(CommonStrings.SCORE_PAD_MENU_ITEM)
+        ScorePadRobot(composeTestRule).apply { block() }
     }
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {

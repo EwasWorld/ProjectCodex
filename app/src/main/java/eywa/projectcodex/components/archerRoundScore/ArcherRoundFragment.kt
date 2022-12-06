@@ -14,7 +14,6 @@ import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundEffect.Error
 import kotlinx.coroutines.launch
@@ -31,7 +30,7 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
         }
     }
 
-//    private val screen = ArcherRoundScreen()
+    private val screen = ArcherRoundMainScreen()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel.handle(
@@ -64,7 +63,7 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
                     backButtonCallback.isEnabled = viewModel.state.interruptBackButtonListener
                 }
 
-                ArcherRoundScreen(viewModel.state) { viewModel.handle(it) }
+                screen.ComposeContent(viewModel.state) { viewModel.handle(it) }
             }
         }
     }
@@ -76,9 +75,6 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backButtonCallback)
     }
 
-    // TODO_CURRENT help showcases
-    override fun getHelpShowcases() = listOf<HelpShowcaseItem>()
-    override fun getHelpPriority() = null
-//    override fun getHelpShowcases() = screen.getHelpShowcases()
-//    override fun getHelpPriority() = screen.getHelpPriority()
+    override fun getHelpShowcases() = screen.getHelpShowcases()
+    override fun getHelpPriority() = screen.getHelpPriority()
 }

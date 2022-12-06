@@ -28,6 +28,7 @@ fun DataRow(
         @StringRes helpTitle: Int? = null,
         @StringRes helpBody: Int? = null,
         modifier: Modifier = Modifier,
+        textModifier: Modifier = Modifier,
 ) = DataRow(
         title = title,
         helpInfo = helpInfo,
@@ -38,6 +39,7 @@ fun DataRow(
     Text(
             text = text,
             style = style(textAlign = TextAlign.Start),
+            modifier = textModifier,
     )
 }
 

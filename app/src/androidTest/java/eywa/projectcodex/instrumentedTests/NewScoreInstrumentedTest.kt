@@ -126,7 +126,7 @@ class NewScoreInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                clickSubmit()
+                clickSubmitNewScore()
             }
         }
 
@@ -152,7 +152,7 @@ class NewScoreInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                clickSubmit()
+                clickSubmitNewScore()
             }
         }
 
@@ -167,7 +167,7 @@ class NewScoreInstrumentedTest {
         assertEquals(null, roundsAfterCreate[1].roundId)
         assertEquals(null, roundsAfterCreate[1].roundSubTypeId)
 
-        assertEquals(R.id.inputEndFragment, navController.currentDestination?.id)
+        assertEquals(R.id.archerRoundFragment, navController.currentDestination?.id)
         assertEquals(3, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
     }
 
@@ -200,7 +200,7 @@ class NewScoreInstrumentedTest {
                 clickSelectedSubtype()
                 clickSubtypeDialogSubtype(1)
 
-                clickSubmit()
+                clickSubmitNewScore()
             }
         }
 
@@ -226,7 +226,7 @@ class NewScoreInstrumentedTest {
                 checkTime("20:22")
                 checkDate("30 Oct 40")
 
-                clickSubmit()
+                clickSubmitNewScore()
             }
         }
 
@@ -296,7 +296,7 @@ class NewScoreInstrumentedTest {
                     /*
                      * Save
                      */
-                    clickSubmit()
+                    clickSubmitEditScore()
                 }
             }
 
@@ -325,7 +325,7 @@ class NewScoreInstrumentedTest {
                 clickEditDropdownMenuItem {
                     clickSelectedRound()
                     clickRoundDialogNoRound()
-                    clickSubmit()
+                    clickSubmitEditScore()
                 }
             }
         }

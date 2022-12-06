@@ -13,133 +13,154 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
-// TODO No more arrows to add - prevent accidental opening of this screen
-@Composable
-fun InputEndScreen(
-        state: InputEndState,
-        listener: (ArcherRoundIntent) -> Unit,
-) {
-    ArrowInputsScaffold(
-            state = state,
-            showCancelButton = false,
-            showResetButton = false,
-            submitButtonText = stringResource(R.string.input_end__next_end),
-            listener = listener,
+
+class InputEndScreen : ArcherRoundSubScreen() {
+    @Composable
+    override fun ComposeContent(
+            state: ArcherRoundState.Loaded,
+            listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScoreIndicator(
-                state.fullArcherRoundInfo.score,
-                state.fullArcherRoundInfo.arrowsShot,
-        )
-        RemainingArrowsIndicator(state.fullArcherRoundInfo)
+        ScreenContent(state, listener)
     }
-}
 
-@Composable
-private fun ScoreIndicator(
-        totalScore: Int,
-        arrowsShot: Int,
-) {
-    Row {
-        Column(
-                modifier = Modifier.width(IntrinsicSize.Max)
+    override fun getHelpShowcases(): List<HelpShowcaseItem> {
+        // TODO_CURRENT Help info
+        return listOf()
+    }
+
+    override fun getHelpPriority(): Int? = null
+
+    // TODO No more arrows to add - prevent accidental opening of this screen
+    @Composable
+    private fun ScreenContent(
+            state: InputEndState,
+            listener: (ArcherRoundIntent) -> Unit,
+    ) {
+        ArrowInputsScaffold(
+                state = state,
+                showCancelButton = false,
+                showResetButton = false,
+                submitButtonText = stringResource(R.string.input_end__next_end),
+                listener = listener,
         ) {
-            ScoreIndicatorCell(
-                    text = stringResource(R.string.input_end__archer_score_header),
-                    isHeader = true,
+            ScoreIndicator(
+                    state.fullArcherRoundInfo.score,
+                    state.fullArcherRoundInfo.arrowsShot,
             )
-            ScoreIndicatorCell(
-                    text = totalScore.toString(),
-                    isHeader = false,
-            )
-        }
-        Column(
-                modifier = Modifier.width(IntrinsicSize.Max)
-        ) {
-            ScoreIndicatorCell(
-                    text = stringResource(R.string.input_end__archer_arrows_count_header),
-                    isHeader = true,
-            )
-            ScoreIndicatorCell(
-                    text = arrowsShot.toString(),
-                    isHeader = false,
-            )
+            RemainingArrowsIndicator(state.fullArcherRoundInfo)
         }
     }
-}
 
-@Composable
-private fun ScoreIndicatorCell(
-        text: String,
-        isHeader: Boolean,
-) {
-    Text(
-            text = text,
-            style = CodexTypography.LARGE,
-            color = CodexTheme.colors.onAppBackground,
-            textAlign = TextAlign.Center,
-            fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
-            modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, CodexTheme.colors.onAppBackground)
-                    .padding(vertical = 5.dp, horizontal = 10.dp)
-    )
-}
-
-@Composable
-private fun RemainingArrowsIndicator(
-        fullArcherRoundInfo: FullArcherRoundInfo
-) {
-    fullArcherRoundInfo.remainingArrowsAtDistances?.let {
-        val remainingStrings = it.map { (count, distance) ->
-            stringResource(
-                    R.string.input_end__round_indicator_at,
-                    count,
-                    distance,
-                    stringResource(fullArcherRoundInfo.distanceUnit!!)
-            )
-        }
-
-        Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                    text = stringResource(R.string.input_end__round_indicator_label),
-                    style = CodexTypography.NORMAL,
-                    color = CodexTheme.colors.onAppBackground,
-            )
-            Text(
-                    text = remainingStrings.first(),
-                    style = CodexTypography.LARGE,
-                    color = CodexTheme.colors.onAppBackground,
-            )
-            if (it.size > 1) {
-                Text(
-                        text = remainingStrings
-                                .drop(1)
-                                .joinToString(stringResource(R.string.general_comma_separator)),
-                        style = CodexTypography.NORMAL,
-                        color = CodexTheme.colors.onAppBackground,
+    @Composable
+    private fun ScoreIndicator(
+            totalScore: Int,
+            arrowsShot: Int,
+    ) {
+        Row {
+            Column(
+                    modifier = Modifier.width(IntrinsicSize.Max)
+            ) {
+                ScoreIndicatorCell(
+                        text = stringResource(R.string.input_end__archer_score_header),
+                        isHeader = true,
+                )
+                ScoreIndicatorCell(
+                        text = totalScore.toString(),
+                        isHeader = false,
+                )
+            }
+            Column(
+                    modifier = Modifier.width(IntrinsicSize.Max)
+            ) {
+                ScoreIndicatorCell(
+                        text = stringResource(R.string.input_end__archer_arrows_count_header),
+                        isHeader = true,
+                )
+                ScoreIndicatorCell(
+                        text = arrowsShot.toString(),
+                        isHeader = false,
                 )
             }
         }
     }
-}
 
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-        heightDp = 700,
-)
-@Composable
-fun InputEndScreen_Preview() {
-    CodexTheme {
-        InputEndScreen(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
+    @Composable
+    private fun ScoreIndicatorCell(
+            text: String,
+            isHeader: Boolean,
+    ) {
+        Text(
+                text = text,
+                style = CodexTypography.LARGE,
+                color = CodexTheme.colors.onAppBackground,
+                textAlign = TextAlign.Center,
+                fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, CodexTheme.colors.onAppBackground)
+                        .padding(vertical = 5.dp, horizontal = 10.dp)
+        )
+    }
+
+    @Composable
+    private fun RemainingArrowsIndicator(
+            fullArcherRoundInfo: FullArcherRoundInfo
+    ) {
+        fullArcherRoundInfo.remainingArrowsAtDistances?.let {
+            val remainingStrings = it.map { (count, distance) ->
+                stringResource(
+                        R.string.input_end__round_indicator_at,
+                        count,
+                        distance,
+                        stringResource(fullArcherRoundInfo.distanceUnit!!)
+                )
+            }
+
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                        text = stringResource(R.string.input_end__round_indicator_label),
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                )
+                Text(
+                        text = remainingStrings.first(),
+                        style = CodexTypography.LARGE,
+                        color = CodexTheme.colors.onAppBackground,
+                )
+                if (it.size > 1) {
+                    Text(
+                            text = remainingStrings
+                                    .drop(1)
+                                    .joinToString(stringResource(R.string.general_comma_separator)),
+                            style = CodexTypography.NORMAL,
+                            color = CodexTheme.colors.onAppBackground,
+                    )
+                }
+            }
+        }
+    }
+
+    @Preview(
+            showBackground = true,
+            backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+            heightDp = 700,
+    )
+    @Composable
+    fun InputEndScreen_Preview() {
+        CodexTheme {
+            ScreenContent(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
+        }
     }
 }

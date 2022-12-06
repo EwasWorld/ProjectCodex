@@ -9,7 +9,6 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.DatePicker
 import android.widget.NumberPicker
-import android.widget.TextView
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -24,7 +23,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.mainActivity.MainActivity
@@ -55,19 +53,10 @@ fun Int.write(text: String) = onView(withId(this)).perform(ViewActions.typeText(
 fun Int.scrollTo() = onView(withId(this)).perform(ViewActions.scrollTo())!!
 fun Int.clearText() = onView(withId(this)).perform(ViewActions.clearText())!!
 fun Int.textEquals(text: String) = onView(withId(this)).check(matches(withText(text)))!!
-fun Int.labelledTextEquals(text: String) =
-        onView(allOf(withParent(withParent(withId(this))), withId(R.id.labelled_text__text))).check(
-                matches(
-                        withText(text)
-                )
-        )!!
 
 fun Int.spinnerTextEquals(text: String) =
         onView(allOf(withParent(withId(this)), withText(text))).check(matches(isDisplayed()))!!
 
-fun Int.labelledTextViewTextEquals(text: String) =
-        onView(allOf(withParent(withParent(withId(this))), withId(R.id.labelled_text__text)))
-                .check(matches(withText(text)))!!
 
 fun Int.textContains(text: String) =
         onView(withId(this)).check(matches(withText(containsString(text))))!!
@@ -166,14 +155,14 @@ fun completeEnd(
         scoreButtonId: Int,
         activityScenario: ActivityScenario<MainActivity>? = null,
         fragmentScenario: FragmentScenario<*>? = null,
-        submitButtonId: Int = R.id.button_input_end__next_end
+        submitButtonId: Int
 ) {
     require(activityScenario == null || fragmentScenario == null) { "Cannot define a fragment and activity scenario" }
     require(activityScenario != null || fragmentScenario != null) { "Must define a fragment or activity scenario" }
 
     var contains = true
-    fun Activity.containsPlaceholder() =
-            this.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')
+    fun Activity.containsPlaceholder() = false
+//            this.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')
     while (contains) {
         activityScenario?.let { scenario ->
             scenario.onActivity { contains = it.containsPlaceholder() }

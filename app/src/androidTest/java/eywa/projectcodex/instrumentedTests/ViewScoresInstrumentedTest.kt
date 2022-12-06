@@ -10,8 +10,6 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
@@ -221,24 +219,24 @@ class ViewScoresInstrumentedTest {
                 val rowId = 0
 
                 // Single click - score pad
-                clickRow(rowId)
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
-                pressBack()
+                clickRow(rowId) {
+                    assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                    pressBack()
+                }
 
                 // Long click - score pad
                 longClickRow(rowId)
-                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.SCORE_PAD_MENU_ITEM)
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
-                pressBack()
+                clickScorePadDropdownMenuItem {
+                    assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                    pressBack()
+                }
 
                 // Long click - continue
                 longClickRow(rowId)
-                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONTINUE_MENU_ITEM)
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
-                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
-                pressBack()
+                clickContinueDropdownMenuItem {
+                    assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                    pressBack()
+                }
 
                 // Long click - continue not exist
                 longClickRow(1)
@@ -312,7 +310,7 @@ class ViewScoresInstrumentedTest {
                 waitForRowCount(2)
                 waitForHsg(0, "11/65/3")
                 waitForHsg(1, "11/65/3")
-                // TODO Add checks of the score pad
+                // TODO_CURRENT Add checks of the score pad
 
                 /*
                  * Cancelled

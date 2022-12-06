@@ -3,6 +3,7 @@ package eywa.projectcodex.components.archerRoundScore
 import androidx.compose.material.BottomNavigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.common.sharedUi.CodexBottomNavItem
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -27,6 +28,7 @@ fun ArcherRoundBottomNavBar(
                     label = stringResource(navItemInfo.label),
                     contentDescription = stringResource(navItemInfo.label),
                     isCurrentDestination = currentScreen == it,
+                    modifier = Modifier.testTag(ArcherRoundMainScreen.TestTag.bottomNavBarItem(it)),
                     onClick = { listener(it) },
             )
         }
