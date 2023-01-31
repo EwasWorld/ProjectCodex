@@ -88,7 +88,7 @@ class ArcherRoundStatsInstrumentedTest {
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity { activity ->
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
             navController = activity.navHostFragment.navController
 
             /*

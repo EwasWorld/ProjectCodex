@@ -1,12 +1,12 @@
 package eywa.projectcodex.hiltModules
 
+import android.content.Context
 import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import eywa.projectcodex.components.app.App
 import eywa.projectcodex.database.ScoresRoomDatabase
 import javax.inject.Singleton
 
@@ -15,23 +15,28 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class LocalDatabaseDaggerModule {
     companion object {
-        val scoresRoomDatabase by lazy {
-            Room.inMemoryDatabaseBuilder(
-                    ApplicationProvider.getApplicationContext<App>(),
-                    ScoresRoomDatabase::class.java
-            )
+        var scoresRoomDatabase: ScoresRoomDatabase? = null
+
+        fun createScoresRoomDatabase(context: Context) {
+            scoresRoomDatabase = Room
+                    .inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java)
                     .allowMainThreadQueries()
                     .build()
         }
 
         fun teardown() {
-            scoresRoomDatabase.clearAllTables()
+            scoresRoomDatabase?.clearAllTables()
         }
     }
 
     @Singleton
     @Provides
-    fun providesRoomDatabase(): ScoresRoomDatabase {
-        return scoresRoomDatabase
+    fun providesRoomDatabase(
+            @ApplicationContext context: Context
+    ): ScoresRoomDatabase {
+        if (scoresRoomDatabase == null) {
+            createScoresRoomDatabase(context)
+        }
+        return scoresRoomDatabase!!
     }
 }

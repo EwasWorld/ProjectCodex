@@ -50,6 +50,7 @@ sealed class ArcherRoundState {
             val inputArrows: List<Arrow> = listOf(),
             val subScreenInputArrows: List<Arrow> = listOf(),
             val displayRoundCompletedDialog: Boolean = false,
+            val displayCannotInputEndDialog: Boolean = false,
             override val displayDeleteEndConfirmationDialog: Boolean = false,
     ) : ArcherRoundState(), InputEndState, ArcherRoundStatsState, ScorePadState, ArcherRoundSettingsState, EditEndState,
             InsertEndState {

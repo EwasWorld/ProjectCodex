@@ -2,7 +2,6 @@
 
 package eywa.projectcodex.common
 
-import android.app.Activity
 import android.os.Debug
 import android.util.Log
 import android.view.View
@@ -11,8 +10,6 @@ import android.widget.DatePicker
 import android.widget.NumberPicker
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
@@ -144,40 +141,6 @@ fun <T> LiveData<T>.retrieveValue(): T? {
     observeForever(observer)
     latch.await(2, TimeUnit.SECONDS)
     return value
-}
-
-/**
- * Fills the end by pressing one of the score buttons then pressing complete
- * @param scoreButtonId the score button to press to fill up the end
- * @param submitButtonId the button to press to submit the end
- */
-fun completeEnd(
-        scoreButtonId: Int,
-        activityScenario: ActivityScenario<MainActivity>? = null,
-        fragmentScenario: FragmentScenario<*>? = null,
-        submitButtonId: Int
-) {
-    require(activityScenario == null || fragmentScenario == null) { "Cannot define a fragment and activity scenario" }
-    require(activityScenario != null || fragmentScenario != null) { "Must define a fragment or activity scenario" }
-
-    var contains = true
-    fun Activity.containsPlaceholder() = false
-//            this.findViewById<TextView>(R.id.text_end_inputs__inputted_arrows).text.contains('.')
-    while (contains) {
-        activityScenario?.let { scenario ->
-            scenario.onActivity { contains = it.containsPlaceholder() }
-        }
-        fragmentScenario?.let { scenario ->
-            @Suppress("UNCHECKED_CAST")
-            (scenario as FragmentScenario<Fragment>).onFragment {
-                contains = it.requireActivity().containsPlaceholder()
-            }
-        }
-        if (contains) {
-            scoreButtonId.click()
-        }
-    }
-    submitButtonId.click()
 }
 
 fun setNumberPickerValue(value: Int): ViewAction {

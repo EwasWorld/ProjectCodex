@@ -51,6 +51,19 @@ class ArcherRoundMainScreen : ActionBarHelp {
                     ),
             )
         }
+        SimpleDialog(
+                isShown = (state as? Loaded)?.displayCannotInputEndDialog == true,
+                onDismissListener = { listener(ArcherRoundIntent.CannotInputEndDialogOkClicked) },
+        ) {
+            SimpleDialogContent(
+                    title = stringResource(R.string.input_end__cannot_open_input_end_title),
+                    message = stringResource(R.string.input_end__cannot_open_input_end_body),
+                    positiveButton = ButtonState(
+                            text = stringResource(R.string.general_ok),
+                            onClick = { listener(ArcherRoundIntent.CannotInputEndDialogOkClicked) }
+                    ),
+            )
+        }
 
         Column {
             Box(

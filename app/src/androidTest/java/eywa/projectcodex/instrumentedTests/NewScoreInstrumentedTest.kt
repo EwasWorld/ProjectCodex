@@ -76,7 +76,7 @@ class NewScoreInstrumentedTest {
         hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
 
             /*
              * Fill default rounds

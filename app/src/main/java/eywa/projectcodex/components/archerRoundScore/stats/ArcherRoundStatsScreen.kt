@@ -136,11 +136,13 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                                 text = state.fullArcherRoundInfo.handicap.toString(),
                                 textModifier = Modifier.testTag(TestTag.HANDICAP_TEXT),
                         )
-                        DataRow(
-                                title = R.string.archer_round_stats__predicted_score,
-                                text = state.fullArcherRoundInfo.predictedScore.toString(),
-                                textModifier = Modifier.testTag(TestTag.PREDICTED_SCORE_TEXT),
-                        )
+                        if (state.fullArcherRoundInfo.predictedScore != null) {
+                            DataRow(
+                                    title = R.string.archer_round_stats__predicted_score,
+                                    text = state.fullArcherRoundInfo.predictedScore.toString(),
+                                    textModifier = Modifier.testTag(TestTag.PREDICTED_SCORE_TEXT),
+                            )
+                        }
                     }
                 }
             }

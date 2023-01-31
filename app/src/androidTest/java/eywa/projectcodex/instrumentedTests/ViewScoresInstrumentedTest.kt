@@ -68,7 +68,7 @@ class ViewScoresInstrumentedTest {
         scenario = composeTestRule.activityRule.scenario
 
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
             navController = it.navHostFragment.navController
         }
     }

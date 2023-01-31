@@ -6,6 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,6 +78,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 ScoreIndicatorCell(
                         text = totalScore.toString(),
                         isHeader = false,
+                        modifier = Modifier.testTag(TestTag.ROUND_SCORE)
                 )
             }
             Column(
@@ -89,6 +91,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 ScoreIndicatorCell(
                         text = arrowsShot.toString(),
                         isHeader = false,
+                        modifier = Modifier.testTag(TestTag.ROUND_ARROWS)
                 )
             }
         }
@@ -98,6 +101,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
     private fun ScoreIndicatorCell(
             text: String,
             isHeader: Boolean,
+            modifier: Modifier = Modifier,
     ) {
         Text(
                 text = text,
@@ -105,7 +109,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 color = CodexTheme.colors.onAppBackground,
                 textAlign = TextAlign.Center,
                 fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
-                modifier = Modifier
+                modifier = modifier
                         .fillMaxWidth()
                         .border(1.dp, CodexTheme.colors.onAppBackground)
                         .padding(vertical = 5.dp, horizontal = 10.dp)
@@ -138,6 +142,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                         text = remainingStrings.first(),
                         style = CodexTypography.LARGE,
                         color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.testTag(TestTag.REMAINING_ARROWS_CURRENT)
                 )
                 if (it.size > 1) {
                     Text(
@@ -146,10 +151,20 @@ class InputEndScreen : ArcherRoundSubScreen() {
                                     .joinToString(stringResource(R.string.general_comma_separator)),
                             style = CodexTypography.NORMAL,
                             color = CodexTheme.colors.onAppBackground,
+                            modifier = Modifier.testTag(TestTag.REMAINING_ARROWS_LATER)
                     )
                 }
             }
         }
+    }
+
+    object TestTag {
+        private const val PREFIX = "ARCHER_ROUND_INPUT_END_"
+
+        const val REMAINING_ARROWS_CURRENT = "${PREFIX}REMAINING_ARROWS_CURRENT"
+        const val REMAINING_ARROWS_LATER = "${PREFIX}REMAINING_ARROWS_LATER"
+        const val ROUND_SCORE = "${PREFIX}ROUND_SCORE"
+        const val ROUND_ARROWS = "${PREFIX}ROUND_ARROWS"
     }
 
     @Preview(

@@ -1,37 +1,23 @@
 package eywa.projectcodex.instrumentedTests
 
-import android.os.Bundle
-import android.widget.NumberPicker
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
-import androidx.navigation.Navigation
-import androidx.navigation.testing.TestNavHostController
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.navigation.NavController
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import eywa.projectcodex.R
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
+import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.not
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
@@ -50,19 +36,20 @@ class InputEndInstrumentedTest {
         init {
             SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
         }
-
     }
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(60)
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @get:Rule
+    val testTimeout: Timeout = Timeout.seconds(20)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    private lateinit var scenario: FragmentScenario<InputEndFragment>
-    private lateinit var navController: TestNavHostController
+    private lateinit var scenario: ActivityScenario<MainActivity>
+    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
-    private val emptyEnd = ".-.-.-.-.-."
     private val arrowsPerArrowCount = 12
     private val roundsInput = listOf(
             Round(1, "test", "Test", true, true, listOf()),
@@ -85,31 +72,23 @@ class InputEndInstrumentedTest {
             RoundDistance(2, 3, 1, 50)
     )
     private val archerRounds = listOf(
-            ArcherRound(1, TestUtils.generateDate(), 1, true),
-            ArcherRound(2, TestUtils.generateDate(), 1, true, roundId = 1),
-            ArcherRound(3, TestUtils.generateDate(), 1, true, roundId = 2),
+            ArcherRound(1, TestUtils.generateDate(2020), 1, true),
+            ArcherRound(2, TestUtils.generateDate(2019), 1, true, roundId = 1),
+            ArcherRound(3, TestUtils.generateDate(2018), 1, true, roundId = 2),
     )
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
      * with all desired information
      */
-    private fun setup(archerRoundId: Int = 1) {
-        check(archerRounds.find { it.archerRoundId == archerRoundId } != null) {
-            "Desired archer round not added to the db"
-        }
-
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-        val args = Bundle()
-        args.putInt("archerRoundId", archerRoundId)
+    private fun setup() {
+        hiltRule.inject()
 
         // Start initialised so we can add to the database before the onCreate methods are called
-        scenario = launchFragmentInContainer(args, initialState = Lifecycle.State.INITIALIZED)
-        scenario.onFragment {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase
-
-            navController.setGraph(R.navigation.nav_graph)
-            navController.setCurrentDestination(R.id.inputEndFragment, args)
+        scenario = composeTestRule.activityRule.scenario
+        scenario.onActivity { activity ->
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            navController = activity.navHostFragment.navController
 
             /*
              * Fill default rounds
@@ -131,16 +110,6 @@ class InputEndInstrumentedTest {
                 }
             }
         }
-
-        scenario.moveToState(Lifecycle.State.RESUMED)
-        scenario.onFragment {
-            Navigation.setViewNavController(it.requireView(), navController)
-        }
-    }
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
     }
 
     @After
@@ -152,278 +121,288 @@ class InputEndInstrumentedTest {
     fun testScoreButtonPressed() {
         setup()
 
-        val buttons = mapOf(
-                R.id.button_arrow_inputs__score_0 to "m",
-                R.id.button_arrow_inputs__score_1 to "1",
-                R.id.button_arrow_inputs__score_2 to "2",
-                R.id.button_arrow_inputs__score_3 to "3",
-                R.id.button_arrow_inputs__score_4 to "4",
-                R.id.button_arrow_inputs__score_5 to "5",
-                R.id.button_arrow_inputs__score_6 to "6",
-                R.id.button_arrow_inputs__score_7 to "7",
-                R.id.button_arrow_inputs__score_8 to "8",
-                R.id.button_arrow_inputs__score_9 to "9",
-                R.id.button_arrow_inputs__score_10 to "10",
-                R.id.button_arrow_inputs__score_x to "X"
-        )
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSubmitNewScore {
+                    /*
+                     * Pressing each button
+                     */
+                    val buttons = listOf("m", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "X")
+                    for (buttonText in buttons) {
+                        val expected: Int = when (buttonText) {
+                            "m" -> 0
+                            "X" -> 10
+                            else -> Integer.parseInt(buttonText)
+                        }
 
-        // Pressing each button
-        for (button in buttons) {
-            val expected: Int = when (button.value) {
-                "m" -> 0
-                "X" -> 10
-                else -> Integer.parseInt(button.value)
+                        clickScoreButton(buttonText)
+                        checkInputtedArrows(listOf(buttonText))
+                        checkEndTotal(expected)
+
+                        clickScoreButton(buttonText)
+                        checkInputtedArrows(listOf(buttonText, buttonText))
+                        checkEndTotal(expected * 2)
+
+                        clickClear()
+                        checkInputtedArrows()
+                        checkEndTotal(0)
+                    }
+
+                    /*
+                     * Filling an end
+                     */
+                    clickScoreButton(3)
+                    clickScoreButton(7)
+                    checkInputtedArrows(listOf(3, 7))
+                    checkEndTotal(10)
+                    clickScoreButton(3)
+                    checkInputtedArrows(listOf(3, 7, 3))
+                    checkEndTotal(13)
+                    clickScoreButton(1)
+                    clickScoreButton(1)
+                    clickScoreButton(3)
+                    checkInputtedArrows(listOf(3, 7, 3, 1, 1, 3))
+                    checkEndTotal(18)
+
+                    /*
+                     * Too many arrows
+                     */
+                    clickScoreButton(7)
+                    checkContainsToast("Arrows already added")
+                    checkInputtedArrows(listOf(3, 7, 3, 1, 1, 3))
+                    checkEndTotal(18)
+                }
             }
-            button.key.click()
-            R.id.text_end_inputs__inputted_arrows.textEquals(button.value + emptyEnd.substring(1))
-            R.id.text_end_inputs__end_total.textEquals(expected.toString())
-
-            button.key.click()
-            R.id.text_end_inputs__inputted_arrows.textEquals(button.value + "-" + button.value + emptyEnd.substring(3))
-            R.id.text_end_inputs__end_total.textEquals((expected * 2).toString())
-
-            R.id.button_end_inputs__clear.click()
-            R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-            R.id.text_end_inputs__end_total.textEquals("0")
         }
-
-        // Filling an end
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_7.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-.-.-.-.")
-        R.id.text_end_inputs__end_total.textEquals("10")
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-.-.-.")
-        R.id.text_end_inputs__end_total.textEquals("13")
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-1-3")
-        R.id.text_end_inputs__end_total.textEquals("18")
-
-        // Too many arrows
-        R.id.button_arrow_inputs__score_7.click()
-        checkContainsToast("Arrows already added")
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-1-3")
-        R.id.text_end_inputs__end_total.textEquals("18")
     }
 
     @Test
     fun testClearAndBackspace() {
         setup()
 
-        /*
-         * Clear
-         */
-        // Full score
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_7.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-1-3")
-        R.id.text_end_inputs__end_total.textEquals("18")
-        R.id.button_end_inputs__clear.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSubmitNewScore {
+                    /*
+                     * Clear
+                     */
+                    // Full score
+                    clickScoreButton(3)
+                    clickScoreButton(7)
+                    clickScoreButton(3)
+                    clickScoreButton(1)
+                    clickScoreButton(1)
+                    clickScoreButton(3)
+                    checkInputtedArrows(listOf(3, 7, 3, 1, 1, 3))
+                    checkEndTotal(18)
+                    clickClear()
+                    checkInputtedArrows()
+                    checkEndTotal(0)
 
-        // Partial score
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_7.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-.-.")
-        R.id.text_end_inputs__end_total.textEquals("14")
-        R.id.button_end_inputs__clear.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+                    // Partial score
+                    clickScoreButton(3)
+                    clickScoreButton(7)
+                    clickScoreButton(3)
+                    clickScoreButton(1)
+                    checkInputtedArrows(listOf(3, 7, 3, 1))
+                    checkEndTotal(14)
+                    clickClear()
+                    checkInputtedArrows()
+                    checkEndTotal(0)
 
-        // No score
-        R.id.button_end_inputs__clear.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+                    // No score
+                    clickClear()
+                    checkInputtedArrows()
+                    checkEndTotal(0)
 
-        /*
-         * Backspace
-         */
-        // Full score
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_7.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-1-3")
-        R.id.text_end_inputs__end_total.textEquals("18")
+                    /*
+                     * Backspace
+                     */
+                    // Full score
+                    clickScoreButton(3)
+                    clickScoreButton(7)
+                    clickScoreButton(3)
+                    clickScoreButton(1)
+                    clickScoreButton(1)
+                    clickScoreButton(3)
+                    checkInputtedArrows(listOf(3, 7, 3, 1, 1, 3))
+                    checkEndTotal(18)
 
-        R.id.button_end_inputs__backspace.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-1-.")
-        R.id.text_end_inputs__end_total.textEquals("15")
+                    clickBackspace()
+                    checkInputtedArrows(listOf(3, 7, 3, 1, 1))
+                    checkEndTotal(15)
 
-        R.id.button_end_inputs__backspace.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-.-.")
-        R.id.text_end_inputs__end_total.textEquals("14")
+                    clickBackspace()
+                    checkInputtedArrows(listOf(3, 7, 3, 1))
+                    checkEndTotal(14)
 
-        R.id.button_end_inputs__backspace.click()
-        R.id.button_end_inputs__backspace.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-.-.-.-.")
-        R.id.text_end_inputs__end_total.textEquals("10")
+                    clickBackspace()
+                    clickBackspace()
+                    checkInputtedArrows(listOf(3, 7))
+                    checkEndTotal(10)
 
-        R.id.button_end_inputs__backspace.click()
-        R.id.button_end_inputs__backspace.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+                    clickBackspace()
+                    clickBackspace()
+                    checkInputtedArrows()
+                    checkEndTotal(0)
 
-        R.id.button_end_inputs__backspace.click()
-        checkContainsToast("No arrows entered")
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+                    clickBackspace()
+                    checkContainsToast("No arrows entered")
+                    checkInputtedArrows()
+                    checkEndTotal(0)
+                }
+            }
+        }
     }
 
     @Test
     fun testNextEnd() {
         setup()
 
-        R.id.text_scores_indicator__table_score_1.textEquals("0")
-        R.id.text_scores_indicator__table_arrow_count_1.textEquals("0")
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSubmitNewScore {
+                    checkIndicatorTable(0, 0)
 
-        // End 1
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_7.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-1-1-3")
-        R.id.text_end_inputs__end_total.textEquals("18")
+                    // End 1
+                    clickScoreButton(3)
+                    clickScoreButton(7)
+                    clickScoreButton(3)
+                    clickScoreButton(1)
+                    clickScoreButton(1)
+                    clickScoreButton(3)
+                    checkInputtedArrows(listOf(3, 7, 3, 1, 1, 3))
+                    checkEndTotal(18)
 
-        R.id.button_input_end__next_end.click()
-        R.id.text_scores_indicator__table_score_1.textEquals("18")
-        R.id.text_scores_indicator__table_arrow_count_1.textEquals("6")
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+                    clickNextEnd()
+                    checkIndicatorTable(18, 6)
+                    checkInputtedArrows()
+                    checkEndTotal(0)
 
-        // End 2
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_7.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_6.click()
-        R.id.button_arrow_inputs__score_6.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-6-6-3")
-        R.id.text_end_inputs__end_total.textEquals("28")
+                    // End 2
+                    clickScoreButton(3)
+                    clickScoreButton(7)
+                    clickScoreButton(3)
+                    clickScoreButton(6)
+                    clickScoreButton(6)
+                    clickScoreButton(3)
+                    checkInputtedArrows(listOf(3, 7, 3, 6, 6, 3))
+                    checkEndTotal(28)
 
-        R.id.button_input_end__next_end.click()
-        R.id.text_scores_indicator__table_score_1.textEquals("46")
-        R.id.text_scores_indicator__table_arrow_count_1.textEquals("12")
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+                    clickNextEnd()
+                    checkIndicatorTable(46, 12)
+                    checkInputtedArrows()
+                    checkEndTotal(0)
 
-        // No arrows
-        R.id.button_input_end__next_end.click()
-        checkContainsToast("Please enter all arrows for this end")
-        CustomConditionWaiter.waitForToastToDisappear()
-        R.id.text_scores_indicator__table_score_1.textEquals("46")
-        R.id.text_scores_indicator__table_arrow_count_1.textEquals("12")
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.text_end_inputs__end_total.textEquals("0")
+                    // No arrows
+                    clickNextEnd()
+                    checkContainsToast("Please enter all arrows for this end")
+                    CustomConditionWaiter.waitForToastToDisappear()
+                    checkIndicatorTable(46, 12)
+                    checkInputtedArrows()
+                    checkEndTotal(0)
 
-        // Some arrows
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_7.click()
-        R.id.button_arrow_inputs__score_3.click()
-        R.id.button_arrow_inputs__score_6.click()
-        R.id.button_arrow_inputs__score_6.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-6-6-.")
+                    // Some arrows
+                    clickScoreButton(3)
+                    clickScoreButton(7)
+                    clickScoreButton(3)
+                    clickScoreButton(6)
+                    clickScoreButton(6)
+                    checkInputtedArrows(listOf(3, 7, 3, 6, 6))
 
-        R.id.button_input_end__next_end.click()
-        checkContainsToast("Please enter all arrows for this end")
-        R.id.text_scores_indicator__table_score_1.textEquals("46")
-        R.id.text_scores_indicator__table_arrow_count_1.textEquals("12")
-        R.id.text_end_inputs__inputted_arrows.textEquals("3-7-3-6-6-.")
-    }
-
-    @Test
-    fun testOpenScorePad() {
-        setup()
-
-        for (i in 0.rangeTo(5)) {
-            R.id.button_arrow_inputs__score_1.click()
+                    clickNextEnd()
+                    checkContainsToast("Please enter all arrows for this end")
+                    checkIndicatorTable(46, 12)
+                    checkInputtedArrows(listOf(3, 7, 3, 6, 6))
+                }
+            }
         }
-        R.id.button_input_end__next_end.click()
-        R.id.fragment_input_end__score_indicator.click()
-        assertEquals(R.id.scorePadFragment, navController.currentDestination?.id)
     }
 
     @Test
     fun testRemainingArrowsIndicatorAndCompleteRound() {
-        setup(2)
+        setup()
 
-        // Give it a moment to sort out the indicators
-        CustomConditionWaiter.waitFor(1000)
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                longClickRow(1)
 
-        R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 90m")
-        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
+                clickContinueDropdownMenuItem {
+                    waitForRemainingArrows()
 
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 90m")
-        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 70m, 12 at 50m")
+                    checkRemainingArrows("12 at 90m", "12 at 70m, 12 at 50m")
 
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 70m")
-        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 50m")
+                    completeEnd("1")
+                    checkRemainingArrows("6 at 90m", "12 at 70m, 12 at 50m")
 
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 70m")
-        R.id.text_input_end__remaining_arrows_later_distances.textEquals("12 at 50m")
+                    completeEnd("1")
+                    checkRemainingArrows("12 at 70m", "12 at 50m")
 
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_input_end__remaining_arrows_current_distance.textEquals("12 at 50m")
-        R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
+                    completeEnd("1")
+                    checkRemainingArrows("6 at 70m", "12 at 50m")
 
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_input_end__remaining_arrows_current_distance.textEquals("6 at 50m")
-        R.id.text_input_end__remaining_arrows_later_distances.textEquals("")
+                    completeEnd("1")
+                    checkRemainingArrows("12 at 50m", "")
 
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        onView(withText("OK")).perform(click())
-        assertEquals(R.id.archerRoundStatsFragment, navController.currentDestination?.id)
+                    completeEnd("1")
+                    checkRemainingArrows("6 at 50m", "")
+
+                    completeEnd("1")
+                    clickRoundCompleteOk { }
+
+                    clickNavBarInputEnd { }
+                    clickCannotInputMoreEndsOk()
+                }
+            }
+        }
     }
 
     @Test
     fun testOddEndSize() {
-        setup(2)
+        setup()
 
-        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
-        R.id.text_end_inputs__inputted_arrows.click()
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                longClickRow(1)
 
-        onViewWithClassName(NumberPicker::class.java).perform(setNumberPickerValue(5))
-        onView(withText("OK")).perform(click())
+                clickContinueDropdownMenuItem {
+                    checkInputtedArrows()
+                    clickNavBarSettings {
+                        setInputEndSize(5)
+                        clickNavBarInputEnd { }
+                    }
 
-        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_end_inputs__inputted_arrows.textEquals(".-.")
-        completeEnd(R.id.button_arrow_inputs__score_1, fragmentScenario = scenario)
-        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.")
+                    checkInputtedArrows(5)
+                    completeEnd("1", 5)
+                    checkInputtedArrows(5)
+                    completeEnd("1", 5)
+                    checkInputtedArrows(2)
+                    completeEnd("1", 2)
+                    checkInputtedArrows(5)
+                }
+            }
+        }
     }
 
     @Test
     fun scoreButtonsChange() {
-        setup(3)
+        setup()
 
-        try {
-            onView(withId(R.id.button_arrow_inputs__score_2)).check(matches(not(isDisplayed())))
-            fail("Score button 2 should not be shown on an outdoor imperial round")
-        }
-        catch (e: NoMatchingViewException) {
-            // Desired behaviour
-        }
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                longClickRow(2)
 
-        R.id.text_end_inputs__inputted_arrows.textEquals(emptyEnd)
-        R.id.button_arrow_inputs__score_1.click()
-        R.id.text_end_inputs__inputted_arrows.textEquals("1-.-.-.-.-.")
+                clickContinueDropdownMenuItem {
+                    checkScoreButtonNotDisplayed("2")
+
+                    checkInputtedArrows()
+                    clickScoreButton(1)
+                    checkInputtedArrows(listOf(1))
+                }
+            }
+        }
     }
 }

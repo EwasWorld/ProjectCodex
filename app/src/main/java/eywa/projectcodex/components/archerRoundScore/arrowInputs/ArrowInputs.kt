@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ fun ArrowInputs(
                 text = state.getEnteredArrows().sumOf { it.score }.toString(),
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
+                modifier = Modifier.testTag(ArrowInputsTestTag.END_TOTAL_TEXT)
         )
         @Suppress("SimplifiableCallChain")
         Text(
@@ -50,7 +52,9 @@ fun ArrowInputs(
                         .joinToString(stringResource(R.string.end_to_string_arrow_deliminator)),
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
-                modifier = Modifier.padding(bottom = 15.dp)
+                modifier = Modifier
+                        .padding(bottom = 15.dp)
+                        .testTag(ArrowInputsTestTag.END_ARROWS_TEXT)
         )
 
         ArrowButtonGroup(round = state.getRound(), onClick = { listener(ArrowInputted(it)) })
@@ -61,17 +65,20 @@ fun ArrowInputs(
                         text = stringResource(R.string.general__reset_edits),
                         buttonStyle = CodexButtonDefaults.DefaultTextButton,
                         onClick = { listener(ResetArrowsInputted) },
+                        modifier = Modifier.testTag(ArrowInputsTestTag.RESET_BUTTON)
                 )
             }
             CodexButton(
                     text = stringResource(R.string.input_end__clear),
                     buttonStyle = CodexButtonDefaults.DefaultTextButton,
                     onClick = { listener(ClearArrowsInputted) },
+                    modifier = Modifier.testTag(ArrowInputsTestTag.CLEAR_BUTTON)
             )
             CodexButton(
                     text = stringResource(R.string.input_end__backspace),
                     buttonStyle = CodexButtonDefaults.DefaultTextButton,
                     onClick = { listener(BackspaceArrowsInputted) },
+                    modifier = Modifier.testTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
             )
         }
     }

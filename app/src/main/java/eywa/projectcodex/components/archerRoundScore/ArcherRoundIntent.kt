@@ -38,6 +38,7 @@ sealed class ArcherRoundIntent {
     object ScreenSubmitClicked : ArcherRoundIntent()
     object ScreenCancelClicked : ArcherRoundIntent()
 
+    object CannotInputEndDialogOkClicked : ArcherRoundIntent()
     object RoundCompleteDialogOkClicked : ArcherRoundIntent()
     object NoArrowsDialogOkClicked : ArcherRoundIntent()
     object DeleteEndDialogOkClicked : ArcherRoundIntent()

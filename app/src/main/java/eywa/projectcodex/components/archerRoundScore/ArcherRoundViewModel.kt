@@ -41,7 +41,15 @@ class ArcherRoundViewModel @Inject constructor(
 
         when (action) {
             is Initialise -> loadArcherRoundData(action)
-            is NavBarClicked -> state = (state as Loaded).copy(currentScreen = action.screen)
+            is NavBarClicked -> {
+                val s = state as Loaded
+                if (action.screen == INPUT_END && (s.fullArcherRoundInfo.remainingArrows ?: 0) <= 0) {
+                    state = s.copy(displayCannotInputEndDialog = true)
+                }
+                else {
+                    state = s.copy(currentScreen = action.screen)
+                }
+            }
             ScreenCancelClicked -> state = (state as Loaded).copy(currentScreen = SCORE_PAD, scorePadSelectedEnd = null)
             ScreenSubmitClicked -> (state as Loaded).let { state ->
                 when (state.currentScreen) {
@@ -56,6 +64,8 @@ class ArcherRoundViewModel @Inject constructor(
             is SettingsIntent -> handleSettingsIntent(action)
             RoundCompleteDialogOkClicked ->
                 state = (state as Loaded).copy(currentScreen = STATS, displayRoundCompletedDialog = false)
+            CannotInputEndDialogOkClicked ->
+                state = (state as Loaded).copy(displayCannotInputEndDialog = false)
             NoArrowsDialogOkClicked -> state = (state as Loaded).copy(currentScreen = INPUT_END)
             DeleteEndDialogCancelClicked ->
                 state = (state as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)

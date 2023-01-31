@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,11 +67,13 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
             NumberSetting(
                     title = R.string.archer_round_settings__input_end_size,
                     currentValue = state.inputEndSize,
+                    testTag = TestTag.INPUT_END_SIZE,
                     onValueChanged = { listener(InputEndSizeChanged(it)) },
             )
             NumberSetting(
                     title = R.string.archer_round_settings__score_pad_end_size,
                     currentValue = state.scorePadEndSize,
+                    testTag = TestTag.SCORE_PAD_END_SIZE,
                     onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
             )
             // TODO Change golds type
@@ -82,6 +85,7 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
     private fun NumberSetting(
             @StringRes title: Int,
             currentValue: Int?,
+            testTag: String,
             onValueChanged: (Int?) -> Unit,
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -108,9 +112,17 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
                         keyboardActions = KeyboardActions(
                                 onDone = { keyboardController?.hide() },
                         ),
+                        modifier = Modifier.testTag(testTag)
                 )
             }
         }
+    }
+
+    object TestTag {
+        private const val PREFIX = "ARCHER_ROUND_SETTINGS_"
+
+        const val SCORE_PAD_END_SIZE = "${PREFIX}SCORE_END_SIZE"
+        const val INPUT_END_SIZE = "${PREFIX}INPUT_END_SIZE"
     }
 
     @Preview(

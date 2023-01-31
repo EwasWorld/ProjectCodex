@@ -130,7 +130,7 @@ class EmailScoresInstrumentedTest {
         hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
             addSimpleTestDataToDb()
             navController = it.navHostFragment.navController
         }
