@@ -1,0 +1,241 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "7221c25035fda1209d4dbeb73b60cf40",
+    "entities": [
+      {
+        "tableName": "archer_rounds",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archerRoundId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dateShot` INTEGER NOT NULL, `archerId` INTEGER NOT NULL, `bowId` INTEGER, `roundReferenceId` INTEGER, `roundDistanceId` INTEGER, `goalScore` INTEGER, `shootStatus` TEXT, `countsTowardsHandicap` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "archerRoundId",
+            "columnName": "archerRoundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateShot",
+            "columnName": "dateShot",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archerId",
+            "columnName": "archerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bowId",
+            "columnName": "bowId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "roundReferenceId",
+            "columnName": "roundReferenceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "roundDistanceId",
+            "columnName": "roundDistanceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "goalScore",
+            "columnName": "goalScore",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "shootStatus",
+            "columnName": "shootStatus",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "countsTowardsHandicap",
+            "columnName": "countsTowardsHandicap",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "archerRoundId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "archers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archerId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "archerId",
+            "columnName": "archerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "archerId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "arrow_values",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archerRoundId` INTEGER NOT NULL, `arrowNumber` INTEGER NOT NULL, `score` INTEGER NOT NULL, `isX` INTEGER NOT NULL, PRIMARY KEY(`archerRoundId`, `arrowNumber`))",
+        "fields": [
+          {
+            "fieldPath": "archerRoundId",
+            "columnName": "archerRoundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "arrowNumber",
+            "columnName": "arrowNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "score",
+            "columnName": "score",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isX",
+            "columnName": "isX",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "archerRoundId",
+            "arrowNumber"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "round_distances",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roundDistanceId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `roundReferenceId` INTEGER, `distanceInM` REAL, `faceSizeInCm` INTEGER, `arrowCount` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "roundDistanceId",
+            "columnName": "roundDistanceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roundReferenceId",
+            "columnName": "roundReferenceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "distanceInM",
+            "columnName": "distanceInM",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "faceSizeInCm",
+            "columnName": "faceSizeInCm",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "arrowCount",
+            "columnName": "arrowCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "roundDistanceId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "rounds_references",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roundReferenceId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` TEXT NOT NULL, `length` TEXT, `scoringType` TEXT NOT NULL, `outdoor` INTEGER NOT NULL, `innerTenScoring` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "roundReferenceId",
+            "columnName": "roundReferenceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "length",
+            "columnName": "length",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scoringType",
+            "columnName": "scoringType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outdoor",
+            "columnName": "outdoor",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "innerTenScoring",
+            "columnName": "innerTenScoring",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "roundReferenceId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7221c25035fda1209d4dbeb73b60cf40')"
+    ]
+  }
+}
