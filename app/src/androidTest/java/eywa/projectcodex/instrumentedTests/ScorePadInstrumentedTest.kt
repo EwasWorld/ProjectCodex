@@ -258,9 +258,9 @@ class ScorePadInstrumentedTest {
                             listOf(
                                     ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
                                     ExpectedRowData("1", "X-9-9-9-7-6", 6, 50, 4, 50),
-                                    ExpectedRowData("2", "1-1-1-1-1-1", 6, 6, 0, 57),
-                                    ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 69),
-                                    ExpectedRowData("GT", "Grand Total", 17, 69, 3, null),
+                                    ExpectedRowData("2", "1-1-1-1-1-1", 6, 6, 0, 56),
+                                    ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 68),
+                                    ExpectedRowData("GT", "Grand Total", 18, 68, 4, null),
                             )
                     )
 
@@ -281,8 +281,8 @@ class ScorePadInstrumentedTest {
                                     ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
                                     ExpectedRowData("1", "X-9-9-9-7-6", 6, 50, 4, 50),
                                     ExpectedRowData("2", "3-3-3-4-4-4", 6, 21, 0, 71),
-                                    ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 82),
-                                    ExpectedRowData("GT", "Grand Total", 17, 82, 3, null),
+                                    ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 83),
+                                    ExpectedRowData("GT", "Grand Total", 18, 83, 4, null),
                             )
                     )
                 }

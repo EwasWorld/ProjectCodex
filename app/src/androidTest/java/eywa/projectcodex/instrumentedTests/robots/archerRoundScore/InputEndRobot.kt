@@ -1,9 +1,10 @@
 package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onNodeWithTag
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndScreen.TestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
@@ -50,11 +51,7 @@ class InputEndRobot(
         }
     }
 
-    fun clickNextEnd() {
-        composeTestRule
-                .onNodeWithTag(ArrowInputsTestTag.SUBMIT_BUTTON, true)
-                .performClick()
-    }
+    fun clickNextEnd() = clickArrowInputsSubmit()
 
     /**
      * Fills the end by pressing one of the score buttons then pressing complete
@@ -70,31 +67,11 @@ class InputEndRobot(
     }
 
     fun clickRoundCompleteOk(block: ArcherRoundStatsRobot.() -> Unit) {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for round complete dialog to display") {
-            composeTestRule
-                    .onNode(
-                            hasTestTag(SimpleDialogTestTag.TITLE).and(hasText(ROUND_COMPLETE_DIALOG_TITLE))
-                    )
-                    .assertIsDisplayed()
-        }
-        composeTestRule
-                .onNodeWithTag(SimpleDialogTestTag.POSITIVE_BUTTON)
-                .performClick()
+        clickDialogOk(ROUND_COMPLETE_DIALOG_TITLE)
         ArcherRoundStatsRobot(composeTestRule).apply(block)
     }
 
-    fun clickCannotInputMoreEndsOk() {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for cannot input dialog to display") {
-            composeTestRule
-                    .onNode(
-                            hasTestTag(SimpleDialogTestTag.TITLE).and(hasText(CANNOT_INPUT_END_DIALOG_TITLE))
-                    )
-                    .assertIsDisplayed()
-        }
-        composeTestRule
-                .onNodeWithTag(SimpleDialogTestTag.POSITIVE_BUTTON)
-                .performClick()
-    }
+    fun clickCannotInputMoreEndsOk() = clickDialogOk(CANNOT_INPUT_END_DIALOG_TITLE)
 
     companion object {
         private const val ROUND_COMPLETE_DIALOG_TITLE = "Round Complete"

@@ -83,4 +83,9 @@ class MigrationTests {
             }
         }
     }
+
+    @Test
+    fun migrate4To6() {
+        // TODO_CURRENT Database migration tests
+    }
 }

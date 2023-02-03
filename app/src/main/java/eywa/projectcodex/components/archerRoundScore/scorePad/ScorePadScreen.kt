@@ -224,10 +224,11 @@ class ScorePadScreen : ArcherRoundSubScreen() {
 
                 DropdownMenuItem(
                         onClick = { listener(item.action) },
+                        modifier = Modifier.testTag(TestTag.DROPDOWN_MENU_ITEM)
                 ) {
                     Text(
                             text = stringResource(id = item.title),
-                            style = CodexTypography.NORMAL
+                            style = CodexTypography.NORMAL,
                     )
                 }
             }
@@ -243,6 +244,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
     object TestTag {
         private const val PREFIX = "SCORE_PAD_"
         const val CELL = "${PREFIX}CELL"
+        const val DROPDOWN_MENU_ITEM = "${PREFIX}DROPDOWN_MENU_ITEM"
     }
 
     @Preview(

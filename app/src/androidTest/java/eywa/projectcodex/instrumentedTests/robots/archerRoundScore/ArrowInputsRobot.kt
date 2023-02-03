@@ -62,4 +62,15 @@ abstract class ArrowInputsRobot(
                 .performClick()
     }
 
+    protected fun clickArrowInputsSubmit() {
+        composeTestRule
+                .onNodeWithTag(ArrowInputsTestTag.SUBMIT_BUTTON, true)
+                .performClick()
+    }
+
+    protected fun clickArrowInputsCancel() {
+        composeTestRule
+                .onNodeWithTag(ArrowInputsTestTag.CANCEL_BUTTON, true)
+                .performClick()
+    }
 }

@@ -1,13 +1,11 @@
 package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
 import androidx.compose.ui.test.*
-import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.utils.transpose
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
 import eywa.projectcodex.components.mainActivity.MainActivity
-import org.junit.Assert
 
 class ScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -21,6 +19,9 @@ class ScorePadRobot(
         }
     }
 
+    /**
+     * Checks all cells including headers
+     */
     fun checkScorePadData(list: List<ExpectedRowData>) {
         val allCells = list.map { it.asList() }.transpose().flatten()
         val nodes = composeTestRule.onAllNodesWithTag(ScorePadScreen.TestTag.CELL)
@@ -32,25 +33,54 @@ class ScorePadRobot(
     }
 
     fun clickOkOnNoDataDialog() {
-        TODO()
-
-        Assert.assertFalse("Still on score frag after navigating away", isShown())
+        clickDialogOk("No arrows entered")
+        InputEndRobot(composeTestRule).apply { checkEndTotal(0) }
     }
 
+    /**
+     * @param rowIndex does not include the header row
+     */
     fun clickRow(rowIndex: Int) {
-        TODO()
+//        composeTestRule
+//                .onNodeWithTag(ScorePadScreen.TestTag.CELL)
+//                .performScrollToIndex(rowIndex)
+        composeTestRule
+                .onAllNodesWithTag(ScorePadScreen.TestTag.CELL, useUnmergedTree = true)[rowIndex]
+                .performScrollTo()
+                .performClick()
+    }
+
+    private fun clickDropdownMenuItem(menuItem: String) {
+        composeTestRule
+                .onNode(
+                        matcher = hasTestTag(ScorePadScreen.TestTag.DROPDOWN_MENU_ITEM)
+                                .and(hasAnyDescendant(hasText(menuItem))),
+                        useUnmergedTree = true
+                )
+                .performClick()
     }
 
     fun clickEditDropdownMenuItem(block: EditEndRobot.() -> Unit) {
-        TODO()
+        clickDropdownMenuItem(CommonStrings.EDIT_MENU_ITEM)
+        EditEndRobot(composeTestRule).apply { block() }
     }
 
     fun clickInsertDropdownMenuItem(block: InsertEndRobot.() -> Unit) {
-        TODO()
+        clickDropdownMenuItem(CommonStrings.INSERT_MENU_ITEM)
+        InsertEndRobot(composeTestRule).apply { block() }
     }
 
     fun clickDeleteDropdownMenuItem(dialogAction: Boolean) {
-        TODO()
+        clickDropdownMenuItem(CommonStrings.DELETE_MENU_ITEM)
+
+        val titleText = "Delete end"
+        if (dialogAction) clickDialogOk(titleText) else clickDialogCancel(titleText)
+    }
+
+    private object CommonStrings {
+        const val EDIT_MENU_ITEM = "Edit end"
+        const val DELETE_MENU_ITEM = "Delete end"
+        const val INSERT_MENU_ITEM = "Insert end above"
     }
 
     data class ExpectedRowData(
