@@ -59,3 +59,11 @@ fun showContextMenuOnCentreOfView(view: View) {
         view.showContextMenu()
     }
 }
+
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    if (isEmpty()) return this
+    check(all { it.size == first().size }) { "Must be rectangular" }
+    if (first().isEmpty()) return listOf(emptyList())
+
+    return first().indices.map { index -> map { it[index] } }
+}

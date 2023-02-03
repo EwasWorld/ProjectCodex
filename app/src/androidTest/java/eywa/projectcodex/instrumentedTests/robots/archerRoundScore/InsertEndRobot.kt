@@ -5,5 +5,5 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 class InsertEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArcherRoundRobot(composeTestRule) {
+) : ArrowInputsRobot(composeTestRule) {
 }

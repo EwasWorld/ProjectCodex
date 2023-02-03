@@ -28,18 +28,6 @@ class RoundRepo(
             db.roundDistanceDao(),
     )
 
-    fun getArrowCountsForRound(roundId: Int): LiveData<List<RoundArrowCount>> {
-        return roundArrowCountDao.getArrowCountsForRound(roundId)
-    }
-
-    fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>> {
-        return roundDistanceDao.getDistancesForRound(roundId, subTypeId ?: 1)
-    }
-
-    fun getRoundById(roundId: Int): LiveData<Round> {
-        return roundDao.getRoundById(roundId)
-    }
-
     /**
      * Updates rounds tables based on update items. WARNING: performs minimal checking for consistency.
      * @param updateItems maps a Round(ArrowCount/SubType/Distance) database item to an action. If the key is not of a

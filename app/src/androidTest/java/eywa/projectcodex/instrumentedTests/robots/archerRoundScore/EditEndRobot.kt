@@ -5,5 +5,12 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 class EditEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArcherRoundRobot(composeTestRule) {
+) : ArrowInputsRobot(composeTestRule) {
+    fun clickCancel() {
+        TODO()
+    }
+
+    fun clickComplete() {
+        TODO()
+    }
 }

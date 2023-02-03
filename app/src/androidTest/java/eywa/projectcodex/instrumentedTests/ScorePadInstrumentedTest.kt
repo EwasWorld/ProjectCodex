@@ -1,37 +1,17 @@
 package eywa.projectcodex.instrumentedTests
 
-import android.app.Activity
 import android.content.res.Resources
-import android.os.Bundle
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
-import androidx.navigation.Navigation
-import androidx.navigation.testing.TestNavHostController
+import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.azimolabs.conditionwatcher.ConditionWatcher
-import com.azimolabs.conditionwatcher.Instruction
-import com.evrencoskun.tableview.TableView
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import eywa.projectcodex.R
-import eywa.projectcodex.common.*
-import eywa.projectcodex.common.archeryObjects.End
-import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.common.CommonStrings
+import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.InfoTableCell
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -41,9 +21,11 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.EditEndRobot
+import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
@@ -69,9 +51,8 @@ class ScorePadInstrumentedTest {
 
     private val endSize = 6
 
-    private var fragScenario: FragmentScenario<ScorePadFragment>? = null
-    private var activityScenario: ActivityScenario<MainActivity>? = null
-    private lateinit var navController: TestNavHostController
+    private lateinit var scenario: ActivityScenario<MainActivity>
+    private lateinit var navController: NavController
     private lateinit var resources: Resources
     private lateinit var db: ScoresRoomDatabase
     private lateinit var arrows: List<ArrowValue>
@@ -84,306 +65,352 @@ class ScorePadInstrumentedTest {
             ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
-    private fun checkData(arrows: List<ArrowValue>, goldsHeader: String = "G") {
-        checkData(ScorePadData(arrows, endSize, GoldsType.NINES, resources), goldsHeader)
+    private suspend fun addArcherRound(archerRoundId: Int = 1, roundId: Int? = null, year: Int = 2022) {
+        db.archerRoundDao().insert(
+                ArcherRound(archerRoundId, TestUtils.generateDate(year), 1, true, roundId = roundId)
+        )
     }
 
-    /**
-     * Check the data currently in the adapter against [expectedData]
-     */
-    private fun checkData(expectedData: ScorePadData, goldsHeader: String = "G") {
-        /*
-         * Check cells
-         */
-        var col = 0
-        val expectedColumnHeaders =
-                listOf("Arrows", "H", "S", goldsHeader, "R/T").map { InfoTableCell(it, "col" + col++) }
-        for (i in expectedColumnHeaders.indices) {
-            assertEquals(expectedColumnHeaders[i], getTableView().adapter!!.getColumnHeaderItem(i))
-        }
-        assertNull(getTableView().adapter!!.getColumnHeaderItem(expectedColumnHeaders.size))
-
-        /*
-         * Check row headers
-         */
-        val expectedRowHeaders = expectedData.generateRowHeaders("T", "GT")
-        for (i in expectedRowHeaders.indices) {
-            assertEquals(expectedRowHeaders[i], getTableView().adapter!!.getRowHeaderItem(i))
-        }
-        assertNull(getTableView().adapter!!.getRowHeaderItem(expectedRowHeaders.size))
-
-        /*
-         * Check column headers
-         */
-        val expectedCells = expectedData.getAsTableCells(columnHeaderOrder)
-        for (i in expectedCells.indices) {
-            assertEquals(expectedCells[i], getTableView().adapter!!.getCellRowItems(i))
-        }
+    private suspend fun addArrows(indexes: List<Int>, archerRoundId: Int = 1) {
+        indexes
+                .mapIndexed { index, it -> TestUtils.ARROWS[it].toArrowValue(archerRoundId, index + 1) }
+                .forEach { db.arrowValueDao().insert(it) }
     }
 
-    private fun setupDb(hasRound: Boolean = false) {
-        db = LocalDatabaseDaggerModule.scoresRoomDatabase
-
-        for (arrow in arrows) {
-            // Sometimes the test has kittens so it's nice to have a log
-            logMessage(
-                    this::class,
-                    "ArrowValue(${arrow.archerRoundId},${arrow.arrowNumber},${arrow.score},${arrow.isX}),"
-            )
-            runBlocking {
-                db.arrowValueDao().insert(arrow)
-            }
-        }
-        val roundId = if (hasRound) 1 else null
-        runBlocking {
-            db.archerRoundDao().insert(
-                    ArcherRound(
-                            1, TestUtils.generateDate(), 1, true, roundId = roundId, roundSubTypeId = roundId
-                    )
-            )
-        }
-    }
-
-    private fun setupFragment(arrowsForDatabase: List<ArrowValue>? = null, hasRound: Boolean = false) {
-        check(activityScenario == null) { "Activity scenario already in use for this test" }
-
-        arrows = arrowsForDatabase ?: TestUtils.generateArrowValues(1, 36)
-
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-
-        val data = Pair("archerRoundId", 1)
-        val bundle = Bundle()
-        bundle.putInt(data.first, data.second)
-
-        // Start initialised so we can add to the database before the onCreate methods are called
-        fragScenario = launchFragmentInContainer(bundle, initialState = Lifecycle.State.INITIALIZED)
-        fragScenario!!.onFragment {
-            navController.setGraph(R.navigation.nav_graph)
-            navController.setCurrentDestination(R.id.scorePadFragment, bundle)
-            setupDb(hasRound)
-        }
-
-        fragScenario!!.moveToState(Lifecycle.State.RESUMED)
-        fragScenario!!.onFragment {
-            Navigation.setViewNavController(it.requireView(), navController)
-
-            resources = it.requireActivity().resources
-        }
-    }
-
-    private fun setupActivity(arrowsForDatabase: List<ArrowValue>? = null, waitForRow: Int) {
-        check(fragScenario == null) { "Fragment scenario already in use for this test" }
-
+    private fun setupActivity(setupDb: suspend () -> Unit) {
         hiltRule.inject()
-        arrows = arrowsForDatabase ?: TestUtils.generateArrowValues(1, 36)
-        activityScenario = composeTestRule.activityRule.scenario
-        activityScenario!!.onActivity {
-            setupDb()
-            resources = it.resources
-        }
-        activityScenario!!.recreate()
 
-        CustomConditionWaiter.waitForScorePadToOpen(composeTestRule = composeTestRule, arrows = arrows, rowIndex = 0)
-        CustomConditionWaiter.waitForRowToAppear(getTableView(), (waitForRow))
+        scenario = composeTestRule.activityRule.scenario
+        scenario.onActivity { activity ->
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            runBlocking {
+                setupDb()
+            }
+            resources = activity.resources
+
+            activity.recreate()
+        }
     }
 
     @After
     fun afterEach() {
-        fragScenario?.let { scenario ->
-            CommonSetupTeardownFns.teardownScenario(scenario)
-            fragScenario = null
-        }
-        activityScenario?.let { scenario ->
-            CommonSetupTeardownFns.teardownScenario(scenario)
-            activityScenario = null
-        }
+        CommonSetupTeardownFns.teardownScenario(scenario)
     }
 
     @Test
     fun testTableValues() {
-        setupFragment()
-        CustomConditionWaiter.waitForRowToAppear(getTableView(), (0))
-        checkData(arrows)
+        val arrows = listOf(
+                0, 1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10, 11,
+                5, 5, 5, 5, 5, 5,
+        )
+
+        setupActivity {
+            addArcherRound(archerRoundId = 1, roundId = null)
+            addArrows(arrows)
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    waitForLoad()
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-5", 5, 15, 0, 15),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 65),
+                                    ExpectedRowData("3", "5-5-5-5-5-5", 6, 30, 0, 95),
+                                    ExpectedRowData("GT", "Grand Total", 17, 95, 3, null),
+                            )
+                    )
+                }
+            }
+        }
     }
 
     @Test
     fun testTableValuesWithTotals() {
-        setupFragment(hasRound = true)
+        val arrows = listOf(
+                0, 1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10, 11,
+                5, 5, 5, 5, 5, 5,
+
+                5, 5, 5, 5, 5, 5,
+                5, 5, 5, 5, 5, 5,
+                5, 5, 5, 5, 5, 5,
+
+                5, 5, 5, 5, 5, 5,
+                5, 5, 5, 5, 5, 5,
+        )
         val arrowCounts = listOf(
                 RoundArrowCount(1, 1, 1.0, 18),
-                RoundArrowCount(1, 2, 1.0, 18)
+                RoundArrowCount(1, 2, 1.0, 18),
+                RoundArrowCount(2, 1, 1.0, 18),
+                RoundArrowCount(2, 2, 1.0, 18),
         )
         val roundDistances = listOf(
                 RoundDistance(1, 1, 1, 60),
-                RoundDistance(1, 2, 1, 50)
+                RoundDistance(1, 2, 1, 50),
+                RoundDistance(2, 1, 1, 60),
+                RoundDistance(2, 2, 1, 50),
         )
-        fragScenario!!.onFragment {
-            runBlocking {
-                db.roundDao().insert(Round(1, "RoundName", "Round Name", false, true, listOf()))
-                db.roundArrowCountDao().insert(arrowCounts[0])
-                db.roundArrowCountDao().insert(arrowCounts[1])
-                db.roundDistanceDao().insert(roundDistances[0])
-                db.roundDistanceDao().insert(roundDistances[1])
+
+        setupActivity {
+            db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", false, true, listOf()))
+            db.roundDao().insert(Round(2, "RoundName2", "Round Name 2", true, false, listOf()))
+
+            arrowCounts.forEach { db.roundArrowCountDao().insert(it) }
+            roundDistances.forEach { db.roundDistanceDao().insert(it) }
+
+            addArcherRound(archerRoundId = 0, roundId = 1, year = 2022)
+            addArrows(indexes = arrows, archerRoundId = 1)
+
+            addArcherRound(archerRoundId = 2, roundId = 2, year = 2021)
+            addArrows(indexes = arrows, archerRoundId = 2)
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    waitForLoad()
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-5", 5, 15, 0, 15),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 2, 65),
+                                    ExpectedRowData("3", "5-5-5-5-5-5", 6, 30, 0, 95),
+                                    ExpectedRowData("T", "Total at 60m", 17, 95, 2, null),
+                                    ExpectedRowData("4", "5-5-5-5-5-5", 6, 30, 0, 125),
+                                    ExpectedRowData("5", "5-5-5-5-5-5", 6, 30, 0, 155),
+                                    ExpectedRowData("6", "5-5-5-5-5-5", 6, 30, 0, 185),
+                                    ExpectedRowData("T", "Total at 50m", 18, 90, 0, null),
+                                    ExpectedRowData("7", "5-5-5-5-5-5", 6, 30, 0, 215),
+                                    ExpectedRowData("8", "5-5-5-5-5-5", 6, 30, 0, 245),
+                                    ExpectedRowData("T", "Surplus Total", 12, 60, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 47, 245, 2, null),
+                            )
+                    )
+                    pressBack()
+                }
+
+                clickRow(1) {
+                    waitForLoad()
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-5", 5, 15, 0, 15),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 65),
+                                    ExpectedRowData("3", "5-5-5-5-5-5", 6, 30, 0, 95),
+                                    ExpectedRowData("T", "Total at 60yd", 17, 95, 3, null),
+                                    ExpectedRowData("4", "5-5-5-5-5-5", 6, 30, 0, 125),
+                                    ExpectedRowData("5", "5-5-5-5-5-5", 6, 30, 0, 155),
+                                    ExpectedRowData("6", "5-5-5-5-5-5", 6, 30, 0, 185),
+                                    ExpectedRowData("T", "Total at 50yd", 18, 90, 0, null),
+                                    ExpectedRowData("7", "5-5-5-5-5-5", 6, 30, 0, 215),
+                                    ExpectedRowData("8", "5-5-5-5-5-5", 6, 30, 0, 245),
+                                    ExpectedRowData("T", "Surplus Total", 12, 60, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 47, 245, 3, null),
+                            )
+                    )
+                }
             }
         }
-        CustomConditionWaiter.waitForRowToAppear(getTableView(), (8))
-
-        checkData(ScorePadData(arrows, endSize, GoldsType.TENS, resources, arrowCounts, roundDistances, "m"), "10")
     }
 
     @Test
     fun testEmptyTable() {
-        setupFragment(arrowsForDatabase = listOf())
-        onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
-        assertNotEquals(R.id.scorePadFragment, navController.currentDestination?.id)
-    }
-
-    /**
-     * Helper function as the adapter changes whenever the table is updated so cannot store a reference to it
-     */
-    private fun getTableView(): TableView {
-        var tableView: TableView? = null
-
-        fun getTableView(activity: Activity) {
-            tableView = activity.findViewById(R.id.table_view_score_pad)
+        setupActivity {
+            addArcherRound(archerRoundId = 1, roundId = null)
         }
 
-        fragScenario?.onFragment { getTableView(it.requireActivity()) }
-        activityScenario?.onActivity { getTableView(it) }
-        return tableView!!
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    clickOkOnNoDataDialog()
+                }
+            }
+        }
     }
 
     @Test
     fun testEditEnd() {
-        val firstArrows = listOf(
-                TestUtils.ARROWS[11], TestUtils.ARROWS[9], TestUtils.ARROWS[9],
-                TestUtils.ARROWS[9], TestUtils.ARROWS[7], TestUtils.ARROWS[6]
-        )
-        val nextArrows = List(endSize) { TestUtils.ARROWS[1] }
-        setupActivity(
-                listOf(firstArrows, nextArrows).flatten()
-                        .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) },
-                waitForRow = 2
+        val arrows = listOf(
+                11, 9, 9, 9, 7, 6,
+                1, 1, 1, 1, 1, 1,
+                2, 2, 2, 2, 2, 2,
         )
 
-        onView(withText("X-9-9-9-7-6")).perform(click())
-        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadEditEnd)
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class))
-        onView(withId(R.id.button_end_inputs__clear)).perform(click())
-        val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
-        for (i in 0 until endSize) {
-            scoreButton.perform(click())
+        setupActivity {
+            addArcherRound(archerRoundId = 1, roundId = null)
+            addArrows(arrows)
         }
-        onView(withId(R.id.button_edit_end__complete)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
-        CustomConditionWaiter.waitForRowToAppear(getTableView(), (2))
 
-        val newArrows = listOf(List(endSize) { TestUtils.ARROWS[2] }, nextArrows).flatten()
-                .mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    waitForLoad()
 
-        checkData(newArrows)
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "X-9-9-9-7-6", 6, 50, 4, 50),
+                                    ExpectedRowData("2", "1-1-1-1-1-1", 6, 6, 0, 57),
+                                    ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 69),
+                                    ExpectedRowData("GT", "Grand Total", 17, 69, 3, null),
+                            )
+                    )
+
+                    clickRow(2)
+                    clickEditDropdownMenuItem {
+                        clickClear()
+                        repeat(3) {
+                            clickScoreButton(3)
+                        }
+                        repeat(3) {
+                            clickScoreButton(4)
+                        }
+                        clickComplete()
+                    }
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "X-9-9-9-7-6", 6, 50, 4, 50),
+                                    ExpectedRowData("2", "3-3-3-4-4-4", 6, 21, 0, 71),
+                                    ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 82),
+                                    ExpectedRowData("GT", "Grand Total", 17, 82, 3, null),
+                            )
+                    )
+                }
+            }
+        }
     }
 
     @Test
     fun testEditEndCancel() {
-        setupEditEnd()
-        onView(withId(R.id.button_edit_end__cancel)).perform(click())
-        checkEditEndCancelledCorrectly()
+        cancelEditEndTest {
+            clickCancel()
+        }
     }
 
     @Test
     fun testEditEndBackButtonPress() {
-        setupEditEnd()
-        pressBack()
-        checkEditEndCancelledCorrectly()
-    }
-
-    private fun setupEditEnd() {
-        setupActivity(waitForRow = 0)
-
-        /*
-         * Edit an end
-         */
-        val firstEnd = End(arrows.subList(0, 6), TestUtils.ARROW_PLACEHOLDER, TestUtils.ARROW_DELIMINATOR)
-        firstEnd.reorderScores()
-        onView(withIndex(withText(firstEnd.toString()), 0)).perform(click())
-        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadEditEnd)
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (EditEndFragment::class))
-    }
-
-    private fun checkEditEndCancelledCorrectly() {
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
-        CustomConditionWaiter.waitForRowToAppear(getTableView(), (0))
-
-        checkData(arrows)
-    }
-
-    @Test
-    fun testDeleteEnd() {
-        var genArrowNumber = 1
-        val expectedArrowsGrouped = List(6) { index ->
-            List(endSize) { TestUtils.ARROWS[index].toArrowValue(1, genArrowNumber++) }
+        cancelEditEndTest {
+            pressBack()
         }
-        setupActivity(expectedArrowsGrouped.flatten(), waitForRow = 0)
-
-        val deleteEndIndex = 1
-        val endToClick =
-                End(expectedArrowsGrouped[deleteEndIndex], TestUtils.ARROW_PLACEHOLDER, TestUtils.ARROW_DELIMINATOR)
-        endToClick.reorderScores()
-        onView(withText(endToClick.toString())).perform(click())
-        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadDeleteEnd)
-
-        ConditionWatcher.waitForCondition(object : Instruction() {
-            override fun getDescription(): String {
-                return "wait for row to be removed"
-            }
-
-            override fun checkCondition(): Boolean {
-                // arrows.size (-1 for deleted row) (+1 for grand total)
-                return getTableView().adapter!!.getCellColumnItems(2).size == arrows.size / endSize
-            }
-        })
-
-        checkData(expectedArrowsGrouped.filterIndexed { index, _ ->
-            index != deleteEndIndex
-        }.flatten())
     }
 
-    @Test
-    fun testInsertEnd() {
-        val firstArrows = listOf(
-                TestUtils.ARROWS[11], TestUtils.ARROWS[9], TestUtils.ARROWS[9],
-                TestUtils.ARROWS[9], TestUtils.ARROWS[7], TestUtils.ARROWS[6]
-        )
-        setupActivity(
-                listOf(
-                        List(endSize) { TestUtils.ARROWS[1] },
-                        firstArrows,
-                        List(endSize * 2) { TestUtils.ARROWS[1] }
-                ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) },
-                waitForRow = 4
+    private fun cancelEditEndTest(block: EditEndRobot.() -> Unit) {
+        val arrows = listOf(
+                0, 1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10, 11,
+                5, 5, 5, 5, 5, 5,
         )
 
-        onView(withText("X-9-9-9-7-6")).perform(click())
-        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadInsertEnd)
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (InsertEndFragment::class))
-
-        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
-        val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
-        for (i in 0 until 6) {
-            scoreButton.perform(click())
+        setupActivity {
+            addArcherRound(archerRoundId = 1, roundId = null)
+            addArrows(arrows)
         }
-        onView(withId(R.id.button_insert_end__complete)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
-        CustomConditionWaiter.waitForRowToAppear(getTableView(), (5))
 
-        val newArrows = listOf(
-                List(endSize) { TestUtils.ARROWS[1] },
-                List(endSize) { TestUtils.ARROWS[2] }, /* New end */
-                firstArrows, /* Clicked end */
-                List(endSize * 2) { TestUtils.ARROWS[1] }
-        ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    waitForLoad()
 
-        checkData(newArrows)
+                    clickRow(1)
+                    clickEditDropdownMenuItem(block)
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-5", 5, 15, 0, 15),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 65),
+                                    ExpectedRowData("3", "5-5-5-5-5-5", 6, 30, 0, 95),
+                                    ExpectedRowData("GT", "Grand Total", 17, 95, 3, null),
+                            )
+                    )
+                }
+            }
+        }
+    }
+
+    // TODO_CURRENT
+//    @Test
+//    fun testDeleteEnd() {
+//        var genArrowNumber = 1
+//        val expectedArrowsGrouped = List(6) { index ->
+//            List(endSize) { TestUtils.ARROWS[index].toArrowValue(1, genArrowNumber++) }
+//        }
+//        setupActivity(expectedArrowsGrouped.flatten(), waitForRow = 0)
+//
+//        val deleteEndIndex = 1
+//        val endToClick =
+//                End(expectedArrowsGrouped[deleteEndIndex], TestUtils.ARROW_PLACEHOLDER, TestUtils.ARROW_DELIMINATOR)
+//        endToClick.reorderScores()
+//        onView(withText(endToClick.toString())).perform(click())
+//        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadDeleteEnd)
+//
+//        ConditionWatcher.waitForCondition(object : Instruction() {
+//            override fun getDescription(): String {
+//                return "wait for row to be removed"
+//            }
+//
+//            override fun checkCondition(): Boolean {
+//                // arrows.size (-1 for deleted row) (+1 for grand total)
+//                return getTableView().adapter!!.getCellColumnItems(2).size == arrows.size / endSize
+//            }
+//        })
+//
+//        checkData(expectedArrowsGrouped.filterIndexed { index, _ ->
+//            index != deleteEndIndex
+//        }.flatten())
+//    }
+//
+//    @Test
+//    fun testInsertEnd() {
+//        val firstArrows = listOf(
+//                TestUtils.ARROWS[11], TestUtils.ARROWS[9], TestUtils.ARROWS[9],
+//                TestUtils.ARROWS[9], TestUtils.ARROWS[7], TestUtils.ARROWS[6]
+//        )
+//        setupActivity(
+//                listOf(
+//                        List(endSize) { TestUtils.ARROWS[1] },
+//                        firstArrows,
+//                        List(endSize * 2) { TestUtils.ARROWS[1] }
+//                ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) },
+//                waitForRow = 4
+//        )
+//
+//        onView(withText("X-9-9-9-7-6")).perform(click())
+//        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadInsertEnd)
+//        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (InsertEndFragment::class))
+//
+//        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
+//        val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
+//        for (i in 0 until 6) {
+//            scoreButton.perform(click())
+//        }
+//        onView(withId(R.id.button_insert_end__complete)).perform(click())
+//        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
+//        CustomConditionWaiter.waitForRowToAppear(getTableView(), (5))
+//
+//        val newArrows = listOf(
+//                List(endSize) { TestUtils.ARROWS[1] },
+//                List(endSize) { TestUtils.ARROWS[2] }, /* New end */
+//                firstArrows, /* Clicked end */
+//                List(endSize * 2) { TestUtils.ARROWS[1] }
+//        ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
+//
+//        checkData(newArrows)
+//    }
+
+    @Test
+    fun testScorePadEndSize() {
+        TODO()
     }
 }

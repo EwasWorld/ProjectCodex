@@ -11,16 +11,16 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 import kotlin.reflect.KClass
 
 abstract class BaseRobot(
-        val composeTestRule: ComposeTestRule<MainActivity>,
-        fragment: KClass<out Fragment>
+        protected val composeTestRule: ComposeTestRule<MainActivity>,
+        private val fragment: KClass<out Fragment>
 ) {
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
     init {
-        if (!TestUtils.isFragmentShowing(scenario, fragment)) {
-            throw IllegalStateException("Tried to create robot for ${fragment.simpleName} while it's not showing")
-        }
+        check(isShown()) { "Tried to create robot for ${fragment.simpleName} while it's not showing" }
     }
+
+    fun isShown() = TestUtils.isFragmentShowing(scenario, fragment)
 
     fun clickElement(testTag: String) {
         composeTestRule.onNodeWithTag(testTag).performClick()

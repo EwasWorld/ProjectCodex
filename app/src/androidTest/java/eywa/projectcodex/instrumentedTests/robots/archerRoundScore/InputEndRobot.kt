@@ -10,7 +10,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 class InputEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArcherRoundRobot(composeTestRule) {
+) : ArrowInputsRobot(composeTestRule) {
     fun waitForLoad() {
         CustomConditionWaiter.waitForComposeCondition {
             composeTestRule
@@ -25,65 +25,6 @@ class InputEndRobot(
                     .onNodeWithTag(TestTag.REMAINING_ARROWS_CURRENT, true)
                     .assertIsDisplayed()
         }
-    }
-
-    fun checkScoreButtonNotDisplayed(text: String) {
-        composeTestRule.onNode(
-                hasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON).and(hasText(text)),
-                true
-        ).assertDoesNotExist()
-    }
-
-    fun clickScoreButton(text: String) {
-        composeTestRule.onNode(
-                hasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON).and(hasText(text)),
-                true
-        ).performClick()
-    }
-
-    fun clickScoreButton(score: Int) {
-        clickScoreButton(score.toString())
-    }
-
-    fun checkInputtedArrows(endSize: Int = 6) {
-        checkInputtedArrows(emptyList<String>(), endSize)
-    }
-
-    @JvmName("checkInputtedArrowsInt")
-    fun checkInputtedArrows(expectedArrows: List<Int>, endSize: Int = 6) {
-        checkInputtedArrows(expectedArrows.map { it.toString() }, endSize)
-    }
-
-    fun checkInputtedArrows(expectedArrows: List<String>, endSize: Int = 6) {
-        composeTestRule
-                .onNodeWithTag(ArrowInputsTestTag.END_ARROWS_TEXT)
-                .assertTextEquals(
-                        expectedArrows.plus(List(endSize - expectedArrows.size) { "." }).joinToString("-")
-                )
-    }
-
-    fun checkEndTotal(total: Int) {
-        composeTestRule
-                .onNodeWithTag(ArrowInputsTestTag.END_TOTAL_TEXT)
-                .assertTextEquals(total.toString())
-    }
-
-    fun clickNextEnd() {
-        composeTestRule
-                .onNodeWithTag(ArrowInputsTestTag.SUBMIT_BUTTON, true)
-                .performClick()
-    }
-
-    fun clickClear() {
-        composeTestRule
-                .onNodeWithTag(ArrowInputsTestTag.CLEAR_BUTTON, true)
-                .performClick()
-    }
-
-    fun clickBackspace() {
-        composeTestRule
-                .onNodeWithTag(ArrowInputsTestTag.BACKSPACE_BUTTON, true)
-                .performClick()
     }
 
     fun checkIndicatorTable(score: Int, arrowCount: Int) {
@@ -107,6 +48,12 @@ class InputEndRobot(
         else {
             laterNode.assertDoesNotExist()
         }
+    }
+
+    fun clickNextEnd() {
+        composeTestRule
+                .onNodeWithTag(ArrowInputsTestTag.SUBMIT_BUTTON, true)
+                .performClick()
     }
 
     /**
