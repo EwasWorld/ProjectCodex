@@ -245,6 +245,35 @@ class DatabaseMigrations {
             }
         }
 
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                val sqlStrings = mutableListOf<String>()
+
+                sqlStrings.add(
+                        """
+                            DELETE FROM arrow_values
+                            WHERE NOT archerRoundId IN (
+                                SELECT archerRoundId FROM archer_rounds
+                            )
+                        """
+                )
+
+                sqlStrings.add(
+                        """
+                            UPDATE archer_rounds
+                            SET roundSubTypeId = NULL
+                            WHERE roundId IN (
+                                SELECT r.roundId FROM rounds as r 
+                                LEFT JOIN round_sub_types as st ON r.roundId = st.roundId
+                                WHERE st.roundId IS NULL
+                            )
+                        """
+                )
+
+                executeMigrations(sqlStrings, database, startVersion, endVersion)
+            }
+        }
+
         private fun executeMigrations(
                 sqlStrings: List<String>, database: SupportSQLiteDatabase,
                 startVersion: Int, endVersion: Int

@@ -25,6 +25,7 @@ class DatabaseDaggerModule {
                                 DatabaseMigrations.MIGRATION_1_2,
                                 DatabaseMigrations.MIGRATION_2_3,
                                 DatabaseMigrations.MIGRATION_3_4,
+                                DatabaseMigrations.MIGRATION_4_5,
                         ).build()
         /*
          * Write ahead mode suspected of causes issues with the instrumented test,
