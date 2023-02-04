@@ -20,6 +20,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.sharedUi.CodexCheckbox
 import eywa.projectcodex.common.sharedUi.NumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -52,13 +53,16 @@ class HandicapTablesScreen : ActionBarHelp {
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
+                        .padding(vertical = 20.dp)
         ) {
-            // TODO_CURRENT string resources
-//            CodexCheckbox(
-//                    text = stringResource(R.string.handicap_tables__new_system_toggle),
-//                    checked = state.use2023Tables,
-//                    onToggle = { listener(ToggleHandicapSystem) },
-//            )
+            ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
+                CodexCheckbox(
+                        text = stringResource(R.string.handicap_tables__new_system_toggle),
+                        checked = state.use2023Tables,
+                        onToggle = { listener(ToggleHandicapSystem) },
+                )
+            }
+
             Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -97,6 +101,7 @@ class HandicapTablesScreen : ActionBarHelp {
                         onValueChanged = { listener(InputChanged(it)) },
                 )
             }
+
             Surface(
                     shape = RoundedCornerShape(20),
                     border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),

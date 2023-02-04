@@ -9,7 +9,7 @@ data class HandicapTablesState(
         val round: RoundInfo? = null,
         val roundFilters: SelectRoundEnabledFilters = SelectRoundEnabledFilters(),
         val subType: Int? = null,
-        val use2023Tables: Boolean = true,
+        val use2023Tables: Boolean = false,
         val allRounds: List<FullRoundInfo>? = null,
         val isSelectRoundDialogOpen: Boolean = false,
         val isSelectSubtypeDialogOpen: Boolean = false,

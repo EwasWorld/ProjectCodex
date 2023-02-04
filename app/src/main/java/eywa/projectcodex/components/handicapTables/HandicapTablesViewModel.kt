@@ -46,6 +46,7 @@ class HandicapTablesViewModel @Inject constructor(
                         handicap = handicap,
                         innerTenArcher = false,
                         arrows = null,
+                        use2023Handicaps = use2023Tables,
                 ),
         )
 
@@ -61,6 +62,7 @@ class HandicapTablesViewModel @Inject constructor(
                             score = input,
                             innerTenArcher = false,
                             arrows = null,
+                            use2023Handicaps = use2023Tables,
                     ),
                     input,
             )

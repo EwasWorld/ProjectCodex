@@ -16,6 +16,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 
 @AndroidEntryPoint
 class HandicapTablesFragment : Fragment(), ActionBarHelp {
+    // TODO_CURRENT Test
     private var screen = HandicapTablesScreen()
     private val viewModel: HandicapTablesViewModel by viewModels()
 

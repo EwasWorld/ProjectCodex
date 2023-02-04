@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
 @Composable
 fun CodexCheckbox(
@@ -22,10 +21,7 @@ fun CodexCheckbox(
             horizontalArrangement = Arrangement.spacedBy(5.dp),
             modifier = Modifier.clickable(onClick = onToggle)
     ) {
-        Text(
-                text = text,
-                style = CodexTypography.NORMAL,
-        )
+        Text(text = text)
         Checkbox(checked = checked, onCheckedChange = { onToggle() })
     }
 }
