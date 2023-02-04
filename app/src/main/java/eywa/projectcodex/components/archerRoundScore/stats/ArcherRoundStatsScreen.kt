@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -27,7 +28,6 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
-import eywa.projectcodex.components.archerRoundScore.DataRow
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import kotlin.math.abs
 

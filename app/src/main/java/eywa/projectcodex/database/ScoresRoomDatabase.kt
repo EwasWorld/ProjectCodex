@@ -32,6 +32,10 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun roundSubTypeDao(): RoundSubTypeDao
     abstract fun roundDistanceDao(): RoundDistanceDao
 
+    fun roundsRepo() = RoundRepo(
+            roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao()
+    )
+
     companion object {
         const val DATABASE_NAME = "scores_database"
     }

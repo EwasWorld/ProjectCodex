@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore
+package eywa.projectcodex.common.sharedUi
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -8,17 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-
-@Composable
-private fun style(textAlign: TextAlign = TextAlign.Start) =
-        CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground, textAlign = textAlign)
 
 @Composable
 fun DataRow(
@@ -38,7 +31,6 @@ fun DataRow(
 ) {
     Text(
             text = text,
-            style = style(textAlign = TextAlign.Start),
             modifier = textModifier,
     )
 }
@@ -67,7 +59,6 @@ fun DataRow(
     ) {
         Text(
                 text = stringResource(title),
-                style = style(textAlign = TextAlign.End),
         )
         content()
     }

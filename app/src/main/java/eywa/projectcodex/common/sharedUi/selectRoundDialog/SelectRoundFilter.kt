@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.newScore.helpers
+package eywa.projectcodex.common.sharedUi.selectRoundDialog
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
@@ -8,7 +8,7 @@ import eywa.projectcodex.database.rounds.Round
 /**
  * Filters which can be applied to the [NewScoreScreen]'s round selection dialog
  */
-enum class NewScoreRoundFilter(
+enum class SelectRoundFilter(
         @StringRes val chipText: Int,
         val predicate: (Round) -> Boolean,
 ) {

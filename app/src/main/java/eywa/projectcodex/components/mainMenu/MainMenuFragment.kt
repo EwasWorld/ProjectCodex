@@ -41,6 +41,11 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
                                         MainMenuFragmentDirections.actionMainMenuFragmentToViewScoresFragment()
                                 )
                             },
+                            onHandicapTablesClicked = {
+                                findNavController().navigate(
+                                        MainMenuFragmentDirections.actionMainMenuFragmentToHandicapTablesFragment()
+                                )
+                            },
                     )
                 }
             }

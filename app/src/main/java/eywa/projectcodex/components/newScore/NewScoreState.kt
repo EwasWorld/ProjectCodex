@@ -1,9 +1,9 @@
 package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
-import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
@@ -32,7 +32,7 @@ data class NewScoreState(
          */
         val isSelectRoundDialogOpen: Boolean = false,
         val isSelectSubTypeDialogOpen: Boolean = false,
-        val enabledRoundFilters: NewScoreRoundEnabledFilters = NewScoreRoundEnabledFilters(),
+        val enabledRoundFilters: SelectRoundEnabledFilters = SelectRoundEnabledFilters(),
 
         /*
          * User-set info

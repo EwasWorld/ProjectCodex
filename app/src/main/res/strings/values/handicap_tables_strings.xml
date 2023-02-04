@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handicap_tables__title">Handicap Tables</string>
+
+    <string name="handicap_tables__input">Input:</string>
+    <string name="handicap_tables__handicap_field">Handicap</string>
+    <string name="handicap_tables__score_field">Score</string>
+    <string name="handicap_tables__new_system_toggle">Use new system</string>
+    <string name="handicap_tables__no_tables">No data</string>
+
+
+</resources>

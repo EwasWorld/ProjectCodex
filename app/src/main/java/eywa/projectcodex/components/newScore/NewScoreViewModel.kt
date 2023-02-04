@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.newScore
 
+import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,9 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.newScore.NewScoreEffect.PopBackstack
-import eywa.projectcodex.components.newScore.helpers.NewScoreRoundEnabledFilters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
@@ -83,61 +85,8 @@ class NewScoreViewModel @Inject constructor(
     fun handle(action: NewScoreIntent) {
         when (action) {
             is NewScoreIntent.Initialise -> initialiseRoundBeingEdited(action.roundBeingEditedId)
-
             is NewScoreIntent.DateChanged -> state = state.copy(dateShot = action.info.updateCalendar(state.dateShot))
-
-            /*
-             * Select round dialog
-             */
-            NewScoreIntent.OpenRoundSelectDialog -> {
-                state = state.copy(
-                        isSelectRoundDialogOpen = true,
-                        enabledRoundFilters = NewScoreRoundEnabledFilters(),
-                )
-            }
-            NewScoreIntent.CloseRoundSelectDialog -> {
-                state = state.copy(isSelectRoundDialogOpen = false)
-            }
-            NewScoreIntent.NoRoundSelected -> {
-                state = state.copy(
-                        isSelectRoundDialogOpen = false,
-                        selectedRound = null,
-                        selectedSubtype = null,
-                )
-            }
-            is NewScoreIntent.RoundSelected -> {
-                state = state.copy(
-                        isSelectRoundDialogOpen = false,
-                        selectedRound = action.round,
-                ).let {
-                    // Select the furthest distance if subtypes are available
-                    it.copy(selectedSubtype = it.selectedRoundInfo?.roundSubTypes?.maxByOrNull { subType ->
-                        state.getFurthestDistance(subType).distance
-                    })
-                }
-            }
-            is NewScoreIntent.SelectRoundDialogFilterClicked -> {
-                state = state.copy(enabledRoundFilters = state.enabledRoundFilters.toggle(action.filter))
-            }
-            NewScoreIntent.SelectRoundDialogClearFilters -> {
-                state = state.copy(enabledRoundFilters = NewScoreRoundEnabledFilters())
-            }
-
-            /*
-             * Select sub type dialog
-             */
-            NewScoreIntent.OpenSubTypeSelectDialog -> {
-                state = state.copy(isSelectSubTypeDialogOpen = true)
-            }
-            NewScoreIntent.CloseSubTypeSelectDialog -> {
-                state = state.copy(isSelectSubTypeDialogOpen = false)
-            }
-            is NewScoreIntent.SubTypeSelected -> {
-                state = state.copy(
-                        isSelectSubTypeDialogOpen = false,
-                        selectedSubtype = action.subType,
-                )
-            }
+            is NewScoreIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
 
             /*
              * Final actions
@@ -159,13 +108,72 @@ class NewScoreViewModel @Inject constructor(
         }
     }
 
+    private fun handleSelectRoundDialogIntent(action: SelectRoundDialogIntent) {
+        when (action) {
+            /*
+             * Select round dialog
+             */
+            SelectRoundDialogIntent.OpenRoundSelectDialog -> {
+                state = state.copy(
+                        isSelectRoundDialogOpen = true,
+                        enabledRoundFilters = SelectRoundEnabledFilters(),
+                )
+            }
+            SelectRoundDialogIntent.CloseRoundSelectDialog -> {
+                state = state.copy(isSelectRoundDialogOpen = false)
+            }
+            SelectRoundDialogIntent.NoRoundSelected -> {
+                state = state.copy(
+                        isSelectRoundDialogOpen = false,
+                        selectedRound = null,
+                        selectedSubtype = null,
+                )
+            }
+            is SelectRoundDialogIntent.RoundSelected -> {
+                state = state.copy(
+                        isSelectRoundDialogOpen = false,
+                        selectedRound = action.round,
+                ).let {
+                    // Select the furthest distance if subtypes are available
+                    it.copy(selectedSubtype = it.selectedRoundInfo?.roundSubTypes?.maxByOrNull { subType ->
+                        state.getFurthestDistance(subType).distance
+                    })
+                }
+            }
+            is SelectRoundDialogIntent.SelectRoundDialogFilterClicked -> {
+                state = state.copy(enabledRoundFilters = state.enabledRoundFilters.toggle(action.filter))
+            }
+            SelectRoundDialogIntent.SelectRoundDialogClearFilters -> {
+                state = state.copy(enabledRoundFilters = SelectRoundEnabledFilters())
+            }
+
+            /*
+             * Select sub type dialog
+             */
+            SelectRoundDialogIntent.OpenSubTypeSelectDialog -> {
+                state = state.copy(isSelectSubTypeDialogOpen = true)
+            }
+            SelectRoundDialogIntent.CloseSubTypeSelectDialog -> {
+                state = state.copy(isSelectSubTypeDialogOpen = false)
+            }
+            is SelectRoundDialogIntent.SubTypeSelected -> {
+                state = state.copy(
+                        isSelectSubTypeDialogOpen = false,
+                        selectedSubtype = action.subType,
+                )
+            }
+        }
+    }
+
     private fun NewScoreState.resetEditInfo(): NewScoreState {
         if (roundBeingEdited == null) return this
 
         val selectedRoundFullInfo = roundsData?.find { it.round.roundId == roundBeingEdited.roundId }
 
+        // TODO_CURRENT API dates
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) throw IllegalStateException()
+
         return copy(
-                // TODO API dates
                 dateShot = Calendar.Builder().setInstant(roundBeingEdited.dateShot).build(),
                 selectedRound = selectedRoundFullInfo?.round,
                 selectedSubtype = roundBeingEdited.roundSubTypeId?.let { subType ->

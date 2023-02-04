@@ -3,6 +3,7 @@
     <string name="main_menu__title">Main Menu</string>
     <string name="main_menu__new_score">Begin new score</string>
     <string name="main_menu__view_scores">View scores</string>
+    <string name="main_menu__handicap_tables">Handicap tables</string>
 
     <string name="main_menu__exit_app_dialog_title">Going so soon?</string>
     <string name="main_menu__exit_app_dialog_body">I hate to say goodbye</string>
@@ -12,4 +13,6 @@
     <string name="help_main_menu__new_score_body">Start inputting a new score</string>
     <string name="help_main_menu__view_scores_title">View scores</string>
     <string name="help_main_menu__view_scores_body">View, edit, and continue existing scores</string>
+    <string name="help_main_menu__handicap_tables_title">Handicap tables</string>
+    <string name="help_main_menu__handicap_tables_body">Calculate handicaps for scores or vice versa</string>
 </resources>

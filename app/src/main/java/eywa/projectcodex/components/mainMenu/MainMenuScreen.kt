@@ -30,6 +30,12 @@ class MainMenuScreen : ActionBarHelp {
                         R.string.help_main_menu__view_scores_body
                 )
         )
+        add(
+                ComposeHelpShowcaseItem(
+                        R.string.help_main_menu__handicap_tables_title,
+                        R.string.help_main_menu__handicap_tables_body
+                )
+        )
     }
 
     // TODO Fix button focus order - currently app starts focussed on the help icon in the action bar
@@ -39,6 +45,7 @@ class MainMenuScreen : ActionBarHelp {
             onExitAlertClicked: (Boolean) -> Unit,
             onStartNewScoreClicked: () -> Unit,
             onViewScoresClicked: () -> Unit,
+            onHandicapTablesClicked: () -> Unit,
     ) {
         Column(
                 modifier = Modifier
@@ -63,6 +70,14 @@ class MainMenuScreen : ActionBarHelp {
                     modifier = Modifier
                             .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__view_scores_title)
                             .testTag(TestTag.VIEW_SCORES),
+            )
+            CodexButton(
+                    text = stringResource(id = R.string.main_menu__handicap_tables),
+                    buttonStyle = CodexButtonDefaults.DefaultButton(),
+                    onClick = onHandicapTablesClicked,
+                    modifier = Modifier
+                            .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__handicap_tables_title)
+                            .testTag(TestTag.HANDICAP_TABLES),
             )
 
             SimpleDialog(
@@ -89,8 +104,10 @@ class MainMenuScreen : ActionBarHelp {
     override fun getHelpPriority(): Int? = null
 
     object TestTag {
-        const val NEW_SCORE = "MAIN_MENU_NEW_SCORE_BUTTON"
-        const val VIEW_SCORES = "MAIN_MENU_VIEW_SCORE_BUTTON"
+        private const val PREFIX = "MAIN_MENU_"
+        const val NEW_SCORE = "${PREFIX}NEW_SCORE_BUTTON"
+        const val VIEW_SCORES = "${PREFIX}VIEW_SCORE_BUTTON"
+        const val HANDICAP_TABLES = "${PREFIX}HANDICAP_TABLES_BUTTON"
     }
 
     @Preview
@@ -100,7 +117,8 @@ class MainMenuScreen : ActionBarHelp {
                 isExitDialogOpen = false,
                 onExitAlertClicked = {},
                 onStartNewScoreClicked = { },
-                onViewScoresClicked = {}
+                onViewScoresClicked = {},
+                onHandicapTablesClicked = {},
         )
     }
 }
