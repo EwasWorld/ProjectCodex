@@ -1,6 +1,8 @@
 package eywa.projectcodex.database.rounds
 
 import androidx.lifecycle.LiveData
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundFilter
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
@@ -20,6 +22,14 @@ class RoundRepo(
     val roundArrowCounts: LiveData<List<RoundArrowCount>> = roundArrowCountDao.getAllArrowCounts()
     val roundSubTypes: LiveData<List<RoundSubType>> = roundSubTypeDao.getAllSubTypes()
     val roundDistances: LiveData<List<RoundDistance>> = roundDistanceDao.getAllDistances()
+
+    fun fullRoundsInfo(filters: SelectRoundEnabledFilters): Flow<List<FullRoundInfo>> =
+            roundDao.getAllRoundsFullInfo(
+                    allIndoorOutdoor = filters.contains(SelectRoundFilter.OUTDOOR) == filters.contains(SelectRoundFilter.INDOOR),
+                    isOutdoor = filters.contains(SelectRoundFilter.OUTDOOR),
+                    allMetricImperial = filters.contains(SelectRoundFilter.METRIC) == filters.contains(SelectRoundFilter.IMPERIAL),
+                    isMetric = filters.contains(SelectRoundFilter.METRIC),
+            )
 
     constructor(db: ScoresRoomDatabase) : this(
             db.roundDao(),

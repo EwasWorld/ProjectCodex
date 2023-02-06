@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.NumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.SettingsIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.SettingsIntent.InputEndSizeChanged
@@ -43,27 +45,29 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
             state: ArcherRoundSettingsState,
             listener: (SettingsIntent) -> Unit,
     ) {
-        Column(
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(25.dp)
-        ) {
-            NumberSetting(
-                    title = R.string.archer_round_settings__input_end_size,
-                    currentValue = state.inputEndSize,
-                    testTag = TestTag.INPUT_END_SIZE,
-                    onValueChanged = { listener(InputEndSizeChanged(it)) },
-            )
-            NumberSetting(
-                    title = R.string.archer_round_settings__score_pad_end_size,
-                    currentValue = state.scorePadEndSize,
-                    testTag = TestTag.SCORE_PAD_END_SIZE,
-                    onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
-            )
-            // TODO Change golds type
+        ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(25.dp)
+            ) {
+                NumberSetting(
+                        title = R.string.archer_round_settings__input_end_size,
+                        currentValue = state.inputEndSize,
+                        testTag = TestTag.INPUT_END_SIZE,
+                        onValueChanged = { listener(InputEndSizeChanged(it)) },
+                )
+                NumberSetting(
+                        title = R.string.archer_round_settings__score_pad_end_size,
+                        currentValue = state.scorePadEndSize,
+                        testTag = TestTag.SCORE_PAD_END_SIZE,
+                        onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
+                )
+                // TODO Change golds type
+            }
         }
     }
 

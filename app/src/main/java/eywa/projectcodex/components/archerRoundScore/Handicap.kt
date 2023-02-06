@@ -164,7 +164,7 @@ object Handicap {
                     face != null && face.equals("triple", ignoreCase = true) -> TRIPLE
                     face != null && face.equals("fita five", ignoreCase = true) -> FITA_FIVE_ZONE
                     face != null && face.equals("fita six", ignoreCase = true) -> FITA_SIX_ZONE
-                    round.isMetric -> METRIC
+                    round.isMetric || !round.isOutdoor -> METRIC
                     else -> IMPERIAL
                 }
             }

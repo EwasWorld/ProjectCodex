@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -56,92 +57,94 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
             state: ArcherRoundStatsState,
             noArrowsListener: () -> Unit,
     ) {
-        SimpleDialog(isShown = state.fullArcherRoundInfo.arrowsShot <= 0, onDismissListener = noArrowsListener) {
-            SimpleDialogContent(
-                    title = stringResource(R.string.archer_round_stats__no_arrows_dialog_title),
-                    positiveButton = ButtonState(
-                            text = stringResource(R.string.archer_round_stats__no_arrows_dialog_button),
-                            onClick = noArrowsListener,
-                    ),
-            )
-        }
-
-        Column(
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(25.dp)
-        ) {
-            Section {
-                DataRow(
-                        title = R.string.archer_round_stats__date,
-                        text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.archerRound.dateShot),
-                        textModifier = Modifier.testTag(TestTag.DATE_TEXT),
-                )
-                DataRow(
-                        title = R.string.archer_round_stats__round,
-                        text = state.fullArcherRoundInfo.displayName
-                                ?: stringResource(R.string.archer_round_stats__no_round),
-                        textModifier = Modifier.testTag(TestTag.ROUND_TEXT),
+        ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+            SimpleDialog(isShown = state.fullArcherRoundInfo.arrowsShot <= 0, onDismissListener = noArrowsListener) {
+                SimpleDialogContent(
+                        title = stringResource(R.string.archer_round_stats__no_arrows_dialog_title),
+                        positiveButton = ButtonState(
+                                text = stringResource(R.string.archer_round_stats__no_arrows_dialog_button),
+                                onClick = noArrowsListener,
+                        ),
                 )
             }
 
-            if (state.fullArcherRoundInfo.arrowsShot > 0) {
-                val hits = state.fullArcherRoundInfo.hits
-                val arrowsShot = state.fullArcherRoundInfo.arrowsShot
-
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(25.dp)
+            ) {
                 Section {
                     DataRow(
-                            title = R.string.archer_round_stats__hits,
-                            text = if (hits == arrowsShot) hits.toString()
-                            else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot),
-                            textModifier = Modifier.testTag(TestTag.HITS_TEXT),
+                            title = R.string.archer_round_stats__date,
+                            text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.archerRound.dateShot),
+                            textModifier = Modifier.testTag(TestTag.DATE_TEXT),
                     )
                     DataRow(
-                            title = R.string.archer_round_stats__score,
-                            text = state.fullArcherRoundInfo.score.toString(),
-                            textModifier = Modifier.testTag(TestTag.SCORE_TEXT),
-                    )
-                    DataRow(
-                            title = R.string.archer_round_stats__golds,
-                            text = state.fullArcherRoundInfo.golds(state.goldsType).toString(),
-                            textModifier = Modifier.testTag(TestTag.GOLDS_TEXT),
+                            title = R.string.archer_round_stats__round,
+                            text = state.fullArcherRoundInfo.displayName
+                                    ?: stringResource(R.string.archer_round_stats__no_round),
+                            textModifier = Modifier.testTag(TestTag.ROUND_TEXT),
                     )
                 }
 
-                if (state.fullArcherRoundInfo.round != null) {
+                if (state.fullArcherRoundInfo.arrowsShot > 0) {
+                    val hits = state.fullArcherRoundInfo.hits
+                    val arrowsShot = state.fullArcherRoundInfo.arrowsShot
+
                     Section {
-                        state.fullArcherRoundInfo.remainingArrows!!.let { remaining ->
-                            if (remaining == 0) {
-                                Text(
-                                        text = stringResource(R.string.input_end__round_complete),
-                                        style = style(),
-                                        modifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
-                                )
-                            }
-                            else {
-                                val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
-                                else R.string.archer_round_stats__surplus_arrows
-                                DataRow(
-                                        title = heading,
-                                        text = abs(remaining).toString(),
-                                        textModifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
-                                )
-                            }
-                        }
                         DataRow(
-                                title = R.string.archer_round_stats__handicap,
-                                text = state.fullArcherRoundInfo.handicap.toString(),
-                                textModifier = Modifier.testTag(TestTag.HANDICAP_TEXT),
+                                title = R.string.archer_round_stats__hits,
+                                text = if (hits == arrowsShot) hits.toString()
+                                else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot),
+                                textModifier = Modifier.testTag(TestTag.HITS_TEXT),
                         )
-                        if (state.fullArcherRoundInfo.predictedScore != null) {
+                        DataRow(
+                                title = R.string.archer_round_stats__score,
+                                text = state.fullArcherRoundInfo.score.toString(),
+                                textModifier = Modifier.testTag(TestTag.SCORE_TEXT),
+                        )
+                        DataRow(
+                                title = R.string.archer_round_stats__golds,
+                                text = state.fullArcherRoundInfo.golds(state.goldsType).toString(),
+                                textModifier = Modifier.testTag(TestTag.GOLDS_TEXT),
+                        )
+                    }
+
+                    if (state.fullArcherRoundInfo.round != null) {
+                        Section {
+                            state.fullArcherRoundInfo.remainingArrows!!.let { remaining ->
+                                if (remaining == 0) {
+                                    Text(
+                                            text = stringResource(R.string.input_end__round_complete),
+                                            style = style(),
+                                            modifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
+                                    )
+                                }
+                                else {
+                                    val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
+                                    else R.string.archer_round_stats__surplus_arrows
+                                    DataRow(
+                                            title = heading,
+                                            text = abs(remaining).toString(),
+                                            textModifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
+                                    )
+                                }
+                            }
                             DataRow(
-                                    title = R.string.archer_round_stats__predicted_score,
-                                    text = state.fullArcherRoundInfo.predictedScore.toString(),
-                                    textModifier = Modifier.testTag(TestTag.PREDICTED_SCORE_TEXT),
+                                    title = R.string.archer_round_stats__handicap,
+                                    text = state.fullArcherRoundInfo.handicap.toString(),
+                                    textModifier = Modifier.testTag(TestTag.HANDICAP_TEXT),
                             )
+                            if (state.fullArcherRoundInfo.predictedScore != null) {
+                                DataRow(
+                                        title = R.string.archer_round_stats__predicted_score,
+                                        text = state.fullArcherRoundInfo.predictedScore.toString(),
+                                        textModifier = Modifier.testTag(TestTag.PREDICTED_SCORE_TEXT),
+                                )
+                            }
                         }
                     }
                 }

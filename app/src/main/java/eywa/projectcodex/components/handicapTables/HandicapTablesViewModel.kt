@@ -7,10 +7,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.database.ScoresRoomDatabase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,8 +20,10 @@ class HandicapTablesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            db.roundsRepo().fullRoundsInfo.collectLatest { rounds ->
-                _state.update { it.copy(allRounds = rounds) }
+            state.map { it.roundFilters }.distinctUntilChanged().collectLatest { filters ->
+                db.roundsRepo().fullRoundsInfo(filters).collectLatest { rounds ->
+                    _state.update { it.copy(allRounds = rounds) }
+                }
             }
         }
     }

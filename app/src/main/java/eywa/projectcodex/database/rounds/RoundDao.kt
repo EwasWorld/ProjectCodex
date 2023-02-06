@@ -22,6 +22,22 @@ interface RoundDao : RoundTypeDao<Round> {
     @Query("SELECT * FROM $TABLE_NAME")
     fun getAllRoundsFullInfo(): Flow<List<FullRoundInfo>>
 
+    @Query(
+            """
+                SELECT *
+                FROM $TABLE_NAME
+                WHERE 
+                    (:allIndoorOutdoor OR isOutdoor = :isOutdoor)
+                    AND (:allMetricImperial OR isMetric = :isMetric)
+            """
+    )
+    fun getAllRoundsFullInfo(
+            allIndoorOutdoor: Boolean,
+            isOutdoor: Boolean,
+            allMetricImperial: Boolean,
+            isMetric: Boolean,
+    ): Flow<List<FullRoundInfo>>
+
     @Query("SELECT MAX(roundId) FROM $TABLE_NAME")
     fun getMaxRoundId(): LiveData<Int>
 
