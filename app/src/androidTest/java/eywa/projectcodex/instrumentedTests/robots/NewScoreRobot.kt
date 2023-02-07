@@ -13,6 +13,7 @@ import eywa.projectcodex.common.onViewWithClassName
 import eywa.projectcodex.common.setDatePickerValue
 import eywa.projectcodex.common.setTimePickerValue
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.newScore.NewScoreScreen.TestTag
@@ -101,7 +102,7 @@ class NewScoreRobot(
 
     fun clickRoundDialogRound(displayName: String) {
         composeTestRule.onNode(
-                hasAnyAncestor(hasTestTag(TestTag.ROUND_DIALOG))
+                hasAnyAncestor(hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG))
                         .and(hasText(displayName))
         ).performClick()
     }
@@ -123,7 +124,7 @@ class NewScoreRobot(
     }
 
     fun clickSubtypeDialogSubtype(index: Int) {
-        composeTestRule.onNodeWithTag(TestTag.SUBTYPE_DIALOG)
+        composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG)
                 .onChildAt(index)
                 .performClick()
     }

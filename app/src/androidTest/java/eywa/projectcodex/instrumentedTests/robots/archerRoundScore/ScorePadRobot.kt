@@ -41,9 +41,6 @@ class ScorePadRobot(
      * @param rowIndex does not include the header row
      */
     fun clickRow(rowIndex: Int) {
-//        composeTestRule
-//                .onNodeWithTag(ScorePadScreen.TestTag.CELL)
-//                .performScrollToIndex(rowIndex)
         composeTestRule
                 .onAllNodesWithTag(ScorePadScreen.TestTag.CELL, useUnmergedTree = true)[rowIndex]
                 .performScrollTo()

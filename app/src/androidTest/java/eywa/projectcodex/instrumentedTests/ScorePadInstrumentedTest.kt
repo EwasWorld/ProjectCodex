@@ -2,7 +2,6 @@ package eywa.projectcodex.instrumentedTests
 
 import android.content.res.Resources
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,11 +11,9 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CommonStrings
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -44,26 +41,14 @@ class ScorePadInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(60)
+    val testTimeout: Timeout = Timeout.seconds(10)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    private val endSize = 6
-
     private lateinit var scenario: ActivityScenario<MainActivity>
-    private lateinit var navController: NavController
     private lateinit var resources: Resources
     private lateinit var db: ScoresRoomDatabase
-    private lateinit var arrows: List<ArrowValue>
-
-    private val columnHeaderOrder = listOf(
-            ScorePadData.ColumnHeader.END_STRING,
-            ScorePadData.ColumnHeader.HITS,
-            ScorePadData.ColumnHeader.SCORE,
-            ScorePadData.ColumnHeader.GOLDS,
-            ScorePadData.ColumnHeader.RUNNING_TOTAL
-    )
 
     private suspend fun addArcherRound(archerRoundId: Int = 1, roundId: Int? = null, year: Int = 2022) {
         db.archerRoundDao().insert(
@@ -121,6 +106,24 @@ class ScorePadInstrumentedTest {
                                     ExpectedRowData("1", "m-1-2-3-4-5", 5, 15, 0, 15),
                                     ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 65),
                                     ExpectedRowData("3", "5-5-5-5-5-5", 6, 30, 0, 95),
+                                    ExpectedRowData("GT", "Grand Total", 17, 95, 3, null),
+                            )
+                    )
+
+                    clickNavBarSettings {
+                        setScorePadEndSize(3)
+                        clickNavBarScorePad()
+                    }
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2", 2, 3, 0, 3),
+                                    ExpectedRowData("2", "3-4-5", 3, 12, 0, 15),
+                                    ExpectedRowData("3", "6-7-8", 3, 21, 0, 36),
+                                    ExpectedRowData("4", "9-10-X", 3, 29, 3, 65),
+                                    ExpectedRowData("5", "5-5-5", 3, 15, 0, 80),
+                                    ExpectedRowData("6", "5-5-5", 3, 15, 0, 95),
                                     ExpectedRowData("GT", "Grand Total", 17, 95, 3, null),
                             )
                     )
@@ -339,78 +342,146 @@ class ScorePadInstrumentedTest {
         }
     }
 
-    // TODO_CURRENT
-//    @Test
-//    fun testDeleteEnd() {
-//        var genArrowNumber = 1
-//        val expectedArrowsGrouped = List(6) { index ->
-//            List(endSize) { TestUtils.ARROWS[index].toArrowValue(1, genArrowNumber++) }
-//        }
-//        setupActivity(expectedArrowsGrouped.flatten(), waitForRow = 0)
-//
-//        val deleteEndIndex = 1
-//        val endToClick =
-//                End(expectedArrowsGrouped[deleteEndIndex], TestUtils.ARROW_PLACEHOLDER, TestUtils.ARROW_DELIMINATOR)
-//        endToClick.reorderScores()
-//        onView(withText(endToClick.toString())).perform(click())
-//        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadDeleteEnd)
-//
-//        ConditionWatcher.waitForCondition(object : Instruction() {
-//            override fun getDescription(): String {
-//                return "wait for row to be removed"
-//            }
-//
-//            override fun checkCondition(): Boolean {
-//                // arrows.size (-1 for deleted row) (+1 for grand total)
-//                return getTableView().adapter!!.getCellColumnItems(2).size == arrows.size / endSize
-//            }
-//        })
-//
-//        checkData(expectedArrowsGrouped.filterIndexed { index, _ ->
-//            index != deleteEndIndex
-//        }.flatten())
-//    }
-//
-//    @Test
-//    fun testInsertEnd() {
-//        val firstArrows = listOf(
-//                TestUtils.ARROWS[11], TestUtils.ARROWS[9], TestUtils.ARROWS[9],
-//                TestUtils.ARROWS[9], TestUtils.ARROWS[7], TestUtils.ARROWS[6]
-//        )
-//        setupActivity(
-//                listOf(
-//                        List(endSize) { TestUtils.ARROWS[1] },
-//                        firstArrows,
-//                        List(endSize * 2) { TestUtils.ARROWS[1] }
-//                ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) },
-//                waitForRow = 4
-//        )
-//
-//        onView(withText("X-9-9-9-7-6")).perform(click())
-//        CustomConditionWaiter.waitForMenuItemAndPerform(CommonStrings.Menus.scorePadInsertEnd)
-//        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (InsertEndFragment::class))
-//
-//        R.id.text_end_inputs__inputted_arrows.textEquals(".-.-.-.-.-.")
-//        val scoreButton = onView(withId(R.id.button_arrow_inputs__score_2))
-//        for (i in 0 until 6) {
-//            scoreButton.perform(click())
-//        }
-//        onView(withId(R.id.button_insert_end__complete)).perform(click())
-//        CustomConditionWaiter.waitForFragmentToShow(activityScenario!!, (ScorePadFragment::class))
-//        CustomConditionWaiter.waitForRowToAppear(getTableView(), (5))
-//
-//        val newArrows = listOf(
-//                List(endSize) { TestUtils.ARROWS[1] },
-//                List(endSize) { TestUtils.ARROWS[2] }, /* New end */
-//                firstArrows, /* Clicked end */
-//                List(endSize * 2) { TestUtils.ARROWS[1] }
-//        ).flatten().mapIndexed { index, arrow -> ArrowValue(1, index + 1, arrow.score, arrow.isX) }
-//
-//        checkData(newArrows)
-//    }
+    @Test
+    fun testDeleteEnd() {
+        val arrows = listOf(
+                0, 1, 2, 3, 4, 4,
+                6, 7, 8, 9, 10, 11,
+                5, 5, 5, 5, 5, 5,
+        )
+
+        setupActivity {
+            addArcherRound(archerRoundId = 1, roundId = null)
+            addArrows(arrows)
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    waitForLoad()
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-4", 5, 14, 0, 14),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 64),
+                                    ExpectedRowData("3", "5-5-5-5-5-5", 6, 30, 0, 94),
+                                    ExpectedRowData("GT", "Grand Total", 17, 94, 3, null),
+                            )
+                    )
+
+                    clickRow(2)
+                    clickDeleteDropdownMenuItem(true)
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-4", 5, 14, 0, 14),
+                                    ExpectedRowData("2", "5-5-5-5-5-5", 6, 30, 0, 44),
+                                    ExpectedRowData("GT", "Grand Total", 11, 44, 0, null),
+                            )
+                    )
+                }
+            }
+        }
+    }
 
     @Test
-    fun testScorePadEndSize() {
-        TODO()
+    fun testDeleteEnd_Partial() {
+        val arrows = listOf(
+                0, 1, 2, 3, 4, 4,
+                6, 7, 8, 9, 10, 11,
+                5, 5, 5
+        )
+
+        setupActivity {
+            addArcherRound(archerRoundId = 1, roundId = null)
+            addArrows(arrows)
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    waitForLoad()
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-4", 5, 14, 0, 14),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 64),
+                                    ExpectedRowData("3", "5-5-5", 3, 15, 0, 79),
+                                    ExpectedRowData("GT", "Grand Total", 14, 79, 3, null),
+                            )
+                    )
+
+                    clickRow(3)
+                    clickDeleteDropdownMenuItem(true)
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-4", 5, 14, 0, 14),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 64),
+                                    ExpectedRowData("GT", "Grand Total", 11, 64, 3, null),
+                            )
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testInsertEnd() {
+        val arrows = listOf(
+                0, 1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10, 11,
+                5, 5, 5, 5, 5, 5,
+        )
+
+        setupActivity {
+            addArcherRound(archerRoundId = 1, roundId = null)
+            addArrows(arrows)
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(0) {
+                    waitForLoad()
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-5", 5, 15, 0, 15),
+                                    ExpectedRowData("2", "6-7-8-9-10-X", 6, 50, 3, 65),
+                                    ExpectedRowData("3", "5-5-5-5-5-5", 6, 30, 0, 95),
+                                    ExpectedRowData("GT", "Grand Total", 17, 95, 3, null),
+                            )
+                    )
+
+                    clickRow(2)
+                    clickInsertDropdownMenuItem {
+                        checkInputtedArrows(6)
+                        repeat(6) {
+                            clickScoreButton(2)
+                        }
+                        clickComplete()
+                    }
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "m-1-2-3-4-5", 5, 15, 0, 15),
+                                    ExpectedRowData("2", "2-2-2-2-2-2", 6, 12, 0, 27),
+                                    ExpectedRowData("3", "6-7-8-9-10-X", 6, 50, 3, 77),
+                                    ExpectedRowData("4", "5-5-5-5-5-5", 6, 30, 0, 107),
+                                    ExpectedRowData("GT", "Grand Total", 23, 107, 3, null),
+                            )
+                    )
+                }
+            }
+        }
     }
 }

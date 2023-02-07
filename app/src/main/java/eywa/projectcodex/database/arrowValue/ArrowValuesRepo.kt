@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.arrowValue
 
 import androidx.lifecycle.LiveData
+import androidx.room.Transaction
 
 /**
  * A Repository manages queries and allows you to use multiple backends. In the most common example, the Repository
@@ -38,40 +39,29 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
      * results in an out of range arrowNumber
      * @throws IllegalStateException if this repo was created without an archerRoundId
      */
+    @Transaction
     suspend fun deleteEnd(allArrowsInRound: List<ArrowValue>, firstArrowToDelete: Int, numberToDelete: Int) {
-        val distinctByArcherRoundIds = allArrowsInRound.distinctBy { it.archerRoundId }
-        require(distinctByArcherRoundIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
-        require(allArrowsInRound.size >= numberToDelete) { "allArrowsInRound must be larger than numberToDelete" }
-        require(firstArrowToDelete >= 0 && numberToDelete > 0) {
-            "Either firstArrowToDelete is too high or numberToDelete is too low"
-        }
+        require(numberToDelete > 0) { "numberToDelete must be > 0" }
+        require(
+                allArrowsInRound.distinctBy { it.archerRoundId }.size == 1
+        ) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
+        require(
+                allArrowsInRound.any { it.arrowNumber == firstArrowToDelete }
+        ) { "allArrowsInRound does not contain firstArrowToDelete" }
 
-        val archerRoundId = distinctByArcherRoundIds[0].archerRoundId
-        if (allArrowsInRound.size == numberToDelete) {
-            arrowValueDao.deleteRoundsArrows(archerRoundId)
-            return
-        }
+        val arrowsToDelete = allArrowsInRound
+                .map { it.arrowNumber }
+                .sorted()
+                .dropWhile { it < firstArrowToDelete }
+                .take(numberToDelete)
 
-        val sortedArrows = allArrowsInRound.sortedBy { it.arrowNumber }
-        val maxArrowNumber = sortedArrows.last().arrowNumber
-        // e.g. firstArrow 0 + deleteCount 6 - 1 == maxNumber 5
-        require(firstArrowToDelete + numberToDelete - 1 <= maxArrowNumber) {
-            "Either firstArrowToDelete is too high or numberToDelete is too high"
-        }
+        arrowValueDao.deleteArrows(allArrowsInRound[0].archerRoundId, arrowsToDelete)
 
-        var arrowsToUpdate = sortedArrows.filter { it.arrowNumber >= firstArrowToDelete }
-        arrowsToUpdate = arrowsToUpdate.subList(numberToDelete, arrowsToUpdate.size)
+        allArrowsInRound
+                .filter { it.arrowNumber >= firstArrowToDelete + numberToDelete }
                 .map { ArrowValue(it.archerRoundId, it.arrowNumber - numberToDelete, it.score, it.isX) }
-
-        // Deleting the LAST arrows because all arrows have been shifted down and last arrows are now duplicates
-        arrowValueDao.deleteEndTransaction(
-                /* Delete */
-                archerRoundId,
-                maxArrowNumber - numberToDelete + 1, // e.g. delete all 6 arrows: 5 - 6 + 1
-                maxArrowNumber + 1, // e.g. delete all 6 arrows: 5 + 1
-                /* Update */
-                *arrowsToUpdate.toTypedArray()
-        )
+                .takeIf { it.isNotEmpty() }
+                ?.let { update(*it.toTypedArray()) }
     }
 
     suspend fun insertEnd(allArrowsInRound: List<ArrowValue>, toInsert: List<ArrowValue>) {

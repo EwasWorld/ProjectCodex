@@ -44,6 +44,14 @@ interface ArrowValueDao {
     )
     suspend fun deleteArrowsBetween(archerRoundId: Int, fromArrowNumber: Int, toArrowNumber: Int)
 
+    @Query(
+            """
+            DELETE FROM $TABLE_NAME 
+            WHERE archerRoundId = :archerRoundId AND arrowNumber IN (:arrowNumbers)
+            """
+    )
+    suspend fun deleteArrows(archerRoundId: Int, arrowNumbers: List<Int>)
+
     /**
      * Calls update then deleteArrowsBetween as a single transaction
      * @param delArcherRoundId passed to deleteArrowsBetween

@@ -26,6 +26,7 @@ class LocalDatabaseDaggerModule {
 
         fun teardown() {
             scoresRoomDatabase?.clearAllTables()
+            scoresRoomDatabase = null
         }
     }
 
