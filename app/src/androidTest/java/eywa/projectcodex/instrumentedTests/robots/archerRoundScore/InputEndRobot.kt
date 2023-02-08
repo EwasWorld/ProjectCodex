@@ -53,20 +53,8 @@ class InputEndRobot(
 
     fun clickNextEnd() = clickArrowInputsSubmit()
 
-    /**
-     * Fills the end by pressing one of the score buttons then pressing complete
-     */
-    fun completeEnd(
-            scoreButtonText: String,
-            count: Int = 6,
-    ) {
-        repeat(count) {
-            clickScoreButton(scoreButtonText)
-        }
-        clickNextEnd()
-    }
 
-    fun clickRoundCompleteOk(block: ArcherRoundStatsRobot.() -> Unit) {
+    fun clickRoundCompleteOk(block: ArcherRoundStatsRobot.() -> Unit = {}) {
         clickDialogOk(ROUND_COMPLETE_DIALOG_TITLE)
         ArcherRoundStatsRobot(composeTestRule).apply(block)
     }

@@ -323,6 +323,7 @@ private fun <T : NamedItem> ItemSelector(
             ) {
                 WrappingRow(
                         verticalAlignment = Alignment.Bottom,
+                        modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
                 ) {
                     item.label.split(" ").forEach { itemLabelWord ->
                         Text(
@@ -340,6 +341,7 @@ private fun <T : NamedItem> ItemSelector(
 object SelectRoundDialogTestTag {
     const val ROUND_DIALOG = "SELECT_ROUND_DIALOG"
     const val SUBTYPE_DIALOG = "SELECT_ROUND_SUBTYPE_DIALOG"
+    const val ROUND_DIALOG_ITEM = "SELECT_ROUND_DIALOG_ITEM"
 
     fun fromFilterName(filter: SelectRoundFilter) = "SELECT_ROUND_FILTER_${filter.name}"
 }

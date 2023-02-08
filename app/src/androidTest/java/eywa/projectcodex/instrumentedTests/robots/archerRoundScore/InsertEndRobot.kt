@@ -9,4 +9,8 @@ class InsertEndRobot(
     fun clickCancel() = clickArrowInputsCancel()
 
     fun clickComplete() = clickArrowInputsSubmit()
+
+    fun checkInsertEndBefore(endNumber: Int) {
+        // TODO_CURRENT
+    }
 }

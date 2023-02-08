@@ -49,19 +49,25 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
                 allArrowsInRound.any { it.arrowNumber == firstArrowToDelete }
         ) { "allArrowsInRound does not contain firstArrowToDelete" }
 
-        val arrowsToDelete = allArrowsInRound
-                .map { it.arrowNumber }
-                .sorted()
-                .dropWhile { it < firstArrowToDelete }
-                .take(numberToDelete)
+        /*
+         * Updating before deleting because arrowNumber is part of the primary key.
+         * Update overwrites score and isX for all 'deleted' arrows (effectively shifting all scores down),
+         *      then delete removes the highest [numberToDelete] arrow numbers
+         */
 
-        arrowValueDao.deleteArrows(allArrowsInRound[0].archerRoundId, arrowsToDelete)
+        // Arrows before [firstArrowToDelete] should remain unchanged
+        val arrows = allArrowsInRound
+                .sortedBy { it.arrowNumber }
+                .dropWhile { it.arrowNumber < firstArrowToDelete }
 
-        allArrowsInRound
-                .filter { it.arrowNumber >= firstArrowToDelete + numberToDelete }
-                .map { ArrowValue(it.archerRoundId, it.arrowNumber - numberToDelete, it.score, it.isX) }
-                .takeIf { it.isNotEmpty() }
+        arrows.drop(numberToDelete).takeIf { it.isNotEmpty() }
+                ?.map { ArrowValue(it.archerRoundId, it.arrowNumber - numberToDelete, it.score, it.isX) }
                 ?.let { update(*it.toTypedArray()) }
+
+        arrowValueDao.deleteArrows(
+                allArrowsInRound[0].archerRoundId,
+                arrows.takeLast(numberToDelete).map { it.arrowNumber },
+        )
     }
 
     suspend fun insertEnd(allArrowsInRound: List<ArrowValue>, toInsert: List<ArrowValue>) {

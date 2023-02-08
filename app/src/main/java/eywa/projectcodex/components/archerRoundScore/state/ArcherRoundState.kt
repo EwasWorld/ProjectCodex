@@ -108,8 +108,7 @@ sealed class ArcherRoundState {
 
         override fun getEndSize(): Int = currentScreenEndSize
         override val isRoundFull: Boolean = (fullArcherRoundInfo.remainingArrows ?: 1) == 0
-        override val dropdownMenuOpenForEndNumber: Int? =
-                scorePadSelectedEnd.takeIf { !displayDeleteEndConfirmationDialog }
+        override val dropdownMenuOpenForEndNumber: Int? = scorePadSelectedEnd
 
         override fun getRound(): Round? = fullArcherRoundInfo.round
     }

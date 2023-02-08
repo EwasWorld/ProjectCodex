@@ -7,10 +7,6 @@ fun ComposeTestRule<MainActivity>.mainMenuRobot(block: MainMenuRobot.() -> Unit)
     MainMenuRobot(this).apply { block() }
 }
 
-fun ComposeTestRule<MainActivity>.composeHelpRobot(block: ComposeHelpRobot.() -> Unit) {
-    ComposeHelpRobot(this).apply { block() }
-}
-
 class AppRobot {
 
 }

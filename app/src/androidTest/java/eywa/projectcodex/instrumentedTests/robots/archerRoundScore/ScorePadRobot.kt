@@ -67,8 +67,10 @@ class ScorePadRobot(
         InsertEndRobot(composeTestRule).apply { block() }
     }
 
-    fun clickDeleteDropdownMenuItem(dialogAction: Boolean) {
+    fun clickDeleteDropdownMenuItem(dialogAction: Boolean, endNumber: Int) {
         clickDropdownMenuItem(CommonStrings.DELETE_MENU_ITEM)
+
+        // TODO_CURRENT Check end number
 
         val titleText = "Delete end"
         if (dialogAction) clickDialogOk(titleText) else clickDialogCancel(titleText)

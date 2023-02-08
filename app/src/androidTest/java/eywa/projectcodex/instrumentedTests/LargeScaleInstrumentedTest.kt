@@ -1,49 +1,30 @@
 package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.Espresso.pressBack
-import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
-import com.azimolabs.conditionwatcher.ConditionWatcher
-import com.evrencoskun.tableview.TableView
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import eywa.projectcodex.R
-import eywa.projectcodex.common.*
+import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.common.CommonStrings
+import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.logMessage
 import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.about.AboutFragment
-import eywa.projectcodex.components.archerRoundScore.inputEnd.EditEndFragment
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InputEndFragment
-import eywa.projectcodex.components.archerRoundScore.inputEnd.InsertEndFragment
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadFragment
-import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
-import eywa.projectcodex.components.newScore.NewScoreFragment
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
-import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
-import eywa.projectcodex.instrumentedTests.robots.composeHelpRobot
+import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.Timeout
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
-import kotlin.reflect.KClass
-import kotlin.reflect.jvm.jvmName
 
 /**
  * These tests span more than one screen and require an [ActivityScenario]
@@ -69,10 +50,6 @@ class LargeScaleInstrumentedTest {
     private lateinit var db: ScoresRoomDatabase
     private lateinit var navController: NavController
 
-    private val closeHelpString = "Close help"
-    private val nextHelpString = "Next"
-    private val helpFadeTime = 300L
-
     @Before
     fun setup() {
         hiltRule.inject()
@@ -81,7 +58,7 @@ class LargeScaleInstrumentedTest {
         // Note clearing the database instance after launching the activity causes issues with live data
         // (as DAOs are inconsistent)
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase
+            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
             navController = it.navHostFragment.navController
         }
     }
@@ -89,7 +66,7 @@ class LargeScaleInstrumentedTest {
     @After
     fun afterEach() {
         CommonSetupTeardownFns.teardownScenario(composeTestRule.activityRule)
-        ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
+//        ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
     }
 
     private fun addSimpleTestDataToDb() {
@@ -110,9 +87,19 @@ class LargeScaleInstrumentedTest {
      */
     @Test
     fun mainTest() {
+        scenario.onActivity {
+            runBlocking {
+                db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", true, true, listOf()))
+                // TODO_CURRENT Make arrow counts 18 so that can check distance totals
+                db.roundArrowCountDao().insert(RoundArrowCount(1, 1, 1.0, 24))
+                db.roundArrowCountDao().insert(RoundArrowCount(1, 2, 1.0, 24))
+                db.roundDistanceDao().insert(RoundDistance(1, 1, 1, 60))
+                db.roundDistanceDao().insert(RoundDistance(1, 2, 1, 50))
+            }
+        }
+
         // TODO Add edit round info
         // TODO Add checks to make sure each step worked as intended
-        ConditionWatcher.setTimeoutLimit(15000)
         composeTestRule.mainMenuRobot {
             logMessage(this::class, "View rounds (nothing inputted)")
             clickViewScores {
@@ -120,208 +107,326 @@ class LargeScaleInstrumentedTest {
             }
 
             logMessage(this::class, "Start score A - default date, with round")
-            clickNewScore()
-        }
+            clickNewScore {
+                clickSelectedRound()
+                clickRoundDialogRound("Round Name 1")
+                clickSubmitNewScore {
+                    logMessage(this::class, "Score A - open score pad - no arrows entered")
+                    clickNavBarScorePad {
+                        clickOkOnNoDataDialog()
+                    }
 
-        R.id.spinner_create_round__round.clickSpinnerItem("Short Metric")
-        R.id.button_create_round__submit.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
+                    logMessage(this::class, "Score A - open stats - no arrows entered")
+                    clickNavBarStats {
+                        checkRound("Round Name 1")
+                        checkScore(0)
+                    }
 
+                    clickNavBarInputEnd {
+                        logMessage(this::class, "Score A - enter 3 ends")
+                        checkIndicatorTable(0, 0)
+                        completeEnd("1")
+                        completeEnd("2")
+                        completeEnd("3")
+                        checkIndicatorTable(36, 18)
 
-        logMessage(this::class, "Score A - open score pad - no arrows entered")
-        R.id.scorePadFragment.click()
-        clickAlertDialog(CommonStrings.Dialogs.emptyTable)
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
+                        logMessage(this::class, "Score A - input end help button")
+                        clickHelpIcon()
+                        // TODO_CURRENT Uncomment
+//                        clickHelpShowcaseClose()
+                    }
 
+                    logMessage(this::class, "Score A - open stats - some arrows entered")
+                    clickNavBarStats {
+                        checkRound("Round Name 1")
+                        checkScore(36)
+                    }
 
-        logMessage(this::class, "Score A - open stats - no arrows entered")
-        R.id.archerRoundStatsFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
-        R.id.inputEndFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
+                    logMessage(this::class, "Score A - open score pad - some arrows entered")
+                    clickNavBarScorePad {
+                        checkScorePadData(
+                                listOf(
+                                        ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                        ExpectedRowData("2", "2-2-2-2-2-2", 6, 12, 0, 18),
+                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 36),
+                                        ExpectedRowData("T", "Total at 60m", 18, 36, 0, null),
+                                        ExpectedRowData("GT", "Grand Total", 18, 36, 0, null),
+                                )
+                        )
 
+                        logMessage(this::class, "Score A - Score pad insert end - 1")
+                        clickRow(2)
+                        clickInsertDropdownMenuItem {
+                            checkInsertEndBefore(2)
+                            completeEnd("4")
+                        }
 
-        logMessage(this::class, "Score A - enter 3 ends")
-        completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
-        completeEnd(R.id.button_arrow_inputs__score_2, activityScenario = scenario)
-        completeEnd(R.id.button_arrow_inputs__score_3, activityScenario = scenario)
+                        checkScorePadData(
+                                listOf(
+                                        ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                        ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, 0, 30),
+                                        ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 42),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 60),
+                                        ExpectedRowData("T", "Total at 60m", 24, 60, 0, null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 60, 0, null),
+                                )
+                        )
 
+                        logMessage(this::class, "Score A - Score pad edit end - 1")
+                        clickRow(3)
+                        clickEditDropdownMenuItem {
+                            checkEditEnd(3)
+                            checkInputtedArrows(List(6) { 2 })
+                            repeat(4) {
+                                clickBackspace()
+                            }
+                            completeEnd("5", 4)
+                        }
 
-        logMessage(this::class, "Score A - input end help button")
-        R.id.action_bar__help.click()
-        onView(withText(closeHelpString)).perform(click())
-        CustomConditionWaiter.waitFor(helpFadeTime)
+                        checkScorePadData(
+                                listOf(
+                                        ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                        ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, 0, 30),
+                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 54),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 72),
+                                        ExpectedRowData("T", "Total at 60m", 24, 72, 0, null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 72, 0, null),
+                                )
+                        )
 
+                        logMessage(this::class, "Score A - Score pad delete end - 1")
+                        clickRow(2)
+                        clickDeleteDropdownMenuItem(true, 2)
 
-        logMessage(this::class, "Score A - open stats - some arrows entered")
-        R.id.archerRoundStatsFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
+                        checkScorePadData(
+                                listOf(
+                                        ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                        ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
+                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
+                                        ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
+                                        ExpectedRowData("GT", "Grand Total", 18, 48, 0, null),
+                                )
+                        )
 
+                        logMessage(this::class, "Score A - Score pad insert end - 2")
+                        clickRow(2)
+                        clickInsertDropdownMenuItem {
+                            checkInsertEndBefore(2)
+                            completeEnd("6")
+                        }
 
-        logMessage(this::class, "Score A - open score pad - some arrows entered")
-        R.id.scorePadFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                        checkScorePadData(
+                                listOf(
+                                        ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                        ExpectedRowData("2", "6-6-6-6-6-6", 6, 36, 0, 42),
+                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 66),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 84),
+                                        ExpectedRowData("T", "Total at 60m", 24, 84, 0, null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 84, 0, null),
+                                )
+                        )
 
+                        logMessage(this::class, "Score A - Score pad edit end - 2")
+                        clickRow(2)
+                        clickEditDropdownMenuItem {
+                            checkEditEnd(2)
+                            checkInputtedArrows(List(6) { 6 })
+                            clickClear()
+                            completeEnd("7")
+                        }
 
-        logMessage(this::class, "Score A - Score pad insert end - 1")
-        onView(withText("2-2-2-2-2-2")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class))
-        completeEnd(
-                R.id.button_arrow_inputs__score_4,
-                activityScenario = scenario,
-                submitButtonId = R.id.button_insert_end__complete
-        )
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                        checkScorePadData(
+                                listOf(
+                                        ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                        ExpectedRowData("2", "7-7-7-7-7-7", 6, 42, 0, 48),
+                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 72),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 90),
+                                        ExpectedRowData("T", "Total at 60m", 24, 90, 0, null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 90, 0, null),
+                                )
+                        )
 
+                        logMessage(this::class, "Score A - score pad help button")
+                        clickHelpIcon()
+                        // TODO_CURRENT Uncomment
+//                        clickHelpShowcaseClose()
 
-        logMessage(this::class, "Score A - Score pad edit end - 1")
-        onView(withText("2-2-2-2-2-2")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
-        repeat(4) { R.id.button_end_inputs__backspace.click() }
-        completeEnd(
-                R.id.button_arrow_inputs__score_5,
-                activityScenario = scenario,
-                submitButtonId = R.id.button_edit_end__complete
-        )
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                        logMessage(this::class, "Score A - Score pad delete end - 2")
+                        clickRow(2)
+                        clickDeleteDropdownMenuItem(true, 2)
 
+                        checkScorePadData(
+                                listOf(
+                                        ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                        ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
+                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
+                                        ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
+                                        ExpectedRowData("GT", "Grand Total", 18, 48, 0, null),
+                                )
+                        )
 
-        logMessage(this::class, "Score A - Score pad delete end - 1")
-        onView(withText("4-4-4-4-4-4")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
+                        logMessage(this::class, "Score A - return to main menu")
+                        clickHomeIcon()
+                    }
+                }
+            }
 
-
-        logMessage(this::class, "Score A - Score pad insert end - 2")
-        onView(withText("5-5-5-5-2-2")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadInsertEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InsertEndFragment::class))
-        completeEnd(
-                R.id.button_arrow_inputs__score_6,
-                activityScenario = scenario,
-                submitButtonId = R.id.button_insert_end__complete
-        )
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-
-
-        logMessage(this::class, "Score A - Score pad edit end - 2")
-        onView(withText("6-6-6-6-6-6")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
-        R.id.button_end_inputs__clear.click()
-        completeEnd(
-                R.id.button_arrow_inputs__score_7,
-                activityScenario = scenario,
-                submitButtonId = R.id.button_edit_end__complete
-        )
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-
-
-        logMessage(this::class, "Score A - score pad help button")
-        R.id.action_bar__help.click()
-        onView(withText(closeHelpString)).perform(click())
-        CustomConditionWaiter.waitFor(helpFadeTime)
-
-
-        logMessage(this::class, "Score A - Score pad delete end - 2")
-        onView(withText("7-7-7-7-7-7")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
-
-
-        logMessage(this::class, "Score A - return to main menu")
-        R.id.action_bar__home.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-
-
-        composeTestRule.composeHelpRobot {
             logMessage(this::class, "Main menu help button 1")
             clickHelpIcon()
 
             logMessage(this::class, "Main menu help button 2")
-            clickClose()
-        }
+            clickHelpShowcaseClose()
 
-
-        logMessage(this::class, "View rounds (score A inputted)")
-        composeTestRule.mainMenuRobot {
+            logMessage(this::class, "View rounds (score A inputted)")
             clickViewScores {
                 waitForHsg(0, "18/48/0")
 
-                logMessage(this::class, "Score A - View round insert end - 1")
-                clickRow(0)
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
+                clickRow(0) {
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
+                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
+                                    ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 18, 48, 0, null),
+                            )
+                    )
+
+                    logMessage(this::class, "Score A - View round add end - 1")
+                    clickNavBarInputEnd {
+                        checkIndicatorTable(48, 18)
+                        completeEnd("1")
+                        checkIndicatorTable(54, 24)
+                    }
+                    clickNavBarScorePad()
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
+                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
+                                    ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, 0, 54),
+                                    ExpectedRowData("T", "Total at 60m", 24, 54, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 54, 0, null),
+                            )
+                    )
+
+                    logMessage(this::class, "Score A - View round edit end - 1")
+                    clickRow(1)
+                    clickEditDropdownMenuItem {
+                        checkEditEnd(1)
+
+                        checkInputtedArrows(List(6) { 1 })
+                        clickClear()
+
+                        completeEnd("2")
+                    }
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
+                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 54),
+                                    ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, 0, 60),
+                                    ExpectedRowData("T", "Total at 60m", 24, 60, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 60, 0, null),
+                            )
+                    )
+
+                    logMessage(this::class, "Score A - View round delete end - 1")
+                    clickRow(3)
+                    clickDeleteDropdownMenuItem(true, 3)
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 18, 42, 0, null),
+                            )
+                    )
+
+                    logMessage(this::class, "Score A - View round add end - 2")
+                    clickNavBarInputEnd {
+                        checkIndicatorTable(42, 18)
+                        completeEnd("8")
+                        checkIndicatorTable(90, 24)
+                    }
+                    clickNavBarScorePad()
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
+                                    ExpectedRowData("4", "8-8-8-8-8-8", 6, 48, 0, 90),
+                                    ExpectedRowData("T", "Total at 60m", 24, 90, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 90, 0, null),
+                            )
+                    )
+
+                    logMessage(this::class, "Score A - View round edit end - 2")
+                    clickRow(4)
+                    clickEditDropdownMenuItem {
+                        checkEditEnd(4)
+                        checkInputtedArrows(List(6) { 8 })
+                        clickClear()
+                        completeEnd("9")
+                    }
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
+                                    ExpectedRowData("4", "9-9-9-9-9-9", 6, 54, 6, 96),
+                                    ExpectedRowData("T", "Total at 60m", 24, 96, 6, null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 96, 6, null),
+                            )
+                    )
+
+                    logMessage(this::class, "Score A - View round delete end - 2")
+                    clickRow(4)
+                    clickDeleteDropdownMenuItem(true, 4)
+
+                    checkScorePadData(
+                            listOf(
+                                    ExpectedRowData(null, "Arrows", "H", "S", "G", "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
+                                    ExpectedRowData("GT", "Grand Total", 18, 42, 0, null),
+                            )
+                    )
+
+                    logMessage(this::class, "Score A - Complete round")
+                    clickNavBarInputEnd {
+                        repeat(5) {
+                            completeEnd("X")
+                        }
+
+                        clickRoundCompleteOk {
+                            checkScore(342)
+                        }
+                    }
+                }
             }
         }
-
-
-        R.id.inputEndFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
-        completeEnd(R.id.button_arrow_inputs__score_1, activityScenario = scenario)
-
-
-        logMessage(this::class, "Score A - View round edit end - 1")
-        R.id.scorePadFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        onView(withIndex(withText("1-1-1-1-1-1"), 0)).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
-        R.id.button_end_inputs__clear.click()
-        completeEnd(
-                R.id.button_arrow_inputs__score_2,
-                activityScenario = scenario,
-                submitButtonId = R.id.button_edit_end__complete
-        )
-
-
-        logMessage(this::class, "Score A - View round delete end - 1")
-        onView(withText("3-3-3-3-3-3")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
-
-
-        logMessage(this::class, "Score A - View round insert end - 2")
-        R.id.inputEndFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
-        completeEnd(R.id.button_arrow_inputs__score_8, activityScenario = scenario)
-
-
-        logMessage(this::class, "Score A - View round edit end - 2")
-        R.id.scorePadFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-        onView(withIndex(withText("8-8-8-8-8-8"), 0)).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadEditEnd)).perform(click())
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (EditEndFragment::class))
-        R.id.button_end_inputs__clear.click()
-        completeEnd(
-                R.id.button_arrow_inputs__score_9,
-                activityScenario = scenario,
-                submitButtonId = R.id.button_edit_end__complete
-        )
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ScorePadFragment::class))
-
-
-        logMessage(this::class, "Score A - View round delete end - 2")
-        onView(withText("9-9-9-9-9-9")).perform(click())
-        CustomConditionWaiter.waitFor(500)
-        onView(withText(CommonStrings.Menus.scorePadDeleteEnd)).perform(click())
-
-
-        logMessage(this::class, "Score A - Complete round")
-        R.id.inputEndFragment.click()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (InputEndFragment::class))
-        repeat(9) { completeEnd(R.id.button_arrow_inputs__score_x, activityScenario = scenario) }
-        clickAlertDialog(CommonStrings.Dialogs.inputEndRoundComplete)
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (ArcherRoundStatsFragment::class))
-
 
         logMessage(this::class, "Score A - Continue round (completed)")
         // TODO Try to continue the round from view rounds, score pad - insert, and input end (nav from score pad and stats), email score

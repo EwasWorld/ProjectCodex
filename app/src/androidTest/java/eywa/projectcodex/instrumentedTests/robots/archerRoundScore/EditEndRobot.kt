@@ -9,4 +9,8 @@ class EditEndRobot(
     fun clickCancel() = clickArrowInputsCancel()
 
     fun clickComplete() = clickArrowInputsSubmit()
+
+    fun checkEditEnd(endNumber: Int) {
+        // TODO_CURRENT
+    }
 }

@@ -73,4 +73,17 @@ abstract class ArrowInputsRobot(
                 .onNodeWithTag(ArrowInputsTestTag.CANCEL_BUTTON, true)
                 .performClick()
     }
+
+    /**
+     * Fills the end by pressing one of the score buttons then pressing complete
+     */
+    fun completeEnd(
+            scoreButtonText: String,
+            count: Int = 6,
+    ) {
+        repeat(count) {
+            clickScoreButton(scoreButtonText)
+        }
+        clickArrowInputsSubmit()
+    }
 }

@@ -18,10 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.DataRow
-import eywa.projectcodex.common.sharedUi.SimpleDialog
-import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -42,7 +39,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
             state: ArcherRoundState.Loaded,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScreenContent(state) { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) }
+        ScreenContent(state)
     }
 
     override fun getHelpShowcases(): List<HelpShowcaseItem> {
@@ -55,19 +52,8 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
     @Composable
     private fun ScreenContent(
             state: ArcherRoundStatsState,
-            noArrowsListener: () -> Unit,
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
-            SimpleDialog(isShown = state.fullArcherRoundInfo.arrowsShot <= 0, onDismissListener = noArrowsListener) {
-                SimpleDialogContent(
-                        title = stringResource(R.string.archer_round_stats__no_arrows_dialog_title),
-                        positiveButton = ButtonState(
-                                text = stringResource(R.string.archer_round_stats__no_arrows_dialog_button),
-                                onClick = noArrowsListener,
-                        ),
-                )
-            }
-
             Column(
                     verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -90,61 +76,61 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                     )
                 }
 
-                if (state.fullArcherRoundInfo.arrowsShot > 0) {
-                    val hits = state.fullArcherRoundInfo.hits
-                    val arrowsShot = state.fullArcherRoundInfo.arrowsShot
+                val hits = state.fullArcherRoundInfo.hits
+                val arrowsShot = state.fullArcherRoundInfo.arrowsShot
 
+                Section {
+                    DataRow(
+                            title = R.string.archer_round_stats__hits,
+                            text = if (hits == arrowsShot) hits.toString()
+                            else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot),
+                            textModifier = Modifier.testTag(TestTag.HITS_TEXT),
+                    )
+                    DataRow(
+                            title = R.string.archer_round_stats__score,
+                            text = state.fullArcherRoundInfo.score.toString(),
+                            textModifier = Modifier.testTag(TestTag.SCORE_TEXT),
+                    )
+                    DataRow(
+                            title = R.string.archer_round_stats__golds,
+                            text = state.fullArcherRoundInfo.golds(state.goldsType).toString(),
+                            textModifier = Modifier.testTag(TestTag.GOLDS_TEXT),
+                    )
+                }
+
+                if (state.fullArcherRoundInfo.round != null) {
                     Section {
-                        DataRow(
-                                title = R.string.archer_round_stats__hits,
-                                text = if (hits == arrowsShot) hits.toString()
-                                else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot),
-                                textModifier = Modifier.testTag(TestTag.HITS_TEXT),
-                        )
-                        DataRow(
-                                title = R.string.archer_round_stats__score,
-                                text = state.fullArcherRoundInfo.score.toString(),
-                                textModifier = Modifier.testTag(TestTag.SCORE_TEXT),
-                        )
-                        DataRow(
-                                title = R.string.archer_round_stats__golds,
-                                text = state.fullArcherRoundInfo.golds(state.goldsType).toString(),
-                                textModifier = Modifier.testTag(TestTag.GOLDS_TEXT),
-                        )
-                    }
-
-                    if (state.fullArcherRoundInfo.round != null) {
-                        Section {
-                            state.fullArcherRoundInfo.remainingArrows!!.let { remaining ->
-                                if (remaining == 0) {
-                                    Text(
-                                            text = stringResource(R.string.input_end__round_complete),
-                                            style = style(),
-                                            modifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
-                                    )
-                                }
-                                else {
-                                    val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
-                                    else R.string.archer_round_stats__surplus_arrows
-                                    DataRow(
-                                            title = heading,
-                                            text = abs(remaining).toString(),
-                                            textModifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
-                                    )
-                                }
+                        state.fullArcherRoundInfo.remainingArrows!!.let { remaining ->
+                            if (remaining == 0) {
+                                Text(
+                                        text = stringResource(R.string.input_end__round_complete),
+                                        style = style(),
+                                        modifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
+                                )
                             }
+                            else {
+                                val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
+                                else R.string.archer_round_stats__surplus_arrows
+                                DataRow(
+                                        title = heading,
+                                        text = abs(remaining).toString(),
+                                        textModifier = Modifier.testTag(TestTag.REMAINING_ARROWS_TEXT),
+                                )
+                            }
+                        }
+                        if (state.fullArcherRoundInfo.handicap != null) {
                             DataRow(
                                     title = R.string.archer_round_stats__handicap,
                                     text = state.fullArcherRoundInfo.handicap.toString(),
                                     textModifier = Modifier.testTag(TestTag.HANDICAP_TEXT),
                             )
-                            if (state.fullArcherRoundInfo.predictedScore != null) {
-                                DataRow(
-                                        title = R.string.archer_round_stats__predicted_score,
-                                        text = state.fullArcherRoundInfo.predictedScore.toString(),
-                                        textModifier = Modifier.testTag(TestTag.PREDICTED_SCORE_TEXT),
-                                )
-                            }
+                        }
+                        if (state.fullArcherRoundInfo.predictedScore != null) {
+                            DataRow(
+                                    title = R.string.archer_round_stats__predicted_score,
+                                    text = state.fullArcherRoundInfo.predictedScore.toString(),
+                                    textModifier = Modifier.testTag(TestTag.PREDICTED_SCORE_TEXT),
+                            )
                         }
                     }
                 }
@@ -187,7 +173,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
         CodexTheme {
             ScreenContent(
                     ArcherRoundsPreviewHelper.SIMPLE,
-            ) {}
+            )
         }
     }
 }

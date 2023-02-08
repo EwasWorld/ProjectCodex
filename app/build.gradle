@@ -125,6 +125,7 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion "1.1.1"
+        kotlinCompilerVersion "1.6.10"
     }
 }
 

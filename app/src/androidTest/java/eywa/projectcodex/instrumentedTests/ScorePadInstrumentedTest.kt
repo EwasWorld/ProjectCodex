@@ -326,7 +326,11 @@ class ScorePadInstrumentedTest {
                     waitForLoad()
 
                     clickRow(1)
-                    clickEditDropdownMenuItem(block)
+                    clickEditDropdownMenuItem {
+                        checkEditEnd(1)
+                        checkInputtedArrows(listOf(0, 1, 2, 3, 4, 5))
+                        block()
+                    }
 
                     checkScorePadData(
                             listOf(
@@ -372,7 +376,7 @@ class ScorePadInstrumentedTest {
                     )
 
                     clickRow(2)
-                    clickDeleteDropdownMenuItem(true)
+                    clickDeleteDropdownMenuItem(true, 2)
 
                     checkScorePadData(
                             listOf(
@@ -417,7 +421,7 @@ class ScorePadInstrumentedTest {
                     )
 
                     clickRow(3)
-                    clickDeleteDropdownMenuItem(true)
+                    clickDeleteDropdownMenuItem(true, 2)
 
                     checkScorePadData(
                             listOf(
@@ -463,6 +467,8 @@ class ScorePadInstrumentedTest {
 
                     clickRow(2)
                     clickInsertDropdownMenuItem {
+                        checkInsertEndBefore(2)
+
                         checkInputtedArrows(6)
                         repeat(6) {
                             clickScoreButton(2)

@@ -8,10 +8,7 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.onViewWithClassName
-import eywa.projectcodex.common.setDatePickerValue
-import eywa.projectcodex.common.setTimePickerValue
+import eywa.projectcodex.common.*
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
@@ -98,13 +95,18 @@ class NewScoreRobot(
 
     fun clickSelectedRound() {
         clickElement(TestTag.SELECTED_ROUND)
+        CustomConditionWaiter.waitForComposeCondition {
+            composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.ROUND_DIALOG).assertIsDisplayed()
+        }
     }
 
-    fun clickRoundDialogRound(displayName: String) {
-        composeTestRule.onNode(
-                hasAnyAncestor(hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG))
-                        .and(hasText(displayName))
-        ).performClick()
+    fun clickRoundDialogRound(displayName: String, index: Int = 0) {
+        composeTestRule.onAllNodes(
+                displayName.split(" ").map { hasAnyChild(hasText(it)) }.fold(
+                        hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                ) { a, b -> a.and(b) },
+                true,
+        )[index].performClick()
     }
 
     fun clickRoundDialogNoRound() {
