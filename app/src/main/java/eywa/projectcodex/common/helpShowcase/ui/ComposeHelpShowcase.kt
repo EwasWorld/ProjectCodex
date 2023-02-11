@@ -90,6 +90,7 @@ fun ComposeHelpShowcase(
                     modifier = Modifier
                             .padding(bottom = 5.dp)
                             .alpha(animationState)
+                            .testTag(ComposeHelpShowcaseTestTag.TITLE)
             )
             Text(
                     text = state.message,
@@ -303,6 +304,7 @@ class ComposeHelpShowcasePreviewProvider : PreviewParameterProvider<ComposeHelpS
 }
 
 object ComposeHelpShowcaseTestTag {
+    const val TITLE = "HELP_TITLE_TEXT"
     const val NEXT_BUTTON = "HELP_NEXT_BUTTON"
     const val CLOSE_BUTTON = "HELP_CLOSE_BUTTON"
 }

@@ -19,9 +19,6 @@ abstract class BaseRobot(
 ) {
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
-    // TODO Use something other than a flat ms wait. Can you check something's on the screen?
-    private val helpAnimationDuration = 400
-
     init {
         check(isShown()) { "Tried to create robot for ${fragment.simpleName} while it's not showing" }
     }
@@ -35,6 +32,14 @@ abstract class BaseRobot(
 
     fun checkElementText(testTag: String, text: String) {
         composeTestRule.onNodeWithTag(testTag).assertTextEquals(text)
+    }
+
+    fun checkElementIsDisplayed(testTag: String) {
+        composeTestRule.onNodeWithTag(testTag).assertIsDisplayed()
+    }
+
+    fun checkElementIsDisplayed(testTag: String, text: String) {
+        composeTestRule.onNode(hasTestTag(testTag).and(hasText(text))).assertIsDisplayed()
     }
 
     fun checkElementDoesNotExist(testTag: String) {
@@ -64,22 +69,36 @@ abstract class BaseRobot(
         R.id.action_bar__home.click()
     }
 
+    fun clickAboutIcon(block: AboutRobot.() -> Unit) {
+        R.id.action_bar__about.click()
+        AboutRobot(composeTestRule).apply(block)
+    }
+
     fun clickHelpIcon() {
         R.id.action_bar__help.click()
-        CustomConditionWaiter.waitFor(helpAnimationDuration)
+        CustomConditionWaiter.waitForComposeCondition("Waiting for help to appear") {
+            checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        }
     }
 
     fun clickHelpShowcaseNext() {
-        composeTestRule.onNode(hasTestTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON)).performClick()
-        CustomConditionWaiter.waitFor(helpAnimationDuration * 2)
+        clickElement(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
+
+        CustomConditionWaiter.waitFor(400)
+        CustomConditionWaiter.waitForComposeCondition("Waiting for help to appear") {
+            checkElementIsDisplayed(ComposeHelpShowcaseTestTag.TITLE)
+        }
     }
 
     fun clickHelpShowcaseClose() {
-        composeTestRule.onNode(hasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)).performClick()
-        CustomConditionWaiter.waitFor(helpAnimationDuration)
+        clickElement(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+
+        CustomConditionWaiter.waitForComposeCondition("Waiting for help to disappear") {
+            checkElementDoesNotExist(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        }
     }
 
     fun checkHelpShowcaseIsDisplayed() {
-        composeTestRule.onNode(hasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)).assertIsDisplayed()
+        checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
     }
 }
