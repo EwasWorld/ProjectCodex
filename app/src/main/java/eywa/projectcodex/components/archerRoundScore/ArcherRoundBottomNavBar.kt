@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.common.sharedUi.CodexBottomNavItem
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
@@ -32,5 +33,13 @@ fun ArcherRoundBottomNavBar(
                     onClick = { listener(it) },
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun ArcherRoundBottomNavBar_Preview() {
+    CodexTheme {
+        ArcherRoundBottomNavBar(currentScreen = null, listener = {})
     }
 }

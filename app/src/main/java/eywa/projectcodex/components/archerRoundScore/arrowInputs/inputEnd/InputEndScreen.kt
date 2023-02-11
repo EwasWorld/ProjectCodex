@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -26,6 +27,8 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
 
 class InputEndScreen : ArcherRoundSubScreen() {
+    private val helpInfo = ComposeHelpShowcaseMap()
+
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
@@ -34,10 +37,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
         ScreenContent(state, listener)
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> {
-        // TODO_CURRENT Help info
-        return listOf()
-    }
+    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
 
     override fun getHelpPriority(): Int? = null
 
@@ -52,6 +52,9 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 showCancelButton = false,
                 showResetButton = false,
                 submitButtonText = stringResource(R.string.input_end__next_end),
+                helpInfo = helpInfo,
+                submitHelpInfoTitle = stringResource(R.string.help_input_end__next_end_title),
+                submitHelpInfoBody = stringResource(R.string.help_input_end__next_end_body),
                 listener = listener,
         ) {
             ScoreIndicator(

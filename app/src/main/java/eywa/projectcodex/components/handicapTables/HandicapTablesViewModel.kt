@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
+import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.coroutines.flow.*
@@ -29,10 +30,11 @@ class HandicapTablesViewModel @Inject constructor(
     }
 
     private fun HandicapTablesState.addHandicaps(): HandicapTablesState {
+        val subtypeDistances = round?.info?.getDistances(subType ?: 1)
         if (
             input == null
             || (inputHandicap && (input < 0 || input > 150))
-            || round == null || round.info.roundArrowCounts == null || round.info.roundDistances == null
+            || round == null || round.info.roundArrowCounts.isNullOrEmpty() || subtypeDistances.isNullOrEmpty()
         )
             return copy(handicaps = emptyList(), highlightedHandicap = null)
 
@@ -41,7 +43,7 @@ class HandicapTablesViewModel @Inject constructor(
                 Handicap.getScoreForRound(
                         round = round.info.round,
                         roundArrowCounts = round.info.roundArrowCounts,
-                        roundDistances = round.info.roundDistances,
+                        roundDistances = subtypeDistances,
                         handicap = handicap,
                         innerTenArcher = false,
                         arrows = null,
@@ -57,7 +59,7 @@ class HandicapTablesViewModel @Inject constructor(
                     Handicap.getHandicapForRound(
                             round = round.info.round,
                             roundArrowCounts = round.info.roundArrowCounts,
-                            roundDistances = round.info.roundDistances,
+                            roundDistances = subtypeDistances,
                             score = input,
                             innerTenArcher = false,
                             arrows = null,
@@ -67,6 +69,7 @@ class HandicapTablesViewModel @Inject constructor(
             )
         }
 
+        // TODO Ignore same score handicaps
         val surrounding = 5
         val list = mutableListOf(initial)
         repeat(surrounding) { index ->

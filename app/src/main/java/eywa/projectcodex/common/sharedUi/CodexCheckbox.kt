@@ -14,12 +14,13 @@ import androidx.compose.ui.unit.dp
 fun CodexCheckbox(
         text: String,
         checked: Boolean,
+        modifier: Modifier = Modifier,
         onToggle: () -> Unit,
 ) {
     Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.clickable(onClick = onToggle)
+            modifier = modifier.clickable(onClick = onToggle)
     ) {
         Text(text = text)
         Checkbox(checked = checked, onCheckedChange = { onToggle() })

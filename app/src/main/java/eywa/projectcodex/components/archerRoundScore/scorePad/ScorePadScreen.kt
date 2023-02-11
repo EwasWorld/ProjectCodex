@@ -22,7 +22,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
@@ -48,7 +52,38 @@ private val COLUMN_HEADER_ORDER = listOf(
         ColumnHeader.RUNNING_TOTAL,
 )
 
+@Composable
+fun ColumnHeader.getHelpTitle() = stringResource(
+        when (this) {
+            ColumnHeader.ARROWS -> R.string.help_score_pad__arrow_column_title
+            ColumnHeader.HITS -> R.string.help_score_pad__hits_column_title
+            ColumnHeader.SCORE -> R.string.help_score_pad__score_column_title
+            ColumnHeader.GOLDS -> R.string.help_score_pad__golds_column_title
+            ColumnHeader.RUNNING_TOTAL -> R.string.help_score_pad__running_column_title
+        }
+)
+
+@Composable
+fun ColumnHeader.getHelpBody(goldsType: GoldsType) =
+        when (this) {
+            ColumnHeader.ARROWS -> stringResource(R.string.help_score_pad__arrow_column_body)
+            ColumnHeader.HITS -> stringResource(R.string.help_score_pad__hits_column_body)
+            ColumnHeader.SCORE -> stringResource(R.string.help_score_pad__score_column_body)
+            ColumnHeader.GOLDS ->
+                stringResource(R.string.help_score_pad__golds_column_body, stringResource(goldsType.helpString))
+            ColumnHeader.RUNNING_TOTAL -> stringResource(R.string.help_score_pad__running_column_body)
+        }
+
 class ScorePadScreen : ArcherRoundSubScreen() {
+    private val helpInfo = ComposeHelpShowcaseMap().apply {
+        add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_score_pad__main_title,
+                        helpBody = R.string.help_score_pad__main_body,
+                )
+        )
+    }
+
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
@@ -57,10 +92,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
         ScreenContent(state, listener)
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> {
-        // TODO_CURRENT Help info
-        return listOf()
-    }
+    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
 
     override fun getHelpPriority(): Int? = null
 
@@ -131,6 +163,13 @@ class ScorePadScreen : ArcherRoundSubScreen() {
             }
 
             COLUMN_HEADER_ORDER.forEach { columnHeader ->
+                helpInfo.add(
+                        ComposeHelpShowcaseItem(
+                                helpTitle = columnHeader.getHelpTitle(),
+                                helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
+                        )
+                )
+
                 Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.width(IntrinsicSize.Max)
@@ -139,6 +178,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
                             text = stringResource(columnHeader.getShortResourceId(state.scorePadData.goldsType)),
                             columnType = columnHeader,
                             listener = listener,
+                            modifier = Modifier.updateHelpDialogPosition(helpInfo, columnHeader.getHelpTitle())
                     )
 
                     state.scorePadData.data.forEach { rowData ->
@@ -167,6 +207,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
      */
     @Composable
     private fun Cell(
+            modifier: Modifier = Modifier,
             text: String? = null,
             rowData: ScorePadRow? = null,
             columnType: ColumnHeader? = null,
@@ -199,7 +240,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
                         textAlign = TextAlign.Center,
                         fontWeight = if (isHeaderOrTotal) FontWeight.Bold else FontWeight.Normal,
                 ),
-                modifier = Modifier
+                modifier = modifier
                         .fillMaxWidth()
                         .padding(2.dp)
                         .then(backgroundModifier)

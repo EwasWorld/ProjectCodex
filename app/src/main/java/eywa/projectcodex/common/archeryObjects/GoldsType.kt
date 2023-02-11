@@ -11,13 +11,38 @@ import eywa.projectcodex.database.rounds.Round
  * @param isX whether an X is required for the arrow to be counted as a gold
  * @param shortStringId the string to display in the score pad for the golds column
  */
-enum class GoldsType(private val score: Int, private val isX: Boolean, val shortStringId: Int, val longStringId: Int) {
-    NINES(9, false, R.string.table_golds_nines_header, R.string.table_golds_nines_full),
-    TENS(10, false, R.string.table_golds_tens_header, R.string.table_golds_tens_full),
-    XS(10, true, R.string.table_golds_xs_header, R.string.table_golds_xs_full);
+enum class GoldsType(
+        private val score: Int,
+        private val isX: Boolean,
+        val shortStringId: Int,
+        val longStringId: Int,
+        val helpString: Int,
+) {
+    NINES(
+            9,
+            false,
+            R.string.table_golds_nines_header,
+            R.string.table_golds_nines_full,
+            R.string.help_score_pad__golds_column_body_nines,
+    ),
+    TENS(
+            10,
+            false,
+            R.string.table_golds_tens_header,
+            R.string.table_golds_tens_full,
+            R.string.help_score_pad__golds_column_body_tens,
+    ),
+    XS(
+            10,
+            true,
+            R.string.table_golds_xs_header,
+            R.string.table_golds_xs_full,
+            R.string.help_score_pad__golds_column_body_xs,
+    ),
+    ;
 
     companion object {
-        val defaultGoldsType = GoldsType.NINES
+        val defaultGoldsType = NINES
 
         /**
          * @return which golds type should be used based on [round]

@@ -13,6 +13,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -29,8 +32,11 @@ import eywa.projectcodex.database.rounds.Round
 fun ArrowInputs(
         state: ArrowInputsState,
         showResetButton: Boolean,
+        helpInfo: ComposeHelpShowcaseMap,
         listener: (ArcherRoundIntent.ArrowInputsIntent) -> Unit,
 ) {
+    helpInfo.HelpInfoItems(showResetButton)
+
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -38,7 +44,9 @@ fun ArrowInputs(
                 text = state.getEnteredArrows().sumOf { it.score }.toString(),
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
-                modifier = Modifier.testTag(ArrowInputsTestTag.END_TOTAL_TEXT)
+                modifier = Modifier
+                        .testTag(ArrowInputsTestTag.END_TOTAL_TEXT)
+                        .updateHelpDialogPosition(helpInfo, R.string.help_input_end__end_inputs_total_title)
         )
         @Suppress("SimplifiableCallChain")
         Text(
@@ -55,9 +63,14 @@ fun ArrowInputs(
                 modifier = Modifier
                         .padding(bottom = 15.dp)
                         .testTag(ArrowInputsTestTag.END_ARROWS_TEXT)
+                        .updateHelpDialogPosition(helpInfo, R.string.help_input_end__end_inputs_arrows_title)
         )
 
-        ArrowButtonGroup(round = state.getRound(), onClick = { listener(ArrowInputted(it)) })
+        ArrowButtonGroup(
+                round = state.getRound(),
+                onClick = { listener(ArrowInputted(it)) },
+                modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_input_end__arrow_inputs_title)
+        )
 
         Row {
             if (showResetButton) {
@@ -65,23 +78,73 @@ fun ArrowInputs(
                         text = stringResource(R.string.general__reset_edits),
                         buttonStyle = CodexButtonDefaults.DefaultTextButton,
                         onClick = { listener(ResetArrowsInputted) },
-                        modifier = Modifier.testTag(ArrowInputsTestTag.RESET_BUTTON)
+                        modifier = Modifier
+                                .testTag(ArrowInputsTestTag.RESET_BUTTON)
+                                .updateHelpDialogPosition(helpInfo, R.string.help_input_end__end_inputs_reset_title)
                 )
             }
             CodexButton(
                     text = stringResource(R.string.input_end__clear),
                     buttonStyle = CodexButtonDefaults.DefaultTextButton,
                     onClick = { listener(ClearArrowsInputted) },
-                    modifier = Modifier.testTag(ArrowInputsTestTag.CLEAR_BUTTON)
+                    modifier = Modifier
+                            .testTag(ArrowInputsTestTag.CLEAR_BUTTON)
+                            .updateHelpDialogPosition(helpInfo, R.string.help_input_end__end_inputs_clear_title)
             )
             CodexButton(
                     text = stringResource(R.string.input_end__backspace),
                     buttonStyle = CodexButtonDefaults.DefaultTextButton,
                     onClick = { listener(BackspaceArrowsInputted) },
-                    modifier = Modifier.testTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
+                    modifier = Modifier
+                            .testTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
+                            .updateHelpDialogPosition(helpInfo, R.string.help_input_end__end_inputs_backspace_title)
             )
         }
     }
+}
+
+@Composable
+private fun ComposeHelpShowcaseMap.HelpInfoItems(showResetButton: Boolean) {
+    add(
+            ComposeHelpShowcaseItem(
+                    helpTitle = R.string.help_input_end__end_inputs_total_title,
+                    helpBody = R.string.help_input_end__end_inputs_total_body,
+            )
+    )
+    add(
+            ComposeHelpShowcaseItem(
+                    helpTitle = R.string.help_input_end__end_inputs_arrows_title,
+                    helpBody = R.string.help_input_end__end_inputs_arrows_body,
+            )
+    )
+    add(
+            ComposeHelpShowcaseItem(
+                    helpTitle = R.string.help_input_end__arrow_inputs_title,
+                    helpBody = R.string.help_input_end__arrow_inputs_body,
+            )
+    )
+
+    if (showResetButton) {
+        add(
+                ComposeHelpShowcaseItem(
+                        helpTitle = R.string.help_input_end__end_inputs_reset_title,
+                        helpBody = R.string.help_input_end__end_inputs_reset_body,
+                )
+        )
+    }
+
+    add(
+            ComposeHelpShowcaseItem(
+                    helpTitle = R.string.help_input_end__end_inputs_clear_title,
+                    helpBody = R.string.help_input_end__end_inputs_clear_body,
+            )
+    )
+    add(
+            ComposeHelpShowcaseItem(
+                    helpTitle = R.string.help_input_end__end_inputs_backspace_title,
+                    helpBody = R.string.help_input_end__end_inputs_backspace_body,
+            )
+    )
 }
 
 @Preview(
@@ -93,12 +156,13 @@ fun ArrowInputs_Preview(
 ) {
     CodexTheme {
         ArrowInputs(
-                object : ArrowInputsState {
+                state = object : ArrowInputsState {
                     override fun getRound(): Round = ArcherRoundsPreviewHelper.round.round
                     override fun getEnteredArrows(): List<Arrow> = ArcherRoundsPreviewHelper.inputArrows
                     override fun getEndSize(): Int = 6
                 },
-                true
+                showResetButton = true,
+                helpInfo = ComposeHelpShowcaseMap()
         ) {}
     }
 }

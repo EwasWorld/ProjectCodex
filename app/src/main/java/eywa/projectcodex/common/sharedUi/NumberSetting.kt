@@ -13,6 +13,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
@@ -21,14 +23,22 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 fun NumberSetting(
         @StringRes title: Int,
         currentValue: Int?,
-        placeholder: Int = 6,
         testTag: String,
+        helpInfo: ComposeHelpShowcaseMap? = null,
+        @StringRes helpTitle: Int? = null,
+        @StringRes helpBody: Int? = null,
+        placeholder: Int = 6,
         onValueChanged: (Int?) -> Unit,
+        modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     DataRow(
             title = title,
+            helpInfo = helpInfo,
+            helpTitle = helpTitle,
+            helpBody = helpBody,
+            modifier = modifier,
     ) {
         Surface(
                 color = CodexTheme.colors.surfaceOnBackground,
@@ -37,7 +47,9 @@ fun NumberSetting(
             CodexTextField(
                     state = CodexTextFieldState(
                             text = currentValue?.toString() ?: "",
-                            onValueChange = { onValueChanged(it.takeIf { it.isNotBlank() }?.toInt()) },
+                            onValueChange = {
+                                onValueChanged(it.takeIf { it.isNotBlank() && it.isDigitsOnly() }?.toInt())
+                            },
                             testTag = "",
                     ),
                     placeholderText = placeholder.toString(),

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.NumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -25,6 +26,8 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
 class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
+    private val helpInfo = ComposeHelpShowcaseMap()
+
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
@@ -33,10 +36,7 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
         ScreenContent(state, listener)
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> {
-        // TODO_CURRENT Help info
-        return listOf()
-    }
+    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
 
     override fun getHelpPriority(): Int? = null
 
@@ -59,12 +59,18 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
                         currentValue = state.inputEndSize,
                         testTag = TestTag.INPUT_END_SIZE,
                         onValueChanged = { listener(InputEndSizeChanged(it)) },
+                        helpInfo = helpInfo,
+                        helpTitle = R.string.help_archer_round_settings__input_end_size_title,
+                        helpBody = R.string.help_archer_round_settings__input_end_size_body,
                 )
                 NumberSetting(
                         title = R.string.archer_round_settings__score_pad_end_size,
                         currentValue = state.scorePadEndSize,
                         testTag = TestTag.SCORE_PAD_END_SIZE,
                         onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
+                        helpInfo = helpInfo,
+                        helpTitle = R.string.help_archer_round_settings__score_pad_size_title,
+                        helpBody = R.string.help_archer_round_settings__score_pad_size_body,
                 )
                 // TODO Change golds type
             }

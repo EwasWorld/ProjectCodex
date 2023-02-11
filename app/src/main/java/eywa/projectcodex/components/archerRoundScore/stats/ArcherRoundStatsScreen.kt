@@ -42,10 +42,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
         ScreenContent(state)
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> {
-        // TODO_CURRENT Help info
-        return listOf()
-    }
+    override fun getHelpShowcases(): List<HelpShowcaseItem> = listOf()
 
     override fun getHelpPriority(): Int? = null
 

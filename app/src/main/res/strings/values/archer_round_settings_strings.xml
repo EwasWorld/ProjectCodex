@@ -4,4 +4,9 @@
 
     <string name="archer_round_settings__input_end_size">Input end size:</string>
     <string name="archer_round_settings__score_pad_end_size">Score pad end size:</string>
+
+    <string name="help_archer_round_settings__score_pad_size_title">Score pad end size</string>
+    <string name="help_archer_round_settings__score_pad_size_body">Sets how many arrows are shown per row on the score pad</string>
+    <string name="help_archer_round_settings__input_end_size_title">Input end size</string>
+    <string name="help_archer_round_settings__input_end_size_body">Sets how many arrows are entered per end on the input end screen</string>
 </resources>

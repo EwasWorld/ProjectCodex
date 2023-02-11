@@ -16,5 +16,20 @@
     <string name="score_pad_menu__delete_dialog_title">Delete end</string>
     <string name="score_pad_menu__delete_dialog_body">Are you sure you want to delete end %1$d</string> <!-- end 3 -->
 
-    <string name="help_score_pad__open_menu_title">Edit</string>
+    <string name="help_score_pad__main_title">Score Pad</string>
+    <string name="help_score_pad__main_body">Shows all arrows shot for the round. Click on a row to edit, insert, or delete</string>
+
+    <string name="help_score_pad__arrow_column_title">Arrows</string>
+    <string name="help_score_pad__arrow_column_body">Individual arrows entered for the given end</string>
+    <string name="help_score_pad__hits_column_title">Hits</string>
+    <string name="help_score_pad__hits_column_body">Total hits (non-misses)</string>
+    <string name="help_score_pad__score_column_title">Score</string>
+    <string name="help_score_pad__score_column_body">Score for the given end</string>
+    <string name="help_score_pad__golds_column_title">Golds</string>
+    <string name="help_score_pad__golds_column_body">Number of golds for the given end (currently counting %s)</string>
+    <string name="help_score_pad__golds_column_body_nines">9 or better</string>
+    <string name="help_score_pad__golds_column_body_tens">10s and Xs</string>
+    <string name="help_score_pad__golds_column_body_xs">Xs only</string>
+    <string name="help_score_pad__running_column_title">Running total</string>
+    <string name="help_score_pad__running_column_body">Total of all arrows up to and including the current end</string>
 </resources>

@@ -10,6 +10,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -23,12 +26,22 @@ fun ArrowInputsScaffold(
         showResetButton: Boolean,
         contentText: String,
         submitButtonText: String = stringResource(R.string.general_complete),
+        helpInfo: ComposeHelpShowcaseMap,
+        cancelHelpInfoTitle: String? = null,
+        cancelHelpInfoBody: String? = null,
+        submitHelpInfoTitle: String,
+        submitHelpInfoBody: String,
         listener: (ArcherRoundIntent) -> Unit,
 ) = ArrowInputsScaffold(
         state = state,
         showCancelButton = showCancelButton,
         showResetButton = showResetButton,
         submitButtonText = submitButtonText,
+        helpInfo = helpInfo,
+        cancelHelpInfoTitle = cancelHelpInfoTitle,
+        cancelHelpInfoBody = cancelHelpInfoBody,
+        submitHelpInfoTitle = submitHelpInfoTitle,
+        submitHelpInfoBody = submitHelpInfoBody,
         listener = listener,
 ) {
     Text(
@@ -45,6 +58,11 @@ fun ArrowInputsScaffold(
         showCancelButton: Boolean,
         showResetButton: Boolean,
         submitButtonText: String = stringResource(R.string.general_complete),
+        helpInfo: ComposeHelpShowcaseMap,
+        cancelHelpInfoTitle: String? = null,
+        cancelHelpInfoBody: String? = null,
+        submitHelpInfoTitle: String,
+        submitHelpInfoBody: String,
         listener: (ArcherRoundIntent) -> Unit,
         content: @Composable () -> Unit,
 ) {
@@ -59,24 +77,41 @@ fun ArrowInputsScaffold(
         content()
         Spacer(modifier = Modifier.weight(1f))
 
-        ArrowInputs(state, showResetButton, listener)
+        ArrowInputs(state, showResetButton, helpInfo, listener)
 
         Row(
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (showCancelButton) {
+                helpInfo.add(
+                        ComposeHelpShowcaseItem(
+                                helpTitle = cancelHelpInfoTitle!!,
+                                helpBody = cancelHelpInfoBody!!,
+                        )
+                )
                 CodexButton(
                         text = stringResource(R.string.general_cancel),
                         buttonStyle = CodexButtonDefaults.DefaultButton(),
                         onClick = { listener(ArcherRoundIntent.ScreenCancelClicked) },
-                        modifier = Modifier.testTag(ArrowInputsTestTag.CANCEL_BUTTON)
+                        modifier = Modifier
+                                .testTag(ArrowInputsTestTag.CANCEL_BUTTON)
+                                .updateHelpDialogPosition(helpInfo, cancelHelpInfoTitle)
                 )
             }
+
+            helpInfo.add(
+                    ComposeHelpShowcaseItem(
+                            helpTitle = submitHelpInfoTitle,
+                            helpBody = submitHelpInfoBody,
+                    )
+            )
             CodexButton(
                     text = submitButtonText,
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = { listener(ArcherRoundIntent.ScreenSubmitClicked) },
-                    modifier = Modifier.testTag(ArrowInputsTestTag.SUBMIT_BUTTON)
+                    modifier = Modifier
+                            .testTag(ArrowInputsTestTag.SUBMIT_BUTTON)
+                            .updateHelpDialogPosition(helpInfo, submitHelpInfoTitle)
             )
         }
     }

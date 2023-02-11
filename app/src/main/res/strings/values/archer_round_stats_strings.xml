@@ -2,7 +2,7 @@
 <resources>
     <string name="archer_round_stats__title">Round Stats</string>
 
-    <string name="archer_round_stats__date">Date shot:</string>
+    <string name="archer_round_stats__date">Date:</string>
     <string name="archer_round_stats__round">Round:</string>
     <string name="archer_round_stats__hits">Hits:</string>
     <string name="archer_round_stats__hits_of">%1$d (of %2$d)</string> <!-- 44 (of 50) aka 44 arrows hit of 50 shot -->

@@ -27,13 +27,16 @@ private val SPACING = 5.dp
 @Composable
 fun ArrowButtonGroup(
         round: Round?,
-        onClick: (Arrow) -> Unit
+        modifier: Modifier = Modifier,
+        onClick: (Arrow) -> Unit,
 ) {
-    when {
-        round == null -> TenZoneArrowButtonGroup(onClick)
-        round.name.contains("WORCESTER", ignoreCase = true) -> WorcesterArrowButtonGroup(onClick)
-        round.isMetric || !round.isOutdoor -> TenZoneArrowButtonGroup(onClick)
-        else -> FiveZoneArrowButtonGroup(onClick)
+    Box(modifier = modifier) {
+        when {
+            round == null -> TenZoneArrowButtonGroup(onClick)
+            round.name.contains("WORCESTER", ignoreCase = true) -> WorcesterArrowButtonGroup(onClick)
+            round.isMetric || !round.isOutdoor -> TenZoneArrowButtonGroup(onClick)
+            else -> FiveZoneArrowButtonGroup(onClick)
+        }
     }
 }
 
