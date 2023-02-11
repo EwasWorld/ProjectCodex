@@ -24,7 +24,7 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
-
+// TODO_CURRENT Help info for table and remaining arrows
 class InputEndScreen : ArcherRoundSubScreen() {
     private val helpInfo = ComposeHelpShowcaseMap()
 

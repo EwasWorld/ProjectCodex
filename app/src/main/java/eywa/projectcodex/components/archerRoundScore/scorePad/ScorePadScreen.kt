@@ -75,12 +75,13 @@ fun ColumnHeader.getHelpBody(goldsType: GoldsType) =
 
 class ScorePadScreen : ArcherRoundSubScreen() {
     private val helpInfo = ComposeHelpShowcaseMap().apply {
-        add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_score_pad__main_title,
-                        helpBody = R.string.help_score_pad__main_body,
-                )
-        )
+        // TODO Implement no shape help info
+//        add(
+//                ComposeHelpShowcaseItem(
+//                        helpTitle = R.string.help_score_pad__main_title,
+//                        helpBody = R.string.help_score_pad__main_body,
+//                )
+//        )
     }
 
     @Composable
