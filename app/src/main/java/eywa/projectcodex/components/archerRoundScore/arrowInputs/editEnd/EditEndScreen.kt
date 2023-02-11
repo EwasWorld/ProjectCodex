@@ -5,7 +5,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
@@ -25,7 +24,7 @@ class EditEndScreen : ArcherRoundSubScreen() {
         ScreenContent(state, listener)
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
+    override fun getHelpShowcases() = helpInfo.getItems()
 
     override fun getHelpPriority(): Int? = null
 

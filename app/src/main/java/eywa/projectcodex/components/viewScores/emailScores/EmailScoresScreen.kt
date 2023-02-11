@@ -25,7 +25,10 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -259,7 +262,7 @@ class EmailScoresScreen : ActionBarHelp {
             modifier = modifier,
     )
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
+    override fun getHelpShowcases() = helpInfo.getItems()
     override fun getHelpPriority(): Int? = null
 
     object TestTag {

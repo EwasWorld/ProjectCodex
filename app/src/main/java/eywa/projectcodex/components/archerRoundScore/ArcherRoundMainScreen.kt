@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
@@ -84,8 +83,8 @@ class ArcherRoundMainScreen : ActionBarHelp {
         }
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = currentScreen?.getHelpShowcases() ?: listOf()
-    override fun getHelpPriority(): Int? = currentScreen?.getHelpPriority()
+    override fun getHelpShowcases() = currentScreen?.getHelpShowcases() ?: listOf()
+    override fun getHelpPriority() = currentScreen?.getHelpPriority()
 
     object TestTag {
         private const val PREFIX = "ARCHER_ROUND_SCREEN_"

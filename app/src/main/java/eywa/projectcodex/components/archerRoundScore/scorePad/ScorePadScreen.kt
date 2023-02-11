@@ -25,7 +25,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
@@ -92,7 +91,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
         ScreenContent(state, listener)
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
+    override fun getHelpShowcases() = helpInfo.getItems()
 
     override fun getHelpPriority(): Int? = null
 

@@ -1,6 +1,5 @@
 package eywa.projectcodex.common.helpShowcase
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.LocalDensity
@@ -16,15 +15,15 @@ class ComposeHelpShowcaseItem(
         var helpTitle: ResOrActual<String>,
         private var helpBody: ResOrActual<String>,
         private var shapePadding: Dp? = null,
-        override var priority: Int? = HelpShowcaseItem.DEFAULT_HELP_PRIORITY,
-) : HelpShowcaseItem {
+        var priority: Int? = DEFAULT_HELP_PRIORITY,
+) {
     private var layoutCoordinates: LayoutCoordinates? = null
 
     constructor(
             helpTitle: Int,
             helpBody: Int,
             shapePadding: Dp? = null,
-            priority: Int? = HelpShowcaseItem.DEFAULT_HELP_PRIORITY,
+            priority: Int? = DEFAULT_HELP_PRIORITY,
     ) : this(
             ResOrActual.fromRes(helpTitle),
             ResOrActual.fromRes(helpBody),
@@ -36,7 +35,7 @@ class ComposeHelpShowcaseItem(
             helpTitle: String,
             helpBody: String,
             shapePadding: Dp? = null,
-            priority: Int? = HelpShowcaseItem.DEFAULT_HELP_PRIORITY,
+            priority: Int? = DEFAULT_HELP_PRIORITY,
     ) : this(
             ResOrActual.fromActual(helpTitle),
             ResOrActual.fromActual(helpBody),
@@ -65,22 +64,13 @@ class ComposeHelpShowcaseItem(
             overlayClickedListener = goToNextItemListener
     )
 
-    override fun show(
-            activity: AppCompatActivity,
-            hasNextItem: Boolean,
-            goToNextItemListener: () -> Unit,
-            endShowcaseListener: () -> Unit
-    ) {
-        // Should be shown/hidden from MainActivity
-        throw NotImplementedError("Compose help showcase show triggered")
-    }
-
-    override fun hide(activity: AppCompatActivity) {
-        // Should be shown/hidden from MainActivity
-        throw NotImplementedError("Compose help showcase show hide")
-    }
-
     fun updateLayoutCoordinates(layoutCoordinates: LayoutCoordinates) {
         this.layoutCoordinates = layoutCoordinates
     }
+
+    /**
+     * The shape the showcase will use to highlight the given view
+     * TODO Implement more help showcase shapes?
+     */
+    enum class Shape { CIRCLE, OVAL, RECTANGLE, NO_SHAPE }
 }

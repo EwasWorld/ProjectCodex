@@ -20,7 +20,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -155,7 +154,7 @@ class ViewScoresScreen : ActionBarHelp {
         }
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> {
+    override fun getHelpShowcases(): List<ComposeHelpShowcaseItem> {
         val mainItems = helpInfo.getItems()
 
         val fullyVisibleItems = lazyListState.layoutInfo.visibleItemsInfo

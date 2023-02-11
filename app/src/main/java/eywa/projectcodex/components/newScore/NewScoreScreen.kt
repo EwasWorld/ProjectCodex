@@ -21,7 +21,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -288,7 +291,7 @@ class NewScoreScreen : ActionBarHelp {
     }
 
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
+    override fun getHelpShowcases() = helpInfo.getItems()
     override fun getHelpPriority(): Int? = null
 
     object TestTag {

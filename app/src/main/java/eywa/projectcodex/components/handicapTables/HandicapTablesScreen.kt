@@ -17,7 +17,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexCheckbox
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.NumberSetting
@@ -235,7 +238,7 @@ class HandicapTablesScreen : ActionBarHelp {
         }
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = helpInfo.getItems()
+    override fun getHelpShowcases() = helpInfo.getItems()
     override fun getHelpPriority(): Int? = null
 
     object TestTag {

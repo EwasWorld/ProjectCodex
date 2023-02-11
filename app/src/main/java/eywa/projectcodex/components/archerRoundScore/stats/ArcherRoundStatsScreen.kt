@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -42,7 +42,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
         ScreenContent(state)
     }
 
-    override fun getHelpShowcases(): List<HelpShowcaseItem> = listOf()
+    override fun getHelpShowcases() = emptyList<ComposeHelpShowcaseItem>()
 
     override fun getHelpPriority(): Int? = null
 
