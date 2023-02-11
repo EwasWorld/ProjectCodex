@@ -43,7 +43,9 @@ class ArcherRoundViewModel @Inject constructor(
             is Initialise -> loadArcherRoundData(action)
             is NavBarClicked -> {
                 val s = state as Loaded
-                if (action.screen == INPUT_END && (s.fullArcherRoundInfo.remainingArrows ?: 0) <= 0) {
+                if (s.fullArcherRoundInfo.round != null && action.screen == INPUT_END
+                    && (s.fullArcherRoundInfo.remainingArrows ?: 0) <= 0
+                ) {
                     state = s.copy(displayCannotInputEndDialog = true)
                 }
                 else {
