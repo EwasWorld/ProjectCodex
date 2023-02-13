@@ -17,19 +17,21 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import kotlin.reflect.KClass
 
-class ViewScoresScreen : ActionBarHelp {
-    private val helpInfo = ComposeHelpShowcaseMap()
+class ViewScoresScreen {
+    private val helpInfo = HelpShowcase()
+
     private val lazyListState = LazyListState()
 
     /**
@@ -42,18 +44,18 @@ class ViewScoresScreen : ActionBarHelp {
      * This info is specific to the row type.
      * Indexes match that in [entryClasses]
      */
-    private lateinit var specificEntryHelpInfo: List<ComposeHelpShowcaseMap>
+    private lateinit var specificEntryHelpInfo: List<HelpShowcase>
 
     /**
      * The help info of the entries currently being displayed.
      * This info is generic and common to all rows.
      * Indexes match that in [entryClasses]
      */
-    private lateinit var genericEntryHelpInfo: List<ComposeHelpShowcaseMap>
+    private lateinit var genericEntryHelpInfo: List<HelpShowcase>
 
     /**
      * The height in px of the list of entries that is unobstructed, used to decide which row's
-     * [ComposeHelpShowcaseItem]s should be shown
+     * [HelpShowcaseItem]s should be shown
      */
     private var unobstructedHeight: Float = 0f
 
@@ -63,21 +65,25 @@ class ViewScoresScreen : ActionBarHelp {
             listState: ViewScoresListActionState,
             isInMultiSelectMode: Boolean,
             listener: ViewScoreScreenListener,
+            helpListener: (HelpShowcaseIntent) -> Unit,
     ) {
-        helpInfo.clear()
+        helpListener(HelpShowcaseIntent.Clear)
         listener.helpShowcaseInfo = helpInfo
         listener.contextMenuState = listState
 
         entryClasses = entries.map { it::class }
-        specificEntryHelpInfo = List(entries.size) { ComposeHelpShowcaseMap() }
+        specificEntryHelpInfo = List(entries.size) { HelpShowcase() }
         genericEntryHelpInfo = List(entries.size) {
-            ComposeHelpShowcaseMap().apply {
-                add(
-                        ComposeHelpShowcaseItem(
-                                helpTitle = R.string.help_view_score__row_title,
-                                helpBody = R.string.help_view_score__row_body,
-                                priority = HelpItemPriority.GENERIC_ROW_ACTIONS.ordinal
-                        )
+            HelpShowcase().apply {
+                handle(
+                        HelpShowcaseIntent.Add(
+                                HelpShowcaseItem(
+                                        helpTitle = R.string.help_view_score__row_title,
+                                        helpBody = R.string.help_view_score__row_body,
+                                        priority = HelpItemPriority.GENERIC_ROW_ACTIONS.ordinal
+                                )
+                        ),
+                        ViewScoresFragment::class,
                 )
             }
         }
@@ -154,8 +160,8 @@ class ViewScoresScreen : ActionBarHelp {
         }
     }
 
-    override fun getHelpShowcases(): List<ComposeHelpShowcaseItem> {
-        val mainItems = helpInfo.getItems()
+    fun getHelpShowcases(): List<HelpShowcase> {
+        // TODO_CURRENT ViewScores help showcases :(
 
         val fullyVisibleItems = lazyListState.layoutInfo.visibleItemsInfo
                 // Ignore indexes that are only partially visible
@@ -163,23 +169,21 @@ class ViewScoresScreen : ActionBarHelp {
                     it.offset >= 0 && it.offset + it.size < unobstructedHeight
                 }
 
-        val genericItemHelp = genericEntryHelpInfo[fullyVisibleItems[0].index].getItems()
+        val genericItemHelp = genericEntryHelpInfo[fullyVisibleItems[0].index]
         val specificItemHelp = fullyVisibleItems
                 .distinctBy { entryClasses[it.index] }
-                .map { specificEntryHelpInfo[it.index].getItems() }
-                .flatten()
+                .map { specificEntryHelpInfo[it.index] }
 
-        return mainItems + specificItemHelp + genericItemHelp
+        return listOf(helpInfo, genericItemHelp).plus(specificItemHelp)
     }
 
-    override fun getHelpPriority(): Int? = null
 
     abstract class ViewScoreScreenListener : MultiSelectBarListener, ListActionListener {
-        internal lateinit var helpShowcaseInfo: ComposeHelpShowcaseMap
+        internal lateinit var helpShowcaseInfo: HelpShowcase
         internal lateinit var contextMenuState: ViewScoresListActionState
 
-        final override fun addHelpShowcase(item: ComposeHelpShowcaseItem) {
-            helpShowcaseInfo.add(item)
+        final override fun addHelpShowcase(item: HelpShowcaseItem) {
+            helpShowcaseInfo.handle(HelpShowcaseIntent.Add(item), ViewScoresFragment::class)
         }
 
         final override fun updateHelpDialogPosition(helpTitle: Int, layoutCoordinates: LayoutCoordinates) {
@@ -206,7 +210,7 @@ class ViewScoresScreen : ActionBarHelp {
     }
 
     /**
-     * Ordinals are used for [ComposeHelpShowcaseItem.priority]
+     * Ordinals are used for [HelpShowcaseItem.priority]
      */
     internal enum class HelpItemPriority {
         GENERIC_ROW_ACTIONS, SPECIFIC_ROW_ACTION, MULTI_SELECT
@@ -248,6 +252,7 @@ class ViewScoresScreen : ActionBarHelp {
                     listState = rememberViewScoresListActionState(mapOf(), mapOf()),
                     isInMultiSelectMode = false,
                     listener = listenersForPreviews,
+                    helpListener = {},
             )
         }
     }
@@ -265,6 +270,7 @@ class ViewScoresScreen : ActionBarHelp {
                     listState = rememberViewScoresListActionState(mapOf(), mapOf()),
                     isInMultiSelectMode = true,
                     listener = listenersForPreviews,
+                    helpListener = {},
             )
         }
     }
@@ -284,6 +290,7 @@ class ViewScoresScreen : ActionBarHelp {
                         listState = rememberViewScoresListActionState(mapOf(), mapOf()),
                         isInMultiSelectMode = false,
                         listener = listenersForPreviews,
+                        helpListener = {},
                 )
             }
         }
@@ -310,6 +317,7 @@ class ViewScoresScreen : ActionBarHelp {
                         ),
                         isInMultiSelectMode = false,
                         listener = listenersForPreviews,
+                        helpListener = {},
                 )
             }
         }

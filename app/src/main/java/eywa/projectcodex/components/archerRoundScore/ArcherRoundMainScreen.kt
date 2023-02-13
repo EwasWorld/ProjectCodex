@@ -10,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
@@ -20,12 +19,12 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loaded
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loading
 
-abstract class ArcherRoundSubScreen : ActionBarHelp {
+abstract class ArcherRoundSubScreen {
     @Composable
     abstract fun ComposeContent(state: Loaded, listener: (ArcherRoundIntent) -> Unit)
 }
 
-class ArcherRoundMainScreen : ActionBarHelp {
+class ArcherRoundMainScreen {
     private var currentScreen: ArcherRoundSubScreen? = null
 
     @Composable
@@ -82,9 +81,6 @@ class ArcherRoundMainScreen : ActionBarHelp {
             }
         }
     }
-
-    override fun getHelpShowcases() = currentScreen?.getHelpShowcases() ?: listOf()
-    override fun getHelpPriority() = currentScreen?.getHelpPriority()
 
     object TestTag {
         private const val PREFIX = "ARCHER_ROUND_SCREEN_"

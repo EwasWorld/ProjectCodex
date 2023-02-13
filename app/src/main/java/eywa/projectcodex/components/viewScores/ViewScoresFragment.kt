@@ -55,7 +55,8 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
                                         requireContext(),
                                         requireContext().resources.getString(it)
                                 )
-                            }
+                            },
+                            helpListener = { viewScoresViewModel.handle(ViewScoresIntent.HelpShowcaseAction(it)) }
                     )
                 }
             }
@@ -67,9 +68,6 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
 
         activity?.title = getString(R.string.view_score__title)
     }
-
-    override fun getHelpShowcases() = viewScoresScreen.getHelpShowcases()
-    override fun getHelpPriority() = viewScoresScreen.getHelpPriority()
 
     companion object {
         const val LOG_TAG = "ViewScores"

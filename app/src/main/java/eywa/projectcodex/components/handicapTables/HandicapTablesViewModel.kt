@@ -3,6 +3,7 @@ package eywa.projectcodex.components.handicapTables
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.getDistances
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HandicapTablesViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
+        private val helpShowcase: HelpShowcase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HandicapTablesState())
     val state = _state.asStateFlow()
@@ -94,6 +96,8 @@ class HandicapTablesViewModel @Inject constructor(
             HandicapTablesIntent.ToggleInput -> _state.update {
                 it.copy(inputHandicap = !it.inputHandicap).addHandicaps()
             }
+            is HandicapTablesIntent.HelpShowcaseAction ->
+                helpShowcase.handle(action.action, HandicapTablesFragment::class)
         }
     }
 

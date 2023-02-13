@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.viewScores.ui.MultiSelectBarListener
@@ -209,7 +209,7 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                             override fun selectAllOrNoneClicked() {}
                             override fun multiSelectEmailClicked() {}
                             override fun toggleMultiSelectMode() {}
-                            override fun addHelpShowcase(item: ComposeHelpShowcaseItem) {}
+                            override fun addHelpShowcase(item: HelpShowcaseItem) {}
                             override fun updateHelpDialogPosition(
                                     helpTitle: Int, layoutCoordinates: LayoutCoordinates
                             ) {

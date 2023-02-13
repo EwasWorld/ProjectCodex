@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -42,7 +42,7 @@ fun SelectRoundRows(
         selectedSubtypeId: Int?,
         rounds: List<FullRoundInfo>?,
         filters: SelectRoundEnabledFilters,
-        helpInfo: ComposeHelpShowcaseMap,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         style: TextStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
         listener: (SelectRoundDialogIntent) -> Unit,
 ) = SelectRoundRows(
@@ -61,7 +61,7 @@ fun SelectRoundRows(
         getDistance = { subType ->
             selectedRound?.getDistances(subType.subTypeId)?.maxByOrNull { it.distance }!!.distance
         },
-        helpInfo = helpInfo,
+        helpListener = helpListener,
         style = style,
         listener = listener,
 )
@@ -79,7 +79,7 @@ fun SelectRoundRows(
         roundSubtypeDistances: List<RoundDistance>?,
         distanceUnit: String?,
         getDistance: (RoundSubType) -> Int,
-        helpInfo: ComposeHelpShowcaseMap,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         style: TextStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
         listener: (SelectRoundDialogIntent) -> Unit,
 ) {
@@ -103,7 +103,7 @@ fun SelectRoundRows(
                 title = R.string.create_round__round,
                 helpTitle = R.string.help_create_round__round_title,
                 helpBody = R.string.help_create_round__round_body,
-                helpInfo = helpInfo,
+                helpListener = helpListener,
         ) {
             Text(
                     text = displayedRound,
@@ -119,7 +119,7 @@ fun SelectRoundRows(
                     title = R.string.create_round__round_sub_type,
                     helpTitle = R.string.help_create_round__sub_round_title,
                     helpBody = R.string.help_create_round__sub_round_body,
-                    helpInfo = helpInfo,
+                    helpListener = helpListener,
             ) {
                 Text(
                         text = displayedSubtype,
@@ -133,7 +133,7 @@ fun SelectRoundRows(
         }
 
 
-        RoundInfoHints(distanceUnit, arrowCounts, roundSubtypeDistances, helpInfo)
+        RoundInfoHints(distanceUnit, arrowCounts, roundSubtypeDistances, helpListener)
     }
 }
 
@@ -142,7 +142,7 @@ private fun RoundInfoHints(
         distanceUnit: String?,
         arrowCounts: List<RoundArrowCount>?,
         roundSubtypeDistances: List<RoundDistance>?,
-        helpInfo: ComposeHelpShowcaseMap,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val separator = stringResource(R.string.general_comma_separator)
     val faceSizeUnit = stringResource(R.string.units_cm_short)
@@ -152,7 +152,7 @@ private fun RoundInfoHints(
                 title = R.string.create_round__arrow_count_indicator,
                 helpTitle = R.string.help_create_round__arrow_count_indicator_title,
                 helpBody = R.string.help_create_round__arrow_count_indicator_body,
-                helpInfo = helpInfo,
+                helpListener = helpListener,
         ) {
             Text(
                     text = arrowCounts
@@ -169,7 +169,7 @@ private fun RoundInfoHints(
                 title = R.string.create_round__distance_indicator,
                 helpTitle = R.string.help_create_round__distance_indicator_title,
                 helpBody = R.string.help_create_round__distance_indicator_body,
-                helpInfo = helpInfo,
+                helpListener = helpListener,
         ) {
             Text(
                     text = distances
@@ -184,7 +184,7 @@ private fun RoundInfoHints(
                 title = R.string.create_round__face_size_indicator,
                 helpTitle = R.string.help_create_round__face_size_indicator_title,
                 helpBody = R.string.help_create_round__face_size_indicator_body,
-                helpInfo = helpInfo,
+                helpListener = helpListener,
         ) {
             Text(
                     text = arrowCounts

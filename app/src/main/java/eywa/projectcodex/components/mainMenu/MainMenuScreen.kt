@@ -13,30 +13,38 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 
 class MainMenuScreen : ActionBarHelp {
-    private val helpInfo = ComposeHelpShowcaseMap().apply {
-        add(
-                ComposeHelpShowcaseItem(
-                        R.string.help_main_menu__new_score_title,
-                        R.string.help_main_menu__new_score_body
+    private fun addHelpInfo(
+            helpListener: (HelpShowcaseIntent) -> Unit,
+    ) {
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                R.string.help_main_menu__new_score_title,
+                                R.string.help_main_menu__new_score_body
+                        ),
                 )
         )
-        add(
-                ComposeHelpShowcaseItem(
-                        R.string.help_main_menu__view_scores_title,
-                        R.string.help_main_menu__view_scores_body
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                R.string.help_main_menu__view_scores_title,
+                                R.string.help_main_menu__view_scores_body
+                        ),
                 )
         )
-        add(
-                ComposeHelpShowcaseItem(
-                        R.string.help_main_menu__handicap_tables_title,
-                        R.string.help_main_menu__handicap_tables_body
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                R.string.help_main_menu__handicap_tables_title,
+                                R.string.help_main_menu__handicap_tables_body
+                        ),
                 )
         )
     }
@@ -49,7 +57,10 @@ class MainMenuScreen : ActionBarHelp {
             onStartNewScoreClicked: () -> Unit,
             onViewScoresClicked: () -> Unit,
             onHandicapTablesClicked: () -> Unit,
+            helpListener: (HelpShowcaseIntent) -> Unit,
     ) {
+        addHelpInfo(helpListener)
+
         Column(
                 modifier = Modifier
                         .fillMaxSize()
@@ -63,7 +74,7 @@ class MainMenuScreen : ActionBarHelp {
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = onStartNewScoreClicked,
                     modifier = Modifier
-                            .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__new_score_title)
+                            .updateHelpDialogPosition(helpListener, R.string.help_main_menu__new_score_title)
                             .testTag(TestTag.NEW_SCORE),
             )
             CodexButton(
@@ -71,7 +82,7 @@ class MainMenuScreen : ActionBarHelp {
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = onViewScoresClicked,
                     modifier = Modifier
-                            .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__view_scores_title)
+                            .updateHelpDialogPosition(helpListener, R.string.help_main_menu__view_scores_title)
                             .testTag(TestTag.VIEW_SCORES),
             )
             CodexButton(
@@ -79,7 +90,7 @@ class MainMenuScreen : ActionBarHelp {
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = onHandicapTablesClicked,
                     modifier = Modifier
-                            .updateHelpDialogPosition(helpInfo, R.string.help_main_menu__handicap_tables_title)
+                            .updateHelpDialogPosition(helpListener, R.string.help_main_menu__handicap_tables_title)
                             .testTag(TestTag.HANDICAP_TABLES),
             )
 
@@ -103,9 +114,6 @@ class MainMenuScreen : ActionBarHelp {
         }
     }
 
-    override fun getHelpShowcases() = helpInfo.getItems()
-    override fun getHelpPriority(): Int? = null
-
     object TestTag {
         private const val PREFIX = "MAIN_MENU_"
         const val NEW_SCORE = "${PREFIX}NEW_SCORE_BUTTON"
@@ -122,6 +130,7 @@ class MainMenuScreen : ActionBarHelp {
                 onStartNewScoreClicked = { },
                 onViewScoresClicked = {},
                 onHandicapTablesClicked = {},
+                helpListener = {},
         )
     }
 }

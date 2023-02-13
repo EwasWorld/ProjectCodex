@@ -36,7 +36,4 @@ class HandicapTablesFragment : Fragment(), ActionBarHelp {
 
         activity?.title = getString(R.string.handicap_tables__title)
     }
-
-    override fun getHelpShowcases() = screen.getHelpShowcases()
-    override fun getHelpPriority() = screen.getHelpPriority()
 }

@@ -18,8 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexCheckbox
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
@@ -33,14 +33,13 @@ import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 
 class HandicapTablesScreen : ActionBarHelp {
 
-    private val helpInfo = ComposeHelpShowcaseMap()
-
     @Composable
     fun ComposeContent(
             state: HandicapTablesState,
             listener: (HandicapTablesIntent) -> Unit,
     ) {
-        helpInfo.HelpInfo(state.inputHandicap)
+        val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+        HelpInfo(state.inputHandicap, helpListener)
 
         Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
@@ -57,7 +56,10 @@ class HandicapTablesScreen : ActionBarHelp {
                         checked = state.use2023Tables,
                         onToggle = { listener(ToggleHandicapSystem) },
                         modifier = Modifier
-                                .updateHelpDialogPosition(helpInfo, R.string.help_handicap_tables__2023_system_title)
+                                .updateHelpDialogPosition(
+                                        helpListener,
+                                        R.string.help_handicap_tables__2023_system_title
+                                )
                 )
             }
 
@@ -66,7 +68,7 @@ class HandicapTablesScreen : ActionBarHelp {
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                     modifier = Modifier
                             .clickable { listener(ToggleInput) }
-                            .updateHelpDialogPosition(helpInfo, R.string.help_handicap_tables__input_type_title)
+                            .updateHelpDialogPosition(helpListener, R.string.help_handicap_tables__input_type_title)
             ) {
                 @Composable
                 fun getStyle(isEnabled: Boolean) =
@@ -100,7 +102,7 @@ class HandicapTablesScreen : ActionBarHelp {
                         testTag = "",
                         onValueChanged = { listener(InputChanged(it)) },
                         modifier = Modifier
-                                .updateHelpDialogPosition(helpInfo, R.string.help_handicap_tables__input_title)
+                                .updateHelpDialogPosition(helpListener, R.string.help_handicap_tables__input_title)
                 )
             }
 
@@ -122,7 +124,7 @@ class HandicapTablesScreen : ActionBarHelp {
                             selectedSubtypeId = state.subType ?: 1,
                             rounds = state.allRounds,
                             filters = state.roundFilters,
-                            helpInfo = helpInfo,
+                            helpListener = helpListener,
                             listener = { listener(SelectRoundDialogAction(it)) },
                     )
                 }
@@ -133,48 +135,63 @@ class HandicapTablesScreen : ActionBarHelp {
                     color = CodexTheme.colors.listItemOnAppBackground,
                     modifier = Modifier.padding(20.dp)
             ) {
-                Table(state.handicaps, state.highlightedHandicap)
+                Table(state.handicaps, state.highlightedHandicap, helpListener)
             }
         }
     }
 
     @Composable
-    private fun ComposeHelpShowcaseMap.HelpInfo(inputHandicap: Boolean) {
-        add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_handicap_tables__2023_system_title,
-                        helpBody = R.string.help_handicap_tables__2023_system_body,
+    private fun HelpInfo(
+            inputHandicap: Boolean,
+            helpListener: (HelpShowcaseIntent) -> Unit,
+    ) {
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_handicap_tables__2023_system_title,
+                                helpBody = R.string.help_handicap_tables__2023_system_body,
+                        ),
                 )
         )
 
-        add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_handicap_tables__input_type_title,
-                        helpBody = (
-                                if (inputHandicap) R.string.help_handicap_tables__input_type_body_handicap
-                                else R.string.help_handicap_tables__input_type_body_score
-                                ),
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_handicap_tables__input_type_title,
+                                helpBody = (
+                                        if (inputHandicap) R.string.help_handicap_tables__input_type_body_handicap
+                                        else R.string.help_handicap_tables__input_type_body_score
+                                        ),
+                        ),
                 )
         )
-        add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_handicap_tables__input_title,
-                        helpBody = (
-                                if (inputHandicap) R.string.help_handicap_tables__input_body_handicap
-                                else R.string.help_handicap_tables__input_body_score
-                                ),
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_handicap_tables__input_title,
+                                helpBody = (
+                                        if (inputHandicap) R.string.help_handicap_tables__input_body_handicap
+                                        else R.string.help_handicap_tables__input_body_score
+                                        ),
+                        ),
                 )
         )
-        add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_handicap_tables__table_title,
-                        helpBody = R.string.help_handicap_tables__table_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_handicap_tables__table_title,
+                                helpBody = R.string.help_handicap_tables__table_body,
+                        ),
                 )
         )
     }
 
     @Composable
-    private fun Table(handicaps: List<HandicapScore>, highlighted: HandicapScore?) {
+    private fun Table(
+            handicaps: List<HandicapScore>,
+            highlighted: HandicapScore?,
+            helpListener: (HelpShowcaseIntent) -> Unit,
+    ) {
         ProvideTextStyle(value = CodexTypography.NORMAL) {
             Column(
                     verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
@@ -208,7 +225,7 @@ class HandicapTablesScreen : ActionBarHelp {
                                                 modifier = Modifier
                                                         .background(CodexTheme.colors.appBackground)
                                                         .updateHelpDialogPosition(
-                                                                helpInfo,
+                                                                helpListener,
                                                                 R.string.help_handicap_tables__table_title
                                                         )
                                         )
@@ -231,15 +248,12 @@ class HandicapTablesScreen : ActionBarHelp {
                     Text(
                             text = stringResource(R.string.handicap_tables__no_tables),
                             modifier = Modifier
-                                    .updateHelpDialogPosition(helpInfo, R.string.help_handicap_tables__table_title)
+                                    .updateHelpDialogPosition(helpListener, R.string.help_handicap_tables__table_title)
                     )
                 }
             }
         }
     }
-
-    override fun getHelpShowcases() = helpInfo.getItems()
-    override fun getHelpPriority(): Int? = null
 
     object TestTag {
     }

@@ -10,8 +10,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
@@ -26,7 +26,7 @@ fun ArrowInputsScaffold(
         showResetButton: Boolean,
         contentText: String,
         submitButtonText: String = stringResource(R.string.general_complete),
-        helpInfo: ComposeHelpShowcaseMap,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         cancelHelpInfoTitle: String? = null,
         cancelHelpInfoBody: String? = null,
         submitHelpInfoTitle: String,
@@ -37,7 +37,7 @@ fun ArrowInputsScaffold(
         showCancelButton = showCancelButton,
         showResetButton = showResetButton,
         submitButtonText = submitButtonText,
-        helpInfo = helpInfo,
+        helpListener = helpListener,
         cancelHelpInfoTitle = cancelHelpInfoTitle,
         cancelHelpInfoBody = cancelHelpInfoBody,
         submitHelpInfoTitle = submitHelpInfoTitle,
@@ -58,7 +58,7 @@ fun ArrowInputsScaffold(
         showCancelButton: Boolean,
         showResetButton: Boolean,
         submitButtonText: String = stringResource(R.string.general_complete),
-        helpInfo: ComposeHelpShowcaseMap,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         cancelHelpInfoTitle: String? = null,
         cancelHelpInfoBody: String? = null,
         submitHelpInfoTitle: String,
@@ -77,16 +77,18 @@ fun ArrowInputsScaffold(
         content()
         Spacer(modifier = Modifier.weight(1f))
 
-        ArrowInputs(state, showResetButton, helpInfo, listener)
+        ArrowInputs(state, showResetButton, helpListener, listener)
 
         Row(
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (showCancelButton) {
-                helpInfo.add(
-                        ComposeHelpShowcaseItem(
-                                helpTitle = cancelHelpInfoTitle!!,
-                                helpBody = cancelHelpInfoBody!!,
+                helpListener(
+                        HelpShowcaseIntent.Add(
+                                HelpShowcaseItem(
+                                        helpTitle = cancelHelpInfoTitle!!,
+                                        helpBody = cancelHelpInfoBody!!,
+                                )
                         )
                 )
                 CodexButton(
@@ -95,14 +97,16 @@ fun ArrowInputsScaffold(
                         onClick = { listener(ArcherRoundIntent.ScreenCancelClicked) },
                         modifier = Modifier
                                 .testTag(ArrowInputsTestTag.CANCEL_BUTTON)
-                                .updateHelpDialogPosition(helpInfo, cancelHelpInfoTitle)
+                                .updateHelpDialogPosition(helpListener, cancelHelpInfoTitle)
                 )
             }
 
-            helpInfo.add(
-                    ComposeHelpShowcaseItem(
-                            helpTitle = submitHelpInfoTitle,
-                            helpBody = submitHelpInfoBody,
+            helpListener(
+                    HelpShowcaseIntent.Add(
+                            HelpShowcaseItem(
+                                    helpTitle = submitHelpInfoTitle,
+                                    helpBody = submitHelpInfoBody,
+                            )
                     )
             )
             CodexButton(
@@ -111,7 +115,7 @@ fun ArrowInputsScaffold(
                     onClick = { listener(ArcherRoundIntent.ScreenSubmitClicked) },
                     modifier = Modifier
                             .testTag(ArrowInputsTestTag.SUBMIT_BUTTON)
-                            .updateHelpDialogPosition(helpInfo, submitHelpInfoTitle)
+                            .updateHelpDialogPosition(helpListener, submitHelpInfoTitle)
             )
         }
     }

@@ -9,22 +9,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 
 @Composable
 fun DataRow(
         @StringRes title: Int,
         text: String,
-        helpInfo: ComposeHelpShowcaseMap? = null,
+        helpListener: ((HelpShowcaseIntent) -> Unit)? = null,
         @StringRes helpTitle: Int? = null,
         @StringRes helpBody: Int? = null,
         modifier: Modifier = Modifier,
         textModifier: Modifier = Modifier,
 ) = DataRow(
         title = title,
-        helpInfo = helpInfo,
+        helpListener = helpListener,
         helpTitle = helpTitle,
         helpBody = helpBody,
         modifier = modifier,
@@ -38,18 +38,18 @@ fun DataRow(
 @Composable
 fun DataRow(
         @StringRes title: Int,
-        helpInfo: ComposeHelpShowcaseMap? = null,
+        helpListener: ((HelpShowcaseIntent) -> Unit)? = null,
         @StringRes helpTitle: Int? = null,
         @StringRes helpBody: Int? = null,
         modifier: Modifier = Modifier,
         content: @Composable () -> Unit,
 ) {
-    require(helpTitle == null || (helpBody != null || helpInfo == null)) { "If a title is given, a map and body must be given too" }
+    require(helpTitle == null || (helpBody != null || helpListener == null)) { "If a title is given, a map and body must be given too" }
     var rowModifier = modifier
 
     if (helpTitle != null) {
-        helpInfo!!.add(ComposeHelpShowcaseItem(helpTitle = helpTitle, helpBody = helpBody!!))
-        rowModifier = rowModifier.then(Modifier.updateHelpDialogPosition(helpInfo, helpTitle))
+        helpListener!!(HelpShowcaseIntent.Add(HelpShowcaseItem(helpTitle = helpTitle, helpBody = helpBody!!)))
+        rowModifier = rowModifier.then(Modifier.updateHelpDialogPosition(helpListener!!, helpTitle))
     }
 
     Row(

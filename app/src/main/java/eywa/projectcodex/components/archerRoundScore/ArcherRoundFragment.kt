@@ -74,7 +74,4 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backButtonCallback)
     }
-
-    override fun getHelpShowcases() = screen.getHelpShowcases()
-    override fun getHelpPriority() = screen.getHelpPriority()
 }

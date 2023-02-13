@@ -26,8 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -36,8 +36,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
 
 class EmailScoresScreen : ActionBarHelp {
-    private val helpInfo = ComposeHelpShowcaseMap()
-
     @Composable
     fun ComposeContent(
             error: EmailScoresError?,
@@ -50,6 +48,7 @@ class EmailScoresScreen : ActionBarHelp {
             distanceTotalsSheetState: CodexChipState,
             onSubmit: () -> Unit,
             onErrorOkClicked: () -> Unit,
+            helpListener: (HelpShowcaseIntent) -> Unit,
     ) {
         @Composable
         fun stringOrEmptyString(@StringRes id: Int?) = id?.let { stringResource(id) } ?: ""
@@ -65,7 +64,7 @@ class EmailScoresScreen : ActionBarHelp {
             )
         }
 
-        HelpDialogs()
+        HelpDialogs(helpListener)
         Box(
                 contentAlignment = Alignment.BottomEnd,
                 modifier = Modifier.fillMaxSize()
@@ -80,7 +79,7 @@ class EmailScoresScreen : ActionBarHelp {
                             .padding(15.dp)
             ) {
                 RoundedSurface(
-                        modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_email_scores__to_title)
+                        modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_email_scores__to_title)
                 ) {
                     CodexTextField(
                             state = toState,
@@ -94,7 +93,7 @@ class EmailScoresScreen : ActionBarHelp {
                 }
                 RoundedSurface(
                         modifier = Modifier.updateHelpDialogPosition(
-                                helpInfo,
+                                helpListener,
                                 R.string.help_email_scores__subject_title
                         )
                 ) {
@@ -123,7 +122,7 @@ class EmailScoresScreen : ActionBarHelp {
                             text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),
                             state = fullScoreSheetState,
                             modifier = Modifier.updateHelpDialogPosition(
-                                    helpInfo,
+                                    helpListener,
                                     R.string.help_email_scores__full_score_sheet_attachment_title
                             )
                     )
@@ -131,7 +130,7 @@ class EmailScoresScreen : ActionBarHelp {
                             text = stringResource(id = R.string.email_scores__full_score_sheet_with_distance_totals),
                             state = distanceTotalsSheetState,
                             modifier = Modifier.updateHelpDialogPosition(
-                                    helpInfo,
+                                    helpListener,
                                     R.string.help_email_scores__include_distance_totals_title
                             )
                     )
@@ -148,7 +147,7 @@ class EmailScoresScreen : ActionBarHelp {
                                 modifier = Modifier
                                         .fillMaxWidth()
                                         .updateHelpDialogPosition(
-                                                helpInfo,
+                                                helpListener,
                                                 R.string.help_email_scores__message_start_title
                                         )
                         )
@@ -156,7 +155,10 @@ class EmailScoresScreen : ActionBarHelp {
                                 color = CodexTheme.colors.disabledOnSurfaceOnBackground,
                                 modifier = Modifier
                                         .padding(horizontal = 5.dp)
-                                        .updateHelpDialogPosition(helpInfo, R.string.help_email_scores__scores_title)
+                                        .updateHelpDialogPosition(
+                                                helpListener,
+                                                R.string.help_email_scores__scores_title
+                                        )
                         ) {
                             Text(
                                     text = messageScoreText,
@@ -174,7 +176,7 @@ class EmailScoresScreen : ActionBarHelp {
                                 modifier = Modifier
                                         .fillMaxWidth()
                                         .updateHelpDialogPosition(
-                                                helpInfo,
+                                                helpListener,
                                                 R.string.help_email_scores__message_end_title
                                         )
                         )
@@ -187,7 +189,7 @@ class EmailScoresScreen : ActionBarHelp {
                     onClick = onSubmit,
                     modifier = Modifier
                             .padding(30.dp)
-                            .updateHelpDialogPosition(helpInfo, R.string.help_email_scores__send_title)
+                            .updateHelpDialogPosition(helpListener, R.string.help_email_scores__send_title)
                             .testTag(TestTag.SEND_BUTTON)
             ) {
                 Icon(
@@ -199,53 +201,71 @@ class EmailScoresScreen : ActionBarHelp {
     }
 
     @Composable
-    private fun HelpDialogs() {
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__to_title,
-                        helpBody = R.string.help_email_scores__to_body,
+    private fun HelpDialogs(
+            helpListener: (HelpShowcaseIntent) -> Unit,
+    ) {
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__to_title,
+                                helpBody = R.string.help_email_scores__to_body,
+                        ),
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__subject_title,
-                        helpBody = R.string.help_email_scores__subject_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__subject_title,
+                                helpBody = R.string.help_email_scores__subject_body,
+                        ),
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__message_start_title,
-                        helpBody = R.string.help_email_scores__message_start_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__message_start_title,
+                                helpBody = R.string.help_email_scores__message_start_body,
+                        ),
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__scores_title,
-                        helpBody = R.string.help_email_scores__scores_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__scores_title,
+                                helpBody = R.string.help_email_scores__scores_body,
+                        ),
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__message_end_title,
-                        helpBody = R.string.help_email_scores__message_end_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__message_end_title,
+                                helpBody = R.string.help_email_scores__message_end_body,
+                        ),
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__full_score_sheet_attachment_title,
-                        helpBody = R.string.help_email_scores__full_score_sheet_attachment_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__full_score_sheet_attachment_title,
+                                helpBody = R.string.help_email_scores__full_score_sheet_attachment_body,
+                        ),
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__include_distance_totals_title,
-                        helpBody = R.string.help_email_scores__include_distance_totals_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__include_distance_totals_title,
+                                helpBody = R.string.help_email_scores__include_distance_totals_body,
+                        ),
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_email_scores__send_title,
-                        helpBody = R.string.help_email_scores__send_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_email_scores__send_title,
+                                helpBody = R.string.help_email_scores__send_body,
+                        ),
                 )
         )
     }
@@ -261,9 +281,6 @@ class EmailScoresScreen : ActionBarHelp {
             content = content,
             modifier = modifier,
     )
-
-    override fun getHelpShowcases() = helpInfo.getItems()
-    override fun getHelpPriority(): Int? = null
 
     object TestTag {
         private const val prefix = "EMAIL_SCORE_"
@@ -319,6 +336,7 @@ class EmailScoresScreen : ActionBarHelp {
                     ),
                     onSubmit = {},
                     onErrorOkClicked = {},
+                    helpListener = {},
             )
         }
     }

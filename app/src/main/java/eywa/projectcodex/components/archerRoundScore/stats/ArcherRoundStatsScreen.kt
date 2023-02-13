@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -41,10 +40,6 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
     ) {
         ScreenContent(state)
     }
-
-    override fun getHelpShowcases() = emptyList<ComposeHelpShowcaseItem>()
-
-    override fun getHelpPriority(): Int? = null
 
     @Composable
     private fun ScreenContent(
@@ -79,8 +74,10 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                 Section {
                     DataRow(
                             title = R.string.archer_round_stats__hits,
-                            text = if (hits == arrowsShot) hits.toString()
-                            else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot),
+                            text = (
+                                    if (hits == arrowsShot) hits.toString()
+                                    else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot)
+                                    ),
                             textModifier = Modifier.testTag(TestTag.HITS_TEXT),
                     )
                     DataRow(

@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
+import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
@@ -24,7 +26,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ArcherRoundViewModel @Inject constructor(
-        val db: ScoresRoomDatabase
+        val db: ScoresRoomDatabase,
+        private val helpShowcase: HelpShowcase,
 ) : ViewModel() {
     var state: ArcherRoundState by mutableStateOf(Loading())
         private set
@@ -37,7 +40,6 @@ class ArcherRoundViewModel @Inject constructor(
 
     fun handle(action: ArcherRoundIntent) {
         if (state is Loading && action !is Initialise) throw IllegalStateException()
-        if (state is Loaded && action is Initialise) throw IllegalStateException()
 
         when (action) {
             is Initialise -> loadArcherRoundData(action)
@@ -49,10 +51,14 @@ class ArcherRoundViewModel @Inject constructor(
                     state = s.copy(displayCannotInputEndDialog = true)
                 }
                 else {
+                    helpShowcase.handle(HelpShowcaseIntent.Clear)
                     state = s.copy(currentScreen = action.screen)
                 }
             }
-            ScreenCancelClicked -> state = (state as Loaded).copy(currentScreen = SCORE_PAD, scorePadSelectedEnd = null)
+            ScreenCancelClicked -> {
+                helpShowcase.handle(HelpShowcaseIntent.Clear)
+                state = (state as Loaded).copy(currentScreen = SCORE_PAD, scorePadSelectedEnd = null)
+            }
             ScreenSubmitClicked -> (state as Loaded).let { state ->
                 when (state.currentScreen) {
                     INPUT_END -> state.commitNewEndToDb()
@@ -64,11 +70,16 @@ class ArcherRoundViewModel @Inject constructor(
             is ArrowInputsIntent -> handleArrowInputIntent(action)
             is ScorePadIntent -> handleScorePadIntent(action)
             is SettingsIntent -> handleSettingsIntent(action)
-            RoundCompleteDialogOkClicked ->
+            RoundCompleteDialogOkClicked -> {
+                helpShowcase.handle(HelpShowcaseIntent.Clear)
                 state = (state as Loaded).copy(currentScreen = STATS, displayRoundCompletedDialog = false)
+            }
             CannotInputEndDialogOkClicked ->
                 state = (state as Loaded).copy(displayCannotInputEndDialog = false)
-            NoArrowsDialogOkClicked -> state = (state as Loaded).copy(currentScreen = INPUT_END)
+            NoArrowsDialogOkClicked -> {
+                helpShowcase.handle(HelpShowcaseIntent.Clear)
+                state = (state as Loaded).copy(currentScreen = INPUT_END)
+            }
             DeleteEndDialogCancelClicked ->
                 state = (state as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
             DeleteEndDialogOkClicked -> viewModelScope.launch {
@@ -81,6 +92,7 @@ class ArcherRoundViewModel @Inject constructor(
                     state = it.copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
                 }
             }
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
         }
     }
 
@@ -93,8 +105,11 @@ class ArcherRoundViewModel @Inject constructor(
             else -> Loaded(currentScreen, fullArcherRoundInfo)
         }
 
-        check(action.screen.isMainScreen) { "Must navigate to a main screen" }
-        state = (state as Loading).copy(currentScreen = action.screen).tryToMoveFromLoading()
+        if (state is Loading) {
+            check(action.screen.isMainScreen) { "Must navigate to a main screen" }
+            helpShowcase.handle(HelpShowcaseIntent.Clear)
+            state = (state as Loading).copy(currentScreen = action.screen).tryToMoveFromLoading()
+        }
 
         viewModelScope.launch {
             ArcherRoundsRepo(db.archerRoundDao())
@@ -157,6 +172,7 @@ class ArcherRoundViewModel @Inject constructor(
             }
 
             arrowValuesRepo.update(*arrows.toTypedArray())
+            helpShowcase.handle(HelpShowcaseIntent.Clear)
             state = copy(currentScreen = SCORE_PAD, scorePadSelectedEnd = null)
         }
     }
@@ -172,6 +188,7 @@ class ArcherRoundViewModel @Inject constructor(
 
         viewModelScope.launch {
             arrowValuesRepo.insertEnd(fullArcherRoundInfo.arrows!!, arrows)
+            helpShowcase.handle(HelpShowcaseIntent.Clear)
             state = copy(currentScreen = SCORE_PAD, scorePadSelectedEnd = null)
         }
     }
@@ -199,6 +216,7 @@ class ArcherRoundViewModel @Inject constructor(
             }
             ArrowInputsIntent.ClearArrowsInputted -> state = (state as Loaded).copy(newInputArrows = listOf())
             ArrowInputsIntent.ResetArrowsInputted -> state = (state as Loaded).setupArrowInputsOnEditScreen()
+            is ArrowInputsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
         }
     }
 
@@ -220,15 +238,21 @@ class ArcherRoundViewModel @Inject constructor(
         when (action) {
             ScorePadIntent.CloseDropdownMenu -> state = (state as Loaded).copy(scorePadSelectedEnd = null)
             ScorePadIntent.DeleteEndClicked -> state = (state as Loaded).copy(displayDeleteEndConfirmationDialog = true)
-            ScorePadIntent.EditEndClicked -> state = (state as Loaded)
-                    .copy(currentScreen = EDIT_END)
-                    .setupArrowInputsOnEditScreen()
-            ScorePadIntent.InsertEndClicked -> state = (state as Loaded)
-                    .copy(currentScreen = INSERT_END, subScreenInputArrows = listOf())
+            ScorePadIntent.EditEndClicked -> {
+                helpShowcase.handle(HelpShowcaseIntent.Clear)
+                state = (state as Loaded)
+                        .copy(currentScreen = EDIT_END)
+                        .setupArrowInputsOnEditScreen()
+            }
+            ScorePadIntent.InsertEndClicked -> {
+                helpShowcase.handle(HelpShowcaseIntent.Clear)
+                state = (state as Loaded).copy(currentScreen = INSERT_END, subScreenInputArrows = listOf())
+            }
             is ScorePadIntent.RowClicked ->
                 state = (state as Loaded).copy(scorePadSelectedEnd = action.endNumber)
             is ScorePadIntent.RowLongClicked ->
                 state = (state as Loaded).copy(scorePadSelectedEnd = action.endNumber)
+            is ScorePadIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
         }
     }
 
@@ -238,6 +262,7 @@ class ArcherRoundViewModel @Inject constructor(
         when (action) {
             is SettingsIntent.InputEndSizeChanged -> state = (state as Loaded).copy(inputEndSize = action.endSize)
             is SettingsIntent.ScorePadEndSizeChanged -> state = (state as Loaded).copy(scorePadEndSize = action.endSize)
+            is SettingsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
         }
     }
 }

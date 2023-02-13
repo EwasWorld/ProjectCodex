@@ -5,12 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class EmailScoresViewModel : ViewModel() {
+@HiltViewModel
+class EmailScoresViewModel @Inject constructor(
+        private val helpShowcase: HelpShowcase,
+) : ViewModel() {
     var state by mutableStateOf(EmailScoresState())
         private set
 
@@ -47,6 +53,7 @@ class EmailScoresViewModel : ViewModel() {
                 state = state.copy(error = null)
             }
             is EmailScoresIntent.OpenError -> state = state.copy(error = action.error)
+            is EmailScoresIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, EmailScoresFragment::class)
         }
     }
 }

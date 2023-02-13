@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
@@ -14,7 +13,6 @@ import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaf
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
 class InsertEndScreen : ArcherRoundSubScreen() {
-    private val helpInfo = ComposeHelpShowcaseMap()
 
     @Composable
     override fun ComposeContent(
@@ -23,10 +21,6 @@ class InsertEndScreen : ArcherRoundSubScreen() {
     ) {
         ScreenContent(state, listener)
     }
-
-    override fun getHelpShowcases() = helpInfo.getItems()
-
-    override fun getHelpPriority(): Int? = null
 
     @Composable
     private fun ScreenContent(
@@ -47,7 +41,7 @@ class InsertEndScreen : ArcherRoundSubScreen() {
                 showCancelButton = true,
                 showResetButton = false,
                 contentText = insertLocationString,
-                helpInfo = helpInfo,
+                helpListener = { listener(ArcherRoundIntent.HelpShowcaseAction(it)) },
                 submitHelpInfoTitle = stringResource(R.string.help_edit_end__complete_title),
                 submitHelpInfoBody = stringResource(R.string.help_edit_end__complete_body),
                 cancelHelpInfoTitle = stringResource(R.string.help_edit_end__cancel_title),

@@ -23,8 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
@@ -74,15 +74,13 @@ fun ColumnHeader.getHelpBody(goldsType: GoldsType) =
         }
 
 class ScorePadScreen : ArcherRoundSubScreen() {
-    private val helpInfo = ComposeHelpShowcaseMap().apply {
-        // TODO Implement no shape help info
+    // TODO Implement no shape help info
 //        add(
 //                ComposeHelpShowcaseItem(
 //                        helpTitle = R.string.help_score_pad__main_title,
 //                        helpBody = R.string.help_score_pad__main_body,
 //                )
 //        )
-    }
 
     @Composable
     override fun ComposeContent(
@@ -92,15 +90,13 @@ class ScorePadScreen : ArcherRoundSubScreen() {
         ScreenContent(state, listener)
     }
 
-    override fun getHelpShowcases() = helpInfo.getItems()
-
-    override fun getHelpPriority(): Int? = null
-
     @Composable
     private fun ScreenContent(
             state: ScorePadState,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
+        val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
         SimpleDialog(
                 isShown = state.scorePadData.isNullOrEmpty(),
                 onDismissListener = { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) },
@@ -163,10 +159,12 @@ class ScorePadScreen : ArcherRoundSubScreen() {
             }
 
             COLUMN_HEADER_ORDER.forEach { columnHeader ->
-                helpInfo.add(
-                        ComposeHelpShowcaseItem(
-                                helpTitle = columnHeader.getHelpTitle(),
-                                helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
+                helpListener(
+                        HelpShowcaseIntent.Add(
+                                HelpShowcaseItem(
+                                        helpTitle = columnHeader.getHelpTitle(),
+                                        helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
+                                )
                         )
                 )
 
@@ -178,7 +176,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
                             text = stringResource(columnHeader.getShortResourceId(state.scorePadData.goldsType)),
                             columnType = columnHeader,
                             listener = listener,
-                            modifier = Modifier.updateHelpDialogPosition(helpInfo, columnHeader.getHelpTitle())
+                            modifier = Modifier.updateHelpDialogPosition(helpListener, columnHeader.getHelpTitle())
                     )
 
                     state.scorePadData.data.forEach { rowData ->

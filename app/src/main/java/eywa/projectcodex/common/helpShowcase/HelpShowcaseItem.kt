@@ -1,9 +1,11 @@
 package eywa.projectcodex.common.helpShowcase
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcase
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseState
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.get
@@ -11,13 +13,13 @@ import eywa.projectcodex.common.utils.get
 /**
  * @param priority Lower number = higher priority
  */
-class ComposeHelpShowcaseItem(
-        var helpTitle: ResOrActual<String>,
-        private var helpBody: ResOrActual<String>,
-        private var shapePadding: Dp? = null,
-        var priority: Int? = DEFAULT_HELP_PRIORITY,
+data class HelpShowcaseItem(
+        val helpTitle: ResOrActual<String>,
+        private val helpBody: ResOrActual<String>,
+        private val shapePadding: Dp? = null,
+        val priority: Int? = DEFAULT_HELP_PRIORITY,
+        val layoutCoordinates: LayoutCoordinates? = null
 ) {
-    private var layoutCoordinates: LayoutCoordinates? = null
 
     constructor(
             helpTitle: Int,
@@ -44,28 +46,31 @@ class ComposeHelpShowcaseItem(
     )
 
     @Composable
-    fun asState(
+    fun Showcase(
             hasNextItem: Boolean,
             goToNextItemListener: () -> Unit,
             endShowcaseListener: () -> Unit,
             screenHeight: Float,
             screenWidth: Float,
-    ) = ComposeHelpShowcaseState.from(
-            title = helpTitle.get(),
-            message = helpBody.get(),
-            hasNextItem = hasNextItem,
-            viewInfo = layoutCoordinates!!,
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
-            padding = shapePadding ?: ComposeHelpShowcaseState.DEFAULT_PADDING,
-            density = LocalDensity.current,
-            closeButtonListener = endShowcaseListener,
-            nextButtonListener = goToNextItemListener,
-            overlayClickedListener = goToNextItemListener
-    )
-
-    fun updateLayoutCoordinates(layoutCoordinates: LayoutCoordinates) {
-        this.layoutCoordinates = layoutCoordinates
+            @FloatRange(from = 0.0, to = 1.0) animationState: Float = 1f,
+    ) {
+        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return
+        ComposeHelpShowcase(
+                ComposeHelpShowcaseState.from(
+                        title = helpTitle.get(),
+                        message = helpBody.get(),
+                        hasNextItem = hasNextItem,
+                        viewInfo = layoutCoordinates,
+                        screenHeight = screenHeight,
+                        screenWidth = screenWidth,
+                        padding = shapePadding ?: ComposeHelpShowcaseState.DEFAULT_PADDING,
+                        density = LocalDensity.current,
+                        closeButtonListener = endShowcaseListener,
+                        nextButtonListener = goToNextItemListener,
+                        overlayClickedListener = goToNextItemListener
+                ),
+                animationState = animationState
+        )
     }
 
     /**

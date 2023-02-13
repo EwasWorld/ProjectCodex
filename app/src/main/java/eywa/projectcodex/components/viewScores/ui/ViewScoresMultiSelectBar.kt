@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseListener
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -54,7 +54,7 @@ internal fun ViewScoresMultiSelectBar(
             modifier: Modifier = Modifier,
     ) {
         listener.addHelpShowcase(
-                ComposeHelpShowcaseItem(
+                HelpShowcaseItem(
                         helpTitle = helpTitle,
                         helpBody = helpBody,
                         priority = ViewScoresScreen.HelpItemPriority.MULTI_SELECT.ordinal
@@ -137,7 +137,7 @@ internal fun ViewScoresMultiSelectBar(
 }
 
 private val listenersForPreviews = object : MultiSelectBarListener {
-    override fun addHelpShowcase(item: ComposeHelpShowcaseItem) {}
+    override fun addHelpShowcase(item: HelpShowcaseItem) {}
     override fun updateHelpDialogPosition(helpTitle: Int, layoutCoordinates: LayoutCoordinates) {}
     override fun selectAllOrNoneClicked() {}
     override fun multiSelectEmailClicked() {}

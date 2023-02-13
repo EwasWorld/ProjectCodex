@@ -2,7 +2,6 @@ package eywa.projectcodex.components.newScore
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,12 +20,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
+import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -42,15 +41,14 @@ import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import java.util.*
 
 
-class NewScoreScreen : ActionBarHelp {
-    private val helpInfo = ComposeHelpShowcaseMap()
-
+class NewScoreScreen {
     @Composable
     fun ComposeContent(
             state: NewScoreState,
             listener: (NewScoreIntent) -> Unit,
     ) {
-        helpInfo.clear()
+        val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+        helpListener(HelpShowcaseIntent.Clear)
 
         Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
@@ -74,7 +72,7 @@ class NewScoreScreen : ActionBarHelp {
                 )
                 DataRow(
                         title = R.string.create_round__default_rounds_updating_warning_status,
-                        extraText = state.updateDefaultRoundsState.asDisplayString(LocalContext.current.resources),
+                        text = state.updateDefaultRoundsState.asDisplayString(LocalContext.current.resources),
                 )
             }
             else {
@@ -90,7 +88,7 @@ class NewScoreScreen : ActionBarHelp {
                         roundSubtypeDistances = state.roundSubtypeDistances,
                         distanceUnit = state.distanceUnitStringRes?.let { stringResource(it) },
                         getDistance = { state.getFurthestDistance(it).distance },
-                        helpInfo = helpInfo,
+                        helpListener = helpListener,
                         listener = { listener(SelectRoundDialogAction(it)) },
                 )
             }
@@ -103,10 +101,13 @@ class NewScoreScreen : ActionBarHelp {
     private fun NewScoreEndRows(
             listener: (NewScoreIntent) -> Unit,
     ) {
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_create_round__new_submit_title,
-                        helpBody = R.string.help_create_round__new_submit_body,
+        val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_create_round__new_submit_title,
+                                helpBody = R.string.help_create_round__new_submit_body,
+                        )
                 )
         )
 
@@ -116,7 +117,7 @@ class NewScoreScreen : ActionBarHelp {
                 onClick = { listener(Submit) },
                 modifier = Modifier
                         .padding(top = 10.dp)
-                        .updateHelpDialogPosition(helpInfo, R.string.help_create_round__new_submit_title)
+                        .updateHelpDialogPosition(helpListener, R.string.help_create_round__new_submit_title)
                         .testTag(TestTag.SUBMIT_BUTTON)
         )
     }
@@ -126,22 +127,29 @@ class NewScoreScreen : ActionBarHelp {
             state: NewScoreState,
             listener: (NewScoreIntent) -> Unit,
     ) {
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_create_round__edit_cancel_title,
-                        helpBody = R.string.help_create_round__edit_cancel_body,
+        val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_create_round__edit_cancel_title,
+                                helpBody = R.string.help_create_round__edit_cancel_body,
+                        )
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_create_round__edit_reset_title,
-                        helpBody = R.string.help_create_round__edit_reset_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_create_round__edit_reset_title,
+                                helpBody = R.string.help_create_round__edit_reset_body,
+                        )
                 )
         )
-        helpInfo.add(
-                ComposeHelpShowcaseItem(
-                        helpTitle = R.string.help_create_round__edit_submit_title,
-                        helpBody = R.string.help_create_round__edit_submit_body,
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = R.string.help_create_round__edit_submit_title,
+                                helpBody = R.string.help_create_round__edit_submit_body,
+                        )
                 )
         )
 
@@ -174,7 +182,7 @@ class NewScoreScreen : ActionBarHelp {
                     onClick = { listener(CancelEditInfo) },
                     modifier = Modifier
                             .updateHelpDialogPosition(
-                                    helpInfo, R.string.help_create_round__edit_cancel_title
+                                    helpListener, R.string.help_create_round__edit_cancel_title
                             )
                             .testTag(TestTag.CANCEL_BUTTON)
             )
@@ -184,7 +192,7 @@ class NewScoreScreen : ActionBarHelp {
                     onClick = { listener(ResetEditInfo) },
                     modifier = Modifier
                             .updateHelpDialogPosition(
-                                    helpInfo, R.string.help_create_round__edit_reset_title
+                                    helpListener, R.string.help_create_round__edit_reset_title
                             )
                             .testTag(TestTag.RESET_BUTTON)
             )
@@ -196,7 +204,7 @@ class NewScoreScreen : ActionBarHelp {
                 onClick = { listener(Submit) },
                 modifier = Modifier
                         .updateHelpDialogPosition(
-                                helpInfo, R.string.help_create_round__edit_submit_title
+                                helpListener, R.string.help_create_round__edit_submit_title
                         )
                         .testTag(TestTag.SUBMIT_BUTTON)
         )
@@ -235,6 +243,7 @@ class NewScoreScreen : ActionBarHelp {
                 title = R.string.create_round__date,
                 helpTitle = R.string.help_create_round__date_title,
                 helpBody = R.string.help_create_round__date_body,
+                helpListener = { listener(HelpShowcaseAction(it)) },
         ) {
             Text(
                     text = DateTimeFormat.TIME_24_HOUR.format(state.dateShot),
@@ -252,47 +261,6 @@ class NewScoreScreen : ActionBarHelp {
             )
         }
     }
-
-    @Composable
-    private fun DataRow(
-            @StringRes title: Int,
-            @StringRes helpTitle: Int? = null,
-            @StringRes helpBody: Int? = null,
-            modifier: Modifier = Modifier,
-            extraText: String? = null,
-            content: (@Composable RowScope.() -> Unit)? = null
-    ) {
-        require(helpTitle == null || helpBody != null) { "If a title is given, a body must be given too" }
-        val style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)
-        var rowModifier = modifier
-
-        if (helpTitle != null) {
-            helpInfo.add(ComposeHelpShowcaseItem(helpTitle = helpTitle, helpBody = helpBody!!))
-            rowModifier = rowModifier.then(Modifier.updateHelpDialogPosition(helpInfo, helpTitle))
-        }
-
-        Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = rowModifier
-        ) {
-            Text(
-                    text = stringResource(title),
-                    style = style.copy(textAlign = TextAlign.End),
-            )
-            extraText?.let {
-                Text(
-                        text = extraText,
-                        style = style.copy(textAlign = TextAlign.Start),
-                )
-            }
-            content?.invoke(this)
-        }
-    }
-
-
-    override fun getHelpShowcases() = helpInfo.getItems()
-    override fun getHelpPriority(): Int? = null
 
     object TestTag {
         private const val PREFIX = "NEW_SCORE_"

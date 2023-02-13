@@ -8,15 +8,19 @@ import androidx.activity.addCallback
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import kotlin.system.exitProcess
 
+@AndroidEntryPoint
 class MainMenuFragment : Fragment(), ActionBarHelp {
     private var isAlertDialogShown = mutableStateOf(false)
     private var mainMenuScreen = MainMenuScreen()
+    private val viewModel: MainMenuViewModel by viewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
@@ -46,6 +50,7 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
                                         MainMenuFragmentDirections.actionMainMenuFragmentToHandicapTablesFragment()
                                 )
                             },
+                            helpListener = { viewModel.handle(it) }
                     )
                 }
             }
@@ -61,7 +66,4 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
             isAlertDialogShown.value = !(isAlertDialogShown.value)
         }.isEnabled = true
     }
-
-    override fun getHelpShowcases() = mainMenuScreen.getHelpShowcases()
-    override fun getHelpPriority() = mainMenuScreen.getHelpPriority()
 }

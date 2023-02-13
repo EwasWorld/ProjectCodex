@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore
 
 import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 
 sealed class ArcherRoundIntent {
@@ -11,6 +12,8 @@ sealed class ArcherRoundIntent {
         object ResetArrowsInputted : ArrowInputsIntent()
         object ClearArrowsInputted : ArrowInputsIntent()
         object BackspaceArrowsInputted : ArrowInputsIntent()
+
+        data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ArrowInputsIntent()
     }
 
     sealed class ScorePadIntent : ArcherRoundIntent() {
@@ -27,11 +30,15 @@ sealed class ArcherRoundIntent {
         object EditEndClicked : ScorePadIntent()
         object InsertEndClicked : ScorePadIntent()
         object DeleteEndClicked : ScorePadIntent()
+
+        data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ScorePadIntent()
     }
 
     sealed class SettingsIntent : ArcherRoundIntent() {
         data class InputEndSizeChanged(val endSize: Int?) : SettingsIntent()
         data class ScorePadEndSizeChanged(val endSize: Int?) : SettingsIntent()
+
+        data class HelpShowcaseAction(val action: HelpShowcaseIntent) : SettingsIntent()
     }
 
     data class NavBarClicked(val screen: ArcherRoundScreen) : ArcherRoundIntent()
@@ -43,4 +50,6 @@ sealed class ArcherRoundIntent {
     object NoArrowsDialogOkClicked : ArcherRoundIntent()
     object DeleteEndDialogOkClicked : ArcherRoundIntent()
     object DeleteEndDialogCancelClicked : ArcherRoundIntent()
+
+    data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ArcherRoundIntent()
 }

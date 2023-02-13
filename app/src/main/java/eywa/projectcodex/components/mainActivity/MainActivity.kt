@@ -21,14 +21,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcase
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.getColourResource
 import eywa.projectcodex.components.about.AboutFragment
-import eywa.projectcodex.components.mainActivity.MainActivityIntent.CloseHelpShowcase
-import eywa.projectcodex.components.mainActivity.MainActivityIntent.GoToNextHelpShowcaseItem
+import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
 import eywa.projectcodex.components.mainMenu.MainMenuFragment
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -48,32 +46,54 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setStatusBarColor(viewModel.state.value.currentHelpItem != null)
 
 
         viewModel.updateDefaultRounds()
 
         findViewById<ComposeView>(R.id.content_main_compose).apply {
             setContent {
-                var displayedHelpItem: ComposeHelpShowcaseItem? by remember { mutableStateOf(null) }
-                var hasNextHelpItem by remember { mutableStateOf(false) }
+                val state by viewModel.state.collectAsState()
+
+                LaunchedEffect(state.helpShowcaseState?.startedButNoItems) {
+                    launch {
+                        if (state.helpShowcaseState?.startedButNoItems == true) {
+                            ToastSpamPrevention.displayToast(
+                                    applicationContext,
+                                    resources.getString(R.string.err_action_bar__no_help_info),
+                            )
+                            viewModel.handle(ClearNoHelpShowcaseFlag)
+                        }
+                    }
+                }
+
+                var displayedHelpItem by remember { mutableStateOf(state.currentHelpItem) }
                 // 0 for invisible, 1 for visible
-                val displayedHelpItemAnimationState = remember { Animatable(0f) }
+                val displayedHelpItemAnimationState =
+                        remember { Animatable(if (state.currentHelpItem == null) 0f else 1f) }
 
                 displayedHelpItem?.let { item ->
-                    ComposeHelpShowcase(
-                            state = item.asState(
-                                    hasNextItem = hasNextHelpItem,
-                                    goToNextItemListener = { viewModel.handle(GoToNextHelpShowcaseItem) },
-                                    endShowcaseListener = { viewModel.handle(CloseHelpShowcase) },
-                                    screenHeight = height.toFloat(),
-                                    screenWidth = width.toFloat(),
-                            ),
-                            animationState = displayedHelpItemAnimationState.value
+                    item.helpShowcaseItem.Showcase(
+                            hasNextItem = item.hasNextItem,
+                            goToNextItemListener = { viewModel.handle(GoToNextHelpShowcaseItem) },
+                            endShowcaseListener = { viewModel.handle(CloseHelpShowcase) },
+                            screenHeight = height.toFloat(),
+                            screenWidth = width.toFloat(),
+                            animationState = displayedHelpItemAnimationState.value,
                     )
                 }
 
-                LaunchedEffect(key1 = viewModel.state.currentHelpItem) {
-                    if (viewModel.state.currentHelpItem == displayedHelpItem) return@LaunchedEffect
+                LaunchedEffect(key1 = state.currentHelpItem) {
+                    if (state.currentHelpItem == displayedHelpItem) return@LaunchedEffect
+
+                    if (state.currentHelpItem?.helpShowcaseItem?.helpTitle
+                        == displayedHelpItem?.helpShowcaseItem?.helpTitle
+                    ) {
+                        // Update item with no animation
+                        displayedHelpItem = state.currentHelpItem
+                        setStatusBarColor(displayedHelpItem != null)
+                        return@LaunchedEffect
+                    }
 
                     val oldItem = displayedHelpItem
                     val animationDuration = 300
@@ -93,8 +113,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     // Swap to the new item
-                    displayedHelpItem = viewModel.state.currentHelpItem
-                    hasNextHelpItem = viewModel.state.hasNextItem
+                    displayedHelpItem = state.currentHelpItem
 
                     // New item entrance transition
                     if (displayedHelpItem != null) {
@@ -110,17 +129,7 @@ class MainActivity : AppCompatActivity() {
                     // Set action bar color based on whether a compose help item is displayed
                     // TODO Remove when swapped to a compose action bar (help showcase should sit over that one)
                     if (oldItem == null || displayedHelpItem == null) {
-                        val color =
-                                if (displayedHelpItem != null) R.color.colorPrimaryDarkTransparent else R.color.colorPrimary
-                        supportActionBar?.setBackgroundDrawable(
-                                ColorDrawable(
-                                        getColourResource(
-                                                resources,
-                                                color,
-                                                theme
-                                        )
-                                )
-                        )
+                        setStatusBarColor(displayedHelpItem != null)
                     }
                 }
             }
@@ -182,6 +191,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setStatusBarColor(helpShowcaseShown: Boolean) {
+        val color = if (helpShowcaseShown) R.color.colorPrimaryDarkTransparent else R.color.colorPrimary
+        supportActionBar?.setBackgroundDrawable(
+                ColorDrawable(getColourResource(resources, color, theme))
+        )
+    }
+
     private fun getBackStackBehaviour(destination: NavDestination?): BackStackBehaviour = destination?.arguments
             ?.get("backStackBehaviour")?.defaultValue as? BackStackBehaviour ?: BackStackBehaviour.NORMAL
 
@@ -196,7 +212,7 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        if (viewModel.state.isHelpShowcaseInProgress) {
+        if (viewModel.state.value.helpShowcaseState?.isInProgress == true) {
             viewModel.handle(GoToNextHelpShowcaseItem)
             return true
         }
@@ -204,7 +220,7 @@ class MainActivity : AppCompatActivity() {
         @Suppress("UNCHECKED_CAST")
         when (item.itemId) {
             R.id.action_bar__help -> {
-                viewModel.openHelpDialogs(this, findAllActionBarChildFragments(navHostFragment))
+                viewModel.handle(StartHelpShowcase(findAllActionBarChildFragments(navHostFragment).firstOrNull()))
             }
             R.id.action_bar__home -> {
                 val aboutFragment =

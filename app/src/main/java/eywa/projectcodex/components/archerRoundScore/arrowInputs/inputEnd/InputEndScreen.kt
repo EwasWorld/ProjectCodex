@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -26,8 +25,6 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
 // TODO_CURRENT Help info for table and remaining arrows
 class InputEndScreen : ArcherRoundSubScreen() {
-    private val helpInfo = ComposeHelpShowcaseMap()
-
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
@@ -35,10 +32,6 @@ class InputEndScreen : ArcherRoundSubScreen() {
     ) {
         ScreenContent(state, listener)
     }
-
-    override fun getHelpShowcases() = helpInfo.getItems()
-
-    override fun getHelpPriority(): Int? = null
 
     // TODO No more arrows to add - prevent accidental opening of this screen
     @Composable
@@ -51,7 +44,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 showCancelButton = false,
                 showResetButton = false,
                 submitButtonText = stringResource(R.string.input_end__next_end),
-                helpInfo = helpInfo,
+                helpListener = { listener(ArcherRoundIntent.HelpShowcaseAction(it)) },
                 submitHelpInfoTitle = stringResource(R.string.help_input_end__next_end_title),
                 submitHelpInfoBody = stringResource(R.string.help_input_end__next_end_body),
                 listener = listener,

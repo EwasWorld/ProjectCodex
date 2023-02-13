@@ -16,13 +16,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import java.util.*
 
@@ -34,22 +36,28 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 @Composable
 internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
-        helpInfo: ComposeHelpShowcaseMap,
+        helpInfo: HelpShowcase,
         modifier: Modifier = Modifier,
 ) {
-    helpInfo.add(
-            ComposeHelpShowcaseItem(
-                    helpTitle = R.string.help_view_score__hsg_title,
-                    helpBody = R.string.help_view_score__hsg_body,
-                    priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
-            )
+    helpInfo.handle(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = R.string.help_view_score__hsg_title,
+                            helpBody = R.string.help_view_score__hsg_body,
+                            priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
+                    )
+            ),
+            ViewScoresFragment::class,
     )
-    helpInfo.add(
-            ComposeHelpShowcaseItem(
-                    helpTitle = R.string.help_view_score__handicap_title,
-                    helpBody = R.string.help_view_score__handicap_body,
-                    priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
-            )
+    helpInfo.handle(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = R.string.help_view_score__handicap_title,
+                            helpBody = R.string.help_view_score__handicap_body,
+                            priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
+                    )
+            ),
+            ViewScoresFragment::class,
     )
 
     Row(
@@ -97,7 +105,7 @@ private fun DateAndRoundNameColumn(entry: ViewScoresEntry, modifier: Modifier = 
 @Composable
 private fun HsgColumn(
         entry: ViewScoresEntry,
-        helpInfo: ComposeHelpShowcaseMap,
+        helpInfo: HelpShowcase,
 ) {
     Column(
             horizontalAlignment = Alignment.End,
@@ -122,7 +130,7 @@ private fun HsgColumn(
 @Composable
 private fun HandicapColumn(
         entry: ViewScoresEntry,
-        helpInfo: ComposeHelpShowcaseMap,
+        helpInfo: HelpShowcase,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -189,7 +197,7 @@ fun ViewScoresEntryRow_Preview() {
     CodexTheme {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
-                helpInfo = ComposeHelpShowcaseMap(),
+                helpInfo = HelpShowcase(),
         )
     }
 }

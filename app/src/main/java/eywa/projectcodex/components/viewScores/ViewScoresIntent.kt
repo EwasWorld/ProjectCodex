@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.viewScores
 
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 
@@ -21,4 +22,6 @@ sealed class ViewScoresIntent {
     data class DeleteRound(val archerRoundId: Int) : ViewScoresIntent()
 
     data class UpdateArrowValues(val arrows: List<ArrowValue>) : ViewScoresIntent()
+
+    data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ViewScoresIntent()
 }

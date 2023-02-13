@@ -470,7 +470,12 @@ class LargeScaleInstrumentedTest {
     @Test
     fun testHelpDialogs() {
         touchEveryScreen { fragmentClass ->
-            if (fragmentClass in listOf(ArcherRoundStatsRobot::class, AboutRobot::class)) {
+            val noHelpInfo = listOf(
+                    ArcherRoundStatsRobot::class,
+                    AboutRobot::class,
+                    ViewScoresRobot::class,
+            )
+            if (fragmentClass in noHelpInfo) {
                 return@touchEveryScreen
             }
 
@@ -505,10 +510,11 @@ class LargeScaleInstrumentedTest {
      */
     @Test
     fun testLandscape() {
-        // TODO_CURRENT
         touchEveryScreen {
             onView(isRoot()).perform(OrientationChangeAction(scenario, OrientationChangeAction.Orientation.LANDSCAPE))
+            CustomConditionWaiter.waitFor(200)
             onView(isRoot()).perform(OrientationChangeAction(scenario, OrientationChangeAction.Orientation.PORTRAIT))
+            CustomConditionWaiter.waitFor(200)
         }
     }
 

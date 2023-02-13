@@ -121,6 +121,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
                             ),
                             onSubmit = { sendButtonListener(messageScoreText) },
                             onErrorOkClicked = { emailScoresViewModel.handle(EmailScoresIntent.CloseError) },
+                            helpListener = { emailScoresViewModel.handle(EmailScoresIntent.HelpShowcaseAction(it)) },
                     )
                 }
             }
@@ -242,7 +243,4 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
         }
         return entries.filter { it.isSelected }
     }
-
-    override fun getHelpShowcases() = emailScoresScreen.getHelpShowcases()
-    override fun getHelpPriority() = emailScoresScreen.getHelpPriority()
 }

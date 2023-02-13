@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -35,7 +35,7 @@ import kotlin.reflect.KClass
 fun ViewScoresListItem(
         entry: ViewScoresEntry,
         entryIndex: Int,
-        genericHelpInfo: ComposeHelpShowcaseMap,
+        genericHelpInfo: HelpShowcase,
         isInMultiSelectMode: Boolean,
         listActionState: ViewScoresListActionState,
         listener: ListActionListener,

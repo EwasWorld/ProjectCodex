@@ -57,7 +57,4 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
                 if (viewModel.state.isEditing) R.string.create_round__title else R.string.create_round__edit_title
         )
     }
-
-    override fun getHelpShowcases() = screen.getHelpShowcases()
-    override fun getHelpPriority() = screen.getHelpPriority()
 }

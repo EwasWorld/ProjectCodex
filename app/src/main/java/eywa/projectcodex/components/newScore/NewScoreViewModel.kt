@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
@@ -32,6 +33,7 @@ import javax.inject.Inject
 class NewScoreViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         updateDefaultRoundsTask: UpdateDefaultRoundsTask,
+        private val helpShowcase: HelpShowcase,
 ) : ViewModel() {
 
     var state by mutableStateOf(NewScoreState())
@@ -87,6 +89,7 @@ class NewScoreViewModel @Inject constructor(
             is NewScoreIntent.Initialise -> initialiseRoundBeingEdited(action.roundBeingEditedId)
             is NewScoreIntent.DateChanged -> state = state.copy(dateShot = action.info.updateCalendar(state.dateShot))
             is NewScoreIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
+            is NewScoreIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, NewScoreFragment::class)
 
             /*
              * Final actions

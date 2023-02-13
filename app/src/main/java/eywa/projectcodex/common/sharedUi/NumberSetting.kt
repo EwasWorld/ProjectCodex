@@ -14,7 +14,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
-import eywa.projectcodex.common.helpShowcase.ComposeHelpShowcaseMap
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
@@ -24,7 +24,7 @@ fun NumberSetting(
         @StringRes title: Int,
         currentValue: Int?,
         testTag: String,
-        helpInfo: ComposeHelpShowcaseMap? = null,
+        helpListener: ((HelpShowcaseIntent) -> Unit)? = null,
         @StringRes helpTitle: Int? = null,
         @StringRes helpBody: Int? = null,
         placeholder: Int = 6,
@@ -35,7 +35,7 @@ fun NumberSetting(
 
     DataRow(
             title = title,
-            helpInfo = helpInfo,
+            helpListener = helpListener,
             helpTitle = helpTitle,
             helpBody = helpBody,
             modifier = modifier,

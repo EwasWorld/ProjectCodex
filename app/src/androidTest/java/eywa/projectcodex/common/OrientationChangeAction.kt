@@ -25,7 +25,7 @@ class OrientationChangeAction(
     override fun perform(uiController: UiController?, view: View?) {
         uiController!!.loopMainThreadUntilIdle()
         activityScenario.onActivity {
-            it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            it.requestedOrientation = orientation.value
         }
     }
 
