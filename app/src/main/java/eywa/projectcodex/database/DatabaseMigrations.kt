@@ -258,6 +258,7 @@ class DatabaseMigrations {
                         """
                 )
 
+                // Remove roundSubTypeId if round has no subtypes
                 sqlStrings.add(
                         """
                             UPDATE archer_rounds
@@ -266,6 +267,47 @@ class DatabaseMigrations {
                                 SELECT r.roundId FROM rounds as r 
                                 LEFT JOIN round_sub_types as st ON r.roundId = st.roundId
                                 WHERE st.roundId IS NULL
+                            )
+                        """
+                )
+
+                // Remove roundId and roundSubTypeId if roundId or roundSubTypeId is invalid
+                sqlStrings.add(
+                        """
+                            UPDATE archer_rounds
+                            SET roundId = NULL, roundSubTypeId = NULL
+                            WHERE NOT roundId IN (
+                                SELECT roundId FROM rounds
+                            ) OR NOT roundSubTypeId IN (
+                                SELECT st.subTypeId FROM round_sub_types as st 
+                                WHERE st.roundId = roundId
+                            )
+                        """
+                )
+
+                sqlStrings.add(
+                        """
+                            DELETE FROM round_sub_types
+                            WHERE NOT roundId IN (
+                                SELECT roundId FROM rounds
+                            )
+                        """
+                )
+
+                sqlStrings.add(
+                        """
+                            DELETE FROM round_arrow_counts
+                            WHERE NOT roundId IN (
+                                SELECT roundId FROM rounds
+                            )
+                        """
+                )
+
+                sqlStrings.add(
+                        """
+                            DELETE FROM round_distances
+                            WHERE NOT roundId IN (
+                                SELECT roundId FROM rounds
                             )
                         """
                 )
