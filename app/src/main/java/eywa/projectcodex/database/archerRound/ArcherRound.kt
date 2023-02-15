@@ -32,6 +32,7 @@ import java.util.*
 )
 data class ArcherRound(
         @PrimaryKey(autoGenerate = true) val archerRoundId: Int,
+        // TODO Use Calendar
         val dateShot: Date,
         val archerId: Int,
         val countsTowardsHandicap: Boolean = true,

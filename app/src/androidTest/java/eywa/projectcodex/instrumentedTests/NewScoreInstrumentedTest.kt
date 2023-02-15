@@ -52,7 +52,8 @@ class NewScoreInstrumentedTest {
     private val arrowCountsInput = TestUtils.ROUND_ARROW_COUNTS
     private val archerRoundInput = ArcherRound(
             1,
-            Calendar.Builder().setDate(2019, 5, 10).setTimeOfDay(17, 12, 13).build().time,
+            Date(2019, 5, 10, 17, 12, 13),
+//            Calendar.Builder().setDate(2019, 5, 10).setTimeOfDay(17, 12, 13).build().time,
             1,
             true,
             roundId = 1,
@@ -234,9 +235,8 @@ class NewScoreInstrumentedTest {
         val roundsAfterCreate = currentArcherRounds.toMutableList()
         for (round in roundsAfterCreate) {
             if (round.roundId == 1) continue
-            // Date returns year -1900
-            val dateShot = Calendar.Builder().setInstant(round.dateShot).build()
-            assertEquals(2040, dateShot.get(Calendar.YEAR))
+            // Date returns (year - 1900)
+            assertEquals(2040 - 1900, round.dateShot.year)
         }
     }
 
@@ -309,6 +309,7 @@ class NewScoreInstrumentedTest {
                     ),
                     updated?.copy(dateShot = calendar.time)
             )
+            // Date returns (year - 1900)
             assertEquals(2040 - 1900, updated?.dateShot?.year)
             assertEquals(9, updated?.dateShot?.month)
             assertEquals(30, updated?.dateShot?.date)
@@ -333,16 +334,22 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
+        val actual = currentArcherRounds.find { it.archerRoundId == archerRoundInput.archerRoundId }
         assertEquals(
                 ArcherRound(
                         archerRoundInput.archerRoundId,
-                        archerRoundInput.dateShot,
+                        actual?.dateShot!!,
                         archerRoundInput.archerId,
                         archerRoundInput.countsTowardsHandicap,
                         roundId = null,
                         roundSubTypeId = null
                 ),
-                currentArcherRounds.find { it.archerRoundId == archerRoundInput.archerRoundId }
+                actual
         )
+        assertEquals(archerRoundInput.dateShot.year, actual.dateShot.year)
+        assertEquals(archerRoundInput.dateShot.month, actual.dateShot.month)
+        assertEquals(archerRoundInput.dateShot.date, actual.dateShot.date)
+        assertEquals(archerRoundInput.dateShot.hours, actual.dateShot.hours)
+        assertEquals(archerRoundInput.dateShot.minutes, actual.dateShot.minutes)
     }
 }

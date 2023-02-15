@@ -70,7 +70,8 @@ class ArcherRoundStatsInstrumentedTest {
     private val archerRounds = listOf(
             ArcherRound(
                     1,
-                    Date.from(Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().toInstant()),
+                    Date(2014, 6, 17, 15, 21, 37),
+//                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
                     1,
                     true
             ),
