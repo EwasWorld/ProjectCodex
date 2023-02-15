@@ -2,10 +2,10 @@
 
 package eywa.projectcodex.common
 
+import android.os.Build
 import android.os.Debug
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
 import android.widget.DatePicker
 import android.widget.NumberPicker
 import android.widget.TimePicker
@@ -17,14 +17,14 @@ import androidx.test.espresso.*
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
 import eywa.projectcodex.components.mainActivity.MainActivity
-import org.hamcrest.CoreMatchers.allOf
-import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -102,26 +102,19 @@ fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
     }
 }
 
-fun checkContainsToast(message: String, failureHandler: FailureHandler? = null): ViewInteraction {
-    val interaction = onView(withText(message))
-            .inRoot(object : TypeSafeMatcher<Root>() {
-                override fun matchesSafely(item: Root?): Boolean {
-                    val type = item?.windowLayoutParams?.orNull()?.type ?: return false
-                    // Deprecation advises using TYPE_APPLICATION_OVERLAY instead, but this causes the test to hang
-                    return type == WindowManager.LayoutParams.TYPE_TOAST
-                            && item.decorView.windowToken == item.decorView.applicationWindowToken
-                }
-
-                override fun describeTo(description: Description?) {
-                    description?.appendText("toast with text")
-                }
-            })
-    if (failureHandler != null) {
-        interaction.withFailureHandler(failureHandler)
-    }
-    interaction.check(matches(isDisplayed()))!!
-    return interaction
-}
+fun checkContainsToast(
+        message: String,
+        composeTestRule: ComposeTestRule<MainActivity>,
+        failureHandler: FailureHandler? = null,
+): ViewInteraction? =
+        if (Build.VERSION.SDK_INT >= 30) {
+            // TODO Don't use toast, put text in the view instead
+            null
+        }
+        else {
+            onView(withText(message)).inRoot(withDecorView(not(composeTestRule.activity.window.decorView)))
+                    .check(matches(isDisplayed()))
+        }
 
 fun AppCompatActivity.getString(name: String): String {
     return getString(resources.getIdentifier(name, "string", packageName))

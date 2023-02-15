@@ -371,11 +371,11 @@ class ViewScoresInstrumentedTest {
                 checkEntriesSelected(listOf(), rowCount)
 
                 // Select item
-                clickRow(0)
+                clickRowForMultiSelect(0)
                 checkEntriesSelected(listOf(0), rowCount)
 
                 // Deselect item
-                clickRow(0)
+                clickRowForMultiSelect(0)
                 checkEntriesSelected(listOf(), rowCount)
 
                 // Select all items from none
@@ -387,12 +387,12 @@ class ViewScoresInstrumentedTest {
                 checkEntriesSelected(listOf(), rowCount)
 
                 // Select two items
-                clickRow(1)
-                clickRow(2)
+                clickRowForMultiSelect(1)
+                clickRowForMultiSelect(2)
                 checkEntriesSelected(listOf(1, 2), rowCount)
 
                 // Deselect one
-                clickRow(2)
+                clickRowForMultiSelect(2)
                 checkEntriesSelected(listOf(1), rowCount)
 
                 // Select all items from a single selected
@@ -400,7 +400,7 @@ class ViewScoresInstrumentedTest {
                 checkEntriesSelected(0..3, rowCount)
 
                 // Deselect one item
-                clickRow(1)
+                clickRowForMultiSelect(1)
                 checkEntriesSelected(listOf(0, 2, 3), rowCount)
                 checkMultiSelectMode(true)
 

@@ -55,6 +55,7 @@ class NewScoreRobot(
 
     fun setTime(hours: Int, minutes: Int) {
         clickElement(TestTag.TIME_BUTTON)
+        CustomConditionWaiter.waitForClassToAppear(TimePicker::class.java)
         onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(hours, minutes))
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
@@ -72,6 +73,7 @@ class NewScoreRobot(
         val calendar = Calendar.getInstance()
         // Use a different hour/minute to ensure it's not overwriting the time
         calendar.set(year, month, day, 13, 15, 0)
+        CustomConditionWaiter.waitForClassToAppear(DatePicker::class.java)
         onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
@@ -125,9 +127,12 @@ class NewScoreRobot(
         clickElement(TestTag.SELECTED_SUBTYPE)
     }
 
-    fun clickSubtypeDialogSubtype(index: Int) {
-        composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG)
-                .onChildAt(index)
-                .performClick()
+    fun clickSubtypeDialogSubtype(displayName: String, index: Int = 0) {
+        composeTestRule.onAllNodes(
+                displayName.split(" ").map { hasAnyChild(hasText(it)) }.fold(
+                        hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                ) { a, b -> a.and(b) },
+                true,
+        )[index].performClick()
     }
 }

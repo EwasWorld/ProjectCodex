@@ -103,9 +103,6 @@ class EmailScoresInstrumentedTest {
     private fun addSimpleTestDataToDb() {
         scenario.onActivity {
             runBlocking {
-                for (item in arrows) {
-                    db.arrowValueDao().insert(item)
-                }
                 for (item in rounds) {
                     db.roundDao().insert(item)
                 }
@@ -120,6 +117,9 @@ class EmailScoresInstrumentedTest {
                 }
                 for (item in archerRounds) {
                     db.archerRoundDao().insert(item)
+                }
+                for (item in arrows) {
+                    db.arrowValueDao().insert(item)
                 }
             }
         }

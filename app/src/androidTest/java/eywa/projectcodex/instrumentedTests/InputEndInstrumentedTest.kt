@@ -168,7 +168,7 @@ class InputEndInstrumentedTest {
                      * Too many arrows
                      */
                     clickScoreButton(7)
-                    checkContainsToast("Arrows already added")
+                    checkContainsToast("Arrows already added", composeTestRule)
                     checkInputtedArrows(listOf(3, 7, 3, 1, 1, 3))
                     checkEndTotal(18)
                 }
@@ -247,7 +247,7 @@ class InputEndInstrumentedTest {
                     checkEndTotal(0)
 
                     clickBackspace()
-                    checkContainsToast("No arrows entered")
+                    checkContainsToast("No arrows entered", composeTestRule)
                     checkInputtedArrows()
                     checkEndTotal(0)
                 }
@@ -296,7 +296,7 @@ class InputEndInstrumentedTest {
 
                     // No arrows
                     clickNextEnd()
-                    checkContainsToast("Please enter all arrows for this end")
+                    checkContainsToast("Please enter all arrows for this end", composeTestRule)
                     CustomConditionWaiter.waitForToastToDisappear()
                     checkIndicatorTable(46, 12)
                     checkInputtedArrows()
@@ -311,7 +311,7 @@ class InputEndInstrumentedTest {
                     checkInputtedArrows(listOf(3, 7, 3, 6, 6))
 
                     clickNextEnd()
-                    checkContainsToast("Please enter all arrows for this end")
+                    checkContainsToast("Please enter all arrows for this end", composeTestRule)
                     checkIndicatorTable(46, 12)
                     checkInputtedArrows(listOf(3, 7, 3, 6, 6))
                 }

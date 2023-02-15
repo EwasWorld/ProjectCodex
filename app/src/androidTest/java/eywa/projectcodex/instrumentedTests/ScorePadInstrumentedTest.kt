@@ -328,7 +328,7 @@ class ScorePadInstrumentedTest {
                     clickRow(1)
                     clickEditDropdownMenuItem {
                         checkEditEnd(1)
-                        checkInputtedArrows(listOf(0, 1, 2, 3, 4, 5))
+                        checkInputtedArrows(listOf("m", "1", "2", "3", "4", "5"))
                         block()
                     }
 

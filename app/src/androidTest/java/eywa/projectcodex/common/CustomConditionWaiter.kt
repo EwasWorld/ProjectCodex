@@ -121,6 +121,22 @@ class CustomConditionWaiter {
             })
         }
 
+        fun waitForClassToAppear(clazz: Class<*>) {
+            ConditionWatcher.waitForCondition(object : Instruction() {
+                override fun checkCondition(): Boolean {
+                    val failureHandler = CustomWaiterFailHandle("Waiting for class to appear")
+                    onViewWithClassName(clazz)
+                            .withFailureHandler(failureHandler)
+                            .check(matches(isDisplayed()))
+                    return !failureHandler.wasTriggered
+                }
+
+                override fun getDescription(): String {
+                    return "Waiting for class to appear"
+                }
+            })
+        }
+
         enum class ClickType { NONE, CLICK, LONG_CLICK }
 
         fun waitForTextToAppear(text: String, clickType: ClickType = ClickType.NONE) {
@@ -244,11 +260,11 @@ class CustomConditionWaiter {
         /**
          * Wait toast with certain text to appear
          */
-        fun waitForToast(text: String) {
+        fun waitForToast(text: String, composeTestRule: ComposeTestRule<MainActivity>) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {
                     val failureHandler = CustomWaiterFailHandle()
-                    checkContainsToast(text, failureHandler)
+                    checkContainsToast(text, composeTestRule, failureHandler)
                     return !failureHandler.wasTriggered
                 }
 

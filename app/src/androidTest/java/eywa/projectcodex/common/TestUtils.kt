@@ -60,12 +60,12 @@ object TestUtils {
     )
 
     val ROUND_SUB_TYPES = listOf(
-            RoundSubType(1, 1, "1", null, null),
-            RoundSubType(1, 2, "2", 12, 14),
-            RoundSubType(1, 3, "3", 0, 0),
-            RoundSubType(2, 1, "1", null, null),
-            RoundSubType(3, 1, "1", null, null),
-            RoundSubType(3, 2, "2", null, null),
+            RoundSubType(1, 1, "1-1", null, null),
+            RoundSubType(1, 2, "1-2", 12, 14),
+            RoundSubType(1, 3, "1-3", 0, 0),
+            RoundSubType(2, 1, "2-1", null, null),
+            RoundSubType(3, 1, "3-1", null, null),
+            RoundSubType(3, 2, "3-2", null, null),
     )
 
     val ROUND_DISTANCES = listOf(
