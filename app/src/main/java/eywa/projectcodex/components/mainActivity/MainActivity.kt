@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         setStatusBarColor(viewModel.state.value.currentHelpItem != null)
 
 
+        // TODO Don't re-run on activity recreate
         viewModel.updateDefaultRounds()
 
         findViewById<ComposeView>(R.id.content_main_compose).apply {

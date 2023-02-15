@@ -1,6 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
 
 class InsertEndRobot(
@@ -11,6 +12,12 @@ class InsertEndRobot(
     fun clickComplete() = clickArrowInputsSubmit()
 
     fun checkInsertEndBefore(endNumber: Int) {
-        // TODO_CURRENT
+        checkElementText(
+                ArrowInputsTestTag.CONTENT_TEXT,
+                (
+                        if (endNumber == 1) "Inserting end\nat the beginning"
+                        else "Inserting end\nbetween ends ${endNumber - 1} and ${endNumber}"
+                        ),
+        )
     }
 }

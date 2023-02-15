@@ -111,6 +111,7 @@ fun SimpleDialogContent(
                 Text(
                         text = message,
                         style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
+                        modifier = Modifier.testTag(SimpleDialogTestTag.MESSAGE),
                 )
             }
 
@@ -144,6 +145,7 @@ fun SimpleDialogContent(
 
 object SimpleDialogTestTag {
     const val TITLE = "SIMPLE_ALERT_DIALOG_TITLE"
+    const val MESSAGE = "SIMPLE_ALERT_DIALOG_MESSAGE"
     const val POSITIVE_BUTTON = "SIMPLE_ALERT_DIALOG_POSITIVE_BUTTON"
     const val NEGATIVE_BUTTON = "SIMPLE_ALERT_DIALOG_NEGATIVE_BUTTON"
 }

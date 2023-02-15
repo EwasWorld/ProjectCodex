@@ -421,7 +421,7 @@ class ScorePadInstrumentedTest {
                     )
 
                     clickRow(3)
-                    clickDeleteDropdownMenuItem(true, 2)
+                    clickDeleteDropdownMenuItem(true, 3)
 
                     checkScorePadData(
                             listOf(

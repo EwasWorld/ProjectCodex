@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -50,50 +51,52 @@ class NewScoreScreen {
         val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
         helpListener(HelpShowcaseIntent.Clear)
 
-        Column(
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxSize()
-                        .background(CodexTheme.colors.appBackground)
-                        .padding(25.dp)
-        ) {
-            DateRow(state, listener)
+        ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .fillMaxSize()
+                            .background(CodexTheme.colors.appBackground)
+                            .padding(25.dp)
+            ) {
+                DateRow(state, listener)
 
-            if (state.isUpdateDefaultRoundsInProgress) {
-                Text(
-                        text = stringResource(R.string.create_round__default_rounds_updating_warning),
-                        style = CodexTypography.NORMAL.copy(
-                                color = CodexTheme.colors.warningOnAppBackground,
-                                textAlign = TextAlign.Center,
-                        ),
-                        modifier = Modifier.testTag(TestTag.DATABASE_WARNING)
-                )
-                DataRow(
-                        title = R.string.create_round__default_rounds_updating_warning_status,
-                        text = state.updateDefaultRoundsState.asDisplayString(LocalContext.current.resources),
-                )
-            }
-            else {
-                SelectRoundRows(
-                        displayedRound = state.displayedRound.get(),
-                        displayedSubtype = state.displayedSubtype?.name,
-                        isSelectRoundDialogOpen = state.isSelectRoundDialogOpen,
-                        isSelectSubtypeDialogOpen = state.isSelectSubTypeDialogOpen,
-                        rounds = state.roundsOnSelectDialog,
-                        filters = state.enabledRoundFilters,
-                        subTypes = state.selectedRoundInfo?.roundSubTypes ?: listOf(),
-                        arrowCounts = state.selectedRoundInfo?.roundArrowCounts?.takeIf { it.isNotEmpty() },
-                        roundSubtypeDistances = state.roundSubtypeDistances,
-                        distanceUnit = state.distanceUnitStringRes?.let { stringResource(it) },
-                        getDistance = { state.getFurthestDistance(it).distance },
-                        helpListener = helpListener,
-                        listener = { listener(SelectRoundDialogAction(it)) },
-                )
-            }
+                if (state.isUpdateDefaultRoundsInProgress) {
+                    Text(
+                            text = stringResource(R.string.create_round__default_rounds_updating_warning),
+                            style = CodexTypography.NORMAL.copy(
+                                    color = CodexTheme.colors.warningOnAppBackground,
+                                    textAlign = TextAlign.Center,
+                            ),
+                            modifier = Modifier.testTag(TestTag.DATABASE_WARNING)
+                    )
+                    DataRow(
+                            title = R.string.create_round__default_rounds_updating_warning_status,
+                            text = state.updateDefaultRoundsState.asDisplayString(LocalContext.current.resources),
+                    )
+                }
+                else {
+                    SelectRoundRows(
+                            displayedRound = state.displayedRound.get(),
+                            displayedSubtype = state.displayedSubtype?.name,
+                            isSelectRoundDialogOpen = state.isSelectRoundDialogOpen,
+                            isSelectSubtypeDialogOpen = state.isSelectSubTypeDialogOpen,
+                            rounds = state.roundsOnSelectDialog,
+                            filters = state.enabledRoundFilters,
+                            subTypes = state.selectedRoundInfo?.roundSubTypes ?: listOf(),
+                            arrowCounts = state.selectedRoundInfo?.roundArrowCounts?.takeIf { it.isNotEmpty() },
+                            roundSubtypeDistances = state.roundSubtypeDistances,
+                            distanceUnit = state.distanceUnitStringRes?.let { stringResource(it) },
+                            getDistance = { state.getFurthestDistance(it).distance },
+                            helpListener = helpListener,
+                            listener = { listener(SelectRoundDialogAction(it)) },
+                    )
+                }
 
-            if (state.isEditing) EditingEndRows(state, listener) else NewScoreEndRows(listener)
+                if (state.isEditing) EditingEndRows(state, listener) else NewScoreEndRows(listener)
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
 
 class EditEndRobot(
@@ -11,6 +12,6 @@ class EditEndRobot(
     fun clickComplete() = clickArrowInputsSubmit()
 
     fun checkEditEnd(endNumber: Int) {
-        // TODO_CURRENT
+        checkElementText(ArrowInputsTestTag.CONTENT_TEXT, "Editing end $endNumber")
     }
 }

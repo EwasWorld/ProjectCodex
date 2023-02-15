@@ -49,6 +49,7 @@ fun ArrowInputsScaffold(
             style = CodexTypography.LARGE,
             color = CodexTheme.colors.onAppBackground,
             textAlign = TextAlign.Center,
+            modifier = Modifier.testTag(ArrowInputsTestTag.CONTENT_TEXT)
     )
 }
 

@@ -3,6 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 import androidx.compose.ui.test.*
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
+import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.transpose
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
 import eywa.projectcodex.components.mainActivity.MainActivity
@@ -70,7 +71,7 @@ class ScorePadRobot(
     fun clickDeleteDropdownMenuItem(dialogAction: Boolean, endNumber: Int) {
         clickDropdownMenuItem(CommonStrings.DELETE_MENU_ITEM)
 
-        // TODO_CURRENT Check end number
+        checkElementText(SimpleDialogTestTag.MESSAGE, "Are you sure you want to delete end $endNumber")
 
         val titleText = "Delete end"
         if (dialogAction) clickDialogOk(titleText) else clickDialogCancel(titleText)

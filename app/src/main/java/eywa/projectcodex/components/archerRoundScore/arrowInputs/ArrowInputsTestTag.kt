@@ -14,4 +14,6 @@ object ArrowInputsTestTag {
 
     const val END_ARROWS_TEXT = "${PREFIX}END_ARROWS_TEXT"
     const val END_TOTAL_TEXT = "${PREFIX}END_TOTAL_TEXT"
+
+    const val CONTENT_TEXT = "${PREFIX}CONTENT_TEXT"
 }

@@ -1,7 +1,19 @@
 package eywa.projectcodex.common.utils
 
+import android.os.Build
 import java.text.SimpleDateFormat
 import java.util.*
+
+
+fun Date.asCalendar(): Calendar =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Calendar.Builder().setInstant(this).build()
+        }
+        else {
+            Calendar.getInstance(Locale.getDefault()).apply {
+                set(year + 1900, month, date, hours, minutes, seconds)
+            }
+        }
 
 // TODO Locale-based date/time format
 enum class DateTimeFormat(val pattern: String) {

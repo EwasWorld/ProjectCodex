@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.newScore
 
-import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
+import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.newScore.NewScoreEffect.PopBackstack
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -172,12 +172,8 @@ class NewScoreViewModel @Inject constructor(
         if (roundBeingEdited == null) return this
 
         val selectedRoundFullInfo = roundsData?.find { it.round.roundId == roundBeingEdited.roundId }
-
-        // TODO_CURRENT API dates
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) throw IllegalStateException()
-
         return copy(
-                dateShot = Calendar.Builder().setInstant(roundBeingEdited.dateShot).build(),
+                dateShot = roundBeingEdited.dateShot.asCalendar(),
                 selectedRound = selectedRoundFullInfo?.round,
                 selectedSubtype = roundBeingEdited.roundSubTypeId?.let { subType ->
                     selectedRoundFullInfo?.roundSubTypes?.find { it.subTypeId == subType }
