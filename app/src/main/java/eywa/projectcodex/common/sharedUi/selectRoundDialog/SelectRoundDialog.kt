@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
@@ -25,6 +26,7 @@ import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.*
 import eywa.projectcodex.common.utils.Sorting
 import eywa.projectcodex.common.utils.getDistanceUnit
@@ -260,7 +262,9 @@ fun SelectRoundDialog(
                             Sorting.NUMERIC_STRING_SORT.compare(round1.name, round2.name)
                         },
                         onItemClicked = { listener(RoundSelected(it)) },
-                        modifier = Modifier.padding(vertical = 10.dp)
+                        modifier = Modifier
+                                .padding(vertical = 10.dp)
+                                .weight(1f)
                 )
             }
         }
@@ -344,4 +348,18 @@ object SelectRoundDialogTestTag {
     const val ROUND_DIALOG_ITEM = "SELECT_ROUND_DIALOG_ITEM"
 
     fun fromFilterName(filter: SelectRoundFilter) = "SELECT_ROUND_FILTER_${filter.name}"
+}
+
+
+@Preview
+@Composable
+fun SelectRoundDialog_Preview() {
+    DialogPreviewHelper {
+        SelectRoundDialog(
+                isShown = true,
+                displayedRounds = List(20) { RoundPreviewHelper.outdoorImperialRoundData.round },
+                enabledFilters = SelectRoundEnabledFilters(),
+                listener = { },
+        )
+    }
 }

@@ -31,6 +31,7 @@ import org.junit.runner.RunWith
 import java.util.*
 
 
+// TODO_CURRENT Test that no round is visible even when dialog is at max hight (ensure not pushed off bottom)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class NewScoreInstrumentedTest {

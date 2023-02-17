@@ -21,7 +21,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
 data class ButtonState(
         val text: String,
-        val onClick: () -> Unit
+        val onClick: () -> Unit,
 )
 
 /**
@@ -115,9 +115,16 @@ fun SimpleDialogContent(
                 )
             }
 
-            content?.invoke()
+            if (content != null) {
+                Box(
+                        content = { content() },
+                        modifier = Modifier.weight(weight = 1f, fill = false)
+                )
+            }
+            else {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
             Row(
                     modifier = Modifier.align(Alignment.End),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
