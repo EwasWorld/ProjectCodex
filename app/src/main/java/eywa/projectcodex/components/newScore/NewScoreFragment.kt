@@ -45,16 +45,11 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
 
         return ComposeView(requireContext()).apply {
             setContent {
+                activity?.title = getString(
+                        if (viewModel.state.isEditing) R.string.create_round__edit_title else R.string.create_round__title
+                )
                 screen.ComposeContent(viewModel.state) { viewModel.handle(it) }
             }
         }
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        activity?.title = getString(
-                if (viewModel.state.isEditing) R.string.create_round__title else R.string.create_round__edit_title
-        )
     }
 }
