@@ -1,14 +1,12 @@
 package eywa.projectcodex.components.viewScores
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
@@ -17,7 +15,10 @@ import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +30,8 @@ class ViewScoresViewModel @Inject constructor(
         db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcase,
 ) : ViewModel() {
-    var state by mutableStateOf(ViewScoresState())
-        private set
+    private var _state = MutableStateFlow(ViewScoresState())
+    val state = _state.asStateFlow()
 
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
@@ -63,44 +64,35 @@ class ViewScoresViewModel @Inject constructor(
                                 ?.mapValues { entry ->
                                     entry.value.groupBy { distance -> distance.subTypeId }
                                 }
-                        val previousSelectedEntries = state.data.associate { it.id to it.isSelected }
 
-                        state = state.copy(
-                                data = flowData.archerRounds?.map { roundInfo ->
-                                    val roundId = roundInfo.round?.roundId
-                                    val subtypeId = roundInfo.archerRound.roundSubTypeId ?: 1
-                                    ViewScoresEntry(
-                                            initialInfo = roundInfo,
-                                            arrows = arrowValuesMap?.get(roundInfo.id),
-                                            arrowCounts = roundId?.let { arrowCountsMap?.get(roundId) },
-                                            distances = roundId?.let { distancesMap?.get(roundId)?.get(subtypeId) },
-                                            isSelected = previousSelectedEntries[roundInfo.id] ?: false,
-                                    )
-                                }?.sortedByDescending { it.archerRound.dateShot } ?: listOf()
-                        )
+                        _state.update {
+                            val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
+                            it.copy(
+                                    data = flowData.archerRounds?.map { roundInfo ->
+                                        val roundId = roundInfo.round?.roundId
+                                        val subtypeId = roundInfo.archerRound.roundSubTypeId ?: 1
+                                        ViewScoresEntry(
+                                                initialInfo = roundInfo,
+                                                arrows = arrowValuesMap?.get(roundInfo.id),
+                                                arrowCounts = roundId?.let { arrowCountsMap?.get(roundId) },
+                                                distances = roundId?.let { distancesMap?.get(roundId)?.get(subtypeId) },
+                                                isSelected = previousSelectedEntries[roundInfo.id] ?: false,
+                                        )
+                                    }?.sortedByDescending { entry -> entry.archerRound.dateShot } ?: listOf())
+                        }
                     }
         }
     }
 
     fun handle(action: ViewScoresIntent) {
         when (action) {
-            is ViewScoresIntent.ToggleMultiSelectMode -> {
-                var newState = state.copy(isInMultiSelectMode = !state.isInMultiSelectMode)
-                // If currently in multiselect mode (thus toggling off), deselect all items
-                if (state.isInMultiSelectMode) {
-                    newState = newState.copy(data = state.data.map { it.copy(isSelected = false) })
-                }
-                state = newState
-            }
             is ViewScoresIntent.ToggleEntrySelected -> {
-                val entry = state.data[action.entryIndex]
-                val newList = state.data.toMutableList()
-                newList[action.entryIndex] = entry.copy(isSelected = !entry.isSelected)
-                state = state.copy(data = newList)
-            }
-            is ViewScoresIntent.SelectAllOrNone -> {
-                val selectAll = action.forceIsSelectedTo ?: !state.data.all { it.isSelected }
-                state = state.copy(data = state.data.map { it.copy(isSelected = selectAll) })
+                _state.update {
+                    val entry = it.data[action.entryIndex]
+                    val newList = it.data.toMutableList()
+                    newList[action.entryIndex] = entry.copy(isSelected = !entry.isSelected)
+                    it.copy(data = newList)
+                }
             }
             is ViewScoresIntent.DeleteRound -> viewModelScope.launch {
                 archerRoundsRepo.deleteRound(action.archerRoundId)
@@ -110,6 +102,40 @@ class ViewScoresViewModel @Inject constructor(
                 arrowValuesRepo.update(*action.arrows.toTypedArray())
             }
             is ViewScoresIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ViewScoresFragment::class)
+            is ViewScoresIntent.MultiSelectAction -> handleMultiSelectIntent(action.action)
+            is ViewScoresIntent.EffectComplete -> handleEffectComplete(action)
+        }
+    }
+
+    private fun handleEffectComplete(action: ViewScoresIntent.EffectComplete) {
+        when (action) {
+            ViewScoresIntent.HandledEmailClicked -> _state.update { it.copy(multiSelectEmailClicked = false) }
+            ViewScoresIntent.HandledEmailNoSelection -> _state.update { it.copy(multiSelectEmailNoSelection = false) }
+        }
+    }
+
+    private fun handleMultiSelectIntent(action: MultiSelectBarIntent) {
+        when (action) {
+            MultiSelectBarIntent.ClickOpen -> _state.update { it.copy(isInMultiSelectMode = true) }
+            MultiSelectBarIntent.ClickClose ->
+                _state.update {
+                    it.copy(
+                            isInMultiSelectMode = false,
+                            data = it.data.map { entry -> entry.copy(isSelected = false) }
+                    )
+                }
+            MultiSelectBarIntent.ClickAllOrNone -> _state.update {
+                val selectAll = !it.data.all { entry -> entry.isSelected }
+                it.copy(data = it.data.map { entry -> entry.copy(isSelected = selectAll) })
+            }
+            MultiSelectBarIntent.ClickEmail -> _state.update {
+                if (it.data.any { entry -> entry.isSelected }) {
+                    it.copy(multiSelectEmailClicked = true)
+                }
+                else {
+                    it.copy(multiSelectEmailNoSelection = true)
+                }
+            }
         }
     }
 }

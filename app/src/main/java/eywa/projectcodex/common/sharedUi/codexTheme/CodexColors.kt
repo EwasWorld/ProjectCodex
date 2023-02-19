@@ -10,18 +10,15 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.ArrowButtonGroup
-import eywa.projectcodex.components.viewScores.ui.MultiSelectBarListener
-import eywa.projectcodex.components.viewScores.ui.ViewScoresMultiSelectBar
+import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 
 val LocalCodexThemeColors = staticCompositionLocalOf { CodexThemeColors() }
@@ -204,20 +201,12 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                         }
                     }
                 }
-                ViewScoresMultiSelectBar(
-                        listener = object : MultiSelectBarListener {
-                            override fun selectAllOrNoneClicked() {}
-                            override fun multiSelectEmailClicked() {}
-                            override fun toggleMultiSelectMode() {}
-                            override fun addHelpShowcase(item: HelpShowcaseItem) {}
-                            override fun updateHelpDialogPosition(
-                                    helpTitle: Int, layoutCoordinates: LayoutCoordinates
-                            ) {
-                            }
-                        },
+                MultiSelectBar(
                         isInMultiSelectMode = false,
                         isEveryItemSelected = false,
-                        modifier = Modifier.align(Alignment.BottomCenter),
+                        listener = {},
+                        helpShowcaseListener = {},
+                        modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
 

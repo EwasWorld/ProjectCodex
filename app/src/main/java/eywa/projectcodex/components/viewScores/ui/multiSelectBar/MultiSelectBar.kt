@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui
+package eywa.projectcodex.components.viewScores.ui.multiSelectBar
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
@@ -18,31 +18,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseListener
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-
-interface MultiSelectBarListener : HelpShowcaseListener {
-    fun selectAllOrNoneClicked()
-    fun multiSelectEmailClicked()
-    fun toggleMultiSelectMode()
-}
+import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
 
 @Composable
-internal fun ViewScoresMultiSelectBar(
-        listener: MultiSelectBarListener,
-        modifier: Modifier = Modifier,
+internal fun MultiSelectBar(
         isInMultiSelectMode: Boolean,
         isEveryItemSelected: Boolean,
+        modifier: Modifier = Modifier,
+        listener: (MultiSelectBarIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     @Composable
     fun MultiSelectIconButton(
@@ -53,16 +48,18 @@ internal fun ViewScoresMultiSelectBar(
             @StringRes helpBody: Int,
             modifier: Modifier = Modifier,
     ) {
-        listener.addHelpShowcase(
-                HelpShowcaseItem(
-                        helpTitle = helpTitle,
-                        helpBody = helpBody,
-                        priority = ViewScoresScreen.HelpItemPriority.MULTI_SELECT.ordinal
+        helpShowcaseListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                helpTitle = helpTitle,
+                                helpBody = helpBody,
+                                priority = ViewScoresScreen.HelpItemPriority.MULTI_SELECT.ordinal
+                        )
                 )
         )
         IconButton(
                 onClick = onClick,
-                modifier = modifier.updateHelpDialogPosition(listener, helpTitle)
+                modifier = modifier.updateHelpDialogPosition(helpShowcaseListener, helpTitle)
         ) {
             Icon(
                     imageVector = imageVector,
@@ -80,7 +77,7 @@ internal fun ViewScoresMultiSelectBar(
     ) {
         if (!isInMultiSelectMode) {
             MultiSelectIconButton(
-                    onClick = { listener.toggleMultiSelectMode() },
+                    onClick = { listener(MultiSelectBarIntent.ClickOpen) },
                     imageVector = Icons.Default.SelectAll,
                     contentDescription = stringResource(id = R.string.view_scores__multi_select_start),
                     helpTitle = R.string.help_view_score__start_multi_select_title,
@@ -101,7 +98,7 @@ internal fun ViewScoresMultiSelectBar(
                         modifier = Modifier.padding(start = 20.dp, end = 15.dp)
                 )
                 MultiSelectIconButton(
-                        onClick = { listener.selectAllOrNoneClicked() },
+                        onClick = { listener(MultiSelectBarIntent.ClickAllOrNone) },
                         imageVector = Icons.Default.SelectAll,
                         contentDescription = stringResource(
                                 id = if (isEveryItemSelected) {
@@ -116,7 +113,7 @@ internal fun ViewScoresMultiSelectBar(
                         modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_ALL),
                 )
                 MultiSelectIconButton(
-                        onClick = { listener.multiSelectEmailClicked() },
+                        onClick = { listener(MultiSelectBarIntent.ClickEmail) },
                         imageVector = Icons.Outlined.Email,
                         contentDescription = stringResource(id = R.string.view_scores__multi_select_email),
                         helpTitle = R.string.help_view_score__action_multi_select_title,
@@ -124,7 +121,7 @@ internal fun ViewScoresMultiSelectBar(
                         modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_EMAIL),
                 )
                 MultiSelectIconButton(
-                        onClick = { listener.toggleMultiSelectMode() },
+                        onClick = { listener(MultiSelectBarIntent.ClickClose) },
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(id = R.string.view_scores__multi_select_cancel),
                         helpTitle = R.string.help_view_score__cancel_multi_select_title,
@@ -136,22 +133,15 @@ internal fun ViewScoresMultiSelectBar(
     }
 }
 
-private val listenersForPreviews = object : MultiSelectBarListener {
-    override fun addHelpShowcase(item: HelpShowcaseItem) {}
-    override fun updateHelpDialogPosition(helpTitle: Int, layoutCoordinates: LayoutCoordinates) {}
-    override fun selectAllOrNoneClicked() {}
-    override fun multiSelectEmailClicked() {}
-    override fun toggleMultiSelectMode() {}
-}
-
 @Preview
 @Composable
 fun Collapsed_MultiSelectBar_Preview() {
     CodexTheme {
-        ViewScoresMultiSelectBar(
-                listener = listenersForPreviews,
+        MultiSelectBar(
                 isInMultiSelectMode = false,
                 isEveryItemSelected = false,
+                listener = {},
+                helpShowcaseListener = {},
         )
     }
 }
@@ -160,10 +150,11 @@ fun Collapsed_MultiSelectBar_Preview() {
 @Composable
 fun Expanded_MultiSelectBar_Preview() {
     CodexTheme {
-        ViewScoresMultiSelectBar(
-                listener = listenersForPreviews,
+        MultiSelectBar(
                 isInMultiSelectMode = true,
                 isEveryItemSelected = false,
+                listener = {},
+                helpShowcaseListener = {},
         )
     }
 }

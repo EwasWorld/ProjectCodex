@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileWriter
 
-
+// TODO_CURRENT H/S/G coming up as null
 @AndroidEntryPoint
 class EmailScoresFragment : Fragment(), ActionBarHelp {
     companion object {
@@ -235,7 +235,7 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
      * @return the archer round given by [args] else all entries where [ViewScoresEntry.isSelected] is true
      */
     private fun getSelectedEntries(): List<ViewScoresEntry> {
-        val entries = viewScoresViewModel.state.data
+        val entries = viewScoresViewModel.state.value.data
         if (args.archerRoundId >= 0) {
             val entry = entries.find { it.id == args.archerRoundId }
                     ?: throw IllegalArgumentException("Could not find round with ID: ${args.archerRoundId}")

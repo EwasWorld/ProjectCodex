@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -24,7 +23,9 @@ import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
+import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import kotlin.reflect.KClass
@@ -65,10 +66,9 @@ class ViewScoresScreen {
             listState: ViewScoresListActionState,
             isInMultiSelectMode: Boolean,
             listener: ViewScoreScreenListener,
-            helpListener: (HelpShowcaseIntent) -> Unit,
+            newListener: (ViewScoresIntent) -> Unit,
     ) {
-        helpListener(HelpShowcaseIntent.Clear)
-        listener.helpShowcaseInfo = helpInfo
+        newListener(ViewScoresIntent.HelpShowcaseAction(HelpShowcaseIntent.Clear))
         listener.contextMenuState = listState
 
         entryClasses = entries.map { it::class }
@@ -132,11 +132,12 @@ class ViewScoresScreen {
             }
 
             UnobstructedBox {
-                ViewScoresMultiSelectBar(
-                        listener = listener,
-                        modifier = Modifier.padding(bottom = 20.dp),
+                MultiSelectBar(
                         isInMultiSelectMode = isInMultiSelectMode,
                         isEveryItemSelected = entries.all { it.isSelected },
+                        listener = { newListener(ViewScoresIntent.MultiSelectAction(it)) },
+                        helpShowcaseListener = { newListener(ViewScoresIntent.HelpShowcaseAction(it)) },
+                        modifier = Modifier.padding(bottom = 20.dp)
                 )
             }
         }
@@ -178,17 +179,8 @@ class ViewScoresScreen {
     }
 
 
-    abstract class ViewScoreScreenListener : MultiSelectBarListener, ListActionListener {
-        internal lateinit var helpShowcaseInfo: HelpShowcase
+    abstract class ViewScoreScreenListener : ListActionListener {
         internal lateinit var contextMenuState: ViewScoresListActionState
-
-        final override fun addHelpShowcase(item: HelpShowcaseItem) {
-            helpShowcaseInfo.handle(HelpShowcaseIntent.Add(item), ViewScoresFragment::class)
-        }
-
-        final override fun updateHelpDialogPosition(helpTitle: Int, layoutCoordinates: LayoutCoordinates) {
-            helpShowcaseInfo.updateItem(helpTitle, layoutCoordinates)
-        }
 
         override fun convertScoreDialogOkListener(convertType: ConvertScoreType) {
             contextMenuState.isConvertScoreOpen = false
@@ -230,11 +222,8 @@ class ViewScoresScreen {
         override fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean =
                 true
 
-        override fun toggleMultiSelectMode() {}
         override fun noRoundsDialogDismissedListener() {}
         override fun convertScoreDialogOkListener(entryIndex: Int?, convertType: ConvertScoreType) {}
-        override fun selectAllOrNoneClicked() {}
-        override fun multiSelectEmailClicked() {}
         override fun toggleListItemSelected(entryIndex: Int) {}
         override fun deleteDialogOkListener(entryIndex: Int?) {}
     }
@@ -252,7 +241,7 @@ class ViewScoresScreen {
                     listState = rememberViewScoresListActionState(mapOf(), mapOf()),
                     isInMultiSelectMode = false,
                     listener = listenersForPreviews,
-                    helpListener = {},
+                    newListener = {},
             )
         }
     }
@@ -270,7 +259,7 @@ class ViewScoresScreen {
                     listState = rememberViewScoresListActionState(mapOf(), mapOf()),
                     isInMultiSelectMode = true,
                     listener = listenersForPreviews,
-                    helpListener = {},
+                    newListener = {},
             )
         }
     }
@@ -290,7 +279,7 @@ class ViewScoresScreen {
                         listState = rememberViewScoresListActionState(mapOf(), mapOf()),
                         isInMultiSelectMode = false,
                         listener = listenersForPreviews,
-                        helpListener = {},
+                        newListener = {},
                 )
             }
         }
@@ -317,7 +306,7 @@ class ViewScoresScreen {
                         ),
                         isInMultiSelectMode = false,
                         listener = listenersForPreviews,
-                        helpListener = {},
+                        newListener = {},
                 )
             }
         }
