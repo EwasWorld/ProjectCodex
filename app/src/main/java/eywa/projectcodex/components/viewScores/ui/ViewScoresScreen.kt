@@ -24,10 +24,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
-import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
+import eywa.projectcodex.components.viewScores.ViewScoresState
+import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
-import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
-import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import kotlin.reflect.KClass
 
 class ViewScoresScreen {
@@ -62,18 +62,14 @@ class ViewScoresScreen {
 
     @Composable
     fun ComposeContent(
-            entries: List<ViewScoresEntry>,
-            listState: ViewScoresListActionState,
-            isInMultiSelectMode: Boolean,
-            listener: ViewScoreScreenListener,
-            newListener: (ViewScoresIntent) -> Unit,
+            state: ViewScoresState,
+            listener: (ViewScoresIntent) -> Unit,
     ) {
-        newListener(ViewScoresIntent.HelpShowcaseAction(HelpShowcaseIntent.Clear))
-        listener.contextMenuState = listState
+        listener(HelpShowcaseAction(HelpShowcaseIntent.Clear))
 
-        entryClasses = entries.map { it::class }
-        specificEntryHelpInfo = List(entries.size) { HelpShowcase() }
-        genericEntryHelpInfo = List(entries.size) {
+        entryClasses = state.data.map { it::class }
+        specificEntryHelpInfo = List(state.data.size) { HelpShowcase() }
+        genericEntryHelpInfo = List(state.data.size) {
             HelpShowcase().apply {
                 handle(
                         HelpShowcaseIntent.Add(
@@ -89,13 +85,19 @@ class ViewScoresScreen {
         }
 
         SetOfDialogs(
-                entries.isEmpty() to { ViewScoresEmptyListDialog(isShown = it, listener = listener) },
-                listState.isConvertScoreOpen to { ViewScoresConvertScoreDialog(isShown = it, listener = listener) },
-                listState.isDeleteDialogOpen to {
+                state.data.isEmpty() to { ViewScoresEmptyListDialog(isShown = it, listener = listener) },
+                (state.lastClickedEntryId != null && state.convertScoreDialogOpen) to {
+                    ConvertScoreDialog(
+                            isShown = it,
+                            listener = { action -> listener(ConvertScoreAction(action)) },
+                    )
+                },
+                state.deleteDialogOpen to {
                     ViewScoresDeleteEntryDialog(
                             isShown = it,
                             listener = listener,
-                            entry = listener.contextMenuState.lastOpenedForIndex?.let { i -> entries.getOrNull(i) })
+                            entry = state.lastClickedEntry,
+                    )
                 },
         )
 
@@ -110,13 +112,14 @@ class ViewScoresScreen {
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.testTag(TestTag.LAZY_COLUMN)
             ) {
-                items(entries.size) { entryIndex ->
-                    val entry = entries[entryIndex]
+                items(state.data.size) { entryIndex ->
+                    val entry = state.data[entryIndex]
                     ViewScoresListItem(
                             entry = entry,
                             entryIndex = entryIndex,
-                            listActionState = listState,
-                            isInMultiSelectMode = isInMultiSelectMode,
+                            isInMultiSelectMode = state.isInMultiSelectMode,
+                            dropdownMenuItems = state.dropdownItems
+                                    ?.takeIf { entry.id == state.lastClickedEntryId },
                             listener = listener,
                             genericHelpInfo = genericEntryHelpInfo[entryIndex],
                             semanticsContentDescription = viewScoresEntryRowAccessibilityString(
@@ -133,10 +136,10 @@ class ViewScoresScreen {
 
             UnobstructedBox {
                 MultiSelectBar(
-                        isInMultiSelectMode = isInMultiSelectMode,
-                        isEveryItemSelected = entries.all { it.isSelected },
-                        listener = { newListener(ViewScoresIntent.MultiSelectAction(it)) },
-                        helpShowcaseListener = { newListener(ViewScoresIntent.HelpShowcaseAction(it)) },
+                        isInMultiSelectMode = state.isInMultiSelectMode,
+                        isEveryItemSelected = state.data.all { it.isSelected },
+                        listener = { listener(MultiSelectAction(it)) },
+                        helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
                         modifier = Modifier.padding(bottom = 20.dp)
                 )
             }
@@ -179,28 +182,6 @@ class ViewScoresScreen {
     }
 
 
-    abstract class ViewScoreScreenListener : ListActionListener {
-        internal lateinit var contextMenuState: ViewScoresListActionState
-
-        override fun convertScoreDialogOkListener(convertType: ConvertScoreType) {
-            contextMenuState.isConvertScoreOpen = false
-            convertScoreDialogOkListener(contextMenuState.lastOpenedForIndex, convertType)
-        }
-
-        override fun convertScoreDialogDismissedListener() {
-            contextMenuState.isConvertScoreOpen = false
-        }
-
-        override fun deleteDialogDismissedListener() {
-            contextMenuState.isDeleteDialogOpen = false
-        }
-
-        override fun deleteDialogOkListener() {
-            contextMenuState.isDeleteDialogOpen = false
-            deleteDialogOkListener(contextMenuState.lastOpenedForIndex)
-        }
-    }
-
     /**
      * Ordinals are used for [HelpShowcaseItem.priority]
      */
@@ -218,16 +199,6 @@ class ViewScoresScreen {
         const val DROPDOWN_MENU_ITEM = "VIEW_SCORES_DROPDOWN_MENU_ITEM"
     }
 
-    private val listenersForPreviews = object : ViewScoreScreenListener() {
-        override fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean =
-                true
-
-        override fun noRoundsDialogDismissedListener() {}
-        override fun convertScoreDialogOkListener(entryIndex: Int?, convertType: ConvertScoreType) {}
-        override fun toggleListItemSelected(entryIndex: Int) {}
-        override fun deleteDialogOkListener(entryIndex: Int?) {}
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     @Preview(
             showBackground = true,
@@ -237,11 +208,10 @@ class ViewScoresScreen {
     fun ViewScoresScreen_Preview() {
         CodexTheme {
             ComposeContent(
-                    entries = ViewScoresEntryPreviewProvider.generateEntries(20),
-                    listState = rememberViewScoresListActionState(mapOf(), mapOf()),
-                    isInMultiSelectMode = false,
-                    listener = listenersForPreviews,
-                    newListener = {},
+                    state = ViewScoresState(
+                            data = ViewScoresEntryPreviewProvider.generateEntries(20),
+                    ),
+                    listener = {},
             )
         }
     }
@@ -255,11 +225,11 @@ class ViewScoresScreen {
     fun MultiSelectMode_ViewScoresScreen_Preview() {
         CodexTheme {
             ComposeContent(
-                    entries = ViewScoresEntryPreviewProvider.generateEntries(20),
-                    listState = rememberViewScoresListActionState(mapOf(), mapOf()),
-                    isInMultiSelectMode = true,
-                    listener = listenersForPreviews,
-                    newListener = {},
+                    state = ViewScoresState(
+                            isInMultiSelectMode = true,
+                            data = ViewScoresEntryPreviewProvider.generateEntries(20),
+                    ),
+                    listener = {},
             )
         }
     }
@@ -275,11 +245,8 @@ class ViewScoresScreen {
         CodexTheme {
             Box(modifier = Modifier.fillMaxSize()) {
                 ComposeContent(
-                        entries = listOf(),
-                        listState = rememberViewScoresListActionState(mapOf(), mapOf()),
-                        isInMultiSelectMode = false,
-                        listener = listenersForPreviews,
-                        newListener = {},
+                        state = ViewScoresState(),
+                        listener = {},
                 )
             }
         }
@@ -296,17 +263,12 @@ class ViewScoresScreen {
         CodexTheme {
             Box(modifier = Modifier.fillMaxSize()) {
                 ComposeContent(
-                        entries = ViewScoresEntryPreviewProvider.generateEntries(20),
-                        listState = rememberViewScoresListActionState(
-                                singleClickActions = mapOf(),
-                                dropdownMenuItems = mapOf(),
-                                isDropdownOpen = false,
-                                isConvertScoreOpen = true,
-                                lastOpenedForIndex = 2,
+                        state = ViewScoresState(
+                                data = ViewScoresEntryPreviewProvider.generateEntries(20),
+                                lastClickedEntryId = 2,
+                                convertScoreDialogOpen = true,
                         ),
-                        isInMultiSelectMode = false,
-                        listener = listenersForPreviews,
-                        newListener = {},
+                        listener = {},
                 )
             }
         }

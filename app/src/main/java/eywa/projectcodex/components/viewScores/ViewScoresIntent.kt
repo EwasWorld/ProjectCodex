@@ -1,26 +1,34 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 
 sealed class ViewScoresIntent {
-    data class ToggleEntrySelected(val entryIndex: Int) : ViewScoresIntent()
-
-    /**
-     * Deletes the specified [ArcherRound] and all its [ArrowValue]s
-     */
-    data class DeleteRound(val archerRoundId: Int) : ViewScoresIntent()
-
-    data class UpdateArrowValues(val arrows: List<ArrowValue>) : ViewScoresIntent()
+    data class EntryClicked(val archerRoundId: Int) : ViewScoresIntent()
+    data class EntryLongClicked(val archerRoundId: Int) : ViewScoresIntent()
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ViewScoresIntent()
-
     data class MultiSelectAction(val action: MultiSelectBarIntent) : ViewScoresIntent()
+    data class ConvertScoreAction(val action: ConvertScoreIntent) : ViewScoresIntent()
 
+    data class DropdownMenuClicked(val item: ViewScoresDropdownMenuItem) : ViewScoresIntent()
+    object DropdownMenuClosed : ViewScoresIntent()
+
+    object NoRoundsDialogOkClicked : ViewScoresIntent()
+
+    object DeleteDialogOkClicked : ViewScoresIntent()
+    object DeleteDialogCancelClicked : ViewScoresIntent()
+
+    object HandledNoRoundsDialogOkClicked : EffectComplete()
     object HandledEmailClicked : EffectComplete()
     object HandledEmailNoSelection : EffectComplete()
+    object HandledScorePadOpened : EffectComplete()
+    object HandledInputEndOpened : EffectComplete()
+    object HandledInputEndOnCompletedRound : EffectComplete()
+    object HandledEmailOpened : EffectComplete()
+    object HandledEditInfoOpened : EffectComplete()
 
     sealed class EffectComplete : ViewScoresIntent()
 }

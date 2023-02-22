@@ -9,6 +9,7 @@ import eywa.projectcodex.database.arrowValue.getHits
 import eywa.projectcodex.database.arrowValue.getScore
 import eywa.projectcodex.database.rounds.*
 
+// TODO_CURRENT Bug: init can throw a null pointer exception on deletion of an archer round. Investigate
 data class FullArcherRoundInfo(
         val archerRound: ArcherRound,
         val arrows: List<ArrowValue>?,

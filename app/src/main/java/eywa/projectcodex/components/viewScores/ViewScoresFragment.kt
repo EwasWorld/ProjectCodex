@@ -10,38 +10,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
-import eywa.projectcodex.components.viewScores.ui.rememberViewScoresListActionState
-import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
-import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ViewScoresFragment : Fragment(), ActionBarHelp {
     private val viewScoresViewModel: ViewScoresViewModel by activityViewModels()
     private var viewScoresScreen = ViewScoresScreen()
-
-    private val dropDownMenuItems = mapOf(
-            ViewScoresEntry::class to listOf(
-                    ViewScoresDropdownMenuItem.SCORE_PAD,
-                    ViewScoresDropdownMenuItem.CONTINUE,
-                    ViewScoresDropdownMenuItem.EMAIL_SCORE,
-                    ViewScoresDropdownMenuItem.EDIT_INFO,
-                    ViewScoresDropdownMenuItem.DELETE,
-                    ViewScoresDropdownMenuItem.CONVERT,
-            )
-    )
-
-    private val entrySingleClickActions = mapOf(
-            ViewScoresEntry::class to ViewScoresDropdownMenuItem.SCORE_PAD,
-    )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
@@ -52,19 +35,8 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
                     LaunchedEffect(state) { launch { handleEffects(state) } }
 
                     viewScoresScreen.ComposeContent(
-                            entries = state.data,
-                            rememberViewScoresListActionState(
-                                    singleClickActions = entrySingleClickActions,
-                                    dropdownMenuItems = dropDownMenuItems
-                            ),
-                            isInMultiSelectMode = state.isInMultiSelectMode,
-                            listener = ViewScoreScreenListenerImpl(viewScoresViewModel, requireView()) {
-                                ToastSpamPrevention.displayToast(
-                                        requireContext(),
-                                        requireContext().resources.getString(it)
-                                )
-                            },
-                            newListener = { viewScoresViewModel.handle(it) },
+                            state = state,
+                            listener = { viewScoresViewModel.handle(it) },
                     )
                 }
             }
@@ -73,15 +45,74 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
 
     private fun handleEffects(state: ViewScoresState) {
         if (state.multiSelectEmailClicked) {
-            requireView().findNavController().navigate(R.id.emailFragment)
+            findNavController().navigate(R.id.emailFragment)
             viewScoresViewModel.handle(ViewScoresIntent.HandledEmailClicked)
         }
+
         if (state.multiSelectEmailNoSelection) {
             ToastSpamPrevention.displayToast(
                     requireContext(),
                     requireContext().resources.getString(R.string.err_view_score__no_rounds_selected)
             )
             viewScoresViewModel.handle(ViewScoresIntent.HandledEmailNoSelection)
+        }
+
+        if (state.openScorePadClicked) {
+            if (state.lastClickedEntryId != null) {
+                val args = Bundle().apply {
+                    putString("screen", ArcherRoundScreen.SCORE_PAD.name)
+                    putInt("archerRoundId", state.lastClickedEntryId)
+                }
+                findNavController().navigate(R.id.archerRoundFragment, args)
+            }
+            viewScoresViewModel.handle(ViewScoresIntent.HandledScorePadOpened)
+        }
+
+        if (state.openInputEndOnCompletedRound) {
+            if (state.lastClickedEntryId != null) {
+                CustomLogger.customLogger.w(LOG_TAG, "Tried to continue completed round")
+                ToastSpamPrevention.displayToast(
+                        requireContext(),
+                        resources.getString(R.string.err_view_score__round_already_complete)
+                )
+            }
+            viewScoresViewModel.handle(ViewScoresIntent.HandledInputEndOnCompletedRound)
+        }
+
+        if (state.openInputEndClicked) {
+            if (state.lastClickedEntryId != null) {
+                val args = Bundle().apply {
+                    putString("screen", ArcherRoundScreen.INPUT_END.name)
+                    putInt("archerRoundId", state.lastClickedEntryId)
+                }
+                findNavController().navigate(R.id.archerRoundFragment, args)
+            }
+            viewScoresViewModel.handle(ViewScoresIntent.HandledInputEndOpened)
+        }
+
+        if (state.openEmailClicked) {
+            if (state.lastClickedEntryId != null) {
+                val args = Bundle().apply {
+                    putInt("archerRoundId", state.lastClickedEntryId)
+                }
+                findNavController().navigate(R.id.emailFragment, args)
+            }
+            viewScoresViewModel.handle(ViewScoresIntent.HandledEmailOpened)
+        }
+
+        if (state.openEditInfoClicked) {
+            if (state.lastClickedEntryId != null) {
+                val args = Bundle().apply {
+                    putInt("archerRoundId", state.lastClickedEntryId)
+                }
+                findNavController().navigate(R.id.newScoreFragment, args)
+            }
+            viewScoresViewModel.handle(ViewScoresIntent.HandledEditInfoOpened)
+        }
+
+        if (state.noRoundsDialogOkClicked) {
+            findNavController().popBackStack()
+            viewScoresViewModel.handle(ViewScoresIntent.HandledNoRoundsDialogOkClicked)
         }
     }
 
@@ -93,41 +124,5 @@ class ViewScoresFragment : Fragment(), ActionBarHelp {
 
     companion object {
         const val LOG_TAG = "ViewScores"
-    }
-
-    class ViewScoreScreenListenerImpl(
-            private val viewScoresViewModel: ViewScoresViewModel,
-            private val view: View,
-            private val displayToast: (messageId: Int) -> Unit
-    ) : ViewScoresScreen.ViewScoreScreenListener() {
-        override fun dropdownMenuItemClicked(entry: ViewScoresEntry, menuItem: ViewScoresDropdownMenuItem): Boolean {
-            return menuItem.onClick(entry, view, contextMenuState)
-        }
-
-        override fun toggleListItemSelected(entryIndex: Int) =
-                viewScoresViewModel.handle(ViewScoresIntent.ToggleEntrySelected(entryIndex))
-
-        override fun noRoundsDialogDismissedListener() {
-            view.findNavController().popBackStack()
-        }
-
-        override fun convertScoreDialogOkListener(entryIndex: Int?, convertType: ConvertScoreType) {
-            if (entryIndex == null) {
-                displayToast(R.string.err__try_again_error)
-                return
-            }
-            viewScoresViewModel.state.value.data[entryIndex].arrows
-                    ?.let { oldArrows -> convertType.convertScore(oldArrows) }
-                    ?.takeIf { it.isNotEmpty() }
-                    ?.let { viewScoresViewModel.handle(ViewScoresIntent.UpdateArrowValues(it)) }
-        }
-
-        override fun deleteDialogOkListener(entryIndex: Int?) {
-            if (entryIndex == null) {
-                displayToast(R.string.err__try_again_error)
-                return
-            }
-            viewScoresViewModel.handle(ViewScoresIntent.DeleteRound(viewScoresViewModel.state.value.data[entryIndex].id))
-        }
     }
 }

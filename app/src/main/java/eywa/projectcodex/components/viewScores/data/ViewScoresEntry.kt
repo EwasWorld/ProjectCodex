@@ -9,6 +9,7 @@ import eywa.projectcodex.common.utils.resourceStringReplace
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
+import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -117,6 +118,17 @@ data class ViewScoresEntry(
             return false
         }
     }
+
+    fun getSingleClickAction() = ViewScoresDropdownMenuItem.SCORE_PAD
+
+    fun getDropdownMenuItems() = listOf(
+            ViewScoresDropdownMenuItem.SCORE_PAD,
+            ViewScoresDropdownMenuItem.CONTINUE,
+            ViewScoresDropdownMenuItem.EMAIL_SCORE,
+            ViewScoresDropdownMenuItem.EDIT_INFO,
+            ViewScoresDropdownMenuItem.DELETE,
+            ViewScoresDropdownMenuItem.CONVERT,
+    ).filter { it.shouldShow?.invoke(this) ?: true }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
