@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.sharedUi
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.selection.selectable
@@ -64,28 +65,30 @@ fun <T : HasDisplayTitle> RadioButtonDialogContent(
                     onClick = { onPositiveButtonPressed(state.currentItem) }
             ),
     ) {
-        state.items.forEachIndexed { index, item ->
-            Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(selected = index == state.selectedIndex) {
-                                state.selectedIndex = index
-                            }
-                            .testTag(RadioButtonDialogTestTag.RADIO_BUTTON)
-            ) {
-                RadioButton(
-                        selected = index == state.selectedIndex,
-                        onClick = { state.selectedIndex = index },
-                        colors = RadioButtonDefaults.colors(
-                                selectedColor = CodexTheme.colors.dialogRadioButton,
-                        ),
-                        modifier = Modifier.clearAndSetSemantics { }
-                )
-                Text(
-                        text = stringResource(id = item.displayTitle),
-                        style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
-                )
+        Column {
+            state.items.forEachIndexed { index, item ->
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(selected = index == state.selectedIndex) {
+                                    state.selectedIndex = index
+                                }
+                                .testTag(RadioButtonDialogTestTag.RADIO_BUTTON)
+                ) {
+                    RadioButton(
+                            selected = index == state.selectedIndex,
+                            onClick = { state.selectedIndex = index },
+                            colors = RadioButtonDefaults.colors(
+                                    selectedColor = CodexTheme.colors.dialogRadioButton,
+                            ),
+                            modifier = Modifier.clearAndSetSemantics { }
+                    )
+                    Text(
+                            text = stringResource(id = item.displayTitle),
+                            style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
+                    )
+                }
             }
         }
     }
