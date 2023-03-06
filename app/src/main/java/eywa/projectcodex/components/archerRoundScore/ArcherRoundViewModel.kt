@@ -100,8 +100,9 @@ class ArcherRoundViewModel @Inject constructor(
         fun Loading.tryToMoveFromLoading(): ArcherRoundState = when {
             currentScreen == null || fullArcherRoundInfo == null -> this
             // Cannot input an end into a completed round
-            (fullArcherRoundInfo.remainingArrows
-                    ?: 1) == 0 && currentScreen == INPUT_END -> throw IllegalStateException()
+            // TODO Investigate - not sure how this state is possible but have had multiple crashes on Google play
+            (fullArcherRoundInfo.remainingArrows ?: 1) == 0 && currentScreen == INPUT_END ->
+                Loaded(currentScreen, fullArcherRoundInfo, displayRoundCompletedDialog = true)
             else -> Loaded(currentScreen, fullArcherRoundInfo)
         }
 
