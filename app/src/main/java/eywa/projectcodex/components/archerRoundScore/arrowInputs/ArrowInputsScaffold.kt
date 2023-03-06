@@ -1,6 +1,8 @@
 package eywa.projectcodex.components.archerRoundScore.arrowInputs
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -71,21 +73,35 @@ fun ArrowInputsScaffold(
         content: @Composable () -> Unit,
 ) {
     Column(
-            verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 20.dp)
                     .testTag(testTag)
     ) {
         Spacer(modifier = Modifier.weight(1f))
-        content()
+        Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            content()
+        }
         Spacer(modifier = Modifier.weight(1f))
 
-        ArrowInputs(state, showResetButton, helpListener, listener)
+        ArrowInputs(
+                state = state,
+                showResetButton = showResetButton,
+                horizontalPadding = 20.dp,
+                verticalPadding = 10.dp,
+                helpListener = helpListener,
+                listener = listener,
+        )
 
         Row(
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier.padding(horizontal = 20.dp)
         ) {
             if (showCancelButton) {
                 helpListener(

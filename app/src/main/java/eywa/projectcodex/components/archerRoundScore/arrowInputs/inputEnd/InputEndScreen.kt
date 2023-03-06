@@ -11,6 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
@@ -56,6 +57,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                     state.fullArcherRoundInfo.arrowsShot,
             )
             RemainingArrowsIndicator(state.fullArcherRoundInfo)
+            Spacer(modifier = Modifier.size(DpSize.Zero))
         }
     }
 
@@ -106,6 +108,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 color = CodexTheme.colors.onAppBackground,
                 textAlign = TextAlign.Center,
                 fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
+                fontSize = if (isHeader) CodexTypography.NORMAL.fontSize else CodexTypography.LARGE.fontSize,
                 modifier = modifier
                         .fillMaxWidth()
                         .border(1.dp, CodexTheme.colors.onAppBackground)
@@ -171,6 +174,19 @@ class InputEndScreen : ArcherRoundSubScreen() {
     )
     @Composable
     fun InputEndScreen_Preview() {
+        CodexTheme {
+            ScreenContent(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
+        }
+    }
+
+    @Preview(
+            showBackground = true,
+            backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+            heightDp = 450,
+            widthDp = 330,
+    )
+    @Composable
+    fun Mini_InputEndScreen_Preview() {
         CodexTheme {
             ScreenContent(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
         }

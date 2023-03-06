@@ -28,6 +28,6 @@ object ArcherRoundsPreviewHelper {
     val WITH_SHOT_ARROWS = SIMPLE.copy(
             fullArcherRoundInfo = SIMPLE.fullArcherRoundInfo.copy(
                     arrows = List(20) { ArrowValue(1, it, 7, false) },
-            ).addRound(round)
+            ).addRound(RoundPreviewHelper.indoorMetricRoundData)
     )
 }

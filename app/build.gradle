@@ -238,6 +238,8 @@ dependencies {
     implementation 'androidx.compose.runtime:runtime-rxjava2:1.1.1'
     // UI Tests
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
+
+    implementation "com.google.accompanist:accompanist-flowlayout:0.23.1"
 }
 
 allprojects {

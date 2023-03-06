@@ -1,6 +1,8 @@
 package eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -12,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -28,9 +31,14 @@ private val SPACING = 5.dp
 fun ArrowButtonGroup(
         round: Round?,
         modifier: Modifier = Modifier,
+        horizontalPadding: Dp = 0.dp,
         onClick: (Arrow) -> Unit,
 ) {
-    Box(modifier = modifier) {
+    Row(
+            modifier = modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = horizontalPadding)
+    ) {
         when {
             round == null -> TenZoneArrowButtonGroup(onClick)
             round.name.contains("WORCESTER", ignoreCase = true) -> WorcesterArrowButtonGroup(onClick)
@@ -116,8 +124,7 @@ private fun ArrowButton.Button(
             onClick = { onClick(arrow) },
             color = getBackgroundColour(),
             contentColor = getContentColour(),
-            modifier = Modifier
-                    .size(50.dp)
+            modifier = Modifier.size(50.dp)
     ) {
         Box(
                 contentAlignment = Alignment.Center,
