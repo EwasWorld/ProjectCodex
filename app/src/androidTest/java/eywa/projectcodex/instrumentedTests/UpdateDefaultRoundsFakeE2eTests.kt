@@ -1,5 +1,6 @@
 package eywa.projectcodex.instrumentedTests
 
+import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -40,7 +41,9 @@ class UpdateDefaultRoundsFakeE2eTests {
 
     @Before
     fun setup() {
+        Log.i("UpdateFakeTest", "Point a")
         hiltRule.inject()
+        Log.i("UpdateFakeTest", "Point b")
     }
 
     @After
@@ -53,7 +56,10 @@ class UpdateDefaultRoundsFakeE2eTests {
      */
     @Test
     fun testUpdateIsCalledOnActivityStart() {
+        Log.i("UpdateFakeTest", "Point 1")
         scenario = rule.scenario
+        Log.i("UpdateFakeTest", "Point 2")
         assertEquals(1, LocalUpdateDefaultRoundsModule.mockedTask!!.runTaskCalls)
+        Log.i("UpdateFakeTest", "Point 3")
     }
 }

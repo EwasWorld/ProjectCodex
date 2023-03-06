@@ -13,10 +13,7 @@ import eywa.projectcodex.common.click
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.hiltModules.LocalUpdateDefaultRoundsModule
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
@@ -26,7 +23,18 @@ class UpdateDefaultRoundsActualE2eTests {
     companion object {
         init {
             SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
+        }
+
+        @Suppress("unused")
+        @BeforeClass
+        fun classSetup() {
             LocalUpdateDefaultRoundsModule.useActual = true
+        }
+
+        @Suppress("unused")
+        @AfterClass
+        fun classTeardown() {
+            LocalUpdateDefaultRoundsModule.useActual = false
         }
     }
 
@@ -47,7 +55,7 @@ class UpdateDefaultRoundsActualE2eTests {
     }
 
     @After
-    fun afterEach() {
+    fun teardown() {
         CommonSetupTeardownFns.teardownScenario(scenario)
     }
 

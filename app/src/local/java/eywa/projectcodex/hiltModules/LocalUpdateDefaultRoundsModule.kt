@@ -3,6 +3,7 @@ package eywa.projectcodex.hiltModules
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -71,6 +72,7 @@ class FakeUpdateDefaultRoundsTask(
         }
 
     override suspend fun runTask(): Boolean {
+        Log.i("UpdateFakeTest", "Run called")
         runTaskCalls++
         return runTaskFakeReturn
     }
