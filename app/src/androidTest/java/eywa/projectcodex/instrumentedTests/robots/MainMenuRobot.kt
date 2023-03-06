@@ -5,19 +5,13 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 
 class MainMenuRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, MainMenuFragment::class) {
-    init {
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
-    }
-
+) : BaseRobot(composeTestRule, MainMenuScreen.TestTag.SCREEN) {
     fun clickNewScore(block: NewScoreRobot.() -> Unit = {}) {
         clickElement(MainMenuScreen.TestTag.NEW_SCORE)
         NewScoreRobot(composeTestRule).apply { block() }

@@ -16,4 +16,8 @@ object ArrowInputsTestTag {
     const val END_TOTAL_TEXT = "${PREFIX}END_TOTAL_TEXT"
 
     const val CONTENT_TEXT = "${PREFIX}CONTENT_TEXT"
+
+    const val INPUT_SCREEN = "${PREFIX}INPUT_SCREEN"
+    const val INSERT_SCREEN = "${PREFIX}INSERT_SCREEN"
+    const val EDIT_SCREEN = "${PREFIX}EDIT_SCREEN"
 }

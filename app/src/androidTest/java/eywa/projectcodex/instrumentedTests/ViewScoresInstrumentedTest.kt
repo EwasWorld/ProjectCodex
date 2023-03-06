@@ -7,12 +7,9 @@ import androidx.test.espresso.Espresso.pressBack
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
-import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.newScore.NewScoreFragment
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
@@ -119,15 +116,17 @@ class ViewScoresInstrumentedTest {
                 RoundDistance(2, 1, 1, 60),
                 RoundDistance(2, 1, 2, 50)
         )
-        val firstOfThisYear = Calendar.Builder()
-                .setFields(
-                        Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR),
-                        Calendar.MONTH, Calendar.JANUARY,
-                        Calendar.DAY_OF_MONTH, 1,
-                        Calendar.HOUR_OF_DAY, 10,
-                )
-                .build()
-                .time
+
+        val firstOfThisYear = Date(Calendar.getInstance().get(Calendar.YEAR), Calendar.JANUARY, 1, 10, 0, 0)
+//        val firstOfThisYear = Calendar.Builder()
+//                .setFields(
+//                        Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR),
+//                        Calendar.MONTH, Calendar.JANUARY,
+//                        Calendar.DAY_OF_MONTH, 1,
+//                        Calendar.HOUR_OF_DAY, 10,
+//                )
+//                .build()
+//                .time
         archerRounds = listOf(
                 ArcherRound(1, firstOfThisYear, 1),
                 ArcherRound(2, Date.valueOf("2012-2-2"), 1, roundId = 1),
@@ -244,15 +243,13 @@ class ViewScoresInstrumentedTest {
 
                 // Long click - email
                 longClickRow(rowId)
-                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (EmailScoresFragment::class))
+                clickEmailDropdownMenuItem { }
                 assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
                 pressBack()
 
                 // Long click - edit
                 longClickRow(rowId)
-                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EDIT_MENU_ITEM)
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (NewScoreFragment::class))
+                clickEditDropdownMenuItem { }
                 assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
                 pressBack()
             }
@@ -444,6 +441,34 @@ class ViewScoresInstrumentedTest {
                             }
                     )
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testHelp_withMultiselect() {
+        archerRounds = TestUtils.generateArcherRounds(20).map { ArcherRoundWithRoundInfoAndName(it) }
+        populateDb()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickStartMultiSelectMode()
+                cycleThroughComposeHelpDialogs()
+            }
+        }
+    }
+
+    @Test
+    fun testHelp_withScroll() {
+        archerRounds = TestUtils.generateArcherRounds(20).map { ArcherRoundWithRoundInfoAndName(it) }
+        populateDb()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                scrollToRow(19)
+                cycleThroughComposeHelpDialogs()
             }
         }
     }

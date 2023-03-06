@@ -10,6 +10,7 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
 class EditEndScreen : ArcherRoundSubScreen() {
@@ -36,6 +37,7 @@ class EditEndScreen : ArcherRoundSubScreen() {
                 submitHelpInfoBody = stringResource(R.string.help_edit_end__complete_body),
                 cancelHelpInfoTitle = stringResource(R.string.help_edit_end__cancel_title),
                 cancelHelpInfoBody = stringResource(R.string.help_edit_end__cancel_body),
+                testTag = ArrowInputsTestTag.EDIT_SCREEN,
                 listener = listener,
         )
     }

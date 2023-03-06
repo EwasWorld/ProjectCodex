@@ -21,6 +21,7 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
+import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 
 // TODO_CURRENT Help info for table and remaining arrows
@@ -47,6 +48,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 helpListener = { listener(ArcherRoundIntent.HelpShowcaseAction(it)) },
                 submitHelpInfoTitle = stringResource(R.string.help_input_end__next_end_title),
                 submitHelpInfoBody = stringResource(R.string.help_input_end__next_end_body),
+                testTag = ArrowInputsTestTag.INPUT_SCREEN,
                 listener = listener,
         ) {
             ScoreIndicator(

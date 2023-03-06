@@ -351,8 +351,7 @@ class InputEndInstrumentedTest {
                     completeEnd("1")
                     clickRoundCompleteOk { }
 
-                    clickNavBarInputEnd { }
-                    clickCannotInputMoreEndsOk()
+                    clickNavBarInputEndWhileRoundComplete()
                 }
             }
         }

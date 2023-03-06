@@ -130,7 +130,6 @@ class ScorePadScreen : ArcherRoundSubScreen() {
             )
         }
 
-        if (state.scorePadData.isNullOrEmpty()) return
 
         // TODO Make the row and column headers stick
         Row(
@@ -140,59 +139,62 @@ class ScorePadScreen : ArcherRoundSubScreen() {
                         .horizontalScroll(rememberScrollState())
                         .verticalScroll(rememberScrollState())
                         .padding(5.dp)
+                        .testTag(TestTag.SCREEN)
         ) {
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(IntrinsicSize.Max)
-            ) {
-                // Placeholder for the first row which is the column header for other columns
-                Cell(
-                        text = "",
-                        listener = listener,
-                )
-                state.scorePadData.data.forEach { rowData ->
-                    Cell(
-                            rowData = rowData,
-                            listener = listener,
-                    )
-                }
-            }
-
-            COLUMN_HEADER_ORDER.forEach { columnHeader ->
-                helpListener(
-                        HelpShowcaseIntent.Add(
-                                HelpShowcaseItem(
-                                        helpTitle = columnHeader.getHelpTitle(),
-                                        helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
-                                )
-                        )
-                )
-
+            if (!state.scorePadData.isNullOrEmpty()) {
                 Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.width(IntrinsicSize.Max)
                 ) {
+                    // Placeholder for the first row which is the column header for other columns
                     Cell(
-                            text = stringResource(columnHeader.getShortResourceId(state.scorePadData.goldsType)),
-                            columnType = columnHeader,
+                            text = "",
                             listener = listener,
-                            modifier = Modifier.updateHelpDialogPosition(helpListener, columnHeader.getHelpTitle())
+                    )
+                    state.scorePadData.data.forEach { rowData ->
+                        Cell(
+                                rowData = rowData,
+                                listener = listener,
+                        )
+                    }
+                }
+
+                COLUMN_HEADER_ORDER.forEach { columnHeader ->
+                    helpListener(
+                            HelpShowcaseIntent.Add(
+                                    HelpShowcaseItem(
+                                            helpTitle = columnHeader.getHelpTitle(),
+                                            helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
+                                    )
+                            )
                     )
 
-                    state.scorePadData.data.forEach { rowData ->
-                        Box {
-                            Cell(
-                                    rowData = rowData,
-                                    columnType = columnHeader,
-                                    listener = listener,
-                            )
-                            DropdownMenu(
-                                    isRoundFull = state.isRoundFull,
-                                    expanded = state.dropdownMenuOpenForEndNumber != null
-                                            && columnHeader == ColumnHeader.ARROWS
-                                            && (rowData as? ScorePadRow.End)?.endNumber == state.dropdownMenuOpenForEndNumber,
-                                    listener = listener,
-                            )
+                    Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.width(IntrinsicSize.Max)
+                    ) {
+                        Cell(
+                                text = stringResource(columnHeader.getShortResourceId(state.scorePadData.goldsType)),
+                                columnType = columnHeader,
+                                listener = listener,
+                                modifier = Modifier.updateHelpDialogPosition(helpListener, columnHeader.getHelpTitle())
+                        )
+
+                        state.scorePadData.data.forEach { rowData ->
+                            Box {
+                                Cell(
+                                        rowData = rowData,
+                                        columnType = columnHeader,
+                                        listener = listener,
+                                )
+                                DropdownMenu(
+                                        isRoundFull = state.isRoundFull,
+                                        expanded = state.dropdownMenuOpenForEndNumber != null
+                                                && columnHeader == ColumnHeader.ARROWS
+                                                && (rowData as? ScorePadRow.End)?.endNumber == state.dropdownMenuOpenForEndNumber,
+                                        listener = listener,
+                                )
+                            }
                         }
                     }
                 }
@@ -282,6 +284,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
 
     object TestTag {
         private const val PREFIX = "SCORE_PAD_"
+        const val SCREEN = "${PREFIX}SCREEN"
         const val CELL = "${PREFIX}CELL"
         const val DROPDOWN_MENU_ITEM = "${PREFIX}DROPDOWN_MENU_ITEM"
     }

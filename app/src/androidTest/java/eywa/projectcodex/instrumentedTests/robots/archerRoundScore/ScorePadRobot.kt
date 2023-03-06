@@ -5,16 +5,16 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.transpose
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
+import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen.TestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
 
 class ScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArcherRoundRobot(composeTestRule) {
+) : ArcherRoundRobot(composeTestRule, TestTag.SCREEN) {
     fun waitForLoad() {
         CustomConditionWaiter.waitForComposeCondition {
             composeTestRule
-                    .onAllNodesWithTag(ScorePadScreen.TestTag.CELL)
+                    .onAllNodesWithTag(TestTag.CELL)
                     .onFirst()
                     .assertIsDisplayed()
         }
@@ -25,7 +25,7 @@ class ScorePadRobot(
      */
     fun checkScorePadData(list: List<ExpectedRowData>) {
         val allCells = list.map { it.asList() }.transpose().flatten()
-        val nodes = composeTestRule.onAllNodesWithTag(ScorePadScreen.TestTag.CELL)
+        val nodes = composeTestRule.onAllNodesWithTag(TestTag.CELL)
 
         allCells.forEachIndexed { index, text ->
             nodes[index].assertTextEquals(text)
@@ -43,7 +43,7 @@ class ScorePadRobot(
      */
     fun clickRow(rowIndex: Int) {
         composeTestRule
-                .onAllNodesWithTag(ScorePadScreen.TestTag.CELL, useUnmergedTree = true)[rowIndex]
+                .onAllNodesWithTag(TestTag.CELL, useUnmergedTree = true)[rowIndex]
                 .performScrollTo()
                 .performClick()
     }
@@ -51,7 +51,7 @@ class ScorePadRobot(
     private fun clickDropdownMenuItem(menuItem: String) {
         composeTestRule
                 .onNode(
-                        matcher = hasTestTag(ScorePadScreen.TestTag.DROPDOWN_MENU_ITEM)
+                        matcher = hasTestTag(TestTag.DROPDOWN_MENU_ITEM)
                                 .and(hasAnyDescendant(hasText(menuItem))),
                         useUnmergedTree = true
                 )

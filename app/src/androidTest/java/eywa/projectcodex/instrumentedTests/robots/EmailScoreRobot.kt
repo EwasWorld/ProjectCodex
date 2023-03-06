@@ -4,13 +4,12 @@ import androidx.compose.ui.test.*
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresCheckbox
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.viewScores.emailScores.EmailScoresTextField
 
 class EmailScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, EmailScoresFragment::class) {
+) : BaseRobot(composeTestRule, EmailScoresScreen.TestTag.SCREEN) {
     fun typeText(field: EmailScoresTextField, text: String, clearTextFirst: Boolean = false) {
         val node = composeTestRule.onNodeWithTag(EmailScoresScreen.TestTag.forTextField(field))
         if (clearTextFirst) node.performTextClearance()

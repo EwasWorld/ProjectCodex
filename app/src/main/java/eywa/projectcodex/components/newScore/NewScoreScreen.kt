@@ -60,6 +60,7 @@ class NewScoreScreen {
                             .fillMaxSize()
                             .background(CodexTheme.colors.appBackground)
                             .padding(25.dp)
+                            .testTag(TestTag.SCREEN)
             ) {
                 DateRow(state, listener)
 
@@ -267,6 +268,8 @@ class NewScoreScreen {
 
     object TestTag {
         private const val PREFIX = "NEW_SCORE_"
+
+        const val SCREEN = "${PREFIX}SCREEN"
         const val DATABASE_WARNING = "${PREFIX}DATABASE_WARNING"
         const val SUBMIT_BUTTON = "${PREFIX}SUBMIT"
         const val CANCEL_BUTTON = "${PREFIX}CANCEL"

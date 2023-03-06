@@ -71,10 +71,13 @@ object TestUtils {
     val ROUND_DISTANCES = listOf(
             RoundDistance(1, 1, 1, 90),
             RoundDistance(1, 2, 1, 80),
+            RoundDistance(1, 3, 1, 70),
             RoundDistance(1, 1, 2, 80),
             RoundDistance(1, 2, 2, 70),
+            RoundDistance(1, 3, 2, 60),
             RoundDistance(1, 1, 3, 70),
             RoundDistance(1, 2, 3, 60),
+            RoundDistance(1, 3, 3, 50),
             RoundDistance(2, 1, 1, 100),
             RoundDistance(3, 1, 1, 50),
             RoundDistance(3, 2, 1, 30),

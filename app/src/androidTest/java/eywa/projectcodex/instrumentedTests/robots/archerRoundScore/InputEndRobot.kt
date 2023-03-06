@@ -11,7 +11,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 class InputEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArrowInputsRobot(composeTestRule) {
+) : ArrowInputsRobot(composeTestRule, ArrowInputsTestTag.INPUT_SCREEN) {
     fun waitForLoad() {
         CustomConditionWaiter.waitForComposeCondition {
             composeTestRule
@@ -59,10 +59,7 @@ class InputEndRobot(
         ArcherRoundStatsRobot(composeTestRule).apply(block)
     }
 
-    fun clickCannotInputMoreEndsOk() = clickDialogOk(CANNOT_INPUT_END_DIALOG_TITLE)
-
     companion object {
         private const val ROUND_COMPLETE_DIALOG_TITLE = "Round Complete"
-        private const val CANNOT_INPUT_END_DIALOG_TITLE = "Round is complete"
     }
 }

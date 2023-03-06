@@ -67,7 +67,9 @@ class EmailScoresScreen : ActionBarHelp {
         HelpDialogs(helpListener)
         Box(
                 contentAlignment = Alignment.BottomEnd,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(TestTag.SCREEN)
         ) {
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -283,12 +285,14 @@ class EmailScoresScreen : ActionBarHelp {
     )
 
     object TestTag {
-        private const val prefix = "EMAIL_SCORE_"
-        const val SCORE_TEXT = "${prefix}SCORE_TEXT"
-        const val SEND_BUTTON = "${prefix}SEND_BUTTON"
+        private const val PREFIX = "EMAIL_SCORE_"
 
-        fun forTextField(field: EmailScoresTextField) = "${prefix}TEXT_FIELD_" + field.toString()
-        fun forCheckbox(field: EmailScoresCheckbox) = "${prefix}CHECK_BOX_" + field.toString()
+        const val SCREEN = "${PREFIX}SCREEN"
+        const val SCORE_TEXT = "${PREFIX}SCORE_TEXT"
+        const val SEND_BUTTON = "${PREFIX}SEND_BUTTON"
+
+        fun forTextField(field: EmailScoresTextField) = "${PREFIX}TEXT_FIELD_" + field.toString()
+        fun forCheckbox(field: EmailScoresCheckbox) = "${PREFIX}CHECK_BOX_" + field.toString()
     }
 
     @Preview(

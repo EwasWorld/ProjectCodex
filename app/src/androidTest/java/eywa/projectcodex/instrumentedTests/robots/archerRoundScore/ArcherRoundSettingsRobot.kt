@@ -9,7 +9,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 class ArcherRoundSettingsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArcherRoundRobot(composeTestRule) {
+) : ArcherRoundRobot(composeTestRule, TestTag.SCREEN) {
     fun setInputEndSize(size: Int) {
         composeTestRule.onNodeWithTag(TestTag.INPUT_END_SIZE).performTextClearance()
         composeTestRule.onNodeWithTag(TestTag.INPUT_END_SIZE).performTextInput(size.toString())

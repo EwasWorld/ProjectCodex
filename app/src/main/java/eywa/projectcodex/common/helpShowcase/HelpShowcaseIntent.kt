@@ -6,6 +6,7 @@ import eywa.projectcodex.common.utils.ResOrActual
 
 sealed class HelpShowcaseIntent {
     data class Add(val item: HelpShowcaseItem) : HelpShowcaseIntent()
+    data class AddDynamicInfo(val info: DynamicHelpShowcaseInfo) : HelpShowcaseIntent()
 
     data class Remove(
             val key: ResOrActual<String>

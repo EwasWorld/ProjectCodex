@@ -6,7 +6,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 class InsertEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArrowInputsRobot(composeTestRule) {
+) : ArrowInputsRobot(composeTestRule, ArrowInputsTestTag.INSERT_SCREEN) {
     fun clickCancel() = clickArrowInputsCancel()
 
     fun clickComplete() = clickArrowInputsSubmit()

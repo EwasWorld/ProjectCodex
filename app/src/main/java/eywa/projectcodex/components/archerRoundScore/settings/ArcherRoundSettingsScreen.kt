@@ -10,6 +10,7 @@ import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
@@ -48,6 +49,7 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                             .padding(25.dp)
+                            .testTag(TestTag.SCREEN)
             ) {
                 NumberSetting(
                         title = R.string.archer_round_settings__input_end_size,
@@ -75,6 +77,7 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
     object TestTag {
         private const val PREFIX = "ARCHER_ROUND_SETTINGS_"
 
+        const val SCREEN = "${PREFIX}SCREEN"
         const val SCORE_PAD_END_SIZE = "${PREFIX}SCORE_END_SIZE"
         const val INPUT_END_SIZE = "${PREFIX}INPUT_END_SIZE"
     }

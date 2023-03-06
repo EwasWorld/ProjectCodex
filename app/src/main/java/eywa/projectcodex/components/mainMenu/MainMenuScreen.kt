@@ -62,11 +62,12 @@ class MainMenuScreen : ActionBarHelp {
         addHelpInfo(helpListener)
 
         Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                         .fillMaxSize()
-                        .background(CodexTheme.colors.appBackground),
-                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally
+                        .background(CodexTheme.colors.appBackground)
+                        .testTag(TestTag.SCREEN)
         ) {
 
             CodexButton(
@@ -116,6 +117,8 @@ class MainMenuScreen : ActionBarHelp {
 
     object TestTag {
         private const val PREFIX = "MAIN_MENU_"
+
+        const val SCREEN = "${PREFIX}SCREEN"
         const val NEW_SCORE = "${PREFIX}NEW_SCORE_BUTTON"
         const val VIEW_SCORES = "${PREFIX}VIEW_SCORE_BUTTON"
         const val HANDICAP_TABLES = "${PREFIX}HANDICAP_TABLES_BUTTON"

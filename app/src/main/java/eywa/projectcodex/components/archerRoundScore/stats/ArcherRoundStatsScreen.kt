@@ -53,6 +53,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                             .padding(25.dp)
+                            .testTag(TestTag.SCREEN)
             ) {
                 Section {
                     DataRow(
@@ -148,6 +149,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
     object TestTag {
         private const val PREFIX = "ARCHER_ROUND_STATS_"
 
+        const val SCREEN = "${PREFIX}SCREEN"
         const val DATE_TEXT = "${PREFIX}DATE_TEXT"
         const val ROUND_TEXT = "${PREFIX}ROUND_TEXT"
         const val HITS_TEXT = "${PREFIX}HITS_TEXT"

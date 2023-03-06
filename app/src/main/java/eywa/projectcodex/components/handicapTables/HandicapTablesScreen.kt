@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +50,7 @@ class HandicapTablesScreen : ActionBarHelp {
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
                         .padding(vertical = 20.dp)
+                        .testTag(TestTag.SCREEN)
         ) {
             ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
                 CodexCheckbox(
@@ -256,6 +258,9 @@ class HandicapTablesScreen : ActionBarHelp {
     }
 
     object TestTag {
+        private const val PREFIX = "HANDICAP_TABLES_"
+
+        const val SCREEN = "${PREFIX}SCREEN"
     }
 
     @Preview

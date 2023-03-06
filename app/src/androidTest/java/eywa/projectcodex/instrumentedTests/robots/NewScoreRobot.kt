@@ -12,14 +12,13 @@ import eywa.projectcodex.common.*
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.newScore.NewScoreFragment
 import eywa.projectcodex.components.newScore.NewScoreScreen.TestTag
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import java.util.*
 
 class NewScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, NewScoreFragment::class) {
+) : BaseRobot(composeTestRule, TestTag.SCREEN) {
     init {
         waitForDatabaseUpdate()
     }

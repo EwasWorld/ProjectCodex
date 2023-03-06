@@ -26,23 +26,6 @@ class HelpShowcase {
     private val _state = MutableStateFlow(HelpShowcaseState())
     val state = _state.asStateFlow()
 
-    fun replaceContent(showcases: List<HelpShowcase>) {
-        val allStates = showcases.map { it.state.value }
-        val screens = allStates.mapNotNull { it.currentScreen }.distinct()
-        require(screens.size <= 1) { "Must all be the same screen" }
-        val allItems = allStates.flatMap { s -> s.helpInfoMap.map { it.key to it.value } }.toMap()
-
-        _state.update {
-            if (screens.isEmpty() || allItems.isEmpty()) {
-                return@update HelpShowcaseState()
-            }
-            HelpShowcaseState(
-                    currentScreen = screens.first(),
-                    helpInfoMap = allItems,
-            )
-        }
-    }
-
     internal fun updateItem(@StringRes key: Int, layoutCoordinates: LayoutCoordinates) =
             updateItem(ResOrActual.fromRes(key), layoutCoordinates)
 
@@ -64,6 +47,7 @@ class HelpShowcase {
 
             it.copy(
                     currentShowcase = it.helpInfoMap.values
+                            .plus(it.dynamicHelpShowcaseInfo?.start() ?: emptyList())
                             .sortedBy { v -> v.priority }
                             .map { v -> v.helpTitle },
                     currentlyDisplayedIndex = 0,
@@ -78,12 +62,16 @@ class HelpShowcase {
 
             if (nextIndex in it.currentShowcase.indices) return@update it.copy(currentlyDisplayedIndex = nextIndex)
 
+            it.dynamicHelpShowcaseInfo?.end()
             it.copy(currentShowcase = null, currentlyDisplayedIndex = null)
         }
     }
 
     fun endShowcase() {
-        _state.update { it.copy(currentShowcase = null, currentlyDisplayedIndex = null) }
+        _state.update {
+            it.dynamicHelpShowcaseInfo?.end()
+            it.copy(currentShowcase = null, currentlyDisplayedIndex = null)
+        }
     }
 
     fun clearNoShowcaseFlag() {
@@ -97,9 +85,25 @@ class HelpShowcase {
                     val newState = if (it.currentScreen != screen) HelpShowcaseState(currentScreen = screen!!) else it
                     newState.copy(helpInfoMap = newState.helpInfoMap.plus(action.item.helpTitle to action.item))
                 }
+            is HelpShowcaseIntent.AddDynamicInfo -> {
+                check(action.info.type == screen!!) { "Incorrect screen" }
+                _state.update {
+                    val newState = if (it.currentScreen != screen) HelpShowcaseState(currentScreen = screen) else it
+                    newState.copy(dynamicHelpShowcaseInfo = action.info)
+                }
+            }
             HelpShowcaseIntent.Clear -> _state.update { it.copy(helpInfoMap = emptyMap()) }
             is HelpShowcaseIntent.Remove -> _state.update { it.copy(helpInfoMap = it.helpInfoMap.minus(action.key)) }
             is HelpShowcaseIntent.UpdateCoordinates -> updateItem(action.key, action.layoutCoordinates)
+        }
+    }
+
+    companion object {
+        fun combineContent(showcases: List<HelpShowcase>): Map<ResOrActual<String>, HelpShowcaseItem> {
+            val allStates = showcases.map { it.state.value }
+            val screens = allStates.mapNotNull { it.currentScreen }.distinct()
+            require(screens.size <= 1) { "Must all be the same screen" }
+            return allStates.flatMap { s -> s.helpInfoMap.map { it.key to it.value } }.toMap()
         }
     }
 }

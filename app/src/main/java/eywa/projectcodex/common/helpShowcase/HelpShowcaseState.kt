@@ -6,6 +6,7 @@ import kotlin.reflect.KClass
 data class HelpShowcaseState(
         val currentScreen: KClass<out ActionBarHelp>? = null,
         val helpInfoMap: Map<ResOrActual<String>, HelpShowcaseItem> = emptyMap(),
+        val dynamicHelpShowcaseInfo: DynamicHelpShowcaseInfo? = null,
 
         val currentShowcase: List<ResOrActual<String>>? = null,
         val currentlyDisplayedIndex: Int? = null,
@@ -17,7 +18,11 @@ data class HelpShowcaseState(
                 && currentlyDisplayedIndex in currentShowcase.indices
 
     val currentItem
-        get() = if (!isInProgress) null else helpInfoMap[currentShowcase!![currentlyDisplayedIndex!!]]!!
+        get() =
+            if (!isInProgress) null
+            else currentShowcase!![currentlyDisplayedIndex!!].let {
+                helpInfoMap[it] ?: dynamicHelpShowcaseInfo!!.getInfoShowcases(it)!!
+            }
 
     val hasNextItem
         get() = currentShowcase != null && currentlyDisplayedIndex != null

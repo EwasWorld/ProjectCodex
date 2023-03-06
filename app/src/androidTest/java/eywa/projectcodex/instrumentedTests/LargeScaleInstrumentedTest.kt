@@ -483,27 +483,6 @@ class LargeScaleInstrumentedTest {
             }
 
             cycleThroughComposeHelpDialogs()
-
-            if (fragmentClass == ViewScoresRobot::class) {
-                with(ViewScoresRobot(composeTestRule)) {
-                    clickStartMultiSelectMode()
-                }
-                cycleThroughComposeHelpDialogs()
-            }
-        }
-    }
-
-    private fun BaseRobot.cycleThroughComposeHelpDialogs() {
-        clickHelpIcon()
-        while (true) {
-            checkHelpShowcaseIsDisplayed()
-            try {
-                clickHelpShowcaseNext()
-            }
-            catch (e: AssertionError) {
-                clickHelpShowcaseClose()
-                break
-            }
         }
     }
 
@@ -593,11 +572,12 @@ class LargeScaleInstrumentedTest {
 
                 logMessage(this::class, "Navigating to: Email")
                 longClickRow(0)
-                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.EMAIL_MENU_ITEM)
-                performAction(EmailScoreRobot::class)
+                clickEmailDropdownMenuItem {
+                    performAction(EmailScoreRobot::class)
 
-                logMessage(this::class, "Navigating to: Handicap tables")
-                clickHomeIcon()
+                    logMessage(this::class, "Navigating to: Handicap tables")
+                    clickHomeIcon()
+                }
             }
 
             clickHandicapTables {

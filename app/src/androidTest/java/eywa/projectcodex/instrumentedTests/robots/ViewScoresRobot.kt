@@ -8,8 +8,6 @@ import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen.TestTag
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot
@@ -17,7 +15,7 @@ import org.junit.Assert
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, ViewScoresFragment::class) {
+) : BaseRobot(composeTestRule, TestTag.SCREEN) {
     fun waitForLoad() {
         CustomConditionWaiter.waitForComposeCondition {
             composeTestRule
@@ -28,12 +26,8 @@ class ViewScoresRobot(
     }
 
     fun clickOkOnEmptyTableDialog() {
-        composeTestRule.onNode(
-                hasTestTag(SimpleDialogTestTag.TITLE)
-                        .and(hasText("Table is empty"))
-        ).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(SimpleDialogTestTag.POSITIVE_BUTTON).performClick()
-        CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+        clickDialogOk("Table is empty")
+        MainMenuRobot(composeTestRule)
     }
 
     /**
@@ -47,10 +41,14 @@ class ViewScoresRobot(
         }
     }
 
-    private fun performOnRowItem(rowIndex: Int, action: SemanticsNodeInteraction.() -> Unit) {
+    fun scrollToRow(rowIndex: Int) {
         composeTestRule
                 .onNodeWithTag(TestTag.LAZY_COLUMN)
                 .performScrollToIndex(rowIndex)
+    }
+
+    private fun performOnRowItem(rowIndex: Int, action: SemanticsNodeInteraction.() -> Unit) {
+        scrollToRow(rowIndex)
         composeTestRule
                 .onAllNodesWithTag(TestTag.LIST_ITEM, useUnmergedTree = true)[rowIndex]
                 .action()
@@ -66,7 +64,10 @@ class ViewScoresRobot(
         ScorePadRobot(composeTestRule).apply { block() }
     }
 
-    fun longClickRow(rowIndex: Int) = performOnRowItem(rowIndex) { performTouchInput { longClick() } }
+    fun longClickRow(rowIndex: Int) {
+        performOnRowItem(rowIndex) { performTouchInput { longClick() } }
+        checkAtLeastOneElementIsDisplayed(TestTag.DROPDOWN_MENU_ITEM)
+    }
 
     fun clickDropdownMenuItem(menuItem: String) {
         composeTestRule

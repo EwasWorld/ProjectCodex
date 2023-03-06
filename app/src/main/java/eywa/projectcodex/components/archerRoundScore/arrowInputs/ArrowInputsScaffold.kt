@@ -31,6 +31,7 @@ fun ArrowInputsScaffold(
         cancelHelpInfoBody: String? = null,
         submitHelpInfoTitle: String,
         submitHelpInfoBody: String,
+        testTag: String,
         listener: (ArcherRoundIntent) -> Unit,
 ) = ArrowInputsScaffold(
         state = state,
@@ -42,6 +43,7 @@ fun ArrowInputsScaffold(
         cancelHelpInfoBody = cancelHelpInfoBody,
         submitHelpInfoTitle = submitHelpInfoTitle,
         submitHelpInfoBody = submitHelpInfoBody,
+        testTag = testTag,
         listener = listener,
 ) {
     Text(
@@ -64,6 +66,7 @@ fun ArrowInputsScaffold(
         cancelHelpInfoBody: String? = null,
         submitHelpInfoTitle: String,
         submitHelpInfoBody: String,
+        testTag: String,
         listener: (ArcherRoundIntent) -> Unit,
         content: @Composable () -> Unit,
 ) {
@@ -73,6 +76,7 @@ fun ArrowInputsScaffold(
             modifier = Modifier
                     .fillMaxSize()
                     .padding(20.dp)
+                    .testTag(testTag)
     ) {
         Spacer(modifier = Modifier.weight(1f))
         content()

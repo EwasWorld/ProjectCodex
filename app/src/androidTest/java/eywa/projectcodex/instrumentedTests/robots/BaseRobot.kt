@@ -1,7 +1,6 @@
 package eywa.projectcodex.instrumentedTests.robots
 
 import androidx.compose.ui.test.*
-import androidx.fragment.app.Fragment
 import androidx.test.core.app.ActivityScenario
 import eywa.projectcodex.R
 import eywa.projectcodex.common.ComposeTestRule
@@ -10,21 +9,34 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.click
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
+import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
-import kotlin.reflect.KClass
 
 abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
-        private val fragment: KClass<out Fragment>
+        private val screenTestTag: String? = null,
 ) {
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
     init {
-        check(isShown()) { "Tried to create robot for ${fragment.simpleName} while it's not showing" }
+        check(checkScreenIsShown()) { "Tried to create robot for $screenTestTag while it's not showing" }
     }
 
-    // TODO Composify?
-    fun isShown() = TestUtils.isFragmentShowing(scenario, fragment)
+    /**
+     * Checks that the screen associated with the current robot is displayed.
+     * Checks that the node with the tag [screenTestTag] (if given) is shown,
+     * otherwise checks that [AboutFragment] is currently displayed.
+     */
+    fun checkScreenIsShown(): Boolean {
+        if (screenTestTag == null) {
+            if (!TestUtils.isFragmentShowing(scenario, AboutFragment::class)) {
+                CustomConditionWaiter.waitForFragmentToShow(scenario, AboutFragment::class)
+            }
+            return true
+        }
+        CustomConditionWaiter.waitForComposeCondition { checkElementIsDisplayed(screenTestTag) }
+        return true
+    }
 
     fun clickElement(testTag: String) {
         composeTestRule.onNodeWithTag(testTag).performClick()
@@ -36,6 +48,10 @@ abstract class BaseRobot(
 
     fun checkElementIsDisplayed(testTag: String) {
         composeTestRule.onNodeWithTag(testTag).assertIsDisplayed()
+    }
+
+    fun checkAtLeastOneElementIsDisplayed(testTag: String) {
+        composeTestRule.onAllNodesWithTag(testTag).onFirst().assertIsDisplayed()
     }
 
     fun checkElementIsDisplayed(testTag: String, text: String) {
@@ -78,6 +94,20 @@ abstract class BaseRobot(
         R.id.action_bar__help.click()
         CustomConditionWaiter.waitForComposeCondition("Waiting for help to appear") {
             checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        }
+    }
+
+    fun cycleThroughComposeHelpDialogs() {
+        clickHelpIcon()
+        while (true) {
+            checkHelpShowcaseIsDisplayed()
+            try {
+                clickHelpShowcaseNext()
+            }
+            catch (e: AssertionError) {
+                clickHelpShowcaseClose()
+                break
+            }
         }
     }
 
