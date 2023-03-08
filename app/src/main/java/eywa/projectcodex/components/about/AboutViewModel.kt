@@ -1,14 +1,14 @@
 package eywa.projectcodex.components.about
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,12 +19,13 @@ import javax.inject.Inject
 class AboutViewModel @Inject constructor(
         val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
 ) : ViewModel() {
-    var state: UpdateDefaultRoundsState? by mutableStateOf(null)
+    private val _state: MutableStateFlow<UpdateDefaultRoundsState?> = MutableStateFlow(null)
+    val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            updateDefaultRoundsTask.state.collectLatest {
-                state = it
+            updateDefaultRoundsTask.state.collectLatest { defautRoundsState ->
+                _state.update { defautRoundsState }
             }
         }
     }

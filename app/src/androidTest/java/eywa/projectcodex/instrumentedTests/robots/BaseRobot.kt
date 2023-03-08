@@ -5,7 +5,6 @@ import androidx.test.core.app.ActivityScenario
 import eywa.projectcodex.R
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.click
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
@@ -14,7 +13,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
-        private val screenTestTag: String? = null,
+        private val screenTestTag: String,
 ) {
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
@@ -28,12 +27,6 @@ abstract class BaseRobot(
      * otherwise checks that [AboutFragment] is currently displayed.
      */
     fun checkScreenIsShown(): Boolean {
-        if (screenTestTag == null) {
-            if (!TestUtils.isFragmentShowing(scenario, AboutFragment::class)) {
-                CustomConditionWaiter.waitForFragmentToShow(scenario, AboutFragment::class)
-            }
-            return true
-        }
         CustomConditionWaiter.waitForComposeCondition { checkElementIsDisplayed(screenTestTag) }
         return true
     }

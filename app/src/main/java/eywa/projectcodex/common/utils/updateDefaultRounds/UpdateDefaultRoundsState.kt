@@ -30,7 +30,7 @@ fun UpdateDefaultRoundsState?.asDisplayString(resources: Resources) = when (this
     null -> resources.getString(R.string.about__update_default_rounds_not_started)
     UpdateDefaultRoundsState.Initialising -> resources.getString(R.string.about__update_default_rounds_initialising)
     is UpdateDefaultRoundsState.StartProcessingNew -> resources.getString(
-            R.string.about__update_default_rounds_progress, currentItemIndex, totalItems
+            R.string.about__update_default_rounds_processing, currentItemIndex, totalItems
     )
     is UpdateDefaultRoundsState.DeletingOld -> resources.getString(R.string.about__update_default_rounds_deleting)
     is UpdateDefaultRoundsState.Complete -> resources.getString(R.string.about__update_default_rounds_up_to_date)

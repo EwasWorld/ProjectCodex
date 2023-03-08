@@ -2,11 +2,11 @@
 <resources>
     <string name="about__title">About</string>
     <string name="about__main_text">Contact:\ncaldeikeycodes@gmail.com\n\nFeel free to send feedback, feature requests, bug reports, or anything else</string>
-    <string name="about__rounds_version_label">Rounds Version:</string>
-    <string name="about__app_version_label">App Version:</string>
-    <string name="about__update_default_rounds_progress_label">Rounds status:</string>
+    <string name="about__rounds_version">Rounds Version: %d</string>
+    <string name="about__app_version">App Version: %s</string>
+    <string name="about__update_default_rounds_message">Rounds status: %s</string>
     <string name="about__update_default_rounds_initialising">Initialising…</string>
-    <string name="about__update_default_rounds_progress">Processing round %1$d of %2$d</string> <!-- Processing round 1 of 10 -->
+    <string name="about__update_default_rounds_processing">Processing round %1$d of %2$d</string> <!-- Processing round 1 of 10 -->
     <string name="about__update_default_rounds_deleting">Cleaning stale rounds</string>
     <string name="about__update_default_rounds_up_to_date">Up to date</string>
     <string name="about__update_default_rounds_not_started">Not started</string>
