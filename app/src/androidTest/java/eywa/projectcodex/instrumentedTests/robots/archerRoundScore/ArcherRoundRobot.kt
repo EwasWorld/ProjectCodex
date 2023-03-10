@@ -11,7 +11,7 @@ import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 
 abstract class ArcherRoundRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
-        screenTestTag: String? = null,
+        screenTestTag: String,
 ) : BaseRobot(composeTestRule, screenTestTag) {
     fun clickCannotInputMoreEndsOk() = clickDialogOk(CANNOT_INPUT_END_DIALOG_TITLE)
 

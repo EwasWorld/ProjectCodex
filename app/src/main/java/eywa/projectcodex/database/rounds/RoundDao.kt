@@ -19,9 +19,11 @@ interface RoundDao : RoundTypeDao<Round> {
     @Query("SELECT * FROM $TABLE_NAME")
     fun getAllRounds(): LiveData<List<Round>>
 
+    @Transaction
     @Query("SELECT * FROM $TABLE_NAME")
     fun getAllRoundsFullInfo(): Flow<List<FullRoundInfo>>
 
+    @Transaction
     @Query(
             """
                 SELECT *

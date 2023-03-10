@@ -8,6 +8,7 @@ import eywa.projectcodex.database.rounds.Round
  */
 class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
     val maxId: LiveData<Int> = archerRoundDao.getMaxId()
+    val personalBests = archerRoundDao.getPersonalBests()
 
     val allArcherRoundsWithRoundInfoAndName: LiveData<List<ArcherRoundWithRoundInfoAndName>> =
             archerRoundDao.getAllArcherRoundsWithRoundInfoAndName()

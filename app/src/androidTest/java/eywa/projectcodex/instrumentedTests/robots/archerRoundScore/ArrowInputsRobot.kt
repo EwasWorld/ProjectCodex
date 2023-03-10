@@ -7,7 +7,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 
 abstract class ArrowInputsRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
-        screenTestTag: String? = null,
+        screenTestTag: String,
 ) : ArcherRoundRobot(composeTestRule, screenTestTag) {
     fun checkScoreButtonNotDisplayed(text: String) {
         composeTestRule.onNode(

@@ -7,9 +7,15 @@ import eywa.projectcodex.common.retrieveValue
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundDao
+import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
 import eywa.projectcodex.database.rounds.RoundSubTypeDao
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -27,6 +33,8 @@ class ArcherRoundsTest {
     private lateinit var archerRoundDao: ArcherRoundDao
     private lateinit var roundDao: RoundDao
     private lateinit var roundSubTypeDao: RoundSubTypeDao
+    private lateinit var roundArrowCountsDao: RoundArrowCountDao
+    private lateinit var arrowValueDao: ArrowValueDao
 
     @Before
     fun createDb() {
@@ -34,6 +42,8 @@ class ArcherRoundsTest {
         archerRoundDao = db.archerRoundDao()
         roundDao = db.roundDao()
         roundSubTypeDao = db.roundSubTypeDao()
+        roundArrowCountsDao = db.roundArrowCountDao()
+        arrowValueDao = db.arrowValueDao()
     }
 
     @After
@@ -196,5 +206,49 @@ class ArcherRoundsTest {
                     }?.name
             assertEquals(expectedRoundSubTypeName, retrievedRoundInfo[i].roundSubType?.name)
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testPersonalBests() = runTest {
+        val archerRounds = listOf(
+                ArcherRound(1, TestUtils.generateDate(), 1, false, roundId = 1, roundSubTypeId = 1),
+                ArcherRound(2, TestUtils.generateDate(), 1, false, roundId = 2),
+                ArcherRound(3, TestUtils.generateDate(), 1, false, roundId = 1),
+                ArcherRound(4, TestUtils.generateDate(), 1, false, roundId = 1, roundSubTypeId = 1),
+                ArcherRound(5, TestUtils.generateDate(), 1, false, roundId = 2),
+                ArcherRound(6, TestUtils.generateDate(), 1, false),
+        )
+        val rounds = TestUtils.ROUNDS.take(3)
+        val arrowCounts = TestUtils.ROUND_ARROW_COUNTS
+
+        val roundOneArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 1 }.sumOf { it.arrowCount }
+        val roundTwoArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 2 }.sumOf { it.arrowCount }
+        val arrows = listOf(
+                List(roundOneArrowCount - 3) { ArrowValue(1, it, 10, false) },
+                List(roundTwoArrowCount) { ArrowValue(2, it, 10, false) },
+                List(roundOneArrowCount) { ArrowValue(3, it, 5, false) },
+                List(roundOneArrowCount) { ArrowValue(4, it, 5, false) },
+                List(roundTwoArrowCount) { ArrowValue(5, it, 5, false) },
+                List(36) { ArrowValue(6, it, 10, false) },
+        ).flatten()
+
+        for (round in rounds) {
+            roundDao.insert(round)
+        }
+        for (roundSubType in TestUtils.ROUND_SUB_TYPES) {
+            roundSubTypeDao.insert(roundSubType)
+        }
+        for (roundArrowCount in arrowCounts) {
+            roundArrowCountsDao.insert(roundArrowCount)
+        }
+        for (archerRound in archerRounds) {
+            archerRoundDao.insert(archerRound)
+        }
+        for (arrow in arrows) {
+            arrowValueDao.insert(arrow)
+        }
+
+        assertEquals(setOf(2, 3), archerRoundDao.getPersonalBests().first().map { it.archerRoundId }.toSet())
     }
 }
