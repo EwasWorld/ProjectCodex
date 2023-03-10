@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.about
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ fun AboutScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                         .fillMaxSize()
+                        .background(CodexTheme.colors.appBackground)
                         .testTag(AboutScreenTestTag.SCREEN)
         ) {
             Spacer(modifier = Modifier.weight(1f))
