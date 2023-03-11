@@ -85,9 +85,14 @@ class ViewScoresScreen {
                                     LocalContext.current, entry
                             )
                     ) {
+                        val flags = mutableListOf<ViewScoresFlag>()
+                        if (state.personalBestArcherRoundIds.contains(entry.id)) {
+                            flags.add(ViewScoresFlag.PERSONAL_BEST)
+                        }
                         ViewScoresEntryRow(
                                 entry = entry,
                                 helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
+                                flags = flags,
                         )
                     }
                 }
@@ -154,6 +159,7 @@ class ViewScoresScreen {
             ComposeContent(
                     state = ViewScoresState(
                             data = ViewScoresEntryPreviewProvider.generateEntries(20),
+                            personalBestArcherRoundIds = listOf(2, 5),
                     ),
                     listener = {},
             )
@@ -172,6 +178,7 @@ class ViewScoresScreen {
                     state = ViewScoresState(
                             isInMultiSelectMode = true,
                             data = ViewScoresEntryPreviewProvider.generateEntries(20),
+                            personalBestArcherRoundIds = listOf(2, 5),
                     ),
                     listener = {},
             )

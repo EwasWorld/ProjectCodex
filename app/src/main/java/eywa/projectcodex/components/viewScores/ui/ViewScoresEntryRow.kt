@@ -5,6 +5,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +34,10 @@ import java.util.*
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 
+enum class ViewScoresFlag {
+    PERSONAL_BEST
+}
+
 /**
  * Displays a [ViewScoresEntry]
  */
@@ -38,6 +46,7 @@ internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
         helpInfo: HelpShowcase,
         modifier: Modifier = Modifier,
+        flags: List<ViewScoresFlag> = listOf(),
 ) {
     helpInfo.handle(
             HelpShowcaseIntent.Add(
@@ -59,26 +68,52 @@ internal fun ViewScoresEntryRow(
             ),
             ViewScoresFragment::class,
     )
-
-    Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.Top,
-            modifier = modifier
-                    .padding(
-                            start = 8.dp,
-                            end = 15.dp,
-                            top = 5.dp,
-                            bottom = 5.dp,
+    helpInfo.handle(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = R.string.help_view_score__round_title,
+                            helpBody = R.string.help_view_score__round_body,
+                            priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
                     )
+            ),
+            ViewScoresFragment::class,
+    )
+
+    Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.padding(start = 8.dp, end = 15.dp, top = 5.dp, bottom = 8.dp)
     ) {
-        DateAndRoundNameColumn(entry, Modifier.weight(1f))
-        HsgColumn(entry, helpInfo)
-        HandicapColumn(entry, helpInfo)
+        if (flags.contains(ViewScoresFlag.PERSONAL_BEST)) {
+            Surface(
+                    color = CodexTheme.colors.targetFaceGold,
+                    shape = RoundedCornerShape(100),
+            ) {
+                Text(
+                        text = stringResource(R.string.view_score__round_personal_best),
+                        style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                )
+            }
+        }
+        Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Top,
+        ) {
+            DateAndRoundNameColumn(entry, helpInfo, Modifier.weight(1f))
+            HsgColumn(entry, helpInfo)
+            HandicapColumn(entry, helpInfo)
+        }
     }
 }
 
 @Composable
-private fun DateAndRoundNameColumn(entry: ViewScoresEntry, modifier: Modifier = Modifier) {
+private fun DateAndRoundNameColumn(
+        entry: ViewScoresEntry,
+        helpInfo: HelpShowcase,
+        modifier: Modifier = Modifier,
+) {
     Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = columnVerticalArrangement,
@@ -96,7 +131,11 @@ private fun DateAndRoundNameColumn(entry: ViewScoresEntry, modifier: Modifier = 
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = 6.dp)
+                textDecoration = (
+                        if (entry.round == null || entry.isRoundComplete()) TextDecoration.None
+                        else TextDecoration.LineThrough
+                        ),
+                modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__round_title)
         )
     }
 }
@@ -198,6 +237,37 @@ fun ViewScoresEntryRow_Preview() {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
                 helpInfo = HelpShowcase(),
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
+)
+@Composable
+fun Incomplete_ViewScoresEntryRow_Preview() {
+    CodexTheme {
+        ViewScoresEntryRow(
+                entry = ViewScoresEntryPreviewProvider.generateIncompleteRound(),
+                helpInfo = HelpShowcase(),
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
+)
+@Composable
+fun PersonalBest_ViewScoresEntryRow_Preview() {
+    CodexTheme {
+        ViewScoresEntryRow(
+                entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
+                helpInfo = HelpShowcase(),
+                flags = listOf(ViewScoresFlag.PERSONAL_BEST),
         )
     }
 }

@@ -108,15 +108,13 @@ data class ViewScoresEntry(
     }
 
     fun isRoundComplete(): Boolean {
-        synchronized(this) {
-            if (arrowCounts.isNullOrEmpty() || arrows.isNullOrEmpty()) {
-                return false
-            }
-            if (arrowCounts.sumOf { it.arrowCount } <= arrows.count()) {
-                return true
-            }
+        if (arrowCounts.isNullOrEmpty() || arrows.isNullOrEmpty()) {
             return false
         }
+        if (arrowCounts.sumOf { it.arrowCount } == arrows.count()) {
+            return true
+        }
+        return false
     }
 
     fun getSingleClickAction() = ViewScoresDropdownMenuItem.SCORE_PAD

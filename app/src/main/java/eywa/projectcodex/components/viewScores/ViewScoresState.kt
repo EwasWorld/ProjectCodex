@@ -6,6 +6,7 @@ import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 data class ViewScoresState(
         val isInMultiSelectMode: Boolean = false,
         val data: List<ViewScoresEntry> = listOf(),
+        val personalBestArcherRoundIds: List<Int> = listOf(),
         val noRoundsDialogOkClicked: Boolean = false,
 
         val multiSelectEmailClicked: Boolean = false,

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="view_score__title">All Scores</string>
+    <string name="view_score__round_personal_best">Round PB</string>
     <string name="view_score__hsg">H/S/G</string>
     <string name="view_score__hsg_placeholder">-/-/-</string>
     <string name="view_score__handicap">HC</string>
@@ -51,6 +52,8 @@
     <string name="help_view_score__row_body">Click on a row to open the score pad, press and hold for more actions</string>
     <string name="help_view_score__hsg_title">Hits/Score/Golds</string>
     <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. The label above indicates how golds are being counted: G for 9+, 10 for 10s and Xs, X for Xs only.</string>
+    <string name="help_view_score__round_title">Round shot</string>
+    <string name="help_view_score__round_body">Shows the round that was shot. Will be crossed out if too few or too many arrows have been entered.</string>
     <string name="help_view_score__handicap_title">Handicap</string>
     <string name="help_view_score__handicap_body">The handicap for the round (or partial round). Will be blank if there is no round or if no arrows have been added</string>
     <string name="help_view_score__start_multi_select_title">Multi-select mode</string>

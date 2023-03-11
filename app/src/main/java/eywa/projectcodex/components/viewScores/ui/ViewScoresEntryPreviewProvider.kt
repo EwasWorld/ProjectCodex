@@ -59,9 +59,28 @@ object ViewScoresEntryPreviewProvider {
                         roundSubTypes = listOf(),
                 ),
                 arrows = hsg?.let { generateArrows(index + 1, hsg) },
-                arrowCounts = if (!hasRoundInfo) null else hsg?.let { listOf(RoundArrowCount(1, 1, 1.0, hsg[0] + 1)) },
+                arrowCounts = if (!hasRoundInfo) null else hsg?.let { listOf(RoundArrowCount(1, 1, 1.0, hsg[0])) },
                 distances = if (!hasRoundInfo) null else listOf(RoundDistance(1, 1, 1, 20)),
                 isSelected = index % 3 != 1,
+        )
+    }
+
+    fun generateIncompleteRound() = listOf(36, 217, 12).let { hsg ->
+        ViewScoresEntry(
+                initialInfo = ArcherRoundWithRoundInfoAndName(
+                        archerRound = ArcherRound(
+                                archerRoundId = 1,
+                                dateShot = dates[0],
+                                archerId = 1,
+                                roundId = 1
+                        ),
+                        round = Round(1, "", roundNames[0]!!, true, true, listOf()),
+                        roundSubTypes = listOf(),
+                ),
+                arrows = generateArrows(1, hsg),
+                arrowCounts = listOf(RoundArrowCount(1, 1, 1.0, hsg[0] + 1)),
+                distances = listOf(RoundDistance(1, 1, 1, 20)),
+                isSelected = false,
         )
     }
 

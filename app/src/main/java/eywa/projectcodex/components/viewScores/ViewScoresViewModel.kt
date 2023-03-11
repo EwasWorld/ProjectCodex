@@ -17,10 +17,7 @@ import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundRepo
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,6 +44,11 @@ class ViewScoresViewModel @Inject constructor(
     )
 
     init {
+        viewModelScope.launch {
+            archerRoundsRepo.personalBests.collect { pbs ->
+                _state.update { it.copy(personalBestArcherRoundIds = pbs.map { pb -> pb.archerRoundId }) }
+            }
+        }
         viewModelScope.launch {
             archerRoundsRepo.allArcherRoundsWithRoundInfoAndName.asFlow()
                     .combine(arrowValuesRepo.allArrowValues.asFlow()) { archerRoundInfo, arrowValues ->
