@@ -1,19 +1,6 @@
-package eywa.projectcodex
+package eywa.projectcodex.common.logging
 
 import android.util.Log
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
-
-@Module
-@InstallIn(SingletonComponent::class)
-class LoggerModule {
-    @Singleton
-    @Provides
-    fun providesLogger() = CustomLogger()
-}
 
 /**
  * Ensures all message tags are prepended with a master tag for easy searching

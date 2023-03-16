@@ -24,11 +24,12 @@ import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent.*
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.ArrowButtonGroup
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 import eywa.projectcodex.database.rounds.Round
 
 @Composable
@@ -182,8 +183,8 @@ fun ArrowInputs_Preview(
     CodexTheme {
         ArrowInputs(
                 state = object : ArrowInputsState {
-                    override fun getRound(): Round = ArcherRoundsPreviewHelper.round.round
-                    override fun getEnteredArrows(): List<Arrow> = ArcherRoundsPreviewHelper.inputArrows
+                    override fun getRound(): Round = RoundPreviewHelper.outdoorImperialRoundData.round
+                    override fun getEnteredArrows(): List<Arrow> = ArcherRoundStatePreviewHelper.inputArrows
                     override fun getEndSize(): Int = 6
                 },
                 showResetButton = true,

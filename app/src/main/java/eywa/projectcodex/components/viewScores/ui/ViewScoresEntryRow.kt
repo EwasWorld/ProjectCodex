@@ -120,19 +120,19 @@ private fun DateAndRoundNameColumn(
             modifier = modifier
     ) {
         Text(
-                text = DateTimeFormat.SHORT_DATE_TIME.format(entry.archerRound.dateShot),
+                text = DateTimeFormat.SHORT_DATE_TIME.format(entry.info.archerRound.dateShot),
                 style = CodexTypography.SMALL.copy(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
         )
         Text(
-                text = entry.displayName
+                text = entry.info.displayName
                         ?: stringResource(R.string.create_round__no_round),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textDecoration = (
-                        if (entry.round == null || entry.isRoundComplete()) TextDecoration.None
+                        if (entry.info.round == null || entry.isRoundComplete()) TextDecoration.None
                         else TextDecoration.LineThrough
                         ),
                 modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__round_title)
@@ -211,13 +211,13 @@ fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEnt
                 // hr/min/s
                 1, 1, 1
         )
-    }.time.before(entry.archerRound.dateShot).let { wasThisYear ->
+    }.time.before(entry.info.archerRound.dateShot).let { wasThisYear ->
         if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE_FULL_YEAR
     }
 
     return listOfNotNull(
-            dateFormat.format(entry.archerRound.dateShot),
-            entry.displayName,
+            dateFormat.format(entry.info.archerRound.dateShot),
+            entry.info.displayName,
             accessibilityString(title = R.string.view_score__score, value = entry.score)
                     ?: context.resources.getString(R.string.view_score__no_arrows_shot),
             accessibilityString(title = R.string.view_score__handicap_full, value = entry.handicap),

@@ -1,22 +1,18 @@
 package eywa.projectcodex.components.viewScores
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
-import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
-import eywa.projectcodex.database.rounds.RoundArrowCount
-import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,20 +24,13 @@ import javax.inject.Inject
 class ViewScoresViewModel @Inject constructor(
         db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcase,
+        private val customLogger: CustomLogger,
 ) : ViewModel() {
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.asStateFlow()
 
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
-    private val roundRepo: RoundRepo = RoundRepo(db)
-
-    data class ViewScoresFlowData(
-            val archerRounds: List<ArcherRoundWithRoundInfoAndName>? = null,
-            val arrowValues: List<ArrowValue>? = null,
-            val arrowCounts: List<RoundArrowCount>? = null,
-            val distances: List<RoundDistance>? = null,
-    )
 
     init {
         viewModelScope.launch {
@@ -50,41 +39,21 @@ class ViewScoresViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            archerRoundsRepo.allArcherRoundsWithRoundInfoAndName.asFlow()
-                    .combine(arrowValuesRepo.allArrowValues.asFlow()) { archerRoundInfo, arrowValues ->
-                        ViewScoresFlowData(archerRoundInfo, arrowValues)
-                    }
-                    .combine(roundRepo.roundArrowCounts.asFlow()) { flowData, arrowCounts ->
-                        flowData.copy(arrowCounts = arrowCounts)
-                    }
-                    .combine(roundRepo.roundDistances.asFlow()) { flowData, distances ->
-                        flowData.copy(distances = distances)
-                    }
-                    .collect { flowData ->
-                        val arrowValuesMap = flowData.arrowValues?.groupBy { arrow -> arrow.archerRoundId }
-                        val arrowCountsMap = flowData.arrowCounts?.groupBy { arrowCount -> arrowCount.roundId }
-                        val distancesMap = flowData.distances
-                                ?.groupBy { distance -> distance.roundId }
-                                ?.mapValues { entry ->
-                                    entry.value.groupBy { distance -> distance.subTypeId }
-                                }
-
-                        _state.update {
-                            val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
-                            it.copy(
-                                    data = flowData.archerRounds?.map { roundInfo ->
-                                        val roundId = roundInfo.round?.roundId
-                                        val subtypeId = roundInfo.archerRound.roundSubTypeId ?: 1
-                                        ViewScoresEntry(
-                                                initialInfo = roundInfo,
-                                                arrows = arrowValuesMap?.get(roundInfo.id),
-                                                arrowCounts = roundId?.let { arrowCountsMap?.get(roundId) },
-                                                distances = roundId?.let { distancesMap?.get(roundId)?.get(subtypeId) },
-                                                isSelected = previousSelectedEntries[roundInfo.id] ?: false,
-                                        )
-                                    }?.sortedByDescending { entry -> entry.archerRound.dateShot } ?: listOf())
-                        }
-                    }
+            archerRoundsRepo.allFullArcherRounds.collect { flowData ->
+                _state.update {
+                    val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
+                    it.copy(
+                            data = flowData.map { roundInfo ->
+                                val info = FullArcherRoundInfo(roundInfo)
+                                ViewScoresEntry(
+                                        info = info,
+                                        isSelected = previousSelectedEntries[info.id] ?: false,
+                                        customLogger = customLogger,
+                                )
+                            }.sortedByDescending { entry -> entry.info.archerRound.dateShot }
+                    )
+                }
+            }
         }
     }
 
@@ -123,8 +92,9 @@ class ViewScoresViewModel @Inject constructor(
                     }
                 }
             }
-            is DropdownMenuClicked -> _state.update { action.item.handleClick(it) }
-            DropdownMenuClosed -> _state.update { it.copy(dropdownItems = emptyList()) }
+            is DropdownMenuClicked ->
+                _state.update { if (it.dropdownItems == null) it else action.item.handleClick(it) }
+            DropdownMenuClosed -> _state.update { it.copy(dropdownItems = null) }
             NoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = true) }
             DeleteDialogCancelClicked -> _state.update { it.copy(deleteDialogOpen = false) }
             DeleteDialogOkClicked -> {
@@ -174,13 +144,17 @@ class ViewScoresViewModel @Inject constructor(
     }
 
     private fun handleMultiSelectIntent(action: MultiSelectBarIntent) {
+        check(action is MultiSelectBarIntent.ClickOpen || state.value.isInMultiSelectMode) {
+            "Tried to invoke a multi-select action while not in multi-select mode"
+        }
+
         when (action) {
             MultiSelectBarIntent.ClickOpen -> _state.update { it.copy(isInMultiSelectMode = true) }
             MultiSelectBarIntent.ClickClose ->
                 _state.update {
                     it.copy(
                             isInMultiSelectMode = false,
-                            data = it.data.map { entry -> entry.copy(isSelected = false) }
+                            data = it.data.map { entry -> entry.copy(isSelected = false) },
                     )
                 }
             MultiSelectBarIntent.ClickAllOrNone -> _state.update {
@@ -205,6 +179,7 @@ class ViewScoresViewModel @Inject constructor(
             is ConvertScoreIntent.Ok -> _state.update {
                 val arrows = it.data
                         .find { entry -> entry.id == it.lastClickedEntryId }
+                        ?.info
                         ?.arrows
                         ?.takeIf { arrows -> arrows.isNotEmpty() }
                         ?.let { oldArrows -> action.convertType.convertScore(oldArrows) }

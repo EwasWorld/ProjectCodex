@@ -9,7 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import eywa.projectcodex.CustomLogger
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.CompletionType
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask

@@ -1,16 +1,13 @@
-package eywa.projectcodex.components.archerRoundScore
+package eywa.projectcodex.components.archerRoundScore.state
 
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
-import eywa.projectcodex.database.arrowValue.ArrowValue
 
-object ArcherRoundsPreviewHelper {
-    val round = RoundPreviewHelper.outdoorImperialRoundData
-
+object ArcherRoundStatePreviewHelper {
     val inputArrows = listOf(
             Arrow(10, true),
             Arrow(10, false),
@@ -19,15 +16,15 @@ object ArcherRoundsPreviewHelper {
     )
 
     val SIMPLE = ArcherRoundState.Loaded(
-            currentScreen = eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.INPUT_END,
-            fullArcherRoundInfo = ArcherRoundPreviewHelper.fullArcherRoundInfo,
+            currentScreen = ArcherRoundScreen.INPUT_END,
+            fullArcherRoundInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo(),
             goldsType = GoldsType.NINES,
             inputArrows = inputArrows,
     )
 
     val WITH_SHOT_ARROWS = SIMPLE.copy(
-            fullArcherRoundInfo = SIMPLE.fullArcherRoundInfo.copy(
-                    arrows = List(20) { ArrowValue(1, it, 7, false) },
-            ).addRound(RoundPreviewHelper.indoorMetricRoundData)
+            fullArcherRoundInfo = SIMPLE.fullArcherRoundInfo
+                    .addArrows(20, 7)
+                    .addRound(RoundPreviewHelper.indoorMetricRoundData)
     )
 }

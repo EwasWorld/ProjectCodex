@@ -8,10 +8,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 
 class InsertEndScreen : ArcherRoundSubScreen() {
 
@@ -60,7 +60,7 @@ class InsertEndScreen : ArcherRoundSubScreen() {
     @Composable
     fun InsertEndScreen_Preview() {
         CodexTheme {
-            ScreenContent(ArcherRoundsPreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 1)) {}
+            ScreenContent(ArcherRoundStatePreviewHelper.SIMPLE.copy(scorePadSelectedEnd = 1)) {}
         }
     }
 }

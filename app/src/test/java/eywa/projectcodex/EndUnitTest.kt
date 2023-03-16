@@ -2,6 +2,7 @@ package eywa.projectcodex
 
 import eywa.projectcodex.common.archeryObjects.End
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException

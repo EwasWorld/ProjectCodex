@@ -12,7 +12,6 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -45,7 +44,7 @@ class ViewScoresInstrumentedTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
-    private var archerRounds: List<ArcherRoundWithRoundInfoAndName> = listOf()
+    private var archerRounds: List<ArcherRound> = listOf()
     private var rounds = listOf<Round>()
     private var roundSubTypes = listOf<RoundSubType>()
     private var roundArrowCounts = listOf<RoundArrowCount>()
@@ -82,7 +81,7 @@ class ViewScoresInstrumentedTest {
                 roundSubTypes.forEach { db.roundSubTypeDao().insert(it) }
                 roundArrowCounts.forEach { db.roundArrowCountDao().insert(it) }
                 roundDistances.forEach { db.roundDistanceDao().insert(it) }
-                archerRounds.forEach { db.archerRoundDao().insert(it.archerRound) }
+                archerRounds.forEach { db.archerRoundDao().insert(it) }
                 arrows.flatten().forEach { db.arrowValueDao().insert(it) }
             }
         }
@@ -133,15 +132,9 @@ class ViewScoresInstrumentedTest {
                 ArcherRound(3, Date.valueOf("2011-3-3"), 1, roundId = 2),
                 ArcherRound(4, Date.valueOf("2010-4-4"), 1, roundId = 2, roundSubTypeId = 2),
                 ArcherRound(5, Date.valueOf("2009-5-5"), 1),
-        ).map { archerRound ->
-            ArcherRoundWithRoundInfoAndName(
-                    archerRound,
-                    rounds.find { it.roundId == archerRound.roundId },
-                    roundSubTypes
-            )
-        }
+        )
         arrows = archerRounds.map { archerRound ->
-            val archerRoundId = archerRound.archerRound.archerRoundId
+            val archerRoundId = archerRound.archerRoundId
             List(1) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
         }
 
@@ -197,9 +190,9 @@ class ViewScoresInstrumentedTest {
 
         archerRounds = listOf(
                 // No round
-                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestUtils.generateDate(2020), 1)),
+                ArcherRound(1, TestUtils.generateDate(2020), 1),
                 // Completed round
-                ArcherRoundWithRoundInfoAndName(ArcherRound(2, TestUtils.generateDate(2019), 1, roundId = 1)),
+                ArcherRound(2, TestUtils.generateDate(2019), 1, roundId = 1),
         )
         arrows = listOf(
                 TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
@@ -259,8 +252,8 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testViewScoresEntry_Delete() {
         archerRounds = listOf(
-                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestUtils.generateDate(2020), 1)),
-                ArcherRoundWithRoundInfoAndName(ArcherRound(2, TestUtils.generateDate(2019), 1)),
+                ArcherRound(1, TestUtils.generateDate(2020), 1),
+                ArcherRound(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
                 List(36) { TestUtils.ARROWS[1].toArrowValue(1, it) },
@@ -293,8 +286,8 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testViewScoresEntry_Convert() {
         archerRounds = listOf(
-                ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestUtils.generateDate(2020), 1)),
-                ArcherRoundWithRoundInfoAndName(ArcherRound(2, TestUtils.generateDate(2019), 1)),
+                ArcherRound(1, TestUtils.generateDate(2020), 1),
+                ArcherRound(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
                 TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
@@ -349,9 +342,9 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testMultiSelect_Selections() {
         val size = 4
-        archerRounds = TestUtils.generateArcherRounds(size).map { ArcherRoundWithRoundInfoAndName(it) }
+        archerRounds = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
-            val roundId = archerRounds[i].archerRound.archerRoundId
+            val roundId = archerRounds[i].archerRoundId
             TestUtils.generateArrowValues(roundId, 36, roundId)
         }
         populateDb()
@@ -412,9 +405,9 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testMultiSelect_Email() {
         val size = 4
-        archerRounds = TestUtils.generateArcherRounds(size).map { ArcherRoundWithRoundInfoAndName(it) }
+        archerRounds = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
-            val roundId = archerRounds[i].archerRound.archerRoundId
+            val roundId = archerRounds[i].archerRoundId
             TestUtils.generateArrowValues(roundId, 36, roundId)
         }
         populateDb()
@@ -436,7 +429,7 @@ class ViewScoresInstrumentedTest {
                 clickMultiSelectEmail {
                     checkScoreText(
                             archerRounds.withIndex().joinToString("\n\n") { (index, round) ->
-                                val date = DateTimeFormat.SHORT_DATE.format(round.archerRound.dateShot)
+                                val date = DateTimeFormat.SHORT_DATE.format(round.dateShot)
                                 "No Round - $date\nHits: 1, Score: ${index + 1}, Golds (Golds): 0"
                             }
                     )
@@ -447,7 +440,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withMultiselect() {
-        archerRounds = TestUtils.generateArcherRounds(20).map { ArcherRoundWithRoundInfoAndName(it) }
+        archerRounds = TestUtils.generateArcherRounds(20)
         populateDb()
 
         composeTestRule.mainMenuRobot {
@@ -461,7 +454,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withScroll() {
-        archerRounds = TestUtils.generateArcherRounds(20).map { ArcherRoundWithRoundInfoAndName(it) }
+        archerRounds = TestUtils.generateArcherRounds(20)
         populateDb()
 
         composeTestRule.mainMenuRobot {

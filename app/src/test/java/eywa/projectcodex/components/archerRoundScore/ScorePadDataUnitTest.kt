@@ -53,7 +53,7 @@ class ScorePadDataUnitTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testZeroEndSize() {
-        ScorePadDataNew(ArcherRoundPreviewHelper.fullArcherRoundInfo.addArrows(5, 3), 0, GoldsType.NINES)
+        ScorePadDataNew(ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(5, 3), 0, GoldsType.NINES)
         Assert.fail("Created ScorePadData with 0 endSize")
     }
 
@@ -61,7 +61,7 @@ class ScorePadDataUnitTest {
     fun testGeneral_NoArrows() {
         assertEquals(
                 listOf<ScorePadRow>(),
-                ScorePadDataNew(ArcherRoundPreviewHelper.fullArcherRoundInfo, 6, GoldsType.NINES).data
+                ScorePadDataNew(ArcherRoundPreviewHelper.newFullArcherRoundInfo(), 6, GoldsType.NINES).data
         )
     }
 
@@ -80,7 +80,7 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadDataNew(
-                ArcherRoundPreviewHelper.fullArcherRoundInfo.addArrows(totalArrows, arrowScore),
+                ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(totalArrows, arrowScore),
                 endSize,
                 GoldsType.NINES,
         ).data
@@ -136,7 +136,8 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadDataNew(
-                ArcherRoundPreviewHelper.fullArcherRoundInfo
+                ArcherRoundPreviewHelper
+                        .newFullArcherRoundInfo()
                         .addRound(RoundPreviewHelper.outdoorImperialRoundData)
                         .addArrows(totalArrows, arrowScore),
                 endSize,
@@ -192,7 +193,8 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadDataNew(
-                ArcherRoundPreviewHelper.fullArcherRoundInfo
+                ArcherRoundPreviewHelper
+                        .newFullArcherRoundInfo()
                         .addRound(RoundPreviewHelper.indoorMetricRoundData)
                         .addArrows(totalArrows, arrowScore),
                 endSize,
@@ -207,12 +209,14 @@ class ScorePadDataUnitTest {
 
     @Test
     fun testAllTargetArrowScores() {
-        val info = ArcherRoundPreviewHelper.fullArcherRoundInfo.let { info ->
-            info.copy(
-                    arrows = List(11) { ArrowValue(info.id, it, it, false) }
-                            .plus(ArrowValue(info.id, 11, 10, true))
-            )
-        }
+        val info = ArcherRoundPreviewHelper
+                .newFullArcherRoundInfo()
+                .let { info ->
+                    info.copy(
+                            arrows = List(11) { ArrowValue(info.id, it, it, false) }
+                                    .plus(ArrowValue(info.id, 11, 10, true))
+                    )
+                }
 
         val expectedRows = listOf(
                 End(
@@ -267,12 +271,14 @@ class ScorePadDataUnitTest {
                 ),
         )
 
-        val info = ArcherRoundPreviewHelper.fullArcherRoundInfo.let { info ->
-            info.copy(
-                    arrows = List(11) { ArrowValue(info.id, it, it, false) }
-                            .plus(ArrowValue(info.id, 11, 10, true))
-            )
-        }
+        val info = ArcherRoundPreviewHelper
+                .newFullArcherRoundInfo()
+                .let { info ->
+                    info.copy(
+                            arrows = List(11) { ArrowValue(info.id, it, it, false) }
+                                    .plus(ArrowValue(info.id, 11, 10, true))
+                    )
+                }
 
         assertEquals(
                 getExpectedRows(3),

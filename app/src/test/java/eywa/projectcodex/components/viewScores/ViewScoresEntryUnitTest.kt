@@ -1,12 +1,15 @@
-package eywa.projectcodex
+package eywa.projectcodex.components.viewScores
 
 import android.content.res.Resources
+import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.Handicap
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -15,8 +18,9 @@ import eywa.projectcodex.testUtils.TestData
 import eywa.projectcodex.testUtils.TestUtils
 import org.junit.Assert
 import org.junit.Test
+import org.mockito.kotlin.mock
 
-class ViewScoresUnitTest {
+class ViewScoresEntryUnitTest {
     private lateinit var resources: Resources
     private lateinit var arrows: List<ArrowValue>
     private var distances = listOf(
@@ -32,10 +36,12 @@ class ViewScoresUnitTest {
     @Test
     fun testGoldsTypesTens() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(1, TestData.generateDate(), 1, roundId = 1), round
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1, roundId = 1),
+                        round = round,
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
                 ),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                customLogger = mock { },
         )
         Assert.assertEquals("2", entry.hitsScoreGolds?.split("/")?.last())
     }
@@ -43,8 +49,11 @@ class ViewScoresUnitTest {
     @Test
     fun testGoldsTypesNines() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1)),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1),
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                ),
+                customLogger = mock { },
         )
         Assert.assertEquals("3", entry.hitsScoreGolds?.split("/")?.last())
     }
@@ -52,8 +61,11 @@ class ViewScoresUnitTest {
     @Test
     fun testScore() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1)),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1),
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                ),
+                customLogger = mock { },
         )
         Assert.assertEquals(TestData.ARROWS.sumOf { it.score }.toString(), entry.hitsScoreGolds?.split("/")?.get(1))
     }
@@ -61,8 +73,11 @@ class ViewScoresUnitTest {
     @Test
     fun testHits() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1)),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1),
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                ),
+                customLogger = mock { },
         )
         Assert.assertEquals((TestData.ARROWS.count() - 1).toString(), entry.hitsScoreGolds?.split("/")?.get(0))
     }
@@ -70,12 +85,14 @@ class ViewScoresUnitTest {
     @Test
     fun testHandicap() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(1, TestData.generateDate(), 1, roundId = 1), round
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1, roundId = 1),
+                        round = round,
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                        roundArrowCounts = arrowCounts,
+                        roundDistances = distances,
                 ),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
-                arrowCounts = arrowCounts,
-                distances = distances,
+                customLogger = mock { },
         )
 
         Assert.assertEquals(
@@ -94,12 +111,14 @@ class ViewScoresUnitTest {
     @Test
     fun testRoundComplete() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(1, TestData.generateDate(), 1, roundId = 1), round
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1, roundId = 1),
+                        round = round,
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                        roundArrowCounts = listOf(RoundArrowCount(1, 1, 122.0, TestData.ARROWS.size)),
+                        roundDistances = distances,
                 ),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
-                arrowCounts = listOf(RoundArrowCount(1, 1, 122.0, TestData.ARROWS.size)),
-                distances = distances,
+                customLogger = mock { },
         )
 
         Assert.assertEquals(true, entry.isRoundComplete())
@@ -108,12 +127,14 @@ class ViewScoresUnitTest {
     @Test
     fun testRoundIncomplete() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(
-                        ArcherRound(1, TestData.generateDate(), 1, roundId = 1), round
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1, roundId = 1),
+                        round = round,
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                        roundArrowCounts = arrowCounts,
+                        roundDistances = distances,
                 ),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
-                arrowCounts = arrowCounts,
-                distances = distances,
+                customLogger = mock { },
         )
 
         Assert.assertEquals(false, entry.isRoundComplete())
@@ -122,8 +143,11 @@ class ViewScoresUnitTest {
     @Test
     fun testRoundNoRoundComplete() {
         val entry = ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(ArcherRound(1, TestData.generateDate(), 1)),
-                arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRound(1, TestData.generateDate(), 1),
+                        arrows = TestData.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i + 1) },
+                ),
+                customLogger = mock { },
         )
 
         Assert.assertEquals(false, entry.isRoundComplete())
@@ -132,7 +156,11 @@ class ViewScoresUnitTest {
     @Test
     fun testScorePadDataToCsvNoRound() {
         setUpScorePadDetailsGlobals()
-        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, null, null, null)
+        val data = ScorePadDataNew(
+                info = FullArcherRoundInfo(ArcherRoundPreviewHelper.newArcherRound(), arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
         val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
 
         val expected = """
@@ -152,7 +180,17 @@ class ViewScoresUnitTest {
     @Test
     fun testScorePadDataToCsvWithRound() {
         setUpScorePadDetailsGlobals()
-        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val data = ScorePadDataNew(
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRoundPreviewHelper.newArcherRound().copy(roundId = 1),
+                        arrows = arrows,
+                        roundArrowCounts = arrowCounts,
+                        roundDistances = distances,
+                        round = RoundPreviewHelper.indoorMetricRoundData.round.copy(roundId = 1),
+                ),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
         val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
 
         val expected = """
@@ -174,7 +212,17 @@ class ViewScoresUnitTest {
     @Test
     fun testScorePadDataToCsvWithRoundNoDistanceTotals() {
         setUpScorePadDetailsGlobals()
-        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val data = ScorePadDataNew(
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRoundPreviewHelper.newArcherRound().copy(roundId = 1),
+                        arrows = arrows,
+                        roundArrowCounts = arrowCounts,
+                        roundDistances = distances,
+                        round = RoundPreviewHelper.indoorMetricRoundData.round.copy(roundId = 1),
+                ),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
         val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, false)
 
         val expected = """
@@ -194,7 +242,11 @@ class ViewScoresUnitTest {
     @Test
     fun testScorePadDataToStringNoRound() {
         setUpScorePadDetailsGlobals()
-        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, null, null, null)
+        val data = ScorePadDataNew(
+                info = FullArcherRoundInfo(ArcherRoundPreviewHelper.newArcherRound().copy(roundId = 1), arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
         val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
 
         val expected = """
@@ -217,7 +269,17 @@ class ViewScoresUnitTest {
     @Test
     fun testScorePadDataToStringWithRound() {
         setUpScorePadDetailsGlobals()
-        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val data = ScorePadDataNew(
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRoundPreviewHelper.newArcherRound().copy(roundId = 1),
+                        arrows = arrows,
+                        roundArrowCounts = arrowCounts,
+                        roundDistances = distances,
+                        round = RoundPreviewHelper.indoorMetricRoundData.round.copy(roundId = 1),
+                ),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
         val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
 
         val expected = """
@@ -242,7 +304,17 @@ class ViewScoresUnitTest {
     @Test
     fun testScorePadDataToStringWithRoundNoDistanceTotals() {
         setUpScorePadDetailsGlobals()
-        val data = ScorePadData(arrows, 6, GoldsType.TENS, resources, arrowCounts, distances, "m")
+        val data = ScorePadDataNew(
+                info = FullArcherRoundInfo(
+                        archerRound = ArcherRoundPreviewHelper.newArcherRound().copy(roundId = 1),
+                        arrows = arrows,
+                        roundArrowCounts = arrowCounts,
+                        roundDistances = distances,
+                        round = RoundPreviewHelper.indoorMetricRoundData.round.copy(roundId = 1),
+                ),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
         val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, false)
 
         val expected = """
@@ -269,13 +341,27 @@ class ViewScoresUnitTest {
                         Pair(R.string.end_to_string_arrow_deliminator, TestData.ARROW_DELIMINATOR),
                         Pair(R.string.score_pad__grand_total, "Grand Total"),
                         Pair(R.string.score_pad__running_total_placeholder, "-"),
-                        Pair(R.string.score_pad__distance_total, "Total at {distance}{unit}"),
+                        Pair(R.string.score_pad__distance_total, "Total at %1\$d%2\$s"),
                         Pair(R.string.score_pad__surplus_total, "Surplus Total"),
                         Pair(R.string.score_pad__end_string_header, "End"),
                         Pair(R.string.table_hits_header, "H"),
                         Pair(R.string.table_score_header, "S"),
                         Pair(R.string.table_golds_tens_header, "9"),
                         Pair(R.string.score_pad__running_total_header, "RT"),
+                        Pair(R.string.arrow_value_m, "m"),
+                        Pair(R.string.arrow_value_1, "1"),
+                        Pair(R.string.arrow_value_2, "2"),
+                        Pair(R.string.arrow_value_3, "3"),
+                        Pair(R.string.arrow_value_4, "4"),
+                        Pair(R.string.arrow_value_5, "5"),
+                        Pair(R.string.arrow_value_6, "6"),
+                        Pair(R.string.arrow_value_7, "7"),
+                        Pair(R.string.arrow_value_8, "8"),
+                        Pair(R.string.arrow_value_9, "9"),
+                        Pair(R.string.arrow_value_10, "10"),
+                        Pair(R.string.arrow_value_x, "X"),
+                        Pair(R.string.units_meters_short, "m"),
+                        Pair(R.string.units_yards_short, "yd"),
                 )
         )
         arrows = List(6) { i -> List(6) { TestData.ARROWS[TestData.ARROWS.size - i - 1] } }.flatten()

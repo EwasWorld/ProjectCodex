@@ -1,18 +1,18 @@
 package eywa.projectcodex.testUtils
 
 import android.content.res.Resources
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadData
+import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 
 class TestUtils {
     companion object {
         val defaultColumnHeaderOrder = listOf(
-                ScorePadData.ColumnHeader.END_STRING,
-                ScorePadData.ColumnHeader.HITS,
-                ScorePadData.ColumnHeader.SCORE,
-                ScorePadData.ColumnHeader.GOLDS,
-                ScorePadData.ColumnHeader.RUNNING_TOTAL
+                ScorePadDataNew.ColumnHeader.ARROWS,
+                ScorePadDataNew.ColumnHeader.HITS,
+                ScorePadDataNew.ColumnHeader.SCORE,
+                ScorePadDataNew.ColumnHeader.GOLDS,
+                ScorePadDataNew.ColumnHeader.RUNNING_TOTAL
         )
 
         /**
@@ -45,6 +45,14 @@ class TestUtils {
                 }
                 map[resourceId]
             }
+            Mockito.`when`(resources.getString(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()))
+                    .thenAnswer { invocation ->
+                        val resourceId = invocation.getArgument<Int>(0)
+                        if (!map.containsKey(resourceId)) {
+                            throw IllegalStateException("Unknown resource: $resourceId")
+                        }
+                        map[resourceId]!!.format(invocation.getArgument<Int>(1), invocation.getArgument<String>(2))
+                    }
             return resources
         }
     }

@@ -207,24 +207,6 @@ class ScorePadDataNew(
         return ScorePadDetailsString(header, details)
     }
 
-    /**
-     * Generate row headers corresponding to the stored score pad data.
-     * Headers increment from **1** to [data].size, adding in total rows where appropriate.
-     */
-    fun generateRowHeaders(resources: Resources): List<String> {
-        if (data.isEmpty()) return listOf()
-
-        var endNumber = 1
-        return data.map { row ->
-            when (row) {
-                is ScorePadRow.GrandTotal -> resources.getString(R.string.score_pad__grand_total_row_header)
-                is ScorePadRow.DistanceTotal,
-                is ScorePadRow.SurplusTotal -> resources.getString(R.string.score_pad__distance_total_row_header)
-                else -> endNumber++.toString()
-            }
-        }
-    }
-
     sealed class ScorePadRow {
         protected abstract val hits: Int
         protected abstract val score: Int

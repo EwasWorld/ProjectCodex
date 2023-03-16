@@ -24,8 +24,8 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 import kotlin.math.abs
 
 @Composable
@@ -168,7 +168,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
     fun ArcherRoundStatsScreen_Preview() {
         CodexTheme {
             ScreenContent(
-                    ArcherRoundsPreviewHelper.SIMPLE,
+                    ArcherRoundStatePreviewHelper.SIMPLE,
             )
         }
     }

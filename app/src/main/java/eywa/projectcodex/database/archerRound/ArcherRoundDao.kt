@@ -22,28 +22,12 @@ interface ArcherRoundDao {
     @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId = :id")
     fun getArcherRoundById(id: Int): LiveData<ArcherRound>
 
-    @Query(
-            """
-                SELECT rounds.*
-                FROM $TABLE_NAME INNER JOIN ${Round.TABLE_NAME} ON archer_rounds.roundId = rounds.roundId
-                WHERE archerRoundId = :archerRoundId
-            """
-    )
-    fun getRoundInfo(archerRoundId: Int): LiveData<Round>
-
-    @Transaction
-    @Query("SELECT * FROM $TABLE_NAME")
-    fun getAllArcherRoundsWithRoundInfoAndName(): LiveData<List<ArcherRoundWithRoundInfoAndName>>
-
-    @Transaction
-    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId")
-    fun getArcherRoundWithRoundInfoAndName(archerRoundId: Int): LiveData<ArcherRoundWithRoundInfoAndName>
-
-    @Query("SELECT * FROM $TABLE_NAME")
-    fun getAllArcherRounds(): LiveData<List<ArcherRound>>
-
     @Query("DELETE FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
     suspend fun deleteRound(archerRoundId: Int)
+
+    @Transaction
+    @Query("SELECT * FROM $TABLE_NAME")
+    fun getAllFullArcherRoundInfo(): Flow<List<DatabaseFullArcherRoundInfo>>
 
     @Transaction
     @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId")

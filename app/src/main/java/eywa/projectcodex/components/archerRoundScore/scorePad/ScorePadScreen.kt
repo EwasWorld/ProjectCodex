@@ -37,10 +37,10 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ColumnHeader
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ScorePadRow
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 
 
 private val COLUMN_HEADER_ORDER = listOf(
@@ -296,7 +296,7 @@ class ScorePadScreen : ArcherRoundSubScreen() {
     @Composable
     fun ScorePadScreen_Preview() {
         CodexTheme {
-            ScreenContent(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
+            ScreenContent(ArcherRoundStatePreviewHelper.WITH_SHOT_ARROWS) {}
         }
     }
 }

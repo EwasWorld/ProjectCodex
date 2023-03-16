@@ -2,7 +2,7 @@ package eywa.projectcodex.database
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import eywa.projectcodex.CustomLogger
+import eywa.projectcodex.common.logging.CustomLogger
 
 class DatabaseMigrations {
     companion object {

@@ -20,10 +20,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaffold
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 
 // TODO_CURRENT Help info for table and remaining arrows
 class InputEndScreen : ArcherRoundSubScreen() {
@@ -175,7 +175,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
     @Composable
     fun InputEndScreen_Preview() {
         CodexTheme {
-            ScreenContent(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
+            ScreenContent(ArcherRoundStatePreviewHelper.WITH_SHOT_ARROWS) {}
         }
     }
 
@@ -188,7 +188,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
     @Composable
     fun Mini_InputEndScreen_Preview() {
         CodexTheme {
-            ScreenContent(ArcherRoundsPreviewHelper.WITH_SHOT_ARROWS) {}
+            ScreenContent(ArcherRoundStatePreviewHelper.WITH_SHOT_ARROWS) {}
         }
     }
 }

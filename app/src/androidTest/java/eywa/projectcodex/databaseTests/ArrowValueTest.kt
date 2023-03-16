@@ -8,7 +8,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
-import eywa.projectcodex.databaseTests.DatabaseSuite.Companion.brokenTransactionMessage
+import eywa.projectcodex.databaseTests.DatabaseTestUtils.brokenTransactionMessage
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.runner.RunWith
@@ -24,7 +24,7 @@ class ArrowValueTest {
 
     @Before
     fun createDb() {
-        db = DatabaseSuite.createDatabase()
+        db = DatabaseTestUtils.createDatabase()
 
         runBlocking {
             TestUtils.generateArcherRounds(2)

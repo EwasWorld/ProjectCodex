@@ -1,25 +1,14 @@
 package eywa.projectcodex.database.archerRound
 
 import androidx.lifecycle.LiveData
-import eywa.projectcodex.database.rounds.Round
 
 /**
  * @see ArrowValuesRepo
  */
 class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
-    val maxId: LiveData<Int> = archerRoundDao.getMaxId()
     val personalBests = archerRoundDao.getPersonalBests()
 
-    val allArcherRoundsWithRoundInfoAndName: LiveData<List<ArcherRoundWithRoundInfoAndName>> =
-            archerRoundDao.getAllArcherRoundsWithRoundInfoAndName()
-
-    fun getRoundInfo(archerRoundId: Int): LiveData<Round> {
-        return archerRoundDao.getRoundInfo(archerRoundId)
-    }
-
-    fun getArcherRoundWithRoundInfoAndName(archerRoundId: Int): LiveData<ArcherRoundWithRoundInfoAndName> {
-        return archerRoundDao.getArcherRoundWithRoundInfoAndName(archerRoundId)
-    }
+    val allFullArcherRounds = archerRoundDao.getAllFullArcherRoundInfo()
 
     fun getFullArcherRoundInfo(archerRoundId: Int) = archerRoundDao.getFullArcherRoundInfo(archerRoundId)
 

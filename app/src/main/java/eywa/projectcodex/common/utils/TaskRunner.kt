@@ -2,7 +2,7 @@ package eywa.projectcodex.common.utils
 
 import android.os.Handler
 import android.os.Looper
-import eywa.projectcodex.CustomLogger
+import eywa.projectcodex.common.logging.CustomLogger
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 

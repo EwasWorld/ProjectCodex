@@ -1,7 +1,7 @@
 package eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects
 
 import com.beust.klaxon.*
-import eywa.projectcodex.CustomLogger
+import eywa.projectcodex.common.logging.CustomLogger
 
 /**
  * Converts a json string into a [DefaultRoundInfo] object

@@ -8,8 +8,6 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.azimolabs.conditionwatcher.ConditionWatcher
-import com.azimolabs.conditionwatcher.Instruction
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.R
@@ -20,8 +18,13 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -32,6 +35,7 @@ import java.util.*
 
 
 // TODO_CURRENT Test that no round is visible even when dialog is at max hight (ensure not pushed off bottom)
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class NewScoreInstrumentedTest {
@@ -47,7 +51,6 @@ class NewScoreInstrumentedTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
-    private var currentArcherRounds: List<ArcherRound> = listOf()
     private val roundsInput = TestUtils.ROUNDS.take(3)
     private val subtypesInput = TestUtils.ROUND_SUB_TYPES
     private val arrowCountsInput = TestUtils.ROUND_ARROW_COUNTS
@@ -62,6 +65,11 @@ class NewScoreInstrumentedTest {
     )
 
     private val distancesInput = TestUtils.ROUND_DISTANCES
+
+    private suspend fun getCurrentArcherRounds() = db.archerRoundDao().getAllFullArcherRoundInfo().first()
+
+    private suspend fun getArcherRounds(archerRoundId: Int) =
+            db.archerRoundDao().getFullArcherRoundInfo(archerRoundId).first()
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
@@ -102,11 +110,6 @@ class NewScoreInstrumentedTest {
         scenario.moveToState(Lifecycle.State.RESUMED)
         scenario.onActivity {
             navController = it.navHostFragment.navController
-
-            db.archerRoundDao().getAllArcherRounds().observe(it) { obArcherRounds ->
-                // TODO Remove and use runTestBlocking or something
-                currentArcherRounds = obArcherRounds
-            }
         }
     }
 
@@ -120,7 +123,7 @@ class NewScoreInstrumentedTest {
      * Test id is correct
      */
     @Test
-    fun addRoundNoType() {
+    fun addRoundNoType() = runTest {
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -130,9 +133,10 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
+        val currentArcherRounds = getCurrentArcherRounds()
         assertEquals(2, currentArcherRounds.size)
-        assertEquals(2, currentArcherRounds[1].archerRoundId)
-        assertEquals(null, currentArcherRounds[1].roundId)
+        assertEquals(2, currentArcherRounds[1].archerRound.archerRoundId)
+        assertEquals(null, currentArcherRounds[1].round?.roundId)
     }
 
     /**
@@ -140,14 +144,10 @@ class NewScoreInstrumentedTest {
      * Test id is correct
      */
     @Test
-    fun addAnotherRound() {
+    fun addAnotherRound() = runTest {
         setup()
         val ar = ArcherRound(2, TestUtils.generateDate(), 1, true)
-        scenario.onActivity {
-            runBlocking {
-                db.archerRoundDao().insert(ar)
-            }
-        }
+        db.archerRoundDao().insert(ar)
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
@@ -156,10 +156,9 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val roundsAfterCreate = currentArcherRounds.toMutableList()
-        assertEquals(3, roundsAfterCreate.size)
-
-        roundsAfterCreate.remove(ar)
+        val roundsAfterCreate = getCurrentArcherRounds()
+                .filterNot { it.archerRound.archerRoundId == ar.archerRoundId }
+                .map { it.archerRound }
         assertEquals(2, roundsAfterCreate.size)
         assertEquals(archerRoundInput, roundsAfterCreate[0])
         assert(roundsAfterCreate[1].archerRoundId > ar.archerRoundId)
@@ -175,18 +174,11 @@ class NewScoreInstrumentedTest {
      * Test round and subtype id are correct
      */
     @Test
-    fun addRoundWithSubtype() {
+    fun addRoundWithSubtype() = runTest {
         setup()
-        ConditionWatcher.waitForCondition(object : Instruction() {
-            override fun getDescription(): String {
-                return "Wait for currentArcherRounds to be populated"
-            }
+        db.archerRoundDao().getAllFullArcherRoundInfo().takeWhile { it.isEmpty() }.collect()
 
-            override fun checkCondition(): Boolean {
-                return currentArcherRounds.isNotEmpty()
-            }
-        })
-        val roundsBeforeCreate = currentArcherRounds
+        val roundsBeforeCreate = getCurrentArcherRounds()
         assertEquals(1, roundsBeforeCreate.size)
 
         val selectedRound = roundsInput[0]
@@ -204,7 +196,7 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val roundsAfterCreate = currentArcherRounds.toMutableList()
+        val roundsAfterCreate = getCurrentArcherRounds().map { it.archerRound }
         assertEquals(2, roundsAfterCreate.size)
         assertEquals(archerRoundInput, roundsAfterCreate[0])
         assertEquals(selectedRound.roundId, roundsAfterCreate[1].roundId)
@@ -212,7 +204,7 @@ class NewScoreInstrumentedTest {
     }
 
     @Test
-    fun testCustomDateTime() {
+    fun testCustomDateTime() = runTest {
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -233,16 +225,16 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val roundsAfterCreate = currentArcherRounds.toMutableList()
+        val roundsAfterCreate = getCurrentArcherRounds().toMutableList()
         for (round in roundsAfterCreate) {
-            if (round.roundId == 1) continue
+            if (round.archerRound.roundId == 1) continue
             // Date returns (year - 1900)
-            assertEquals(2040 - 1900, round.dateShot.year)
+            assertEquals(2040 - 1900, round.archerRound.dateShot.year)
         }
     }
 
     @Test
-    fun testEditInfo() {
+    fun testEditInfo() = runTest {
         setup(archerRoundInput.archerRoundId)
 
         val selectedRound = roundsInput[1]
@@ -296,31 +288,32 @@ class NewScoreInstrumentedTest {
                     clickSubmitEditScore()
                 }
             }
-
-            runBlocking { delay(1000) }
-            val updated = currentArcherRounds.find { it.archerRoundId == archerRoundInput.archerRoundId }
-            assertEquals(
-                    ArcherRound(
-                            archerRoundInput.archerRoundId,
-                            calendar.time,
-                            archerRoundInput.archerId,
-                            archerRoundInput.countsTowardsHandicap,
-                            roundId = selectedRound.roundId,
-                            roundSubTypeId = 1
-                    ),
-                    updated?.copy(dateShot = calendar.time)
-            )
-            // Date returns (year - 1900)
-            assertEquals(2040 - 1900, updated?.dateShot?.year)
-            assertEquals(9, updated?.dateShot?.month)
-            assertEquals(30, updated?.dateShot?.date)
-            assertEquals(13, updated?.dateShot?.hours)
-            assertEquals(15, updated?.dateShot?.minutes)
         }
+
+        runBlocking { delay(1000) }
+        val updated = getArcherRounds(archerRoundInput.archerRoundId)
+        assertEquals(
+                ArcherRound(
+                        archerRoundInput.archerRoundId,
+                        calendar.time,
+                        archerRoundInput.archerId,
+                        archerRoundInput.countsTowardsHandicap,
+                        roundId = selectedRound.roundId,
+                        roundSubTypeId = 1
+                ),
+                updated.archerRound.copy(dateShot = calendar.time)
+        )
+        val updatedDate = updated.archerRound.dateShot
+        // Date returns (year - 1900)
+        assertEquals(2040 - 1900, updatedDate.year)
+        assertEquals(9, updatedDate.month)
+        assertEquals(30, updatedDate.date)
+        assertEquals(13, updatedDate.hours)
+        assertEquals(15, updatedDate.minutes)
     }
 
     @Test
-    fun testEditInfoToNoRound() {
+    fun testEditInfoToNoRound() = runTest {
         setup(archerRoundInput.archerRoundId)
 
         composeTestRule.mainMenuRobot {
@@ -335,11 +328,11 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val actual = currentArcherRounds.find { it.archerRoundId == archerRoundInput.archerRoundId }
+        val actual = getArcherRounds(archerRoundInput.archerRoundId).archerRound
         assertEquals(
                 ArcherRound(
                         archerRoundInput.archerRoundId,
-                        actual?.dateShot!!,
+                        actual.dateShot,
                         archerRoundInput.archerId,
                         archerRoundInput.countsTowardsHandicap,
                         roundId = null,

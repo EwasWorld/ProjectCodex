@@ -1,12 +1,8 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
-import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.*
-import java.util.*
 
 object RoundPreviewHelper {
-    val archerRoundNoRound = ArcherRound(1, Calendar.getInstance().time, 1)
-
     val outdoorImperialRoundData = FullRoundInfo(
             round = Round(
                     roundId = 1,

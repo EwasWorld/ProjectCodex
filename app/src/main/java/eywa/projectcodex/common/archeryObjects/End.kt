@@ -1,7 +1,7 @@
 package eywa.projectcodex.common.archeryObjects
 
-import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException

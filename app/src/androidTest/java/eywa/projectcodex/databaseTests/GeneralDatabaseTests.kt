@@ -34,7 +34,7 @@ class GeneralDatabaseTests {
 
     @Before
     fun createDb() {
-        db = DatabaseSuite.createDatabase()
+        db = DatabaseTestUtils.createDatabase()
         roundDao = db.roundDao()
         roundArrowCountDao = db.roundArrowCountDao()
         roundSubTypeDao = db.roundSubTypeDao()

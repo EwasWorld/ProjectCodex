@@ -4,8 +4,8 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.KlaxonException
-import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.CompletionType.ALREADY_UP_TO_DATE

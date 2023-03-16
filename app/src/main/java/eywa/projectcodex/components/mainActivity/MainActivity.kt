@@ -18,9 +18,9 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import eywa.projectcodex.CustomLogger
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.getColourResource
 import eywa.projectcodex.components.about.AboutFragment

@@ -3,10 +3,10 @@ package eywa.projectcodex.databaseTests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
-import eywa.projectcodex.common.retrieveValue
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundDao
+import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
 import eywa.projectcodex.database.rounds.RoundArrowCountDao
@@ -14,16 +14,15 @@ import eywa.projectcodex.database.rounds.RoundDao
 import eywa.projectcodex.database.rounds.RoundSubTypeDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class ArcherRoundsTest {
     @get:Rule
@@ -38,7 +37,7 @@ class ArcherRoundsTest {
 
     @Before
     fun createDb() {
-        db = DatabaseSuite.createDatabase()
+        db = DatabaseTestUtils.createDatabase()
         archerRoundDao = db.archerRoundDao()
         roundDao = db.roundDao()
         roundSubTypeDao = db.roundSubTypeDao()
@@ -52,13 +51,11 @@ class ArcherRoundsTest {
     }
 
     /**
-     * Check max ID value increases with each insertion // TODO Separate max id checks
      * Check inserted values are the same as retrieved
      */
     @Test
-    fun basicTest() {
-        val retrievedArcherRounds = archerRoundDao.getAllArcherRounds()
-        val retrievedMax = archerRoundDao.getMaxId()
+    fun basicTest() = runTest(dispatchTimeoutMs = 2000) {
+        val retrievedArcherRounds = archerRoundDao.getAllFullArcherRoundInfo()
 
         /*
          * Add and retrieve
@@ -70,42 +67,32 @@ class ArcherRoundsTest {
                 ArcherRound(4, TestUtils.generateDate(), 1, false),
                 ArcherRound(5, TestUtils.generateDate(), 2, false),
                 ArcherRound(6, TestUtils.generateDate(), 1, false),
-        )
-        var currentMax = -1
-        for (archerRound in archerRounds) {
-            runBlocking {
-                archerRoundDao.insert(
-                        // Remove archerRoundId
-                        ArcherRound(
-                                0,
-                                archerRound.dateShot,
-                                archerRound.archerId,
-                                archerRound.countsTowardsHandicap
-                        )
-                )
-            }
-
-            val unpackedMax = retrievedMax.retrieveValue()!!
-            assertEquals(
-                    retrievedArcherRounds.retrieveValue()!!.maxByOrNull { it.archerRoundId }?.archerRoundId ?: 0,
-                    unpackedMax
+        ).map {
+            DatabaseFullArcherRoundInfo(
+                    archerRound = it,
+                    arrows = listOf(),
+                    roundArrowCounts = listOf(),
+                    allRoundSubTypes = listOf(),
+                    allRoundDistances = listOf(),
             )
-            assert(currentMax < unpackedMax)
-            currentMax = unpackedMax
         }
 
-        assertEquals(archerRounds.toSet(), retrievedArcherRounds.retrieveValue()!!.toSet())
+        for (archerRound in archerRounds) {
+            archerRoundDao.insert(archerRound.archerRound.copy(archerRoundId = 0))
+        }
+        assertEquals(
+                archerRounds.toSet(),
+                retrievedArcherRounds.first().toSet(),
+        )
 
         /*
          * Delete
          */
-        runBlocking {
-            archerRoundDao.deleteRound(1)
-            archerRoundDao.deleteRound(2)
-        }
+        archerRoundDao.deleteRound(1)
+        archerRoundDao.deleteRound(2)
         assertEquals(
                 archerRounds.subList(2, archerRounds.size).toSet(),
-                retrievedArcherRounds.retrieveValue()!!.toSet()
+                retrievedArcherRounds.first().toSet(),
         )
     }
 
@@ -113,7 +100,7 @@ class ArcherRoundsTest {
      * Check the correct round info is retrieved for the given archer round
      */
     @Test
-    fun getRoundInfoTest() {
+    fun getRoundInfoTest() = runTest {
         /*
          * Create data and populate tables
          */
@@ -128,29 +115,20 @@ class ArcherRoundsTest {
         val rounds = TestUtils.ROUNDS.take(3)
 
         for (round in rounds) {
-            runBlocking {
-                roundDao.insert(round)
-            }
+            roundDao.insert(round)
         }
         for (archerRound in archerRounds) {
-            runBlocking {
-                archerRoundDao.insert(archerRound)
-            }
+            archerRoundDao.insert(archerRound)
         }
 
         /*
          * Check the correct round info is retrieved
          */
         for (archerRound in archerRounds) {
-            val retrievedRoundInfo = archerRoundDao.getRoundInfo(archerRound.archerRoundId).retrieveValue()
-            if (retrievedRoundInfo == null) {
-                if (archerRound.roundId != null) {
-                    fail("Could not find round info")
-                }
-            }
-            else {
-                assertEquals(archerRound.roundId, retrievedRoundInfo.roundId)
-                assert(rounds[archerRound.roundId!! - 1] == retrievedRoundInfo)
+            val retrievedRoundInfo = archerRoundDao.getFullArcherRoundInfo(archerRound.archerRoundId).first()
+            assertEquals(archerRound.roundId, retrievedRoundInfo.round?.roundId)
+            if (archerRound.roundId != null) {
+                assertEquals(rounds[archerRound.roundId!! - 1], retrievedRoundInfo.round)
             }
         }
     }
@@ -159,7 +137,7 @@ class ArcherRoundsTest {
      * Check the correct round name info is retrieved for the given archer round
      */
     @Test
-    fun getArcherRoundsWithNamesTest() {
+    fun getArcherRoundsWithNamesTest() = runTest {
         /*
          * Create data and populate tables
          */
@@ -175,25 +153,19 @@ class ArcherRoundsTest {
         val roundSubTypes = TestUtils.ROUND_SUB_TYPES
 
         for (round in rounds) {
-            runBlocking {
-                roundDao.insert(round)
-            }
+            roundDao.insert(round)
         }
         for (roundSubType in roundSubTypes) {
-            runBlocking {
-                roundSubTypeDao.insert(roundSubType)
-            }
+            roundSubTypeDao.insert(roundSubType)
         }
         for (archerRound in archerRounds) {
-            runBlocking {
-                archerRoundDao.insert(archerRound)
-            }
+            archerRoundDao.insert(archerRound)
         }
 
         /*
          * Check the correct round info is retrieved
          */
-        val retrievedRoundInfo = archerRoundDao.getAllArcherRoundsWithRoundInfoAndName().retrieveValue()!!
+        val retrievedRoundInfo = archerRoundDao.getAllFullArcherRoundInfo().first()
         for (i in retrievedRoundInfo.indices) {
             assertEquals(archerRounds[i], retrievedRoundInfo[i].archerRound)
 
@@ -208,7 +180,6 @@ class ArcherRoundsTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testPersonalBests() = runTest {
         val archerRounds = listOf(

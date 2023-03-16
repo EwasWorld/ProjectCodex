@@ -3,9 +3,10 @@ package eywa.projectcodex.components.viewScores.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.ArcherRoundWithRoundInfoAndName
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -46,7 +47,7 @@ object ViewScoresEntryPreviewProvider {
         val hsg = desiredHsg[index % desiredHsg.size]
         val hasRoundInfo = index % 5 != 1 && displayName != null
         ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(
+                info = FullArcherRoundInfo(
                         archerRound = ArcherRound(
                                 archerRoundId = index + 1,
                                 dateShot = dates[index % dates.size],
@@ -56,18 +57,22 @@ object ViewScoresEntryPreviewProvider {
                         round = displayName?.let {
                             Round(1, "", displayName, true, true, listOf())
                         },
-                        roundSubTypes = listOf(),
+                        roundSubType = null,
+                        arrows = hsg?.let { generateArrows(index + 1, hsg) },
+                        roundArrowCounts = (
+                                if (!hasRoundInfo) null
+                                else hsg?.let { listOf(RoundArrowCount(1, 1, 1.0, hsg[0])) }
+                                ),
+                        roundDistances = if (!hasRoundInfo) null else listOf(RoundDistance(1, 1, 1, 20)),
                 ),
-                arrows = hsg?.let { generateArrows(index + 1, hsg) },
-                arrowCounts = if (!hasRoundInfo) null else hsg?.let { listOf(RoundArrowCount(1, 1, 1.0, hsg[0])) },
-                distances = if (!hasRoundInfo) null else listOf(RoundDistance(1, 1, 1, 20)),
                 isSelected = index % 3 != 1,
+                customLogger = CustomLogger(),
         )
     }
 
     fun generateIncompleteRound() = listOf(36, 217, 12).let { hsg ->
         ViewScoresEntry(
-                initialInfo = ArcherRoundWithRoundInfoAndName(
+                info = FullArcherRoundInfo(
                         archerRound = ArcherRound(
                                 archerRoundId = 1,
                                 dateShot = dates[0],
@@ -75,12 +80,13 @@ object ViewScoresEntryPreviewProvider {
                                 roundId = 1
                         ),
                         round = Round(1, "", roundNames[0]!!, true, true, listOf()),
-                        roundSubTypes = listOf(),
+                        roundSubType = null,
+                        arrows = generateArrows(1, hsg),
+                        roundArrowCounts = listOf(RoundArrowCount(1, 1, 1.0, hsg[0] + 1)),
+                        roundDistances = listOf(RoundDistance(1, 1, 1, 20)),
                 ),
-                arrows = generateArrows(1, hsg),
-                arrowCounts = listOf(RoundArrowCount(1, 1, 1.0, hsg[0] + 1)),
-                distances = listOf(RoundDistance(1, 1, 1, 20)),
                 isSelected = false,
+                customLogger = CustomLogger(),
         )
     }
 

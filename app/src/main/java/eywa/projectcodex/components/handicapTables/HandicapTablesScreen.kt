@@ -27,9 +27,9 @@ import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.NumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundsPreviewHelper
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 
 class HandicapTablesScreen : ActionBarHelp {
@@ -270,11 +270,11 @@ class HandicapTablesScreen : ActionBarHelp {
                 HandicapTablesState(
                         input = 31,
                         inputHandicap = true,
-                        round = HandicapTablesState.RoundInfo.Round(ArcherRoundsPreviewHelper.round),
+                        round = HandicapTablesState.RoundInfo.Round(RoundPreviewHelper.outdoorImperialRoundData),
                         roundFilters = SelectRoundEnabledFilters(),
                         subType = 1,
                         use2023Tables = false,
-                        allRounds = listOf(ArcherRoundsPreviewHelper.round),
+                        allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                         isSelectRoundDialogOpen = false,
                         isSelectSubtypeDialogOpen = false,
                         handicaps = listOf(

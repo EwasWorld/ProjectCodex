@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.ResOrActual
 import org.junit.Assert.assertEquals
@@ -11,16 +12,14 @@ class NewScoreStateUnitTest {
 
     @Test
     fun testIsEditing() {
-        with(paramProvider) {
-            assertEquals(
-                    true,
-                    NewScoreState(roundBeingEdited = RoundPreviewHelper.archerRoundNoRound).isEditing
-            )
-            assertEquals(
-                    false,
-                    NewScoreState(roundBeingEdited = null).isEditing
-            )
-        }
+        assertEquals(
+                true,
+                NewScoreState(roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound()).isEditing
+        )
+        assertEquals(
+                false,
+                NewScoreState(roundBeingEdited = null).isEditing
+        )
     }
 
     @Test

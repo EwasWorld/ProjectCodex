@@ -13,10 +13,10 @@ import eywa.projectcodex.database.rounds.*
 data class FullArcherRoundInfo(
         val archerRound: ArcherRound,
         val arrows: List<ArrowValue>?,
-        val round: Round?,
-        val roundArrowCounts: List<RoundArrowCount>?,
-        val roundSubType: RoundSubType?,
-        val roundDistances: List<RoundDistance>?,
+        val round: Round? = null,
+        val roundArrowCounts: List<RoundArrowCount>? = null,
+        val roundSubType: RoundSubType? = null,
+        val roundDistances: List<RoundDistance>? = null,
 ) {
     constructor(full: DatabaseFullArcherRoundInfo) : this(
             archerRound = full.archerRound,
@@ -26,6 +26,16 @@ data class FullArcherRoundInfo(
             roundSubType = full.roundSubType,
             roundDistances = full.roundDistances,
     )
+
+    init {
+        require(arrows?.all { it.archerRoundId == archerRound.archerRoundId } != false) { "Arrows mismatched id" }
+        require(roundArrowCounts?.all { it.roundId == round?.roundId } != false) { "Arrow counts mismatched id" }
+        require(
+                roundDistances?.all {
+                    it.roundId == round?.roundId && it.subTypeId == (archerRound.roundSubTypeId ?: 1)
+                } != false
+        ) { "Distances mismatched id" }
+    }
 
     val displayName by lazy { roundSubType?.name ?: round?.displayName }
 

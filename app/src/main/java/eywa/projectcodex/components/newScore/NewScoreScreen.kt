@@ -31,6 +31,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.utils.DateTimeFormat
@@ -317,7 +318,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
 
             // Editing
-            NewScoreState(roundsData = roundsData, roundBeingEdited = RoundPreviewHelper.archerRoundNoRound),
+            NewScoreState(roundsData = roundsData, roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound()),
 
             // DbInProgress
             NewScoreState(roundsData = roundsData, updateDefaultRoundsState = UpdateDefaultRoundsState.DeletingOld(1)),
@@ -326,7 +327,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             NewScoreState(
                     roundsData = roundsData,
                     selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
-                    roundBeingEdited = RoundPreviewHelper.archerRoundNoRound,
+                    roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound(),
                     roundBeingEditedArrowsShot = 1000,
             ),
 

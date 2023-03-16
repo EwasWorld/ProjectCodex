@@ -2,7 +2,7 @@ package eywa.projectcodex.common.utils
 
 import android.content.Context
 import android.widget.Toast
-import eywa.projectcodex.CustomLogger
+import eywa.projectcodex.common.logging.CustomLogger
 
 class ToastSpamPrevention private constructor() {
     companion object {
