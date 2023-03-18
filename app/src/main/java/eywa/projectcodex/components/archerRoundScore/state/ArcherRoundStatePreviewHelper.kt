@@ -3,7 +3,7 @@ package eywa.projectcodex.components.archerRoundScore.state
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 
@@ -24,7 +24,7 @@ object ArcherRoundStatePreviewHelper {
 
     val WITH_SHOT_ARROWS = SIMPLE.copy(
             fullArcherRoundInfo = SIMPLE.fullArcherRoundInfo
-                    .addArrows(20, 7)
+                    .addIdenticalArrows(20, 7)
                     .addRound(RoundPreviewHelper.indoorMetricRoundData)
     )
 }

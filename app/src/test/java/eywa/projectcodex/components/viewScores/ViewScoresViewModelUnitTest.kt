@@ -2,7 +2,6 @@ package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.helpShowcase.HelpShowcase
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
@@ -93,12 +92,6 @@ class ViewScoresViewModelUnitTest {
                 },
                 sut.state.value.data,
         )
-    }
-
-    @Test
-    fun testHelpShowcaseAction() {
-        getSut().handle(HelpShowcaseAction(HelpShowcaseIntent.Clear))
-        verify(helpShowcase).handle(HelpShowcaseIntent.Clear, ViewScoresFragment::class)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
+import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
@@ -23,11 +24,14 @@ object ArcherRoundPreviewHelper {
     fun newFullArcherRoundInfo(archerRound: ArcherRound = newArcherRound()) =
             FullArcherRoundInfo(archerRound = archerRound, arrows = null)
 
-    fun FullArcherRoundInfo.addArrows(size: Int, arrowScore: Int, isX: Boolean = false) =
-            copy(
-                    arrows = (arrows ?: emptyList())
-                            .plus(List(size) { ArrowValue(archerRound.archerRoundId, it, arrowScore, isX) })
-            )
+    fun FullArcherRoundInfo.addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) =
+            copy(arrows = ArrowValuesPreviewHelper.getArrows(archerRound.archerRoundId, size, 1, score, isX))
+
+    fun FullArcherRoundInfo.addFullSetOfArrows() =
+            copy(arrows = ArrowValuesPreviewHelper.getArrowsInOrderFullSet(archerRound.archerRoundId))
+
+    fun FullArcherRoundInfo.addArrows(arrows: List<Arrow>) =
+            copy(arrows = arrows.mapIndexed { i, arrow -> arrow.toArrowValue(archerRound.archerRoundId, i + 1) })
 
     fun FullArcherRoundInfo.addRound(fullRoundInfo: FullRoundInfo) =
             copy(

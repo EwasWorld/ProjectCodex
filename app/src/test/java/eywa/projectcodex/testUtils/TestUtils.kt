@@ -4,6 +4,7 @@ import android.content.res.Resources
 import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
+import org.mockito.kotlin.anyVararg
 
 class TestUtils {
     companion object {
@@ -40,19 +41,14 @@ class TestUtils {
             val resources = Mockito.mock(Resources::class.java)
             Mockito.`when`(resources.getString(Mockito.anyInt())).thenAnswer { invocation ->
                 val resourceId = invocation.getArgument<Int>(0)
-                if (!map.containsKey(resourceId)) {
-                    throw IllegalStateException("Unknown resource: $resourceId")
-                }
-                map[resourceId]
+                map[resourceId] ?: throw IllegalStateException("Unknown resource: $resourceId")
             }
-            Mockito.`when`(resources.getString(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()))
-                    .thenAnswer { invocation ->
-                        val resourceId = invocation.getArgument<Int>(0)
-                        if (!map.containsKey(resourceId)) {
-                            throw IllegalStateException("Unknown resource: $resourceId")
-                        }
-                        map[resourceId]!!.format(invocation.getArgument<Int>(1), invocation.getArgument<String>(2))
-                    }
+            Mockito.`when`(resources.getString(Mockito.anyInt(), anyVararg())).thenAnswer { invocation ->
+                val resourceId = invocation.getArgument<Int>(0)
+                map[resourceId]
+                        ?.format(*invocation.arguments.drop(1).toTypedArray())
+                        ?: throw IllegalStateException("Unknown resource: $resourceId")
+            }
             return resources
         }
     }

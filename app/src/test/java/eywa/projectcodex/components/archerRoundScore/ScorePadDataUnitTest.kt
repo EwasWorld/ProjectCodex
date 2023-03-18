@@ -4,7 +4,7 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.ResOrActual
@@ -53,7 +53,7 @@ class ScorePadDataUnitTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testZeroEndSize() {
-        ScorePadDataNew(ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(5, 3), 0, GoldsType.NINES)
+        ScorePadDataNew(ArcherRoundPreviewHelper.newFullArcherRoundInfo().addIdenticalArrows(5, 3), 0, GoldsType.NINES)
         Assert.fail("Created ScorePadData with 0 endSize")
     }
 
@@ -80,7 +80,7 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadDataNew(
-                ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(totalArrows, arrowScore),
+                ArcherRoundPreviewHelper.newFullArcherRoundInfo().addIdenticalArrows(totalArrows, arrowScore),
                 endSize,
                 GoldsType.NINES,
         ).data
@@ -139,7 +139,7 @@ class ScorePadDataUnitTest {
                 ArcherRoundPreviewHelper
                         .newFullArcherRoundInfo()
                         .addRound(RoundPreviewHelper.outdoorImperialRoundData)
-                        .addArrows(totalArrows, arrowScore),
+                        .addIdenticalArrows(totalArrows, arrowScore),
                 endSize,
                 GoldsType.NINES,
         ).data
@@ -196,7 +196,7 @@ class ScorePadDataUnitTest {
                 ArcherRoundPreviewHelper
                         .newFullArcherRoundInfo()
                         .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                        .addArrows(totalArrows, arrowScore),
+                        .addIdenticalArrows(totalArrows, arrowScore),
                 endSize,
                 GoldsType.NINES,
         ).data

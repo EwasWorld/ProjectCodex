@@ -34,7 +34,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileWriter
 
-// TODO_CURRENT H/S/G coming up as null
 @AndroidEntryPoint
 class EmailScoresFragment : Fragment(), ActionBarHelp {
     companion object {
