@@ -21,12 +21,12 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.ScorePadData
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.CodexChipState
 import eywa.projectcodex.common.sharedUi.CodexTextFieldState
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.exceptions.UserException
@@ -50,11 +50,11 @@ class EmailScoresFragment : Fragment(), ActionBarHelp {
     private val endSize = 6
 
     private val columnHeaderOrder = listOf(
-            ScorePadDataNew.ColumnHeader.ARROWS,
-            ScorePadDataNew.ColumnHeader.HITS,
-            ScorePadDataNew.ColumnHeader.SCORE,
-            ScorePadDataNew.ColumnHeader.GOLDS,
-            ScorePadDataNew.ColumnHeader.RUNNING_TOTAL
+            ScorePadData.ColumnHeader.ARROWS,
+            ScorePadData.ColumnHeader.HITS,
+            ScorePadData.ColumnHeader.SCORE,
+            ScorePadData.ColumnHeader.GOLDS,
+            ScorePadData.ColumnHeader.RUNNING_TOTAL
     )
 
     private fun EmailScoresTextField.asState() = CodexTextFieldState(

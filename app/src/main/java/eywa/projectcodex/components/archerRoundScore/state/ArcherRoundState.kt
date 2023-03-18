@@ -8,6 +8,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.archeryObjects.ScorePadData
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd.EditEndScreen
@@ -18,7 +19,6 @@ import eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd.Inser
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd.InsertEndState
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadState
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.INPUT_END
@@ -55,7 +55,7 @@ sealed class ArcherRoundState {
     ) : ArcherRoundState(), InputEndState, ArcherRoundStatsState, ScorePadState, ArcherRoundSettingsState, EditEndState,
             InsertEndState {
         override val scorePadData by lazy {
-            ScorePadDataNew(
+            ScorePadData(
                     info = fullArcherRoundInfo,
                     endSize = scorePadEndSize ?: DEFAULT_END_SIZE,
                     goldsType = goldsType

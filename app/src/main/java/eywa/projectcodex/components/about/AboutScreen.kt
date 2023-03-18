@@ -66,6 +66,7 @@ fun AboutScreen(
                                 state.asDisplayString(LocalContext.current.resources),
                         ),
                         textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag(AboutScreenTestTag.UPDATE_TASK_STATUS)
                 )
             }
         }

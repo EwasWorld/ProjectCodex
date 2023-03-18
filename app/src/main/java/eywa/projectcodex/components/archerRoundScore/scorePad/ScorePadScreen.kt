@@ -23,6 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.archeryObjects.ScorePadData.ColumnHeader
+import eywa.projectcodex.common.archeryObjects.ScorePadData.ScorePadRow
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -37,8 +39,6 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ScorePadIntent.*
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ColumnHeader
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ScorePadRow
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 

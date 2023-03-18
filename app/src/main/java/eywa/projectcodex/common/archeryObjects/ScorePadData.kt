@@ -1,17 +1,15 @@
-package eywa.projectcodex.components.archerRoundScore.scorePad.infoTable
+package eywa.projectcodex.common.archeryObjects
 
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.database.arrowValue.*
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 
-class ScorePadDataNew(
+class ScorePadData(
         info: FullArcherRoundInfo,
         endSize: Int,
         val goldsType: GoldsType,

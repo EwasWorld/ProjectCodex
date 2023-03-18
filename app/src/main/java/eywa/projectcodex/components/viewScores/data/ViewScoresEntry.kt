@@ -4,10 +4,10 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.archeryObjects.ScorePadData
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.Handicap
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -68,11 +68,11 @@ data class ViewScoresEntry(
                 }
             }
 
-    fun getScorePadData(endSize: Int): ScorePadDataNew? {
+    fun getScorePadData(endSize: Int): ScorePadData? {
         if (info.arrows.isNullOrEmpty()) {
             return null
         }
-        return ScorePadDataNew(info, endSize, goldsType)
+        return ScorePadData(info, endSize, goldsType)
     }
 
     fun getScoreSummary(resources: Resources): String =

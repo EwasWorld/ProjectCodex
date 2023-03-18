@@ -1,7 +1,7 @@
 package eywa.projectcodex.testUtils
 
 import android.content.res.Resources
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
+import eywa.projectcodex.common.archeryObjects.ScorePadData
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import org.mockito.kotlin.anyVararg
@@ -9,11 +9,11 @@ import org.mockito.kotlin.anyVararg
 class TestUtils {
     companion object {
         val defaultColumnHeaderOrder = listOf(
-                ScorePadDataNew.ColumnHeader.ARROWS,
-                ScorePadDataNew.ColumnHeader.HITS,
-                ScorePadDataNew.ColumnHeader.SCORE,
-                ScorePadDataNew.ColumnHeader.GOLDS,
-                ScorePadDataNew.ColumnHeader.RUNNING_TOTAL
+                ScorePadData.ColumnHeader.ARROWS,
+                ScorePadData.ColumnHeader.HITS,
+                ScorePadData.ColumnHeader.SCORE,
+                ScorePadData.ColumnHeader.GOLDS,
+                ScorePadData.ColumnHeader.RUNNING_TOTAL
         )
 
         /**

@@ -22,6 +22,7 @@ class UpdateDefaultRoundsActualE2eTests {
     companion object {
         init {
             SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
+            LocalUpdateDefaultRoundsModule.useActual = true
         }
 
         @Suppress("unused")

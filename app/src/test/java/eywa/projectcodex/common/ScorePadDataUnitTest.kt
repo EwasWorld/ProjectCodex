@@ -1,18 +1,25 @@
-package eywa.projectcodex.components.archerRoundScore
+package eywa.projectcodex.common
 
 import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.common.archeryObjects.ScorePadData
+import eywa.projectcodex.common.archeryObjects.ScorePadData.ColumnHeader
+import eywa.projectcodex.common.archeryObjects.ScorePadData.ScorePadRow
+import eywa.projectcodex.common.archeryObjects.ScorePadData.ScorePadRow.*
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowValuesPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ColumnHeader
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ScorePadRow
-import eywa.projectcodex.components.archerRoundScore.scorePad.infoTable.ScorePadDataNew.ScorePadRow.*
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.testUtils.TestData
+import eywa.projectcodex.testUtils.TestUtils
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -25,6 +32,23 @@ import org.mockito.kotlin.verify
 
 class ScorePadDataUnitTest {
     private lateinit var resources: Resources
+
+    private val fullRoundInfo = FullRoundInfo(
+            round = RoundPreviewHelper.indoorMetricRoundData.round.copy(roundId = 1),
+            roundSubTypes = null,
+            roundArrowCounts = listOf(
+                    RoundArrowCount(1, 1, 122.0, 18),
+                    RoundArrowCount(1, 2, 122.0, 18),
+            ),
+            roundDistances = listOf(
+                    RoundDistance(1, 1, 1, 20),
+                    RoundDistance(1, 2, 1, 10),
+            ),
+    )
+
+    private val arrows = List(36) {
+        ArrowValuesPreviewHelper.ARROWS[ArrowValuesPreviewHelper.ARROWS.size - 1 - (it / 6)]
+    }
 
     @Before
     fun setUp() {
@@ -53,7 +77,7 @@ class ScorePadDataUnitTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testZeroEndSize() {
-        ScorePadDataNew(ArcherRoundPreviewHelper.newFullArcherRoundInfo().addIdenticalArrows(5, 3), 0, GoldsType.NINES)
+        ScorePadData(ArcherRoundPreviewHelper.newFullArcherRoundInfo().addIdenticalArrows(5, 3), 0, GoldsType.NINES)
         Assert.fail("Created ScorePadData with 0 endSize")
     }
 
@@ -61,7 +85,7 @@ class ScorePadDataUnitTest {
     fun testGeneral_NoArrows() {
         assertEquals(
                 listOf<ScorePadRow>(),
-                ScorePadDataNew(ArcherRoundPreviewHelper.newFullArcherRoundInfo(), 6, GoldsType.NINES).data
+                ScorePadData(ArcherRoundPreviewHelper.newFullArcherRoundInfo(), 6, GoldsType.NINES).data
         )
     }
 
@@ -79,7 +103,7 @@ class ScorePadDataUnitTest {
                                 golds = 0,
                         )
                 )
-        val actualRows = ScorePadDataNew(
+        val actualRows = ScorePadData(
                 ArcherRoundPreviewHelper.newFullArcherRoundInfo().addIdenticalArrows(totalArrows, arrowScore),
                 endSize,
                 GoldsType.NINES,
@@ -135,7 +159,7 @@ class ScorePadDataUnitTest {
                                 golds = 0,
                         )
                 )
-        val actualRows = ScorePadDataNew(
+        val actualRows = ScorePadData(
                 ArcherRoundPreviewHelper
                         .newFullArcherRoundInfo()
                         .addRound(RoundPreviewHelper.outdoorImperialRoundData)
@@ -192,7 +216,7 @@ class ScorePadDataUnitTest {
                                 golds = 0,
                         )
                 )
-        val actualRows = ScorePadDataNew(
+        val actualRows = ScorePadData(
                 ArcherRoundPreviewHelper
                         .newFullArcherRoundInfo()
                         .addRound(RoundPreviewHelper.indoorMetricRoundData)
@@ -241,7 +265,7 @@ class ScorePadDataUnitTest {
                         golds = 3,
                 ),
         )
-        val actualRows = ScorePadDataNew(
+        val actualRows = ScorePadData(
                 info,
                 6,
                 GoldsType.NINES,
@@ -282,15 +306,15 @@ class ScorePadDataUnitTest {
 
         assertEquals(
                 getExpectedRows(3),
-                ScorePadDataNew(info, 100, GoldsType.NINES).data,
+                ScorePadData(info, 100, GoldsType.NINES).data,
         )
         assertEquals(
                 getExpectedRows(2),
-                ScorePadDataNew(info, 100, GoldsType.TENS).data,
+                ScorePadData(info, 100, GoldsType.TENS).data,
         )
         assertEquals(
                 getExpectedRows(1),
-                ScorePadDataNew(info, 100, GoldsType.XS).data,
+                ScorePadData(info, 100, GoldsType.XS).data,
         )
     }
 
@@ -412,6 +436,163 @@ class ScorePadDataUnitTest {
         }
     }
 
+    @Test
+    fun testToCsv_NoRound() {
+        resources = setUpResources()
+        val data = ScorePadData(
+                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
+        val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+            X-X-X-X-X-X,6,60,6,60
+            10-10-10-10-10-10,6,60,6,120
+            9-9-9-9-9-9,6,54,0,174
+            8-8-8-8-8-8,6,48,0,222
+            7-7-7-7-7-7,6,42,0,264
+            6-6-6-6-6-6,6,36,0,300
+            Grand Total,36,300,12,-
+        """.trimIndent().trim()
+
+        assertEquals("End,H,S,9,RT", csv.headerRow)
+        assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testToCsv_WithRound() {
+        resources = setUpResources()
+        val data = ScorePadData(
+                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
+        val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+            X-X-X-X-X-X,6,60,6,60
+            10-10-10-10-10-10,6,60,6,120
+            9-9-9-9-9-9,6,54,0,174
+            Total at 20m,18,174,12,-
+            8-8-8-8-8-8,6,48,0,222
+            7-7-7-7-7-7,6,42,0,264
+            6-6-6-6-6-6,6,36,0,300
+            Total at 10m,18,126,0,-
+            Grand Total,36,300,12,-
+        """.trimIndent().trim()
+
+        assertEquals("End,H,S,9,RT", csv.headerRow)
+        assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testToCsv_WithRoundNoDistanceTotals() {
+        resources = setUpResources()
+        val data = ScorePadData(
+                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
+        val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, false)
+
+        val expected = """
+            X-X-X-X-X-X,6,60,6,60
+            10-10-10-10-10-10,6,60,6,120
+            9-9-9-9-9-9,6,54,0,174
+            8-8-8-8-8-8,6,48,0,222
+            7-7-7-7-7-7,6,42,0,264
+            6-6-6-6-6-6,6,36,0,300
+            Grand Total,36,300,12,-
+        """.trimIndent().trim()
+
+        assertEquals("End,H,S,9,RT", csv.headerRow)
+        assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testToString_NoRound() {
+        resources = setUpResources()
+        val data = ScorePadData(
+                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
+        val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+            |      X-X-X-X-X-X  6  60  6  60
+            |10-10-10-10-10-10  6  60  6 120
+            |      9-9-9-9-9-9  6  54  0 174
+            |      8-8-8-8-8-8  6  48  0 222
+            |      7-7-7-7-7-7  6  42  0 264
+            |      6-6-6-6-6-6  6  36  0 300
+            |      Grand Total 36 300 12   -
+        """.trimMargin()
+
+        assertEquals(
+                "              End  H   S  9  RT",
+                csv.headerRow
+        )
+        assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testToString_WithRound() {
+        resources = setUpResources()
+        val data = ScorePadData(
+                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
+        val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
+
+        val expected = """
+            |      X-X-X-X-X-X  6  60  6  60
+            |10-10-10-10-10-10  6  60  6 120
+            |      9-9-9-9-9-9  6  54  0 174
+            |     Total at 20m 18 174 12   -
+            |      8-8-8-8-8-8  6  48  0 222
+            |      7-7-7-7-7-7  6  42  0 264
+            |      6-6-6-6-6-6  6  36  0 300
+            |     Total at 10m 18 126  0   -
+            |      Grand Total 36 300 12   -
+        """.trimMargin()
+
+        assertEquals(
+                "              End  H   S  9  RT",
+                csv.headerRow
+        )
+        assertEquals(expected, csv.details)
+    }
+
+    @Test
+    fun testToString_WithRoundNoDistanceTotals() {
+        resources = setUpResources()
+        val data = ScorePadData(
+                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                endSize = 6,
+                goldsType = GoldsType.TENS,
+        )
+        val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, false)
+
+        val expected = """
+            |      X-X-X-X-X-X  6  60  6  60
+            |10-10-10-10-10-10  6  60  6 120
+            |      9-9-9-9-9-9  6  54  0 174
+            |      8-8-8-8-8-8  6  48  0 222
+            |      7-7-7-7-7-7  6  42  0 264
+            |      6-6-6-6-6-6  6  36  0 300
+            |      Grand Total 36 300 12   -
+        """.trimMargin()
+
+        assertEquals(
+                "              End  H   S  9  RT",
+                csv.headerRow
+        )
+        assertEquals(expected, csv.details)
+    }
+
     private fun getExpectedRows(
             totalArrows: Int,
             endSize: Int,
@@ -446,6 +627,45 @@ class ScorePadDataUnitTest {
         }
         return expected
     }
+
+    private fun setUpResources() = TestUtils.createResourceMock(
+            mapOf(
+                    Pair(R.string.end_to_string_arrow_placeholder, TestData.ARROW_PLACEHOLDER),
+                    Pair(R.string.end_to_string_arrow_deliminator, TestData.ARROW_DELIMINATOR),
+                    Pair(R.string.score_pad__grand_total, "Grand Total"),
+                    Pair(R.string.score_pad__running_total_placeholder, "-"),
+                    Pair(R.string.score_pad__distance_total, "Total at %1\$d%2\$s"),
+                    Pair(
+                            R.string.email_round_summary,
+                            "%1\$s - %2\$s\nHits: %3\$d, Score: %4\$d, Golds (%5\$s): %6\$d",
+                    ),
+                    Pair(R.string.email_round_summary_no_arrows, "%1\$s - %2\$s\nNo arrows entered"),
+                    Pair(R.string.table_golds_nines_full, "nine_long"),
+                    Pair(R.string.table_golds_tens_full, "ten_long"),
+                    Pair(R.string.table_golds_xs_full, "x_long"),
+                    Pair(R.string.create_round__no_round, "No Round"),
+                    Pair(R.string.score_pad__surplus_total, "Surplus Total"),
+                    Pair(R.string.score_pad__end_string_header, "End"),
+                    Pair(R.string.table_hits_header, "H"),
+                    Pair(R.string.table_score_header, "S"),
+                    Pair(R.string.table_golds_tens_header, "9"),
+                    Pair(R.string.score_pad__running_total_header, "RT"),
+                    Pair(R.string.arrow_value_m, "m"),
+                    Pair(R.string.arrow_value_1, "1"),
+                    Pair(R.string.arrow_value_2, "2"),
+                    Pair(R.string.arrow_value_3, "3"),
+                    Pair(R.string.arrow_value_4, "4"),
+                    Pair(R.string.arrow_value_5, "5"),
+                    Pair(R.string.arrow_value_6, "6"),
+                    Pair(R.string.arrow_value_7, "7"),
+                    Pair(R.string.arrow_value_8, "8"),
+                    Pair(R.string.arrow_value_9, "9"),
+                    Pair(R.string.arrow_value_10, "10"),
+                    Pair(R.string.arrow_value_x, "X"),
+                    Pair(R.string.units_meters_short, "m"),
+                    Pair(R.string.units_yards_short, "yd"),
+            )
+    )
 
     companion object {
         private const val ARROW_DELIMITER = "ARROW_DELIMITER"

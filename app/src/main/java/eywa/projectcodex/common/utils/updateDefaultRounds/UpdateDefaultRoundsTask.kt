@@ -224,7 +224,7 @@ open class UpdateDefaultRoundsTask(
             is InternalError -> state.message
             is TemporaryError -> state.type.name
             else -> null
-        }.let { errorMessage ->
+        }?.let { errorMessage ->
             logger.e(
                     LOG_TAG,
                     "Update default rounds task failed with exception: " + errorMessage
