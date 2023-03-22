@@ -96,9 +96,8 @@ class LargeScaleInstrumentedTest {
         scenario.onActivity {
             runBlocking {
                 db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", true, true, listOf()))
-                // TODO_CURRENT Make arrow counts 18 so that can check distance totals
-                db.roundArrowCountDao().insert(RoundArrowCount(1, 1, 1.0, 24))
-                db.roundArrowCountDao().insert(RoundArrowCount(1, 2, 1.0, 24))
+                db.roundArrowCountDao().insert(RoundArrowCount(1, 1, 1.0, 18))
+                db.roundArrowCountDao().insert(RoundArrowCount(1, 2, 1.0, 18))
                 db.roundDistanceDao().insert(RoundDistance(1, 1, 1, 60))
                 db.roundDistanceDao().insert(RoundDistance(1, 2, 1, 50))
             }
@@ -173,8 +172,9 @@ class LargeScaleInstrumentedTest {
                                         ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
                                         ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, 0, 30),
                                         ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 42),
+                                        ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
                                         ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 60),
-                                        ExpectedRowData("T", "Total at 60m", 24, 60, 0, null),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
                                         ExpectedRowData("GT", "Grand Total", 24, 60, 0, null),
                                 )
                         )
@@ -196,8 +196,9 @@ class LargeScaleInstrumentedTest {
                                         ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
                                         ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, 0, 30),
                                         ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 54),
+                                        ExpectedRowData("T", "Total at 60m", 18, 54, 0, null),
                                         ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 72),
-                                        ExpectedRowData("T", "Total at 60m", 24, 72, 0, null),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
                                         ExpectedRowData("GT", "Grand Total", 24, 72, 0, null),
                                 )
                         )
@@ -230,8 +231,9 @@ class LargeScaleInstrumentedTest {
                                         ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
                                         ExpectedRowData("2", "6-6-6-6-6-6", 6, 36, 0, 42),
                                         ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 66),
+                                        ExpectedRowData("T", "Total at 60m", 18, 66, 0, null),
                                         ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 84),
-                                        ExpectedRowData("T", "Total at 60m", 24, 84, 0, null),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
                                         ExpectedRowData("GT", "Grand Total", 24, 84, 0, null),
                                 )
                         )
@@ -251,8 +253,9 @@ class LargeScaleInstrumentedTest {
                                         ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
                                         ExpectedRowData("2", "7-7-7-7-7-7", 6, 42, 0, 48),
                                         ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 72),
+                                        ExpectedRowData("T", "Total at 60m", 18, 72, 0, null),
                                         ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 90),
-                                        ExpectedRowData("T", "Total at 60m", 24, 90, 0, null),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
                                         ExpectedRowData("GT", "Grand Total", 24, 90, 0, null),
                                 )
                         )
@@ -318,8 +321,9 @@ class LargeScaleInstrumentedTest {
                                     ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
                                     ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
                                     ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
+                                    ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
                                     ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, 0, 54),
-                                    ExpectedRowData("T", "Total at 60m", 24, 54, 0, null),
+                                    ExpectedRowData("T", "Total at 50m", 6, 6, 0, null),
                                     ExpectedRowData("GT", "Grand Total", 24, 54, 0, null),
                             )
                     )
@@ -341,8 +345,9 @@ class LargeScaleInstrumentedTest {
                                     ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
                                     ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
                                     ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 54),
+                                    ExpectedRowData("T", "Total at 60m", 18, 54, 0, null),
                                     ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, 0, 60),
-                                    ExpectedRowData("T", "Total at 60m", 24, 60, 0, null),
+                                    ExpectedRowData("T", "Total at 50m", 6, 6, 0, null),
                                     ExpectedRowData("GT", "Grand Total", 24, 60, 0, null),
                             )
                     )
@@ -376,14 +381,15 @@ class LargeScaleInstrumentedTest {
                                     ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
                                     ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
                                     ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
                                     ExpectedRowData("4", "8-8-8-8-8-8", 6, 48, 0, 90),
-                                    ExpectedRowData("T", "Total at 60m", 24, 90, 0, null),
+                                    ExpectedRowData("T", "Total at 50m", 6, 48, 0, null),
                                     ExpectedRowData("GT", "Grand Total", 24, 90, 0, null),
                             )
                     )
 
                     logMessage(this::class, "Score A - View round edit end - 2")
-                    clickRow(4)
+                    clickRow(5)
                     clickEditDropdownMenuItem {
                         checkEditEnd(4)
                         checkInputtedArrows(List(6) { 8 })
@@ -397,14 +403,15 @@ class LargeScaleInstrumentedTest {
                                     ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
                                     ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
                                     ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
                                     ExpectedRowData("4", "9-9-9-9-9-9", 6, 54, 6, 96),
-                                    ExpectedRowData("T", "Total at 60m", 24, 96, 6, null),
+                                    ExpectedRowData("T", "Total at 50m", 6, 54, 6, null),
                                     ExpectedRowData("GT", "Grand Total", 24, 96, 6, null),
                             )
                     )
 
                     logMessage(this::class, "Score A - View round delete end - 2")
-                    clickRow(4)
+                    clickRow(5)
                     clickDeleteDropdownMenuItem(true, 4)
 
                     checkScorePadData(
@@ -420,12 +427,12 @@ class LargeScaleInstrumentedTest {
 
                     logMessage(this::class, "Score A - Complete round")
                     clickNavBarInputEnd {
-                        repeat(5) {
+                        repeat(3) {
                             completeEnd("X")
                         }
 
                         clickRoundCompleteOk {
-                            checkScore(342)
+                            checkScore(222)
                         }
                     }
                 }

@@ -91,6 +91,7 @@ data class FullArcherRoundInfo(
     val handicap by lazy {
         if (round == null) return@lazy null
         if (listOf(roundArrowCounts, roundDistances, arrows).any { it.isNullOrEmpty() }) return@lazy null
+        if (hasSurplusArrows == true) return@lazy null
 
         Handicap.getHandicapForRound(
                 round,

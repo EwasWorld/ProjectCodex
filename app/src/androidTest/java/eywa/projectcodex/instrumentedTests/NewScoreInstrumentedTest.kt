@@ -16,6 +16,7 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,7 +35,6 @@ import org.junit.runner.RunWith
 import java.util.*
 
 
-// TODO_CURRENT Test that no round is visible even when dialog is at max hight (ensure not pushed off bottom)
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -51,7 +51,7 @@ class NewScoreInstrumentedTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
-    private val roundsInput = TestUtils.ROUNDS.take(3)
+    private var roundsInput = TestUtils.ROUNDS.take(3)
     private val subtypesInput = TestUtils.ROUND_SUB_TYPES
     private val arrowCountsInput = TestUtils.ROUND_ARROW_COUNTS
     private val archerRoundInput = ArcherRound(
@@ -167,6 +167,24 @@ class NewScoreInstrumentedTest {
 
         assertEquals(R.id.archerRoundFragment, navController.currentDestination?.id)
         assertEquals(3, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+    }
+
+    @Test
+    fun testNoRoundButton() = runTest {
+        roundsInput = List(20) { Round(it + 1, "$it", "$it", false, false, listOf()) }
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSelectedRound()
+                clickRoundDialogRound("1")
+                checkSelectedRound("1")
+
+                clickSelectedRound()
+                clickRoundDialogNoRound()
+                checkSelectedRound("No Round")
+            }
+        }
     }
 
     /**
