@@ -14,7 +14,9 @@ import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScor
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
+import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.testUtils.MainCoroutineRule
@@ -41,16 +43,6 @@ class ViewScoresViewModelUnitTest {
     private val customLogger: CustomLogger = mock { }
 
     private fun getSut() = ViewScoresViewModel(db.mock, helpShowcase, customLogger)
-
-    @Test
-    fun testPbsAreSet() = runTest {
-        val pbs = listOf(1, 2, 4)
-        db.archerRoundDao.personalBests = pbs
-        val sut = getSut()
-
-        advanceUntilIdle()
-        assertEquals(pbs, sut.state.value.personalBestArcherRoundIds)
-    }
 
     /**
      * Check that [ViewScoresState.data] is updated correctly based on DB emitted values.
@@ -92,6 +84,30 @@ class ViewScoresViewModelUnitTest {
                 },
                 sut.state.value.data,
         )
+    }
+
+    /**
+     * Database call should be re-triggered with different arguments
+     * Filter should be added
+     */
+    @Test
+    fun testAddFilter() = runTest {
+        val sut = getSut()
+        advanceUntilIdle()
+
+        assertEquals(Filters<ArcherRoundsFilter>(), sut.state.value.filters)
+        assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
+        verify(db.archerRoundDao.mock).getAllFullArcherRoundInfo(false, null, null, null, null)
+
+        sut.handle(AddFilter(ArcherRoundsFilter.PersonalBests))
+        advanceUntilIdle()
+
+        assertEquals(Filters<ArcherRoundsFilter>(setOf(ArcherRoundsFilter.PersonalBests)), sut.state.value.filters)
+        assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
+        verify(db.archerRoundDao.mock).getAllFullArcherRoundInfo(true, null, null, null, null)
+
+        verify(db.archerRoundDao.mock, times(2))
+                .getAllFullArcherRoundInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
     }
 
     @Test

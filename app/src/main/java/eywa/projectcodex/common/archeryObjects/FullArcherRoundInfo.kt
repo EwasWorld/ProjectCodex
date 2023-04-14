@@ -17,6 +17,8 @@ data class FullArcherRoundInfo(
         val roundArrowCounts: List<RoundArrowCount>? = null,
         val roundSubType: RoundSubType? = null,
         val roundDistances: List<RoundDistance>? = null,
+        val isPersonalBest: Boolean = false,
+        val isTiedPersonalBest: Boolean = false,
 ) {
     constructor(full: DatabaseFullArcherRoundInfo) : this(
             archerRound = full.archerRound,
@@ -25,6 +27,8 @@ data class FullArcherRoundInfo(
             roundArrowCounts = full.roundArrowCounts,
             roundSubType = full.roundSubType,
             roundDistances = full.roundDistances,
+            isPersonalBest = full.isPersonalBest ?: false,
+            isTiedPersonalBest = (full.isPersonalBest ?: false) && (full.isTiedPersonalBest ?: false),
     )
 
     init {

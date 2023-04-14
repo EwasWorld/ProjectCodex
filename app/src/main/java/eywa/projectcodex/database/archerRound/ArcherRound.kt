@@ -89,6 +89,14 @@ data class DatabaseFullArcherRoundInfo(
                 entityColumn = "roundId",
         )
         private val allRoundDistances: List<RoundDistance>? = null,
+
+        val isPersonalBest: Boolean? = null,
+
+        /**
+         * True if this is a PB that has been matched in another archerRound
+         * Only valid if [isPersonalBest] is true
+         */
+        val isTiedPersonalBest: Boolean? = null,
 ) {
     val roundSubType
         get() = allRoundSubTypes?.find { it.subTypeId == archerRound.roundSubTypeId }

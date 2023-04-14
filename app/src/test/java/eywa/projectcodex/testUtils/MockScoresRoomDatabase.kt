@@ -6,6 +6,8 @@ import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
@@ -19,16 +21,11 @@ class MockScoresRoomDatabase {
     }
 
     class MockArcherRoundDao {
-        var personalBests: List<Int> = listOf()
         var fullArcherRounds: List<DatabaseFullArcherRoundInfo> = listOf()
         var secondFullArcherRounds: List<DatabaseFullArcherRoundInfo>? = null
 
         val mock: ArcherRoundDao = mock {
-            on { getPersonalBests() } doReturn flow {
-                emit(personalBests.map { ArcherRoundDao.ArcherRoundIdWrapper(it) })
-            }
-
-            on { getAllFullArcherRoundInfo() } doReturn flow {
+            on { getAllFullArcherRoundInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doReturn flow {
                 emit(fullArcherRounds)
 
                 if (!secondFullArcherRounds.isNullOrEmpty()) {

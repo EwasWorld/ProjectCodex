@@ -13,6 +13,7 @@ import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarI
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,6 +21,7 @@ import javax.inject.Inject
 /**
  * @see ArcherRoundScoreViewModel
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ViewScoresViewModel @Inject constructor(
         db: ScoresRoomDatabase,
@@ -34,26 +36,24 @@ class ViewScoresViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            archerRoundsRepo.personalBests.collect { pbs ->
-                _state.update { it.copy(personalBestArcherRoundIds = pbs.map { pb -> pb.archerRoundId }) }
-            }
-        }
-        viewModelScope.launch {
-            archerRoundsRepo.allFullArcherRounds.collect { flowData ->
-                _state.update {
-                    val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
-                    it.copy(
-                            data = flowData.map { roundInfo ->
-                                val info = FullArcherRoundInfo(roundInfo)
-                                ViewScoresEntry(
-                                        info = info,
-                                        isSelected = previousSelectedEntries[info.id] ?: false,
-                                        customLogger = customLogger,
-                                )
-                            }.sortedByDescending { entry -> entry.info.archerRound.dateShot }
-                    )
-                }
-            }
+            state.map { it.filters }
+                    .distinctUntilChanged()
+                    .flatMapLatest { archerRoundsRepo.getFullArcherRoundInfo(it) }
+                    .collect { flowData ->
+                        _state.update {
+                            val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
+                            it.copy(
+                                    data = flowData.map { roundInfo ->
+                                        val info = FullArcherRoundInfo(roundInfo)
+                                        ViewScoresEntry(
+                                                info = info,
+                                                isSelected = previousSelectedEntries[info.id] ?: false,
+                                                customLogger = customLogger,
+                                        )
+                                    }.sortedByDescending { entry -> entry.info.archerRound.dateShot }
+                            )
+                        }
+                    }
         }
     }
 
@@ -106,6 +106,9 @@ class ViewScoresViewModel @Inject constructor(
                 if (id != null) {
                     viewModelScope.launch { archerRoundsRepo.deleteRound(id) }
                 }
+            }
+            is AddFilter -> _state.update {
+                it.copy(filters = it.filters.plus(action.filter))
             }
         }
     }

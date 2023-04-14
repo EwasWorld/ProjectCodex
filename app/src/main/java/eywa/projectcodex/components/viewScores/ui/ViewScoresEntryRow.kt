@@ -30,14 +30,13 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
+import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import java.util.*
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 
-enum class ViewScoresFlag {
-    PERSONAL_BEST
-}
-
+// TODO PB labels help
 /**
  * Displays a [ViewScoresEntry]
  */
@@ -46,7 +45,7 @@ internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
         helpInfo: HelpShowcase,
         modifier: Modifier = Modifier,
-        flags: List<ViewScoresFlag> = listOf(),
+        showPbs: Boolean,
 ) {
     helpInfo.handle(
             HelpShowcaseIntent.Add(
@@ -84,13 +83,16 @@ internal fun ViewScoresEntryRow(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.padding(start = 8.dp, end = 15.dp, top = 5.dp, bottom = 8.dp)
     ) {
-        if (flags.contains(ViewScoresFlag.PERSONAL_BEST)) {
+        if (entry.info.isPersonalBest && showPbs) {
             Surface(
                     color = CodexTheme.colors.targetFaceGold,
                     shape = RoundedCornerShape(100),
             ) {
                 Text(
-                        text = stringResource(R.string.view_score__round_personal_best),
+                        text = stringResource(
+                                if (entry.info.isTiedPersonalBest) R.string.view_score__round_personal_best_tied
+                                else R.string.view_score__round_personal_best
+                        ),
                         style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
@@ -237,6 +239,7 @@ fun ViewScoresEntryRow_Preview() {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
                 helpInfo = HelpShowcase(),
+                showPbs = true,
         )
     }
 }
@@ -252,6 +255,7 @@ fun Incomplete_ViewScoresEntryRow_Preview() {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateIncompleteRound(),
                 helpInfo = HelpShowcase(),
+                showPbs = true,
         )
     }
 }
@@ -265,9 +269,28 @@ fun Incomplete_ViewScoresEntryRow_Preview() {
 fun PersonalBest_ViewScoresEntryRow_Preview() {
     CodexTheme {
         ViewScoresEntryRow(
-                entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
+                entry = ViewScoresEntryPreviewProvider.generateEntries(1).setPersonalBests(listOf(0)).first(),
                 helpInfo = HelpShowcase(),
-                flags = listOf(ViewScoresFlag.PERSONAL_BEST),
+                showPbs = true,
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
+)
+@Composable
+fun TiedPersonalBest_ViewScoresEntryRow_Preview() {
+    CodexTheme {
+        ViewScoresEntryRow(
+                entry = ViewScoresEntryPreviewProvider.generateEntries(1)
+                        .setPersonalBests(listOf(0))
+                        .setTiedPersonalBests(listOf(0))
+                        .first(),
+                helpInfo = HelpShowcase(),
+                showPbs = true,
         )
     }
 }

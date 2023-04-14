@@ -1,14 +1,41 @@
 package eywa.projectcodex.database.archerRound
 
 import androidx.lifecycle.LiveData
+import androidx.room.Transaction
+import eywa.projectcodex.database.Filters
+import kotlinx.coroutines.flow.*
 
 /**
  * @see ArrowValuesRepo
  */
-class ArcherRoundsRepo(private val archerRoundDao: ArcherRoundDao) {
-    val personalBests = archerRoundDao.getPersonalBests()
+class ArcherRoundsRepo(
+        private val archerRoundDao: ArcherRoundDao,
+) {
+    @Transaction
+    fun getFullArcherRoundInfo(
+            filters: Filters<ArcherRoundsFilter> = Filters(),
+    ): Flow<List<DatabaseFullArcherRoundInfo>> {
+        val datesFilter = filters.get<ArcherRoundsFilter.DateRange>()
+        val roundsFilter = filters.get<ArcherRoundsFilter.Round>()
 
-    val allFullArcherRounds = archerRoundDao.getAllFullArcherRoundInfo()
+        return archerRoundDao.getAllFullArcherRoundInfo(
+                filterPersonalBest = filters.contains<ArcherRoundsFilter.PersonalBests>(),
+                fromDate = datesFilter?.from?.time,
+                toDate = datesFilter?.to?.time,
+                roundId = roundsFilter?.roundId,
+                subTpeId = roundsFilter?.nonNullSubtypeId,
+        ).map { rounds ->
+            val pbs = rounds
+                    .filter { it.isPersonalBest ?: false }
+                    .groupBy { it.archerRound.roundId!! to (it.archerRound.roundSubTypeId ?: 1) }
+                    .mapValues { it.value.size > 1 }
+
+            rounds.map {
+                val pbCount = pbs[it.archerRound.roundId to (it.archerRound.roundSubTypeId ?: 1)] ?: false
+                it.copy(isTiedPersonalBest = pbCount)
+            }
+        }
+    }
 
     fun getFullArcherRoundInfo(archerRoundId: Int) = archerRoundDao.getFullArcherRoundInfo(archerRoundId)
 

@@ -2,6 +2,7 @@
 <resources>
     <string name="view_score__title">All Scores</string>
     <string name="view_score__round_personal_best">Round PB</string>
+    <string name="view_score__round_personal_best_tied">Tied round PB</string>
     <string name="view_score__hsg">H/S/G</string>
     <string name="view_score__hsg_placeholder">-/-/-</string>
     <string name="view_score__handicap">HC</string>

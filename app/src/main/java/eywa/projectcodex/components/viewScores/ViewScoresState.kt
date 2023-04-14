@@ -2,11 +2,12 @@ package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
+import eywa.projectcodex.database.Filters
+import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 
 data class ViewScoresState(
         val isInMultiSelectMode: Boolean = false,
         val data: List<ViewScoresEntry> = listOf(),
-        val personalBestArcherRoundIds: List<Int> = listOf(),
         val noRoundsDialogOkClicked: Boolean = false,
 
         val multiSelectEmailClicked: Boolean = false,
@@ -27,6 +28,8 @@ data class ViewScoresState(
         val openScorePadClicked: Boolean = false,
         val openEmailClicked: Boolean = false,
         val openEditInfoClicked: Boolean = false,
+
+        val filters: Filters<ArcherRoundsFilter> = Filters(),
 ) {
     val lastClickedEntry by lazy {
         lastClickedEntryId?.let { id -> data.find { it.id == id } }

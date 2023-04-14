@@ -116,4 +116,12 @@ object ViewScoresEntryPreviewProvider {
                     arrow.toArrowValue(archerRoundId, index)
                 }
     }
+
+    fun List<ViewScoresEntry>.setPersonalBests(indexes: List<Int>) = mapIndexed { index, entry ->
+        entry.copy(info = entry.info.copy(isPersonalBest = indexes.contains(index)))
+    }
+
+    fun List<ViewScoresEntry>.setTiedPersonalBests(indexes: List<Int>) = mapIndexed { index, entry ->
+        entry.copy(info = entry.info.copy(isTiedPersonalBest = indexes.contains(index)))
+    }
 }

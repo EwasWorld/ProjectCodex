@@ -3,10 +3,10 @@ package eywa.projectcodex.database.archerRound
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
-import eywa.projectcodex.database.arrowValue.ArrowValue
-import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.views.ArcherRoundWithScore
+import eywa.projectcodex.database.views.PersonalBest
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Dao
 interface ArcherRoundDao {
@@ -26,51 +26,34 @@ interface ArcherRoundDao {
     suspend fun deleteRound(archerRoundId: Int)
 
     @Transaction
-    @Query("SELECT * FROM $TABLE_NAME")
-    fun getAllFullArcherRoundInfo(): Flow<List<DatabaseFullArcherRoundInfo>>
-
-    @Transaction
     @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId")
     fun getFullArcherRoundInfo(archerRoundId: Int): Flow<DatabaseFullArcherRoundInfo>
 
-    /**
-     * @return the [ArcherRound.archerRoundId] of all [ArcherRound]s
-     * with a completed [Round] (count [ArrowValue] == sum [RoundArrowCount.arrowCount])
-     * with the highest total score (sum [ArrowValue.score]) for the given [Round]
-     */
+    @Transaction
     @Query(
             """
                 SELECT 
-                    archerRound.archerRoundId, 
-                    MAX(arrows.score)
-                FROM $TABLE_NAME as archerRound
-                LEFT JOIN (
-                    SELECT SUM(arrowCount) as count, roundId
-                    FROM ${RoundArrowCount.TABLE_NAME}
-                    GROUP BY roundId
-                ) as roundCount ON archerRound.roundId = roundCount.roundId
-                LEFT JOIN (
-                    SELECT COUNT(*) as count, SUM(score) as score, archerRoundId
-                    FROM ${ArrowValue.TABLE_NAME}
-                    GROUP BY archerRoundId
-                ) as arrows ON archerRound.archerRoundId = arrows.archerRoundId
-                WHERE
-                    NOT archerRound.roundId is NULL
-                    AND arrows.count = roundCount.count
-                GROUP BY 
-                    archerRound.roundId,
-                    -- Treat NULL subtype as 1 when grouping
-                    CASE WHEN archerRound.roundSubTypeId IS NULL THEN 1 else archerRound.roundSubTypeId END
+                        archerRound.*, 
+                        (archerRound.isComplete = 1 AND archerRound.score = pb.score) as isPersonalBest
+                FROM ${ArcherRoundWithScore.TABLE_NAME} as archerRound 
+                LEFT JOIN ${PersonalBest.TABLE_NAME} as pb 
+                        ON archerRound.roundId = pb.roundId AND archerRound.nonNullSubTypeId = pb.roundSubTypeId
+                WHERE (:fromDate IS NULL OR archerRound.dateShot >= :fromDate)
+                AND (:toDate IS NULL OR archerRound.dateShot <= :toDate)
+                AND (:roundId IS NULL OR archerRound.roundId = :roundId)
+                AND (
+                        :roundId IS NULL OR :subTpeId IS NULL 
+                        OR archerRound.roundSubTypeId = :subTpeId 
+                        OR (archerRound.roundSubTypeId IS NULL AND :subTpeId = 1 AND NOT archerRound.roundId IS NULL)
+                )
+                AND ((archerRound.isComplete = 1 AND archerRound.score = pb.score) OR NOT :filterPersonalBest)
             """
     )
-    fun getPersonalBests(): Flow<List<ArcherRoundIdWrapper>>
-
-    // TODO Remove custom type example when from-to filter has been implemented
-//    @Entity
-//    data class User(private val birthday: Date?)
-
-//    @Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
-//    fun findUsersBornBetweenDates(from: Date, to: Date): List<User>
-
-    data class ArcherRoundIdWrapper(val archerRoundId: Int)
+    fun getAllFullArcherRoundInfo(
+            filterPersonalBest: Boolean = false,
+            fromDate: Date? = null,
+            toDate: Date? = null,
+            roundId: Int? = null,
+            subTpeId: Int? = null,
+    ): Flow<List<DatabaseFullArcherRoundInfo>>
 }

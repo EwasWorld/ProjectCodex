@@ -23,9 +23,11 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.ViewScoresState
+import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ViewScoresShowcaseInfo
+import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 
 class ViewScoresScreen {
     private val lazyListState = LazyListState()
@@ -85,14 +87,10 @@ class ViewScoresScreen {
                                     LocalContext.current, entry
                             )
                     ) {
-                        val flags = mutableListOf<ViewScoresFlag>()
-                        if (state.personalBestArcherRoundIds.contains(entry.id)) {
-                            flags.add(ViewScoresFlag.PERSONAL_BEST)
-                        }
                         ViewScoresEntryRow(
                                 entry = entry,
                                 helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
-                                flags = flags,
+                                showPbs = !state.filters.contains<ArcherRoundsFilter.PersonalBests>(),
                         )
                     }
                 }
@@ -158,8 +156,9 @@ class ViewScoresScreen {
         CodexTheme {
             ComposeContent(
                     state = ViewScoresState(
-                            data = ViewScoresEntryPreviewProvider.generateEntries(20),
-                            personalBestArcherRoundIds = listOf(2, 5),
+                            data = ViewScoresEntryPreviewProvider
+                                    .generateEntries(20)
+                                    .setPersonalBests(listOf(3, 6)),
                     ),
                     listener = {},
             )
@@ -177,8 +176,9 @@ class ViewScoresScreen {
             ComposeContent(
                     state = ViewScoresState(
                             isInMultiSelectMode = true,
-                            data = ViewScoresEntryPreviewProvider.generateEntries(20),
-                            personalBestArcherRoundIds = listOf(2, 5),
+                            data = ViewScoresEntryPreviewProvider
+                                    .generateEntries(20)
+                                    .setPersonalBests(listOf(3, 6)),
                     ),
                     listener = {},
             )

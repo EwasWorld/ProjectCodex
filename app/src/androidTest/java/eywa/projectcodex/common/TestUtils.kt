@@ -88,8 +88,8 @@ object TestUtils {
     /**
      * @return a valid date in the given year (will never return 31st of a month or 29th Feb), time 00:00
      */
-    fun generateDate(year: Int = 2019): Date {
-        val month = Random.nextInt(12) + 1
+    fun generateDate(year: Int = 2019, month: Int? = null): Date {
+        val generatedMonth = month ?: (Random.nextInt(12) + 1)
         val day = 1 + Random.nextInt(
                 when (month) {
                     2 -> 28
@@ -97,7 +97,7 @@ object TestUtils {
                     else -> 31
                 }
         )
-        return Date.valueOf("$year-$month-$day")
+        return Date.valueOf("$year-$generatedMonth-$day")
     }
 
     fun isFragmentShowing(scenario: ActivityScenario<MainActivity>, fragment: KClass<out Fragment>): Boolean {

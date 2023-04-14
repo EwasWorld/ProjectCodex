@@ -8,6 +8,8 @@ import eywa.projectcodex.database.archerRound.ArcherRoundDao
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.views.ArcherRoundWithScore
+import eywa.projectcodex.database.views.PersonalBest
 import java.util.*
 
 @Database(
@@ -15,9 +17,13 @@ import java.util.*
             ArcherRound::class, Archer::class, ArrowValue::class,
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class
         ],
-        version = 6,
+        views = [
+            ArcherRoundWithScore::class, PersonalBest::class,
+        ],
+        version = 7,
         autoMigrations = [
-            AutoMigration(from = 5, to = 6)
+            AutoMigration(from = 5, to = 6),
+            AutoMigration(from = 6, to = 7)
         ],
         exportSchema = true, // Needs a schema location in the build.gradle too to export!
 )
