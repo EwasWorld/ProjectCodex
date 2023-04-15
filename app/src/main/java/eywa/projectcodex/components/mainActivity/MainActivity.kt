@@ -6,6 +6,8 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.addCallback
 import androidx.activity.viewModels
+import androidx.annotation.IdRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -23,9 +25,7 @@ import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.getColourResource
-import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -220,35 +220,35 @@ class MainActivity : AppCompatActivity() {
 
         @Suppress("UNCHECKED_CAST")
         when (item.itemId) {
-            R.id.action_bar__help -> {
+            R.id.action_bar__help ->
                 viewModel.handle(StartHelpShowcase(findAllActionBarChildFragments(navHostFragment).firstOrNull()))
-            }
-            R.id.action_bar__home -> {
-                val aboutFragment =
-                        navHostFragment.childFragmentManager.fragments.filterIsInstance<MainMenuFragment>()
-                                .firstOrNull()
-                if (aboutFragment != null && aboutFragment.isVisible) {
-                    ToastSpamPrevention.displayToast(
-                            applicationContext,
-                            resources.getString(R.string.err_action_bar__home_already_displayed)
-                    )
-                }
-                navHostFragment.findNavController().navigate(R.id.mainMenuFragment)
-            }
-            R.id.action_bar__about -> {
-                val aboutFragment =
-                        navHostFragment.childFragmentManager.fragments.filterIsInstance<AboutFragment>().firstOrNull()
-                if (aboutFragment != null && aboutFragment.isVisible) {
-                    ToastSpamPrevention.displayToast(
-                            applicationContext,
-                            resources.getString(R.string.err_action_bar__about_already_displayed)
-                    )
-                }
-                navHostFragment.findNavController().navigate(R.id.aboutFragment)
-            }
+            R.id.action_bar__home ->
+                navigate(R.id.mainMenuFragment, R.string.err_action_bar__home_already_displayed, true)
+            R.id.action_bar__about ->
+                navigate(R.id.aboutFragment, R.string.err_action_bar__about_already_displayed)
             else -> return super.onOptionsItemSelected(item)
         }
         return true
+    }
+
+    private fun navigate(
+            @IdRes destination: Int,
+            @StringRes alreadyDisplayedMessage: Int,
+            popInstead: Boolean = false,
+    ) {
+        with(navHostFragment.findNavController()) {
+            if (currentDestination?.id == destination) {
+                ToastSpamPrevention.displayToast(applicationContext, resources.getString(alreadyDisplayedMessage))
+                return@with
+            }
+
+            if (popInstead) {
+                popBackStack(destination, false)
+            }
+            else {
+                navigate(destination)
+            }
+        }
     }
 
     /**

@@ -9,7 +9,6 @@ import eywa.projectcodex.database.arrowValue.getHits
 import eywa.projectcodex.database.arrowValue.getScore
 import eywa.projectcodex.database.rounds.*
 
-// TODO_CURRENT Bug: init can throw a null pointer exception on deletion of an archer round. Investigate
 data class FullArcherRoundInfo(
         val archerRound: ArcherRound,
         val arrows: List<ArrowValue>?,
@@ -66,7 +65,7 @@ data class FullArcherRoundInfo(
      * Pairs of arrow counts to distances in order (earlier distances first)
      */
     val remainingArrowsAtDistances: List<Pair<Int, Int>>? by lazy {
-        if ((remainingArrows ?: 0) <= 0) return@lazy null
+        if (remainingArrows == null || remainingArrows!! <= 0) return@lazy null
 
         var shotCount = arrowsShot
         val arrowCounts = roundArrowCounts!!.toMutableList()
@@ -90,20 +89,18 @@ data class FullArcherRoundInfo(
 
     val hasSurplusArrows by lazy { remainingArrows?.let { it < 0 } }
 
-    private val isInnerTenArcher by lazy { false }
+    private val isInnerTenArcher = false
 
     val handicap by lazy {
-        if (round == null) return@lazy null
-        if (listOf(roundArrowCounts, roundDistances, arrows).any { it.isNullOrEmpty() }) return@lazy null
-        if (hasSurplusArrows == true) return@lazy null
+        if (
+            round == null
+            || roundArrowCounts.isNullOrEmpty()
+            || roundDistances.isNullOrEmpty()
+            || arrows.isNullOrEmpty()
+        ) return@lazy null
 
         Handicap.getHandicapForRound(
-                round,
-                roundArrowCounts!!,
-                roundDistances!!,
-                arrows!!.sumOf { it.score },
-                isInnerTenArcher,
-                arrows.count()
+                round, roundArrowCounts, roundDistances, score, isInnerTenArcher, arrowsShot
         )
     }
 
