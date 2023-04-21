@@ -6,7 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 
 class CommonSetupTeardownFns {
@@ -43,7 +43,7 @@ class CommonSetupTeardownFns {
              *      else the UI can react to the empty database and fail
              */
             scenario.moveToState(Lifecycle.State.DESTROYED)
-            LocalDatabaseDaggerModule.teardown()
+            LocalDatabaseModule.teardown()
             LocalDatastoreModule.teardown()
         }
 
@@ -56,7 +56,7 @@ class CommonSetupTeardownFns {
              *      else the UI can react to the empty database and fail
              */
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-            LocalDatabaseDaggerModule.teardown()
+            LocalDatabaseModule.teardown()
             LocalDatastoreModule.teardown()
         }
     }

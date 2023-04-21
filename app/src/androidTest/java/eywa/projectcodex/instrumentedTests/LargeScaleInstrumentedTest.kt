@@ -18,7 +18,7 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.*
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.*
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
@@ -64,7 +64,7 @@ class LargeScaleInstrumentedTest {
         // Note clearing the database instance after launching the activity causes issues with live data
         // (as DAOs are inconsistent)
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            db = LocalDatabaseModule.scoresRoomDatabase!!
             navController = it.navHostFragment.navController
         }
     }

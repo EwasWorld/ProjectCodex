@@ -17,7 +17,7 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.EditEndRobot
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -67,7 +67,7 @@ class ScorePadInstrumentedTest {
 
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity { activity ->
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            db = LocalDatabaseModule.scoresRoomDatabase!!
             runBlocking {
                 setupDb()
             }

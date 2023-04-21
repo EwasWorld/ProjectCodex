@@ -5,6 +5,7 @@
     <string name="main_menu__view_scores">View scores</string>
     <string name="main_menu__handicap_tables">Handicap tables</string>
     <string name="main_menu__settings">Settings</string>
+    <string name="main_menu__about">App information</string>
 
     <string name="main_menu__exit_app_dialog_title">Going so soon?</string>
     <string name="main_menu__exit_app_dialog_body">I hate to say goodbye</string>
@@ -18,4 +19,6 @@
     <string name="help_main_menu__handicap_tables_body">Calculate handicaps for scores or vice versa</string>
     <string name="help_main_menu__settings_title">Settings</string>
     <string name="help_main_menu__settings_body">View and update app settings</string>
+    <string name="help_main_menu__about_title">App information</string>
+    <string name="help_main_menu__about_body">View app information such as version numbers and developer contact</string>
 </resources>

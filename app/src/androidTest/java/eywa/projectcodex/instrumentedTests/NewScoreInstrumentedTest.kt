@@ -17,7 +17,7 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -84,7 +84,7 @@ class NewScoreInstrumentedTest {
         hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            db = LocalDatabaseModule.scoresRoomDatabase!!
 
             /*
              * Fill default rounds

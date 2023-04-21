@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DatabaseDaggerModule {
+class DatabaseModule {
     @Singleton
     @Provides
     fun providesRoomDatabase(@ApplicationContext context: Context): ScoresRoomDatabase {

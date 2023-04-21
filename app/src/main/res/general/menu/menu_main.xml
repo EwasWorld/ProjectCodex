@@ -4,24 +4,17 @@
     >
     <!-- Note: action bar actions are implemented in MainActivity -->
     <item
-        android:id="@+id/action_bar__help"
-        android:orderInCategory="10"
-        android:title="@string/action_bar__help"
-        android:icon="@drawable/ic_help_icon"
-        app:showAsAction="ifRoom"
-        />
-    <item
-        android:id="@+id/action_bar__about"
-        android:orderInCategory="20"
-        android:title="@string/action_bar__about"
-        android:icon="@drawable/ic_about_icon"
-        app:showAsAction="ifRoom"
-        />
-    <item
         android:id="@+id/action_bar__home"
         android:orderInCategory="30"
         android:title="@string/action_bar__home"
         android:icon="@drawable/ic_home_icon"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/action_bar__help"
+        android:orderInCategory="10"
+        android:title="@string/action_bar__help"
+        android:icon="@drawable/ic_help_icon"
         app:showAsAction="ifRoom"
         />
 </menu>

@@ -6,8 +6,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.addCallback
 import androidx.activity.viewModels
-import androidx.annotation.IdRes
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -222,33 +220,21 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_bar__help ->
                 viewModel.handle(StartHelpShowcase(findAllActionBarChildFragments(navHostFragment).firstOrNull()))
-            R.id.action_bar__home ->
-                navigate(R.id.mainMenuFragment, R.string.err_action_bar__home_already_displayed, true)
-            R.id.action_bar__about ->
-                navigate(R.id.aboutFragment, R.string.err_action_bar__about_already_displayed)
+            R.id.action_bar__home -> {
+                with(navHostFragment.findNavController()) {
+                    if (currentDestination?.id == R.id.mainMenuFragment) {
+                        ToastSpamPrevention.displayToast(
+                                applicationContext,
+                                resources.getString(R.string.err_action_bar__home_already_displayed),
+                        )
+                        return@with
+                    }
+                    popBackStack(R.id.mainMenuFragment, false)
+                }
+            }
             else -> return super.onOptionsItemSelected(item)
         }
         return true
-    }
-
-    private fun navigate(
-            @IdRes destination: Int,
-            @StringRes alreadyDisplayedMessage: Int,
-            popInstead: Boolean = false,
-    ) {
-        with(navHostFragment.findNavController()) {
-            if (currentDestination?.id == destination) {
-                ToastSpamPrevention.displayToast(applicationContext, resources.getString(alreadyDisplayedMessage))
-                return@with
-            }
-
-            if (popInstead) {
-                popBackStack(destination, false)
-            }
-            else {
-                navigate(destination)
-            }
-        }
     }
 
     /**

@@ -78,11 +78,6 @@ abstract class BaseRobot(
         R.id.action_bar__home.click()
     }
 
-    fun clickAboutIcon(block: AboutRobot.() -> Unit) {
-        R.id.action_bar__about.click()
-        AboutRobot(composeTestRule).apply(block)
-    }
-
     fun clickHelpIcon() {
         R.id.action_bar__help.click()
         CustomConditionWaiter.waitForComposeCondition("Waiting for help to appear") {

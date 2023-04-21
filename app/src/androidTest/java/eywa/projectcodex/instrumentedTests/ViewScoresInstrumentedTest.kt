@@ -18,7 +18,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.datastore.DatastoreKey
-import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -66,7 +66,7 @@ class ViewScoresInstrumentedTest {
         scenario = composeTestRule.activityRule.scenario
 
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            db = LocalDatabaseModule.scoresRoomDatabase!!
             navController = it.navHostFragment.navController
         }
     }

@@ -27,6 +27,11 @@ class MainMenuRobot(
         HandicapTablesRobot(composeTestRule).apply { block() }
     }
 
+    fun clickAboutIcon(block: AboutRobot.() -> Unit) {
+        clickElement(MainMenuScreen.TestTag.ABOUT)
+        AboutRobot(composeTestRule).apply(block)
+    }
+
     fun clickCancelOnExitDialog() {
         composeTestRule.onNode(
                 hasTestTag(SimpleDialogTestTag.TITLE)

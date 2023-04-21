@@ -28,7 +28,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -130,7 +130,7 @@ class EmailScoresInstrumentedTest {
         hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            db = LocalDatabaseModule.scoresRoomDatabase!!
             addSimpleTestDataToDb()
             navController = it.navHostFragment.navController
         }

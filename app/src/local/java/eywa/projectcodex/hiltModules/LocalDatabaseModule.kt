@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class LocalDatabaseDaggerModule {
+class LocalDatabaseModule {
     companion object {
         var scoresRoomDatabase: ScoresRoomDatabase? = null
 

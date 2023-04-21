@@ -18,7 +18,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.datastore.DatastoreKey
-import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -91,7 +91,7 @@ class ArcherRoundStatsInstrumentedTest {
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity { activity ->
-            db = LocalDatabaseDaggerModule.scoresRoomDatabase!!
+            db = LocalDatabaseModule.scoresRoomDatabase!!
             navController = activity.navHostFragment.navController
 
             /*

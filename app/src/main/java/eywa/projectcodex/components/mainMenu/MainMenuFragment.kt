@@ -14,6 +14,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.components.mainMenu.MainMenuFragmentDirections.*
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.*
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
@@ -28,34 +30,29 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
                 CodexTheme {
                     mainMenuScreen.ComposeContent(
                             isExitDialogOpen = isAlertDialogShown.value,
-                            onExitAlertClicked = { isPositiveButton ->
-                                isAlertDialogShown.value = false
-                                if (isPositiveButton) {
-                                    requireActivity().finish()
-                                    exitProcess(0)
+                            listener = {
+                                when (it) {
+                                    is ExitDialogCloseClicked -> isAlertDialogShown.value = false
+                                    is ExitDialogOkClicked -> {
+                                        isAlertDialogShown.value = false
+                                        requireActivity().finish()
+                                        exitProcess(0)
+                                    }
+                                    is StartNewScoreClicked ->
+                                        findNavController().navigate(actionMainMenuFragmentToNewScoreFragment())
+                                    is ViewScoresClicked ->
+                                        findNavController().navigate(actionMainMenuFragmentToViewScoresFragment())
+                                    is HandicapTablesClicked ->
+                                        findNavController().navigate(actionMainMenuFragmentToHandicapTablesFragment())
+                                    is SettingsClicked ->
+                                        findNavController().navigate(actionMainMenuFragmentToSettingsFragment())
+                                    is AboutClicked ->
+                                        findNavController().navigate(actionMainMenuFragmentToAboutFragment())
+                                    is HelpShowcaseAction -> {
+                                        viewModel.handle(it.action)
+                                    }
                                 }
                             },
-                            onStartNewScoreClicked = {
-                                findNavController().navigate(
-                                        MainMenuFragmentDirections.actionMainMenuFragmentToNewScoreFragment()
-                                )
-                            },
-                            onViewScoresClicked = {
-                                findNavController().navigate(
-                                        MainMenuFragmentDirections.actionMainMenuFragmentToViewScoresFragment()
-                                )
-                            },
-                            onHandicapTablesClicked = {
-                                findNavController().navigate(
-                                        MainMenuFragmentDirections.actionMainMenuFragmentToHandicapTablesFragment()
-                                )
-                            },
-                            onSettingsClicked = {
-                                findNavController().navigate(
-                                        MainMenuFragmentDirections.actionMainMenuFragmentToSettingsFragment()
-                                )
-                            },
-                            helpListener = { viewModel.handle(it) }
                     )
                 }
             }

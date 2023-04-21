@@ -26,6 +26,10 @@
             android:id="@+id/actionMainMenuFragmentToSettingsFragment"
             app:destination="@id/settingsFragment"
             />
+        <action
+            android:id="@+id/actionMainMenuFragmentToAboutFragment"
+            app:destination="@id/aboutFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/viewScoresFragment"
