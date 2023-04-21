@@ -3,6 +3,7 @@ package eywa.projectcodex.components.mainMenu
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 
 sealed class MainMenuIntent {
+    object HandicapDialogClicked : MainMenuIntent()
     object ExitDialogOkClicked : MainMenuIntent()
     object ExitDialogCloseClicked : MainMenuIntent()
     object StartNewScoreClicked : MainMenuIntent()

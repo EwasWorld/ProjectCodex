@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
@@ -28,8 +30,10 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
         return ComposeView(requireContext()).apply {
             setContent {
                 CodexTheme {
+                    val state by viewModel.state.collectAsState()
                     mainMenuScreen.ComposeContent(
                             isExitDialogOpen = isAlertDialogShown.value,
+                            state = state,
                             listener = {
                                 when (it) {
                                     is ExitDialogCloseClicked -> isAlertDialogShown.value = false
@@ -48,9 +52,7 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
                                         findNavController().navigate(actionMainMenuFragmentToSettingsFragment())
                                     is AboutClicked ->
                                         findNavController().navigate(actionMainMenuFragmentToAboutFragment())
-                                    is HelpShowcaseAction -> {
-                                        viewModel.handle(it.action)
-                                    }
+                                    else -> viewModel.handle(it)
                                 }
                             },
                     )

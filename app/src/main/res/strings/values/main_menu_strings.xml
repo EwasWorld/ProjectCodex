@@ -7,6 +7,8 @@
     <string name="main_menu__settings">Settings</string>
     <string name="main_menu__about">App information</string>
 
+    <string name="main_menu__handicap_dialog_title">New handicap system</string>
+    <string name="main_menu__handicap_dialog_body">All handicaps now use the Archery GB 2023 handicap system by default. Go to settings to swap back to the old David Lane system.</string>
     <string name="main_menu__exit_app_dialog_title">Going so soon?</string>
     <string name="main_menu__exit_app_dialog_body">I hate to say goodbye</string>
     <string name="main_menu__exit_app_dialog_exit">Exit app</string>

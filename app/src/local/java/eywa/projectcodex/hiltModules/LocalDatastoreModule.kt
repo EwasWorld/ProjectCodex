@@ -29,7 +29,9 @@ object LocalDatastoreModule {
 
 
 class FakeDatastore : CodexDatastore {
-    private var values = MutableStateFlow(emptyMap<DatastoreKey<out Any>, Any>())
+    private var values = MutableStateFlow(
+            mapOf<DatastoreKey<out Any>, Any>(DatastoreKey.DisplayHandicapNotice to false)
+    )
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(key: DatastoreKey<T>): Flow<T> =

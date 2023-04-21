@@ -71,6 +71,7 @@ class MainMenuScreen : ActionBarHelp {
     @Composable
     fun ComposeContent(
             isExitDialogOpen: Boolean,
+            state: MainMenuState,
             listener: (MainMenuIntent) -> Unit,
     ) {
         val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
@@ -150,6 +151,19 @@ class MainMenuScreen : ActionBarHelp {
                         ),
                 )
             }
+            SimpleDialog(
+                    isShown = state.isHandicapNoticeDialogOpen,
+                    onDismissListener = { listener(HandicapDialogClicked) }
+            ) {
+                SimpleDialogContent(
+                        title = R.string.main_menu__handicap_dialog_title,
+                        message = R.string.main_menu__handicap_dialog_body,
+                        positiveButton = ButtonState(
+                                text = stringResource(R.string.general_ok),
+                                onClick = { listener(HandicapDialogClicked) },
+                        ),
+                )
+            }
         }
     }
 
@@ -169,6 +183,7 @@ class MainMenuScreen : ActionBarHelp {
     fun PreviewMainMenuScreen() {
         ComposeContent(
                 isExitDialogOpen = false,
+                state = MainMenuState(),
                 listener = {},
         )
     }
