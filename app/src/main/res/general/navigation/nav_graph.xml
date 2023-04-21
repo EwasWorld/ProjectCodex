@@ -22,6 +22,10 @@
             android:id="@+id/actionMainMenuFragmentToHandicapTablesFragment"
             app:destination="@id/handicapTablesFragment"
             />
+        <action
+            android:id="@+id/actionMainMenuFragmentToSettingsFragment"
+            app:destination="@id/settingsFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/viewScoresFragment"
@@ -95,5 +99,10 @@
         android:id="@+id/handicapTablesFragment"
         android:name="eywa.projectcodex.components.handicapTables.HandicapTablesFragment"
         android:label="HandicapTablesFragment"
+        />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="eywa.projectcodex.components.settings.SettingsFragment"
+        android:label="SettingsFragment"
         />
 </navigation>

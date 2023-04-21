@@ -1,12 +1,15 @@
 package eywa.projectcodex.components.mainMenu
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +50,14 @@ class MainMenuScreen : ActionBarHelp {
                         ),
                 )
         )
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
+                                R.string.help_main_menu__settings_title,
+                                R.string.help_main_menu__settings_body
+                        ),
+                )
+        )
     }
 
     // TODO Fix button focus order - currently app starts focussed on the help icon in the action bar
@@ -57,6 +68,7 @@ class MainMenuScreen : ActionBarHelp {
             onStartNewScoreClicked: () -> Unit,
             onViewScoresClicked: () -> Unit,
             onHandicapTablesClicked: () -> Unit,
+            onSettingsClicked: () -> Unit,
             helpListener: (HelpShowcaseIntent) -> Unit,
     ) {
         addHelpInfo(helpListener)
@@ -95,6 +107,22 @@ class MainMenuScreen : ActionBarHelp {
                             .testTag(TestTag.HANDICAP_TABLES),
             )
 
+            Spacer(modifier = Modifier.height(1.dp))
+
+            IconButton(
+                    onClick = onSettingsClicked,
+                    modifier = Modifier
+                            .updateHelpDialogPosition(helpListener, R.string.help_main_menu__settings_title)
+                            .testTag(TestTag.SETTINGS)
+                            .scale(1.2f),
+            ) {
+                Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.main_menu__settings),
+                        tint = CodexTheme.colors.iconButtonOnPrimary,
+                )
+            }
+
             SimpleDialog(
                     isShown = isExitDialogOpen,
                     onDismissListener = { onExitAlertClicked(false) }
@@ -122,6 +150,7 @@ class MainMenuScreen : ActionBarHelp {
         const val NEW_SCORE = "${PREFIX}NEW_SCORE_BUTTON"
         const val VIEW_SCORES = "${PREFIX}VIEW_SCORE_BUTTON"
         const val HANDICAP_TABLES = "${PREFIX}HANDICAP_TABLES_BUTTON"
+        const val SETTINGS = "${PREFIX}SETTINGS_BUTTON"
     }
 
     @Preview
@@ -133,6 +162,7 @@ class MainMenuScreen : ActionBarHelp {
                 onStartNewScoreClicked = { },
                 onViewScoresClicked = {},
                 onHandicapTablesClicked = {},
+                onSettingsClicked = {},
                 helpListener = {},
         )
     }

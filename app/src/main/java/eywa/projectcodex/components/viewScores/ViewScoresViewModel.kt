@@ -13,6 +13,8 @@ import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarI
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
+import eywa.projectcodex.datastore.CodexDatastore
+import eywa.projectcodex.datastore.DatastoreKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -27,6 +29,7 @@ class ViewScoresViewModel @Inject constructor(
         db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcase,
         private val customLogger: CustomLogger,
+        private val datastore: CodexDatastore,
 ) : ViewModel() {
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.asStateFlow()
@@ -39,12 +42,13 @@ class ViewScoresViewModel @Inject constructor(
             state.map { it.filters }
                     .distinctUntilChanged()
                     .flatMapLatest { archerRoundsRepo.getFullArcherRoundInfo(it) }
-                    .collect { flowData ->
+                    .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
+                    .collect { (flowData, use2023System) ->
                         _state.update {
                             val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
                             it.copy(
                                     data = flowData.map { roundInfo ->
-                                        val info = FullArcherRoundInfo(roundInfo)
+                                        val info = FullArcherRoundInfo(roundInfo, use2023System)
                                         ViewScoresEntry(
                                                 info = info,
                                                 isSelected = previousSelectedEntries[info.id] ?: false,

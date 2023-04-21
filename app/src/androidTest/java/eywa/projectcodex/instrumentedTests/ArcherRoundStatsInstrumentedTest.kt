@@ -17,7 +17,9 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -146,7 +148,6 @@ class ArcherRoundStatsInstrumentedTest {
                 }
             }
         }
-
     }
 
     @Test
@@ -167,7 +168,39 @@ class ArcherRoundStatsInstrumentedTest {
                     clickNavBarStats {
                         checkRound(round.displayName)
                         checkRemainingArrows(arrowsPerArrowCount)
-                        // Checked these values in the handicap tables (1998), score for two dozen
+                        // Checked these values in the handicap tables (2023) - double and use score for 2 doz as only
+                        // the first distance has been shot so this is what's being use to calculate the handicap
+                        checkHandicap(36)
+                        // divide by 2 because only one dozen was shot
+                        checkPredictedScore((192 + 201) / 2)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testOldHandicapSystem() {
+        LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
+
+        val archerRoundId = archerRounds[ArcherRoundTypes.ROUND.row].archerRoundId
+        val archerRound = archerRounds.find { it.archerRoundId == archerRoundId }!!
+        val round = roundsInput.find { it.roundId == archerRound.roundId }!!
+
+        var arrowNumber = 1
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(ArcherRoundTypes.ROUND.row) {
+                    waitForLoad()
+                    clickNavBarStats {
+                        checkRound(round.displayName)
+                        checkRemainingArrows(arrowsPerArrowCount)
+                        // Checked these values in the handicap tables (1998) - double and use score for 2 doz as only
+                        // the first distance has been shot so this is what's being use to calculate the handicap
                         checkHandicap(32)
                         // divide by 2 because only one dozen was shot
                         checkPredictedScore((192 + 201) / 2)
@@ -192,8 +225,9 @@ class ArcherRoundStatsInstrumentedTest {
                     clickNavBarStats {
                         checkRound(subTypesInput[0].name!!)
                         checkRemainingArrows(arrowsPerArrowCount)
-                        // Checked these values in the handicap tables (1998), score for two dozen
-                        checkHandicap(32)
+                        // Checked these values in the handicap tables (2023) - double and use score for 2 doz as only
+                        // the first distance has been shot so this is what's being use to calculate the handicap
+                        checkHandicap(36)
                         // divide by 2 because only one dozen was shot
                         checkPredictedScore((192 + 201) / 2)
                     }

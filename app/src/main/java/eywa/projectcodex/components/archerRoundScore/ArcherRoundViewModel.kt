@@ -18,9 +18,12 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Load
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
+import eywa.projectcodex.datastore.CodexDatastore
+import eywa.projectcodex.datastore.DatastoreKey
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,6 +31,7 @@ import javax.inject.Inject
 class ArcherRoundViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcase,
+        private val datastore: CodexDatastore,
 ) : ViewModel() {
     var state: ArcherRoundState by mutableStateOf(Loading())
         private set
@@ -113,10 +117,10 @@ class ArcherRoundViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            ArcherRoundsRepo(db.archerRoundDao())
-                    .getFullArcherRoundInfo(action.archerRoundId)
-                    .collect {
-                        val info = FullArcherRoundInfo(it)
+            ArcherRoundsRepo(db.archerRoundDao()).getFullArcherRoundInfo(action.archerRoundId)
+                    .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
+                    .collect { (dbInfo, use2023System) ->
+                        val info = FullArcherRoundInfo(dbInfo, use2023System)
                         if (state is Loading) {
                             state = (state as Loading).copy(fullArcherRoundInfo = info).tryToMoveFromLoading()
                         }

@@ -7,7 +7,6 @@ import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.archeryObjects.ScorePadData
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -28,44 +27,24 @@ data class ViewScoresEntry(
     val id = info.archerRound.archerRoundId
 
     val goldsType = if (info.round == null) GoldsType.defaultGoldsType else GoldsType.getGoldsType(info.round)
-    val hits = info.arrows.takeIf { !it.isNullOrEmpty() }
-            ?.let { arrowValues -> arrowValues.count { it.score != 0 } }
-    val score = info.arrows.takeIf { !it.isNullOrEmpty() }
-            ?.let { arrowValues -> arrowValues.sumOf { it.score } }
-    val golds = info.arrows.takeIf { !it.isNullOrEmpty() }
-            ?.let { arrowValues -> arrowValues.count { goldsType.isGold(it) } }
+    val golds = info.golds(goldsType)
 
-    val hitsScoreGolds = listOf(hits, score, golds)
-            .takeIf { list -> list.all { it != null } }
+    val hitsScoreGolds = listOf(info.hits, info.score, golds)
+            .takeIf { info.arrowsShot > 0 }
             ?.joinToString("/")
 
     val handicap =
-            if (
-                info.round == null || info.arrows.isNullOrEmpty() || info.roundArrowCounts.isNullOrEmpty()
-                || info.roundDistances.isNullOrEmpty()
-            ) {
-                null
+            try {
+                info.handicap
             }
-            else {
-                try {
-                    Handicap.getHandicapForRound(
-                            round = info.round,
-                            roundArrowCounts = info.roundArrowCounts,
-                            roundDistances = info.roundDistances,
-                            score = info.arrows.sumOf { it.score },
-                            innerTenArcher = false,
-                            arrows = info.arrows.size
-                    )
-                }
-                catch (e: IllegalArgumentException) {
-                    customLogger.e(
-                            LOG_TAG,
-                            "Failed to get handicap for round with id $id (date shot: %s), reason: "
-                                    .format(DateTimeFormat.SHORT_DATE_TIME.format(info.archerRound.dateShot))
-                                    + e.message
-                    )
-                    null
-                }
+            catch (e: IllegalArgumentException) {
+                customLogger.e(
+                        LOG_TAG,
+                        "Failed to get handicap for round with id $id (date shot: %s), reason: "
+                                .format(DateTimeFormat.SHORT_DATE_TIME.format(info.archerRound.dateShot))
+                                + e.message
+                )
+                null
             }
 
     fun getScorePadData(endSize: Int): ScorePadData? {
@@ -82,8 +61,8 @@ data class ViewScoresEntry(
                         R.string.email_round_summary,
                         info.displayName ?: res,
                         DateTimeFormat.SHORT_DATE.format(info.archerRound.dateShot),
-                        hits,
-                        score,
+                        info.hits,
+                        info.score,
                         resources.getString(goldsType.longStringId),
                         golds,
                 )

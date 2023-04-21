@@ -9,6 +9,8 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFil
 import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.components.archerRoundScore.Handicap
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.datastore.CodexDatastore
+import eywa.projectcodex.datastore.DatastoreKey
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,12 +19,16 @@ import javax.inject.Inject
 class HandicapTablesViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcase,
+        private val datastore: CodexDatastore,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HandicapTablesState())
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
+            datastore.get(DatastoreKey.Use2023HandicapSystem).firstOrNull()?.let { use2023 ->
+                _state.update { it.copy(use2023Tables = use2023) }
+            }
             state.map { it.roundFilters }.distinctUntilChanged().collectLatest { filters ->
                 db.roundsRepo().fullRoundsInfo(filters).collectLatest { rounds ->
                     _state.update { it.copy(allRounds = rounds) }

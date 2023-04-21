@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Checkbox
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +16,7 @@ fun CodexCheckbox(
         text: String,
         checked: Boolean,
         modifier: Modifier = Modifier,
+        displayAsSwitch: Boolean = false,
         onToggle: () -> Unit,
 ) {
     Row(
@@ -23,6 +25,12 @@ fun CodexCheckbox(
             modifier = modifier.clickable(onClick = onToggle)
     ) {
         Text(text = text)
-        Checkbox(checked = checked, onCheckedChange = { onToggle() })
+
+        if (displayAsSwitch) {
+            Switch(checked = checked, onCheckedChange = { onToggle() })
+        }
+        else {
+            Checkbox(checked = checked, onCheckedChange = { onToggle() })
+        }
     }
 }

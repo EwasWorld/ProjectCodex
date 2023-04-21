@@ -19,7 +19,9 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.testUtils.MainCoroutineRule
+import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
@@ -41,8 +43,12 @@ class ViewScoresViewModelUnitTest {
     private val db = MockScoresRoomDatabase()
     private val helpShowcase: HelpShowcase = mock { }
     private val customLogger: CustomLogger = mock { }
+    private val datastore = MockDatastore()
 
-    private fun getSut() = ViewScoresViewModel(db.mock, helpShowcase, customLogger)
+    private fun getSut(datastoreUse2023System: Boolean = true): ViewScoresViewModel {
+        datastore.values = mapOf(DatastoreKey.Use2023HandicapSystem to datastoreUse2023System)
+        return ViewScoresViewModel(db.mock, helpShowcase, customLogger, datastore.mock)
+    }
 
     /**
      * Check that [ViewScoresState.data] is updated correctly based on DB emitted values.
@@ -70,7 +76,7 @@ class ViewScoresViewModelUnitTest {
         advanceTimeBy(1)
         assertEquals(
                 archerRoundsInitial.map {
-                    ViewScoresEntry(FullArcherRoundInfo(it), false, customLogger)
+                    ViewScoresEntry(FullArcherRoundInfo(it, true), false, customLogger)
                 },
                 sut.state.value.data,
         )
@@ -80,7 +86,35 @@ class ViewScoresViewModelUnitTest {
         advanceUntilIdle()
         assertEquals(
                 archerRoundsSecond.map {
-                    ViewScoresEntry(FullArcherRoundInfo(it), it.archerRound.archerRoundId == 1, customLogger)
+                    ViewScoresEntry(FullArcherRoundInfo(it, true), it.archerRound.archerRoundId == 1, customLogger)
+                },
+                sut.state.value.data,
+        )
+    }
+
+    @Test
+    fun testDataIsSetAndUpdatedCorrectly_WithOldHandicapSystem() = runTest {
+        fun create(id: Int, date: Long) =
+                DatabaseFullArcherRoundInfo(
+                        archerRound = ArcherRound(id, Date(date), 1),
+                        arrows = listOf(ArrowValue(id, 1, 10, false)),
+                )
+
+        val archerRoundsInitial = listOf(create(1, 5), create(3, 3))
+        val archerRoundsSecond = listOf(create(1, 5), create(2, 3))
+        db.archerRoundDao.fullArcherRounds = archerRoundsInitial
+        db.archerRoundDao.secondFullArcherRounds = archerRoundsSecond
+        val sut = getSut(datastoreUse2023System = false)
+
+        assertEquals(
+                listOf<ViewScoresEntry>(),
+                sut.state.value.data,
+        )
+
+        advanceTimeBy(1)
+        assertEquals(
+                archerRoundsInitial.map {
+                    ViewScoresEntry(FullArcherRoundInfo(it, false), false, customLogger)
                 },
                 sut.state.value.data,
         )

@@ -19,10 +19,10 @@ object ArcherRoundPreviewHelper {
     )
 
     fun newFullArcherRoundInfo(id: Int) =
-            FullArcherRoundInfo(archerRound = newArcherRound(id = id), arrows = null)
+            FullArcherRoundInfo(archerRound = newArcherRound(id = id), arrows = null, use2023HandicapSystem = true)
 
     fun newFullArcherRoundInfo(archerRound: ArcherRound = newArcherRound()) =
-            FullArcherRoundInfo(archerRound = archerRound, arrows = null)
+            FullArcherRoundInfo(archerRound = archerRound, arrows = null, use2023HandicapSystem = true)
 
     fun FullArcherRoundInfo.addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) =
             copy(arrows = ArrowValuesPreviewHelper.getArrows(archerRound.archerRoundId, size, 1, score, isX))

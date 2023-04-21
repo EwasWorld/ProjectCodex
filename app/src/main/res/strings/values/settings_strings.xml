@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings__title">Settings</string>
+
+    <string name="settings__use_2023_system">Use 2023 handicap system</string>
+    <string name="help_settings__use_2023_system_title">2023 handicap system</string>
+    <string name="help_settings__use_2023_system_body">When on, uses the new 2023 Archery GB handicap system. When off, uses the old David Lane system</string>
+</resources>

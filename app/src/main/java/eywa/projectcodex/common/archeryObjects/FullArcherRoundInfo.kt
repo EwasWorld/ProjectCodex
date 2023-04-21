@@ -18,8 +18,9 @@ data class FullArcherRoundInfo(
         val roundDistances: List<RoundDistance>? = null,
         val isPersonalBest: Boolean = false,
         val isTiedPersonalBest: Boolean = false,
+        val use2023HandicapSystem: Boolean = false,
 ) {
-    constructor(full: DatabaseFullArcherRoundInfo) : this(
+    constructor(full: DatabaseFullArcherRoundInfo, use2023HandicapSystem: Boolean) : this(
             archerRound = full.archerRound,
             arrows = full.arrows,
             round = full.round,
@@ -28,6 +29,7 @@ data class FullArcherRoundInfo(
             roundDistances = full.roundDistances,
             isPersonalBest = full.isPersonalBest ?: false,
             isTiedPersonalBest = (full.isPersonalBest ?: false) && (full.isTiedPersonalBest ?: false),
+            use2023HandicapSystem = use2023HandicapSystem,
     )
 
     init {
@@ -100,7 +102,13 @@ data class FullArcherRoundInfo(
         ) return@lazy null
 
         Handicap.getHandicapForRound(
-                round, roundArrowCounts, roundDistances, score, isInnerTenArcher, arrowsShot
+                round = round,
+                roundArrowCounts = roundArrowCounts,
+                roundDistances = roundDistances,
+                score = score,
+                innerTenArcher = isInnerTenArcher,
+                arrows = arrowsShot,
+                use2023Handicaps = use2023HandicapSystem,
         )
     }
 
@@ -110,7 +118,13 @@ data class FullArcherRoundInfo(
         if (remainingArrows!! == 0) return@lazy null
 
         Handicap.getScoreForRound(
-                round!!, roundArrowCounts!!, roundDistances!!, handicap!!, isInnerTenArcher, null
+                round = round!!,
+                roundArrowCounts = roundArrowCounts!!,
+                roundDistances = roundDistances!!,
+                handicap = handicap!!,
+                innerTenArcher = isInnerTenArcher,
+                arrows = null,
+                use2023Handicaps = use2023HandicapSystem,
         )
     }
 }

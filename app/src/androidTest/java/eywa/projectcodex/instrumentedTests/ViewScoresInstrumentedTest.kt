@@ -17,7 +17,9 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -151,28 +153,35 @@ class ViewScoresInstrumentedTest {
                 checkContentDescription(0, "1 Jan, Score 1, Golds 0, Hits 1")
 
                 waitForHsg(1, "1/2/0")
-                waitForHandicap(1, 64)
+                waitForHandicap(1, 81)
                 waitForRoundName(1, "Metric Round")
                 waitForDate(1, "02/02/12")
-                checkContentDescription(1, "2 Feb 2012, Metric Round, Score 2, Handicap 64, Golds 0, Hits 1")
+                checkContentDescription(1, "2 Feb 2012, Metric Round, Score 2, Handicap 81, Golds 0, Hits 1")
 
                 waitForHsg(2, "1/3/0")
-                waitForHandicap(2, 63)
+                waitForHandicap(2, 78)
                 waitForRoundName(2, "Imperial Round")
                 waitForDate(2, "03/03/11")
-                checkContentDescription(2, "3 Mar 2011, Imperial Round, Score 3, Handicap 63, Golds 0, Hits 1")
+                checkContentDescription(2, "3 Mar 2011, Imperial Round, Score 3, Handicap 78, Golds 0, Hits 1")
 
                 waitForHsg(3, "1/4/0")
-                waitForHandicap(3, 64)
+                waitForHandicap(3, 77)
                 waitForRoundName(3, "Sub Type 2")
                 waitForDate(3, "04/04/10")
-                checkContentDescription(3, "4 Apr 2010, Sub Type 2, Score 4, Handicap 64, Golds 0, Hits 1")
+                checkContentDescription(3, "4 Apr 2010, Sub Type 2, Score 4, Handicap 77, Golds 0, Hits 1")
 
                 waitForHsg(4, "1/5/0")
                 waitForHandicap(4, null)
                 waitForRoundName(4, null)
                 waitForDate(4, "05/05/09")
                 checkContentDescription(4, "5 May 2009, Score 5, Golds 0, Hits 1")
+
+                LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
+                waitForHandicap(0, null)
+                waitForHandicap(1, 64)
+                waitForHandicap(2, 63)
+                waitForHandicap(3, 64)
+                waitForHandicap(4, null)
             }
         }
     }

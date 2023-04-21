@@ -56,7 +56,8 @@
     <string name="help_view_score__round_title">Round shot</string>
     <string name="help_view_score__round_body">Shows the round that was shot. Will be crossed out if too few or too many arrows have been entered.</string>
     <string name="help_view_score__handicap_title">Handicap</string>
-    <string name="help_view_score__handicap_body">The handicap for the round (or partial round). Will be blank if there is no round or if no arrows have been added</string>
+    <string name="help_view_score__handicap_old_body">The handicap for the round (or partial round). Uses the David Lane handicap system. Will be blank if there is no round or if no arrows have been added</string>
+    <string name="help_view_score__handicap_2023_body">The handicap for the round (or partial round). Uses the 2023 Archery GB system. Will be blank if there is no round or if no arrows have been added</string>
     <string name="help_view_score__start_multi_select_title">Multi-select mode</string>
     <string name="help_view_score__start_multi_select_body">Turn on multi-select mode. Allows multiple entries to be actioned at once</string>
     <string name="help_view_score__cancel_multi_select_title">Cancel multi select</string>

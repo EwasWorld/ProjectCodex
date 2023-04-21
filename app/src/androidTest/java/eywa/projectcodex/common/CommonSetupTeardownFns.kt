@@ -7,6 +7,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.hiltModules.LocalDatabaseDaggerModule
+import eywa.projectcodex.hiltModules.LocalDatastoreModule
 
 class CommonSetupTeardownFns {
     companion object {
@@ -43,6 +44,7 @@ class CommonSetupTeardownFns {
              */
             scenario.moveToState(Lifecycle.State.DESTROYED)
             LocalDatabaseDaggerModule.teardown()
+            LocalDatastoreModule.teardown()
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -55,6 +57,7 @@ class CommonSetupTeardownFns {
              */
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
             LocalDatabaseDaggerModule.teardown()
+            LocalDatastoreModule.teardown()
         }
     }
 }

@@ -61,7 +61,10 @@ internal fun ViewScoresEntryRow(
             HelpShowcaseIntent.Add(
                     HelpShowcaseItem(
                             helpTitle = R.string.help_view_score__handicap_title,
-                            helpBody = R.string.help_view_score__handicap_body,
+                            helpBody = (
+                                    if (entry.info.use2023HandicapSystem) R.string.help_view_score__handicap_2023_body
+                                    else R.string.help_view_score__handicap_old_body
+                                    ),
                             priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
                     )
             ),
@@ -153,15 +156,14 @@ private fun HsgColumn(
             verticalArrangement = columnVerticalArrangement,
     ) {
         Text(
-                text = stringResource(id = R.string.view_score__hsg),
+                text = stringResource(R.string.view_score__hsg),
                 style = CodexTypography.SMALL.copy(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
         )
         @Suppress("RemoveRedundantQualifierName")
         Text(
-                text = entry.hitsScoreGolds
-                        ?: stringResource(id = R.string.view_score__hsg_placeholder),
+                text = entry.hitsScoreGolds ?: stringResource(R.string.view_score__hsg_placeholder),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__hsg_title)
         )
@@ -178,7 +180,7 @@ private fun HandicapColumn(
             verticalArrangement = columnVerticalArrangement,
     ) {
         Text(
-                text = stringResource(id = R.string.view_score__handicap),
+                text = stringResource(R.string.view_score__handicap),
                 style = CodexTypography.SMALL.copy(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
@@ -188,7 +190,7 @@ private fun HandicapColumn(
         ) {
             Text(
                     text = entry.handicap?.toString()
-                            ?: stringResource(id = R.string.view_score__handicap_placeholder),
+                            ?: stringResource(R.string.view_score__handicap_placeholder),
                     style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                     modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__handicap_title)
             )
@@ -220,11 +222,10 @@ fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEnt
     return listOfNotNull(
             dateFormat.format(entry.info.archerRound.dateShot),
             entry.info.displayName,
-            accessibilityString(title = R.string.view_score__score, value = entry.score)
-                    ?: context.resources.getString(R.string.view_score__no_arrows_shot),
+            accessibilityString(title = R.string.view_score__score, value = entry.info.score),
             accessibilityString(title = R.string.view_score__handicap_full, value = entry.handicap),
-            entry.golds?.let { accessibilityString(title = R.string.view_score__golds, value = entry.golds) },
-            entry.hits?.let { accessibilityString(title = R.string.view_score__hits, value = entry.hits) },
+            accessibilityString(title = R.string.view_score__golds, value = entry.golds),
+            accessibilityString(title = R.string.view_score__hits, value = entry.info.hits),
     ).joinToString()
 }
 

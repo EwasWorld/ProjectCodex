@@ -50,6 +50,11 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
                                         MainMenuFragmentDirections.actionMainMenuFragmentToHandicapTablesFragment()
                                 )
                             },
+                            onSettingsClicked = {
+                                findNavController().navigate(
+                                        MainMenuFragmentDirections.actionMainMenuFragmentToSettingsFragment()
+                                )
+                            },
                             helpListener = { viewModel.handle(it) }
                     )
                 }

@@ -96,7 +96,8 @@ class ViewScoresEntryUnitTest {
                         fullRoundInfo.roundDistances!!,
                         TestData.ARROWS.sumOf { it.score },
                         false,
-                        TestData.ARROWS.size
+                        TestData.ARROWS.size,
+                        use2023Handicaps = true,
                 ),
                 entry.handicap
         )

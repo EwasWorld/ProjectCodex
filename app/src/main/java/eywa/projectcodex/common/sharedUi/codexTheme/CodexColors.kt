@@ -67,6 +67,7 @@ data class CodexThemeColors(
         val floatingActions: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onFloatingActions: Color = Color.White,
         val textButtonOnPrimary: Color = Color.Black,
+        val iconButtonOnPrimary: Color = Color.White,
 
         // Chips
         val chipOnPrimarySelected: Color = CodexColors.COLOR_PRIMARY_LIGHT,
