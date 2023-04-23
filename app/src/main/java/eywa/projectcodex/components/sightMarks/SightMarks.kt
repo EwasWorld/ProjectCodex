@@ -12,29 +12,173 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import java.util.*
 
+/**
+ * Space between the top of the tape and the first major tick
+ */
+private const val VERTICAL_PADDING = 40f
+private const val TAPE_WIDTH = 80f
+
 data class SightMarksState(
         val sightMarks: List<SightMark> = listOf(),
         val isHighestNumberAtTheTop: Boolean = true,
-)
+) {
+    val maxMajorTick = 8
+    val minMajorTick = 1
+    val majorTickDifference = maxMajorTick - minMajorTick
+
+    /**
+     * Adjusts [SightMark.sightMark] to a vertical offset accounting for [minMajorTick] being non-zero
+     * and [isHighestNumberAtTheTop]
+     */
+    fun getAdjustedSightMark(sightMark: SightMark) =
+            if (isHighestNumberAtTheTop) maxMajorTick - sightMark.sightMark else sightMark.sightMark - minMajorTick
+}
 
 data class SightMark(
         val distance: Int,
         val isMetric: Boolean,
         val dateSet: Calendar,
-        val sightMark: Int,
-        val note: String,
-        val marked: Boolean,
+        val sightMark: Float,
+        val note: String? = null,
+        val marked: Boolean = false,
+)
+
+@Composable
+fun SightMarks(
+        state: SightMarksState,
 ) {
+    // TODO_CURRENT Help info
+
+    TapeAndTicks(state)
+
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val majorTickYGap = with(LocalDensity.current) {
+            ((constraints.maxHeight - VERTICAL_PADDING * 2) / state.majorTickDifference).toDp()
+        }
+
+        MajorTickLabels(state, majorTickYGap)
+        SightMarkIndicators(state, majorTickYGap, constraints.maxWidth)
+    }
 }
 
-enum class Tick(
+@Composable
+private fun TapeAndTicks(state: SightMarksState) {
+    Canvas(
+            modifier = Modifier.fillMaxSize()
+    ) {
+        val tapeTopLeft = Offset(x = (size.width - TAPE_WIDTH) / 2f, y = 0f)
+
+        drawRect(
+                color = Color.White,
+                topLeft = Offset(x = (size.width - TAPE_WIDTH) / 2f, y = 0f),
+                size = Size(width = TAPE_WIDTH, height = size.height),
+        )
+
+        val majorTickYGap = (size.height - VERTICAL_PADDING * 2) / state.majorTickDifference
+        repeat(state.majorTickDifference * Tick.minorTicksPerMajorTick + 1) { index ->
+            val offset = majorTickYGap * index / Tick.minorTicksPerMajorTick
+            Tick.getTickType(index).draw(this, tapeTopLeft, TAPE_WIDTH, offset + VERTICAL_PADDING)
+        }
+    }
+}
+
+@Composable
+private fun MajorTickLabels(
+        state: SightMarksState,
+        majorTickYGap: Dp,
+) {
+    val verticalPadding = with(LocalDensity.current) { VERTICAL_PADDING.toDp() }
+    repeat(state.majorTickDifference + 1) { index ->
+        val offset = verticalPadding + majorTickYGap * (index.toFloat() - 0.5f)
+        Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                        .offset(x = 0.dp, y = offset)
+                        .height(majorTickYGap)
+                        .fillMaxWidth()
+        ) {
+            Text(
+                    text = (
+                            if (state.isHighestNumberAtTheTop) state.maxMajorTick - index
+                            else state.maxMajorTick + index
+                            ).toString(),
+                    style = CodexTypography.NORMAL,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                            .background(Color.White)
+                            .padding(horizontal = 2.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SightMarkIndicators(
+        state: SightMarksState,
+        majorTickYGap: Dp,
+        maxWidth: Int,
+) {
+    val verticalPadding = with(LocalDensity.current) { VERTICAL_PADDING.toDp() }
+    val tapeWidth = with(LocalDensity.current) { TAPE_WIDTH.toDp() }
+    val indicatorWidth = with(LocalDensity.current) { ((maxWidth - TAPE_WIDTH) / 2f).toDp() }
+
+    state.sightMarks.forEach { sightMark ->
+        val distanceUnit = stringResource(
+                if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
+        )
+        val text = listOf(
+                if (sightMark.isMetric) "<-" else "->",
+                sightMark.sightMark.toString(),
+                "-",
+                "${sightMark.distance}$distanceUnit",
+        ).let { if (sightMark.isMetric) it else it.asReversed() }
+
+        val adjustedSightMark = state.getAdjustedSightMark(sightMark)
+        val offset = verticalPadding + majorTickYGap * (adjustedSightMark - 0.5f)
+        Box(
+                contentAlignment = if (sightMark.isMetric) Alignment.CenterStart else Alignment.CenterEnd,
+                modifier = Modifier
+                        .offset(x = if (sightMark.isMetric) indicatorWidth + tapeWidth else 0.dp, y = offset)
+                        .size(width = indicatorWidth, height = majorTickYGap)
+                        .padding(5.dp)
+        ) {
+            Text(
+                    text = text.joinToString(" "),
+                    style = CodexTypography.NORMAL,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+            )
+        }
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun SightMarks_Preview() {
+    SightMarks(
+            SightMarksState(
+                    sightMarks = listOf(
+                            SightMark(30, true, Calendar.getInstance(), 3.15f),
+                            SightMark(50, false, Calendar.getInstance(), 2f),
+                    ),
+            ),
+    )
+}
+
+private enum class Tick(
         private val frequency: Int,
         private val stroke: Float,
         private val padding: Float,
@@ -60,78 +204,4 @@ enum class Tick(
 
         fun getTickType(index: Int) = values().first { index % it.frequency == 0 }
     }
-}
-
-@Composable
-fun SightMarks(
-        state: SightMarksState,
-) {
-    // TODO_CURRENT Help info
-
-    val maxMajorTick = 8
-    val minMajorTick = 1
-
-    val verticalPadding = 40f
-    val tapeWidth = 80f
-
-    Canvas(
-            modifier = Modifier.fillMaxSize()
-    ) {
-        val tapeTopLeft = Offset(x = (size.width - tapeWidth) / 2f, y = 0f)
-
-        /*
-         * Draw tape & ticks
-         */
-        drawRect(
-                color = Color.White,
-                topLeft = Offset(x = (size.width - tapeWidth) / 2f, y = 0f),
-                size = Size(width = tapeWidth, height = size.height),
-        )
-
-        val majorTickYGap = (size.height - verticalPadding * 2) / (maxMajorTick - minMajorTick)
-        repeat((maxMajorTick - minMajorTick) * Tick.minorTicksPerMajorTick + 1) { index ->
-            val offset = majorTickYGap * index / Tick.minorTicksPerMajorTick
-            Tick.getTickType(index).draw(this, tapeTopLeft, tapeWidth, offset + verticalPadding)
-        }
-    }
-
-    BoxWithConstraints(
-            modifier = Modifier.fillMaxSize()
-    ) {
-        val size = Size(width = constraints.maxWidth.toFloat(), height = constraints.maxHeight.toFloat())
-        val majorTickYGap = (size.height - verticalPadding * 2) / (maxMajorTick - minMajorTick)
-        repeat(maxMajorTick - minMajorTick + 1) { index ->
-            val offset = verticalPadding + majorTickYGap * index - majorTickYGap / 2f
-            Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                            .offset(0.dp, with(LocalDensity.current) { offset.toDp() })
-                            .height(with(LocalDensity.current) { majorTickYGap.toDp() })
-                            .fillMaxWidth()
-            ) {
-                Text(
-                        text = (
-                                if (state.isHighestNumberAtTheTop) maxMajorTick - index
-                                else minMajorTick + index
-                                ).toString(),
-                        style = CodexTypography.NORMAL,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                                .background(Color.White)
-                                .padding(horizontal = 2.dp)
-                )
-            }
-        }
-    }
-}
-
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
-@Composable
-fun SightMarks_Preview() {
-    SightMarks(
-            SightMarksState(),
-    )
 }
