@@ -22,36 +22,16 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import java.util.*
 
+/*
+ * TODO & IDEAS
+ * Small screen -> only one side of the tape
+ */
+
 /**
  * Space between the top of the tape and the first major tick
  */
 private const val VERTICAL_PADDING = 40f
 private const val TAPE_WIDTH = 80f
-
-data class SightMarksState(
-        val sightMarks: List<SightMark> = listOf(),
-        val isHighestNumberAtTheTop: Boolean = true,
-) {
-    val maxMajorTick = 8
-    val minMajorTick = 1
-    val majorTickDifference = maxMajorTick - minMajorTick
-
-    /**
-     * Adjusts [SightMark.sightMark] to a vertical offset accounting for [minMajorTick] being non-zero
-     * and [isHighestNumberAtTheTop]
-     */
-    fun getAdjustedSightMark(sightMark: SightMark) =
-            if (isHighestNumberAtTheTop) maxMajorTick - sightMark.sightMark else sightMark.sightMark - minMajorTick
-}
-
-data class SightMark(
-        val distance: Int,
-        val isMetric: Boolean,
-        val dateSet: Calendar,
-        val sightMark: Float,
-        val note: String? = null,
-        val marked: Boolean = false,
-)
 
 @Composable
 fun SightMarks(
@@ -59,15 +39,23 @@ fun SightMarks(
 ) {
     // TODO_CURRENT Help info
 
-    TapeAndTicks(state)
+    Box(
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp * state.totalMajorTicks)
+    ) {
+        TapeAndTicks(state)
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val majorTickYGap = with(LocalDensity.current) {
-            ((constraints.maxHeight - VERTICAL_PADDING * 2) / state.majorTickDifference).toDp()
+        BoxWithConstraints(
+                modifier = Modifier.fillMaxSize()
+        ) {
+            val majorTickYGap = with(LocalDensity.current) {
+                ((constraints.maxHeight - VERTICAL_PADDING * 2) / state.totalMajorTicks).toDp()
+            }
+
+            MajorTickLabels(state, majorTickYGap)
+            SightMarkIndicators(state, majorTickYGap, constraints.maxWidth, constraints.maxHeight)
         }
-
-        MajorTickLabels(state, majorTickYGap)
-        SightMarkIndicators(state, majorTickYGap, constraints.maxWidth)
     }
 }
 
@@ -84,8 +72,8 @@ private fun TapeAndTicks(state: SightMarksState) {
                 size = Size(width = TAPE_WIDTH, height = size.height),
         )
 
-        val majorTickYGap = (size.height - VERTICAL_PADDING * 2) / state.majorTickDifference
-        repeat(state.majorTickDifference * Tick.minorTicksPerMajorTick + 1) { index ->
+        val majorTickYGap = (size.height - VERTICAL_PADDING * 2) / state.totalMajorTicks
+        repeat(state.totalMajorTicks * Tick.minorTicksPerMajorTick + 1) { index ->
             val offset = majorTickYGap * index / Tick.minorTicksPerMajorTick
             Tick.getTickType(index).draw(this, tapeTopLeft, TAPE_WIDTH, offset + VERTICAL_PADDING)
         }
@@ -98,7 +86,7 @@ private fun MajorTickLabels(
         majorTickYGap: Dp,
 ) {
     val verticalPadding = with(LocalDensity.current) { VERTICAL_PADDING.toDp() }
-    repeat(state.majorTickDifference + 1) { index ->
+    repeat(state.totalMajorTicks + 1) { index ->
         val offset = verticalPadding + majorTickYGap * (index.toFloat() - 0.5f)
         Box(
                 contentAlignment = Alignment.Center,
@@ -108,10 +96,7 @@ private fun MajorTickLabels(
                         .fillMaxWidth()
         ) {
             Text(
-                    text = (
-                            if (state.isHighestNumberAtTheTop) state.maxMajorTick - index
-                            else state.maxMajorTick + index
-                            ).toString(),
+                    text = state.getMajorTickLabel(index).toString(),
                     style = CodexTypography.NORMAL,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -127,10 +112,12 @@ private fun SightMarkIndicators(
         state: SightMarksState,
         majorTickYGap: Dp,
         maxWidth: Int,
+        maxHeight: Int,
 ) {
     val verticalPadding = with(LocalDensity.current) { VERTICAL_PADDING.toDp() }
     val tapeWidth = with(LocalDensity.current) { TAPE_WIDTH.toDp() }
     val indicatorWidth = with(LocalDensity.current) { ((maxWidth - TAPE_WIDTH) / 2f).toDp() }
+    val totalHeight = with(LocalDensity.current) { (maxHeight - VERTICAL_PADDING * 2).toDp() }
 
     state.sightMarks.forEach { sightMark ->
         val distanceUnit = stringResource(
@@ -143,8 +130,8 @@ private fun SightMarkIndicators(
                 "${sightMark.distance}$distanceUnit",
         ).let { if (sightMark.isMetric) it else it.asReversed() }
 
-        val adjustedSightMark = state.getAdjustedSightMark(sightMark)
-        val offset = verticalPadding + majorTickYGap * (adjustedSightMark - 0.5f)
+        val adjustedSightMark = state.getSightMarkAsPercentage(sightMark)
+        val offset = totalHeight * adjustedSightMark + verticalPadding
         Box(
                 contentAlignment = if (sightMark.isMetric) Alignment.CenterStart else Alignment.CenterEnd,
                 modifier = Modifier
