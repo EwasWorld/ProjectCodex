@@ -6,24 +6,23 @@ data class SightMarksState(
         val sightMarks: List<SightMark> = listOf(),
         val isHighestNumberAtTheTop: Boolean = true,
 ) {
-    val highestSightMark = sightMarks.maxOf { it.sightMark }
-    val lowestSightMark = sightMarks.minOf { it.sightMark }
+    private val highestSightMark = sightMarks.maxOf { it.sightMark }
+    private val lowestSightMark = sightMarks.minOf { it.sightMark }
+    private val majorTickDifferenceLog10 =
+            (if (highestSightMark == lowestSightMark) highestSightMark else (highestSightMark - lowestSightMark)).let { difference ->
+                floor(log10(abs(difference))).roundToInt()
+            }
 
-    val majorTickDifference =
-            (if (highestSightMark == lowestSightMark) highestSightMark else abs(highestSightMark - lowestSightMark))
-                    .let { difference ->
-                        10f.pow(
-                                log10(difference).let { if (it > 0) ceil(it) - 1 else floor(it) }
-                        )
-                    }
-    val maxMajorTick =
-            (ceil(highestSightMark / majorTickDifference) * majorTickDifference)
-                    .let { if (highestSightMark == lowestSightMark) it + majorTickDifference * 2 else it }
-    val minMajorTick =
-            (floor(lowestSightMark / majorTickDifference) * majorTickDifference)
-                    .let { if (highestSightMark == lowestSightMark) it - majorTickDifference * 2 else it }
-
+    val majorTickDifference = 10f.pow(majorTickDifferenceLog10)
+    val maxMajorTick = roundMajorDiff(highestSightMark, ::ceil).addMajorTick(2)
+    val minMajorTick = roundMajorDiff(lowestSightMark, ::floor).addMajorTick(-2)
     val totalMajorTicks = ((maxMajorTick - minMajorTick) / majorTickDifference).toInt()
+
+    private fun Float.addMajorTick(n: Int) =
+            if (highestSightMark == lowestSightMark) this + majorTickDifference * n else this
+
+    private fun roundMajorDiff(value: Float, roundingFunction: (Float) -> Float) =
+            (roundingFunction(value / majorTickDifference) * majorTickDifference)
 
     /**
      * Adjusts [SightMark.sightMark] to a vertical offset accounting for [minMajorTick] being non-zero
@@ -36,4 +35,8 @@ data class SightMarksState(
     fun getMajorTickLabel(index: Int) =
             if (isHighestNumberAtTheTop) maxMajorTick - (index * majorTickDifference)
             else maxMajorTick + (index * majorTickDifference)
+
+    fun formatTickLabel(label: Float) =
+            if (majorTickDifferenceLog10 < 0) "%.${abs(majorTickDifferenceLog10)}f".format(label)
+            else roundMajorDiff(label, ::round).roundToInt().toString()
 }

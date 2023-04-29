@@ -19,10 +19,10 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-private const val yPaddingAroundTickLabel = 20
-private const val xPaddingAroundTickLabel = 50
-private const val halfTickPercentageWidth = 0.55f
-private const val minorTickPercentageWidth = 0.3f
+private const val TICK_LABEL_Y_PADDING = 20
+private const val TICK_LABEL_X_PADDING = 50
+private const val HALF_TICK_PERCENTAGE_WIDTH = 0.5f
+private const val MINOR_TICK_PERCENTAGE_WIDTH = 0.3f
 
 /**
  * Draw a sight tape whose height and width are based on the text size of the labels ([CodexTypography.NORMAL])
@@ -38,7 +38,7 @@ fun SightMarksV2TapeAndTicks(
                 majorTicks.forEach {
                     Text(
                             // 1 significant figure
-                            text = "%.1g".format(it),
+                            text = state.formatTickLabel(it),
                             style = CodexTypography.NORMAL,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -59,17 +59,17 @@ fun SightMarksV2TapeAndTicks(
         fun getNext(n: Int) = measurables.subList(current, current + n).apply { current += n }
 
         val labelPlaceables = getNext(majorTicks.size).map { it.measure(constraints) }
-        val tapeWidth = labelPlaceables.maxOf { it.width } + xPaddingAroundTickLabel
+        val tapeWidth = labelPlaceables.maxOf { it.width } + TICK_LABEL_X_PADDING
         val majorTickPlaceables = getNext(majorTicks.size)
                 .map { it.measure(Constraints.fixedWidth(tapeWidth)) }
         val halfTickPlaceables = getNext(majorTicks.size - 1)
-                .map { it.measure(Constraints.fixedWidth((tapeWidth * halfTickPercentageWidth).roundToInt())) }
+                .map { it.measure(Constraints.fixedWidth((tapeWidth * HALF_TICK_PERCENTAGE_WIDTH).roundToInt())) }
         val minorTickPlaceables = getNext((majorTicks.size - 1) * 8)
-                .map { it.measure(Constraints.fixedWidth((tapeWidth * minorTickPercentageWidth).roundToInt())) }
+                .map { it.measure(Constraints.fixedWidth((tapeWidth * MINOR_TICK_PERCENTAGE_WIDTH).roundToInt())) }
 
         val maxLabelHeight = labelPlaceables.maxOf { it.height }
         // Ensure it won't cover the minor tick above/below
-        val labelVerticalPadding = max(yPaddingAroundTickLabel, minorTickPlaceables.first().height)
+        val labelVerticalPadding = max(TICK_LABEL_Y_PADDING, minorTickPlaceables.first().height)
         val yCentreOfFirstLabel = labelPlaceables.first().height / 2
         // The labels sit on a tick and must be contained within the minor ticks above and below
         // Label therefore takes up 2 * minorTickGap. MajorTickGap = 10 * minorTickGap. Hence labelHeight * 5
@@ -108,8 +108,8 @@ fun SightMarksV2_Preview() {
     SightMarksV2TapeAndTicks(
             SightMarksState(
                     sightMarks = listOf(
-                            SightMark(30, true, Calendar.getInstance(), 0.315f),
-                            SightMark(50, false, Calendar.getInstance(), 0.0f),
+                            SightMark(30, true, Calendar.getInstance(), 3.15f),
+                            SightMark(50, false, Calendar.getInstance(), 2f),
                     ),
             ),
     )
