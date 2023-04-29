@@ -48,6 +48,8 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
                                         findNavController().navigate(actionMainMenuFragmentToViewScoresFragment())
                                     is HandicapTablesClicked ->
                                         findNavController().navigate(actionMainMenuFragmentToHandicapTablesFragment())
+                                    is SightMarksClicked ->
+                                        findNavController().navigate(actionMainMenuFragmentToSightMarksFragment())
                                     is SettingsClicked ->
                                         findNavController().navigate(actionMainMenuFragmentToSettingsFragment())
                                     is AboutClicked ->

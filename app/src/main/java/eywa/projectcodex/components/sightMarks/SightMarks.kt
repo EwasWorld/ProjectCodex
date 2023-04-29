@@ -2,7 +2,11 @@ package eywa.projectcodex.components.sightMarks
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +16,8 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,6 +25,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import java.util.*
 import kotlin.math.abs
@@ -28,7 +35,6 @@ import kotlin.math.roundToInt
 
 /*
  * TODO & IDEAS
- * Small screen -> only one side of the tape
  * Help labels
  */
 
@@ -40,6 +46,7 @@ fun SightMarks(
         state: SightMarksState,
 ) {
     val tapePadding = 10
+    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
 
     Layout(
             content = {
@@ -47,9 +54,14 @@ fun SightMarks(
                 state.sightMarks.forEach { SightMarkIndicator(it) }
             },
             modifier = Modifier
+                    .background(CodexTheme.colors.appBackground)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .horizontalScroll(rememberScrollState())
     ) { measurables, constraints ->
-        val tapePlaceable = measurables.first().measure(constraints)
-        val indicatorPlaceables = measurables.drop(1).map { it.measure(constraints) }
+        val tapePlaceable = measurables.first().measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val indicatorPlaceables = measurables.drop(1)
+                .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
 
         val start = tapePlaceable[START_ALIGNMENT_LINE]
                 .takeIf { it != AlignmentLine.Unspecified } ?: 0
@@ -57,16 +69,34 @@ fun SightMarks(
                 .takeIf { it != AlignmentLine.Unspecified } ?: tapePlaceable.height
         val diff = end - start
 
-        val (leftRaw, rightRaw) = state.sightMarks
+        var (leftRaw, rightRaw) = state.sightMarks
                 .zip(indicatorPlaceables)
                 .map { (s, p) -> SightMarkIndicatorGroup(s, p, state, diff) }
                 .partition { it.indicators.first().isLeft() }
+
+        fun List<SightMarkIndicatorGroup>.getMaxWidth() = takeIf { it.isNotEmpty() }?.maxOf { it.maxWidth } ?: 0
+
+        var tapeOffset = 0
+        var rightIndicatorOffset = 0
+        var totalWidth = 0
+
+        fun calculateWidths() {
+            tapeOffset = leftRaw.getMaxWidth() + tapePadding
+            rightIndicatorOffset = tapeOffset + tapePlaceable.width + tapePadding
+            totalWidth = rightIndicatorOffset + rightRaw.getMaxWidth()
+        }
+
+        calculateWidths()
+
+        // If screen is too small for display on both sides, move all items to the right
+        if (totalWidth * 0.8f > screenWidth) {
+            rightRaw = leftRaw.plus(rightRaw)
+            leftRaw = emptyList()
+            calculateWidths()
+        }
+
         val left = leftRaw.sortedBy { it.topOffset }.resolve()
         val right = rightRaw.sortedBy { it.topOffset }.resolve()
-
-        val tapeOffset = left.maxOf { it.maxWidth } + tapePadding
-        val rightIndicatorOffset = tapeOffset + tapePlaceable.width + tapePadding
-        val totalWidth = rightIndicatorOffset + right.maxOf { it.maxWidth }
 
         layout(totalWidth, tapePlaceable.height) {
             tapePlaceable.place(x = tapeOffset, y = 0)
@@ -88,6 +118,7 @@ fun SightMarks(
 }
 
 private tailrec fun List<SightMarkIndicatorGroup>.resolve(): List<SightMarkIndicatorGroup> {
+    if (size < 2) return this
     val (i, overlappingGroups) = zipWithNext().withIndex()
             .find { (_, pair) -> pair.first.isOverlapping(pair.second) }
             ?: return this
@@ -156,7 +187,8 @@ private fun SightTape(
         var current = 0
         fun getNext(n: Int) = measurables.subList(current, current + n).apply { current += n }
 
-        val labelPlaceables = getNext(majorTicks.size).map { it.measure(constraints) }
+        val labelPlaceables = getNext(majorTicks.size)
+                .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
         val tapeWidth = labelPlaceables.maxOf { it.width } + tickLabelXPadding
         val majorTickPlaceables = getNext(majorTicks.size)
                 .map { it.measure(Constraints.fixedWidth(tapeWidth)) }
@@ -207,6 +239,25 @@ private fun SightTape(
 )
 @Composable
 fun SightMarks_Preview() {
+    SightMarks(
+            SightMarksState(
+                    sightMarks = listOf(
+                            SightMark(10, true, Calendar.getInstance(), 3.25f),
+                            SightMark(20, true, Calendar.getInstance(), 3.2f),
+                            SightMark(30, true, Calendar.getInstance(), 3.15f),
+                            SightMark(50, false, Calendar.getInstance(), 2f),
+                    ),
+            ),
+    )
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        widthDp = 200,
+)
+@Composable
+fun SmallScreen_SightMarks_Preview() {
     SightMarks(
             SightMarksState(
                     sightMarks = listOf(

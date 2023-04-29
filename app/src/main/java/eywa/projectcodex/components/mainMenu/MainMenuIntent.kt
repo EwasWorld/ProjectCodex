@@ -9,6 +9,7 @@ sealed class MainMenuIntent {
     object StartNewScoreClicked : MainMenuIntent()
     object ViewScoresClicked : MainMenuIntent()
     object HandicapTablesClicked : MainMenuIntent()
+    object SightMarksClicked : MainMenuIntent()
     object SettingsClicked : MainMenuIntent()
     object AboutClicked : MainMenuIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : MainMenuIntent()

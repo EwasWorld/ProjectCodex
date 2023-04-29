@@ -52,6 +52,14 @@ class MainMenuScreen : ActionBarHelp {
         helpListener(
                 HelpShowcaseIntent.Add(
                         HelpShowcaseItem(
+                                R.string.help_main_menu__sight_marks_title,
+                                R.string.help_main_menu__sight_marks_body
+                        ),
+                )
+        )
+        helpListener(
+                HelpShowcaseIntent.Add(
+                        HelpShowcaseItem(
                                 R.string.help_main_menu__settings_title,
                                 R.string.help_main_menu__settings_body
                         ),
@@ -109,6 +117,14 @@ class MainMenuScreen : ActionBarHelp {
                     modifier = Modifier
                             .updateHelpDialogPosition(helpListener, R.string.help_main_menu__handicap_tables_title)
                             .testTag(TestTag.HANDICAP_TABLES)
+            )
+            CodexButton(
+                    text = stringResource(id = R.string.main_menu__sight_marks),
+                    buttonStyle = CodexButtonDefaults.DefaultButton(),
+                    onClick = { listener(SightMarksClicked) },
+                    modifier = Modifier
+                            .updateHelpDialogPosition(helpListener, R.string.help_main_menu__sight_marks_title)
+                            .testTag(TestTag.SIGHT_MARKS)
             )
 
             Row(
@@ -174,6 +190,7 @@ class MainMenuScreen : ActionBarHelp {
         const val NEW_SCORE = "${PREFIX}NEW_SCORE_BUTTON"
         const val VIEW_SCORES = "${PREFIX}VIEW_SCORE_BUTTON"
         const val HANDICAP_TABLES = "${PREFIX}HANDICAP_TABLES_BUTTON"
+        const val SIGHT_MARKS = "${PREFIX}SIGHT_MARKS_BUTTON"
         const val SETTINGS = "${PREFIX}SETTINGS_BUTTON"
         const val ABOUT = "${PREFIX}ABOUT_BUTTON"
     }
