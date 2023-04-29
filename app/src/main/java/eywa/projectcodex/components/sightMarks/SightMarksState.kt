@@ -29,7 +29,7 @@ data class SightMarksState(
      * and [isHighestNumberAtTheTop]
      */
     fun getSightMarkAsPercentage(sightMark: SightMark) =
-            (((sightMark.sightMark - minMajorTick) + (majorTickDifference / 2f)) / (maxMajorTick - minMajorTick))
+            ((sightMark.sightMark - minMajorTick) / (maxMajorTick - minMajorTick))
                     .let { if (isHighestNumberAtTheTop) 1 - it else it }
 
     fun getMajorTickLabel(index: Int) =
