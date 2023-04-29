@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.sightMarks
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
@@ -20,6 +21,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -49,26 +51,33 @@ fun SightMarks(
         val tapePlaceable = measurables.first().measure(constraints)
         val indicatorPlaceables = measurables.drop(1).map { it.measure(constraints) }
 
-        val (left, right) = state.sightMarks.zip(indicatorPlaceables).partition { !it.first.isMetric }
-        val tapeOffset = left.maxOf { it.second.width } + tapePadding
-        val rightIndicatorOffset = tapeOffset + tapePlaceable.width + tapePadding
-        val totalWidth = rightIndicatorOffset + right.maxOf { it.second.width }
-
         val start = tapePlaceable[START_ALIGNMENT_LINE]
                 .takeIf { it != AlignmentLine.Unspecified } ?: 0
         val end = tapePlaceable[END_ALIGNMENT_LINE]
                 .takeIf { it != AlignmentLine.Unspecified } ?: tapePlaceable.height
         val diff = end - start
 
+        val (leftRaw, rightRaw) = state.sightMarks
+                .zip(indicatorPlaceables)
+                .map { (s, p) -> SightMarkIndicatorGroup(s, p, state, diff) }
+                .partition { it.indicators.first().isLeft() }
+        val left = leftRaw.sortedBy { it.topOffset }.resolve()
+        val right = rightRaw.sortedBy { it.topOffset }.resolve()
+
+        val tapeOffset = left.maxOf { it.maxWidth } + tapePadding
+        val rightIndicatorOffset = tapeOffset + tapePlaceable.width + tapePadding
+        val totalWidth = rightIndicatorOffset + right.maxOf { it.maxWidth }
+
         layout(totalWidth, tapePlaceable.height) {
             tapePlaceable.place(x = tapeOffset, y = 0)
 
-            fun List<Pair<SightMark, Placeable>>.place(x: Int) {
-                forEach { (sight, placeable) ->
-                    placeable.place(
-                            x,
-                            start + (state.getSightMarkAsPercentage(sight) * diff).roundToInt() - placeable.height / 2
-                    )
+            fun List<SightMarkIndicatorGroup>.place(x: Int) {
+                forEach { group ->
+                    var offset = group.topOffset
+                    group.indicators.forEach {
+                        it.place(this@layout, x = x, y = start + offset)
+                        offset += it.height
+                    }
                 }
             }
 
@@ -76,6 +85,14 @@ fun SightMarks(
             right.place(rightIndicatorOffset)
         }
     }
+}
+
+private tailrec fun List<SightMarkIndicatorGroup>.resolve(): List<SightMarkIndicatorGroup> {
+    val (i, overlappingGroups) = zipWithNext().withIndex()
+            .find { (_, pair) -> pair.first.isOverlapping(pair.second) }
+            ?: return this
+    val newGroup = overlappingGroups.first.mergeWith(overlappingGroups.second)
+    return take(i).plus(newGroup).plus(drop(i + 2)).resolve()
 }
 
 @Composable
@@ -193,6 +210,8 @@ fun SightMarks_Preview() {
     SightMarks(
             SightMarksState(
                     sightMarks = listOf(
+                            SightMark(10, true, Calendar.getInstance(), 3.25f),
+                            SightMark(20, true, Calendar.getInstance(), 3.2f),
                             SightMark(30, true, Calendar.getInstance(), 3.15f),
                             SightMark(50, false, Calendar.getInstance(), 2f),
                     ),
@@ -214,4 +233,56 @@ fun Tape_SightMarks_Preview() {
                     ),
             ),
     )
+}
+
+interface SightMarkIndicator {
+    val width: Int
+    val height: Int
+    fun isLeft(): Boolean
+    fun place(scope: Placeable.PlacementScope, x: Int, y: Int)
+}
+
+data class SightMarkIndicatorImpl(
+        val sightMark: SightMark,
+        val placeable: Placeable,
+) : SightMarkIndicator {
+    override val width: Int = placeable.width
+    override val height: Int = placeable.height
+    override fun place(scope: Placeable.PlacementScope, x: Int, y: Int) = with(scope) { placeable.place(x, y) }
+    override fun isLeft() = !sightMark.isMetric
+}
+
+class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
+        val indicators: List<SightMarkIndicator>,
+        val topOffset: Int
+) {
+    constructor(
+            sightMark: SightMark,
+            placeable: Placeable,
+            state: SightMarksState,
+            totalHeight: Int
+    ) : this(
+            indicators = listOf<SightMarkIndicator>(SightMarkIndicatorImpl(sightMark, placeable)),
+            topOffset = (state.getSightMarkAsPercentage(sightMark) * (totalHeight - placeable.height / 2f)).roundToInt(),
+    )
+
+    private val height: Int = indicators.sumOf { it.height }
+    private val bottomOffset = topOffset + height
+    val maxWidth = indicators.maxOf { it.width }
+
+    fun isOverlapping(group: SightMarkIndicatorGroup): Boolean {
+        val exclusiveRange = (topOffset + 1) until bottomOffset
+        return group.bottomOffset in exclusiveRange || group.topOffset in exclusiveRange
+    }
+
+    fun mergeWith(group: SightMarkIndicatorGroup): SightMarkIndicatorGroup {
+        val top = if (topOffset < group.topOffset) this else group
+        val bottom = if (topOffset < group.topOffset) group else this
+
+        val overlapAmount = abs(top.bottomOffset - bottom.topOffset)
+        return SightMarkIndicatorGroup(
+                indicators = top.indicators.plus(bottom.indicators),
+                topOffset = top.topOffset - overlapAmount / 2,
+        )
+    }
 }

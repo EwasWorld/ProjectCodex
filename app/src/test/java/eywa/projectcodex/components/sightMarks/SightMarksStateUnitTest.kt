@@ -1,12 +1,13 @@
 package eywa.projectcodex.components.sightMarks
 
-import org.junit.Assert.assertEquals
+import androidx.compose.ui.layout.Placeable
+import org.junit.Assert.*
 import org.junit.Test
 import java.util.*
 
 class SightMarksStateUnitTest {
     @Test
-    fun testGetSightMarkAsPercentage() {
+    fun testState_GetSightMarkAsPercentage() {
         val sights = listOf(
                 SightMark(30, true, Calendar.getInstance(), 5f),
                 SightMark(30, true, Calendar.getInstance(), 4.5f),
@@ -23,7 +24,7 @@ class SightMarksStateUnitTest {
     }
 
     @Test
-    fun testFormatString() {
+    fun testState_FormatString() {
         listOf(
                 FormatStringParams(366.2399f, 100f, "400"),
                 FormatStringParams(366.2399f, 10f, "370"),
@@ -41,9 +42,63 @@ class SightMarksStateUnitTest {
         }
     }
 
+    @Test
+    fun testIndicatorGroup_isOverlapping() {
+        val groupAt0 = createIndicatorGroup(0)
+        val groupAt50 = createIndicatorGroup(50)
+        val groupAt99 = createIndicatorGroup(99)
+        val groupAt100 = createIndicatorGroup(100)
+        val groupAt101 = createIndicatorGroup(101)
+        val groupAt200 = createIndicatorGroup(200)
+
+        // Overlapping
+        assertTrue(groupAt0.isOverlapping(groupAt50))
+        assertTrue(groupAt50.isOverlapping(groupAt0))
+        assertTrue(groupAt0.isOverlapping(groupAt99))
+        assertTrue(groupAt99.isOverlapping(groupAt0))
+        assertTrue(groupAt100.isOverlapping(groupAt101))
+        assertTrue(groupAt101.isOverlapping(groupAt100))
+
+        // Not touching or overlapping
+        assertFalse(groupAt0.isOverlapping(groupAt200))
+        assertFalse(groupAt200.isOverlapping(groupAt0))
+
+        // Touching
+        assertFalse(groupAt0.isOverlapping(groupAt100))
+        assertFalse(groupAt100.isOverlapping(groupAt0))
+        assertFalse(groupAt100.isOverlapping(groupAt200))
+        assertFalse(groupAt200.isOverlapping(groupAt100))
+    }
+
+    @Test
+    fun testIndicatorGroup_merge() {
+        val top = createIndicatorGroup(0)
+        val bottom = createIndicatorGroup(60)
+
+        val expected = SightMarkIndicatorGroup(listOf(top.indicators.first(), bottom.indicators.first()), -20)
+
+        fun check(expected: SightMarkIndicatorGroup, actual: SightMarkIndicatorGroup) {
+            assertEquals(expected.indicators, actual.indicators)
+            assertEquals(expected.topOffset, actual.topOffset)
+        }
+
+        check(expected, top.mergeWith(bottom))
+        check(expected, bottom.mergeWith(top))
+    }
+
+    private fun createIndicatorGroup(topOffset: Int, n: Int = 1) =
+            SightMarkIndicatorGroup(List(n) { FakeSightMarkIndicator() }, topOffset)
+
     data class FormatStringParams(
             val value: Float,
             val majorTickDifference: Float,
             val expected: String,
     )
+
+    class FakeSightMarkIndicator : SightMarkIndicator {
+        override val height: Int = 100
+        override val width: Int = 0
+        override fun isLeft(): Boolean = false
+        override fun place(scope: Placeable.PlacementScope, x: Int, y: Int) {}
+    }
 }
