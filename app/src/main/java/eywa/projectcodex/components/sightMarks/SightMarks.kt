@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +39,8 @@ import kotlin.math.roundToInt
 
 /*
  * TODO & IDEAS
- * Help labels
+ *  Overlapping sight marks at the very top/bottom
+ *  Help labels
  */
 
 private val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
@@ -45,13 +50,20 @@ private val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 fun SightMarks(
         state: SightMarksState,
 ) {
-    val tapePadding = 10
+    val tapePadding = 0
     val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val totalSightMarks = state.sightMarks.size
 
     Layout(
             content = {
                 SightTape(state = state)
                 state.sightMarks.forEach { SightMarkIndicator(it) }
+                repeat(totalSightMarks) { Icon(Icons.Default.ChevronLeft, null) }
+                repeat(totalSightMarks) { Icon(Icons.Default.ChevronRight, null) }
+//                // Horizontal line from chevron & to text
+//                repeat(totalSightMarks * 2) { Divider(color = Color.Black, thickness = 3.dp) }
+//                // Vertical line up
+//                repeat(totalSightMarks) { Divider(color = Color.Black, thickness = 3.dp) }
             },
             modifier = Modifier
                     .background(CodexTheme.colors.appBackground)
@@ -59,9 +71,20 @@ fun SightMarks(
                     .verticalScroll(rememberScrollState())
                     .horizontalScroll(rememberScrollState())
     ) { measurables, constraints ->
+        var current = 1
+        fun getNext(n: Int) = measurables.subList(current, current + n).apply { current += n }
+
         val tapePlaceable = measurables.first().measure(constraints.copy(minWidth = 0, minHeight = 0))
-        val indicatorPlaceables = measurables.drop(1)
+        val indicatorPlaceables = getNext(totalSightMarks)
                 .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+        val rightChevronPlaceables = getNext(totalSightMarks)
+                .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+        val leftChevronPlaceables = getNext(totalSightMarks)
+                .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+//        val horizontalLines = getNext(totalSightMarks * 2)
+//                .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+//        val verticalLines = getNext(totalSightMarks)
+//                .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
 
         val start = tapePlaceable[START_ALIGNMENT_LINE]
                 .takeIf { it != AlignmentLine.Unspecified } ?: 0
@@ -71,19 +94,28 @@ fun SightMarks(
 
         var (leftRaw, rightRaw) = state.sightMarks
                 .zip(indicatorPlaceables)
-                .map { (s, p) -> SightMarkIndicatorGroup(s, p, state, diff) }
+                .map { (s, p) ->
+                    SightMarkIndicatorGroup(
+                            SightMarkIndicatorImpl(
+                                    sightMark = s,
+                                    placeable = p,
+                                    originalCentreOffset = state.getSightMarkAsPercentage(s) * diff,
+                            )
+                    )
+                }
                 .partition { it.indicators.first().isLeft() }
 
-        fun List<SightMarkIndicatorGroup>.getMaxWidth() = takeIf { it.isNotEmpty() }?.maxOf { it.maxWidth } ?: 0
+        fun List<SightMarkIndicatorGroup>.getMaxWidth(chevron: Placeable) =
+                takeIf { it.isNotEmpty() }?.maxOf { it.maxWidth }?.plus(chevron.width) ?: 0
 
         var tapeOffset = 0
         var rightIndicatorOffset = 0
         var totalWidth = 0
 
         fun calculateWidths() {
-            tapeOffset = leftRaw.getMaxWidth() + tapePadding
+            tapeOffset = leftRaw.getMaxWidth(leftChevronPlaceables.first()) + tapePadding
             rightIndicatorOffset = tapeOffset + tapePlaceable.width + tapePadding
-            totalWidth = rightIndicatorOffset + rightRaw.getMaxWidth()
+            totalWidth = rightIndicatorOffset + rightRaw.getMaxWidth(rightChevronPlaceables.first())
         }
 
         calculateWidths()
@@ -101,18 +133,31 @@ fun SightMarks(
         layout(totalWidth, tapePlaceable.height) {
             tapePlaceable.place(x = tapeOffset, y = 0)
 
-            fun List<SightMarkIndicatorGroup>.place(x: Int) {
+            var leftIndex = 0
+            var rightIndex = 0
+            fun List<SightMarkIndicatorGroup>.place(isLeft: Boolean) {
+                val x = if (isLeft) 0 else rightIndicatorOffset
+
                 forEach { group ->
-                    var offset = group.topOffset
-                    group.indicators.forEach {
-                        it.place(this@layout, x = x, y = start + offset)
-                        offset += it.height
+                    var textOffset = group.topOffset
+                    group.indicators.forEach { indicator ->
+                        val chevron =
+                                if (isLeft) leftChevronPlaceables[leftIndex++]
+                                else rightChevronPlaceables[rightIndex++]
+                        chevron.place(
+                                x = x + (if (isLeft) indicator.width else 0),
+                                y = (start + indicator.originalCentreOffset - chevron.height / 2f).roundToInt(),
+                        )
+
+                        val chevronOffsetOnText = chevron.width * if (isLeft) 0 else 1
+                        indicator.place(this@layout, x = x + chevronOffsetOnText, y = start + textOffset)
+                        textOffset += indicator.height
                     }
                 }
             }
 
-            left.place(0)
-            right.place(rightIndicatorOffset)
+            left.place(true)
+            right.place(false)
         }
     }
 }
@@ -134,7 +179,6 @@ private fun SightMarkIndicator(
             if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
     )
     val text = listOf(
-            if (sightMark.isMetric) "<-" else "->",
             sightMark.sightMark.toString(),
             "-",
             "${sightMark.distance}$distanceUnit",
@@ -289,6 +333,7 @@ fun Tape_SightMarks_Preview() {
 interface SightMarkIndicator {
     val width: Int
     val height: Int
+    val originalCentreOffset: Float
     fun isLeft(): Boolean
     fun place(scope: Placeable.PlacementScope, x: Int, y: Int)
 }
@@ -296,6 +341,7 @@ interface SightMarkIndicator {
 data class SightMarkIndicatorImpl(
         val sightMark: SightMark,
         val placeable: Placeable,
+        override val originalCentreOffset: Float,
 ) : SightMarkIndicator {
     override val width: Int = placeable.width
     override val height: Int = placeable.height
@@ -307,14 +353,9 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
         val indicators: List<SightMarkIndicator>,
         val topOffset: Int
 ) {
-    constructor(
-            sightMark: SightMark,
-            placeable: Placeable,
-            state: SightMarksState,
-            totalHeight: Int
-    ) : this(
-            indicators = listOf<SightMarkIndicator>(SightMarkIndicatorImpl(sightMark, placeable)),
-            topOffset = (state.getSightMarkAsPercentage(sightMark) * (totalHeight - placeable.height / 2f)).roundToInt(),
+    constructor(indicator: SightMarkIndicator) : this(
+            indicators = listOf<SightMarkIndicator>(indicator),
+            topOffset = (indicator.originalCentreOffset - indicator.height / 2f).roundToInt(),
     )
 
     private val height: Int = indicators.sumOf { it.height }
