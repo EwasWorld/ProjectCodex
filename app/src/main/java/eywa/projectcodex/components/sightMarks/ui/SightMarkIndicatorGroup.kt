@@ -54,6 +54,8 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
         )
     }
 
+    fun breakApart() = indicators.map { SightMarkIndicatorGroup(it) }
+
     /**
      * First and last indicators have an indent level of 0,
      * second and penultimate have an indent level of 1,
