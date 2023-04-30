@@ -1,10 +1,8 @@
-package eywa.projectcodex.components.sightMarks
+package eywa.projectcodex.components.sightMarks.ui
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,8 +30,13 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.components.sightMarks.SightMark
+import eywa.projectcodex.components.sightMarks.SightMarksState
 import java.util.*
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 
 /*
@@ -42,8 +45,8 @@ import kotlin.math.*
  *  Help labels
  */
 
-private val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
-private val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
+internal val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
+internal val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 
 @Composable
 fun SightMarks(
@@ -230,15 +233,6 @@ fun SightMarks(
     }
 }
 
-private tailrec fun List<SightMarkIndicatorGroup>.resolve(): List<SightMarkIndicatorGroup> {
-    if (size < 2) return this
-    val (i, overlappingGroups) = zipWithNext().withIndex()
-            .find { (_, pair) -> pair.first.isOverlapping(pair.second) }
-            ?: return this
-    val newGroup = overlappingGroups.first.mergeWith(overlappingGroups.second)
-    return take(i).plus(newGroup).plus(drop(i + 2)).resolve()
-}
-
 @Composable
 private fun SightMarkIndicator(
         sightMark: SightMark,
@@ -260,89 +254,14 @@ private fun SightMarkIndicator(
     )
 }
 
-/**
- * Draw a sight tape whose height and width are based on the text size of the labels ([CodexTypography.NORMAL])
- */
-@Composable
-private fun SightTape(
-        state: SightMarksState,
-) {
-    val tickLabelYPadding = 20
-    val tickLabelXPadding = 50
-    val halfTickPercentageWidth = 0.5f
-    val minorTickPercentageWidth = 0.3f
-
-    val majorTicks = List(state.totalMajorTicks + 1) { state.getMajorTickLabel(it) }
-    Layout(
-            content = {
-                // Labels
-                majorTicks.forEach {
-                    Text(
-                            // 1 significant figure
-                            text = state.formatTickLabel(it),
-                            style = CodexTypography.NORMAL,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                    .background(Color.White)
-                                    .padding(horizontal = 2.dp)
-                    )
-                }
-                // Major tick lines
-                repeat(majorTicks.size) { Divider(color = Color.Black, thickness = 3.dp) }
-                // Half tick lines
-                repeat(majorTicks.size - 1) { Divider(color = Color.Black, thickness = 2.dp) }
-                // Half tick lines
-                repeat((majorTicks.size - 1) * 8) { Divider(color = Color.Black, thickness = 1.dp) }
-            },
-            modifier = Modifier.background(Color.White)
-    ) { measurables, constraints ->
-        var current = 0
-        fun getNext(n: Int) = measurables.subList(current, current + n).apply { current += n }
-
-        val labelPlaceables = getNext(majorTicks.size)
-                .map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
-        val tapeWidth = labelPlaceables.maxOf { it.width } + tickLabelXPadding
-        val majorTickPlaceables = getNext(majorTicks.size)
-                .map { it.measure(Constraints.fixedWidth(tapeWidth)) }
-        val halfTickPlaceables = getNext(majorTicks.size - 1)
-                .map { it.measure(Constraints.fixedWidth((tapeWidth * halfTickPercentageWidth).roundToInt())) }
-        val minorTickPlaceables = getNext((majorTicks.size - 1) * 8)
-                .map { it.measure(Constraints.fixedWidth((tapeWidth * minorTickPercentageWidth).roundToInt())) }
-
-        val maxLabelHeight = labelPlaceables.maxOf { it.height }
-        // Ensure it won't cover the minor tick above/below
-        val labelVerticalPadding = max(tickLabelYPadding, minorTickPlaceables.first().height)
-        val yCentreOfFirstLabel = labelPlaceables.first().height / 2
-        // The labels sit on a tick and must be contained within the minor ticks above and below
-        // Label therefore takes up 2 * minorTickGap. MajorTickGap = 10 * minorTickGap. Hence labelHeight * 5
-        val heightPerMajor = (maxLabelHeight + labelVerticalPadding) * 5
-        val totalHeight = heightPerMajor * state.totalMajorTicks + yCentreOfFirstLabel +
-                labelPlaceables.last().height / 2
-        val alignmentLines = mapOf<AlignmentLine, Int>(
-                START_ALIGNMENT_LINE to yCentreOfFirstLabel,
-                END_ALIGNMENT_LINE to yCentreOfFirstLabel + heightPerMajor * state.totalMajorTicks,
-        )
-        layout(tapeWidth, totalHeight, alignmentLines) {
-            fun List<Placeable>.place(indexModifier: (Int) -> Float) {
-                forEachIndexed { index, placeable ->
-                    placeable.place(
-                            x = (tapeWidth - placeable.width) / 2,
-                            y = yCentreOfFirstLabel - (placeable.height / 2) +
-                                    (indexModifier(index) * heightPerMajor).roundToInt(),
-                    )
-                }
-            }
-
-            majorTickPlaceables.place { it.toFloat() }
-            halfTickPlaceables.place { it + 0.5f }
-            labelPlaceables.place { it.toFloat() }
-            minorTickPlaceables.place { index ->
-                // Skip 0 and 4 (where the major and half tick marks are)
-                val tickNumber = (index % 8 + 1).let { if (it > 4) it + 1 else it }
-                (index / 8) + (tickNumber / 10f)
-            }
-        }
-    }
+data class SightMarkIndicatorImpl(
+        val sightMark: SightMark,
+        override val placeable: Placeable,
+        override val originalCentreOffset: Float,
+) : SightMarkIndicator {
+    override val width: Int = placeable.width
+    override val height: Int = placeable.height
+    override fun isLeft() = !sightMark.isMetric
 }
 
 @Preview(
@@ -387,90 +306,4 @@ fun SmallScreen_SightMarks_Preview() {
                     ),
             ),
     )
-}
-
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
-@Composable
-fun Tape_SightMarks_Preview() {
-    SightTape(
-            SightMarksState(
-                    sightMarks = listOf(
-                            SightMark(30, true, Calendar.getInstance(), 3.15f),
-                            SightMark(50, false, Calendar.getInstance(), 2f),
-                    ),
-            ),
-    )
-}
-
-interface SightMarkIndicator {
-    val width: Int
-    val height: Int
-    val originalCentreOffset: Float
-    val placeable: Placeable
-    fun isLeft(): Boolean
-}
-
-data class SightMarkIndicatorImpl(
-        val sightMark: SightMark,
-        override val placeable: Placeable,
-        override val originalCentreOffset: Float,
-) : SightMarkIndicator {
-    override val width: Int = placeable.width
-    override val height: Int = placeable.height
-    override fun isLeft() = !sightMark.isMetric
-}
-
-class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-        val indicators: List<SightMarkIndicator>,
-        private val centre: Float,
-) {
-    constructor(indicator: SightMarkIndicator) : this(
-            indicators = listOf<SightMarkIndicator>(indicator),
-            centre = indicator.originalCentreOffset,
-    )
-
-    init {
-        require(indicators.isNotEmpty()) { "Indicators cannot be empty" }
-    }
-
-    private val height: Int = indicators.sumOf { it.height }
-    val topOffset: Float = centre - height / 2f
-    val bottomOffset = topOffset + height
-    fun getMaxWidth(indentAmount: Int) = indicators.withIndex()
-            .maxOf { (i, it) -> it.width + getIndentLevel(i) * indentAmount }
-
-    fun isOverlapping(group: SightMarkIndicatorGroup): Boolean {
-        val exclusiveRange = (topOffset.nextUp())..(bottomOffset.nextDown())
-        return group.bottomOffset in exclusiveRange
-                || group.topOffset in exclusiveRange
-                || group.centre in exclusiveRange
-    }
-
-    fun mergeWith(group: SightMarkIndicatorGroup): SightMarkIndicatorGroup {
-        val top = if (topOffset < group.topOffset) this else group
-        val bottom = if (topOffset < group.topOffset) group else this
-
-        val centreDiff = abs(bottom.centre - top.centre)
-        val ratio = bottom.height.toFloat() / (top.height + bottom.height).toFloat()
-
-        return SightMarkIndicatorGroup(
-                indicators = top.indicators.plus(bottom.indicators),
-                centre = top.centre + centreDiff * ratio,
-        )
-    }
-
-    /**
-     * First and last indicators have an indent level of 0,
-     * second and penultimate have an indent level of 1,
-     * etc.
-     */
-    fun getIndentLevel(index: Int): Int {
-        check(index in indicators.indices) { "Index out of bounds" }
-        return min(index, indicators.size - 1 - index)
-    }
-
-    fun maxIndentLevel() = (indicators.size - 1) / 2
 }
