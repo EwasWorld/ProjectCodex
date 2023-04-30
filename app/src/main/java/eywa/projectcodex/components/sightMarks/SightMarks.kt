@@ -38,7 +38,7 @@ import kotlin.math.*
 
 /*
  * TODO & IDEAS
- *  Overlapping sight marks at the very top/bottom
+ *  Fix small screen cutoff
  *  Help labels
  */
 
@@ -49,10 +49,10 @@ private val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 fun SightMarks(
         state: SightMarksState,
 ) {
-    val indicatorPadding = 15
     val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
     val totalSightMarks = state.sightMarks.size
-    val horizontalLineFixedWidth = 20
+    val horizontalLineFixedWidth = 30
+    val indicatorPadding = (horizontalLineFixedWidth * 2 - 25).coerceAtLeast(0)
     val indentAmount = 20
 
     Layout(
@@ -134,8 +134,9 @@ fun SightMarks(
             calculateWidths()
         }
 
+        val both = left.plus(right)
         var verticalIndexM = 0
-        left.plus(right).forEach { group ->
+        both.forEach { group ->
             var textOffset = group.topOffset
             group.indicators.forEachIndexed { index, indicator ->
                 val chevronCentreY = start + indicator.originalCentreOffset
@@ -158,8 +159,12 @@ fun SightMarks(
             }
         }
 
-        layout(totalWidth, tapePlaceable.height) {
-            tapePlaceable.place(x = tapeOffset, y = 0)
+        val topOverhang = abs((both.minOf { it.topOffset } + start).roundToInt()
+                .coerceAtMost(0))
+        val bottomOverhang = (both.maxOf { it.bottomOffset } + start - tapePlaceable.height).roundToInt()
+                .coerceAtLeast(0)
+        layout(totalWidth, tapePlaceable.height + topOverhang + bottomOverhang) {
+            tapePlaceable.place(x = tapeOffset, y = topOverhang)
 
             var leftIndex = 0
             var rightIndex = 0
@@ -175,8 +180,8 @@ fun SightMarks(
                 forEach { group ->
                     var textOffset = group.topOffset
                     group.indicators.forEachIndexed { index, indicator ->
-                        val chevronCentreY = start + indicator.originalCentreOffset
-                        val indicatorTop = start + textOffset
+                        val chevronCentreY = topOverhang + start + indicator.originalCentreOffset
+                        val indicatorTop = topOverhang + start + textOffset
                         val indicatorCentreY = indicatorTop + indicator.height / 2f
                         val indentPaddingTotal = group.getIndentLevel(index) * indentAmount
 
@@ -354,6 +359,9 @@ fun SightMarks_Preview() {
                             SightMark(10, true, Calendar.getInstance(), 3.25f),
                             SightMark(20, true, Calendar.getInstance(), 3.2f),
                             SightMark(30, true, Calendar.getInstance(), 3.15f),
+                            SightMark(50, false, Calendar.getInstance(), 4f),
+                            SightMark(50, false, Calendar.getInstance(), 4f),
+                            SightMark(50, false, Calendar.getInstance(), 2f),
                             SightMark(50, false, Calendar.getInstance(), 2f),
                             SightMark(20, false, Calendar.getInstance(), 2.55f),
                             SightMark(30, false, Calendar.getInstance(), 2.5f),
@@ -430,13 +438,15 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
 
     private val height: Int = indicators.sumOf { it.height }
     val topOffset: Float = centre - height / 2f
-    private val bottomOffset = topOffset + height
+    val bottomOffset = topOffset + height
     fun getMaxWidth(indentAmount: Int) = indicators.withIndex()
             .maxOf { (i, it) -> it.width + getIndentLevel(i) * indentAmount }
 
     fun isOverlapping(group: SightMarkIndicatorGroup): Boolean {
         val exclusiveRange = (topOffset.nextUp())..(bottomOffset.nextDown())
-        return group.bottomOffset in exclusiveRange || group.topOffset in exclusiveRange
+        return group.bottomOffset in exclusiveRange
+                || group.topOffset in exclusiveRange
+                || group.centre in exclusiveRange
     }
 
     fun mergeWith(group: SightMarkIndicatorGroup): SightMarkIndicatorGroup {

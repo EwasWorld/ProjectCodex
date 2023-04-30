@@ -54,6 +54,8 @@ class SightMarksStateUnitTest {
         val groupAt200 = createIndicatorGroup(250f)
 
         // Overlapping
+        assertTrue(groupAt0.isOverlapping(groupAt0))
+        assertTrue(groupAt0.isOverlapping(groupAt0))
         assertTrue(groupAt0.isOverlapping(groupAt50))
         assertTrue(groupAt50.isOverlapping(groupAt0))
         assertTrue(groupAt0.isOverlapping(groupAt99))
