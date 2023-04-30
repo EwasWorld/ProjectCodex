@@ -1,11 +1,6 @@
 package eywa.projectcodex.components.sightMarks.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -16,8 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +18,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.sightMarks.SightMark
 import eywa.projectcodex.components.sightMarks.SightMarksState
@@ -36,10 +28,8 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
-
 /*
  * TODO & IDEAS
- *  Fix small screen cutoff
  *  Help labels
  */
 
@@ -47,14 +37,11 @@ internal val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 internal val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 
 private const val HORIZONTAL_LINE_FIXED_WIDTH = 30
-private val INDICATOR_PADDING = (HORIZONTAL_LINE_FIXED_WIDTH * 2 - 25).coerceAtLeast(0)
+private const val INDICATOR_PADDING = 10
 private const val INDENT_AMOUNT = 20
 
 @Composable
-fun SightMarks(
-        state: SightMarksState,
-) {
-    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+fun SightMarks(state: SightMarksState) {
     val totalSightMarks = state.sightMarks.size
 
     Layout(
@@ -68,11 +55,6 @@ fun SightMarks(
                 // Vertical line up
                 repeat(totalSightMarks) { Divider(color = Color.Black, modifier = Modifier.width(3.dp)) }
             },
-            modifier = Modifier
-                    .background(CodexTheme.colors.appBackground)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .horizontalScroll(rememberScrollState())
     ) { measurables, constraints ->
         /*
          * Separate measurables
@@ -106,7 +88,7 @@ fun SightMarks(
                 leftChevronWidth = leftChevronPlaceables.first().width,
                 rightChevronWidth = rightChevronPlaceables.first().width,
                 tapeWidth = tape.width,
-                singleSideThreshold = screenWidth / 0.8f
+                singleSideThreshold = constraints.maxWidth / 0.9f
         )
         val (horizontalLines, verticalLines) =
                 indicatorPlaceables.measureLines(tape, horizontalMeasurables, verticalMeasurables)
@@ -158,11 +140,10 @@ private fun List<SightMarkIndicatorGroup>.place(
 
     forEach { group ->
         var textOffset = group.topOffset
-        group.indicators.forEachIndexed { index, indicator ->
+        group.indicators.forEach { indicator ->
             val chevronCentreY = tape.topOverhang + tape.start + indicator.originalCentreOffset
             val indicatorTop = tape.topOverhang + tape.start + textOffset
             val indicatorCentreY = indicatorTop + indicator.height / 2f
-            val indentPaddingTotal = group.getIndentLevel(index) * INDENT_AMOUNT
 
             val chevron =
                     if (isLeft) leftChevrons[counters.leftIndex++]
@@ -176,17 +157,18 @@ private fun List<SightMarkIndicatorGroup>.place(
             val horizontal2 = horizontalLines[counters.verticalIndex * 2 + 1]
             val vertical = verticalLines[counters.verticalIndex++]
             val horizontal1Start = chevron.width / 2.3f
+            val horizontal2Start = horizontal1Start + horizontal1.width
             horizontal1.offsetPlace(
                     x = horizontal1Start,
                     y = chevronCentreY - horizontal1.height / 2f,
             )
             horizontal2.offsetPlace(
-                    x = horizontal1Start + horizontal1.width,
+                    x = horizontal2Start,
                     y = indicatorCentreY - horizontal2.height / 2f,
             )
             if (abs(chevronCentreY - indicatorCentreY) > 0.5f) {
                 vertical.offsetPlace(
-                        x = horizontal1Start + horizontal1.width - vertical.width / 2f,
+                        x = horizontal2Start - vertical.width / 2f,
                         y = min(
                                 chevronCentreY - horizontal1.height / 2f,
                                 indicatorCentreY - horizontal2.height / 2f,
@@ -195,7 +177,7 @@ private fun List<SightMarkIndicatorGroup>.place(
             }
 
             indicator.placeable.offsetPlace(
-                    x = 0f + chevron.width + INDICATOR_PADDING + indentPaddingTotal,
+                    x = 0f + horizontal2Start + horizontal2.width + INDICATOR_PADDING,
                     y = indicatorTop
             )
             textOffset += indicator.height
@@ -335,7 +317,10 @@ private class Offsets(
     companion object {
         private fun List<SightMarkIndicatorGroup>.getMaxWidth(chevronWidth: Int): Int {
             if (isEmpty()) return 0
-            return maxOf { it.getMaxWidth(INDENT_AMOUNT) } + INDICATOR_PADDING + chevronWidth
+            return (chevronWidth / 2.3f).roundToInt() +
+                    HORIZONTAL_LINE_FIXED_WIDTH * 2 +
+                    INDICATOR_PADDING +
+                    maxOf { it.getMaxWidth(INDENT_AMOUNT) }
         }
 
         fun getOffsets(
@@ -366,9 +351,7 @@ private data class PlaceCounters(
 )
 
 @Composable
-private fun SightMarkIndicator(
-        sightMark: SightMark,
-) {
+private fun SightMarkIndicator(sightMark: SightMark) {
     val distanceUnit = stringResource(
             if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
     )
