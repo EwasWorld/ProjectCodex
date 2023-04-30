@@ -97,7 +97,11 @@ data class CodexThemeColors(
         val targetFaceGold: Color = CodexColors.TARGET_FACE_GOLD,
         val onTargetFaceGold: Color = Color.Black,
 
-        )
+        val sightMarksTapeBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
+        val sightMarksTicksAndLabels: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val sightMarksIndicator: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val sightMarksMarkedBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
+)
 
 object CodexColors {
     val COLOR_PRIMARY = Color(Raw.COLOR_PRIMARY)

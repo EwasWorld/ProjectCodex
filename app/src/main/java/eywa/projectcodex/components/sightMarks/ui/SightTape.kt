@@ -6,7 +6,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
@@ -15,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.sightMarks.SightMark
 import eywa.projectcodex.components.sightMarks.SightMarksState
@@ -29,6 +29,8 @@ import kotlin.math.roundToInt
 internal fun SightTape(
         state: SightMarksState,
 ) {
+    val tapeColour = CodexTheme.colors.sightMarksTapeBackground
+    val tickColour = CodexTheme.colors.sightMarksTicksAndLabels
     val tickLabelYPadding = 20
     val tickLabelXPadding = 50
     val halfTickPercentageWidth = 0.5f
@@ -42,21 +44,21 @@ internal fun SightTape(
                     Text(
                             // 1 significant figure
                             text = state.formatTickLabel(it),
-                            style = CodexTypography.NORMAL,
+                            style = CodexTypography.NORMAL.copy(color = tickColour),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
-                                    .background(Color.White)
+                                    .background(tapeColour)
                                     .padding(horizontal = 2.dp)
                     )
                 }
                 // Major tick lines
-                repeat(majorTicks.size) { Divider(color = Color.Black, thickness = 3.dp) }
+                repeat(majorTicks.size) { Divider(color = tickColour, thickness = 3.dp) }
                 // Half tick lines
-                repeat(majorTicks.size - 1) { Divider(color = Color.Black, thickness = 2.dp) }
+                repeat(majorTicks.size - 1) { Divider(color = tickColour, thickness = 2.dp) }
                 // Half tick lines
-                repeat((majorTicks.size - 1) * 8) { Divider(color = Color.Black, thickness = 1.dp) }
+                repeat((majorTicks.size - 1) * 8) { Divider(color = tickColour, thickness = 1.dp) }
             },
-            modifier = Modifier.background(Color.White)
+            modifier = Modifier.background(tapeColour)
     ) { measurables, constraints ->
         var current = 0
         fun getNext(n: Int) = measurables.subList(current, current + n).apply { current += n }

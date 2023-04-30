@@ -31,8 +31,13 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
     private val height: Int = indicators.sumOf { it.height }
     val topOffset: Float = centre - height / 2f
     val bottomOffset = topOffset + height
-    fun getMaxWidth(indentAmount: Int) = indicators.withIndex()
-            .maxOf { (i, it) -> it.width + getIndentLevel(i) * indentAmount }
+    fun getMaxWidth(indentAmount: Int, isLeft: Boolean) = indicators.withIndex()
+            .maxOf { (i, it) ->
+                it.width +
+                        getIndentLevel(i) * indentAmount +
+                        it.getChevron(isLeft).width / CHEVRON_WIDTH_MODIFIER +
+                        it.getPadding()
+            }
 
     fun isOverlapping(group: SightMarkIndicatorGroup): Boolean {
         val exclusiveRange = (topOffset.nextUp())..(bottomOffset.nextDown())

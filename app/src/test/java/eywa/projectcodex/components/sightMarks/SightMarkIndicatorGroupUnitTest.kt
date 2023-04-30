@@ -1,10 +1,11 @@
 package eywa.projectcodex.components.sightMarks
 
-import androidx.compose.ui.layout.Placeable
 import eywa.projectcodex.components.sightMarks.ui.SightMarkIndicator
 import eywa.projectcodex.components.sightMarks.ui.SightMarkIndicatorGroup
 import org.junit.Assert.*
 import org.junit.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import kotlin.math.nextDown
 import kotlin.math.nextUp
 
@@ -74,17 +75,18 @@ class SightMarkIndicatorGroupUnitTest {
         checkMaxIndent(2, 6)
     }
 
-    private fun createIndicatorGroup(centreOffset: Float = 0f, n: Int = 1, indicatorHeight: Int = 100) =
-            SightMarkIndicatorGroup(List(n) { FakeSightMarkIndicator(indicatorHeight) }, centreOffset)
+    private fun createIndicatorGroup(
+            centreOffset: Float = 0f,
+            n: Int = 1,
+            indicatorHeight: Int = 100,
+    ) =
+            SightMarkIndicatorGroup(
+                    indicators = List(n) { createMockIndicator(indicatorHeight) },
+                    centre = centreOffset,
+            )
 
-    class FakeSightMarkIndicator(
-            override val height: Int = 100
-    ) : SightMarkIndicator {
-        override val width: Int = 0
-        override fun isLeft(): Boolean = false
-        override val originalCentreOffset: Float
-            get() = throw NotImplementedError()
-        override val placeable: Placeable
-            get() = throw NotImplementedError()
-    }
+    private fun createMockIndicator(indicatorHeight: Int): SightMarkIndicator =
+            mock {
+                on { height } doReturn indicatorHeight
+            }
 }
