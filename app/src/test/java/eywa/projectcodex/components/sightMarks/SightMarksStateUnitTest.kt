@@ -93,7 +93,21 @@ class SightMarksStateUnitTest {
         check(expectedBig, bottomBig.mergeWith(top))
     }
 
-    private fun createIndicatorGroup(centreOffset: Float, n: Int = 1, indicatorHeight: Int = 100) =
+    @Test
+    fun testIndicatorGroup_maxIndent() {
+        fun checkMaxIndent(expected: Int, size: Int) {
+            assertEquals(expected, createIndicatorGroup(n = size).maxIndentLevel())
+        }
+
+        checkMaxIndent(0, 1)
+        checkMaxIndent(0, 2)
+        checkMaxIndent(1, 3)
+        checkMaxIndent(1, 4)
+        checkMaxIndent(2, 5)
+        checkMaxIndent(2, 6)
+    }
+
+    private fun createIndicatorGroup(centreOffset: Float = 0f, n: Int = 1, indicatorHeight: Int = 100) =
             SightMarkIndicatorGroup(List(n) { FakeSightMarkIndicator(indicatorHeight) }, centreOffset)
 
     data class FormatStringParams(
