@@ -4,6 +4,8 @@ import androidx.compose.ui.layout.Placeable
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.*
+import kotlin.math.nextDown
+import kotlin.math.nextUp
 
 class SightMarksStateUnitTest {
     @Test
@@ -18,7 +20,7 @@ class SightMarksStateUnitTest {
         val state = SightMarksState(sightMarks = sights, isHighestNumberAtTheTop = false)
 
         assertEquals(
-                sights.map { 0.25f + (it.sightMark - 3f) / 2f },
+                sights.map { (it.sightMark - 3f) / 2f },
                 sights.map { state.getSightMarkAsPercentage(it) },
         )
     }
@@ -44,12 +46,12 @@ class SightMarksStateUnitTest {
 
     @Test
     fun testIndicatorGroup_isOverlapping() {
-        val groupAt0 = createIndicatorGroup(0)
-        val groupAt50 = createIndicatorGroup(50)
-        val groupAt99 = createIndicatorGroup(99)
-        val groupAt100 = createIndicatorGroup(100)
-        val groupAt101 = createIndicatorGroup(101)
-        val groupAt200 = createIndicatorGroup(200)
+        val groupAt0 = createIndicatorGroup(50f)
+        val groupAt50 = createIndicatorGroup(100f)
+        val groupAt99 = createIndicatorGroup(50f.nextDown().nextDown())
+        val groupAt100 = createIndicatorGroup(150f)
+        val groupAt101 = createIndicatorGroup(50f.nextUp().nextUp())
+        val groupAt200 = createIndicatorGroup(250f)
 
         // Overlapping
         assertTrue(groupAt0.isOverlapping(groupAt50))
@@ -72,22 +74,27 @@ class SightMarksStateUnitTest {
 
     @Test
     fun testIndicatorGroup_merge() {
-        val top = createIndicatorGroup(0)
-        val bottom = createIndicatorGroup(60)
-
-        val expected = SightMarkIndicatorGroup(listOf(top.indicators.first(), bottom.indicators.first()), -20)
+        val top = createIndicatorGroup(50f)
 
         fun check(expected: SightMarkIndicatorGroup, actual: SightMarkIndicatorGroup) {
             assertEquals(expected.indicators, actual.indicators)
             assertEquals(expected.topOffset, actual.topOffset)
         }
 
-        check(expected, top.mergeWith(bottom))
-        check(expected, bottom.mergeWith(top))
+        val bottom = createIndicatorGroup(110f)
+        val expectedStd = SightMarkIndicatorGroup(listOf(top.indicators.first(), bottom.indicators.first()), 80f)
+        check(expectedStd, top.mergeWith(bottom))
+        check(expectedStd, bottom.mergeWith(top))
+
+        // Same overlap but bars are different sizes so larger one pulls smaller one's centre more
+        val bottomBig = createIndicatorGroup(110f, indicatorHeight = 200)
+        val expectedBig = SightMarkIndicatorGroup(listOf(top.indicators.first(), bottomBig.indicators.first()), 90f)
+        check(expectedBig, top.mergeWith(bottomBig))
+        check(expectedBig, bottomBig.mergeWith(top))
     }
 
-    private fun createIndicatorGroup(topOffset: Int, n: Int = 1) =
-            SightMarkIndicatorGroup(List(n) { FakeSightMarkIndicator() }, topOffset)
+    private fun createIndicatorGroup(centreOffset: Float, n: Int = 1, indicatorHeight: Int = 100) =
+            SightMarkIndicatorGroup(List(n) { FakeSightMarkIndicator(indicatorHeight) }, centreOffset)
 
     data class FormatStringParams(
             val value: Float,
@@ -95,10 +102,14 @@ class SightMarksStateUnitTest {
             val expected: String,
     )
 
-    class FakeSightMarkIndicator : SightMarkIndicator {
-        override val height: Int = 100
+    class FakeSightMarkIndicator(
+            override val height: Int = 100
+    ) : SightMarkIndicator {
         override val width: Int = 0
         override fun isLeft(): Boolean = false
-        override fun place(scope: Placeable.PlacementScope, x: Int, y: Int) {}
+        override val originalCentreOffset: Float
+            get() = throw NotImplementedError()
+        override val placeable: Placeable
+            get() = throw NotImplementedError()
     }
 }

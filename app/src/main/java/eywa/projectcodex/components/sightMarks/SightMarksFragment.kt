@@ -15,7 +15,7 @@ class SightMarksFragment : Fragment() {
                 SightMarks(
                         SightMarksState(
                                 sightMarks = listOf(
-                                        SightMark(10, true, Calendar.getInstance(), 5.5f),
+                                        SightMark(10, true, Calendar.getInstance(), 3.25f),
                                         SightMark(20, true, Calendar.getInstance(), 3.2f),
                                         SightMark(30, true, Calendar.getInstance(), 3.15f),
                                         SightMark(50, false, Calendar.getInstance(), 2f),
