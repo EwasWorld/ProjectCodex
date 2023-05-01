@@ -40,7 +40,7 @@ class SightMarksFragment : Fragment() {
                                                 SightMark(10, true, Calendar.getInstance(), 3.25f),
                                                 SightMark(20, true, Calendar.getInstance(), 3.2f),
                                                 SightMark(30, true, Calendar.getInstance(), 3.15f),
-                                                SightMark(50, false, Calendar.getInstance(), 2f),
+                                                SightMark(50, false, Calendar.getInstance(), 2.01f),
                                                 SightMark(50, false, Calendar.getInstance(), 2f, marked = true),
                                         ),
                                 ),

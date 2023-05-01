@@ -42,23 +42,33 @@ class SightMarkIndicatorGroupUnitTest {
 
     @Test
     fun testMerge() {
-        val top = createIndicatorGroup(50f)
+        // TODO_CURRENT Update
+        val top = createIndicatorGroup(50f, sightMark = 2f)
 
         fun check(expected: SightMarkIndicatorGroup, actual: SightMarkIndicatorGroup) {
             assertEquals(expected.indicators, actual.indicators)
             assertEquals(expected.topOffset, actual.topOffset)
         }
 
-        val bottom = createIndicatorGroup(110f)
-        val expectedStd = SightMarkIndicatorGroup(listOf(top.indicators.first(), bottom.indicators.first()), 80f)
-        check(expectedStd, top.mergeWith(bottom))
-        check(expectedStd, bottom.mergeWith(top))
+        fun test(
+                expected: SightMarkIndicatorGroup,
+                a: SightMarkIndicatorGroup,
+                b: SightMarkIndicatorGroup,
+                highestAtTop: Boolean,
+        ) {
+            check(expected, a.mergeWith(b, highestAtTop))
+            check(expected, b.mergeWith(a, highestAtTop))
+        }
 
-        // Same overlap but bars are different sizes so larger one pulls smaller one's centre more
-        val bottomBig = createIndicatorGroup(110f, indicatorHeight = 200)
+        // Both same size and at same mark
+        val bottom = createIndicatorGroup(110f, sightMark = 2f)
+        val expectedStd = SightMarkIndicatorGroup(listOf(top.indicators.first(), bottom.indicators.first()), 80f)
+        test(expectedStd, top, bottom, false)
+
+        // Mark but bars are different sizes so larger one pulls smaller one's centre more
+        val bottomBig = createIndicatorGroup(110f, indicatorHeight = 200, sightMark = 2f)
         val expectedBig = SightMarkIndicatorGroup(listOf(top.indicators.first(), bottomBig.indicators.first()), 90f)
-        check(expectedBig, top.mergeWith(bottomBig))
-        check(expectedBig, bottomBig.mergeWith(top))
+        test(expectedBig, top, bottomBig, false)
     }
 
     @Test
@@ -79,14 +89,19 @@ class SightMarkIndicatorGroupUnitTest {
             centreOffset: Float = 0f,
             n: Int = 1,
             indicatorHeight: Int = 100,
+            sightMark: Float = 2f,
     ) =
             SightMarkIndicatorGroup(
-                    indicators = List(n) { createMockIndicator(indicatorHeight) },
+                    indicators = List(n) { createMockIndicator(indicatorHeight, sightMark) },
                     centre = centreOffset,
             )
 
-    private fun createMockIndicator(indicatorHeight: Int): SightMarkIndicator =
+    private fun createMockIndicator(
+            indicatorHeight: Int,
+            sightMark: Float,
+    ): SightMarkIndicator =
             mock {
                 on { height } doReturn indicatorHeight
+                on { this.sightMark } doReturn sightMark
             }
 }

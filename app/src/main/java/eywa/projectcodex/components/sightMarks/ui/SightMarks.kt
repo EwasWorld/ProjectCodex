@@ -1,8 +1,7 @@
 package eywa.projectcodex.components.sightMarks.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -10,7 +9,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.*
@@ -37,8 +38,7 @@ import kotlin.properties.Delegates
 
 /*
  * TODO & IDEAS
- *  Marked on top
- *  Fix 2.01 showing below 2
+ *  Backwards on left side :(
  *  Help labels
  */
 
@@ -105,6 +105,7 @@ fun SightMarks(state: SightMarksState) {
          * Run measure calculations
          */
         val placeables = IndicatorPlaceables(
+                highestAtTop = state.isHighestNumberAtTheTop,
                 indicatorPlaceables = indicatorMeasureables.map { it.measure(noMinConstraints) },
                 sightMarks = state.sightMarks,
                 getSightMarkAsPercentage = { state.getSightMarkAsPercentage(it) },
@@ -150,10 +151,9 @@ private fun List<SightMarkIndicatorGroup>.place(
     }
 
     forEach { group ->
-        var textOffset = group.topOffset
-        group.indicators.forEach { indicator ->
+        group.indicators.withIndex().sortedBy { it.value.getPlacePriority() }.forEach { (index, indicator) ->
             val chevronCentreY = tape.topOverhang + tape.start + indicator.originalCentreOffset
-            val indicatorTop = tape.topOverhang + tape.start + textOffset
+            val indicatorTop = tape.topOverhang + tape.start + group.getIndicatorTopOffset(index)
             val indicatorCentreY = indicatorTop + indicator.height / 2f
 
             val chevron = indicator.getChevron(isLeft)
@@ -189,7 +189,6 @@ private fun List<SightMarkIndicatorGroup>.place(
                     x = 0f + horizontal2Start + horizontal2.width + indicator.getPadding(),
                     y = indicatorTop
             )
-            textOffset += indicator.height
         }
     }
 }
@@ -228,6 +227,7 @@ private class Tape(val placeable: Placeable) {
 }
 
 private class IndicatorPlaceables(
+        val highestAtTop: Boolean,
         indicatorPlaceables: List<Placeable>,
         sightMarks: List<SightMark>,
         getSightMarkAsPercentage: (SightMark) -> Float,
@@ -255,7 +255,7 @@ private class IndicatorPlaceables(
                     val sightMark = sightMarks[it]
                     SightMarkIndicatorGroup(
                             SightMarkIndicatorImpl(
-                                    sightMark = sightMark,
+                                    sightMarkObj = sightMark,
                                     indicatorPlaceable = indicatorPlaceables[it],
                                     originalCentreOffset = getSightMarkAsPercentage(sightMark) * totalHeight,
                                     chevronLeft = leftChevronPlaceables[it],
@@ -268,14 +268,14 @@ private class IndicatorPlaceables(
                 }
                 .partition { it.indicators.first().isLeft() }
 
-        left = l.resolveList()
-        right = r.resolveList()
+        left = l.resolveList(highestAtTop)
+        right = r.resolveList(highestAtTop)
     }
 
     fun moveAllRight() {
         right = left.flatMap { it.breakApart() }
                 .plus(right.flatMap { it.breakApart() })
-                .resolveList()
+                .resolveList(highestAtTop)
         left = emptyList()
     }
 
@@ -311,7 +311,11 @@ private class IndicatorPlaceables(
     }
 
     companion object {
-        fun List<SightMarkIndicatorGroup>.resolveList() = sortedBy { it.topOffset }.resolve()
+        fun List<SightMarkIndicatorGroup>.resolveList(highestAtTop: Boolean): List<SightMarkIndicatorGroup> {
+            val predicate = { it: SightMarkIndicatorGroup -> it.firstSightMark }
+            val sorted = if (highestAtTop) sortedByDescending(predicate) else sortedBy(predicate)
+            return sorted.resolve(highestAtTop)
+        }
     }
 }
 
@@ -354,6 +358,7 @@ private class Offsets(
 
 @Composable
 private fun SightMarkIndicator(sightMark: SightMark) {
+    val isLeft = sightMark.isMetric
     val distanceUnit = stringResource(
             if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
     )
@@ -361,30 +366,45 @@ private fun SightMarkIndicator(sightMark: SightMark) {
             sightMark.sightMark.toString(),
             "-",
             "${sightMark.distance}$distanceUnit",
-    ).let { if (sightMark.isMetric) it else it.asReversed() }
+    ).let { if (isLeft) it else it.asReversed() }
 
-    Text(
-            text = text.joinToString(" "),
-            style = CodexTypography.NORMAL
-                    .copy(
-                            fontStyle = if (sightMark.marked) FontStyle.Italic else FontStyle.Normal,
-                            fontWeight = if (sightMark.marked) FontWeight.Bold else FontWeight.Normal,
-                    ),
-            color = CodexTheme.colors.sightMarksIndicator,
-            textAlign = TextAlign.Center,
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
             modifier = Modifier.modifierIf(
                     sightMark.marked,
                     Modifier
                             .padding(vertical = 3.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(CodexTheme.colors.sightMarksMarkedBackground)
-                            .padding(horizontal = 10.dp)
+                            .padding(horizontal = 7.dp)
             )
-    )
+    ) {
+        Text(
+                text = text.joinToString(" "),
+                style = CodexTypography.NORMAL
+                        .copy(
+                                fontStyle = if (sightMark.marked) FontStyle.Italic else FontStyle.Normal,
+                                fontWeight = if (sightMark.marked) FontWeight.Bold else FontWeight.Normal,
+                        ),
+                color = CodexTheme.colors.sightMarksIndicator,
+                textAlign = TextAlign.Center,
+        )
+        if (sightMark.note != null) {
+            Icon(
+                    imageVector = Icons.Outlined.Description,
+                    contentDescription = stringResource(R.string.sight_marks__has_note_content_descr),
+                    tint = CodexTheme.colors.sightMarksIndicator,
+                    modifier = Modifier
+                            .width(15.dp)
+                            .aspectRatio(1f)
+            )
+        }
+    }
 }
 
 data class SightMarkIndicatorImpl(
-        val sightMark: SightMark,
+        private val sightMarkObj: SightMark,
         override val indicatorPlaceable: Placeable,
         override val originalCentreOffset: Float,
         private val chevronLeft: Placeable,
@@ -398,9 +418,12 @@ data class SightMarkIndicatorImpl(
 ) : SightMarkIndicator {
     override val width: Int = indicatorPlaceable.width
     override val height: Int = indicatorPlaceable.height
-    override fun isLeft() = !sightMark.isMetric
+    override val sightMark: Float = sightMarkObj.sightMark
+
+    override fun isLeft() = !sightMarkObj.isMetric
     override fun getChevron(isLeft: Boolean): Placeable = if (isLeft) chevronLeft else chevronRight
-    override fun getPadding(): Float = if (sightMark.marked) 0f else INDICATOR_PADDING.toFloat()
+    override fun getPadding(): Float = if (sightMarkObj.marked) 0f else INDICATOR_PADDING.toFloat()
+    override fun getPlacePriority(): Int = if (sightMarkObj.marked) 1 else 0
 }
 
 @Preview(
@@ -413,13 +436,13 @@ fun SightMarks_Preview() {
             SightMarksState(
                     sightMarks = listOf(
                             SightMark(10, true, Calendar.getInstance(), 3.35f),
-                            SightMark(10, true, Calendar.getInstance(), 3.3f),
+                            SightMark(10, true, Calendar.getInstance(), 3.3f, marked = true),
                             SightMark(10, true, Calendar.getInstance(), 3.25f),
-                            SightMark(20, true, Calendar.getInstance(), 3.2f),
+                            SightMark(20, true, Calendar.getInstance(), 3.2f, note = "", marked = true),
                             SightMark(30, true, Calendar.getInstance(), 3.15f),
                             SightMark(50, false, Calendar.getInstance(), 4f),
                             SightMark(50, false, Calendar.getInstance(), 4f),
-                            SightMark(50, false, Calendar.getInstance(), 2.01f),
+                            SightMark(50, false, Calendar.getInstance(), 2.01f, note = ""),
                             SightMark(50, false, Calendar.getInstance(), 2f, marked = true),
                             SightMark(20, false, Calendar.getInstance(), 2.55f),
                             SightMark(30, false, Calendar.getInstance(), 2.5f),

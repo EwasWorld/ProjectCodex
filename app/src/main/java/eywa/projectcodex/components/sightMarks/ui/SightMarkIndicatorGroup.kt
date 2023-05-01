@@ -6,13 +6,13 @@ import kotlin.math.min
 import kotlin.math.nextDown
 import kotlin.math.nextUp
 
-tailrec fun List<SightMarkIndicatorGroup>.resolve(): List<SightMarkIndicatorGroup> {
+tailrec fun List<SightMarkIndicatorGroup>.resolve(highestAtTop: Boolean): List<SightMarkIndicatorGroup> {
     if (size < 2) return this
     val (i, overlappingGroups) = zipWithNext().withIndex()
             .find { (_, pair) -> pair.first.isOverlapping(pair.second) }
             ?: return this
-    val newGroup = overlappingGroups.first.mergeWith(overlappingGroups.second)
-    return take(i).plus(newGroup).plus(drop(i + 2)).resolve()
+    val newGroup = overlappingGroups.first.mergeWith(overlappingGroups.second, highestAtTop)
+    return take(i).plus(newGroup).plus(drop(i + 2)).resolve(highestAtTop)
 }
 
 class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
@@ -29,6 +29,7 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
     }
 
     private val height: Int = indicators.sumOf { it.height }
+    val firstSightMark: Float = indicators.first().sightMark
     val topOffset: Float = centre - height / 2f
     val bottomOffset = topOffset + height
     fun getMaxWidth(indentAmount: Int, isLeft: Boolean) = indicators.withIndex()
@@ -46,9 +47,11 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
                 || group.centre in exclusiveRange
     }
 
-    fun mergeWith(group: SightMarkIndicatorGroup): SightMarkIndicatorGroup {
-        val top = if (topOffset < group.topOffset) this else group
-        val bottom = if (topOffset < group.topOffset) group else this
+    fun mergeWith(group: SightMarkIndicatorGroup, highestAtTop: Boolean): SightMarkIndicatorGroup {
+        val outcome = (firstSightMark - group.firstSightMark) * (if (highestAtTop) 1 else -1)
+        val thisIsTop = (outcome == 0f && topOffset < group.topOffset) || outcome < 0f
+        val top = if (thisIsTop) this else group
+        val bottom = if (thisIsTop) group else this
 
         val centreDiff = abs(bottom.centre - top.centre)
         val ratio = bottom.height.toFloat() / (top.height + bottom.height).toFloat()
@@ -70,6 +73,8 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
         check(index in indicators.indices) { "Index out of bounds" }
         return min(index, indicators.size - 1 - index)
     }
+
+    fun getIndicatorTopOffset(index: Int): Float = topOffset + indicators.take(index).sumOf { it.height }
 
     fun maxIndentLevel() = (indicators.size - 1) / 2
 }

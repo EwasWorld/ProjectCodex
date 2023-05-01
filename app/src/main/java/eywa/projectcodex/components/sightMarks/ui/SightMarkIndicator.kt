@@ -8,6 +8,7 @@ interface SightMarkIndicator {
     val height: Int
     val originalCentreOffset: Float
 
+    val sightMark: Float
     val indicatorPlaceable: Placeable
 
     var horizontalLine1Measurable: Measurable?
@@ -20,4 +21,9 @@ interface SightMarkIndicator {
     fun isLeft(): Boolean
     fun getChevron(isLeft: Boolean): Placeable
     fun getPadding(): Float
+
+    /**
+     * Lower is higher priority
+     */
+    fun getPlacePriority(): Int
 }
