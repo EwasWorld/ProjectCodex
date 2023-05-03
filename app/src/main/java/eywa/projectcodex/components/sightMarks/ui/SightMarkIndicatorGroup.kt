@@ -49,7 +49,7 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
 
     fun mergeWith(group: SightMarkIndicatorGroup, highestAtTop: Boolean): SightMarkIndicatorGroup {
         val outcome = (firstSightMark - group.firstSightMark) * (if (highestAtTop) 1 else -1)
-        val thisIsTop = (outcome == 0f && topOffset < group.topOffset) || outcome < 0f
+        val thisIsTop = (outcome == 0f && topOffset < group.topOffset) || outcome > 0f
         val top = if (thisIsTop) this else group
         val bottom = if (thisIsTop) group else this
 

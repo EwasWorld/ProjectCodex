@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.sightMarks.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -13,7 +14,9 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -39,6 +42,7 @@ import kotlin.properties.Delegates
 /*
  * TODO & IDEAS
  *  Backwards on left side :(
+ *  Pinch zoom
  *  Help labels
  */
 
@@ -49,41 +53,50 @@ private const val HORIZONTAL_LINE_FIXED_WIDTH = 30
 private const val INDICATOR_PADDING = 10
 private const val INDENT_AMOUNT = 20
 internal const val CHEVRON_WIDTH_MODIFIER = 2.3f
+internal const val ARCHIVED_ALPHA = 0.6f
 
 @Composable
-fun SightMarks(state: SightMarksState) {
+fun SightMarks(
+        state: SightMarksState,
+        onClick: () -> Unit,
+) {
     val totalSightMarks = state.sightMarks.size
-    val marked = state.sightMarks.map {
-        if (it.marked) CodexTheme.colors.sightMarksMarkedBackground else CodexTheme.colors.sightMarksIndicator
+
+    @Composable
+    fun SightMark.getColour(): Color {
+        val base =
+                if (marked) CodexTheme.colors.sightMarksMarkedBackground
+                else CodexTheme.colors.sightMarksIndicator
+        return base.copy(alpha = if (isArchive) ARCHIVED_ALPHA else 1f)
     }
 
     Layout(
             content = {
                 SightTape(state = state)
-                state.sightMarks.forEach { SightMarkIndicator(it) }
-                repeat(totalSightMarks) { index ->
+                state.sightMarks.forEach { SightMarkIndicator(it, onClick) }
+                state.sightMarks.forEach { sightMark ->
                     Icon(
                             imageVector = Icons.Default.ChevronRight,
                             contentDescription = null,
-                            tint = marked[index]
+                            tint = sightMark.getColour()
                     )
                 }
-                repeat(totalSightMarks) { index ->
+                state.sightMarks.forEach { sightMark ->
                     Icon(
                             imageVector = Icons.Default.ChevronLeft,
                             contentDescription = null,
-                            tint = marked[index]
+                            tint = sightMark.getColour()
                     )
                 }
                 // Horizontal line from chevron & to text
-                repeat(totalSightMarks) { index ->
+                state.sightMarks.forEach { sightMark ->
                     repeat(2) {
-                        Divider(color = marked[index], thickness = 2.dp)
+                        Divider(color = sightMark.getColour(), thickness = 2.dp)
                     }
                 }
                 // Vertical line up
-                repeat(totalSightMarks) { index ->
-                    Divider(color = marked[index], modifier = Modifier.width(3.dp))
+                state.sightMarks.forEach { sightMark ->
+                    Divider(color = sightMark.getColour(), modifier = Modifier.width(3.dp))
                 }
             },
     ) { measurables, constraints ->
@@ -357,8 +370,11 @@ private class Offsets(
 }
 
 @Composable
-private fun SightMarkIndicator(sightMark: SightMark) {
-    val isLeft = sightMark.isMetric
+private fun SightMarkIndicator(
+        sightMark: SightMark,
+        onClick: () -> Unit,
+) {
+    val isLeft = !sightMark.isMetric
     val distanceUnit = stringResource(
             if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
     )
@@ -366,30 +382,10 @@ private fun SightMarkIndicator(sightMark: SightMark) {
             sightMark.sightMark.toString(),
             "-",
             "${sightMark.distance}$distanceUnit",
-    ).let { if (isLeft) it else it.asReversed() }
+    ).let { if (isLeft) it.asReversed() else it }
 
-    Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            modifier = Modifier.modifierIf(
-                    sightMark.marked,
-                    Modifier
-                            .padding(vertical = 3.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(CodexTheme.colors.sightMarksMarkedBackground)
-                            .padding(horizontal = 7.dp)
-            )
-    ) {
-        Text(
-                text = text.joinToString(" "),
-                style = CodexTypography.NORMAL
-                        .copy(
-                                fontStyle = if (sightMark.marked) FontStyle.Italic else FontStyle.Normal,
-                                fontWeight = if (sightMark.marked) FontWeight.Bold else FontWeight.Normal,
-                        ),
-                color = CodexTheme.colors.sightMarksIndicator,
-                textAlign = TextAlign.Center,
-        )
+    @Composable
+    fun NoteIcon() {
         if (sightMark.note != null) {
             Icon(
                     imageVector = Icons.Outlined.Description,
@@ -400,6 +396,35 @@ private fun SightMarkIndicator(sightMark: SightMark) {
                             .aspectRatio(1f)
             )
         }
+    }
+
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            modifier = Modifier
+                    .modifierIf(
+                            sightMark.marked,
+                            Modifier
+                                    .padding(vertical = 3.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(CodexTheme.colors.sightMarksMarkedBackground)
+                                    .padding(horizontal = 7.dp)
+                    )
+                    .modifierIf(sightMark.isArchive, Modifier.alpha(ARCHIVED_ALPHA))
+                    .clickable { onClick() }
+    ) {
+        if (isLeft) NoteIcon()
+        Text(
+                text = text.joinToString(" "),
+                style = CodexTypography.NORMAL
+                        .copy(
+                                fontStyle = if (sightMark.marked) FontStyle.Italic else FontStyle.Normal,
+                                fontWeight = if (sightMark.marked) FontWeight.Bold else FontWeight.Normal,
+                        ),
+                color = CodexTheme.colors.sightMarksIndicator,
+                textAlign = TextAlign.Center,
+        )
+        if (!isLeft) NoteIcon()
     }
 }
 
@@ -435,7 +460,7 @@ fun SightMarks_Preview() {
     SightMarks(
             SightMarksState(
                     sightMarks = listOf(
-                            SightMark(10, true, Calendar.getInstance(), 3.35f),
+                            SightMark(10, true, Calendar.getInstance(), 3.35f, isArchive = true),
                             SightMark(10, true, Calendar.getInstance(), 3.3f, marked = true),
                             SightMark(10, true, Calendar.getInstance(), 3.25f),
                             SightMark(20, true, Calendar.getInstance(), 3.2f, note = "", marked = true),
@@ -443,12 +468,13 @@ fun SightMarks_Preview() {
                             SightMark(50, false, Calendar.getInstance(), 4f),
                             SightMark(50, false, Calendar.getInstance(), 4f),
                             SightMark(50, false, Calendar.getInstance(), 2.01f, note = ""),
-                            SightMark(50, false, Calendar.getInstance(), 2f, marked = true),
+                            SightMark(50, false, Calendar.getInstance(), 2f, marked = true, isArchive = true),
                             SightMark(20, false, Calendar.getInstance(), 2.55f),
                             SightMark(30, false, Calendar.getInstance(), 2.5f),
                             SightMark(40, false, Calendar.getInstance(), 2.45f),
                     ),
             ),
+            onClick = {},
     )
 }
 
@@ -467,5 +493,6 @@ fun SmallScreen_SightMarks_Preview() {
                             SightMark(50, false, Calendar.getInstance(), 2f),
                     ),
             ),
+            onClick = {},
     )
 }

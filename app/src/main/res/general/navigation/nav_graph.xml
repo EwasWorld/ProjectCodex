@@ -117,5 +117,15 @@
         android:id="@+id/sightMarksFragment"
         android:name="eywa.projectcodex.components.sightMarks.SightMarksFragment"
         android:label="SightMarksFragment"
+        >
+        <action
+            android:id="@+id/actionSightMarksFragmentToSightMarkDetailFragment"
+            app:destination="@id/sightMarkDetailFragment"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/sightMarkDetailFragment"
+        android:name="eywa.projectcodex.components.sightMarks.detail.SightMarkDetailFragment"
+        android:label="SightMarkDetailFragment"
         />
 </navigation>

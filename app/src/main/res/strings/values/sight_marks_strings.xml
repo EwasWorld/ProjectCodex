@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sight_marks__title">Sight marks</string>
+    <string name="sight_marks__detail_title">Sight mark</string>
+
     <string name="sight_marks__has_note_content_descr">Has note</string>
+
+    <string name="sight_marks__distance">Distance:</string>
+    <string name="sight_marks__sight">Sight:</string>
+    <string name="sight_marks__date_set">Date set:</string>
+    <string name="sight_marks__note">Note:</string>
+    <string name="sight_marks__note_empty">-</string>
+    <string name="sight_marks__marked">Marked:</string>
+    <string name="sight_marks__archived">Archived:</string>
+    <!--    <string name="sight_marks__"></string>-->
 </resources>

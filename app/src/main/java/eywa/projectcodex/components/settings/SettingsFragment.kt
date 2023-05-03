@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
+import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 
 @AndroidEntryPoint
@@ -23,5 +24,10 @@ class SettingsFragment : Fragment(), ActionBarHelp {
                 SettingsScreen(state) { viewModel.handle(it) }
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        activity?.title = getString(R.string.settings__title)
     }
 }

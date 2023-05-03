@@ -9,4 +9,5 @@ data class SightMark(
         val sightMark: Float,
         val note: String? = null,
         val marked: Boolean = false,
+        val isArchive: Boolean = false,
 )
