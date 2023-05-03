@@ -42,7 +42,7 @@ object CodexTypography {
     )
 
     val DIALOG_TEXT = NORMAL.copy(
-            fontSize = 14.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight(500),
     )
 
