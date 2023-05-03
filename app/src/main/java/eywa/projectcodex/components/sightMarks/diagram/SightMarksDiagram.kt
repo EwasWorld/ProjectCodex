@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.sightMarks.ui
+package eywa.projectcodex.components.sightMarks.diagram
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,7 +31,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.sightMarks.SightMark
-import eywa.projectcodex.components.sightMarks.SightMarksState
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -56,8 +55,8 @@ internal const val CHEVRON_WIDTH_MODIFIER = 2.3f
 internal const val ARCHIVED_ALPHA = 0.6f
 
 @Composable
-fun SightMarks(
-        state: SightMarksState,
+fun SightMarksDiagram(
+        state: SightMarksDiagramState,
         onClick: () -> Unit,
 ) {
     val totalSightMarks = state.sightMarks.size
@@ -267,7 +266,7 @@ private class IndicatorPlaceables(
                 .map {
                     val sightMark = sightMarks[it]
                     SightMarkIndicatorGroup(
-                            SightMarkIndicatorImpl(
+                            SightMarksDiagramIndicatorImpl(
                                     sightMarkObj = sightMark,
                                     indicatorPlaceable = indicatorPlaceables[it],
                                     originalCentreOffset = getSightMarkAsPercentage(sightMark) * totalHeight,
@@ -428,7 +427,7 @@ private fun SightMarkIndicator(
     }
 }
 
-data class SightMarkIndicatorImpl(
+data class SightMarksDiagramIndicatorImpl(
         private val sightMarkObj: SightMark,
         override val indicatorPlaceable: Placeable,
         override val originalCentreOffset: Float,
@@ -440,7 +439,7 @@ data class SightMarkIndicatorImpl(
         override var horizontalLine1Placeable: Placeable? = null,
         override var horizontalLine2Placeable: Placeable? = null,
         override var verticalLinePlaceable: Placeable? = null,
-) : SightMarkIndicator {
+) : SightMarksDiagramIndicator {
     override val width: Int = indicatorPlaceable.width
     override val height: Int = indicatorPlaceable.height
     override val sightMark: Float = sightMarkObj.sightMark
@@ -457,8 +456,8 @@ data class SightMarkIndicatorImpl(
 )
 @Composable
 fun SightMarks_Preview() {
-    SightMarks(
-            SightMarksState(
+    SightMarksDiagram(
+            SightMarksDiagramState(
                     sightMarks = listOf(
                             SightMark(10, true, Calendar.getInstance(), 3.35f, isArchive = true),
                             SightMark(10, true, Calendar.getInstance(), 3.3f, marked = true),
@@ -485,8 +484,8 @@ fun SightMarks_Preview() {
 )
 @Composable
 fun SmallScreen_SightMarks_Preview() {
-    SightMarks(
-            SightMarksState(
+    SightMarksDiagram(
+            SightMarksDiagramState(
                     sightMarks = listOf(
                             SightMark(10, true, Calendar.getInstance(), 3.25f),
                             SightMark(20, true, Calendar.getInstance(), 3.2f),

@@ -1,9 +1,9 @@
-package eywa.projectcodex.components.sightMarks.ui
+package eywa.projectcodex.components.sightMarks.diagram
 
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 
-interface SightMarkIndicator {
+interface SightMarksDiagramIndicator {
     val width: Int
     val height: Int
     val originalCentreOffset: Float

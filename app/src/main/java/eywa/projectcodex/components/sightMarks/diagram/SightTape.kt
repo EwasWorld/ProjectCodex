@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.sightMarks.ui
+package eywa.projectcodex.components.sightMarks.diagram
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -17,7 +17,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.sightMarks.SightMark
-import eywa.projectcodex.components.sightMarks.SightMarksState
 import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -27,7 +26,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 internal fun SightTape(
-        state: SightMarksState,
+        state: SightMarksDiagramState,
 ) {
     val tapeColour = CodexTheme.colors.sightMarksTapeBackground
     val tickColour = CodexTheme.colors.sightMarksTicksAndLabels
@@ -116,7 +115,7 @@ internal fun SightTape(
 @Composable
 fun Tape_SightMarks_Preview() {
     SightTape(
-            SightMarksState(
+            SightMarksDiagramState(
                     sightMarks = listOf(
                             SightMark(30, true, Calendar.getInstance(), 3.15f),
                             SightMark(50, false, Calendar.getInstance(), 2f),

@@ -1,8 +1,9 @@
-package eywa.projectcodex.components.sightMarks
+package eywa.projectcodex.components.sightMarks.diagram
 
+import eywa.projectcodex.components.sightMarks.SightMark
 import kotlin.math.*
 
-data class SightMarksState(
+data class SightMarksDiagramState(
         val sightMarks: List<SightMark> = listOf(),
         val isHighestNumberAtTheTop: Boolean = true,
 ) {

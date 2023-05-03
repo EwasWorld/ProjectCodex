@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.sightMarks
 
-import eywa.projectcodex.components.sightMarks.ui.SightMarkIndicator
-import eywa.projectcodex.components.sightMarks.ui.SightMarkIndicatorGroup
+import eywa.projectcodex.components.sightMarks.diagram.SightMarkIndicatorGroup
+import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramIndicator
 import org.junit.Assert.*
 import org.junit.Test
 import org.mockito.kotlin.doReturn
@@ -9,7 +9,7 @@ import org.mockito.kotlin.mock
 import kotlin.math.nextDown
 import kotlin.math.nextUp
 
-class SightMarkIndicatorGroupUnitTest {
+class SightMarksDiagramIndicatorGroupUnitTest {
     @Test
     fun testIsOverlapping() {
         val groupAt0 = createIndicatorGroup(50f)
@@ -99,7 +99,7 @@ class SightMarkIndicatorGroupUnitTest {
     private fun createMockIndicator(
             indicatorHeight: Int,
             sightMark: Float,
-    ): SightMarkIndicator =
+    ): SightMarksDiagramIndicator =
             mock {
                 on { height } doReturn indicatorHeight
                 on { this.sightMark } doReturn sightMark

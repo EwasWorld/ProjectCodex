@@ -26,7 +26,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
-import eywa.projectcodex.components.sightMarks.ui.SightMarks
+import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagram
+import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramState
 import java.util.*
 
 class SightMarksFragment : Fragment() {
@@ -59,8 +60,8 @@ class SightMarksFragment : Fragment() {
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.padding(15.dp)
                     ) {
-                        SightMarks(
-                                state = SightMarksState(fakeSightMarks[currentSet]),
+                        SightMarksDiagram(
+                                state = SightMarksDiagramState(fakeSightMarks[currentSet]),
                                 onClick = {
                                     findNavController().navigate(SightMarksFragmentDirections.actionSightMarksFragmentToSightMarkDetailFragment())
                                 }

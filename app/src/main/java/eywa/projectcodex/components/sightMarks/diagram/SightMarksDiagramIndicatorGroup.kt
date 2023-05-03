@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.sightMarks.ui
+package eywa.projectcodex.components.sightMarks.diagram
 
 import androidx.annotation.VisibleForTesting
 import kotlin.math.abs
@@ -16,11 +16,11 @@ tailrec fun List<SightMarkIndicatorGroup>.resolve(highestAtTop: Boolean): List<S
 }
 
 class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-        val indicators: List<SightMarkIndicator>,
+        val indicators: List<SightMarksDiagramIndicator>,
         private val centre: Float,
 ) {
-    constructor(indicator: SightMarkIndicator) : this(
-            indicators = listOf<SightMarkIndicator>(indicator),
+    constructor(indicator: SightMarksDiagramIndicator) : this(
+            indicators = listOf<SightMarksDiagramIndicator>(indicator),
             centre = indicator.originalCentreOffset,
     )
 
