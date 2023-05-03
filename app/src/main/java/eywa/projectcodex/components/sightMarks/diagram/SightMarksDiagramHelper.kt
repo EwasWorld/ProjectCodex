@@ -3,9 +3,9 @@ package eywa.projectcodex.components.sightMarks.diagram
 import eywa.projectcodex.components.sightMarks.SightMark
 import kotlin.math.*
 
-data class SightMarksDiagramState(
-        val sightMarks: List<SightMark> = listOf(),
-        val isHighestNumberAtTheTop: Boolean = true,
+class SightMarksDiagramHelper(
+        sightMarks: List<SightMark>,
+        val isHighestNumberAtTheTop: Boolean,
 ) {
     private val highestSightMark = sightMarks.maxOf { it.sightMark }
     private val lowestSightMark = sightMarks.minOf { it.sightMark }

@@ -31,6 +31,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.sightMarks.SightMark
+import eywa.projectcodex.components.sightMarks.SightMarksState
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -56,9 +57,10 @@ internal const val ARCHIVED_ALPHA = 0.6f
 
 @Composable
 fun SightMarksDiagram(
-        state: SightMarksDiagramState,
-        onClick: () -> Unit,
+        state: SightMarksState,
+        onClick: (SightMark) -> Unit,
 ) {
+    val helper = SightMarksDiagramHelper(state.sightMarks, state.isHighestNumberAtTheTop)
     val totalSightMarks = state.sightMarks.size
 
     @Composable
@@ -71,7 +73,7 @@ fun SightMarksDiagram(
 
     Layout(
             content = {
-                SightTape(state = state)
+                SightTape(state = helper)
                 state.sightMarks.forEach { SightMarkIndicator(it, onClick) }
                 state.sightMarks.forEach { sightMark ->
                     Icon(
@@ -120,7 +122,7 @@ fun SightMarksDiagram(
                 highestAtTop = state.isHighestNumberAtTheTop,
                 indicatorPlaceables = indicatorMeasureables.map { it.measure(noMinConstraints) },
                 sightMarks = state.sightMarks,
-                getSightMarkAsPercentage = { state.getSightMarkAsPercentage(it) },
+                getSightMarkAsPercentage = { helper.getSightMarkAsPercentage(it) },
                 totalHeight = tape.tickHeight,
                 leftChevronPlaceables = leftChevronMeasureables.map { it.measure(noMinConstraints) },
                 rightChevronPlaceables = rightChevronMeasureables.map { it.measure(noMinConstraints) },
@@ -335,9 +337,13 @@ private class Offsets(
         indicatorPlaceables: IndicatorPlaceables,
         tapeWidth: Int,
 ) {
-    val tapeOffset: Int = indicatorPlaceables.left.getMaxWidth(true)
-    val rightIndicatorOffset: Int = tapeOffset + tapeWidth
-    val totalWidth: Int = rightIndicatorOffset + indicatorPlaceables.right.getMaxWidth(false)
+    val maxIndicatorWidth = max(
+            indicatorPlaceables.left.getMaxWidth(true),
+            indicatorPlaceables.right.getMaxWidth(false),
+    )
+    val tapeOffset = maxIndicatorWidth
+    val rightIndicatorOffset = tapeOffset + tapeWidth
+    val totalWidth = rightIndicatorOffset + maxIndicatorWidth
 
     companion object {
         private fun List<SightMarkIndicatorGroup>.getMaxWidth(isLeft: Boolean): Int {
@@ -371,7 +377,7 @@ private class Offsets(
 @Composable
 private fun SightMarkIndicator(
         sightMark: SightMark,
-        onClick: () -> Unit,
+        onClick: (SightMark) -> Unit,
 ) {
     val isLeft = !sightMark.isMetric
     val distanceUnit = stringResource(
@@ -410,7 +416,7 @@ private fun SightMarkIndicator(
                                     .padding(horizontal = 7.dp)
                     )
                     .modifierIf(sightMark.isArchive, Modifier.alpha(ARCHIVED_ALPHA))
-                    .clickable { onClick() }
+                    .clickable { onClick(sightMark) }
     ) {
         if (isLeft) NoteIcon()
         Text(
@@ -457,20 +463,20 @@ data class SightMarksDiagramIndicatorImpl(
 @Composable
 fun SightMarks_Preview() {
     SightMarksDiagram(
-            SightMarksDiagramState(
+            SightMarksState(
                     sightMarks = listOf(
-                            SightMark(10, true, Calendar.getInstance(), 3.35f, isArchive = true),
-                            SightMark(10, true, Calendar.getInstance(), 3.3f, marked = true),
-                            SightMark(10, true, Calendar.getInstance(), 3.25f),
-                            SightMark(20, true, Calendar.getInstance(), 3.2f, note = "", marked = true),
-                            SightMark(30, true, Calendar.getInstance(), 3.15f),
-                            SightMark(50, false, Calendar.getInstance(), 4f),
-                            SightMark(50, false, Calendar.getInstance(), 4f),
-                            SightMark(50, false, Calendar.getInstance(), 2.01f, note = ""),
-                            SightMark(50, false, Calendar.getInstance(), 2f, marked = true, isArchive = true),
-                            SightMark(20, false, Calendar.getInstance(), 2.55f),
-                            SightMark(30, false, Calendar.getInstance(), 2.5f),
-                            SightMark(40, false, Calendar.getInstance(), 2.45f),
+                            SightMark(1, 10, true, Calendar.getInstance(), 3.35f, isArchive = true),
+                            SightMark(1, 10, true, Calendar.getInstance(), 3.3f, marked = true),
+                            SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
+                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f, note = "", marked = true),
+                            SightMark(1, 30, true, Calendar.getInstance(), 3.15f),
+                            SightMark(1, 50, false, Calendar.getInstance(), 4f),
+                            SightMark(1, 50, false, Calendar.getInstance(), 4f),
+                            SightMark(1, 50, false, Calendar.getInstance(), 2.01f, note = ""),
+                            SightMark(1, 50, false, Calendar.getInstance(), 2f, marked = true, isArchive = true),
+                            SightMark(1, 20, false, Calendar.getInstance(), 2.55f),
+                            SightMark(1, 30, false, Calendar.getInstance(), 2.5f),
+                            SightMark(1, 40, false, Calendar.getInstance(), 2.45f),
                     ),
             ),
             onClick = {},
@@ -485,11 +491,11 @@ fun SightMarks_Preview() {
 @Composable
 fun SmallScreen_SightMarks_Preview() {
     SightMarksDiagram(
-            SightMarksDiagramState(
+            SightMarksState(
                     sightMarks = listOf(
-                            SightMark(10, true, Calendar.getInstance(), 3.25f),
-                            SightMark(20, true, Calendar.getInstance(), 3.2f),
-                            SightMark(50, false, Calendar.getInstance(), 2f),
+                            SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
+                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f),
+                            SightMark(1, 50, false, Calendar.getInstance(), 2f),
                     ),
             ),
             onClick = {},

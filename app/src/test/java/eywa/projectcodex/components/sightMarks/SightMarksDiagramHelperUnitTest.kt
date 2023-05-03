@@ -1,11 +1,11 @@
 package eywa.projectcodex.components.sightMarks
 
-import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramState
+import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
 
-class SightMarksDiagramStateUnitTest {
+class SightMarksDiagramHelperUnitTest {
     @Test
     fun testGetSightMarkAsPercentage() {
         val sights = listOf(
@@ -15,7 +15,7 @@ class SightMarksDiagramStateUnitTest {
                 SightMark(30, true, Calendar.getInstance(), 3.5f),
                 SightMark(50, false, Calendar.getInstance(), 3f),
         )
-        val state = SightMarksDiagramState(sightMarks = sights, isHighestNumberAtTheTop = false)
+        val state = SightMarksDiagramHelper(sightMarks = sights, isHighestNumberAtTheTop = false)
 
         assertEquals(
                 sights.map { (it.sightMark - 3f) / 2f },
@@ -35,7 +35,7 @@ class SightMarksDiagramStateUnitTest {
                 FormatStringParams(30f, 0.1f, "30.0"),
                 FormatStringParams(30f, 0.001f, "30.000"),
         ).forEach { params ->
-            val state = SightMarksDiagramState(
+            val state = SightMarksDiagramHelper(
                     sightMarks = listOf(SightMark(10, true, Calendar.getInstance(), params.majorTickDifference))
             )
             assertEquals(params.expected, state.formatTickLabel(params.value))

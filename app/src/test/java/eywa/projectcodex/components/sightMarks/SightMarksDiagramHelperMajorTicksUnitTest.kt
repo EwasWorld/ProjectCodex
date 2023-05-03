@@ -1,6 +1,6 @@
 package eywa.projectcodex.components.sightMarks
 
-import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramState
+import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -8,10 +8,10 @@ import org.junit.runners.Parameterized
 import java.util.*
 
 @RunWith(Parameterized::class)
-class SightMarksDiagramStateMajorTicksUnitTest(private val param: Params) {
+class SightMarksDiagramHelperMajorTicksUnitTest(private val param: Params) {
     @Test
     fun testMajorTicks() {
-        val state = SightMarksDiagramState(
+        val state = SightMarksDiagramHelper(
                 sightMarks = listOfNotNull(
                         SightMark(30, true, Calendar.getInstance(), param.sightMarkA),
                         param.sightMarkB?.let { SightMark(50, false, Calendar.getInstance(), it) },

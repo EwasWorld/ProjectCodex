@@ -26,7 +26,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 internal fun SightTape(
-        state: SightMarksDiagramState,
+        state: SightMarksDiagramHelper,
 ) {
     val tapeColour = CodexTheme.colors.sightMarksTapeBackground
     val tickColour = CodexTheme.colors.sightMarksTicksAndLabels
@@ -115,11 +115,12 @@ internal fun SightTape(
 @Composable
 fun Tape_SightMarks_Preview() {
     SightTape(
-            SightMarksDiagramState(
+            SightMarksDiagramHelper(
                     sightMarks = listOf(
-                            SightMark(30, true, Calendar.getInstance(), 3.15f),
-                            SightMark(50, false, Calendar.getInstance(), 2f),
+                            SightMark(1, 30, true, Calendar.getInstance(), 3.15f),
+                            SightMark(1, 50, false, Calendar.getInstance(), 2f),
                     ),
+                    isHighestNumberAtTheTop = true,
             ),
     )
 }

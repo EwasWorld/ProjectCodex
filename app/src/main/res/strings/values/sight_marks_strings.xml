@@ -12,5 +12,12 @@
     <string name="sight_marks__note_empty">-</string>
     <string name="sight_marks__marked">Marked:</string>
     <string name="sight_marks__archived">Archived:</string>
-    <!--    <string name="sight_marks__"></string>-->
+
+    <string name="sight_marks__add_button">Add new</string>
+    <string name="sight_marks__options_button">Options</string>
+
+    <string name="sight_marks__menu_title">Options</string>
+    <string name="sight_marks__menu_flip_diagram">Flip diagram</string>
+    <string name="sight_marks__menu_archive_all">Archive all sight marks</string>
+    <string name="sight_marks__menu_swap_dataset">Swap dataset</string>
 </resources>
