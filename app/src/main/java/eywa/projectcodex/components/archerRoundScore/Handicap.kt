@@ -35,7 +35,8 @@ object Handicap {
         require(roundDistances.distinctBy { it.subTypeId }.size == 1) { "Multiple subtypes given" }
 
         var low = 0 // best possible handicap
-        var high = 100 // worst possible handicap
+        // TODO_CURRENT Error if score is worse than max handicap
+        var high = if (use2023Handicaps) 150 else 100 // worst possible handicap
         while (true) {
             var testHC = floor((high + low) / 2.0).roundToInt()
             val testHCScore =

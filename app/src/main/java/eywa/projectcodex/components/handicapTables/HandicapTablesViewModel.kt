@@ -63,7 +63,7 @@ class HandicapTablesViewModel @Inject constructor(
             getScore(input)
         }
         else {
-            HandicapScore(
+            getScore(
                     Handicap.getHandicapForRound(
                             round = round.info.round,
                             roundArrowCounts = round.info.roundArrowCounts,
@@ -73,7 +73,6 @@ class HandicapTablesViewModel @Inject constructor(
                             arrows = null,
                             use2023Handicaps = use2023Tables,
                     ),
-                    input,
             )
         }
 
