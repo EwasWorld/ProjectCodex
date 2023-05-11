@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.components.sightMarks.SightMark
+import eywa.projectcodex.model.SightMark
 import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt

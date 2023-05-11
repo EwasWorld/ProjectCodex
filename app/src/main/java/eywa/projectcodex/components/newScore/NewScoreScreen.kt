@@ -203,7 +203,7 @@ class NewScoreScreen {
             )
         }
         CodexButton(
-                text = stringResource(R.string.general_complete),
+                text = stringResource(R.string.general_save),
                 enabled = !state.tooManyArrowsWarningShown,
                 buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(Submit) },

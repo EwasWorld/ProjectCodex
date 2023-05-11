@@ -95,6 +95,7 @@ class HandicapTablesScreen : ActionBarHelp {
 
             ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
                 NumberSetting(
+                        clazz = Int::class,
                         title = (
                                 if (state.inputHandicap) R.string.handicap_tables__handicap_field
                                 else R.string.handicap_tables__score_field

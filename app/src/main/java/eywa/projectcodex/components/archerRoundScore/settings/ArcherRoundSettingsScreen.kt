@@ -52,8 +52,10 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
                             .testTag(TestTag.SCREEN)
             ) {
                 NumberSetting(
+                        clazz = Int::class,
                         title = R.string.archer_round_settings__input_end_size,
                         currentValue = state.inputEndSize,
+                        placeholder = 6,
                         testTag = TestTag.INPUT_END_SIZE,
                         onValueChanged = { listener(InputEndSizeChanged(it)) },
                         helpListener = helpListener,
@@ -61,8 +63,10 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
                         helpBody = R.string.help_archer_round_settings__input_end_size_body,
                 )
                 NumberSetting(
+                        clazz = Int::class,
                         title = R.string.archer_round_settings__score_pad_end_size,
                         currentValue = state.scorePadEndSize,
+                        placeholder = 6,
                         testTag = TestTag.SCORE_PAD_END_SIZE,
                         onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
                         helpListener = helpListener,

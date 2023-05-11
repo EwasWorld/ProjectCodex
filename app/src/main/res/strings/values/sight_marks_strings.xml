@@ -8,16 +8,26 @@
     <string name="sight_marks__distance">Distance:</string>
     <string name="sight_marks__sight">Sight:</string>
     <string name="sight_marks__date_set">Date set:</string>
-    <string name="sight_marks__note">Note:</string>
-    <string name="sight_marks__note_empty">-</string>
-    <string name="sight_marks__marked">Marked:</string>
-    <string name="sight_marks__archived">Archived:</string>
+    <string name="sight_marks__note">Note</string>
+    <string name="sight_marks__note_placeholder">Add a note</string>
+    <string name="sight_marks__marked">Marked</string>
+    <string name="sight_marks__archived">Archived</string>
 
-    <string name="sight_marks__add_button">Add new</string>
+    <string name="sight_marks__add_button">New</string>
     <string name="sight_marks__options_button">Options</string>
+
+    <string name="sight_marks__detail_loading">Loading…</string>
+    <string name="sight_marks__diagram_placeholder">No sight marks\nTap the + to create one</string>
 
     <string name="sight_marks__menu_title">Options</string>
     <string name="sight_marks__menu_flip_diagram">Flip diagram</string>
     <string name="sight_marks__menu_archive_all">Archive all sight marks</string>
     <string name="sight_marks__menu_swap_dataset">Swap dataset</string>
+
+    <string name="help_sight_marks__sight_title">Sight mark</string>
+    <string name="help_sight_marks__sight_body">Your sight mark for the given distance</string>
+    <string name="help_sight_marks__distance_title">Distance</string>
+    <string name="help_sight_marks__distance_body">The distance this sight mark is for. Tap the units to switch between yards and metres</string>
+    <string name="help_sight_marks__date_title">Date set</string>
+    <string name="help_sight_marks__date_body">The date that this sight mark was last updated. This is updated automatically</string>
 </resources>

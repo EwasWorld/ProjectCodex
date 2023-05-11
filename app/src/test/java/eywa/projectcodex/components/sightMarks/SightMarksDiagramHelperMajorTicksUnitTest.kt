@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.sightMarks
 
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
+import eywa.projectcodex.model.SightMark
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,9 +14,10 @@ class SightMarksDiagramHelperMajorTicksUnitTest(private val param: Params) {
     fun testMajorTicks() {
         val state = SightMarksDiagramHelper(
                 sightMarks = listOfNotNull(
-                        SightMark(30, true, Calendar.getInstance(), param.sightMarkA),
-                        param.sightMarkB?.let { SightMark(50, false, Calendar.getInstance(), it) },
+                        SightMark(1, 30, true, Calendar.getInstance(), param.sightMarkA),
+                        param.sightMarkB?.let { SightMark(1, 50, false, Calendar.getInstance(), it) },
                 ),
+                isHighestNumberAtTheTop = true,
         )
 
         Assert.assertEquals(param.expectedMajorTickDifference, state.majorTickDifference, 0.0002f)

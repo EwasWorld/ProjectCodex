@@ -4,40 +4,30 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
-import eywa.projectcodex.components.sightMarks.SightMark
-import java.util.*
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import kotlinx.coroutines.launch
 
-class SightMarkDetailFragment : Fragment() {
+@AndroidEntryPoint
+class SightMarkDetailFragment : Fragment(), ActionBarHelp {
+    val viewModel: SightMarkDetailViewModel by viewModels()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                                .background(CodexTheme.colors.appBackground)
-                                .verticalScroll(rememberScrollState())
-                ) {
-                    SightMarkDetail(
-                            SightMark(
-                                    distance = 50,
-                                    isMetric = false,
-                                    dateSet = Calendar.getInstance(),
-                                    sightMark = 2.3f,
-                                    note = "This is a note",
-                                    marked = false,
-                            )
-                    )
-                }
+                val state by viewModel.state.collectAsState()
+
+                LaunchedEffect(state) { launch { handleEffects(state) } }
+
+                SightMarkDetailScreen(state = state) { viewModel.handle(it) }
             }
         }
     }
@@ -45,5 +35,14 @@ class SightMarkDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.title = getString(R.string.sight_marks__detail_title)
+    }
+
+    private fun handleEffects(state: SightMarkDetailState?) {
+        if (state == null) return
+
+        if (state.closeScreen) {
+            viewModel.handle(SightMarkDetailIntent.CloseHandled)
+            findNavController().popBackStack()
+        }
     }
 }

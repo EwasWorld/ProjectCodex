@@ -2,6 +2,8 @@ package eywa.projectcodex.hiltModules
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,6 +11,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.database.DatabaseMigrations
 import eywa.projectcodex.database.ScoresRoomDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 import javax.inject.Singleton
 
@@ -19,14 +24,31 @@ class DatabaseModule {
     @Singleton
     @Provides
     fun providesRoomDatabase(@ApplicationContext context: Context): ScoresRoomDatabase {
-        val scoresRoomDatabase =
-                Room.databaseBuilder(context, ScoresRoomDatabase::class.java, ScoresRoomDatabase.DATABASE_NAME)
-                        .addMigrations(
-                                DatabaseMigrations.MIGRATION_1_2,
-                                DatabaseMigrations.MIGRATION_2_3,
-                                DatabaseMigrations.MIGRATION_3_4,
-                                DatabaseMigrations.MIGRATION_4_5,
-                        ).build()
+        var scoresRoomDatabase: ScoresRoomDatabase? = null
+        scoresRoomDatabase = Room
+                .databaseBuilder(
+                        context,
+                        ScoresRoomDatabase::class.java,
+                        ScoresRoomDatabase.DATABASE_NAME,
+                )
+                .addMigrations(
+                        DatabaseMigrations.MIGRATION_1_2,
+                        DatabaseMigrations.MIGRATION_2_3,
+                        DatabaseMigrations.MIGRATION_3_4,
+                        DatabaseMigrations.MIGRATION_4_5,
+                )
+                .addCallback(
+                        object : RoomDatabase.Callback() {
+                            override fun onOpen(db: SupportSQLiteDatabase) {
+                                super.onOpen(db)
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    scoresRoomDatabase!!.insertDefaults()
+                                }
+                            }
+                        }
+                )
+                .build()
+
         /*
          * Write ahead mode suspected of causes issues with the instrumented test,
          * crashing suite runs with the error:

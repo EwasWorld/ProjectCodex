@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 7,
-    "identityHash": "96180e0158677898a5af4b18a1fe9d51",
+    "version": 8,
+    "identityHash": "9cd4f1b075762493c6e36c20095cc9a2",
     "entities": [
       {
         "tableName": "archer_rounds",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archerRoundId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dateShot` INTEGER NOT NULL, `archerId` INTEGER NOT NULL, `countsTowardsHandicap` INTEGER NOT NULL, `bowId` INTEGER, `roundId` INTEGER, `roundSubTypeId` INTEGER, `goalScore` INTEGER, `shootStatus` TEXT, FOREIGN KEY(`roundId`) REFERENCES `rounds`(`roundId`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`roundId`, `roundSubTypeId`) REFERENCES `round_sub_types`(`roundId`, `subTypeId`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archerRoundId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dateShot` INTEGER NOT NULL, `archerId` INTEGER NOT NULL, `countsTowardsHandicap` INTEGER NOT NULL, `bowId` INTEGER, `roundId` INTEGER, `roundSubTypeId` INTEGER, `goalScore` INTEGER, `shootStatus` TEXT, FOREIGN KEY(`roundId`) REFERENCES `rounds`(`roundId`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`roundId`, `roundSubTypeId`) REFERENCES `round_sub_types`(`roundId`, `subTypeId`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`bowId`) REFERENCES `bows`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "archerRoundId",
@@ -71,6 +71,15 @@
         },
         "indices": [
           {
+            "name": "index_archer_rounds_bowId",
+            "unique": false,
+            "columnNames": [
+              "bowId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_archer_rounds_bowId` ON `${TABLE_NAME}` (`bowId`)"
+          },
+          {
             "name": "index_archer_rounds_roundId",
             "unique": false,
             "columnNames": [
@@ -103,6 +112,17 @@
             "referencedColumns": [
               "roundId",
               "subTypeId"
+            ]
+          },
+          {
+            "table": "bows",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bowId"
+            ],
+            "referencedColumns": [
+              "id"
             ]
           }
         ]
@@ -405,6 +425,122 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "bows",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `isSightMarkDiagramHighestAtTop` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSightMarkDiagramHighestAtTop",
+            "columnName": "isSightMarkDiagramHighestAtTop",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "sight_marks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bowId` INTEGER, `distance` INTEGER NOT NULL, `isMetric` INTEGER NOT NULL, `dateSet` INTEGER NOT NULL, `sightMark` REAL NOT NULL, `note` TEXT, `isMarked` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, FOREIGN KEY(`bowId`) REFERENCES `bows`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bowId",
+            "columnName": "bowId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isMetric",
+            "columnName": "isMetric",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateSet",
+            "columnName": "dateSet",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sightMark",
+            "columnName": "sightMark",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isMarked",
+            "columnName": "isMarked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isArchived",
+            "columnName": "isArchived",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_sight_marks_bowId",
+            "unique": false,
+            "columnNames": [
+              "bowId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sight_marks_bowId` ON `${TABLE_NAME}` (`bowId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "bows",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bowId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "views": [
@@ -414,12 +550,12 @@
       },
       {
         "viewName": "personal_bests",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT \n                    roundId,\n                    nonNullSubTypeId as roundSubTypeId,\n                    MAX(score) as score\n                FROM completed_round_scores\n                WHERE isComplete = 1\n                GROUP BY roundId, roundSubTypeId"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT \n                    roundId,\n                    nonNullSubTypeId as roundSubTypeId,\n                    MAX(score) as score\n                FROM completed_round_scores\n                GROUP BY roundId, roundSubTypeId\n                HAVING isComplete = 1"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '96180e0158677898a5af4b18a1fe9d51')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9cd4f1b075762493c6e36c20095cc9a2')"
     ]
   }
 }

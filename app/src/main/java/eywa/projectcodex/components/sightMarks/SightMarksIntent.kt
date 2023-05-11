@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.sightMarks
 
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
+import eywa.projectcodex.model.SightMark
 
 sealed class SightMarksIntent {
     data class MenuAction(val action: SightMarksMenuIntent) : SightMarksIntent()

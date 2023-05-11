@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
+val CODEX_CHIP_SPACING = 10.dp
 
 /**
  * Text should be no more than 20 characters

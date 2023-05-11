@@ -54,6 +54,7 @@
     <string name="general_cancelling">Cancelling</string>
     <string name="general_cancelled">Cancelled</string>
     <string name="general_complete">Complete</string>
+    <string name="general_save">Save</string>
     <string name="general_continue">Continue</string>
     <string name="general_next">Next</string>
     <string name="general__reset_edits">Reset</string>
@@ -66,6 +67,10 @@
     <string name="err__internal_error">Internal error occurred</string>
     <string name="err__try_again_error">Unexpected error occurred, please try again</string>
 
+    <string name="err__invalid_int_digit">Invalid character, must be a number</string>
+    <string name="err__invalid_float_digit">Invalid character, must be a number or a decimal point</string>
+    <string name="err__negative_is_invalid">Number must be positive</string>
+    <string name="err__required_field">Required</string>
 
     <!-- TODO Remove after compose-based nav -->
     <string name="archer_round_title">Score</string>

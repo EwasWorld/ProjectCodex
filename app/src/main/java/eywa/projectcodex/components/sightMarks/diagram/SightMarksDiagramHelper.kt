@@ -1,6 +1,6 @@
 package eywa.projectcodex.components.sightMarks.diagram
 
-import eywa.projectcodex.components.sightMarks.SightMark
+import eywa.projectcodex.model.SightMark
 import kotlin.math.*
 
 class SightMarksDiagramHelper(
@@ -15,8 +15,8 @@ class SightMarksDiagramHelper(
             }
 
     val majorTickDifference = 10f.pow(majorTickDifferenceLog10)
-    val maxMajorTick = roundMajorDiff(highestSightMark, ::ceil).addMajorTick(2)
-    val minMajorTick = roundMajorDiff(lowestSightMark, ::floor).addMajorTick(-2)
+    val maxMajorTick = roundMajorDiff(highestSightMark, ::ceil).addMajorTick(1)
+    val minMajorTick = roundMajorDiff(lowestSightMark, ::floor).addMajorTick(-1)
     val totalMajorTicks = ((maxMajorTick - minMajorTick) / majorTickDifference).toInt()
 
     private fun Float.addMajorTick(n: Int) =
@@ -35,7 +35,7 @@ class SightMarksDiagramHelper(
 
     fun getMajorTickLabel(index: Int) =
             if (isHighestNumberAtTheTop) maxMajorTick - (index * majorTickDifference)
-            else maxMajorTick + (index * majorTickDifference)
+            else minMajorTick + (index * majorTickDifference)
 
     fun formatTickLabel(label: Float) =
             if (majorTickDifferenceLog10 < 0) "%.${abs(majorTickDifferenceLog10)}f".format(label)

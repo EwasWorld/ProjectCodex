@@ -30,8 +30,8 @@ import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.components.sightMarks.SightMark
 import eywa.projectcodex.components.sightMarks.SightMarksState
+import eywa.projectcodex.model.SightMark
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -66,9 +66,9 @@ fun SightMarksDiagram(
     @Composable
     fun SightMark.getColour(): Color {
         val base =
-                if (marked) CodexTheme.colors.sightMarksMarkedBackground
+                if (isMarked) CodexTheme.colors.sightMarksMarkedBackground
                 else CodexTheme.colors.sightMarksIndicator
-        return base.copy(alpha = if (isArchive) ARCHIVED_ALPHA else 1f)
+        return base.copy(alpha = if (isArchived) ARCHIVED_ALPHA else 1f)
     }
 
     Layout(
@@ -284,6 +284,10 @@ private class IndicatorPlaceables(
 
         left = l.resolveList(highestAtTop)
         right = r.resolveList(highestAtTop)
+        if (r.isEmpty()) {
+            right = left
+            left = emptyList()
+        }
     }
 
     fun moveAllRight() {
@@ -341,7 +345,7 @@ private class Offsets(
             indicatorPlaceables.left.getMaxWidth(true),
             indicatorPlaceables.right.getMaxWidth(false),
     )
-    val tapeOffset = maxIndicatorWidth
+    val tapeOffset = maxIndicatorWidth.takeIf { indicatorPlaceables.left.isNotEmpty() } ?: 0
     val rightIndicatorOffset = tapeOffset + tapeWidth
     val totalWidth = rightIndicatorOffset + maxIndicatorWidth
 
@@ -366,7 +370,7 @@ private class Offsets(
             val offsets = Offsets(indicatorPlaceables, tapeWidth)
 
             // If screen is too small for display on both sides, move all items to the right
-            if (offsets.totalWidth < singleSideThreshold) return offsets
+            if (offsets.totalWidth < singleSideThreshold || indicatorPlaceables.left.isEmpty()) return offsets
 
             indicatorPlaceables.moveAllRight()
             return Offsets(indicatorPlaceables, tapeWidth)
@@ -408,14 +412,14 @@ private fun SightMarkIndicator(
             horizontalArrangement = Arrangement.spacedBy(3.dp),
             modifier = Modifier
                     .modifierIf(
-                            sightMark.marked,
+                            sightMark.isMarked,
                             Modifier
                                     .padding(vertical = 3.dp)
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(CodexTheme.colors.sightMarksMarkedBackground)
                                     .padding(horizontal = 7.dp)
                     )
-                    .modifierIf(sightMark.isArchive, Modifier.alpha(ARCHIVED_ALPHA))
+                    .modifierIf(sightMark.isArchived, Modifier.alpha(ARCHIVED_ALPHA))
                     .clickable { onClick(sightMark) }
     ) {
         if (isLeft) NoteIcon()
@@ -423,8 +427,8 @@ private fun SightMarkIndicator(
                 text = text.joinToString(" "),
                 style = CodexTypography.NORMAL
                         .copy(
-                                fontStyle = if (sightMark.marked) FontStyle.Italic else FontStyle.Normal,
-                                fontWeight = if (sightMark.marked) FontWeight.Bold else FontWeight.Normal,
+                                fontStyle = if (sightMark.isMarked) FontStyle.Italic else FontStyle.Normal,
+                                fontWeight = if (sightMark.isMarked) FontWeight.Bold else FontWeight.Normal,
                         ),
                 color = CodexTheme.colors.sightMarksIndicator,
                 textAlign = TextAlign.Center,
@@ -452,8 +456,8 @@ data class SightMarksDiagramIndicatorImpl(
 
     override fun isLeft() = !sightMarkObj.isMetric
     override fun getChevron(isLeft: Boolean): Placeable = if (isLeft) chevronLeft else chevronRight
-    override fun getPadding(): Float = if (sightMarkObj.marked) 0f else INDICATOR_PADDING.toFloat()
-    override fun getPlacePriority(): Int = if (sightMarkObj.marked) 1 else 0
+    override fun getPadding(): Float = if (sightMarkObj.isMarked) 0f else INDICATOR_PADDING.toFloat()
+    override fun getPlacePriority(): Int = if (sightMarkObj.isMarked) 1 else 0
 }
 
 @Preview(
@@ -465,15 +469,15 @@ fun SightMarks_Preview() {
     SightMarksDiagram(
             SightMarksState(
                     sightMarks = listOf(
-                            SightMark(1, 10, true, Calendar.getInstance(), 3.35f, isArchive = true),
-                            SightMark(1, 10, true, Calendar.getInstance(), 3.3f, marked = true),
+                            SightMark(1, 10, true, Calendar.getInstance(), 3.35f, isArchived = true),
+                            SightMark(1, 10, true, Calendar.getInstance(), 3.3f, isMarked = true),
                             SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
-                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f, note = "", marked = true),
+                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f, note = "", isMarked = true),
                             SightMark(1, 30, true, Calendar.getInstance(), 3.15f),
                             SightMark(1, 50, false, Calendar.getInstance(), 4f),
                             SightMark(1, 50, false, Calendar.getInstance(), 4f),
                             SightMark(1, 50, false, Calendar.getInstance(), 2.01f, note = ""),
-                            SightMark(1, 50, false, Calendar.getInstance(), 2f, marked = true, isArchive = true),
+                            SightMark(1, 50, false, Calendar.getInstance(), 2f, isMarked = true, isArchived = true),
                             SightMark(1, 20, false, Calendar.getInstance(), 2.55f),
                             SightMark(1, 30, false, Calendar.getInstance(), 2.5f),
                             SightMark(1, 40, false, Calendar.getInstance(), 2.45f),

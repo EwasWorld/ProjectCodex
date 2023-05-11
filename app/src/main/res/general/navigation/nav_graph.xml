@@ -60,13 +60,13 @@
         >
         <argument
             android:name="backStackBehaviour"
-            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
             android:defaultValue="NONE"
+            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
             />
         <argument
             android:name="archerRoundId"
-            app:argType="integer"
             android:defaultValue="-1"
+            app:argType="integer"
             />
         <action
             android:id="@+id/action_newScoreFragment_to_archerRoundFragment"
@@ -99,8 +99,8 @@
         >
         <argument
             android:name="archerRoundId"
-            app:argType="integer"
             android:defaultValue="-1"
+            app:argType="integer"
             />
     </fragment>
     <fragment
@@ -127,5 +127,10 @@
         android:id="@+id/sightMarkDetailFragment"
         android:name="eywa.projectcodex.components.sightMarks.detail.SightMarkDetailFragment"
         android:label="SightMarkDetailFragment"
-        />
+        >
+        <argument
+            android:name="sightMarkId"
+            app:argType="integer"
+            />
+    </fragment>
 </navigation>

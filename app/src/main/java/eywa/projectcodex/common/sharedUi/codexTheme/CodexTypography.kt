@@ -37,6 +37,10 @@ object CodexTypography {
             fontSize = 14.sp,
     )
 
+    val X_SMALL = NORMAL.copy(
+            fontSize = 10.sp,
+    )
+
     val DIALOG_TITLE = NORMAL.copy(
             fontSize = 24.sp,
     )

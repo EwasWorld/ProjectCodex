@@ -2,13 +2,11 @@ package eywa.projectcodex.common.sharedUi
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldColors
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,6 +19,17 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asPlaceholderStyle
 
+@Composable
+fun CodexTextFieldRoundedSurface(
+        color: Color = CodexTheme.colors.surfaceOnBackground,
+        modifier: Modifier = Modifier,
+        content: @Composable () -> Unit
+) = Surface(
+        color = color,
+        shape = RoundedCornerShape(5.dp),
+        content = content,
+        modifier = modifier,
+)
 
 @Composable
 fun CodexTextField(
@@ -29,6 +38,7 @@ fun CodexTextField(
         labelText: String? = null,
         modifier: Modifier = Modifier,
         singleLine: Boolean = false,
+        isError: Boolean = false,
         textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
@@ -41,6 +51,7 @@ fun CodexTextField(
         labelText = labelText,
         modifier = modifier.testTag(state.testTag),
         singleLine = singleLine,
+        isError = isError,
         textStyle = textStyle,
         enabled = enabled,
         colors = colors,
@@ -57,6 +68,7 @@ fun CodexTextField(
         labelText: String? = null,
         modifier: Modifier = Modifier,
         singleLine: Boolean = false,
+        isError: Boolean = false,
         textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
@@ -84,12 +96,13 @@ fun CodexTextField(
                 enabled = enabled,
                 interactionSource = interactionSource,
                 singleLine = singleLine,
+                isError = isError,
                 visualTransformation = VisualTransformation.None,
                 placeholder = placeholderText?.let {
                     {
                         Text(
                                 text = placeholderText,
-                                style = textStyle.asPlaceholderStyle(),
+                                style = textStyle.asPlaceholderStyle().copy(textAlign = textStyle.textAlign),
                         )
                     }
 
@@ -121,11 +134,15 @@ object CodexTextField {
     ) = TextFieldDefaults.outlinedTextFieldColors(
             textColor = CodexTypography.NORMAL.color,
             backgroundColor = Color.Transparent,
+
             focusedBorderColor = focussedColor,
-            unfocusedBorderColor = unfocussedColor,
-            disabledBorderColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
             focusedLabelColor = focussedColor,
+            unfocusedBorderColor = unfocussedColor,
             unfocusedLabelColor = unfocussedColor,
+
+            disabledBorderColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
             disabledLabelColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
+            errorBorderColor = CodexTheme.colors.errorOnAppBackground,
+            errorLabelColor = CodexTheme.colors.errorOnAppBackground,
     )
 }

@@ -5,19 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -80,7 +77,7 @@ class EmailScoresScreen : ActionBarHelp {
                             .background(CodexTheme.colors.appBackground)
                             .padding(15.dp)
             ) {
-                RoundedSurface(
+                CodexTextFieldRoundedSurface(
                         modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_email_scores__to_title)
                 ) {
                     CodexTextField(
@@ -93,7 +90,7 @@ class EmailScoresScreen : ActionBarHelp {
                                     .fillMaxWidth()
                     )
                 }
-                RoundedSurface(
+                CodexTextFieldRoundedSurface(
                         modifier = Modifier.updateHelpDialogPosition(
                                 helpListener,
                                 R.string.help_email_scores__subject_title
@@ -110,7 +107,7 @@ class EmailScoresScreen : ActionBarHelp {
                     )
                 }
                 Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+                        horizontalArrangement = Arrangement.spacedBy(CODEX_CHIP_SPACING, Alignment.Start),
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                                 .fillMaxWidth()
@@ -137,7 +134,7 @@ class EmailScoresScreen : ActionBarHelp {
                             )
                     )
                 }
-                RoundedSurface {
+                CodexTextFieldRoundedSurface {
                     Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.padding(10.dp)
@@ -153,7 +150,7 @@ class EmailScoresScreen : ActionBarHelp {
                                                 R.string.help_email_scores__message_start_title
                                         )
                         )
-                        RoundedSurface(
+                        CodexTextFieldRoundedSurface(
                                 color = CodexTheme.colors.disabledOnSurfaceOnBackground,
                                 modifier = Modifier
                                         .padding(horizontal = 5.dp)
@@ -271,18 +268,6 @@ class EmailScoresScreen : ActionBarHelp {
                 )
         )
     }
-
-    @Composable
-    fun RoundedSurface(
-            color: Color = CodexTheme.colors.surfaceOnBackground,
-            modifier: Modifier = Modifier,
-            content: @Composable () -> Unit
-    ) = Surface(
-            color = color,
-            shape = RoundedCornerShape(5.dp),
-            content = content,
-            modifier = modifier,
-    )
 
     object TestTag {
         private const val PREFIX = "EMAIL_SCORE_"

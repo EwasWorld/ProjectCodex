@@ -10,9 +10,6 @@ enum class SightMarksMenuDialogItem(
         val intent: SightMarksMenuIntent,
 ) {
     FLIP_DIAGRAM(R.string.sight_marks__menu_flip_diagram, SightMarksMenuIntent.FlipDiagram),
-
-    @Deprecated(message = "Temp, to remove")
-    SWAP_DATASET(R.string.sight_marks__menu_swap_dataset, SightMarksMenuIntent.SwitchDataset),
     ARCHIVE_ALL(R.string.sight_marks__menu_archive_all, SightMarksMenuIntent.ArchiveAll),
     ;
 

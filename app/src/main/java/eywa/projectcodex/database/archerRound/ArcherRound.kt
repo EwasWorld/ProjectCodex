@@ -3,6 +3,7 @@ package eywa.projectcodex.database.archerRound
 import androidx.room.*
 import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -28,6 +29,12 @@ import java.util.*
                     childColumns = ["roundId", "roundSubTypeId"],
                     onDelete = ForeignKey.SET_NULL,
             ),
+            ForeignKey(
+                    entity = DatabaseBow::class,
+                    parentColumns = ["id"],
+                    childColumns = ["bowId"],
+                    onDelete = ForeignKey.CASCADE,
+            ),
         ],
 )
 data class ArcherRound(
@@ -36,7 +43,7 @@ data class ArcherRound(
         val dateShot: Date,
         val archerId: Int,
         val countsTowardsHandicap: Boolean = true,
-        val bowId: Int? = null,
+        @ColumnInfo(index = true) val bowId: Int? = null,
         @ColumnInfo(index = true) val roundId: Int? = null,
         val roundSubTypeId: Int? = null,
         val goalScore: Int? = null,
