@@ -17,13 +17,18 @@ class SightMarksDiagramHelper(
     val majorTickDifference = 10f.pow(majorTickDifferenceLog10)
     val maxMajorTick = roundMajorDiff(highestSightMark, ::ceil).addMajorTick(1)
     val minMajorTick = roundMajorDiff(lowestSightMark, ::floor).addMajorTick(-1)
-    val totalMajorTicks = ((maxMajorTick - minMajorTick) / majorTickDifference).toInt()
+    val totalMajorTicks = ((maxMajorTick - minMajorTick) / majorTickDifference).roundToInt()
 
     private fun Float.addMajorTick(n: Int) =
             if (highestSightMark == lowestSightMark) this + majorTickDifference * n else this
 
-    private fun roundMajorDiff(value: Float, roundingFunction: (Float) -> Float) =
-            (roundingFunction(value / majorTickDifference) * majorTickDifference)
+    private fun roundMajorDiff(value: Float, roundingFunction: (Float) -> Float): Float {
+        val diff = value / majorTickDifference
+        val standardRound = round(diff)
+        // Try to account for floating point arithmetic errors
+        val rounded = if (abs(standardRound - diff) < 0.005f) standardRound else roundingFunction(diff)
+        return rounded * majorTickDifference
+    }
 
     /**
      * Adjusts [SightMark.sightMark] to a vertical offset accounting for [minMajorTick] being non-zero

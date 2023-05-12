@@ -40,11 +40,11 @@ class NumberValidatorGroup<I : Number>(
             when {
                 isRequired && isDirty && value.isNullOrBlank() -> R.string.err__required_field
                 value.isNullOrBlank() -> null
-                typeValidator.regex.matchEntire(value) == null -> typeValidator.regexFailedErrorMessageId
+                !typeValidator.isValid(value) -> typeValidator.regexFailedErrorMessageId
                 else -> validators.firstOrNull { !it.isValid(value) }?.errorMessageId
             }
 
-    fun parse(value: String) = typeValidator.transform(value)
+    fun parse(value: String) = if (getFirstError(value) != null) null else typeValidator.transform(value)
 }
 
 /**
@@ -52,24 +52,30 @@ class NumberValidatorGroup<I : Number>(
  * Provide a transformation function to convert from [String] to the given type.
  */
 sealed class TypeValidator<I : Number>(
-        val regex: Regex,
+        private val regex: Regex,
+        private val partialRegex: Regex,
         val regexFailedErrorMessageId: Int,
 ) {
     object FloatValidator : TypeValidator<Float>(
-            Regex("-?[0-9]*\\.?[0-9]*"),
-            R.string.err__invalid_float_digit,
+            regex = Regex("-?([0-9]+\\.?[0-9]*|\\.[0-9]+)"),
+            partialRegex = Regex("-?[0-9]*\\.?[0-9]*"),
+            regexFailedErrorMessageId = R.string.err__invalid_float_digit,
     ) {
         override fun transform(value: String) = value.toFloatOrNull()
     }
 
     object IntValidator : TypeValidator<Int>(
-            Regex("-?[0-9]*"),
-            R.string.err__invalid_int_digit,
+            regex = Regex("-?[0-9]+"),
+            partialRegex = Regex("-?[0-9]*"),
+            regexFailedErrorMessageId = R.string.err__invalid_int_digit,
     ) {
         override fun transform(value: String) = value.toIntOrNull()
     }
 
     abstract fun transform(value: String): I?
+
+    fun isValid(value: String): Boolean = regex.matchEntire(value) != null
+    fun isPartiallyValid(value: String): Boolean = partialRegex.matchEntire(value) != null
 }
 
 enum class NumberValidator(@StringRes val errorMessageId: Int) {

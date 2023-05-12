@@ -93,12 +93,12 @@ fun SightMarkDetail(
                     )
                 }
             }
-            Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     NumberSetting(
                             clazz = String::class,
@@ -112,22 +112,22 @@ fun SightMarkDetail(
                             helpTitle = R.string.help_sight_marks__distance_title,
                             helpBody = R.string.help_sight_marks__distance_body,
                     )
-                    if (state.distanceValidatorError != null) {
-                        Text(
-                                text = stringResource(state.distanceValidatorError),
-                                style = CodexTypography.SMALL,
-                                color = CodexTheme.colors.errorOnAppBackground,
-                        )
-                    }
+                    Text(
+                            text = stringResource(
+                                    if (state.isMetric) R.string.units_meters_short else R.string.units_yards_short
+                            ),
+                            color = CodexTheme.colors.linkText,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.clickable { listener(ToggleIsMetric) }
+                    )
                 }
-                Text(
-                        text = stringResource(
-                                if (state.isMetric) R.string.units_meters_short else R.string.units_yards_short
-                        ),
-                        color = CodexTheme.colors.linkText,
-                        textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable { listener(ToggleIsMetric) }
-                )
+                if (state.distanceValidatorError != null) {
+                    Text(
+                            text = stringResource(state.distanceValidatorError),
+                            style = CodexTypography.SMALL,
+                            color = CodexTheme.colors.errorOnAppBackground,
+                    )
+                }
             }
 
             state.originalSightMark?.dateSet?.let { dateSet ->

@@ -34,8 +34,7 @@ class SightMarksDiagramHelperMajorTicksUnitTest(private val param: Params) {
                  * General
                  */
                 Params(3.15f, 2.1f, 1f, 4f, 2f, 2),
-                // Note: actually want maxMajor to be 3.15 but float arithmetic errors are causing rounding errors
-                Params(3.15f, 3.1f, 0.01f, 3.16f, 3.1f, 5),
+                Params(3.15f, 3.1f, 0.01f, 3.15f, 3.10f, 5),
 
                 /*
                  * Magnitude
@@ -55,9 +54,9 @@ class SightMarksDiagramHelperMajorTicksUnitTest(private val param: Params) {
                 /*
                  * Single sight mark
                  */
-                Params(3.15f, null, 1f, 6f, 1f, 5),
-                Params(0.0315f, null, 0.01f, 0.06f, 0.01f, 5),
-                Params(31.5f, null, 10f, 60f, 10f, 5),
+                Params(3.15f, null, 1f, 5f, 2f, 3),
+                Params(0.0315f, null, 0.01f, 0.05f, 0.02f, 3),
+                Params(31.5f, null, 10f, 50f, 20f, 3),
         )
     }
 
