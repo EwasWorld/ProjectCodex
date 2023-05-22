@@ -27,16 +27,20 @@ class MainMenuRobot(
         HandicapTablesRobot(composeTestRule).apply { block() }
     }
 
+    fun clickSightMarks(block: SightMarksRobot.() -> Unit = {}) {
+        clickElement(MainMenuScreen.TestTag.SIGHT_MARKS)
+        SightMarksRobot(composeTestRule).apply { block() }
+    }
+
     fun clickAboutIcon(block: AboutRobot.() -> Unit) {
         clickElement(MainMenuScreen.TestTag.ABOUT)
         AboutRobot(composeTestRule).apply(block)
     }
 
     fun clickCancelOnExitDialog() {
-        composeTestRule.onNode(
-                hasTestTag(SimpleDialogTestTag.TITLE)
-                        .and(hasText("Going so soon?"))
-        ).assertIsDisplayed()
+        composeTestRule
+                .onNode(hasTestTag(SimpleDialogTestTag.TITLE).and(hasText("Going so soon?")))
+                .assertIsDisplayed()
         composeTestRule.onNode(hasTestTag(SimpleDialogTestTag.NEGATIVE_BUTTON)).performClick()
     }
 }

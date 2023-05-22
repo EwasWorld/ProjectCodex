@@ -34,7 +34,7 @@ fun CodexIconButton(
     IconButton(
             onClick = onClick,
             enabled = enabled,
-            modifier = Modifier.padding(3.dp)
+            modifier = modifier.padding(3.dp)
     ) {
         Column(
                 verticalArrangement = Arrangement.Center,
@@ -44,7 +44,7 @@ fun CodexIconButton(
                     imageVector = icon,
                     contentDescription = contentDescription.takeIf { captionBelow.isNullOrBlank() },
                     tint = color,
-                    modifier = modifier.scale(1.2f),
+                    modifier = Modifier.scale(1.2f),
             )
             if (!captionBelow.isNullOrBlank()) {
                 Text(

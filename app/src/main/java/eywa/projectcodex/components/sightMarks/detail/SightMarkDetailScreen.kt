@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,8 +28,10 @@ import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.model.SightMark
 import java.util.*
 
@@ -43,6 +46,7 @@ fun SightMarkDetailScreen(
                     .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
                     .verticalScroll(rememberScrollState())
+                    .testTag(SCREEN.getTestTag())
     ) {
         if (state == null) {
             Text(
@@ -79,7 +83,7 @@ fun SightMarkDetail(
                         currentValue = state.sightMark,
                         isError = state.sightMarkValidatorError != null,
                         placeholder = "2.3f",
-                        testTag = SightMarkDetailTestTags.SIGHT,
+                        testTag = SIGHT.getTestTag(),
                         onValueChanged = { listener(SightMarkUpdated(it ?: "")) },
                         helpListener = helpListener,
                         helpTitle = R.string.help_sight_marks__sight_title,
@@ -90,6 +94,7 @@ fun SightMarkDetail(
                             text = stringResource(state.sightMarkValidatorError),
                             style = CodexTypography.SMALL,
                             color = CodexTheme.colors.errorOnAppBackground,
+                            modifier = Modifier.testTag(SIGHT_ERROR_TEXT.getTestTag())
                     )
                 }
             }
@@ -106,7 +111,7 @@ fun SightMarkDetail(
                             currentValue = state.distance,
                             isError = state.distanceValidatorError != null,
                             placeholder = "50",
-                            testTag = SightMarkDetailTestTags.SIGHT,
+                            testTag = DISTANCE.getTestTag(),
                             onValueChanged = { listener(DistanceUpdated(it ?: "")) },
                             helpListener = helpListener,
                             helpTitle = R.string.help_sight_marks__distance_title,
@@ -118,7 +123,9 @@ fun SightMarkDetail(
                             ),
                             color = CodexTheme.colors.linkText,
                             textDecoration = TextDecoration.Underline,
-                            modifier = Modifier.clickable { listener(ToggleIsMetric) }
+                            modifier = Modifier
+                                    .clickable { listener(ToggleIsMetric) }
+                                    .testTag(DISTANCE_UNIT.getTestTag())
                     )
                 }
                 if (state.distanceValidatorError != null) {
@@ -137,6 +144,7 @@ fun SightMarkDetail(
                         helpListener = helpListener,
                         helpTitle = R.string.help_sight_marks__date_title,
                         helpBody = R.string.help_sight_marks__date_body,
+                        textModifier = Modifier.testTag(DATE.getTestTag())
                 )
             }
             FlowRow(
@@ -150,13 +158,13 @@ fun SightMarkDetail(
                 CodexChip(
                         text = stringResource(R.string.sight_marks__marked),
                         selected = state.isMarked,
-                        testTag = SightMarkDetailTestTags.MARKED,
+                        testTag = MARKED.getTestTag(),
                         onToggle = { listener(ToggleIsMarked) },
                 )
                 CodexChip(
                         text = stringResource(R.string.sight_marks__archived),
                         selected = state.isArchived,
-                        testTag = SightMarkDetailTestTags.ARCHIVED,
+                        testTag = ARCHIVED.getTestTag(),
                         onToggle = { listener(ToggleIsArchived) },
                 )
             }
@@ -166,7 +174,7 @@ fun SightMarkDetail(
                         state = CodexTextFieldState(
                                 text = state.note ?: "",
                                 onValueChange = { listener(NoteUpdated(it)) },
-                                testTag = SightMarkDetailTestTags.NOTE,
+                                testTag = NOTE.getTestTag(),
                         ),
                         placeholderText = stringResource(R.string.sight_marks__note_placeholder),
                         labelText = stringResource(R.string.sight_marks__note),
@@ -187,18 +195,21 @@ fun SightMarkDetail(
                             contentDescription = stringResource(R.string.general_delete),
                             captionBelow = stringResource(R.string.general_delete),
                             onClick = { listener(DeleteClicked) },
+                            modifier = Modifier.testTag(DELETE_BUTTON.getTestTag())
                     )
                     CodexIconButton(
                             icon = Icons.Default.Close,
                             contentDescription = stringResource(R.string.general_cancel),
                             captionBelow = stringResource(R.string.general_cancel),
                             onClick = { listener(CancelClicked) },
+                            modifier = Modifier.testTag(CANCEL_BUTTON.getTestTag())
                     )
                     CodexIconButton(
                             icon = Icons.Default.Refresh,
                             contentDescription = stringResource(R.string.general__reset_edits),
                             captionBelow = stringResource(R.string.general__reset_edits),
                             onClick = { listener(ResetClicked) },
+                            modifier = Modifier.testTag(RESET_BUTTON.getTestTag())
                     )
                 }
                 CodexIconButton(
@@ -207,23 +218,35 @@ fun SightMarkDetail(
                         captionBelow = stringResource(R.string.general_save),
                         onClick = { listener(SaveClicked) },
                         enabled = state.isFormValid,
+                        modifier = Modifier.testTag(SAVE_BUTTON.getTestTag())
                 )
             }
         }
     }
 }
 
-object SightMarkDetailTestTags {
-    private const val PREFIX = "SIGHT_MARK_DETAIL_"
 
-    const val SCREEN = "${PREFIX}SCREEN"
-    const val SIGHT = "${PREFIX}SIGHT_INPUT"
-    const val DISTANCE = "${PREFIX}DISTANCE_INPUT"
-    const val DISTANCE_UNIT = "${PREFIX}DISTANCE_UNIT"
-    const val DATE = "${PREFIX}DATE"
-    const val MARKED = "${PREFIX}MARKED"
-    const val ARCHIVED = "${PREFIX}ARCHIVED"
-    const val NOTE = "${PREFIX}NOTE"
+enum class SightMarkDetailTestTag : CodexTestTag {
+    SCREEN,
+    SIGHT,
+    SIGHT_ERROR_TEXT,
+    DISTANCE,
+    DISTANCE_ERROR_TEXT,
+    DISTANCE_UNIT,
+    DATE,
+    MARKED,
+    ARCHIVED,
+    NOTE,
+    SAVE_BUTTON,
+    RESET_BUTTON,
+    CANCEL_BUTTON,
+    DELETE_BUTTON,
+    ;
+
+    override val screenName: String
+        get() = "SIGHT_MARK_DETAIL"
+
+    override fun getElement(): String = name
 }
 
 @Preview(

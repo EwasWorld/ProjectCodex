@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -27,6 +28,7 @@ import eywa.projectcodex.common.sharedUi.CodexMenuDialog
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagram
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuDialogItem
 import eywa.projectcodex.model.SightMark
@@ -47,6 +49,7 @@ fun SightMarksScreen(
                     .verticalScroll(rememberScrollState())
                     .horizontalScroll(rememberScrollState())
                     .padding(15.dp)
+                    .testTag(SightMarksTestTag.SCREEN.getTestTag())
     ) {
         Row(
                 horizontalArrangement = Arrangement.Center,
@@ -57,6 +60,8 @@ fun SightMarksScreen(
                     icon = Icons.Default.Add,
                     contentDescription = stringResource(R.string.sight_marks__add_button),
                     captionBelow = stringResource(R.string.sight_marks__add_button),
+                    modifier = Modifier
+                            .testTag(SightMarksTestTag.ADD_BUTTON.getTestTag())
             )
             if (state.sightMarks.isNotEmpty()) {
                 CodexIconButton(
@@ -64,6 +69,8 @@ fun SightMarksScreen(
                         icon = Icons.Default.MoreHoriz,
                         contentDescription = stringResource(R.string.sight_marks__options_button),
                         captionBelow = stringResource(R.string.sight_marks__options_button),
+                        modifier = Modifier
+                                .testTag(SightMarksTestTag.OPTIONS_BUTTON.getTestTag())
                 )
             }
         }
@@ -72,7 +79,9 @@ fun SightMarksScreen(
                     text = stringResource(R.string.sight_marks__diagram_placeholder),
                     style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 10.dp)
+                    modifier = Modifier
+                            .padding(top = 10.dp)
+                            .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
             )
         }
         else {
@@ -90,6 +99,23 @@ fun SightMarksScreen(
         }
     }
     CodexMenuDialog(isMenuShown, menuItems) { isMenuShown = false }
+}
+
+enum class SightMarksTestTag : CodexTestTag {
+    SCREEN,
+    NO_SIGHT_MARKS_TEXT,
+    SIGHT_MARK_TEXT,
+    DIAGRAM_TICK_LABEL,
+    ADD_BUTTON,
+    OPTIONS_BUTTON,
+    ARCHIVE_MENU_BUTTON,
+    FLIP_DIAGRAM_MENU_BUTTON,
+    ;
+
+    override val screenName: String
+        get() = "SIGHT_MARKS"
+
+    override fun getElement(): String = name
 }
 
 @Preview(

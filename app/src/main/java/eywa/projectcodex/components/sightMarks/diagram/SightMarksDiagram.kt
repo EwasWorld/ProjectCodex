@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +32,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.sightMarks.SightMarksState
+import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.model.SightMark
 import java.util.*
 import kotlin.math.abs
@@ -432,6 +434,7 @@ private fun SightMarkIndicator(
                         ),
                 color = CodexTheme.colors.sightMarksIndicator,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.testTag(SightMarksTestTag.SIGHT_MARK_TEXT.getTestTag())
         )
         if (!isLeft) NoteIcon()
     }

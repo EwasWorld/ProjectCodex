@@ -38,8 +38,7 @@ class EmailScoreRobot(
     }
 
     fun checkCheckboxState(field: EmailScoresCheckbox, expectIsChecked: Boolean) {
-        val node = composeTestRule.onNodeWithTag(EmailScoresScreen.TestTag.forCheckbox(field))
-        if (expectIsChecked) node.assertIsSelected() else node.assertIsNotSelected()
+        checkCheckboxState(EmailScoresScreen.TestTag.forCheckbox(field), expectIsChecked)
     }
 
     fun checkScoreText(text: String) {

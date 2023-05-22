@@ -4,13 +4,19 @@ import android.content.res.Resources
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexMenuDialogItem
+import eywa.projectcodex.components.sightMarks.SightMarksTestTag
+import eywa.projectcodex.components.sightMarks.SightMarksTestTag.ARCHIVE_MENU_BUTTON
+import eywa.projectcodex.components.sightMarks.SightMarksTestTag.FLIP_DIAGRAM_MENU_BUTTON
+import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent.ArchiveAll
+import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent.FlipDiagram
 
 enum class SightMarksMenuDialogItem(
         @StringRes val displayNameId: Int,
         val intent: SightMarksMenuIntent,
+        val testTag: SightMarksTestTag,
 ) {
-    FLIP_DIAGRAM(R.string.sight_marks__menu_flip_diagram, SightMarksMenuIntent.FlipDiagram),
-    ARCHIVE_ALL(R.string.sight_marks__menu_archive_all, SightMarksMenuIntent.ArchiveAll),
+    FLIP_DIAGRAM(R.string.sight_marks__menu_flip_diagram, FlipDiagram, FLIP_DIAGRAM_MENU_BUTTON),
+    ARCHIVE_ALL(R.string.sight_marks__menu_archive_all, ArchiveAll, ARCHIVE_MENU_BUTTON),
     ;
 
     fun asCodexMenuItem(
@@ -19,5 +25,6 @@ enum class SightMarksMenuDialogItem(
     ) = object : CodexMenuDialogItem {
         override val displayName: String = resources.getString(displayNameId)
         override val onClick: () -> Unit = { listener(intent) }
+        override val itemTestTag: String = testTag.getTestTag()
     }
 }

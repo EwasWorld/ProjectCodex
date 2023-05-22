@@ -1,7 +1,5 @@
 package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundMainScreen
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
@@ -18,9 +16,7 @@ abstract class ArcherRoundRobot(
     fun clickNavBarInputEnd(block: InputEndRobot.() -> Unit = {}) = clickNavBarItem(block)
 
     fun clickNavBarInputEndWhileRoundComplete() {
-        composeTestRule
-                .onNodeWithTag(ArcherRoundMainScreen.TestTag.bottomNavBarItem(INPUT_END))
-                .performClick()
+        clickElement(ArcherRoundMainScreen.TestTag.bottomNavBarItem(INPUT_END))
         checkElementDoesNotExist(ArrowInputsTestTag.INPUT_SCREEN)
         clickCannotInputMoreEndsOk()
     }
@@ -38,9 +34,7 @@ abstract class ArcherRoundRobot(
             else -> throw NotImplementedError()
         }
 
-        composeTestRule
-                .onNodeWithTag(ArcherRoundMainScreen.TestTag.bottomNavBarItem(screen))
-                .performClick()
+        clickElement(ArcherRoundMainScreen.TestTag.bottomNavBarItem(screen))
         R::class.constructors.first().call(composeTestRule).apply { block() }
     }
 

@@ -8,6 +8,7 @@ import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.click
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 
@@ -15,6 +16,11 @@ abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
         private val screenTestTag: String,
 ) {
+    constructor(
+            composeTestRule: ComposeTestRule<MainActivity>,
+            screenTestTag: CodexTestTag,
+    ) : this(composeTestRule, screenTestTag.getTestTag())
+
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
     init {
@@ -31,47 +37,92 @@ abstract class BaseRobot(
         return true
     }
 
-    fun clickElement(testTag: String) {
-        composeTestRule.onNodeWithTag(testTag).performClick()
+    fun clickElement(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) =
+            clickElement(testTag.getTestTag(), text, useUnmergedTree)
+
+    fun clickElement(testTag: String, text: String? = null, useUnmergedTree: Boolean = false) {
+        var matcher = hasTestTag(testTag)
+        if (text != null) {
+            matcher = matcher.and(hasText(text))
+        }
+        composeTestRule.onNode(matcher, useUnmergedTree).performClick()
     }
 
-    fun checkElementText(testTag: String, text: String) {
-        composeTestRule.onNodeWithTag(testTag).assertTextEquals(text)
+    fun checkElementText(testTag: CodexTestTag, text: String, useUnmergedTree: Boolean = false) =
+            checkElementText(testTag.getTestTag(), text, useUnmergedTree)
+
+    fun checkElementText(testTag: String, text: String, useUnmergedTree: Boolean = false) {
+        composeTestRule.onNodeWithTag(testTag, useUnmergedTree).assertTextEquals(text)
     }
 
-    fun checkElementIsDisplayed(testTag: String) {
-        composeTestRule.onNodeWithTag(testTag).assertIsDisplayed()
+    fun checkElementText(testTag: CodexTestTag, index: Int, text: String, useUnmergedTree: Boolean = false) {
+        composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree)[index].assertTextEquals(text)
+    }
+
+    fun checkLastElementText(testTag: CodexTestTag, text: String) {
+        composeTestRule.onAllNodesWithTag(testTag.getTestTag()).onLast().assertTextEquals(text)
+    }
+
+    fun checkElementIsDisplayed(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) =
+            checkElementIsDisplayed(testTag.getTestTag(), text, useUnmergedTree)
+
+
+    private fun checkElementIsDisplayed(testTag: String, text: String? = null, useUnmergedTree: Boolean = false) {
+        var matcher = hasTestTag(testTag)
+        if (text != null) {
+            matcher = matcher.and(hasText(text))
+        }
+        composeTestRule.onNode(matcher, useUnmergedTree).assertIsDisplayed()
     }
 
     fun checkAtLeastOneElementIsDisplayed(testTag: String) {
         composeTestRule.onAllNodesWithTag(testTag).onFirst().assertIsDisplayed()
     }
 
-    fun checkElementIsDisplayed(testTag: String, text: String) {
-        composeTestRule.onNode(hasTestTag(testTag).and(hasText(text))).assertIsDisplayed()
-    }
+    fun checkElementDoesNotExist(testTag: CodexTestTag) = checkElementDoesNotExist(testTag.getTestTag())
 
     fun checkElementDoesNotExist(testTag: String) {
         composeTestRule.onNodeWithTag(testTag).assertDoesNotExist()
     }
 
+    fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean) =
+            checkCheckboxState(testTag.getTestTag(), isChecked)
+
+    fun checkCheckboxState(testTag: String, isChecked: Boolean) {
+        val node = composeTestRule.onNodeWithTag(testTag)
+        if (isChecked) node.assertIsSelected() else node.assertIsNotSelected()
+    }
+
+    fun setText(testTag: CodexTestTag, text: String) = setText(testTag.getTestTag(), text)
+
+    fun setText(testTag: String, text: String) {
+        composeTestRule.onNodeWithTag(testTag).performTextClearance()
+        composeTestRule.onNodeWithTag(testTag).performTextInput(text)
+    }
+
+    fun setChip(testTag: CodexTestTag, value: Boolean) {
+        var actual = false
+        try {
+            checkCheckboxState(testTag, false)
+        }
+        catch (e: AssertionError) {
+            actual = true
+        }
+        if (actual != value) {
+            clickElement(testTag)
+        }
+    }
+
     fun clickDialogOk(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.POSITIVE_BUTTON)
     fun clickDialogCancel(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.NEGATIVE_BUTTON)
 
-    private fun clickDialog(
-            titleText: String,
-            buttonTag: String,
-    ) {
+    private fun clickDialog(titleText: String, buttonTag: String) {
         CustomConditionWaiter.waitForComposeCondition("Waiting for $titleText dialog to display") {
             composeTestRule
-                    .onNode(
-                            hasTestTag(SimpleDialogTestTag.TITLE).and(hasText(titleText))
-                    )
+                    .onNode(hasTestTag(SimpleDialogTestTag.TITLE).and(hasText(titleText)))
                     .assertIsDisplayed()
         }
-        composeTestRule
-                .onNodeWithTag(buttonTag)
-                .performClick()
+        composeTestRule.onNodeWithTag(buttonTag).performClick()
     }
 
     fun clickHomeIcon() {
