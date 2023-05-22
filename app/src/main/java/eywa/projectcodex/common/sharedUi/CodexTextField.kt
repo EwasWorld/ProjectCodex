@@ -15,6 +15,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asPlaceholderStyle
@@ -44,6 +46,7 @@ fun CodexTextField(
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActions: KeyboardActions = KeyboardActions.Default,
+        helpState: HelpState? = null,
 ) = CodexTextField(
         text = state.text,
         onValueChange = state.onValueChange,
@@ -57,6 +60,7 @@ fun CodexTextField(
         colors = colors,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
+        helpState = helpState,
 )
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -74,13 +78,15 @@ fun CodexTextField(
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActions: KeyboardActions = KeyboardActions.Default,
+        helpState: HelpState? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    helpState?.add()
 
     BasicTextField(
             value = text,
             onValueChange = onValueChange,
-            modifier = modifier,
+            modifier = modifier.updateHelpDialogPosition(helpState),
             interactionSource = interactionSource,
             enabled = enabled,
             singleLine = singleLine,

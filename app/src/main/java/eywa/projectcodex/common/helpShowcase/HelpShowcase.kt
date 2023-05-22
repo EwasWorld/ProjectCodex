@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.utils.ResOrActual
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,8 +20,8 @@ fun Modifier.updateHelpDialogPosition(helpListener: (HelpShowcaseIntent) -> Unit
 fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcase, @StringRes key: Int) =
         onGloballyPositioned { helpItemsMap.updateItem(key, it) }
 
-fun Modifier.updateHelpDialogPosition(listener: HelpShowcaseListener, @StringRes title: Int) =
-        onGloballyPositioned { listener.updateHelpDialogPosition(title, it) }
+fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
+        modifierIf(helpState != null) { updateHelpDialogPosition(helpState!!.helpListener, helpState.helpTitle) }
 
 class HelpShowcase {
     private val _state = MutableStateFlow(HelpShowcaseState())
@@ -106,9 +107,4 @@ class HelpShowcase {
             return allStates.flatMap { s -> s.helpInfoMap.map { it.key to it.value } }.toMap()
         }
     }
-}
-
-interface HelpShowcaseListener {
-    fun addHelpShowcase(item: HelpShowcaseItem)
-    fun updateHelpDialogPosition(@StringRes helpTitle: Int, layoutCoordinates: LayoutCoordinates)
 }

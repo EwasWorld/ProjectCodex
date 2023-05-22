@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
@@ -76,6 +78,7 @@ fun CodexChip(
         enabled: Boolean = true,
         modifier: Modifier = Modifier,
         colours: ChipColours = ChipColours.Defaults.onPrimary(),
+        helpState: HelpState? = null,
         onToggle: () -> Unit
 ) {
     val surfaceColor = when {
@@ -90,12 +93,14 @@ fun CodexChip(
     }
     val clickModifier = if (!enabled) Modifier else Modifier.selectable(selected = selected, onClick = onToggle)
 
+    helpState?.add()
+
     // TODO Animate
     Surface(
             border = if (selected) null else BorderStroke(Dp.Hairline, onColor),
             shape = RoundedCornerShape(8.dp),
             color = surfaceColor,
-            modifier = modifier
+            modifier = modifier.updateHelpDialogPosition(helpState)
     ) {
         Row(
                 verticalAlignment = Alignment.CenterVertically,

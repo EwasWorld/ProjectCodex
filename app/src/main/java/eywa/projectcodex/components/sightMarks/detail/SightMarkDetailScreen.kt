@@ -23,6 +23,7 @@ import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -65,7 +66,6 @@ fun SightMarkDetail(
         listener: (SightMarkDetailIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
-    // TODO_CURRENT Validation
 
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         Column(
@@ -104,6 +104,7 @@ fun SightMarkDetail(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
+                    // TODO help bubble should wrap units too, maybe even error?
                     NumberSetting(
                             clazz = String::class,
                             title = R.string.sight_marks__distance,
@@ -132,6 +133,7 @@ fun SightMarkDetail(
                             text = stringResource(state.distanceValidatorError),
                             style = CodexTypography.SMALL,
                             color = CodexTheme.colors.errorOnAppBackground,
+                            modifier = Modifier.testTag(DISTANCE_ERROR_TEXT.getTestTag())
                     )
                 }
             }
@@ -153,22 +155,30 @@ fun SightMarkDetail(
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)
             ) {
-                // TODO_CURRENT Help info
                 CodexChip(
                         text = stringResource(R.string.sight_marks__marked),
                         selected = state.isMarked,
                         testTag = MARKED.getTestTag(),
                         onToggle = { listener(ToggleIsMarked) },
+                        helpState = HelpState(
+                                helpListener,
+                                stringResource(R.string.help_sight_marks__marked_title),
+                                stringResource(R.string.help_sight_marks__marked_body),
+                        ),
                 )
                 CodexChip(
                         text = stringResource(R.string.sight_marks__archived),
                         selected = state.isArchived,
                         testTag = ARCHIVED.getTestTag(),
                         onToggle = { listener(ToggleIsArchived) },
+                        helpState = HelpState(
+                                helpListener,
+                                stringResource(R.string.help_sight_marks__archived_title),
+                                stringResource(R.string.help_sight_marks__archived_body),
+                        ),
                 )
             }
             CodexTextFieldRoundedSurface {
-                // TODO_CURRENT Help info
                 CodexTextField(
                         state = CodexTextFieldState(
                                 text = state.note ?: "",
@@ -177,7 +187,12 @@ fun SightMarkDetail(
                         ),
                         placeholderText = stringResource(R.string.sight_marks__note_placeholder),
                         labelText = stringResource(R.string.sight_marks__note),
-                        modifier = Modifier.padding(10.dp)
+                        helpState = HelpState(
+                                helpListener,
+                                stringResource(R.string.help_sight_marks__note_title),
+                                stringResource(R.string.help_sight_marks__note_body),
+                        ),
+                        modifier = Modifier.padding(5.dp)
                 )
             }
             FlowRow(
@@ -187,13 +202,17 @@ fun SightMarkDetail(
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)
             ) {
-                // TODO_CURRENT Help info
                 if (state.originalSightMark != null) {
                     CodexIconButton(
                             icon = Icons.Default.Delete,
                             contentDescription = stringResource(R.string.general_delete),
                             captionBelow = stringResource(R.string.general_delete),
                             onClick = { listener(DeleteClicked) },
+                            helpState = HelpState(
+                                    helpListener,
+                                    stringResource(R.string.help_sight_marks__delete_title),
+                                    stringResource(R.string.help_sight_marks__delete_body),
+                            ),
                             modifier = Modifier.testTag(DELETE_BUTTON.getTestTag())
                     )
                     CodexIconButton(
@@ -201,6 +220,11 @@ fun SightMarkDetail(
                             contentDescription = stringResource(R.string.general__reset_edits),
                             captionBelow = stringResource(R.string.general__reset_edits),
                             onClick = { listener(ResetClicked) },
+                            helpState = HelpState(
+                                    helpListener,
+                                    stringResource(R.string.help_sight_marks__reset_title),
+                                    stringResource(R.string.help_sight_marks__reset_body),
+                            ),
                             modifier = Modifier.testTag(RESET_BUTTON.getTestTag())
                     )
                 }
@@ -210,6 +234,11 @@ fun SightMarkDetail(
                         captionBelow = stringResource(R.string.general_save),
                         onClick = { listener(SaveClicked) },
                         enabled = state.isFormValid,
+                        helpState = HelpState(
+                                helpListener,
+                                stringResource(R.string.help_sight_marks__save_title),
+                                stringResource(R.string.help_sight_marks__save_body),
+                        ),
                         modifier = Modifier.testTag(SAVE_BUTTON.getTestTag())
                 )
             }

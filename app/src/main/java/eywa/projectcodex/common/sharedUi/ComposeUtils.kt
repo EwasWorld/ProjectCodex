@@ -5,6 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 
 object ComposeUtils {
+    fun Modifier.modifierIf(predicate: Boolean, modifier: () -> Modifier) =
+            if (predicate) this.then(modifier()) else this
+
     fun Modifier.modifierIf(predicate: Boolean, modifier: Modifier) = if (predicate) this.then(modifier) else this
 
 

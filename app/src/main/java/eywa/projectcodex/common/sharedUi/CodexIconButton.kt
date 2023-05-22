@@ -15,6 +15,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -26,15 +28,19 @@ fun CodexIconButton(
         contentDescription: String? = null,
         captionBelow: String? = null,
         enabled: Boolean = true,
+        helpState: HelpState? = null,
         onClick: () -> Unit,
 ) {
     require(contentDescription != null || captionBelow != null) { "Must provide a description" }
     val color = if (enabled) CodexTheme.colors.iconButtonOnPrimary else CodexTheme.colors.disabledButton
+    helpState?.add()
 
     IconButton(
             onClick = onClick,
             enabled = enabled,
-            modifier = modifier.padding(3.dp)
+            modifier = modifier
+                    .padding(3.dp)
+                    .updateHelpDialogPosition(helpState)
     ) {
         Column(
                 verticalArrangement = Arrangement.Center,
