@@ -401,7 +401,7 @@ private fun SightMarkIndicator(
 
     @Composable
     fun NoteIcon() {
-        if (sightMark.note != null) {
+        if (!sightMark.note.isNullOrBlank()) {
             Icon(
                     imageVector = Icons.Outlined.Description,
                     contentDescription = stringResource(R.string.sight_marks__has_note_content_descr),
@@ -409,6 +409,7 @@ private fun SightMarkIndicator(
                     modifier = Modifier
                             .width(15.dp)
                             .aspectRatio(1f)
+                            .testTag(SightMarksTestTag.DIAGRAM_NOTE_ICON.getTestTag())
             )
         }
     }

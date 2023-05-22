@@ -25,7 +25,6 @@ class SightMarkDetailRobot(
 
         listOf(
                 RESET_BUTTON,
-                CANCEL_BUTTON,
                 DELETE_BUTTON,
         ).forEach {
             if (isNew) checkElementDoesNotExist(it) else checkElementIsDisplayed(it)
@@ -92,11 +91,6 @@ class SightMarkDetailRobot(
 
     fun clickReset() {
         clickElement(RESET_BUTTON)
-    }
-
-    fun clickCancel(): SightMarksRobot {
-        clickElement(CANCEL_BUTTON)
-        return popRobot() as SightMarksRobot
     }
 
     fun clickDelete(): SightMarksRobot {

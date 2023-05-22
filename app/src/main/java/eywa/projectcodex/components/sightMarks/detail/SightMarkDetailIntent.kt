@@ -14,7 +14,6 @@ sealed class SightMarkDetailIntent {
     object ToggleIsArchived : SightMarkDetailIntent()
 
     object DeleteClicked : SightMarkDetailIntent()
-    object CancelClicked : SightMarkDetailIntent()
     object ResetClicked : SightMarkDetailIntent()
     object SaveClicked : SightMarkDetailIntent()
 

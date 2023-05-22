@@ -60,7 +60,6 @@ class SightMarkDetailViewModel @Inject constructor(
             is SightMarkDetailIntent.NoteUpdated -> _state.update { it?.copy(note = action.value) }
 
             SightMarkDetailIntent.CloseHandled -> _state.update { it?.copy(closeScreen = false) }
-            SightMarkDetailIntent.CancelClicked -> _state.update { it?.copy(closeScreen = true) }
             SightMarkDetailIntent.DeleteClicked -> {
                 val id = state.value?.originalSightMark?.id ?: return
                 collectSightMarkJob?.cancel()

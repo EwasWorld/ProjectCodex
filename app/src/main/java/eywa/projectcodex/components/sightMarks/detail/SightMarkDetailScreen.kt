@@ -9,7 +9,6 @@ import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
@@ -198,13 +197,6 @@ fun SightMarkDetail(
                             modifier = Modifier.testTag(DELETE_BUTTON.getTestTag())
                     )
                     CodexIconButton(
-                            icon = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.general_cancel),
-                            captionBelow = stringResource(R.string.general_cancel),
-                            onClick = { listener(CancelClicked) },
-                            modifier = Modifier.testTag(CANCEL_BUTTON.getTestTag())
-                    )
-                    CodexIconButton(
                             icon = Icons.Default.Refresh,
                             contentDescription = stringResource(R.string.general__reset_edits),
                             captionBelow = stringResource(R.string.general__reset_edits),
@@ -239,7 +231,6 @@ enum class SightMarkDetailTestTag : CodexTestTag {
     NOTE,
     SAVE_BUTTON,
     RESET_BUTTON,
-    CANCEL_BUTTON,
     DELETE_BUTTON,
     ;
 

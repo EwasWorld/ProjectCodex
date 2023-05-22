@@ -93,10 +93,11 @@ abstract class BaseRobot(
         composeTestRule.onAllNodesWithTag(testTag).onFirst().assertIsDisplayed()
     }
 
-    fun checkElementDoesNotExist(testTag: CodexTestTag) = checkElementDoesNotExist(testTag.getTestTag())
+    fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) =
+            checkElementDoesNotExist(testTag.getTestTag(), useUnmergedTree)
 
-    fun checkElementDoesNotExist(testTag: String) {
-        composeTestRule.onNodeWithTag(testTag).assertDoesNotExist()
+    fun checkElementDoesNotExist(testTag: String, useUnmergedTree: Boolean = false) {
+        composeTestRule.onNodeWithTag(testTag, useUnmergedTree).assertDoesNotExist()
     }
 
     fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean) =

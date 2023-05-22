@@ -1,22 +1,26 @@
 package eywa.projectcodex.instrumentedTests.robots
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnySibling
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag
+import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.model.SightMark
 
 class SightMarksRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
         previousScreen: BaseRobot,
         addScreenToStack: Boolean = true,
-) : BaseRobot(composeTestRule, SightMarksTestTag.SCREEN, previousScreen, addScreenToStack) {
+) : BaseRobot(composeTestRule, SCREEN, previousScreen, addScreenToStack) {
     fun checkEmptyMessage() {
-        checkElementIsDisplayed(SightMarksTestTag.NO_SIGHT_MARKS_TEXT)
-        checkElementDoesNotExist(SightMarksTestTag.DIAGRAM_TICK_LABEL)
+        checkElementIsDisplayed(NO_SIGHT_MARKS_TEXT)
+        checkElementDoesNotExist(DIAGRAM_TICK_LABEL)
     }
 
     fun clickAdd(): SightMarkDetailRobot {
-        clickElement(SightMarksTestTag.ADD_BUTTON)
+        clickElement(ADD_BUTTON)
         return SightMarkDetailRobot(composeTestRule, null, this)
     }
 
@@ -26,20 +30,26 @@ class SightMarksRobot(
                     "-",
                     "$distance" + if (isMetric) "m" else "yd",
             )
-                    .let { if (!isMetric) it.asReversed() else it }
+                    .let { if (isLeft) it.asReversed() else it }
                     .joinToString(" ")
 
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
-        checkElementIsDisplayed(
-                SightMarksTestTag.SIGHT_MARK_TEXT,
-                sightMark.asText(isLeft),
+        val text = sightMark.asText(isLeft)
+
+        checkElementIsDisplayed(SIGHT_MARK_TEXT, text, true)
+
+        composeTestRule.onNode(
+                hasTestTag(DIAGRAM_NOTE_ICON.getTestTag())
+                        .and(hasAnySibling(hasTestTag(SIGHT_MARK_TEXT.getTestTag()).and(hasText(text)))),
                 true,
-        )
+        ).let {
+            if (sightMark.note == null) it.assertDoesNotExist() else it.assertIsDisplayed()
+        }
     }
 
-    fun clickSightMark(sightMark: SightMark, isLeft: Boolean = true): SightMarkDetailRobot {
+    fun clickSightMark(sightMark: SightMark, isLeft: Boolean = false): SightMarkDetailRobot {
         clickElement(
-                SightMarksTestTag.SIGHT_MARK_TEXT,
+                SIGHT_MARK_TEXT,
                 sightMark.asText(isLeft),
                 true,
         )
@@ -47,21 +57,21 @@ class SightMarksRobot(
     }
 
     fun checkDiagramTickLabelRange(topTick: String, bottomTick: String) {
-        checkElementText(SightMarksTestTag.DIAGRAM_TICK_LABEL, 0, topTick)
-        checkLastElementText(SightMarksTestTag.DIAGRAM_TICK_LABEL, bottomTick)
+        checkElementText(DIAGRAM_TICK_LABEL, 0, topTick)
+        checkLastElementText(DIAGRAM_TICK_LABEL, bottomTick)
     }
 
     fun flipDiagram() {
         clickOptions()
-        clickElement(SightMarksTestTag.FLIP_DIAGRAM_MENU_BUTTON)
+        clickElement(FLIP_DIAGRAM_MENU_BUTTON)
     }
 
     fun archiveAll() {
         clickOptions()
-        clickElement(SightMarksTestTag.ARCHIVE_MENU_BUTTON)
+        clickElement(ARCHIVE_MENU_BUTTON)
     }
 
     private fun clickOptions() {
-        clickElement(SightMarksTestTag.OPTIONS_BUTTON)
+        clickElement(OPTIONS_BUTTON)
     }
 }

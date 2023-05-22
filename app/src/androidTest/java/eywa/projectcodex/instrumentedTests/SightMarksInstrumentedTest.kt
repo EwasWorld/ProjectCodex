@@ -78,19 +78,19 @@ class SightMarksInstrumentedTest {
             clickSave()
 
         }.run {
-            checkSightMarkDisplayed(sightMarks[0])
+            checkSightMarkDisplayed(sightMarks[0], true)
             checkSightMarkDisplayed(sightMarks[1])
             checkDiagramTickLabelRange("2", "5")
 
             // Flip
             flipDiagram()
-            checkSightMarkDisplayed(sightMarks[0])
+            checkSightMarkDisplayed(sightMarks[0], true)
             checkSightMarkDisplayed(sightMarks[1])
             checkDiagramTickLabelRange("5", "2")
 
             // Archive
             archiveAll()
-            checkSightMarkDisplayed(sightMarks[0].copy(isArchived = true))
+            checkSightMarkDisplayed(sightMarks[0].copy(isArchived = true), true)
             checkSightMarkDisplayed(sightMarks[1].copy(isArchived = true))
             checkDiagramTickLabelRange("5", "2")
         }
@@ -124,16 +124,6 @@ class SightMarksInstrumentedTest {
 
             setInfo(sightMarks[1])
             clickSave()
-
-        }.run {
-            checkSightMarkDisplayed(sightMarks[1])
-
-            // Cancel
-            clickSightMark(sightMarks[1])
-
-        }.run {
-            setInfo(sightMarks[0])
-            clickCancel()
 
         }.run {
             checkSightMarkDisplayed(sightMarks[1])
