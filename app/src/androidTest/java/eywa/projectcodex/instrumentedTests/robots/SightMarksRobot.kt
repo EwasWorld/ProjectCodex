@@ -6,16 +6,18 @@ import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.model.SightMark
 
 class SightMarksRobot(
-        composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, SightMarksTestTag.SCREEN) {
+        composeTestRule: ComposeTestRule<MainActivity>,
+        previousScreen: BaseRobot,
+        addScreenToStack: Boolean = true,
+) : BaseRobot(composeTestRule, SightMarksTestTag.SCREEN, previousScreen, addScreenToStack) {
     fun checkEmptyMessage() {
         checkElementIsDisplayed(SightMarksTestTag.NO_SIGHT_MARKS_TEXT)
         checkElementDoesNotExist(SightMarksTestTag.DIAGRAM_TICK_LABEL)
     }
 
-    fun clickAdd(block: SightMarkDetailRobot.() -> Unit) {
+    fun clickAdd(): SightMarkDetailRobot {
         clickElement(SightMarksTestTag.ADD_BUTTON)
-        SightMarkDetailRobot(composeTestRule).apply(block)
+        return SightMarkDetailRobot(composeTestRule, null, this)
     }
 
     private fun SightMark.asText(isLeft: Boolean = true) =
@@ -35,13 +37,13 @@ class SightMarksRobot(
         )
     }
 
-    fun clickSightMark(sightMark: SightMark, isLeft: Boolean = true, block: SightMarkDetailRobot.() -> Unit) {
+    fun clickSightMark(sightMark: SightMark, isLeft: Boolean = true): SightMarkDetailRobot {
         clickElement(
                 SightMarksTestTag.SIGHT_MARK_TEXT,
                 sightMark.asText(isLeft),
                 true,
         )
-        SightMarkDetailRobot(composeTestRule, sightMark).apply(block)
+        return SightMarkDetailRobot(composeTestRule, sightMark, this, true)
     }
 
     fun checkDiagramTickLabelRange(topTick: String, bottomTick: String) {

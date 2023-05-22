@@ -9,7 +9,8 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
-import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.MainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
 import eywa.projectcodex.model.SightMark
 import org.junit.After
 import org.junit.Before
@@ -52,80 +53,127 @@ class SightMarksInstrumentedTest {
 
     @Test
     fun testAddAndDiagram() {
-        composeTestRule.mainMenuRobot {
-            clickSightMarks {
-                checkEmptyMessage()
+        MainMenuRobot(composeTestRule).run {
+            clickSightMarks()
 
-                // Add one
-                clickAdd {
-                    setInfo(sightMarks[0])
-                    clickSave()
-                }
-                checkSightMarkDisplayed(sightMarks[0])
-                checkDiagramTickLabelRange("1", "4")
+        }.run {
+            checkEmptyMessage()
 
-                // Add second
-                clickAdd {
-                    setInfo(sightMarks[1])
-                    clickSave()
-                }
-                checkSightMarkDisplayed(sightMarks[0])
-                checkSightMarkDisplayed(sightMarks[1])
-                checkDiagramTickLabelRange("2", "5")
+            // Add one
+            clickAdd()
 
-                // Flip
-                flipDiagram()
-                checkSightMarkDisplayed(sightMarks[0])
-                checkSightMarkDisplayed(sightMarks[1])
-                checkDiagramTickLabelRange("5", "2")
+        }.run {
+            setInfo(sightMarks[0])
+            clickSave()
 
-                // Archive
-                archiveAll()
-                checkSightMarkDisplayed(sightMarks[0].copy(isArchived = true))
-                checkSightMarkDisplayed(sightMarks[1].copy(isArchived = true))
-                checkDiagramTickLabelRange("5", "2")
-            }
+        }.run {
+            checkSightMarkDisplayed(sightMarks[0])
+            checkDiagramTickLabelRange("1", "4")
+
+            // Add second
+            clickAdd()
+
+        }.run {
+            setInfo(sightMarks[1])
+            clickSave()
+
+        }.run {
+            checkSightMarkDisplayed(sightMarks[0])
+            checkSightMarkDisplayed(sightMarks[1])
+            checkDiagramTickLabelRange("2", "5")
+
+            // Flip
+            flipDiagram()
+            checkSightMarkDisplayed(sightMarks[0])
+            checkSightMarkDisplayed(sightMarks[1])
+            checkDiagramTickLabelRange("5", "2")
+
+            // Archive
+            archiveAll()
+            checkSightMarkDisplayed(sightMarks[0].copy(isArchived = true))
+            checkSightMarkDisplayed(sightMarks[1].copy(isArchived = true))
+            checkDiagramTickLabelRange("5", "2")
         }
     }
 
     @Test
     fun testDetail() {
-        composeTestRule.mainMenuRobot {
-            clickSightMarks {
-                checkEmptyMessage()
+        MainMenuRobot(composeTestRule).run {
+            clickSightMarks()
 
-                // Add new
-                clickAdd {
-                    setInfo(sightMarks[0])
-                    clickSave()
-                }
-                checkSightMarkDisplayed(sightMarks[0])
+        }.run {
+            checkEmptyMessage()
 
-                // Reset & Edit
-                clickSightMark(sightMarks[0]) {
-                    setInfo(sightMarks[1])
-                    clickReset()
-                    checkInfo(sightMarks[0], false)
+            // Add new
+            clickAdd()
 
-                    setInfo(sightMarks[1])
-                    clickSave()
-                }
-                checkSightMarkDisplayed(sightMarks[1])
+        }.run {
+            setInfo(sightMarks[0])
+            clickSave()
 
-                // Cancel
-                clickSightMark(sightMarks[1]) {
-                    setInfo(sightMarks[0])
-                    clickCancel()
-                }
-                checkSightMarkDisplayed(sightMarks[1])
+        }.run {
+            checkSightMarkDisplayed(sightMarks[0])
 
-                // Delete
-                clickSightMark(sightMarks[1]) {
-                    clickDelete()
-                }
+            // Reset & Edit
+            clickSightMark(sightMarks[0])
 
-                checkEmptyMessage()
-            }
+        }.run {
+            setInfo(sightMarks[1])
+            clickReset()
+            checkInfo(sightMarks[0], false)
+
+            setInfo(sightMarks[1])
+            clickSave()
+
+        }.run {
+            checkSightMarkDisplayed(sightMarks[1])
+
+            // Cancel
+            clickSightMark(sightMarks[1])
+
+        }.run {
+            setInfo(sightMarks[0])
+            clickCancel()
+
+        }.run {
+            checkSightMarkDisplayed(sightMarks[1])
+
+            // Delete
+            clickSightMark(sightMarks[1])
+
+        }.run {
+            clickDelete()
+
+        }.run {
+            checkEmptyMessage()
+
+        }
+    }
+
+    /**
+     * Example of using the back button
+     * TODO Update all robots to this pattern and swap large scale back test to this
+     */
+    @Test
+    fun testBack() {
+        MainMenuRobot(composeTestRule).run {
+            clickSightMarks()
+
+        }.run {
+            checkEmptyMessage()
+
+            // Add new
+            clickAdd()
+
+        }.run {
+            clickAndroidBack<SightMarksRobot>()
+
+        }.run {
+            clickAndroidBack<MainMenuRobot>()
+
+        }.run {
+            clickSightMarks()
+
         }
     }
 

@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests.robots
 
 import androidx.compose.ui.test.*
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.pressBack
 import eywa.projectcodex.R
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
@@ -11,15 +12,28 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
+import java.util.*
 
 abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
         private val screenTestTag: String,
+        private val screenStack: Stack<BaseRobot> = Stack(),
 ) {
     constructor(
             composeTestRule: ComposeTestRule<MainActivity>,
             screenTestTag: CodexTestTag,
     ) : this(composeTestRule, screenTestTag.getTestTag())
+
+    constructor(
+            composeTestRule: ComposeTestRule<MainActivity>,
+            screenTestTag: CodexTestTag,
+            previousScreen: BaseRobot,
+            addScreenToStack: Boolean = true,
+    ) : this(
+            composeTestRule,
+            screenTestTag.getTestTag(),
+            previousScreen.screenStack.apply { if (addScreenToStack) push(previousScreen) else pop() },
+    )
 
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
@@ -169,5 +183,12 @@ abstract class BaseRobot(
 
     fun checkHelpShowcaseIsDisplayed() {
         checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+    }
+
+    protected fun <R : BaseRobot> popRobot(): R = screenStack.pop().apply { checkScreenIsShown() } as R
+
+    fun <R : BaseRobot> clickAndroidBack(): R {
+        pressBack()
+        return popRobot()
     }
 }

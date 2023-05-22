@@ -27,9 +27,9 @@ class MainMenuRobot(
         HandicapTablesRobot(composeTestRule).apply { block() }
     }
 
-    fun clickSightMarks(block: SightMarksRobot.() -> Unit = {}) {
+    fun clickSightMarks(): SightMarksRobot {
         clickElement(MainMenuScreen.TestTag.SIGHT_MARKS)
-        SightMarksRobot(composeTestRule).apply { block() }
+        return SightMarksRobot(composeTestRule, this)
     }
 
     fun clickAboutIcon(block: AboutRobot.() -> Unit) {

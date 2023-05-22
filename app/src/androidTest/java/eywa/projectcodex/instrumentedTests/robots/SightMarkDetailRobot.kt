@@ -9,7 +9,9 @@ import eywa.projectcodex.model.SightMark
 class SightMarkDetailRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
         sightMark: SightMark? = null,
-) : BaseRobot(composeTestRule, SCREEN) {
+        previousScreen: BaseRobot,
+        addScreenToStack: Boolean = true,
+) : BaseRobot(composeTestRule, SCREEN, previousScreen, addScreenToStack) {
     init {
         val isNew = sightMark == null
         if (!isNew) {
@@ -83,19 +85,22 @@ class SightMarkDetailRobot(
         checkButtons(isNew)
     }
 
-    fun clickSave() {
+    fun clickSave(): SightMarksRobot {
         clickElement(SAVE_BUTTON)
+        return popRobot() as SightMarksRobot
     }
 
     fun clickReset() {
         clickElement(RESET_BUTTON)
     }
 
-    fun clickCancel() {
+    fun clickCancel(): SightMarksRobot {
         clickElement(CANCEL_BUTTON)
+        return popRobot() as SightMarksRobot
     }
 
-    fun clickDelete() {
+    fun clickDelete(): SightMarksRobot {
         clickElement(DELETE_BUTTON)
+        return popRobot() as SightMarksRobot
     }
 }
