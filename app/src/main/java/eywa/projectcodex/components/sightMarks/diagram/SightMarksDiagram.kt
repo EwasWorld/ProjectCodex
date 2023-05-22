@@ -43,7 +43,6 @@ import kotlin.properties.Delegates
 
 /*
  * TODO & IDEAS
- *  Backwards on left side :(
  *  Pinch zoom
  *  Help labels
  */
@@ -76,7 +75,8 @@ fun SightMarksDiagram(
     Layout(
             content = {
                 SightTape(state = helper)
-                state.sightMarks.forEach { SightMarkIndicator(it, onClick) }
+                state.sightMarks.forEach { SightMarkIndicator(it, true, onClick) }
+                state.sightMarks.forEach { SightMarkIndicator(it, false, onClick) }
                 state.sightMarks.forEach { sightMark ->
                     Icon(
                             imageVector = Icons.Default.ChevronRight,
@@ -111,7 +111,8 @@ fun SightMarksDiagram(
         fun getNext(n: Int) = measurables.subList(current, current + n).apply { current += n }
 
         val tape = Tape(measurables.first().measure(noMinConstraints))
-        val indicatorMeasureables = getNext(totalSightMarks)
+        val leftIndicatorMeasureables = getNext(totalSightMarks)
+        val rightIndicatorMeasureables = getNext(totalSightMarks)
         val leftChevronMeasureables = getNext(totalSightMarks)
         val rightChevronMeasureables = getNext(totalSightMarks)
         val horizontalMeasurables = getNext(totalSightMarks * 2)
@@ -122,7 +123,8 @@ fun SightMarksDiagram(
          */
         val placeables = IndicatorPlaceables(
                 highestAtTop = state.isHighestNumberAtTheTop,
-                indicatorPlaceables = indicatorMeasureables.map { it.measure(noMinConstraints) },
+                leftIndicatorPlaceables = leftIndicatorMeasureables.map { it.measure(noMinConstraints) },
+                rightIndicatorPlaceables = rightIndicatorMeasureables.map { it.measure(noMinConstraints) },
                 sightMarks = state.sightMarks,
                 getSightMarkAsPercentage = { helper.getSightMarkAsPercentage(it) },
                 totalHeight = tape.tickHeight,
@@ -170,7 +172,7 @@ private fun List<SightMarkIndicatorGroup>.place(
         group.indicators.withIndex().sortedBy { it.value.getPlacePriority() }.forEach { (index, indicator) ->
             val chevronCentreY = tape.topOverhang + tape.start + indicator.originalCentreOffset
             val indicatorTop = tape.topOverhang + tape.start + group.getIndicatorTopOffset(index)
-            val indicatorCentreY = indicatorTop + indicator.height / 2f
+            val indicatorCentreY = indicatorTop + indicator.height() / 2f
 
             val chevron = indicator.getChevron(isLeft)
             chevron.offsetPlace(
@@ -201,7 +203,7 @@ private fun List<SightMarkIndicatorGroup>.place(
                 )
             }
 
-            indicator.indicatorPlaceable.offsetPlace(
+            indicator.indicatorPlaceable().offsetPlace(
                     x = 0f + horizontal2Start + horizontal2.width + indicator.getPadding(),
                     y = indicatorTop
             )
@@ -244,7 +246,8 @@ private class Tape(val placeable: Placeable) {
 
 private class IndicatorPlaceables(
         val highestAtTop: Boolean,
-        indicatorPlaceables: List<Placeable>,
+        leftIndicatorPlaceables: List<Placeable>,
+        rightIndicatorPlaceables: List<Placeable>,
         sightMarks: List<SightMark>,
         getSightMarkAsPercentage: (SightMark) -> Float,
         totalHeight: Int,
@@ -272,7 +275,8 @@ private class IndicatorPlaceables(
                     SightMarkIndicatorGroup(
                             SightMarksDiagramIndicatorImpl(
                                     sightMarkObj = sightMark,
-                                    indicatorPlaceable = indicatorPlaceables[it],
+                                    leftIndicatorPlaceable = leftIndicatorPlaceables[it],
+                                    rightIndicatorPlaceable = rightIndicatorPlaceables[it],
                                     originalCentreOffset = getSightMarkAsPercentage(sightMark) * totalHeight,
                                     chevronLeft = leftChevronPlaceables[it],
                                     chevronRight = rightChevronPlaceables[it],
@@ -282,13 +286,12 @@ private class IndicatorPlaceables(
                             )
                     )
                 }
-                .partition { it.indicators.first().isLeft() }
+                .partition { it.indicators.first().isLeft }
 
         left = l.resolveList(highestAtTop)
         right = r.resolveList(highestAtTop)
         if (r.isEmpty()) {
-            right = left
-            left = emptyList()
+            moveAllRight()
         }
     }
 
@@ -296,6 +299,7 @@ private class IndicatorPlaceables(
         right = left.flatMap { it.breakApart() }
                 .plus(right.flatMap { it.breakApart() })
                 .resolveList(highestAtTop)
+                .onEach { group -> group.indicators.forEach { it.isLeft = false } }
         left = emptyList()
     }
 
@@ -307,7 +311,7 @@ private class IndicatorPlaceables(
             var textOffset = group.topOffset
             group.indicators.forEachIndexed { index, indicator ->
                 val chevronCentreY = tape.start + indicator.originalCentreOffset
-                val indicatorCentreY = (tape.start + textOffset + indicator.height / 2f)
+                val indicatorCentreY = (tape.start + textOffset + indicator.height() / 2f)
                 val indentPaddingTotal = group.getIndentLevel(index) * INDENT_AMOUNT
 
                 val horizontal1 = indicator.horizontalLine1Measurable!!
@@ -325,7 +329,7 @@ private class IndicatorPlaceables(
                 indicator.horizontalLine2Measurable = null
                 indicator.verticalLineMeasurable = null
 
-                textOffset += indicator.height
+                textOffset += indicator.height()
             }
         }
     }
@@ -383,9 +387,9 @@ private class Offsets(
 @Composable
 private fun SightMarkIndicator(
         sightMark: SightMark,
+        isLeft: Boolean,
         onClick: (SightMark) -> Unit,
 ) {
-    val isLeft = !sightMark.isMetric
     val distanceUnit = stringResource(
             if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
     )
@@ -442,7 +446,8 @@ private fun SightMarkIndicator(
 
 data class SightMarksDiagramIndicatorImpl(
         private val sightMarkObj: SightMark,
-        override val indicatorPlaceable: Placeable,
+        val leftIndicatorPlaceable: Placeable,
+        val rightIndicatorPlaceable: Placeable,
         override val originalCentreOffset: Float,
         private val chevronLeft: Placeable,
         private val chevronRight: Placeable,
@@ -453,11 +458,12 @@ data class SightMarksDiagramIndicatorImpl(
         override var horizontalLine2Placeable: Placeable? = null,
         override var verticalLinePlaceable: Placeable? = null,
 ) : SightMarksDiagramIndicator {
-    override val width: Int = indicatorPlaceable.width
-    override val height: Int = indicatorPlaceable.height
+    override fun width(): Int = indicatorPlaceable().width
+    override fun height(): Int = indicatorPlaceable().height
     override val sightMark: Float = sightMarkObj.sightMark
 
-    override fun isLeft() = !sightMarkObj.isMetric
+    override fun indicatorPlaceable(): Placeable = if (isLeft) leftIndicatorPlaceable else rightIndicatorPlaceable
+    override var isLeft = !sightMarkObj.isMetric
     override fun getChevron(isLeft: Boolean): Placeable = if (isLeft) chevronLeft else chevronRight
     override fun getPadding(): Float = if (sightMarkObj.isMarked) 0f else INDICATOR_PADDING.toFloat()
     override fun getPlacePriority(): Int = if (sightMarkObj.isMarked) 1 else 0

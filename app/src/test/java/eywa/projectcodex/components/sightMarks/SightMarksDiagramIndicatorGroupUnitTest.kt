@@ -101,7 +101,7 @@ class SightMarksDiagramIndicatorGroupUnitTest {
             sightMark: Float,
     ): SightMarksDiagramIndicator =
             mock {
-                on { height } doReturn indicatorHeight
+                on { height() } doReturn indicatorHeight
                 on { this.sightMark } doReturn sightMark
             }
 }

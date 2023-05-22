@@ -28,13 +28,13 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
         require(indicators.isNotEmpty()) { "Indicators cannot be empty" }
     }
 
-    private val height: Int = indicators.sumOf { it.height }
+    private val height: Int = indicators.sumOf { it.height() }
     val firstSightMark: Float = indicators.first().sightMark
     val topOffset: Float = centre - height / 2f
     val bottomOffset = topOffset + height
     fun getMaxWidth(indentAmount: Int, isLeft: Boolean) = indicators.withIndex()
             .maxOf { (i, it) ->
-                it.width +
+                it.width() +
                         getIndentLevel(i) * indentAmount +
                         it.getChevron(isLeft).width / CHEVRON_WIDTH_MODIFIER +
                         it.getPadding()
@@ -74,7 +74,7 @@ class SightMarkIndicatorGroup @VisibleForTesting(otherwise = VisibleForTesting.P
         return min(index, indicators.size - 1 - index)
     }
 
-    fun getIndicatorTopOffset(index: Int): Float = topOffset + indicators.take(index).sumOf { it.height }
+    fun getIndicatorTopOffset(index: Int): Float = topOffset + indicators.take(index).sumOf { it.height() }
 
     fun maxIndentLevel() = (indicators.size - 1) / 2
 }

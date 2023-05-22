@@ -4,12 +4,13 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 
 interface SightMarksDiagramIndicator {
-    val width: Int
-    val height: Int
     val originalCentreOffset: Float
-
     val sightMark: Float
-    val indicatorPlaceable: Placeable
+
+    var isLeft: Boolean
+    fun indicatorPlaceable(): Placeable
+    fun width(): Int
+    fun height(): Int
 
     var horizontalLine1Measurable: Measurable?
     var horizontalLine2Measurable: Measurable?
@@ -18,7 +19,6 @@ interface SightMarksDiagramIndicator {
     var horizontalLine2Placeable: Placeable?
     var verticalLinePlaceable: Placeable?
 
-    fun isLeft(): Boolean
     fun getChevron(isLeft: Boolean): Placeable
     fun getPadding(): Float
 
