@@ -3,7 +3,7 @@ package eywa.projectcodex.components.mainActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
-        private val helpShowcase: HelpShowcase,
+        private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainActivityState())
     val state = _state.asStateFlow()

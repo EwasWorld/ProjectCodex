@@ -140,8 +140,9 @@ abstract class BaseRobot(
         composeTestRule.onNodeWithTag(buttonTag).performClick()
     }
 
-    fun clickHomeIcon() {
+    fun clickHomeIcon(): MainMenuRobot {
         R.id.action_bar__home.click()
+        return MainMenuRobot(composeTestRule)
     }
 
     fun clickHelpIcon() {

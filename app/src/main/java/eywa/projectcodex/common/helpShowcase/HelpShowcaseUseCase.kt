@@ -17,13 +17,13 @@ fun Modifier.updateHelpDialogPosition(helpListener: (HelpShowcaseIntent) -> Unit
 fun Modifier.updateHelpDialogPosition(helpListener: (HelpShowcaseIntent) -> Unit, key: String) =
         onGloballyPositioned { helpListener(HelpShowcaseIntent.UpdateCoordinates(key, it)) }
 
-fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcase, @StringRes key: Int) =
+fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, @StringRes key: Int) =
         onGloballyPositioned { helpItemsMap.updateItem(key, it) }
 
 fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
         modifierIf(helpState != null) { updateHelpDialogPosition(helpState!!.helpListener, helpState.helpTitle) }
 
-class HelpShowcase {
+class HelpShowcaseUseCase {
     private val _state = MutableStateFlow(HelpShowcaseState())
     val state = _state.asStateFlow()
 
@@ -100,7 +100,7 @@ class HelpShowcase {
     }
 
     companion object {
-        fun combineContent(showcases: List<HelpShowcase>): Map<ResOrActual<String>, HelpShowcaseItem> {
+        fun combineContent(showcases: List<HelpShowcaseUseCase>): Map<ResOrActual<String>, HelpShowcaseItem> {
             val allStates = showcases.map { it.state.value }
             val screens = allStates.mapNotNull { it.currentScreen }.distinct()
             require(screens.size <= 1) { "Must all be the same screen" }

@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
@@ -41,7 +41,7 @@ class ViewScoresViewModelUnitTest {
     val mainCoroutineRule = MainCoroutineRule()
 
     private val db = MockScoresRoomDatabase()
-    private val helpShowcase: HelpShowcase = mock { }
+    private val helpShowcase: HelpShowcaseUseCase = mock { }
     private val customLogger: CustomLogger = mock { }
     private val datastore = MockDatastore()
 

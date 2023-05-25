@@ -23,12 +23,16 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Add
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Remove
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexMenuDialog
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.components.sightMarks.SightMarksIntent.HelpShowcaseAction
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagram
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuDialogItem
 import eywa.projectcodex.model.SightMark
@@ -40,6 +44,7 @@ fun SightMarksScreen(
         listener: (SightMarksIntent) -> Unit
 ) {
     var isMenuShown by remember { mutableStateOf(false) }
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -60,6 +65,11 @@ fun SightMarksScreen(
                     icon = Icons.Default.Add,
                     contentDescription = stringResource(R.string.sight_marks__add_button),
                     captionBelow = stringResource(R.string.sight_marks__add_button),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_sight_marks__add_title),
+                            helpBody = stringResource(R.string.help_sight_marks__add_body),
+                    ),
                     modifier = Modifier
                             .testTag(SightMarksTestTag.ADD_BUTTON.getTestTag())
             )
@@ -69,6 +79,11 @@ fun SightMarksScreen(
                         icon = Icons.Default.MoreHoriz,
                         contentDescription = stringResource(R.string.sight_marks__options_button),
                         captionBelow = stringResource(R.string.sight_marks__options_button),
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_sight_marks__options_title),
+                                helpBody = stringResource(R.string.help_sight_marks__options_body),
+                        ),
                         modifier = Modifier
                                 .testTag(SightMarksTestTag.OPTIONS_BUTTON.getTestTag())
                 )
@@ -83,8 +98,15 @@ fun SightMarksScreen(
                             .padding(top = 10.dp)
                             .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
             )
+            listener(HelpShowcaseAction(Remove(R.string.help_sight_marks__diagram_title)))
         }
         else {
+            HelpShowcaseItem(
+                    helpTitle = R.string.help_sight_marks__diagram_title,
+                    helpBody = R.string.help_sight_marks__diagram_body,
+                    shape = HelpShowcaseShape.NO_SHAPE,
+                    priority = DEFAULT_HELP_PRIORITY - 1,
+            ).let { helpListener(Add(it)) }
             SightMarksDiagram(
                     state = state,
                     onClick = { listener(SightMarksIntent.SightMarkClicked(it)) }

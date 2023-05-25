@@ -20,9 +20,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -43,7 +43,7 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 @Composable
 internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
-        helpInfo: HelpShowcase,
+        helpInfo: HelpShowcaseUseCase,
         modifier: Modifier = Modifier,
         showPbs: Boolean,
 ) {
@@ -116,7 +116,7 @@ internal fun ViewScoresEntryRow(
 @Composable
 private fun DateAndRoundNameColumn(
         entry: ViewScoresEntry,
-        helpInfo: HelpShowcase,
+        helpInfo: HelpShowcaseUseCase,
         modifier: Modifier = Modifier,
 ) {
     Column(
@@ -149,7 +149,7 @@ private fun DateAndRoundNameColumn(
 @Composable
 private fun HsgColumn(
         entry: ViewScoresEntry,
-        helpInfo: HelpShowcase,
+        helpInfo: HelpShowcaseUseCase,
 ) {
     Column(
             horizontalAlignment = Alignment.End,
@@ -173,7 +173,7 @@ private fun HsgColumn(
 @Composable
 private fun HandicapColumn(
         entry: ViewScoresEntry,
-        helpInfo: HelpShowcase,
+        helpInfo: HelpShowcaseUseCase,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -239,7 +239,7 @@ fun ViewScoresEntryRow_Preview() {
     CodexTheme {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
-                helpInfo = HelpShowcase(),
+                helpInfo = HelpShowcaseUseCase(),
                 showPbs = true,
         )
     }
@@ -255,7 +255,7 @@ fun Incomplete_ViewScoresEntryRow_Preview() {
     CodexTheme {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateIncompleteRound(),
-                helpInfo = HelpShowcase(),
+                helpInfo = HelpShowcaseUseCase(),
                 showPbs = true,
         )
     }
@@ -271,7 +271,7 @@ fun PersonalBest_ViewScoresEntryRow_Preview() {
     CodexTheme {
         ViewScoresEntryRow(
                 entry = ViewScoresEntryPreviewProvider.generateEntries(1).setPersonalBests(listOf(0)).first(),
-                helpInfo = HelpShowcase(),
+                helpInfo = HelpShowcaseUseCase(),
                 showPbs = true,
         )
     }
@@ -290,7 +290,7 @@ fun TiedPersonalBest_ViewScoresEntryRow_Preview() {
                         .setPersonalBests(listOf(0))
                         .setTiedPersonalBests(listOf(0))
                         .first(),
-                helpInfo = HelpShowcase(),
+                helpInfo = HelpShowcaseUseCase(),
                 showPbs = true,
         )
     }

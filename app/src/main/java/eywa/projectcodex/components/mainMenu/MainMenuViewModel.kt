@@ -3,7 +3,7 @@ package eywa.projectcodex.components.mainMenu
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainMenuViewModel @Inject constructor(
-        private val helpShowcase: HelpShowcase,
+        private val helpShowcase: HelpShowcaseUseCase,
         private val datastore: CodexDatastore,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainMenuState())

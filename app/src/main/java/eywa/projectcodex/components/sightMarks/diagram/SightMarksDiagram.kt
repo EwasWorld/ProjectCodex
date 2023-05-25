@@ -44,7 +44,9 @@ import kotlin.properties.Delegates
 /*
  * TODO & IDEAS
  *  Pinch zoom
- *  Help labels
+ *  Are you sure you want to delete?
+ *  Are you sure you want to archive all?
+ *  Include in predictions db flag
  */
 
 internal val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
@@ -482,11 +484,11 @@ fun SightMarks_Preview() {
                             SightMark(1, 10, true, Calendar.getInstance(), 3.35f, isArchived = true),
                             SightMark(1, 10, true, Calendar.getInstance(), 3.3f, isMarked = true),
                             SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
-                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f, note = "", isMarked = true),
+                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f, note = "lalala", isMarked = true),
                             SightMark(1, 30, true, Calendar.getInstance(), 3.15f),
                             SightMark(1, 50, false, Calendar.getInstance(), 4f),
                             SightMark(1, 50, false, Calendar.getInstance(), 4f),
-                            SightMark(1, 50, false, Calendar.getInstance(), 2.01f, note = ""),
+                            SightMark(1, 50, false, Calendar.getInstance(), 2.01f, note = "lalala"),
                             SightMark(1, 50, false, Calendar.getInstance(), 2f, isMarked = true, isArchived = true),
                             SightMark(1, 20, false, Calendar.getInstance(), 2.55f),
                             SightMark(1, 30, false, Calendar.getInstance(), 2.5f),

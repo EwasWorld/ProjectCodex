@@ -3,7 +3,7 @@ package eywa.projectcodex.components.handicapTables
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.getDistances
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HandicapTablesViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
-        private val helpShowcase: HelpShowcase,
+        private val helpShowcase: HelpShowcaseUseCase,
         private val datastore: CodexDatastore,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HandicapTablesState())

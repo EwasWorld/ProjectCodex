@@ -13,11 +13,12 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.sightMarks.SightMarksFragmentDirections.actionSightMarksFragmentToSightMarkDetailFragment
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SightMarksFragment : Fragment() {
+class SightMarksFragment : Fragment(), ActionBarHelp {
     private val viewModel: SightMarksViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

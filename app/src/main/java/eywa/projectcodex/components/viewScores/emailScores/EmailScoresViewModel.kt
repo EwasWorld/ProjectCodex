@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmailScoresViewModel @Inject constructor(
-        private val helpShowcase: HelpShowcase,
+        private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     var state by mutableStateOf(EmailScoresState())
         private set

@@ -15,19 +15,23 @@ import eywa.projectcodex.components.mainMenu.MainMenuFragment
 import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.*
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.*
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
+import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
@@ -55,6 +59,8 @@ class LargeScaleInstrumentedTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
     private lateinit var navController: NavController
+
+    private val sightMark = DatabaseSightMark(1, DEFAULT_BOW_ID, 50, true, Calendar.getInstance(), 2f)
 
     @Before
     fun setup() {
@@ -84,8 +90,14 @@ class LargeScaleInstrumentedTest {
                 for (arrow in arrows) {
                     db.arrowValueDao().insert(arrow)
                 }
+                addSightMarkToDb()
             }
         }
+    }
+
+    private suspend fun addSightMarkToDb() {
+        db.insertDefaults()
+        db.sightMarkDao().insert(sightMark)
     }
 
     /**
@@ -589,6 +601,18 @@ class LargeScaleInstrumentedTest {
 
             clickHandicapTables {
                 performAction(HandicapTablesRobot::class)
+
+                logMessage(this::class, "Navigating to: Sight marks")
+                clickHomeIcon()
+            }
+
+            clickSightMarks().apply {
+                performAction(SightMarksRobot::class)
+
+                logMessage(this::class, "Navigating to: Sight mark detail")
+                clickSightMark(SightMark(sightMark))
+            }.apply {
+                performAction(SightMarkDetailRobot::class)
             }
         }
     }
@@ -598,6 +622,12 @@ class LargeScaleInstrumentedTest {
      */
     @Test
     fun testBackButton() {
+        scenario.onActivity {
+            runBlocking {
+                addSightMarkToDb()
+            }
+        }
+
         composeTestRule.mainMenuRobot {
             logMessage(this::class, "Main menu 1")
             pressBack()
@@ -752,6 +782,24 @@ class LargeScaleInstrumentedTest {
                 pressBack()
             }
             CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "Handicap tables")
+            clickHandicapTables {
+                logMessage(this::class, " -> press back")
+                pressBack()
+            }
+
+
+            logMessage(this::class, "Sight mark detail")
+            clickSightMarks().apply {
+                clickSightMark(SightMark(sightMark))
+            }.apply {
+                logMessage(this::class, " -> press back")
+                clickAndroidBack<SightMarksRobot>()
+            }.apply {
+                clickAndroidBack<MainMenuRobot>()
+            }
 
 
             logMessage(this::class, "Main menu 3")
@@ -765,6 +813,12 @@ class LargeScaleInstrumentedTest {
      */
     @Test
     fun testHomeButton() {
+        scenario.onActivity {
+            runBlocking {
+                addSightMarkToDb()
+            }
+        }
+
         composeTestRule.mainMenuRobot {
             logMessage(this::class, "Main menu 1")
             clickHomeIcon()
@@ -906,6 +960,29 @@ class LargeScaleInstrumentedTest {
                 }
             }
             CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+
+
+            logMessage(this::class, "Handicap tables")
+            clickHandicapTables {
+                logMessage(this::class, " -> press home")
+                clickHomeIcon()
+            }
+
+
+            logMessage(this::class, "Sight mark")
+            clickSightMarks().apply {
+                logMessage(this::class, " -> press home")
+                clickHomeIcon()
+            }
+
+
+            logMessage(this::class, "Sight mark detail")
+            clickSightMarks().apply {
+                clickSightMark(SightMark(sightMark))
+            }.apply {
+                logMessage(this::class, " -> press home")
+                clickHomeIcon()
+            }
 
 
             logMessage(this::class, "Main menu 3")

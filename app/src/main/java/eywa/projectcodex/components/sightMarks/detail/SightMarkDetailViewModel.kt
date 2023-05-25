@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.components.sightMarks.SightMarksFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.sightMarks.SightMarkRepo
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class SightMarkDetailViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         savedStateHandle: SavedStateHandle,
-        private val helpShowcase: HelpShowcase,
+        private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow<SightMarkDetailState?>(null)
     val state = _state.asStateFlow()

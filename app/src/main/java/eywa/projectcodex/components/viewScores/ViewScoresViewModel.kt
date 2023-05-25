@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ViewScoresViewModel @Inject constructor(
         db: ScoresRoomDatabase,
-        private val helpShowcase: HelpShowcase,
+        private val helpShowcase: HelpShowcaseUseCase,
         private val customLogger: CustomLogger,
         private val datastore: CodexDatastore,
 ) : ViewModel() {

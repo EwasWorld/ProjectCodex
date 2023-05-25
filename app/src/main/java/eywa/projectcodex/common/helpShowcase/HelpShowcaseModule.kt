@@ -11,5 +11,5 @@ import javax.inject.Singleton
 class HelpShowcaseModule {
     @Singleton
     @Provides
-    fun providesDefaultRoundsInfo() = HelpShowcase()
+    fun providesDefaultRoundsInfo() = HelpShowcaseUseCase()
 }

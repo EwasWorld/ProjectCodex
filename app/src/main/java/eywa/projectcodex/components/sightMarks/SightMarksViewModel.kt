@@ -3,6 +3,7 @@ package eywa.projectcodex.components.sightMarks
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.bow.BowRepo
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SightMarksViewModel @Inject constructor(
         db: ScoresRoomDatabase,
+        private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(SightMarksState())
     val state = _state.asStateFlow()
@@ -49,6 +51,7 @@ class SightMarksViewModel @Inject constructor(
 
             SightMarksIntent.CreateSightMarkHandled -> _state.update { it.copy(createNewSightMark = false) }
             SightMarksIntent.OpenSightMarkHandled -> _state.update { it.copy(openSightMarkDetail = null) }
+            is SightMarksIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, SightMarksFragment::class)
         }
     }
 }

@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.helpShowcase.HelpShowcase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
@@ -30,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ArcherRoundViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
-        private val helpShowcase: HelpShowcase,
+        private val helpShowcase: HelpShowcaseUseCase,
         private val datastore: CodexDatastore,
 ) : ViewModel() {
     var state: ArcherRoundState by mutableStateOf(Loading())

@@ -30,15 +30,15 @@ class ViewScoresShowcaseInfo(
      * This info is specific to the row type.
      * Indexes match that in [entryClasses]
      */
-    val specificEntryHelpInfo: List<HelpShowcase> = List(entryClasses.size) { HelpShowcase() }
+    val specificEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) { HelpShowcaseUseCase() }
 
     /**
      * The help info of the entries currently being displayed.
      * This info is generic and common to all rows.
      * Indexes match that in [entryClasses]
      */
-    val genericEntryHelpInfo: List<HelpShowcase> = List(entryClasses.size) {
-        HelpShowcase().apply {
+    val genericEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) {
+        HelpShowcaseUseCase().apply {
             handle(
                     HelpShowcaseIntent.Add(
                             HelpShowcaseItem(
@@ -73,7 +73,7 @@ class ViewScoresShowcaseInfo(
                 .distinctBy { entryClasses[it.index] }
                 .map { specificEntryHelpInfo[it.index] }
 
-        currentShowcase = HelpShowcase.combineContent(listOf(genericItemHelp).plus(specificItemHelp))
+        currentShowcase = HelpShowcaseUseCase.combineContent(listOf(genericItemHelp).plus(specificItemHelp))
         return currentShowcase!!.values
     }
 

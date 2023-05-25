@@ -20,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.getColourResource
@@ -72,14 +73,13 @@ class MainActivity : AppCompatActivity() {
                         remember { Animatable(if (state.currentHelpItem == null) 0f else 1f) }
 
                 displayedHelpItem?.let { item ->
-                    item.helpShowcaseItem.Showcase(
+                    item.helpShowcaseItem.asShape(
                             hasNextItem = item.hasNextItem,
                             goToNextItemListener = { viewModel.handle(GoToNextHelpShowcaseItem) },
                             endShowcaseListener = { viewModel.handle(CloseHelpShowcase) },
                             screenHeight = height.toFloat(),
                             screenWidth = width.toFloat(),
-                            animationState = displayedHelpItemAnimationState.value,
-                    )
+                    )?.let { HelpShowcase(it, displayedHelpItemAnimationState.value) }
                 }
 
                 LaunchedEffect(key1 = state.currentHelpItem) {
