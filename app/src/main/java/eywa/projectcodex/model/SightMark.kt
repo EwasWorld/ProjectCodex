@@ -12,6 +12,7 @@ data class SightMark(
         val note: String? = null,
         val isMarked: Boolean = false,
         val isArchived: Boolean = false,
+        val useInPredictions: Boolean = true,
         val bowId: Int? = null,
 ) {
     constructor(dbSightMark: DatabaseSightMark) : this(
@@ -24,5 +25,6 @@ data class SightMark(
             note = dbSightMark.note,
             isMarked = dbSightMark.isMarked,
             isArchived = dbSightMark.isArchived,
+            useInPredictions = dbSightMark.useInPredictions,
     )
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "9cd4f1b075762493c6e36c20095cc9a2",
+    "identityHash": "c6a015feb63a11b4d6e39191693d0327",
     "entities": [
       {
         "tableName": "archer_rounds",
@@ -454,7 +454,7 @@
       },
       {
         "tableName": "sight_marks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bowId` INTEGER, `distance` INTEGER NOT NULL, `isMetric` INTEGER NOT NULL, `dateSet` INTEGER NOT NULL, `sightMark` REAL NOT NULL, `note` TEXT, `isMarked` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, FOREIGN KEY(`bowId`) REFERENCES `bows`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bowId` INTEGER, `distance` INTEGER NOT NULL, `isMetric` INTEGER NOT NULL, `dateSet` INTEGER NOT NULL, `sightMark` REAL NOT NULL, `note` TEXT, `isMarked` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, `useInPredictions` INTEGER NOT NULL, FOREIGN KEY(`bowId`) REFERENCES `bows`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -509,6 +509,12 @@
             "columnName": "isArchived",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "useInPredictions",
+            "columnName": "useInPredictions",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -555,7 +561,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9cd4f1b075762493c6e36c20095cc9a2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c6a015feb63a11b4d6e39191693d0327')"
     ]
   }
 }

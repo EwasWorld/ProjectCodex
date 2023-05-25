@@ -46,7 +46,6 @@ import kotlin.properties.Delegates
  *  Pinch zoom
  *  Are you sure you want to delete?
  *  Are you sure you want to archive all?
- *  Include in predictions db flag
  */
 
 internal val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)

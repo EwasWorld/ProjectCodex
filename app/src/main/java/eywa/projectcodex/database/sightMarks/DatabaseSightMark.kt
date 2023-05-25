@@ -30,6 +30,7 @@ data class DatabaseSightMark(
         val note: String? = null,
         val isMarked: Boolean = false,
         val isArchived: Boolean = false,
+        val useInPredictions: Boolean = true,
 ) {
     companion object {
         const val TABLE_NAME = "sight_marks"
