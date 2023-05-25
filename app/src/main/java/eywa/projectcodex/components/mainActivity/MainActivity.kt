@@ -20,12 +20,14 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.getColourResource
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -35,6 +37,9 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var navHostFragment: NavHostFragment
     private val viewModel: MainActivityViewModel by viewModels()
+
+    @Inject
+    lateinit var helpShowcase: HelpShowcaseUseCase
 
     /**
      * Stores destination IDs of fragments which will be returned to when the back button is pressed
@@ -144,14 +149,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         onBackPressedDispatcher.addCallback(this) {
-            val navController = navHostFragment.navController
-
-            fun clearBackStackAndReturnToMainMenu() {
-                CustomLogger.customLogger.i(LOG_TAG, "Popping backstack to main menu")
-                if (!navController.popBackStack(R.id.mainMenuFragment, false)) {
-                    navController.navigate(R.id.mainMenuFragment)
-                }
+            if (helpShowcase.state.value.isInProgress) {
+                helpShowcase.endShowcase()
+                return@addCallback
             }
+
+            val navController = navHostFragment.navController
 
             /*
              * Find the first destination that is not the current
@@ -175,17 +178,15 @@ class MainActivity : AppCompatActivity() {
                 customBackStack.removeLast()
             }
 
-            if (getBackStackBehaviour(navController.currentDestination) == BackStackBehaviour.SINGLE) {
-                customBackStack.removeAll { it == navController.currentDestination?.id }
-            }
-
             /*
              * Actually pop the back stack
              */
             if (!navController.popBackStack(nextDestination, false)) {
                 // If there was nowhere to pop to
-                CustomLogger.customLogger.w(LOG_TAG, "Pop to $nextDestination failed")
-                clearBackStackAndReturnToMainMenu()
+                CustomLogger.customLogger.w(LOG_TAG, "Pop to $nextDestination failed, navigating to main menu")
+                if (!navController.popBackStack(R.id.mainMenuFragment, false)) {
+                    navController.navigate(R.id.mainMenuFragment)
+                }
             }
         }
     }
