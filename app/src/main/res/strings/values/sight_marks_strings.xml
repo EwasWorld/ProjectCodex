@@ -1,10 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main screen -->
     <string name="sight_marks__title">Sight marks</string>
-    <string name="sight_marks__detail_title">Sight mark</string>
 
     <string name="sight_marks__has_note_content_descr">Has note</string>
 
+    <string name="sight_marks__add_button">New</string>
+    <string name="sight_marks__options_button">Options</string>
+
+    <string name="sight_marks__diagram_placeholder">No sight marks\nTap the + to create one</string>
+
+    <string name="sight_marks__menu_title">Options</string>
+    <string name="sight_marks__menu_flip_diagram">Flip diagram</string>
+    <string name="sight_marks__menu_archive_all">Archive all sight marks</string>
+    <string name="sight_marks__menu_swap_dataset">Swap dataset</string>
+
+    <string name="sight_marks__archive_confirmation_title">Archive all</string>
+    <string name="sight_marks__archive_confirmation_body">Are you sure you want to archive all sight marks?</string>
+    <string name="sight_marks__archive_confirmation_button">Archive</string>
+
+    <string name="help_sight_marks__diagram_title">Sight marks</string>
+    <string name="help_sight_marks__diagram_body">Shows recorded sight marks for different distances on a diagram that represents the sight bar on the bow. White sight marks are \'marked\', faded sight marks are \'archived\', those with a note icon have a note attached. Click on a sight mark to view and edit this information.</string>
+    <string name="help_sight_marks__add_title">Add</string>
+    <string name="help_sight_marks__add_body">Click here to add a new sight mark</string>
+
+    <string name="help_sight_marks__options_title">Options</string>
+    <string name="help_sight_marks__options_body">Flip the scale on the diagram or archive all sight marks (might want to do this when a piece of equipment changes which may affect sight marks)</string>
+
+    <!-- Details screen -->
+    <string name="sight_marks__detail_title">Sight mark</string>
+
+    <string name="sight_marks__delete_confirmation_title">Delete sight mark</string>
+    <!-- for 50yd -->
+    <string name="sight_marks__delete_confirmation_body">Are you sure you want to delete the sight mark for %1$d%2$s?</string>
+
+    <string name="sight_marks__detail_loading">Loading…</string>
     <string name="sight_marks__distance">Distance:</string>
     <string name="sight_marks__sight">Sight:</string>
     <string name="sight_marks__date_set">Last updated:</string>
@@ -13,26 +43,6 @@
     <string name="sight_marks__marked">Marked</string>
     <string name="sight_marks__archived">Archived</string>
 
-    <string name="sight_marks__add_button">New</string>
-    <string name="sight_marks__options_button">Options</string>
-
-    <string name="sight_marks__detail_loading">Loading…</string>
-    <string name="sight_marks__diagram_placeholder">No sight marks\nTap the + to create one</string>
-
-    <string name="sight_marks__menu_title">Options</string>
-    <string name="sight_marks__menu_flip_diagram">Flip diagram</string>
-    <string name="sight_marks__menu_archive_all">Archive all sight marks</string>
-    <string name="sight_marks__menu_swap_dataset">Swap dataset</string>
-
-    <!-- Main screen help -->
-    <string name="help_sight_marks__diagram_title">Sight marks</string>
-    <string name="help_sight_marks__diagram_body">Shows recorded sight marks for different distances on a diagram that represents the sight bar on the bow. White sight marks are \'marked\', faded sight marks are \'archived\', those with a note icon have a note attached. Click on a sight mark to view and edit this information.</string>
-    <string name="help_sight_marks__add_title">Add</string>
-    <string name="help_sight_marks__add_body">Click here to add a new sight mark</string>
-    <string name="help_sight_marks__options_title">Options</string>
-    <string name="help_sight_marks__options_body">Flip the scale on the diagram or archive all sight marks (might want to do this when a piece of equipment changes which may affect sight marks)</string>
-
-    <!-- Details help -->
     <string name="help_sight_marks__sight_title">Sight mark</string>
     <string name="help_sight_marks__sight_body">Your sight mark for the given distance</string>
     <string name="help_sight_marks__distance_title">Distance</string>

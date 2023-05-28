@@ -26,8 +26,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Add
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Remove
-import eywa.projectcodex.common.sharedUi.CodexIconButton
-import eywa.projectcodex.common.sharedUi.CodexMenuDialog
+import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -35,6 +34,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.HelpShowcaseAction
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagram
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuDialogItem
+import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
 import eywa.projectcodex.model.SightMark
 import java.util.*
 
@@ -44,6 +44,7 @@ fun SightMarksScreen(
         listener: (SightMarksIntent) -> Unit
 ) {
     var isMenuShown by remember { mutableStateOf(false) }
+    var isArchiveConfirmationShown by remember { mutableStateOf(false) }
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
@@ -116,11 +117,37 @@ fun SightMarksScreen(
 
     val menuItems = SightMarksMenuDialogItem.values().map { item ->
         item.asCodexMenuItem(LocalContext.current.resources) {
-            listener(SightMarksIntent.MenuAction(it))
+            if (it == SightMarksMenuIntent.ArchiveAll) {
+                isArchiveConfirmationShown = true
+            }
+            else {
+                listener(SightMarksIntent.MenuAction(it))
+            }
             isMenuShown = false
         }
     }
     CodexMenuDialog(isMenuShown, menuItems) { isMenuShown = false }
+
+    SimpleDialog(
+            isShown = isArchiveConfirmationShown,
+            onDismissListener = { isArchiveConfirmationShown = false },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.sight_marks__archive_confirmation_title),
+                message = stringResource(R.string.sight_marks__archive_confirmation_body),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.sight_marks__archive_confirmation_button),
+                        onClick = {
+                            listener(SightMarksIntent.MenuAction(SightMarksMenuIntent.ArchiveAll))
+                            isArchiveConfirmationShown = false
+                        },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { isArchiveConfirmationShown = false },
+                ),
+        )
+    }
 }
 
 enum class SightMarksTestTag : CodexTestTag {

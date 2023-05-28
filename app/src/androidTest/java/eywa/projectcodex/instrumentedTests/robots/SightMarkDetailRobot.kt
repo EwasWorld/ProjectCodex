@@ -95,6 +95,7 @@ class SightMarkDetailRobot(
 
     fun clickDelete(): SightMarksRobot {
         clickElement(DELETE_BUTTON)
+        clickDialogOk("Delete sight mark")
         return popRobot() as SightMarksRobot
     }
 }

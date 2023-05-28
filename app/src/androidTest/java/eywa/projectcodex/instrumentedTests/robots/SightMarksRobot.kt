@@ -69,6 +69,7 @@ class SightMarksRobot(
     fun archiveAll() {
         clickOptions()
         clickElement(ARCHIVE_MENU_BUTTON)
+        clickDialogOk("Archive all")
     }
 
     private fun clickOptions() {

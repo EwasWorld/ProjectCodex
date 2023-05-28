@@ -11,7 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -65,7 +65,33 @@ fun SightMarkDetail(
         state: SightMarkDetailState,
         listener: (SightMarkDetailIntent) -> Unit,
 ) {
+    var isDeleteConfirmationShown by remember { mutableStateOf(false) }
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    SimpleDialog(
+            isShown = isDeleteConfirmationShown,
+            onDismissListener = { isDeleteConfirmationShown = false },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.sight_marks__delete_confirmation_title),
+                message = stringResource(
+                        R.string.sight_marks__delete_confirmation_body,
+                        state.originalSightMark?.distance ?: state.distance.toIntOrNull() ?: 0,
+                        stringResource(
+                                if (state.originalSightMark?.isMetric ?: state.isMetric) R.string.units_meters_short
+                                else R.string.units_yards_short
+                        ),
+                ),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_delete),
+                        onClick = { listener(DeleteClicked) },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { isDeleteConfirmationShown = false },
+                ),
+        )
+    }
 
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         Column(
@@ -207,7 +233,7 @@ fun SightMarkDetail(
                             icon = Icons.Default.Delete,
                             contentDescription = stringResource(R.string.general_delete),
                             captionBelow = stringResource(R.string.general_delete),
-                            onClick = { listener(DeleteClicked) },
+                            onClick = { isDeleteConfirmationShown = true },
                             helpState = HelpState(
                                     helpListener,
                                     stringResource(R.string.help_sight_marks__delete_title),
