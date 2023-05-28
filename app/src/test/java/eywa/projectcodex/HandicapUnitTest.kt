@@ -1,6 +1,7 @@
 package eywa.projectcodex
 
 import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.components.archerRoundScore.roundHandicap
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -28,8 +29,8 @@ class HandicapUnitTest {
             HandicapTableEntry(
                     listOf(
                             Round(1, "western", "western", true, false, listOf()),
-                            RoundArrowCount(1, 1, 122.0, 48),
-                            RoundArrowCount(1, 2, 122.0, 48),
+                            RoundArrowCount(1, 1, 122f, 48),
+                            RoundArrowCount(1, 2, 122f, 48),
                             RoundDistance(1, 1, 1, 60),
                             RoundDistance(1, 2, 1, 50)
                     ),
@@ -56,8 +57,8 @@ class HandicapUnitTest {
             HandicapTableEntry(
                     listOf(
                             Round(2, "longmetricvi", "long metric vi", true, true, listOf()),
-                            RoundArrowCount(2, 1, 122.0, 36),
-                            RoundArrowCount(2, 2, 122.0, 36),
+                            RoundArrowCount(2, 1, 122f, 36),
+                            RoundArrowCount(2, 2, 122f, 36),
                             RoundDistance(2, 1, 1, 40),
                             RoundDistance(2, 2, 1, 30)
                     ),
@@ -80,8 +81,8 @@ class HandicapUnitTest {
             HandicapTableEntry(
                     listOf(
                             Round(3, "longmetricgents", "long metric gents", true, true, listOf()),
-                            RoundArrowCount(3, 1, 122.0, 36),
-                            RoundArrowCount(3, 2, 122.0, 36),
+                            RoundArrowCount(3, 1, 122f, 36),
+                            RoundArrowCount(3, 2, 122f, 36),
                             RoundDistance(3, 1, 1, 90),
                             RoundDistance(3, 2, 1, 70)
                     ),
@@ -102,7 +103,7 @@ class HandicapUnitTest {
             HandicapTableEntry(
                     listOf(
                             Round(4, "vegas", "vegas", false, true, listOf("vegas")),
-                            RoundArrowCount(4, 1, 40.0, 60),
+                            RoundArrowCount(4, 1, 40f, 60),
                             RoundDistance(4, 1, 1, 18)
                     ),
                     listOf(
@@ -118,7 +119,7 @@ class HandicapUnitTest {
             HandicapTableEntry(
                     listOf(
                             Round(4, "vegas", "vegas", false, true, listOf("vegas")),
-                            RoundArrowCount(4, 1, 40.0, 60),
+                            RoundArrowCount(4, 1, 40f, 60),
                             RoundDistance(4, 1, 1, 18)
                     ),
                     listOf(
@@ -136,7 +137,7 @@ class HandicapUnitTest {
             HandicapTableEntry(
                     listOf(
                             Round(5, "worcester", "worcester", false, false, listOf(), fiveArrowEnd = true),
-                            RoundArrowCount(5, 1, 16 * 2.54, 60),
+                            RoundArrowCount(5, 1, 16 * 2.54f, 60),
                             RoundDistance(5, 1, 1, 20)
                     ),
                     listOf(
@@ -171,8 +172,8 @@ class HandicapUnitTest {
                                     hcEntry.distances,
                                     score,
                                     hcEntry.useInnerTen,
-                                    null
-                            )
+                                    null,
+                            ).roundHandicap()
                     )
                 }
                 previous = mapping
@@ -202,7 +203,7 @@ class HandicapUnitTest {
                                     hcEntry.round,
                                     hcEntry.arrowCounts,
                                     hcEntry.distances,
-                                    handicap,
+                                    handicap.toFloat(),
                                     hcEntry.useInnerTen,
                                     null
                             ).toDouble(),
@@ -212,5 +213,10 @@ class HandicapUnitTest {
                 previous = mapping
             }
         }
+    }
+
+    @Test
+    fun testPartialHandicap() {
+        // TODO_CURRENT testPartialHandicap
     }
 }

@@ -8,6 +8,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.components.archerRoundScore.roundHandicap
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -52,7 +53,7 @@ class HandicapTablesViewModel @Inject constructor(
                         round = round.info.round,
                         roundArrowCounts = round.info.roundArrowCounts,
                         roundDistances = subtypeDistances,
-                        handicap = handicap,
+                        handicap = handicap.toFloat(),
                         innerTenArcher = false,
                         arrows = null,
                         use2023Handicaps = use2023Tables,
@@ -72,7 +73,7 @@ class HandicapTablesViewModel @Inject constructor(
                             innerTenArcher = false,
                             arrows = null,
                             use2023Handicaps = use2023Tables,
-                    ),
+                    ).roundHandicap(),
             )
         }
 

@@ -28,13 +28,13 @@ object RoundPreviewHelper {
                     RoundArrowCount(
                             roundId = 1,
                             distanceNumber = 1,
-                            faceSizeInCm = 120.0,
+                            faceSizeInCm = 120f,
                             arrowCount = 36,
                     ),
                     RoundArrowCount(
                             roundId = 1,
                             distanceNumber = 2,
-                            faceSizeInCm = 120.0,
+                            faceSizeInCm = 120f,
                             arrowCount = 24,
                     ),
             ),
@@ -91,7 +91,7 @@ object RoundPreviewHelper {
                     RoundArrowCount(
                             roundId = 2,
                             distanceNumber = 1,
-                            faceSizeInCm = 60.0,
+                            faceSizeInCm = 60f,
                             arrowCount = 60,
                     ),
             ),
@@ -131,7 +131,7 @@ object RoundPreviewHelper {
                     RoundArrowCount(
                             roundId = 3,
                             distanceNumber = 1,
-                            faceSizeInCm = 80.0,
+                            faceSizeInCm = 80f,
                             arrowCount = 60,
                     ),
             ),

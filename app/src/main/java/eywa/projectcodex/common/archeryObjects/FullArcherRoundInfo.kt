@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.archeryObjects
 
 import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.components.archerRoundScore.roundHandicap
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -93,7 +94,7 @@ data class FullArcherRoundInfo(
 
     private val isInnerTenArcher = false
 
-    val handicap by lazy {
+    private val handicapFloat by lazy {
         if (
             round == null
             || roundArrowCounts.isNullOrEmpty()
@@ -112,8 +113,10 @@ data class FullArcherRoundInfo(
         )
     }
 
+    val handicap by lazy { handicapFloat?.roundHandicap() }
+
     val predictedScore by lazy {
-        if (handicap == null) return@lazy null
+        if (handicapFloat == null) return@lazy null
         // No need to predict a score if round is already completed
         if (remainingArrows!! == 0) return@lazy null
 
@@ -121,7 +124,7 @@ data class FullArcherRoundInfo(
                 round = round!!,
                 roundArrowCounts = roundArrowCounts!!,
                 roundDistances = roundDistances!!,
-                handicap = handicap!!,
+                handicap = handicapFloat!!,
                 innerTenArcher = isInnerTenArcher,
                 arrows = null,
                 use2023Handicaps = use2023HandicapSystem,

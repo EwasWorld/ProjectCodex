@@ -47,20 +47,20 @@ class TestData {
                 DefaultRoundInfo.RoundInfoSubType(3, "3", 12, 14)
         )
         private val ROUND_ARROW_COUNTS_OLD = listOf(
-                DefaultRoundInfo.RoundInfoArrowCount(1, 122.0, 48),
-                DefaultRoundInfo.RoundInfoArrowCount(2, 122.0, 36),
-                DefaultRoundInfo.RoundInfoArrowCount(3, 60.0, 24)
+                DefaultRoundInfo.RoundInfoArrowCount(1, 122f, 48),
+                DefaultRoundInfo.RoundInfoArrowCount(2, 122f, 36),
+                DefaultRoundInfo.RoundInfoArrowCount(3, 60f, 24)
         )
         val ROUND_ARROW_COUNTS = listOf(
-                RoundArrowCount(1, 1, 122.0, 48),
-                RoundArrowCount(1, 2, 122.0, 36),
-                RoundArrowCount(1, 3, 60.0, 24),
-                RoundArrowCount(2, 1, 922.0, 60),
-                RoundArrowCount(2, 2, 922.0, 48),
-                RoundArrowCount(2, 3, 90.0, 36),
-                RoundArrowCount(3, 1, 822.0, 70),
-                RoundArrowCount(3, 2, 822.0, 60),
-                RoundArrowCount(3, 3, 80.0, 50)
+                RoundArrowCount(1, 1, 122f, 48),
+                RoundArrowCount(1, 2, 122f, 36),
+                RoundArrowCount(1, 3, 60f, 24),
+                RoundArrowCount(2, 1, 922f, 60),
+                RoundArrowCount(2, 2, 922f, 48),
+                RoundArrowCount(2, 3, 90f, 36),
+                RoundArrowCount(3, 1, 822f, 70),
+                RoundArrowCount(3, 2, 822f, 60),
+                RoundArrowCount(3, 3, 80f, 50)
         )
         val MIN_ARROW_COUNT_ARROWS = 36
         val MAX_ARROW_COUNT_ARROWS = 60
@@ -318,7 +318,7 @@ class TestData {
             return RoundArrowCount(
                     roundId,
                     distanceNumber,
-                    Random.nextDouble(122.0) + 1,
+                    Random.nextFloat() * 122f + 1f,
                     Random.nextInt(MIN_ARROW_COUNT_ARROWS, MAX_ARROW_COUNT_ARROWS) + 1
             )
         }

@@ -86,7 +86,7 @@ class DefaultRoundInfo(
      */
     class RoundInfoArrowCount(
             val distanceNumber: Int,
-            val faceSizeInCm: Double,
+            val faceSizeInCm: Float,
             val arrowCount: Int
     ) {
         fun toRoundArrowCount(roundId: Int): RoundArrowCount {

@@ -11,6 +11,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowValuesPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.components.archerRoundScore.roundHandicap
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -29,8 +30,8 @@ class ViewScoresEntryUnitTest {
             round = RoundPreviewHelper.indoorMetricRoundData.round.copy(roundId = 1),
             roundSubTypes = null,
             roundArrowCounts = listOf(
-                    RoundArrowCount(1, 1, 122.0, 18),
-                    RoundArrowCount(1, 2, 122.0, 18),
+                    RoundArrowCount(1, 1, 122f, 18),
+                    RoundArrowCount(1, 2, 122f, 18),
             ),
             roundDistances = listOf(
                     RoundDistance(1, 1, 1, 20),
@@ -98,7 +99,7 @@ class ViewScoresEntryUnitTest {
                         false,
                         TestData.ARROWS.size,
                         use2023Handicaps = true,
-                ),
+                ).roundHandicap(),
                 entry.handicap
         )
     }

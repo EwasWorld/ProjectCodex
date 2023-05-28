@@ -56,12 +56,12 @@ class InputEndInstrumentedTest {
             Round(2, "test2", "Test2", true, false, listOf())
     )
     private val arrowCountsInput = listOf(
-            RoundArrowCount(1, 1, 1.0, arrowsPerArrowCount),
-            RoundArrowCount(1, 2, 1.0, arrowsPerArrowCount),
-            RoundArrowCount(1, 3, 1.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 1, 1.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 2, 1.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 3, 1.0, arrowsPerArrowCount)
+            RoundArrowCount(1, 1, 1f, arrowsPerArrowCount),
+            RoundArrowCount(1, 2, 1f, arrowsPerArrowCount),
+            RoundArrowCount(1, 3, 1f, arrowsPerArrowCount),
+            RoundArrowCount(2, 1, 1f, arrowsPerArrowCount),
+            RoundArrowCount(2, 2, 1f, arrowsPerArrowCount),
+            RoundArrowCount(2, 3, 1f, arrowsPerArrowCount)
     )
     private val distancesInput = listOf(
             RoundDistance(1, 1, 1, 90),

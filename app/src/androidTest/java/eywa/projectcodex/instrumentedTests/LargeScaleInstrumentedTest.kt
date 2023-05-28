@@ -108,8 +108,8 @@ class LargeScaleInstrumentedTest {
         scenario.onActivity {
             runBlocking {
                 db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", true, true, listOf()))
-                db.roundArrowCountDao().insert(RoundArrowCount(1, 1, 1.0, 18))
-                db.roundArrowCountDao().insert(RoundArrowCount(1, 2, 1.0, 18))
+                db.roundArrowCountDao().insert(RoundArrowCount(1, 1, 1f, 18))
+                db.roundArrowCountDao().insert(RoundArrowCount(1, 2, 1f, 18))
                 db.roundDistanceDao().insert(RoundDistance(1, 1, 1, 60))
                 db.roundDistanceDao().insert(RoundDistance(1, 2, 1, 50))
             }
