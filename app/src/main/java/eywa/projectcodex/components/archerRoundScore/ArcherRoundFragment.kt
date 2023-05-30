@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -59,11 +61,13 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                LaunchedEffect(viewModel.state.interruptBackButtonListener) {
-                    backButtonCallback.isEnabled = viewModel.state.interruptBackButtonListener
+                val state by viewModel.state.collectAsState()
+
+                LaunchedEffect(state.interruptBackButtonListener) {
+                    backButtonCallback.isEnabled = state.interruptBackButtonListener
                 }
 
-                screen.ComposeContent(viewModel.state) { viewModel.handle(it) }
+                screen.ComposeContent(state) { viewModel.handle(it) }
             }
         }
     }

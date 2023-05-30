@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 
 @Composable
 fun CodexCheckbox(
@@ -17,12 +19,17 @@ fun CodexCheckbox(
         checked: Boolean,
         modifier: Modifier = Modifier,
         displayAsSwitch: Boolean = false,
+        helpState: HelpState? = null,
         onToggle: () -> Unit,
 ) {
+    helpState?.add()
+
     Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = modifier.clickable(onClick = onToggle)
+            modifier = modifier
+                    .clickable(onClick = onToggle)
+                    .updateHelpDialogPosition(helpState)
     ) {
         Text(text = text)
 

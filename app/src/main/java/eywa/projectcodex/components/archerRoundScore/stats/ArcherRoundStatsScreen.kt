@@ -1,9 +1,8 @@
 package eywa.projectcodex.components.archerRoundScore.stats
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
@@ -13,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -129,7 +129,74 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                         }
                     }
                 }
+
+                if (state.useBetaFeatures) {
+                    state.extras?.let { extras ->
+                        Spacer(modifier = Modifier)
+
+                        Text(
+                                text = "Beta Feature:",
+                                fontWeight = FontWeight.Bold,
+                                style = CodexTypography.LARGE,
+                                color = CodexTheme.colors.onAppBackground,
+                        )
+                        Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.horizontalScroll(rememberScrollState())
+                        ) {
+                            DataColumn(
+                                    "dist",
+                                    extras.map {
+                                        when (it) {
+                                            is DistanceExtra -> it.distance.distance.toString()
+                                            is GrandTotalExtra -> "Total"
+                                            else -> throw NotImplementedError()
+                                        }
+                                    },
+                            )
+                            FloatDataColumn("HC", extras.map { it.handicap })
+                            FloatDataColumn("avgEnd", extras.map { it.averageEnd })
+                            FloatDataColumn("endStD", extras.map { it.endStDev }, 2)
+                            FloatDataColumn("avgArr", extras.map { it.averageArrow })
+                            FloatDataColumn("arrStD", extras.map { it.arrowStdDev }, 2)
+                        }
+
+                        Text(
+                                "HC: handicap, avgEnd: average end score, endStD: end standard deviation," +
+                                        " avgArr: average arrow score, arrStD: arrow standard deviation"
+                        )
+                    }
+                }
             }
+        }
+    }
+
+    @Composable
+    private fun FloatDataColumn(title: String, strings: List<Float?>, decimalPlaces: Int = 1) =
+            DataColumn(title, strings.map { it?.let { "%.${decimalPlaces}f".format(it) } ?: "-" })
+
+    @Composable
+    private fun DataColumn(title: String, strings: List<String>) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.width(IntrinsicSize.Min)
+        ) {
+            listOf(title).plus(strings)
+                    .forEachIndexed { index, it ->
+                        val isBold = index == 0 || index == strings.size
+                        Text(
+                                text = it,
+                                color = CodexTheme.colors.onListItemAppOnBackground,
+                                textAlign = TextAlign.Center,
+                                fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+                                modifier = Modifier
+                                        .background(CodexTheme.colors.listItemOnAppBackground)
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
         }
     }
 

@@ -92,9 +92,9 @@ data class FullArcherRoundInfo(
 
     val hasSurplusArrows by lazy { remainingArrows?.let { it < 0 } }
 
-    private val isInnerTenArcher = false
+    val isInnerTenArcher = false
 
-    private val handicapFloat by lazy {
+    val handicapFloat by lazy {
         if (
             round == null
             || roundArrowCounts.isNullOrEmpty()

@@ -26,16 +26,18 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.INS
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsScreen
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsState
 import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.datastore.DatastoreKey
 
 private const val DEFAULT_END_SIZE = 6
 
-sealed class ArcherRoundState {
+sealed class ArcherRoundState : HasBetaFeaturesFlag {
     open val showNavBar: Boolean = false
     open val interruptBackButtonListener = false
 
     data class Loading(
             val currentScreen: ArcherRoundScreen? = null,
             val fullArcherRoundInfo: FullArcherRoundInfo? = null,
+            override val useBetaFeatures: Boolean = DatastoreKey.UseBetaFeatures.defaultValue,
     ) : ArcherRoundState()
 
     // TODO Disable submit functions while waiting for a submit action to return
@@ -52,6 +54,7 @@ sealed class ArcherRoundState {
             val displayRoundCompletedDialog: Boolean = false,
             val displayCannotInputEndDialog: Boolean = false,
             override val displayDeleteEndConfirmationDialog: Boolean = false,
+            override val useBetaFeatures: Boolean = DatastoreKey.UseBetaFeatures.defaultValue,
     ) : ArcherRoundState(), InputEndState, ArcherRoundStatsState, ScorePadState, ArcherRoundSettingsState, EditEndState,
             InsertEndState {
         override val scorePadData by lazy {
