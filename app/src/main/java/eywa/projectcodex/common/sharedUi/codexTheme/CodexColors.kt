@@ -101,6 +101,7 @@ data class CodexThemeColors(
         val sightMarksTicksAndLabels: Color = CodexColors.COLOR_PRIMARY_DARK,
         val sightMarksIndicator: Color = CodexColors.COLOR_PRIMARY_DARK,
         val sightMarksMarkedBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
+        val sightMarksDisabledIndicator: Color = Color(0xFF7364C5),
 )
 
 object CodexColors {

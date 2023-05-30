@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
@@ -43,7 +42,6 @@ import kotlin.properties.Delegates
 
 // TODO Sight marks pinch zoom
 // TODO_CURRENT Loading screen
-// TODO_CURRENT Change archived colour
 
 internal val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 internal val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
@@ -52,7 +50,6 @@ private const val HORIZONTAL_LINE_FIXED_WIDTH = 30
 private const val INDICATOR_PADDING = 10
 private const val INDENT_AMOUNT = 20
 internal const val CHEVRON_WIDTH_MODIFIER = 2.3f
-internal const val ARCHIVED_ALPHA = 0.6f
 
 @Composable
 fun SightMarksDiagram(
@@ -63,12 +60,12 @@ fun SightMarksDiagram(
     val totalSightMarks = state.sightMarks.size
 
     @Composable
-    fun SightMark.getColour(): Color {
-        val base =
-                if (isMarked) CodexTheme.colors.sightMarksMarkedBackground
-                else CodexTheme.colors.sightMarksIndicator
-        return base.copy(alpha = if (isArchived) ARCHIVED_ALPHA else 1f)
-    }
+    fun SightMark.getColour(): Color =
+            when {
+                isMarked -> CodexTheme.colors.sightMarksMarkedBackground
+                isArchived -> CodexTheme.colors.sightMarksDisabledIndicator
+                else -> CodexTheme.colors.sightMarksIndicator
+            }
 
     Layout(
             content = {
@@ -242,6 +239,69 @@ private class Tape(val placeable: Placeable) {
     }
 }
 
+@Composable
+private fun SightMarkIndicator(
+        sightMark: SightMark,
+        isLeft: Boolean,
+        onClick: (SightMark) -> Unit,
+) {
+    val distanceUnit = stringResource(
+            if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
+    )
+    val text = listOf(
+            sightMark.sightMark.toString(),
+            "-",
+            "${sightMark.distance}$distanceUnit",
+    ).let { if (isLeft) it.asReversed() else it }
+    val colour =
+            if (sightMark.isArchived) CodexTheme.colors.sightMarksDisabledIndicator
+            else CodexTheme.colors.sightMarksIndicator
+
+    @Composable
+    fun NoteIcon() {
+        if (!sightMark.note.isNullOrBlank()) {
+            Icon(
+                    imageVector = Icons.Outlined.Description,
+                    contentDescription = stringResource(R.string.sight_marks__has_note_content_descr),
+                    tint = colour,
+                    modifier = Modifier
+                            .width(15.dp)
+                            .aspectRatio(1f)
+                            .testTag(SightMarksTestTag.DIAGRAM_NOTE_ICON.getTestTag())
+            )
+        }
+    }
+
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            modifier = Modifier
+                    .modifierIf(
+                            sightMark.isMarked,
+                            Modifier
+                                    .padding(vertical = 3.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(CodexTheme.colors.sightMarksMarkedBackground)
+                                    .padding(horizontal = 7.dp)
+                    )
+                    .clickable { onClick(sightMark) }
+    ) {
+        if (isLeft) NoteIcon()
+        Text(
+                text = text.joinToString(" "),
+                style = CodexTypography.NORMAL
+                        .copy(
+                                fontStyle = if (sightMark.isMarked || sightMark.isArchived) FontStyle.Italic else FontStyle.Normal,
+                                fontWeight = if (sightMark.isMarked) FontWeight.Bold else FontWeight.Normal,
+                        ),
+                color = colour,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag(SightMarksTestTag.SIGHT_MARK_TEXT.getTestTag())
+        )
+        if (!isLeft) NoteIcon()
+    }
+}
+
 private class IndicatorPlaceables(
         val highestAtTop: Boolean,
         leftIndicatorPlaceables: List<Placeable>,
@@ -379,67 +439,6 @@ private class Offsets(
             indicatorPlaceables.moveAllRight()
             return Offsets(indicatorPlaceables, tapeWidth)
         }
-    }
-}
-
-@Composable
-private fun SightMarkIndicator(
-        sightMark: SightMark,
-        isLeft: Boolean,
-        onClick: (SightMark) -> Unit,
-) {
-    val distanceUnit = stringResource(
-            if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
-    )
-    val text = listOf(
-            sightMark.sightMark.toString(),
-            "-",
-            "${sightMark.distance}$distanceUnit",
-    ).let { if (isLeft) it.asReversed() else it }
-
-    @Composable
-    fun NoteIcon() {
-        if (!sightMark.note.isNullOrBlank()) {
-            Icon(
-                    imageVector = Icons.Outlined.Description,
-                    contentDescription = stringResource(R.string.sight_marks__has_note_content_descr),
-                    tint = CodexTheme.colors.sightMarksIndicator,
-                    modifier = Modifier
-                            .width(15.dp)
-                            .aspectRatio(1f)
-                            .testTag(SightMarksTestTag.DIAGRAM_NOTE_ICON.getTestTag())
-            )
-        }
-    }
-
-    Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            modifier = Modifier
-                    .modifierIf(
-                            sightMark.isMarked,
-                            Modifier
-                                    .padding(vertical = 3.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(CodexTheme.colors.sightMarksMarkedBackground)
-                                    .padding(horizontal = 7.dp)
-                    )
-                    .modifierIf(sightMark.isArchived, Modifier.alpha(ARCHIVED_ALPHA))
-                    .clickable { onClick(sightMark) }
-    ) {
-        if (isLeft) NoteIcon()
-        Text(
-                text = text.joinToString(" "),
-                style = CodexTypography.NORMAL
-                        .copy(
-                                fontStyle = if (sightMark.isMarked) FontStyle.Italic else FontStyle.Normal,
-                                fontWeight = if (sightMark.isMarked) FontWeight.Bold else FontWeight.Normal,
-                        ),
-                color = CodexTheme.colors.sightMarksIndicator,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.testTag(SightMarksTestTag.SIGHT_MARK_TEXT.getTestTag())
-        )
-        if (!isLeft) NoteIcon()
     }
 }
 
