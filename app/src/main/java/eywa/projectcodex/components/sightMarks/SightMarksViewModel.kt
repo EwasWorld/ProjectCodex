@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
+import eywa.projectcodex.components.sightMarks.SightMarksState.Loaded
+import eywa.projectcodex.components.sightMarks.SightMarksState.Loading
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.bow.BowRepo
@@ -18,7 +21,7 @@ class SightMarksViewModel @Inject constructor(
         db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SightMarksState())
+    private val _state: MutableStateFlow<SightMarksState> = MutableStateFlow(Loading())
     val state = _state.asStateFlow()
 
     private val sightMarkRepo = SightMarkRepo(db.sightMarkDao())
@@ -26,32 +29,36 @@ class SightMarksViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            sightMarkRepo.allSightMarks.collectLatest { sightMarks ->
+            sightMarkRepo.allSightMarks.collectLatest { dbSightMarks ->
                 _state.update {
-                    it.copy(sightMarks = sightMarks.map { dbSightMark -> SightMark(dbSightMark) })
+                    it.updateSightMarks(dbSightMarks.map { dbSightMark -> SightMark(dbSightMark) })
                 }
             }
         }
         viewModelScope.launch {
             bowRepo.defaultBow.mapNotNull { it }.collectLatest { bow ->
-                _state.update { it.copy(isHighestNumberAtTheTop = bow.isSightMarkDiagramHighestAtTop) }
+                _state.update { it.updateIsHighestNumberAtTheTop(bow.isSightMarkDiagramHighestAtTop) }
             }
         }
     }
 
     fun handle(action: SightMarksIntent) {
         when (action) {
-            is SightMarksIntent.MenuAction -> when (action.action) {
+            is MenuAction -> when (action.action) {
                 SightMarksMenuIntent.ArchiveAll -> viewModelScope.launch { sightMarkRepo.archiveAll() }
                 SightMarksMenuIntent.FlipDiagram ->
-                    viewModelScope.launch { bowRepo.updateDefaultBow(!state.value.isHighestNumberAtTheTop) }
+                    viewModelScope.launch {
+                        val current = (state.value as Loaded)
+                        bowRepo.updateDefaultBow(!current.isHighestNumberAtTheTop)
+                    }
             }
-            is SightMarksIntent.SightMarkClicked -> _state.update { it.copy(openSightMarkDetail = action.item.id) }
-            SightMarksIntent.CreateSightMarkClicked -> _state.update { it.copy(createNewSightMark = true) }
+            is SightMarkClicked -> _state.update { (it as Loaded).copy(openSightMarkDetail = action.item.id) }
+            CreateSightMarkClicked -> _state.update { (it as Loaded).copy(createNewSightMark = true) }
 
-            SightMarksIntent.CreateSightMarkHandled -> _state.update { it.copy(createNewSightMark = false) }
-            SightMarksIntent.OpenSightMarkHandled -> _state.update { it.copy(openSightMarkDetail = null) }
-            is SightMarksIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, SightMarksFragment::class)
+            CreateSightMarkHandled -> _state.update { (it as Loaded).copy(createNewSightMark = false) }
+            OpenSightMarkHandled -> _state.update { (it as Loaded).copy(openSightMarkDetail = null) }
+
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, SightMarksFragment::class)
         }
     }
 }

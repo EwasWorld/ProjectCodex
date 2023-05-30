@@ -42,6 +42,8 @@ class SightMarksFragment : Fragment(), ActionBarHelp {
     }
 
     private fun handleEffects(state: SightMarksState) {
+        if (state !is SightMarksState.Loaded) return
+
         if (state.openSightMarkDetail != null) {
             findNavController().navigate(actionSightMarksFragmentToSightMarkDetailFragment(state.openSightMarkDetail))
             viewModel.handle(SightMarksIntent.OpenSightMarkHandled)

@@ -8,6 +8,7 @@
     <string name="sight_marks__add_button">New</string>
     <string name="sight_marks__options_button">Options</string>
 
+    <string name="sight_marks__loading">Loading…</string>
     <string name="sight_marks__diagram_placeholder">No sight marks\nTap the + to create one</string>
 
     <string name="sight_marks__menu_title">Options</string>

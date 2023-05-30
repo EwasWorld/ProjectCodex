@@ -1,11 +1,9 @@
 package eywa.projectcodex.components.sightMarks
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
@@ -43,76 +41,98 @@ fun SightMarksScreen(
         state: SightMarksState,
         listener: (SightMarksIntent) -> Unit
 ) {
+    Crossfade(
+            targetState = state,
+            modifier = Modifier
+                    .background(CodexTheme.colors.appBackground)
+                    .testTag(SightMarksTestTag.SCREEN.getTestTag())
+    ) {
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
+                modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .horizontalScroll(rememberScrollState())
+                        .padding(15.dp)
+        ) {
+            when (it) {
+                is SightMarksState.Loaded -> SightMarksScreen(it, listener)
+                is SightMarksState.Loading ->
+                    Text(
+                            text = stringResource(R.string.sight_marks__loading),
+                            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+                            textAlign = TextAlign.Center,
+                    )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SightMarksScreen(
+        state: SightMarksState.Loaded,
+        listener: (SightMarksIntent) -> Unit
+) {
     var isMenuShown by remember { mutableStateOf(false) }
     var isArchiveConfirmationShown by remember { mutableStateOf(false) }
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-    Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
-            modifier = Modifier
-                    .background(CodexTheme.colors.appBackground)
-                    .verticalScroll(rememberScrollState())
-                    .horizontalScroll(rememberScrollState())
-                    .padding(15.dp)
-                    .testTag(SightMarksTestTag.SCREEN.getTestTag())
+    Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-        ) {
+        CodexIconButton(
+                onClick = { listener(SightMarksIntent.CreateSightMarkClicked) },
+                icon = Icons.Default.Add,
+                contentDescription = stringResource(R.string.sight_marks__add_button),
+                captionBelow = stringResource(R.string.sight_marks__add_button),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_sight_marks__add_title),
+                        helpBody = stringResource(R.string.help_sight_marks__add_body),
+                ),
+                modifier = Modifier
+                        .testTag(SightMarksTestTag.ADD_BUTTON.getTestTag())
+        )
+        if (state.sightMarks.isNotEmpty()) {
             CodexIconButton(
-                    onClick = { listener(SightMarksIntent.CreateSightMarkClicked) },
-                    icon = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.sight_marks__add_button),
-                    captionBelow = stringResource(R.string.sight_marks__add_button),
+                    onClick = { isMenuShown = true },
+                    icon = Icons.Default.MoreHoriz,
+                    contentDescription = stringResource(R.string.sight_marks__options_button),
+                    captionBelow = stringResource(R.string.sight_marks__options_button),
                     helpState = HelpState(
                             helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_sight_marks__add_title),
-                            helpBody = stringResource(R.string.help_sight_marks__add_body),
+                            helpTitle = stringResource(R.string.help_sight_marks__options_title),
+                            helpBody = stringResource(R.string.help_sight_marks__options_body),
                     ),
                     modifier = Modifier
-                            .testTag(SightMarksTestTag.ADD_BUTTON.getTestTag())
-            )
-            if (state.sightMarks.isNotEmpty()) {
-                CodexIconButton(
-                        onClick = { isMenuShown = true },
-                        icon = Icons.Default.MoreHoriz,
-                        contentDescription = stringResource(R.string.sight_marks__options_button),
-                        captionBelow = stringResource(R.string.sight_marks__options_button),
-                        helpState = HelpState(
-                                helpListener = helpListener,
-                                helpTitle = stringResource(R.string.help_sight_marks__options_title),
-                                helpBody = stringResource(R.string.help_sight_marks__options_body),
-                        ),
-                        modifier = Modifier
-                                .testTag(SightMarksTestTag.OPTIONS_BUTTON.getTestTag())
-                )
-            }
-        }
-        if (state.sightMarks.isEmpty()) {
-            Text(
-                    text = stringResource(R.string.sight_marks__diagram_placeholder),
-                    style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                            .padding(top = 10.dp)
-                            .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
-            )
-            listener(HelpShowcaseAction(Remove(R.string.help_sight_marks__diagram_title)))
-        }
-        else {
-            HelpShowcaseItem(
-                    helpTitle = R.string.help_sight_marks__diagram_title,
-                    helpBody = R.string.help_sight_marks__diagram_body,
-                    shape = HelpShowcaseShape.NO_SHAPE,
-                    priority = DEFAULT_HELP_PRIORITY - 1,
-            ).let { helpListener(Add(it)) }
-            SightMarksDiagram(
-                    state = state,
-                    onClick = { listener(SightMarksIntent.SightMarkClicked(it)) }
+                            .testTag(SightMarksTestTag.OPTIONS_BUTTON.getTestTag())
             )
         }
+    }
+    if (state.sightMarks.isEmpty()) {
+        Text(
+                text = stringResource(R.string.sight_marks__diagram_placeholder),
+                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                        .padding(top = 10.dp)
+                        .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
+        )
+        listener(HelpShowcaseAction(Remove(R.string.help_sight_marks__diagram_title)))
+    }
+    else {
+        HelpShowcaseItem(
+                helpTitle = R.string.help_sight_marks__diagram_title,
+                helpBody = R.string.help_sight_marks__diagram_body,
+                shape = HelpShowcaseShape.NO_SHAPE,
+                priority = DEFAULT_HELP_PRIORITY - 1,
+        ).let { helpListener(Add(it)) }
+        SightMarksDiagram(
+                state = state,
+                onClick = { listener(SightMarksIntent.SightMarkClicked(it)) }
+        )
     }
 
     val menuItems = SightMarksMenuDialogItem.values().map { item ->
@@ -171,21 +191,11 @@ enum class SightMarksTestTag : CodexTestTag {
 @Preview(
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-        device = Devices.PIXEL_2,
-)
-@Composable
-fun Empty_SightMarksScreen_Preview() {
-    SightMarksScreen(SightMarksState(sightMarks = emptyList())) {}
-}
-
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
 fun SightMarksScreen_Preview() {
     SightMarksScreen(
-            SightMarksState(
+            SightMarksState.Loaded(
                     sightMarks = listOf(
                             SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
                             SightMark(1, 20, true, Calendar.getInstance(), 3.2f),
@@ -193,4 +203,24 @@ fun SightMarksScreen_Preview() {
                     ),
             ),
     ) {}
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        device = Devices.PIXEL_2,
+)
+@Composable
+fun Empty_SightMarksScreen_Preview() {
+    SightMarksScreen(SightMarksState.Loaded(sightMarks = emptyList())) {}
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        device = Devices.PIXEL_2,
+)
+@Composable
+fun Loading_SightMarksScreen_Preview() {
+    SightMarksScreen(SightMarksState.Loading()) {}
 }

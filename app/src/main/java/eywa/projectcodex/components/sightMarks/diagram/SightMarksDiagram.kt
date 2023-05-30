@@ -41,7 +41,6 @@ import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 // TODO Sight marks pinch zoom
-// TODO_CURRENT Loading screen
 
 internal val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 internal val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
@@ -53,7 +52,7 @@ internal const val CHEVRON_WIDTH_MODIFIER = 2.3f
 
 @Composable
 fun SightMarksDiagram(
-        state: SightMarksState,
+        state: SightMarksState.Loaded,
         onClick: (SightMark) -> Unit,
 ) {
     val helper = SightMarksDiagramHelper(state.sightMarks, state.isHighestNumberAtTheTop)
@@ -474,7 +473,7 @@ data class SightMarksDiagramIndicatorImpl(
 @Composable
 fun SightMarks_Preview() {
     SightMarksDiagram(
-            SightMarksState(
+            SightMarksState.Loaded(
                     sightMarks = listOf(
                             SightMark(1, 10, true, Calendar.getInstance(), 3.35f, isArchived = true),
                             SightMark(1, 10, true, Calendar.getInstance(), 3.3f, isMarked = true),
@@ -502,7 +501,7 @@ fun SightMarks_Preview() {
 @Composable
 fun SmallScreen_SightMarks_Preview() {
     SightMarksDiagram(
-            SightMarksState(
+            SightMarksState.Loaded(
                     sightMarks = listOf(
                             SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
                             SightMark(1, 20, true, Calendar.getInstance(), 3.2f),
