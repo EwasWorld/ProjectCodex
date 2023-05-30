@@ -143,7 +143,7 @@ class ArrowValueTest {
         Assert.assertEquals(expectedArrows.toSet(), retrievedArrows.toSet())
     }
 
-    // TODO_CURRENT Unignore
+    // TODO Unignore
     @Ignore(brokenTransactionMessage)
     @Test
     fun insertEndRepoTest() {

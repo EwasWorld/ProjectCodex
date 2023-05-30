@@ -219,4 +219,9 @@ class HandicapUnitTest {
     fun testPartialHandicap() {
         // TODO_CURRENT testPartialHandicap
     }
+
+    @Test
+    fun test2023Handicaps() {
+        // TODO_CURRENT test2023Handicaps
+    }
 }

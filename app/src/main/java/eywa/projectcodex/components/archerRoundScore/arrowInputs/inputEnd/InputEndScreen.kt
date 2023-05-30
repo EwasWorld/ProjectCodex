@@ -25,7 +25,7 @@ import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTest
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 
-// TODO_CURRENT Help info for table and remaining arrows
+// TODO Help info for table and remaining arrows
 class InputEndScreen : ArcherRoundSubScreen() {
     @Composable
     override fun ComposeContent(

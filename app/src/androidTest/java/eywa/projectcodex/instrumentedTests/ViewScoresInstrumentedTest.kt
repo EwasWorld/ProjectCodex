@@ -309,7 +309,7 @@ class ViewScoresInstrumentedTest {
                 waitForRowCount(2)
                 waitForHsg(0, "11/65/3")
                 waitForHsg(1, "11/65/3")
-                // TODO_CURRENT Add checks of the score pad
+                // TODO Add checks of the score pad
 
                 /*
                  * Cancelled

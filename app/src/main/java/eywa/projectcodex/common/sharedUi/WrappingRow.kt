@@ -83,7 +83,7 @@ private fun place(
             verticalAlignment.align(placeable.height, inputRowHeights[rowHeights.size])
         } ?: 0
 
-        // TODO_CURRENT stop when you get to the max height
+        // TODO stop when you get to the max height
 //        if (yPosition + placeable.height > constraints.maxHeight) break
         onEach?.invoke(placeable, xPosition, yPosition + alignment)
 

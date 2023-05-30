@@ -87,7 +87,7 @@ enum class NumberValidator(@StringRes val errorMessageId: Int) {
     abstract fun isValid(value: String): Boolean
 }
 
-// TODO_CURRENT Fix deleting whole thing if not matching
+// TODO_CURRENT Do not delete whole thing if not matching
 private sealed class NumberSettingHelper<I> {
     abstract val allowedDigits: Regex
     abstract fun fromString(value: String): I?

@@ -42,8 +42,8 @@ import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 // TODO Sight marks pinch zoom
-// TODO Loading screen
-// TODO Change archived colour
+// TODO_CURRENT Loading screen
+// TODO_CURRENT Change archived colour
 
 internal val START_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)
 internal val END_ALIGNMENT_LINE = HorizontalAlignmentLine(::max)

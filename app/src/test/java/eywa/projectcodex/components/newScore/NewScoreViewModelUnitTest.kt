@@ -13,6 +13,7 @@ import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
+// TODO Test
 class NewScoreViewModelUnitTest {
     private lateinit var sut: NewScoreViewModel
     private val dbMock = DatabaseMock()
@@ -25,7 +26,6 @@ class NewScoreViewModelUnitTest {
     @Test
     fun testClassInitialisation() {
 //        setup()
-        // TODO_CURRENT
     }
 }
 

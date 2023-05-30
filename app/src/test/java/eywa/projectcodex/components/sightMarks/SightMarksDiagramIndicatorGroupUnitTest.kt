@@ -42,7 +42,7 @@ class SightMarksDiagramIndicatorGroupUnitTest {
 
     @Test
     fun testMerge() {
-        // TODO_CURRENT Update
+        // TODO Update for new merge logic
         val top = createIndicatorGroup(50f, sightMark = 2f)
 
         fun check(expected: SightMarkIndicatorGroup, actual: SightMarkIndicatorGroup) {
