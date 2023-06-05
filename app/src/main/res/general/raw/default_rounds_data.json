@@ -1,0 +1,1745 @@
+{
+  "version": 3,
+  "rounds": [
+    {
+      "roundName": "York / Hereford",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "York",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Hereford (Bristol I)",
+          "gentsUnder": 18,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "Bristol II",
+          "gentsUnder": 16,
+          "ladiesUnder": 18
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Bristol III",
+          "gentsUnder": 14,
+          "ladiesUnder": 16
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Bristol IV",
+          "gentsUnder": 12,
+          "ladiesUnder": 14
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "Bristol V",
+          "gentsUnder": 0,
+          "ladiesUnder": 12
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 72
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 48
+        },
+        {
+          "distanceNumber": 3,
+          "faceSizeInCm": 122,
+          "arrowCount": 24
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 100
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 1,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 2,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 3,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 4,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 5,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 6,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 6,
+          "distance": 10
+        }
+      ]
+    },
+    {
+      "roundName": "Albion / Windsor",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "St. George",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Albion",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "Windsor",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Short Windsor",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Junior Windsor",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "Short Junior Windsor",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 3,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 100
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 1,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 2,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 3,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 4,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 5,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 6,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 6,
+          "distance": 10
+        }
+      ]
+    },
+    {
+      "roundName": "Western",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "New Western",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Long Western",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "Western",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Short Western",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Junior Western",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "Short Junior Western",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 48
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 48
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 100
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 6,
+          "distance": 20
+        }
+      ]
+    },
+    {
+      "roundName": "American",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 30
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 30
+        },
+        {
+          "distanceNumber": 3,
+          "faceSizeInCm": 122,
+          "arrowCount": 30
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": null,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": null,
+          "distance": 40
+        }
+      ]
+    },
+    {
+      "roundName": "St. Nicholas",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "",
+          "gentsUnder": 14,
+          "ladiesUnder": 16
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 48
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": null,
+          "distance": 30
+        }
+      ]
+    },
+    {
+      "roundName": "National",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "New National",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Long National",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "National",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Short National",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Junior National",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "Short Junior National",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 48
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 24
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 100
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 6,
+          "distance": 20
+        }
+      ]
+    },
+    {
+      "roundName": "Warwick",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "New Warwick",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Long Warwick",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "Warwick",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Short Warwick",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Junior Warwick",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "Short Junior Warwick",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 24
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 24
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 100
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 6,
+          "distance": 20
+        }
+      ]
+    },
+    {
+      "roundName": "WA 1440 / FITA",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "Gents 1440",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Metric I / Ladies 1440",
+          "gentsUnder": 18,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "Metric II / Cadet Ladies 1440",
+          "gentsUnder": 16,
+          "ladiesUnder": 18
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Metric III",
+          "gentsUnder": 14,
+          "ladiesUnder": 16
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Metric IV",
+          "gentsUnder": 12,
+          "ladiesUnder": 14
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "Metric V",
+          "gentsUnder": 0,
+          "ladiesUnder": 12
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 3,
+          "faceSizeInCm": 80,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 4,
+          "faceSizeInCm": 80,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 90
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 70
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 1,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 4,
+          "roundSubTypeId": 1,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 70
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 2,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 4,
+          "roundSubTypeId": 2,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 3,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 4,
+          "roundSubTypeId": 3,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 4,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 4,
+          "roundSubTypeId": 4,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 5,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 4,
+          "roundSubTypeId": 5,
+          "distance": 10
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 6,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": 6,
+          "distance": 15
+        },
+        {
+          "distanceNumber": 4,
+          "roundSubTypeId": 6,
+          "distance": 10
+        }
+      ]
+    },
+    {
+      "roundName": "Long Metric",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "Long Metric (Gents)",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Long Metric I (Ladies)",
+          "gentsUnder": 18,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "Long Metric II (Cadet Ladies)",
+          "gentsUnder": 16,
+          "ladiesUnder": 18
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Long Metric III",
+          "gentsUnder": 14,
+          "ladiesUnder": 16
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Long Metric IV",
+          "gentsUnder": 12,
+          "ladiesUnder": 14
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "Long Metric V",
+          "gentsUnder": 0,
+          "ladiesUnder": 12
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 90
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 70
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 70
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 6,
+          "distance": 20
+        }
+      ]
+    },
+    {
+      "roundName": "Short Metric",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "Short Metric I",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "Short Metric II",
+          "gentsUnder": 16,
+          "ladiesUnder": 18
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "Short Metric III",
+          "gentsUnder": 14,
+          "ladiesUnder": 16
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "Short Metric IV",
+          "gentsUnder": 12,
+          "ladiesUnder": 14
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "Short Metric V",
+          "gentsUnder": 0,
+          "ladiesUnder": 12
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 80,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 80,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 1,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 2,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 3,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 4,
+          "distance": 10
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 15
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": 5,
+          "distance": 10
+        }
+      ]
+    },
+    {
+      "roundName": "WA Standard Bow",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": null,
+          "distance": 30
+        }
+      ]
+    },
+    {
+      "roundName": "WA 900",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 30
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 122,
+          "arrowCount": 30
+        },
+        {
+          "distanceNumber": 3,
+          "faceSizeInCm": 122,
+          "arrowCount": 30
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": null,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 3,
+          "roundSubTypeId": null,
+          "distance": 40
+        }
+      ]
+    },
+    {
+      "roundName": "WA 70m",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 72
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 70
+        }
+      ]
+    },
+    {
+      "roundName": "WA 60m",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "WA 60m",
+          "gentsUnder": 18,
+          "ladiesUnder": 18
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 72
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 60
+        }
+      ]
+    },
+    {
+      "roundName": "WA 50m",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 80,
+          "arrowCount": 72
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 50
+        }
+      ]
+    },
+    {
+      "roundName": "WA 122",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "WA 122-50",
+          "gentsUnder": 16,
+          "ladiesUnder": 16
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "WA 122-40",
+          "gentsUnder": 14,
+          "ladiesUnder": 14
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "WA 122-30",
+          "gentsUnder": 12,
+          "ladiesUnder": 12
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 72
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 30
+        }
+      ]
+    },
+    {
+      "roundName": "WA 80",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "WA 80-40",
+          "gentsUnder": 14,
+          "ladiesUnder": 0
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "WA 80-30",
+          "gentsUnder": 0,
+          "ladiesUnder": 14
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 80,
+          "arrowCount": 72
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 30
+        }
+      ]
+    },
+    {
+      "roundName": "Bray I",
+      "outdoor": false,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 40,
+          "arrowCount": 30
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 20
+        }
+      ]
+    },
+    {
+      "roundName": "Bray II",
+      "outdoor": false,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 60,
+          "arrowCount": 30
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 25
+        }
+      ]
+    },
+    {
+      "roundName": "Stafford",
+      "outdoor": false,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [
+        "NO_TRIPLE"
+      ],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 80,
+          "arrowCount": 72
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 30
+        }
+      ]
+    },
+    {
+      "roundName": "Portsmouth",
+      "outdoor": false,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [
+        "FIVE_ZONE"
+      ],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 60,
+          "arrowCount": 60
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 20
+        }
+      ]
+    },
+    {
+      "roundName": "Worcester",
+      "outdoor": false,
+      "isMetric": false,
+      "fiveArrowEnd": true,
+      "permittedFaces": [
+        "NO_TRIPLE",
+        "FIVE_CENTRE"
+      ],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 40.64,
+          "arrowCount": 60
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 20
+        }
+      ]
+    },
+    {
+      "roundName": "Vegas",
+      "outdoor": false,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [
+        "VEGAS"
+      ],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 40,
+          "arrowCount": 60
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 18
+        }
+      ]
+    },
+    {
+      "roundName": "WA 18",
+      "outdoor": false,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 40,
+          "arrowCount": 60
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 18
+        }
+      ]
+    },
+    {
+      "roundName": "WA 25",
+      "outdoor": false,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 60,
+          "arrowCount": 60
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 25
+        }
+      ]
+    },
+    {
+      "roundName": "Combined WA",
+      "outdoor": false,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 40,
+          "arrowCount": 60
+        },
+        {
+          "distanceNumber": 2,
+          "faceSizeInCm": 60,
+          "arrowCount": 60
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 25
+        },
+        {
+          "distanceNumber": 2,
+          "roundSubTypeId": null,
+          "distance": 18
+        }
+      ]
+    },
+    {
+      "roundName": "Frostbite",
+      "outdoor": true,
+      "isMetric": true,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 80,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 30
+        }
+      ]
+    },
+    {
+      "roundName": "Club 252",
+      "outdoor": true,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "permittedFaces": [],
+      "roundSubTypes": [
+        {
+          "roundSubTypeId": 1,
+          "subTypeName": "100yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 2,
+          "subTypeName": "80yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 3,
+          "subTypeName": "60yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 4,
+          "subTypeName": "50yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 5,
+          "subTypeName": "40yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 6,
+          "subTypeName": "30yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 7,
+          "subTypeName": "20yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        },
+        {
+          "roundSubTypeId": 8,
+          "subTypeName": "10yd 252",
+          "gentsUnder": null,
+          "ladiesUnder": null
+        }
+      ],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 122,
+          "arrowCount": 36
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 1,
+          "distance": 100
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 2,
+          "distance": 80
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 3,
+          "distance": 60
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 4,
+          "distance": 50
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 5,
+          "distance": 40
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 6,
+          "distance": 30
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 7,
+          "distance": 20
+        },
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": 8,
+          "distance": 10
+        }
+      ]
+    }
+  ]
+}
