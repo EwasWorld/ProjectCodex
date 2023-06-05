@@ -27,7 +27,7 @@ interface ArcherRoundDao {
 
     @Transaction
     @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId")
-    fun getFullArcherRoundInfo(archerRoundId: Int): Flow<DatabaseFullArcherRoundInfo>
+    fun getFullArcherRoundInfo(archerRoundId: Int): Flow<DatabaseFullArcherRoundInfo?>
 
     @Transaction
     @Query(

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore
+package eywa.projectcodex.common.archeryObjects
 
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount

@@ -36,7 +36,6 @@ object ArcherRoundPreviewHelper {
     fun FullArcherRoundInfo.addRound(fullRoundInfo: FullRoundInfo) =
             copy(
                     archerRound = archerRound.copy(roundId = fullRoundInfo.round.roundId, roundSubTypeId = 1),
-                    arrows = null,
                     round = fullRoundInfo.round,
                     roundArrowCounts = fullRoundInfo.roundArrowCounts,
                     roundSubType = fullRoundInfo.roundSubTypes?.find { it.subTypeId == 1 },

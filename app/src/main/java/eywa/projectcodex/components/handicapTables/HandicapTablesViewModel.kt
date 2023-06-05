@@ -3,12 +3,12 @@ package eywa.projectcodex.components.handicapTables
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.archeryObjects.Handicap
+import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.getDistances
-import eywa.projectcodex.components.archerRoundScore.Handicap
-import eywa.projectcodex.components.archerRoundScore.roundHandicap
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey

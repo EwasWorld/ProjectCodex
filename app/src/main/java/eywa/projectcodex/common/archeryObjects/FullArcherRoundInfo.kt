@@ -1,7 +1,5 @@
 package eywa.projectcodex.common.archeryObjects
 
-import eywa.projectcodex.components.archerRoundScore.Handicap
-import eywa.projectcodex.components.archerRoundScore.roundHandicap
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -63,6 +61,9 @@ data class FullArcherRoundInfo(
                 ?.sumOf { it.arrowCount }
                 ?.minus(arrowsShot)
     }
+
+    val isRoundComplete
+        get() = remainingArrows?.let { it <= 0 } ?: false
 
     /**
      * Pairs of arrow counts to distances in order (earlier distances first)

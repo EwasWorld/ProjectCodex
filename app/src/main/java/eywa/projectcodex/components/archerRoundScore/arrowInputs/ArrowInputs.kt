@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -30,7 +29,6 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent.*
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
-import eywa.projectcodex.database.rounds.Round
 
 @Composable
 fun ArrowInputs(
@@ -48,7 +46,7 @@ fun ArrowInputs(
             modifier = Modifier.padding(vertical = verticalPadding)
     ) {
         Text(
-                text = state.getEnteredArrows().sumOf { it.score }.toString(),
+                text = state.enteredArrows.sumOf { it.score }.toString(),
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
                 modifier = Modifier
@@ -57,10 +55,10 @@ fun ArrowInputs(
         )
         @Suppress("SimplifiableCallChain")
         Text(
-                text = state.getEnteredArrows()
+                text = state.enteredArrows
                         .map { it.asString().get() }
                         .plus(
-                                List(state.getEndSize() - state.getEnteredArrows().size) {
+                                List(state.inputEndSize - state.enteredArrows.size) {
                                     stringResource(R.string.end_to_string_arrow_placeholder)
                                 }
                         )
@@ -75,7 +73,7 @@ fun ArrowInputs(
         )
 
         ArrowButtonGroup(
-                round = state.getRound(),
+                round = state.round,
                 onClick = { listener(ArrowInputted(it)) },
                 horizontalPadding = horizontalPadding,
                 modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_input_end__arrow_inputs_title)
@@ -183,9 +181,9 @@ fun ArrowInputs_Preview(
     CodexTheme {
         ArrowInputs(
                 state = object : ArrowInputsState {
-                    override fun getRound(): Round = RoundPreviewHelper.outdoorImperialRoundData.round
-                    override fun getEnteredArrows(): List<Arrow> = ArcherRoundStatePreviewHelper.inputArrows
-                    override fun getEndSize(): Int = 6
+                    override val round = RoundPreviewHelper.outdoorImperialRoundData.round
+                    override val enteredArrows = ArcherRoundStatePreviewHelper.inputArrows
+                    override val inputEndSize = 6
                 },
                 showResetButton = true,
                 helpListener = {},

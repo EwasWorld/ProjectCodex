@@ -8,6 +8,8 @@ import org.mockito.kotlin.anyVararg
 
 class TestUtils {
     companion object {
+        const val FLOW_EMIT_DELAY = 50L
+
         val defaultColumnHeaderOrder = listOf(
                 ScorePadData.ColumnHeader.ARROWS,
                 ScorePadData.ColumnHeader.HITS,

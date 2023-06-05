@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
@@ -18,17 +19,19 @@ class InsertEndScreen : ArcherRoundSubScreen() {
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
+            modifier: Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScreenContent(state, listener)
+        ScreenContent(state, modifier, listener)
     }
 
     @Composable
     private fun ScreenContent(
             state: InsertEndState,
+            modifier: Modifier = Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        val endNumber = state.getSelectedEndNumber()
+        val endNumber = state.selectedEndNumber
 
         val insertLocationString = if (endNumber == 1) {
             stringResource(R.string.insert_end__info_at_start)
@@ -42,6 +45,7 @@ class InsertEndScreen : ArcherRoundSubScreen() {
                 showCancelButton = true,
                 showResetButton = false,
                 contentText = insertLocationString,
+                modifier = modifier,
                 helpListener = { listener(ArcherRoundIntent.HelpShowcaseAction(it)) },
                 submitHelpInfoTitle = stringResource(R.string.help_edit_end__complete_title),
                 submitHelpInfoBody = stringResource(R.string.help_edit_end__complete_body),

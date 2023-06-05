@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -36,22 +35,22 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
+            modifier: Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScreenContent(state)
+        ScreenContent(state, modifier)
     }
 
     @Composable
     private fun ScreenContent(
             state: ArcherRoundStatsState,
+            modifier: Modifier = Modifier,
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
             Column(
                     verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
+                    modifier = modifier
                             .padding(25.dp)
                             .testTag(TestTag.SCREEN)
             ) {

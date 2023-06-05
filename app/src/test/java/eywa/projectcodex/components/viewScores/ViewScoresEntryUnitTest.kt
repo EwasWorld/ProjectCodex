@@ -2,6 +2,8 @@ package eywa.projectcodex.components.viewScores
 
 import android.content.res.Resources
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.Handicap
+import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addFullSetOfArrows
@@ -10,8 +12,6 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.newArcherRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowValuesPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.components.archerRoundScore.Handicap
-import eywa.projectcodex.components.archerRoundScore.roundHandicap
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount

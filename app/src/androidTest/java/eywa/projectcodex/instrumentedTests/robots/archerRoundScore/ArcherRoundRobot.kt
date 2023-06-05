@@ -16,7 +16,7 @@ abstract class ArcherRoundRobot(
     fun clickNavBarInputEnd(block: InputEndRobot.() -> Unit = {}) = clickNavBarItem(block)
 
     fun clickNavBarInputEndWhileRoundComplete() {
-        clickElement(ArcherRoundMainScreen.TestTag.bottomNavBarItem(INPUT_END))
+        clickElement(ArcherRoundMainTestTag.bottomNavBarItem(INPUT_END))
         checkElementDoesNotExist(ArrowInputsTestTag.INPUT_SCREEN)
         clickCannotInputMoreEndsOk()
     }
@@ -34,7 +34,7 @@ abstract class ArcherRoundRobot(
             else -> throw NotImplementedError()
         }
 
-        clickElement(ArcherRoundMainScreen.TestTag.bottomNavBarItem(screen))
+        clickElement(ArcherRoundMainTestTag.bottomNavBarItem(screen))
         R::class.constructors.first().call(composeTestRule).apply { block() }
     }
 

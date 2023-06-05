@@ -30,15 +30,17 @@ class InputEndScreen : ArcherRoundSubScreen() {
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
+            modifier: Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScreenContent(state, listener)
+        ScreenContent(state, modifier, listener)
     }
 
     // TODO No more arrows to add - prevent accidental opening of this screen
     @Composable
     private fun ScreenContent(
             state: InputEndState,
+            modifier: Modifier = Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
         ArrowInputsScaffold(
@@ -46,6 +48,7 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 showCancelButton = false,
                 showResetButton = false,
                 submitButtonText = stringResource(R.string.input_end__next_end),
+                modifier = modifier,
                 helpListener = { listener(ArcherRoundIntent.HelpShowcaseAction(it)) },
                 submitHelpInfoTitle = stringResource(R.string.help_input_end__next_end_title),
                 submitHelpInfoBody = stringResource(R.string.help_input_end__next_end_body),

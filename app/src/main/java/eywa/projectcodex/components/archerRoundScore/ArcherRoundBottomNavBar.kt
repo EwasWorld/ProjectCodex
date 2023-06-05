@@ -29,7 +29,7 @@ fun ArcherRoundBottomNavBar(
                     label = stringResource(navItemInfo.label),
                     contentDescription = stringResource(navItemInfo.label),
                     isCurrentDestination = currentScreen == it,
-                    modifier = Modifier.testTag(ArcherRoundMainScreen.TestTag.bottomNavBarItem(it)),
+                    modifier = Modifier.testTag(ArcherRoundMainTestTag.bottomNavBarItem(it)),
                     onClick = { listener(it) },
             )
         }

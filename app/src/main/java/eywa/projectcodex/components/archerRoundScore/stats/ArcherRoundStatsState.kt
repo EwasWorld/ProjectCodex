@@ -1,15 +1,15 @@
 package eywa.projectcodex.components.archerRoundScore.stats
 
 import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.components.archerRoundScore.Handicap
+import eywa.projectcodex.common.archeryObjects.Handicap
 import eywa.projectcodex.components.archerRoundScore.state.HasBetaFeaturesFlag
-import eywa.projectcodex.components.archerRoundScore.state.HasEndSize
 import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo
+import eywa.projectcodex.components.archerRoundScore.state.HasScorePadEndSize
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 
-interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasEndSize, HasBetaFeaturesFlag {
+interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, HasBetaFeaturesFlag {
     val goldsType: GoldsType
 
     val extras: List<ExtraStats>?
@@ -41,10 +41,10 @@ interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasEndSize, HasBetaFea
                                 distance,
                                 arrowCount,
                                 distArrows,
-                                getEndSize(),
+                                scorePadEndSize,
                                 calculateHandicap,
                         )
                     }
-                    .plus(GrandTotalExtra(info.arrows, getEndSize(), info.handicapFloat))
+                    .plus(GrandTotalExtra(info.arrows, scorePadEndSize, info.handicapFloat))
         }
 }

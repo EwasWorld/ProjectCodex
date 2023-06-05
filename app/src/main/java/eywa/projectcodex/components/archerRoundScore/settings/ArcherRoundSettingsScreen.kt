@@ -2,10 +2,7 @@ package eywa.projectcodex.components.archerRoundScore.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,14 +26,16 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
+            modifier: Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScreenContent(state, listener)
+        ScreenContent(state, modifier, listener)
     }
 
     @Composable
     private fun ScreenContent(
             state: ArcherRoundSettingsState,
+            modifier: Modifier = Modifier,
             listener: (SettingsIntent) -> Unit,
     ) {
         val helpListener = { it: HelpShowcaseIntent -> listener(SettingsIntent.HelpShowcaseAction(it)) }
@@ -45,16 +44,14 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
             Column(
                     verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
+                    modifier = modifier
                             .padding(25.dp)
                             .testTag(TestTag.SCREEN)
             ) {
                 NumberSetting(
                         clazz = Int::class,
                         title = R.string.archer_round_settings__input_end_size,
-                        currentValue = state.inputEndSize,
+                        currentValue = state.inputEndSizePartial,
                         placeholder = 6,
                         testTag = TestTag.INPUT_END_SIZE,
                         onValueChanged = { listener(InputEndSizeChanged(it)) },
@@ -65,7 +62,7 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
                 NumberSetting(
                         clazz = Int::class,
                         title = R.string.archer_round_settings__score_pad_end_size,
-                        currentValue = state.scorePadEndSize,
+                        currentValue = state.scorePadEndSizePartial,
                         placeholder = 6,
                         testTag = TestTag.SCORE_PAD_END_SIZE,
                         onValueChanged = { listener(SettingsIntent.ScorePadEndSizeChanged(it)) },
@@ -95,8 +92,8 @@ class ArcherRoundSettingsScreen : ArcherRoundSubScreen() {
         CodexTheme {
             ScreenContent(
                     object : ArcherRoundSettingsState {
-                        override val inputEndSize: Int = 3
-                        override val scorePadEndSize: Int = 6
+                        override val inputEndSizePartial: Int = 3
+                        override val scorePadEndSizePartial: Int = 6
                     }
             ) {}
         }

@@ -1,7 +1,7 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.components.archerRoundScore.Handicap
-import eywa.projectcodex.components.archerRoundScore.roundHandicap
+import eywa.projectcodex.common.archeryObjects.Handicap
+import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance

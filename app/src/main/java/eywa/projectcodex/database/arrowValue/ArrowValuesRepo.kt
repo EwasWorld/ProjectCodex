@@ -60,13 +60,14 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
                 .sortedBy { it.arrowNumber }
                 .dropWhile { it.arrowNumber < firstArrowToDelete }
 
-        arrows.drop(numberToDelete).takeIf { it.isNotEmpty() }
-                ?.map { ArrowValue(it.archerRoundId, it.arrowNumber - numberToDelete, it.score, it.isX) }
+        val deletedCount = numberToDelete.coerceAtMost(arrows.size)
+        arrows.drop(deletedCount).takeIf { it.isNotEmpty() }
+                ?.map { ArrowValue(it.archerRoundId, it.arrowNumber - deletedCount, it.score, it.isX) }
                 ?.let { update(*it.toTypedArray()) }
 
         arrowValueDao.deleteArrows(
                 allArrowsInRound[0].archerRoundId,
-                arrows.takeLast(numberToDelete).map { it.arrowNumber },
+                arrows.takeLast(deletedCount).map { it.arrowNumber },
         )
     }
 

@@ -6,7 +6,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
@@ -22,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.archeryObjects.ScorePadData.ColumnHeader
 import eywa.projectcodex.common.archeryObjects.ScorePadData.ScorePadRow
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
@@ -51,28 +49,6 @@ private val COLUMN_HEADER_ORDER = listOf(
         ColumnHeader.RUNNING_TOTAL,
 )
 
-@Composable
-fun ColumnHeader.getHelpTitle() = stringResource(
-        when (this) {
-            ColumnHeader.ARROWS -> R.string.help_score_pad__arrow_column_title
-            ColumnHeader.HITS -> R.string.help_score_pad__hits_column_title
-            ColumnHeader.SCORE -> R.string.help_score_pad__score_column_title
-            ColumnHeader.GOLDS -> R.string.help_score_pad__golds_column_title
-            ColumnHeader.RUNNING_TOTAL -> R.string.help_score_pad__running_column_title
-        }
-)
-
-@Composable
-fun ColumnHeader.getHelpBody(goldsType: GoldsType) =
-        when (this) {
-            ColumnHeader.ARROWS -> stringResource(R.string.help_score_pad__arrow_column_body)
-            ColumnHeader.HITS -> stringResource(R.string.help_score_pad__hits_column_body)
-            ColumnHeader.SCORE -> stringResource(R.string.help_score_pad__score_column_body)
-            ColumnHeader.GOLDS ->
-                stringResource(R.string.help_score_pad__golds_column_body, stringResource(goldsType.helpString))
-            ColumnHeader.RUNNING_TOTAL -> stringResource(R.string.help_score_pad__running_column_body)
-        }
-
 class ScorePadScreen : ArcherRoundSubScreen() {
     // TODO Implement no shape help info
 //        add(
@@ -85,14 +61,16 @@ class ScorePadScreen : ArcherRoundSubScreen() {
     @Composable
     override fun ComposeContent(
             state: ArcherRoundState.Loaded,
+            modifier: Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScreenContent(state, listener)
+        ScreenContent(state, modifier, listener)
     }
 
     @Composable
     private fun ScreenContent(
             state: ScorePadState,
+            modifier: Modifier = Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
         val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
@@ -134,10 +112,8 @@ class ScorePadScreen : ArcherRoundSubScreen() {
         // TODO Make the row and column headers stick
         Row(
                 verticalAlignment = Alignment.Top,
-                modifier = Modifier
-                        .fillMaxSize()
+                modifier = modifier
                         .horizontalScroll(rememberScrollState())
-                        .verticalScroll(rememberScrollState())
                         .padding(5.dp)
                         .testTag(TestTag.SCREEN)
         ) {

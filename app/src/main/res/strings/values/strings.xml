@@ -74,6 +74,8 @@
 
     <!-- TODO Remove after compose-based nav -->
     <string name="archer_round_title">Score</string>
+    <string name="archer_round_not_found">Error: entry not found</string>
+    <string name="archer_round_not_found_button">Return to main menu</string>
 
     <string name="placeholder_0">0</string>
 </resources>

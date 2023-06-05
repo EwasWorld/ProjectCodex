@@ -21,24 +21,46 @@ import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
 import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadState
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsState
-import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.INPUT_END
-import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.INSERT_END
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsScreen
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsState
-import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.datastore.DatastoreKey
 
 private const val DEFAULT_END_SIZE = 6
 
 sealed class ArcherRoundState : HasBetaFeaturesFlag {
-    open val showNavBar: Boolean = false
     open val interruptBackButtonListener = false
 
+    data class InvalidArcherRoundError(
+            val mainMenuClicked: Boolean = false,
+    ) : ArcherRoundState() {
+        override val useBetaFeatures: Boolean = false
+    }
+
     data class Loading(
-            val currentScreen: ArcherRoundScreen? = null,
-            val fullArcherRoundInfo: FullArcherRoundInfo? = null,
+            val startingScreen: ArcherRoundScreen,
             override val useBetaFeatures: Boolean = DatastoreKey.UseBetaFeatures.defaultValue,
-    ) : ArcherRoundState()
+    ) : ArcherRoundState() {
+        init {
+            require(startingScreen.isMainScreen) { "Must navigate to a main screen" }
+        }
+
+        fun transitionToLoaded(fullArcherRoundInfo: FullArcherRoundInfo) =
+                when {
+                    // Cannot input an end into a completed round
+                    // TODO Investigate
+                    //  not sure how this state is possible but have had multiple crashes on Google play
+                    (fullArcherRoundInfo.remainingArrows ?: 1) == 0 && startingScreen == INPUT_END -> {
+                        Loaded(
+                                startingScreen,
+                                fullArcherRoundInfo,
+                                useBetaFeatures = useBetaFeatures,
+                                displayRoundCompletedDialog = true
+                        )
+                    }
+                    else -> Loaded(startingScreen, fullArcherRoundInfo, useBetaFeatures = useBetaFeatures)
+                }
+    }
 
     // TODO Disable submit functions while waiting for a submit action to return
     data class Loaded(
@@ -46,8 +68,8 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
             override val fullArcherRoundInfo: FullArcherRoundInfo,
             override val goldsType: GoldsType =
                     fullArcherRoundInfo.round?.let { GoldsType.getGoldsType(it) } ?: GoldsType.defaultGoldsType,
-            override val inputEndSize: Int? = DEFAULT_END_SIZE,
-            override val scorePadEndSize: Int? = DEFAULT_END_SIZE,
+            override val inputEndSizePartial: Int? = DEFAULT_END_SIZE,
+            override val scorePadEndSizePartial: Int? = DEFAULT_END_SIZE,
             val scorePadSelectedEnd: Int? = null,
             val inputArrows: List<Arrow> = listOf(),
             val subScreenInputArrows: List<Arrow> = listOf(),
@@ -55,24 +77,43 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
             val displayCannotInputEndDialog: Boolean = false,
             override val displayDeleteEndConfirmationDialog: Boolean = false,
             override val useBetaFeatures: Boolean = DatastoreKey.UseBetaFeatures.defaultValue,
+            val errors: Set<eywa.projectcodex.components.archerRoundScore.ArcherRoundError> = emptySet(),
     ) : ArcherRoundState(), InputEndState, ArcherRoundStatsState, ScorePadState, ArcherRoundSettingsState, EditEndState,
             InsertEndState {
         override val scorePadData by lazy {
             ScorePadData(
                     info = fullArcherRoundInfo,
-                    endSize = scorePadEndSize ?: DEFAULT_END_SIZE,
+                    endSize = scorePadEndSize,
                     goldsType = goldsType
             )
         }
 
-        override val showNavBar: Boolean = currentScreen.isMainScreen
+        override val scorePadEndSize
+            get() = scorePadEndSizePartial!!
+        override val inputEndSize: Int
+            get() = inputEndSizePartial!!
 
-        override val interruptBackButtonListener: Boolean = !currentScreen.isMainScreen
+        val showNavBar
+            get() = currentScreen.isMainScreen
 
-        val scorePadSelectedEndFirstArrowNumber by lazy {
-            // +1 because arrowNumbers are 1-indexed
-            (scorePadEndSize ?: DEFAULT_END_SIZE) * (scorePadSelectedEnd!! - 1) + 1
+        override val interruptBackButtonListener
+            get() = !currentScreen.isMainScreen
+
+        private val scorePadSelectedEndFirstArrowNumberAndEndSize by lazy {
+            val all = scorePadData.data
+                    .filterIsInstance<ScorePadData.ScorePadRow.End>()
+                    .sortedBy { it.endNumber }
+            val end = scorePadSelectedEnd!! - 1
+            all.take(end)
+                    .sumOf { it.arrowValues.size }
+                    // +1 because arrowNumbers are 1-indexed
+                    .plus(1) to all[end].arrowValues.size
         }
+
+        val scorePadSelectedEndFirstArrowNumber
+            get() = scorePadSelectedEndFirstArrowNumberAndEndSize.first
+        val scorePadSelectedEndSize
+            get() = scorePadSelectedEndFirstArrowNumberAndEndSize.second
 
         /**
          * The end size for the [currentScreen].
@@ -83,14 +124,14 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
          * - [ArcherRoundScreen.INSERT_END] caps at arrows remaining
          */
         val currentScreenEndSize by lazy {
-            val endSize = (if (currentScreen == INPUT_END) inputEndSize else scorePadEndSize) ?: DEFAULT_END_SIZE
+            val endSize = if (currentScreen == INPUT_END) inputEndSize else scorePadEndSize
             val maxArrows = when {
-                displayRoundCompletedDialog -> null
-                fullArcherRoundInfo.round == null -> null
-                currentScreen == INPUT_END -> fullArcherRoundInfo.remainingArrowsAtDistances!!.first().first
+                fullArcherRoundInfo.round == null -> if (currentScreen == INPUT_END) inputEndSize else scorePadEndSize
                 currentScreen == INSERT_END -> fullArcherRoundInfo.remainingArrows!!
-                else -> null
-            } ?: return@lazy endSize
+                currentScreen == EDIT_END -> scorePadSelectedEndSize
+                currentScreen == INPUT_END -> fullArcherRoundInfo.remainingArrowsAtDistances!!.first().first
+                else -> throw IllegalStateException()
+            }
             minOf(maxArrows.coerceAtLeast(0), endSize).takeIf { it > 0 }!!
         }
 
@@ -106,14 +147,18 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
                 if (!currentScreen.isMainScreen) copy(subScreenInputArrows = newInputArrows)
                 else copy(inputArrows = newInputArrows)
 
-        override fun getEnteredArrows(): List<Arrow> = currentScreenInputArrows
-        override fun getSelectedEndNumber(): Int = scorePadSelectedEnd!!
+        override val enteredArrows
+            get() = currentScreenInputArrows
+        override val selectedEndNumber
+            get() = scorePadSelectedEnd!!
 
-        override fun getEndSize(): Int = currentScreenEndSize
-        override val isRoundFull: Boolean = (fullArcherRoundInfo.remainingArrows ?: 1) == 0
-        override val dropdownMenuOpenForEndNumber: Int? = scorePadSelectedEnd
+        override val isRoundFull
+            get() = fullArcherRoundInfo.isRoundComplete
+        override val dropdownMenuOpenForEndNumber
+            get() = scorePadSelectedEnd
 
-        override fun getRound(): Round? = fullArcherRoundInfo.round
+        override val round
+            get() = fullArcherRoundInfo.round
     }
 }
 

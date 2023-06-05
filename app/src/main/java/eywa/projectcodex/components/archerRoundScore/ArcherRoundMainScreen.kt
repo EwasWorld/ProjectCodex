@@ -1,19 +1,21 @@
 package eywa.projectcodex.components.archerRoundScore
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.ButtonState
-import eywa.projectcodex.common.sharedUi.SimpleDialog
-import eywa.projectcodex.common.sharedUi.SimpleDialogContent
+import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loaded
@@ -21,73 +23,102 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Load
 
 abstract class ArcherRoundSubScreen {
     @Composable
-    abstract fun ComposeContent(state: Loaded, listener: (ArcherRoundIntent) -> Unit)
+    abstract fun ComposeContent(
+            state: Loaded,
+            modifier: Modifier,
+            listener: (ArcherRoundIntent) -> Unit,
+    )
 }
 
-class ArcherRoundMainScreen {
-    private var currentScreen: ArcherRoundSubScreen? = null
-
-    @Composable
-    fun ComposeContent(
-            state: ArcherRoundState,
-            listener: (ArcherRoundIntent) -> Unit,
+@Composable
+fun ArcherRoundMainScreen(
+        state: ArcherRoundState,
+        listener: (ArcherRoundIntent) -> Unit,
+) {
+    Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                    .fillMaxSize()
+                    .background(CodexTheme.colors.appBackground)
     ) {
-        currentScreen = when (state) {
-            is Loading -> null
-            is Loaded -> state.currentScreen.getScreen()
-        }
-
-        SimpleDialog(
-                isShown = (state as? Loaded)?.displayRoundCompletedDialog == true,
-                onDismissListener = { listener(ArcherRoundIntent.RoundCompleteDialogOkClicked) },
-        ) {
-            SimpleDialogContent(
-                    title = stringResource(R.string.input_end__round_complete),
-                    positiveButton = ButtonState(
-                            text = stringResource(R.string.input_end__go_to_summary),
-                            onClick = { listener(ArcherRoundIntent.RoundCompleteDialogOkClicked) }
-                    ),
-            )
-        }
-        SimpleDialog(
-                isShown = (state as? Loaded)?.displayCannotInputEndDialog == true,
-                onDismissListener = { listener(ArcherRoundIntent.CannotInputEndDialogOkClicked) },
-        ) {
-            SimpleDialogContent(
-                    title = stringResource(R.string.input_end__cannot_open_input_end_title),
-                    message = stringResource(R.string.input_end__cannot_open_input_end_body),
-                    positiveButton = ButtonState(
-                            text = stringResource(R.string.general_ok),
-                            onClick = { listener(ArcherRoundIntent.CannotInputEndDialogOkClicked) }
-                    ),
-            )
-        }
-
-        Column {
-            Box(
-                    modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                            .background(CodexTheme.colors.appBackground)
-            ) {
-                currentScreen?.ComposeContent(state as Loaded, listener)
-                        ?: CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        when (state) {
+            is ArcherRoundState.InvalidArcherRoundError -> {
+                Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                            text = stringResource(R.string.archer_round_not_found),
+                            style = CodexTypography.NORMAL,
+                            color = CodexTheme.colors.onAppBackground,
+                    )
+                    CodexButton(
+                            text = stringResource(R.string.archer_round_not_found_button),
+                            buttonStyle = CodexButtonDefaults.DefaultButton(),
+                            onClick = { listener(InvalidArcherRoundIntent.ReturnToMenuClicked) },
+                    )
+                }
             }
-            if (state.showNavBar) {
-                ArcherRoundBottomNavBar(
-                        currentScreen = (state as? Loaded)?.currentScreen,
-                        listener = { listener(ArcherRoundIntent.NavBarClicked(it)) },
-                )
-            }
+            is Loading -> CircularProgressIndicator()
+            is Loaded -> ArcherRoundMainScreen(state, listener)
+        }
+    }
+}
+
+@Composable
+private fun ArcherRoundMainScreen(
+        state: Loaded,
+        listener: (ArcherRoundIntent) -> Unit,
+) {
+    Column {
+        state.currentScreen.getScreen().ComposeContent(
+                state = state,
+                listener = listener,
+                modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+        )
+        if (state.showNavBar) {
+            ArcherRoundBottomNavBar(
+                    currentScreen = state.currentScreen,
+                    listener = { listener(NavBarClicked(it)) },
+            )
         }
     }
 
-    object TestTag {
-        private const val PREFIX = "ARCHER_ROUND_SCREEN_"
+    SimpleDialog(
+            isShown = state.displayRoundCompletedDialog,
+            onDismissListener = { listener(RoundCompleteDialogOkClicked) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.input_end__round_complete),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.input_end__go_to_summary),
+                        onClick = { listener(RoundCompleteDialogOkClicked) }
+                ),
+        )
+    }
+    SimpleDialog(
+            isShown = state.displayCannotInputEndDialog,
+            onDismissListener = { listener(CannotInputEndDialogOkClicked) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.input_end__cannot_open_input_end_title),
+                message = stringResource(R.string.input_end__cannot_open_input_end_body),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_ok),
+                        onClick = { listener(CannotInputEndDialogOkClicked) }
+                ),
+        )
+    }
+}
 
-        fun bottomNavBarItem(screen: ArcherRoundScreen): String {
-            require(screen.bottomNavItemInfo != null) { "${screen.name} isn't on the nav bar" }
-            return "${PREFIX}BOTTOM_NAV_BAR_" + screen.name
-        }
+object ArcherRoundMainTestTag {
+    private const val PREFIX = "ARCHER_ROUND_SCREEN_"
+
+    fun bottomNavBarItem(screen: ArcherRoundScreen): String {
+        require(screen.bottomNavItemInfo != null) { "${screen.name} isn't on the nav bar" }
+        return "${PREFIX}BOTTOM_NAV_BAR_" + screen.name
     }
 }

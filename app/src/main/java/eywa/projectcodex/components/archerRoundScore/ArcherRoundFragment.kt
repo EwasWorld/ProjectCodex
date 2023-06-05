@@ -11,63 +11,50 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundEffect.Error
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
+import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ArcherRoundFragment : Fragment(), ActionBarHelp {
-    private val args: ArcherRoundFragmentArgs by navArgs()
-
     private val viewModel: ArcherRoundViewModel by viewModels()
 
     private val backButtonCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            viewModel.handle(ArcherRoundIntent.ScreenCancelClicked)
+            viewModel.handle(ScreenCancelClicked)
         }
     }
 
-    private val screen = ArcherRoundMainScreen()
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewModel.handle(
-                ArcherRoundIntent.Initialise(
-                        screen = eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.valueOf(args.screen),
-                        archerRoundId = args.archerRoundId,
-                )
-        )
-
-        lifecycleScope.launch {
-            viewModel.effects.collect { effect ->
-                when (effect) {
-                    is Error -> {
-                        context?.let {
-                            val message = when (effect) {
-                                Error.EndFullCannotAddMore -> R.string.err_input_end__end_full
-                                Error.NoArrowsCannotBackSpace -> R.string.err_input_end__end_empty
-                                Error.NotEnoughArrowsInputted -> R.string.err_input_end__end_not_full
-                            }
-                            ToastSpamPrevention.displayToast(it, it.resources.getString(message))
-                        }
-                    }
-                }
-            }
-        }
-
         return ComposeView(requireContext()).apply {
             setContent {
                 val state by viewModel.state.collectAsState()
+
+                val errors = (state as? ArcherRoundState.Loaded)?.errors
+                val returnToMainMenu = (state as? ArcherRoundState.InvalidArcherRoundError)?.mainMenuClicked ?: false
+                LaunchedEffect(errors, returnToMainMenu) {
+                    launch {
+                        errors?.forEach {
+                            ToastSpamPrevention.displayToast(requireContext(), resources.getString(it.messageId))
+                            viewModel.handle(ErrorHandled(it))
+                        }
+                        if (returnToMainMenu) {
+                            findNavController().popBackStack(R.id.mainMenuFragment, false)
+                            viewModel.handle(InvalidArcherRoundIntent.ReturnToMenuHandled)
+                        }
+                    }
+                }
 
                 LaunchedEffect(state.interruptBackButtonListener) {
                     backButtonCallback.isEnabled = state.interruptBackButtonListener
                 }
 
-                screen.ComposeContent(state) { viewModel.handle(it) }
+                ArcherRoundMainScreen(state) { viewModel.handle(it) }
             }
         }
     }

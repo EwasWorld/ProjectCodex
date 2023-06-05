@@ -2,6 +2,8 @@ package eywa.projectcodex.common.archeryObjects
 
 import android.content.res.Resources
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.get
@@ -228,7 +230,7 @@ class ScorePadData(
          */
         data class End(
                 internal val endNumber: Int,
-                private val arrowValues: List<ResOrActual<String>>,
+                val arrowValues: List<ResOrActual<String>>,
                 override val hits: Int,
                 override val score: Int,
                 override val golds: Int,
@@ -306,15 +308,48 @@ class ScorePadData(
         }
     }
 
-    enum class ColumnHeader(private val resourceId: Int? = null) {
-        ARROWS(R.string.score_pad__end_string_header),
-        HITS(R.string.table_hits_header),
-        SCORE(R.string.table_score_header),
-        GOLDS,
-        RUNNING_TOTAL(R.string.score_pad__running_total_header),
+    enum class ColumnHeader(
+            private val headingId: Int?,
+            private val helpTitleId: Int,
+            private val helpBodyId: Int,
+    ) {
+        ARROWS(
+                headingId = R.string.score_pad__end_string_header,
+                helpTitleId = R.string.help_score_pad__arrow_column_title,
+                helpBodyId = R.string.help_score_pad__arrow_column_body,
+        ),
+        HITS(
+                headingId = R.string.table_hits_header,
+                helpTitleId = R.string.help_score_pad__hits_column_title,
+                helpBodyId = R.string.help_score_pad__hits_column_body,
+        ),
+        SCORE(
+                headingId = R.string.table_score_header,
+                helpTitleId = R.string.help_score_pad__score_column_title,
+                helpBodyId = R.string.help_score_pad__score_column_body,
+        ),
+        GOLDS(
+                headingId = null,
+                helpTitleId = R.string.help_score_pad__golds_column_title,
+                helpBodyId = R.string.help_score_pad__golds_column_body,
+
+                ),
+        RUNNING_TOTAL(
+                headingId = R.string.score_pad__running_total_header,
+                helpTitleId = R.string.help_score_pad__running_column_title,
+                helpBodyId = R.string.help_score_pad__running_column_body,
+        ),
         ;
 
-        fun getShortResourceId(goldsType: GoldsType) = if (this == GOLDS) goldsType.shortStringId else resourceId!!
+        fun getShortResourceId(goldsType: GoldsType) = if (this == GOLDS) goldsType.shortStringId else headingId!!
+
+        @Composable
+        fun getHelpTitle() = stringResource(helpTitleId)
+
+        @Composable
+        fun getHelpBody(goldsType: GoldsType) =
+                if (this == GOLDS) stringResource(helpBodyId, stringResource(goldsType.helpString))
+                else stringResource(helpBodyId)
     }
 
     data class ScorePadDetailsString(val headerRow: String?, val details: String)

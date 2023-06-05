@@ -1,5 +1,5 @@
 package eywa.projectcodex.components.archerRoundScore.state
 
-interface HasEndSize {
-    fun getEndSize(): Int
+interface HasInputEndSize {
+    val inputEndSize: Int
 }

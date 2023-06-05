@@ -5,8 +5,6 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 
 sealed class ArcherRoundIntent {
-    data class Initialise(val screen: ArcherRoundScreen, val archerRoundId: Int) : ArcherRoundIntent()
-
     sealed class ArrowInputsIntent : ArcherRoundIntent() {
         data class ArrowInputted(val arrow: Arrow) : ArrowInputsIntent()
         object ResetArrowsInputted : ArrowInputsIntent()
@@ -45,11 +43,17 @@ sealed class ArcherRoundIntent {
     object ScreenSubmitClicked : ArcherRoundIntent()
     object ScreenCancelClicked : ArcherRoundIntent()
 
+    sealed class InvalidArcherRoundIntent : ArcherRoundIntent() {
+        object ReturnToMenuClicked : InvalidArcherRoundIntent()
+        object ReturnToMenuHandled : InvalidArcherRoundIntent()
+    }
+
     object CannotInputEndDialogOkClicked : ArcherRoundIntent()
     object RoundCompleteDialogOkClicked : ArcherRoundIntent()
     object NoArrowsDialogOkClicked : ArcherRoundIntent()
     object DeleteEndDialogOkClicked : ArcherRoundIntent()
     object DeleteEndDialogCancelClicked : ArcherRoundIntent()
+    data class ErrorHandled(val error: ArcherRoundError) : ArcherRoundIntent()
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ArcherRoundIntent()
 }

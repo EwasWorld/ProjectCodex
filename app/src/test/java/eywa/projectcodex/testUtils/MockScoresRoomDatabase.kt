@@ -4,8 +4,11 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundDao
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
@@ -25,18 +28,19 @@ class MockScoresRoomDatabase {
         var secondFullArcherRounds: List<DatabaseFullArcherRoundInfo>? = null
 
         val mock: ArcherRoundDao = mock {
-            on { getAllFullArcherRoundInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doReturn flow {
-                emit(fullArcherRounds)
+            on {
+                getAllFullArcherRoundInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
+            } doReturn getArcherRounds()
+            on { getFullArcherRoundInfo(anyInt()) } doReturn getArcherRounds().map { it.firstOrNull() }
+        }
 
-                if (!secondFullArcherRounds.isNullOrEmpty()) {
-                    delay(FLOW_EMIT_DELAY)
-                    emit(secondFullArcherRounds!!)
-                }
+        private fun getArcherRounds() = flow {
+            emit(fullArcherRounds)
+
+            secondFullArcherRounds.takeIf { !it.isNullOrEmpty() }?.let {
+                delay(FLOW_EMIT_DELAY)
+                emit(it)
             }
         }
-    }
-
-    companion object {
-        const val FLOW_EMIT_DELAY = 50L
     }
 }
