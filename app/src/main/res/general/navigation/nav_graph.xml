@@ -34,6 +34,10 @@
             android:id="@+id/actionMainMenuFragmentToSightMarksFragment"
             app:destination="@id/sightMarksFragment"
             />
+        <action
+            android:id="@+id/actionMainMenuFragmentToClassificationFragment"
+            app:destination="@id/classificationFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/viewScoresFragment"
@@ -133,4 +137,9 @@
             app:argType="integer"
             />
     </fragment>
+    <fragment
+        android:id="@+id/classificationFragment"
+        android:name="eywa.projectcodex.components.classificationTables.ClassificationFragment"
+        android:label="ClassificationFragment"
+        />
 </navigation>

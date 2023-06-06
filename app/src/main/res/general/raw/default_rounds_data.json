@@ -1,8 +1,10 @@
 {
-  "version": 3,
+  "version": 4,
   "rounds": [
     {
       "roundName": "York / Hereford",
+      "legacyRoundName": "York / Hereford",
+      "id": 1,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -156,7 +158,9 @@
       ]
     },
     {
-      "roundName": "Albion / Windsor",
+      "roundName": "St. George / Albion",
+      "legacyRoundName": "Albion / Windsor",
+      "id": 2,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -311,6 +315,8 @@
     },
     {
       "roundName": "Western",
+      "legacyRoundName": "Western",
+      "id": 3,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -430,6 +436,8 @@
     },
     {
       "roundName": "American",
+      "legacyRoundName": "American",
+      "id": 4,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -472,6 +480,8 @@
     },
     {
       "roundName": "St. Nicholas",
+      "legacyRoundName": "St. Nicholas",
+      "id": 5,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -511,6 +521,8 @@
     },
     {
       "roundName": "National",
+      "legacyRoundName": "National",
+      "id": 6,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -630,6 +642,8 @@
     },
     {
       "roundName": "Warwick",
+      "legacyRoundName": "Warwick",
+      "id": 7,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -749,6 +763,8 @@
     },
     {
       "roundName": "WA 1440 / FITA",
+      "legacyRoundName": "WA 1440 / FITA",
+      "id": 8,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -938,6 +954,8 @@
     },
     {
       "roundName": "Long Metric",
+      "legacyRoundName": "Long Metric",
+      "id": 9,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1057,6 +1075,8 @@
     },
     {
       "roundName": "Short Metric",
+      "legacyRoundName": "Short Metric",
+      "id": 10,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1160,6 +1180,8 @@
     },
     {
       "roundName": "WA Standard Bow",
+      "legacyRoundName": "WA Standard Bow",
+      "id": 11,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1192,6 +1214,8 @@
     },
     {
       "roundName": "WA 900",
+      "legacyRoundName": "WA 900",
+      "id": 12,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1234,6 +1258,8 @@
     },
     {
       "roundName": "WA 70m",
+      "legacyRoundName": "WA 70m",
+      "id": 13,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1256,6 +1282,8 @@
     },
     {
       "roundName": "WA 60m",
+      "legacyRoundName": "WA 60m",
+      "id": 14,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1285,6 +1313,8 @@
     },
     {
       "roundName": "WA 50m",
+      "legacyRoundName": "WA 50m",
+      "id": 15,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1307,6 +1337,8 @@
     },
     {
       "roundName": "WA 122",
+      "legacyRoundName": "WA 122",
+      "id": 16,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1358,6 +1390,8 @@
     },
     {
       "roundName": "WA 80",
+      "legacyRoundName": "WA 80",
+      "id": 17,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1398,6 +1432,8 @@
     },
     {
       "roundName": "Bray I",
+      "legacyRoundName": "Bray I",
+      "id": 18,
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -1420,6 +1456,8 @@
     },
     {
       "roundName": "Bray II",
+      "legacyRoundName": "Bray II",
+      "id": 19,
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -1442,6 +1480,8 @@
     },
     {
       "roundName": "Stafford",
+      "legacyRoundName": "Stafford",
+      "id": 20,
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1466,6 +1506,8 @@
     },
     {
       "roundName": "Portsmouth",
+      "legacyRoundName": "Portsmouth",
+      "id": 21,
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": false,
@@ -1490,6 +1532,8 @@
     },
     {
       "roundName": "Worcester",
+      "legacyRoundName": "Worcester",
+      "id": 22,
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": true,
@@ -1515,6 +1559,8 @@
     },
     {
       "roundName": "Vegas",
+      "legacyRoundName": "Vegas",
+      "id": 23,
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1539,6 +1585,8 @@
     },
     {
       "roundName": "WA 18",
+      "legacyRoundName": "WA 18",
+      "id": 24,
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1561,6 +1609,8 @@
     },
     {
       "roundName": "WA 25",
+      "legacyRoundName": "WA 25",
+      "id": 25,
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1583,6 +1633,8 @@
     },
     {
       "roundName": "Combined WA",
+      "legacyRoundName": "Combined WA",
+      "id": 26,
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1615,6 +1667,8 @@
     },
     {
       "roundName": "Frostbite",
+      "legacyRoundName": "Frostbite",
+      "id": 27,
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
@@ -1637,6 +1691,8 @@
     },
     {
       "roundName": "Club 252",
+      "legacyRoundName": "Club 252",
+      "id": 28,
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,

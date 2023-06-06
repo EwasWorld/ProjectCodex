@@ -118,6 +118,14 @@ class MainMenuScreen : ActionBarHelp {
                             .updateHelpDialogPosition(helpListener, R.string.help_main_menu__handicap_tables_title)
                             .testTag(TestTag.HANDICAP_TABLES)
             )
+            if (state.useBetaFeatures) {
+                CodexButton(
+                        text = stringResource(id = R.string.main_menu__classification_tables),
+                        buttonStyle = CodexButtonDefaults.DefaultButton(),
+                        onClick = { listener(ClassificationTablesClicked) },
+                        modifier = Modifier
+                )
+            }
             CodexButton(
                     text = stringResource(id = R.string.main_menu__sight_marks),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),

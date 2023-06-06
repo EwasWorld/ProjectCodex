@@ -10,6 +10,8 @@ import eywa.projectcodex.database.rounds.RoundSubType
  * @see Round
  */
 class DefaultRoundInfo(
+        val legacyName: String,
+        val rawRoundId: Int,
         val displayName: String,
         private val isOutdoor: Boolean,
         private val isMetric: Boolean,
@@ -116,8 +118,9 @@ class DefaultRoundInfo(
                 isOutdoor,
                 isMetric,
                 permittedFaces,
-                true,
-                fiveArrowEnd
+                fiveArrowEnd,
+                legacyName,
+                rawRoundId,
         )
     }
 

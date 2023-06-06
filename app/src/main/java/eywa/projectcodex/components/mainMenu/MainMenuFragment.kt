@@ -54,6 +54,8 @@ class MainMenuFragment : Fragment(), ActionBarHelp {
                                         findNavController().navigate(actionMainMenuFragmentToSettingsFragment())
                                     is AboutClicked ->
                                         findNavController().navigate(actionMainMenuFragmentToAboutFragment())
+                                    is ClassificationTablesClicked ->
+                                        findNavController().navigate(actionMainMenuFragmentToClassificationFragment())
                                     else -> viewModel.handle(it)
                                 }
                             },

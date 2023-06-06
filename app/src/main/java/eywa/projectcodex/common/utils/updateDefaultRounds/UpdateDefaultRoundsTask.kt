@@ -27,16 +27,12 @@ import kotlinx.coroutines.withContext
 import java.util.*
 
 // TODO Make this private
-class DefaultRoundInfoHelper {
-    companion object {
-        /**
-         * Removes non-alphanumerics and spaces and converts to lower case
-         */
-        fun formatToDbName(roundDisplayName: String): String {
-            return roundDisplayName.replace(Regex("[^A-Za-z0-9]| "), "").lowercase(Locale.getDefault())
-        }
-
-    }
+object DefaultRoundInfoHelper {
+    /**
+     * Removes non-alphanumerics and spaces and converts to lower case
+     */
+    fun formatToDbName(roundDisplayName: String) =
+            roundDisplayName.replace(Regex("[^A-Za-z0-9]| "), "").lowercase(Locale.getDefault())
 }
 
 /**
@@ -165,7 +161,16 @@ open class UpdateDefaultRoundsTask(
                  * Compare and update db
                  */
                 // Should not be null as empty database will return an empty list
-                val dbRoundInfo = dbRoundsInfo.find { it.round.name == fileRoundName }
+                val dbRoundInfo = dbRoundsInfo.find {
+                    // Older versions matched on names
+                    if (currentVersion != null && currentVersion < 4) {
+                        it.round.name == DefaultRoundInfoHelper.formatToDbName(readRoundInfo.legacyName)
+                    }
+                    // Newer versions use an ID
+                    else {
+                        it.round.defaultRoundId == readRoundInfo.rawRoundId
+                    }
+                }
                 val dbUpdateItems = if (dbRoundInfo == null) {
                     getUpdateItemsForNewRound(readRoundInfo, nextRoundId++)
                 }
@@ -185,7 +190,8 @@ open class UpdateDefaultRoundsTask(
              * Remove rounds and related objects from the database that are not in readRounds
              */
             setState(DeletingOld(currentVersion))
-            dbRoundsInfo.filter { !fileRoundNames.contains(it.round.name) }
+            repository.fullRoundsInfo.first()
+                    .filter { !fileRoundNames.contains(it.round.name) }
                     .flatMap { fullRoundInfo ->
                         mutableListOf<Any>(fullRoundInfo.round).apply {
                             fullRoundInfo.roundArrowCounts?.let { addAll(it) }

@@ -1,9 +1,6 @@
 package eywa.projectcodex.database.rounds
 
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Relation
+import androidx.room.*
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.database.rounds.Round.Companion.TABLE_NAME
@@ -13,8 +10,7 @@ import eywa.projectcodex.database.rounds.Round.Companion.TABLE_NAME
  */
 @Entity(tableName = TABLE_NAME)
 data class Round(
-        @PrimaryKey(autoGenerate = true)
-        val roundId: Int,
+        @PrimaryKey(autoGenerate = true) val roundId: Int,
         /**
          * @see displayName
          *
@@ -28,8 +24,9 @@ data class Round(
         val isOutdoor: Boolean,
         val isMetric: Boolean,
         val permittedFaces: List<String>,
-        val isDefaultRound: Boolean = false,
-        val fiveArrowEnd: Boolean = false
+        val fiveArrowEnd: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") val legacyName: String? = null,
+        @ColumnInfo(defaultValue = "NULL") val defaultRoundId: Int? = null,
 ) : NamedItem {
     override val label: String
         get() = displayName

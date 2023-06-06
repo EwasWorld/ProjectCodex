@@ -12,5 +12,6 @@ sealed class MainMenuIntent {
     object SightMarksClicked : MainMenuIntent()
     object SettingsClicked : MainMenuIntent()
     object AboutClicked : MainMenuIntent()
+    object ClassificationTablesClicked : MainMenuIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : MainMenuIntent()
 }

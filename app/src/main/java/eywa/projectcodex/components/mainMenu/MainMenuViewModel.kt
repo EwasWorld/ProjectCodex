@@ -23,9 +23,15 @@ class MainMenuViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            datastore.get(DatastoreKey.DisplayHandicapNotice).collectLatest { showHandicapNotice ->
-                _state.update { it.copy(isHandicapNoticeDialogOpen = showHandicapNotice) }
-            }
+            datastore.get(listOf(DatastoreKey.DisplayHandicapNotice, DatastoreKey.UseBetaFeatures))
+                    .collectLatest { values ->
+                        _state.update {
+                            it.copy(
+                                    isHandicapNoticeDialogOpen = values[DatastoreKey.DisplayHandicapNotice]!!,
+                                    useBetaFeatures = values[DatastoreKey.UseBetaFeatures]!!,
+                            )
+                        }
+                    }
         }
     }
 
