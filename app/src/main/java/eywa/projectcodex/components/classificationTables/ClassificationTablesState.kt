@@ -5,6 +5,7 @@ import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEn
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.datastore.DatastoreKey
 
 data class ClassificationTablesState(
         val isGent: Boolean = true,
@@ -18,6 +19,7 @@ data class ClassificationTablesState(
         val isSelectRoundDialogOpen: Boolean = false,
         val isSelectSubtypeDialogOpen: Boolean = false,
         val scores: List<ClassificationTableEntry> = emptyList(),
+        val use2023Handicaps: Boolean = DatastoreKey.Use2023HandicapSystem.defaultValue,
 ) {
     enum class Dropdown { AGE, BOW }
 }

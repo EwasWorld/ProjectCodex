@@ -12,17 +12,19 @@ data class ClassificationTableEntry(
         val rounds: List<ClassificationRound.DbRoundRef>,
         val age: ClassificationAge,
         val score: Int,
+        val handicap: Int? = null,
 ) {
     companion object {
         /**
-         * Create a ClassificationTableEntry from a CSV line
+         * Create a ClassificationTableEntry from a CSV line.
+         * [handicap] will be null
          */
         fun fromString(value: String): ClassificationTableEntry? {
             if (value.isBlank()) return null
 
             val split = value.split(",")
             return ClassificationTableEntry(
-                    classification = Classification.values()[split[0].toInt() - 1],
+                    classification = Classification.backwardsMap[split[0].toInt()]!!,
                     isGent = split[1] == "Men",
                     bowStyle = ClassificationBow.backwardsMap[split[2]]!!,
                     age = ClassificationAge.backwardsMap[split[3]]!!,

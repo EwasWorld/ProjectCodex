@@ -2,11 +2,19 @@
 <resources>
     <string name="classification_tables__title">Classifications</string>
 
-    <!--    <string name="handicap_tables__input">Input:</string>-->
-    <!--    <string name="handicap_tables__handicap_field">Handicap</string>-->
     <string name="classification_tables__score_field">Score</string>
-    <!--    <string name="handicap_tables__new_system_toggle">Use 2023 system</string>-->
+    <string name="classification_tables__handicap_field">HC</string>
     <string name="classification_tables__no_tables">No data</string>
+
+    <string name="classification_tables__archer_3_short">Archer 3rd</string>
+    <string name="classification_tables__archer_2_short">Archer 2nd</string>
+    <string name="classification_tables__archer_1_short">Archer 1st</string>
+    <string name="classification_tables__bowman_3_short">Bowman 3rd</string>
+    <string name="classification_tables__bowman_2_short">Bowman 2nd</string>
+    <string name="classification_tables__bowman_1_short">Bowman 1st</string>
+    <string name="classification_tables__master_bowman_short">MB</string>
+    <string name="classification_tables__grand_master_bowman_short">Grand MB</string>
+    <string name="classification_tables__elite_grand_master_bowman_short">Elite GMB</string>
 
     <!--    <string name="help_handicap_tables__2023_system_title">Handicap system</string>-->
     <!--    <string name="help_handicap_tables__2023_system_body">The handicap system was changed for the 2023 season to use a new formula from Archery GB. Pre-2023 used David Lane\'s system. Use this toggle to switch between the two systems.</string>-->

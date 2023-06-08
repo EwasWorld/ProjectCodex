@@ -1,5 +1,7 @@
 package eywa.projectcodex.common.archeryObjects
 
+import eywa.projectcodex.common.utils.getDistances
+import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -8,6 +10,27 @@ import kotlin.math.*
 fun Float.roundHandicap() = ceil(this).roundToInt()
 
 object Handicap {
+    fun getHandicapForRound(
+            round: FullRoundInfo,
+            subType: Int?,
+            score: Int,
+            innerTenArcher: Boolean = false,
+            arrows: Int? = null,
+            use2023Handicaps: Boolean = false,
+    ): Float? {
+        val distances = round.getDistances(subType)
+        if (round.roundArrowCounts == null || distances == null) return null
+        return getHandicapForRound(
+                round.round,
+                round.roundArrowCounts,
+                distances,
+                score,
+                innerTenArcher,
+                arrows,
+                use2023Handicaps
+        )
+    }
+
     /**
      * Binary search for the handicap of the given [score]. Will find the worst (highest) possible (e.g. 599 portsmouth
      * can be 3, 4, or 5 so return 5)
@@ -22,8 +45,8 @@ object Handicap {
             roundArrowCounts: List<RoundArrowCount>,
             roundDistances: List<RoundDistance>,
             score: Int,
-            innerTenArcher: Boolean,
-            arrows: Int?,
+            innerTenArcher: Boolean = false,
+            arrows: Int? = null,
             use2023Handicaps: Boolean = false,
     ): Float {
         require(arrows == null || arrows > 0) { "Arrows must be greater than 0" }

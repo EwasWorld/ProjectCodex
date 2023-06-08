@@ -109,13 +109,7 @@ class ClassificationTablesScreen : ActionBarHelp {
                 }
             }
 
-            Surface(
-                    shape = RoundedCornerShape(10),
-                    color = CodexTheme.colors.listItemOnAppBackground,
-                    modifier = Modifier.padding(20.dp)
-            ) {
-                Table(state.scores)
-            }
+            Table(state.scores)
         }
     }
 
@@ -160,48 +154,65 @@ class ClassificationTablesScreen : ActionBarHelp {
             entries: List<ClassificationTableEntry>,
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL) {
-            Column(
-                    verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
-                    modifier = Modifier.padding(10.dp)
+            Surface(
+                    shape = RoundedCornerShape(10),
+                    color = CodexTheme.colors.listItemOnAppBackground,
+                    modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(20.dp)
             ) {
-                if (entries.isNotEmpty()) {
-                    Row(
-                            horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterHorizontally),
-                            modifier = Modifier.horizontalScroll(rememberScrollState())
-                    ) {
-                        Column(
-                                verticalArrangement = Arrangement.spacedBy(3.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                ) {
+                    if (entries.isNotEmpty()) {
+                        Row(
+                                horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterHorizontally),
                         ) {
-                            Text(
-                                    text = "Classification",
-                                    fontWeight = FontWeight.Bold,
+                            TableColumn(
+                                    heading = "Classification",
+                                    rowCount = entries.size,
+                                    content = { stringResource(entries[it].classification.shortStringId) }
                             )
-                            entries.forEach {
-                                Text(text = it.classification.rawName)
-                            }
-                        }
-
-                        Column(
-                                verticalArrangement = Arrangement.spacedBy(3.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text(
-                                    text = stringResource(R.string.classification_tables__score_field),
-                                    fontWeight = FontWeight.Bold,
+                            TableColumn(
+                                    heading = stringResource(R.string.classification_tables__score_field),
+                                    rowCount = entries.size,
+                                    content = { entries[it].score.toString() }
                             )
-                            entries.forEach {
-                                Text(text = it.score.toString())
-                            }
+                            TableColumn(
+                                    heading = stringResource(R.string.classification_tables__handicap_field),
+                                    rowCount = entries.size,
+                                    content = { entries[it].handicap?.toString() ?: "-" }
+                            )
                         }
                     }
+                    else {
+                        Text(
+                                text = stringResource(R.string.classification_tables__no_tables),
+                                modifier = Modifier
+                        )
+                    }
                 }
-                else {
-                    Text(
-                            text = stringResource(R.string.classification_tables__no_tables),
-                            modifier = Modifier
-                    )
-                }
+            }
+        }
+    }
+
+    @Composable
+    private fun TableColumn(
+            heading: String,
+            rowCount: Int,
+            content: @Composable (index: Int) -> String,
+    ) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                    text = heading,
+                    fontWeight = FontWeight.Bold,
+            )
+            repeat(rowCount) {
+                Text(text = content(it))
             }
         }
     }
