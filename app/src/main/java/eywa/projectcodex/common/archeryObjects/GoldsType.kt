@@ -49,8 +49,8 @@ enum class GoldsType(
          */
         fun getGoldsType(round: Round): GoldsType {
             return when {
-                !round.isOutdoor -> TENS
-                else -> NINES
+                !round.isMetric && round.isOutdoor -> NINES
+                else -> TENS
             }
         }
     }
