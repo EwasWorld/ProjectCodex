@@ -319,7 +319,7 @@ class NewScoreInstrumentedTest {
                         roundId = selectedRound.roundId,
                         roundSubTypeId = 1
                 ),
-                updated.archerRound.copy(dateShot = calendar.time)
+                updated!!.archerRound.copy(dateShot = calendar.time)
         )
         val updatedDate = updated.archerRound.dateShot
         // Date returns (year - 1900)
@@ -346,7 +346,7 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val actual = getArcherRounds(archerRoundInput.archerRoundId).archerRound
+        val actual = getArcherRounds(archerRoundInput.archerRoundId)!!.archerRound
         assertEquals(
                 ArcherRound(
                         archerRoundInput.archerRoundId,

@@ -127,7 +127,7 @@ class ArcherRoundsTest {
          */
         for (archerRound in archerRounds) {
             val retrievedRoundInfo = archerRoundDao.getFullArcherRoundInfo(archerRound.archerRoundId).first()
-            assertEquals(archerRound.roundId, retrievedRoundInfo.round?.roundId)
+            assertEquals(archerRound.roundId, retrievedRoundInfo!!.round?.roundId)
             if (archerRound.roundId != null) {
                 assertEquals(rounds[archerRound.roundId!! - 1], retrievedRoundInfo.round)
             }

@@ -28,7 +28,9 @@ class ScorePadRobot(
         val nodes = composeTestRule.onAllNodesWithTag(TestTag.CELL)
 
         allCells.forEachIndexed { index, text ->
-            nodes[index].assertTextEquals(text)
+            CustomConditionWaiter.waitForComposeCondition {
+                nodes[index].assertTextEquals(text)
+            }
         }
         nodes.assertCountEquals(allCells.size)
     }

@@ -97,7 +97,7 @@ class UpdateDefaultRoundsUnitTest {
         val startTime = Calendar.getInstance()
         assert(sut.runTask())
         assertEquals(
-                Complete(3, CompletionType.COMPLETE),
+                Complete(4, CompletionType.COMPLETE),
                 sut.state.value
         )
         val endTime = Calendar.getInstance()
@@ -299,6 +299,8 @@ class UpdateDefaultRoundsUnitTest {
                 ${TestData.ST_GEORGE_JSON},
                 {
                    "roundName": "stgeoRge.",
+                   "legacyRoundName": "stgeoRge.",
+                   "id": 3,
                    "outdoor": true,
                    "isMetric": false,
                    "fiveArrowEnd": false,
@@ -726,12 +728,23 @@ class UpdateDefaultRoundsUnitTest {
             val expected = expectedUpdates[comparisonIndex]
 
             expected.entries.forEach { (expectedKey, expectedValue) ->
+                // Don't know why `actual[expectedKey]` isn't working all of a sudden :(
+                val keyInActual = actual.keys.single {
+                    it::class == expectedKey::class && when (expectedKey) {
+                        is Round -> true
+                        is RoundDistance -> (it as RoundDistance).distanceNumber == expectedKey.distanceNumber
+                                && it.subTypeId == expectedKey.subTypeId
+                        is RoundArrowCount -> (it as RoundArrowCount).distanceNumber == expectedKey.distanceNumber
+                        is RoundSubType -> (it as RoundSubType).subTypeId == expectedKey.subTypeId
+                        else -> throw IllegalStateException()
+                    }
+                }
                 assertEquals(
                         "Value for \n$expectedKey\n at index $comparisonIndex are different",
                         expectedValue,
-                        actual[expectedKey],
+                        actual[keyInActual],
                 )
-                actual.remove(expectedKey)
+                actual.remove(keyInActual)
             }
             assertEquals(
                     "Actual at index $comparisonIndex has extra items",
@@ -884,6 +897,8 @@ class UpdateDefaultRoundsUnitTest {
          */
         const val YORK_MAIN_JSON = """
               "roundName": "York",
+              "legacyRoundName": "York",
+              "id": 1,
               "outdoor": true,
               "isMetric": false,
               "fiveArrowEnd": false,
@@ -983,7 +998,7 @@ class UpdateDefaultRoundsUnitTest {
                     $YORK_DISTANCES_JSON
                 },
             """
-        val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, listOf(), true, false)
+        val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, listOf(), true, "York", 1)
         val YORK_ARROW_COUNT_OBJECTS = listOf(
                 RoundArrowCount(5, 1, 122f, 72),
                 RoundArrowCount(5, 2, 122f, 48)
@@ -1020,6 +1035,8 @@ class UpdateDefaultRoundsUnitTest {
         const val ST_GEORGE_JSON = """
             {
               "roundName": "St. George",
+              "legacyRoundName": "St. George",
+              "id": 2,
               "outdoor": false,
               "isMetric": true,
               "fiveArrowEnd": true,
@@ -1086,7 +1103,8 @@ class UpdateDefaultRoundsUnitTest {
                         true,
                         listOf("NO_TRIPLE", "FIVE_CENTRE"),
                         true,
-                        true
+                        "St. George",
+                        2,
                 ),
                 RoundSubType(6, 1, "St. George"),
                 RoundSubType(6, 2, "Albion"),

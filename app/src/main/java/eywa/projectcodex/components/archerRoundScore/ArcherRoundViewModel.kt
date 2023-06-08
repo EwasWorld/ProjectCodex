@@ -108,14 +108,11 @@ class ArcherRoundViewModel @Inject constructor(
             ScreenCancelClicked ->
                 _state.update { (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null) }
             ScreenSubmitClicked ->
-                _state.update { state ->
-                    state as Loaded
-                    when (state.currentScreen) {
-                        INPUT_END -> state.commitNewEndToDb()
-                        EDIT_END -> state.commitEditEndToDb()
-                        INSERT_END -> state.commitInsertedEndToDb()
-                        else -> throw IllegalStateException()
-                    }
+                when ((state.value as Loaded).currentScreen) {
+                    INPUT_END -> commitNewEndToDb()
+                    EDIT_END -> commitEditEndToDb()
+                    INSERT_END -> commitInsertedEndToDb()
+                    else -> throw IllegalStateException()
                 }
             is ArrowInputsIntent -> handleArrowInputIntent(action)
             is ScorePadIntent -> handleScorePadIntent(action)
@@ -128,18 +125,20 @@ class ArcherRoundViewModel @Inject constructor(
                 _state.update {
                     (it as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
                 }
-            DeleteEndDialogOkClicked ->
+            DeleteEndDialogOkClicked -> {
                 viewModelScope.launch {
-                    _state.update {
-                        it as Loaded
+                    (state.value as Loaded).let {
                         arrowValuesRepo.deleteEnd(
                                 it.fullArcherRoundInfo.arrows!!,
                                 it.scorePadSelectedEndFirstArrowNumber,
                                 it.scorePadSelectedEndSize,
                         )
-                        it.copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
                     }
                 }
+                _state.update {
+                    (it as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
+                }
+            }
             is HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
             is ErrorHandled -> _state.update {
                 it as Loaded
@@ -155,9 +154,8 @@ class ArcherRoundViewModel @Inject constructor(
         return copy(currentScreen = screen)
     }
 
-    private fun Loaded.commitNewEndToDb(): Loaded {
-        val state = this
-        if (state.currentScreen != INPUT_END) return state
+    private fun commitNewEndToDb() = (state.value as Loaded).let { state ->
+        if (state.currentScreen != INPUT_END) return@let
 
         var arrowNumber = state.fullArcherRoundInfo.arrows?.maxOfOrNull { it.arrowNumber } ?: 0
         val arrows = state.currentScreenInputArrows.map {
@@ -166,16 +164,16 @@ class ArcherRoundViewModel @Inject constructor(
 
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been inputted" }
         if (arrows.size < state.currentScreenEndSize) {
-            return state.copy(errors = errors.plus(ArcherRoundError.NotEnoughArrowsInputted))
+            _state.update { (it as Loaded).copy(errors = it.errors.plus(ArcherRoundError.NotEnoughArrowsInputted)) }
+            return@let
         }
 
         viewModelScope.launch { arrowValuesRepo.insert(*arrows.toTypedArray()) }
-        return state.copy(newInputArrows = listOf())
+        _state.update { (it as Loaded).copy(newInputArrows = listOf()) }
     }
 
-    private fun Loaded.commitEditEndToDb(): Loaded {
-        val state = this
-        if (state.currentScreen != EDIT_END) return state
+    private fun commitEditEndToDb() = (state.value as Loaded).let { state ->
+        if (state.currentScreen != EDIT_END) return@let
 
         var arrowNumber = state.scorePadSelectedEndFirstArrowNumber
         val arrows = state.currentScreenInputArrows.map { arrow ->
@@ -184,16 +182,16 @@ class ArcherRoundViewModel @Inject constructor(
 
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been marked for edit" }
         if (arrows.size < state.currentScreenEndSize) {
-            return state.copy(errors = errors.plus(ArcherRoundError.NotEnoughArrowsInputted))
+            _state.update { (it as Loaded).copy(errors = it.errors.plus(ArcherRoundError.NotEnoughArrowsInputted)) }
+            return@let
         }
 
         viewModelScope.launch { arrowValuesRepo.update(*arrows.toTypedArray()) }
-        return state.changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null)
+        _state.update { (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null) }
     }
 
-    private fun Loaded.commitInsertedEndToDb(): Loaded {
-        val state = this
-        if (state.currentScreen != INSERT_END) return state
+    private fun commitInsertedEndToDb() = (state.value as Loaded).let { state ->
+        if (state.currentScreen != INSERT_END) return@let
 
         var arrowNumber = state.scorePadSelectedEndFirstArrowNumber
         val arrows = state.currentScreenInputArrows.map { arrow ->
@@ -202,7 +200,7 @@ class ArcherRoundViewModel @Inject constructor(
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been inputted" }
 
         viewModelScope.launch { arrowValuesRepo.insertEnd(state.fullArcherRoundInfo.arrows!!, arrows) }
-        return state.changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null)
+        _state.update { (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null) }
     }
 
 

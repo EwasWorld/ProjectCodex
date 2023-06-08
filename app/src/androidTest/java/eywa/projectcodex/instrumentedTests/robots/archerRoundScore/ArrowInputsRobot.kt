@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
 import androidx.compose.ui.test.*
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
 
@@ -37,11 +38,13 @@ abstract class ArrowInputsRobot(
     }
 
     fun checkInputtedArrows(expectedArrows: List<String>, endSize: Int = 6) {
-        composeTestRule
-                .onNodeWithTag(ArrowInputsTestTag.END_ARROWS_TEXT)
-                .assertTextEquals(
-                        expectedArrows.plus(List(endSize - expectedArrows.size) { "." }).joinToString("-")
-                )
+        CustomConditionWaiter.waitForComposeCondition {
+            composeTestRule
+                    .onNodeWithTag(ArrowInputsTestTag.END_ARROWS_TEXT)
+                    .assertTextEquals(
+                            expectedArrows.plus(List(endSize - expectedArrows.size) { "." }).joinToString("-")
+                    )
+        }
     }
 
     fun checkEndTotal(total: Int) {

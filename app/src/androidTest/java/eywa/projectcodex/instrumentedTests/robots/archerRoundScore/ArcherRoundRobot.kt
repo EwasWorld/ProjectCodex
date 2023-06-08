@@ -1,7 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundMainScreen
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundMainTestTag
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
 import eywa.projectcodex.components.mainActivity.MainActivity

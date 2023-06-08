@@ -51,12 +51,12 @@ object TestUtils {
 
     private val CORE_ROUND_FACES = listOf("NO_TRIPLE", "FIVE_ZONE", "FIVE_CENTRE", "VEGAS")
     val ROUNDS = listOf(
-            Round(1, "wa 1440", "WA 1440", true, false, listOf(), false, false),
-            Round(2, "st george", "St. George", true, true, listOf(), false, false),
-            Round(3, "national", "National", false, false, listOf(), false, false),
-            Round(4, "yorkhereford", "York/Hereford", false, true, listOf(), true, false),
-            Round(5, "wa 70m", "WA 70m", false, true, listOf(), true, true),
-            Round(6, "00", "00", false, true, CORE_ROUND_FACES, true, false),
+            Round(1, "wa 1440", "WA 1440", true, false, listOf(), false, null, null),
+            Round(2, "st george", "St. George", true, true, listOf(), false, null, null),
+            Round(3, "national", "National", false, false, listOf(), false, null, null),
+            Round(4, "yorkhereford", "York/Hereford", false, true, listOf(), true, null, null),
+            Round(5, "wa 70m", "WA 70m", false, true, listOf(), true, "WA 70m", 1),
+            Round(6, "00", "00", false, true, CORE_ROUND_FACES, true, null, null),
     )
 
     val ROUND_SUB_TYPES = listOf(

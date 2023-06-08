@@ -5,7 +5,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.retrieveValue
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.RoundArrowCountDao
+import eywa.projectcodex.database.rounds.RoundDao
+import eywa.projectcodex.database.rounds.RoundDistanceDao
+import eywa.projectcodex.database.rounds.RoundSubTypeDao
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -70,15 +73,11 @@ class GeneralDatabaseTests {
          * Update (existing)
          */
         val round1 = rounds[0]
-        val updatedRound1 = Round(
-                round1.roundId, round1.name, round1.displayName, !round1.isOutdoor, round1.isMetric,
-                round1.permittedFaces, round1.isDefaultRound, round1.fiveArrowEnd
-        )
+        val updatedRound1 = round1.copy(isOutdoor = !round1.isOutdoor)
         val round2 = rounds[1]
-        val updatedRound2 = Round(
-                round2.roundId, round2.name + "cheese", round2.displayName + "cheese",
-                round2.isOutdoor, round2.isMetric, round2.permittedFaces,
-                round2.isDefaultRound, round2.fiveArrowEnd
+        val updatedRound2 = round2.copy(
+                name = round2.name + "cheese",
+                displayName = round2.displayName + "cheese",
         )
         rounds.removeAt(0)
         rounds.removeAt(0)
@@ -96,9 +95,10 @@ class GeneralDatabaseTests {
         /*
          * Update (doesn't exist)
          */
-        val nonExistentUpdatedRound = Round(
-                rounds.maxOf { it.roundId } + 1, "bananas", "bananas", round1.isOutdoor, round1.isMetric,
-                round1.permittedFaces, round1.isDefaultRound, round1.fiveArrowEnd
+        val nonExistentUpdatedRound = round1.copy(
+                roundId = rounds.maxOf { it.roundId } + 1,
+                name = "bananas",
+                displayName = "bananas",
         )
         runBlocking {
             roundDao.update(nonExistentUpdatedRound)

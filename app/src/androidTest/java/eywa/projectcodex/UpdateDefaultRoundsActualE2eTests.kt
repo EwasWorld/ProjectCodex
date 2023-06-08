@@ -1,4 +1,4 @@
-package eywa.projectcodex.instrumentedTests
+package eywa.projectcodex
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario

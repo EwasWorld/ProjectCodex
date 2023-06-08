@@ -91,7 +91,7 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
         override val scorePadEndSize
             get() = scorePadEndSizePartial!!
         override val inputEndSize: Int
-            get() = inputEndSizePartial!!
+            get() = currentScreenEndSize
 
         val showNavBar
             get() = currentScreen.isMainScreen
@@ -124,9 +124,9 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
          * - [ArcherRoundScreen.INSERT_END] caps at arrows remaining
          */
         val currentScreenEndSize by lazy {
-            val endSize = if (currentScreen == INPUT_END) inputEndSize else scorePadEndSize
+            val endSize = if (currentScreen == INPUT_END) inputEndSizePartial!! else scorePadEndSize
             val maxArrows = when {
-                fullArcherRoundInfo.round == null -> if (currentScreen == INPUT_END) inputEndSize else scorePadEndSize
+                fullArcherRoundInfo.round == null || fullArcherRoundInfo.isRoundComplete -> endSize
                 currentScreen == INSERT_END -> fullArcherRoundInfo.remainingArrows!!
                 currentScreen == EDIT_END -> scorePadSelectedEndSize
                 currentScreen == INPUT_END -> fullArcherRoundInfo.remainingArrowsAtDistances!!.first().first
