@@ -26,7 +26,7 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
 
     private val backButtonCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            viewModel.handle(ScreenCancelClicked)
+            viewModel.handle(ArrowInputsIntent.CancelClicked)
         }
     }
 

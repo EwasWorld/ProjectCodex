@@ -17,7 +17,7 @@ import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent
 
 @Composable
 fun ArrowInputsScaffold(
@@ -33,7 +33,7 @@ fun ArrowInputsScaffold(
         submitHelpInfoTitle: String,
         submitHelpInfoBody: String,
         testTag: String,
-        listener: (ArcherRoundIntent) -> Unit,
+        listener: (ArrowInputsIntent) -> Unit,
 ) = ArrowInputsScaffold(
         state = state,
         showCancelButton = showCancelButton,
@@ -70,7 +70,7 @@ fun ArrowInputsScaffold(
         submitHelpInfoTitle: String,
         submitHelpInfoBody: String,
         testTag: String,
-        listener: (ArcherRoundIntent) -> Unit,
+        listener: (ArrowInputsIntent) -> Unit,
         content: @Composable () -> Unit,
 ) {
     Column(
@@ -114,7 +114,7 @@ fun ArrowInputsScaffold(
                 CodexButton(
                         text = stringResource(R.string.general_cancel),
                         buttonStyle = CodexButtonDefaults.DefaultButton(),
-                        onClick = { listener(ArcherRoundIntent.ScreenCancelClicked) },
+                        onClick = { listener(ArrowInputsIntent.CancelClicked) },
                         modifier = Modifier
                                 .testTag(ArrowInputsTestTag.CANCEL_BUTTON)
                                 .updateHelpDialogPosition(helpListener, cancelHelpInfoTitle)
@@ -132,7 +132,7 @@ fun ArrowInputsScaffold(
             CodexButton(
                     text = submitButtonText,
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
-                    onClick = { listener(ArcherRoundIntent.ScreenSubmitClicked) },
+                    onClick = { listener(ArrowInputsIntent.SubmitClicked) },
                     modifier = Modifier
                             .testTag(ArrowInputsTestTag.SUBMIT_BUTTON)
                             .updateHelpDialogPosition(helpListener, submitHelpInfoTitle)

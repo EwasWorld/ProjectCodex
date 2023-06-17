@@ -39,7 +39,7 @@ fun getArrowValueString(score: Int, isX: Boolean): String {
     }
 }
 
-class Arrow(val score: Int, val isX: Boolean) {
+data class Arrow(val score: Int, val isX: Boolean) {
     constructor(scoreString: String) : this(
             getArrowScore(scoreString),
             isX(scoreString)

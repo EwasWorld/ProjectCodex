@@ -98,6 +98,7 @@ class ArcherRoundViewModel @Inject constructor(
             is NavBarClicked -> {
                 _state.update {
                     it as Loaded
+                    require(action.screen.isMainScreen) { "Trying to use nav bar intent for sub-screen" }
 
                     if (action.screen == INPUT_END && it.fullArcherRoundInfo.isRoundComplete) {
                         return@update it.copy(displayCannotInputEndDialog = true)
@@ -105,40 +106,12 @@ class ArcherRoundViewModel @Inject constructor(
                     it.changeScreen(action.screen)
                 }
             }
-            ScreenCancelClicked ->
-                _state.update { (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null) }
-            ScreenSubmitClicked ->
-                when ((state.value as Loaded).currentScreen) {
-                    INPUT_END -> commitNewEndToDb()
-                    EDIT_END -> commitEditEndToDb()
-                    INSERT_END -> commitInsertedEndToDb()
-                    else -> throw IllegalStateException()
-                }
             is ArrowInputsIntent -> handleArrowInputIntent(action)
             is ScorePadIntent -> handleScorePadIntent(action)
             is SettingsIntent -> handleSettingsIntent(action)
             RoundCompleteDialogOkClicked ->
                 _state.update { (it as Loaded).changeScreen(STATS).copy(displayRoundCompletedDialog = false) }
             CannotInputEndDialogOkClicked -> _state.update { (it as Loaded).copy(displayCannotInputEndDialog = false) }
-            NoArrowsDialogOkClicked -> _state.update { (it as Loaded).changeScreen(INPUT_END) }
-            DeleteEndDialogCancelClicked ->
-                _state.update {
-                    (it as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
-                }
-            DeleteEndDialogOkClicked -> {
-                viewModelScope.launch {
-                    (state.value as Loaded).let {
-                        arrowValuesRepo.deleteEnd(
-                                it.fullArcherRoundInfo.arrows!!,
-                                it.scorePadSelectedEndFirstArrowNumber,
-                                it.scorePadSelectedEndSize,
-                        )
-                    }
-                }
-                _state.update {
-                    (it as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
-                }
-            }
             is HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
             is ErrorHandled -> _state.update {
                 it as Loaded
@@ -154,8 +127,8 @@ class ArcherRoundViewModel @Inject constructor(
         return copy(currentScreen = screen)
     }
 
-    private fun commitNewEndToDb() = (state.value as Loaded).let { state ->
-        if (state.currentScreen != INPUT_END) return@let
+    private fun commitNewEndToDb(state: Loaded) {
+        if (state.currentScreen != INPUT_END) return
 
         var arrowNumber = state.fullArcherRoundInfo.arrows?.maxOfOrNull { it.arrowNumber } ?: 0
         val arrows = state.currentScreenInputArrows.map {
@@ -165,15 +138,15 @@ class ArcherRoundViewModel @Inject constructor(
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been inputted" }
         if (arrows.size < state.currentScreenEndSize) {
             _state.update { (it as Loaded).copy(errors = it.errors.plus(ArcherRoundError.NotEnoughArrowsInputted)) }
-            return@let
+            return
         }
 
         viewModelScope.launch { arrowValuesRepo.insert(*arrows.toTypedArray()) }
         _state.update { (it as Loaded).copy(newInputArrows = listOf()) }
     }
 
-    private fun commitEditEndToDb() = (state.value as Loaded).let { state ->
-        if (state.currentScreen != EDIT_END) return@let
+    private fun commitEditEndToDb(state: Loaded) {
+        if (state.currentScreen != EDIT_END) return
 
         var arrowNumber = state.scorePadSelectedEndFirstArrowNumber
         val arrows = state.currentScreenInputArrows.map { arrow ->
@@ -183,15 +156,17 @@ class ArcherRoundViewModel @Inject constructor(
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been marked for edit" }
         if (arrows.size < state.currentScreenEndSize) {
             _state.update { (it as Loaded).copy(errors = it.errors.plus(ArcherRoundError.NotEnoughArrowsInputted)) }
-            return@let
+            return
         }
 
         viewModelScope.launch { arrowValuesRepo.update(*arrows.toTypedArray()) }
-        _state.update { (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null) }
+        _state.update {
+            (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null, subScreenInputArrows = emptyList())
+        }
     }
 
-    private fun commitInsertedEndToDb() = (state.value as Loaded).let { state ->
-        if (state.currentScreen != INSERT_END) return@let
+    private fun commitInsertedEndToDb(state: Loaded) {
+        if (state.currentScreen != INSERT_END) return
 
         var arrowNumber = state.scorePadSelectedEndFirstArrowNumber
         val arrows = state.currentScreenInputArrows.map { arrow ->
@@ -200,7 +175,9 @@ class ArcherRoundViewModel @Inject constructor(
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been inputted" }
 
         viewModelScope.launch { arrowValuesRepo.insertEnd(state.fullArcherRoundInfo.arrows!!, arrows) }
-        _state.update { (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null) }
+        _state.update {
+            (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null, subScreenInputArrows = emptyList())
+        }
     }
 
 
@@ -227,6 +204,26 @@ class ArcherRoundViewModel @Inject constructor(
             ArrowInputsIntent.ClearArrowsInputted -> _state.update { (it as Loaded).copy(newInputArrows = listOf()) }
             ArrowInputsIntent.ResetArrowsInputted -> _state.update { (it as Loaded).setupArrowInputsOnEditScreen() }
             is ArrowInputsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
+            ArrowInputsIntent.CancelClicked ->
+                _state.update {
+                    it as Loaded
+                    when (it.currentScreen) {
+                        INSERT_END, EDIT_END -> {
+                            it.changeScreen(SCORE_PAD)
+                                    .copy(scorePadSelectedEnd = null, subScreenInputArrows = emptyList())
+                        }
+                        else -> it
+                    }
+                }
+            ArrowInputsIntent.SubmitClicked ->
+                (state.value as Loaded).let {
+                    when (it.currentScreen) {
+                        INPUT_END -> commitNewEndToDb(it)
+                        EDIT_END -> commitEditEndToDb(it)
+                        INSERT_END -> commitInsertedEndToDb(it)
+                        else -> {}
+                    }
+                }
         }
     }
 
@@ -258,6 +255,26 @@ class ArcherRoundViewModel @Inject constructor(
             is ScorePadIntent.RowLongClicked ->
                 _state.update { (it as Loaded).copy(scorePadSelectedEnd = action.endNumber) }
             is ScorePadIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
+            ScorePadIntent.DeleteEndDialogCancelClicked ->
+                _state.update {
+                    (it as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
+                }
+            ScorePadIntent.DeleteEndDialogOkClicked -> {
+                val currentState = state.value as Loaded
+                viewModelScope.launch {
+                    currentState.let {
+                        arrowValuesRepo.deleteEnd(
+                                it.fullArcherRoundInfo.arrows!!,
+                                it.scorePadSelectedEndFirstArrowNumber,
+                                it.scorePadSelectedEndSize,
+                        )
+                    }
+                }
+                _state.update {
+                    (it as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
+                }
+            }
+            ScorePadIntent.NoArrowsDialogOkClicked -> _state.update { (it as Loaded).changeScreen(INPUT_END) }
         }
     }
 

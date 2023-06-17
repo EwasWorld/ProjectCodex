@@ -71,25 +71,25 @@ class ScorePadScreen : ArcherRoundSubScreen() {
     private fun ScreenContent(
             state: ScorePadState,
             modifier: Modifier = Modifier,
-            listener: (ArcherRoundIntent) -> Unit,
+            listener: (ScorePadIntent) -> Unit,
     ) {
         val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
         SimpleDialog(
                 isShown = state.scorePadData.isNullOrEmpty(),
-                onDismissListener = { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) },
+                onDismissListener = { listener(NoArrowsDialogOkClicked) },
         ) {
             SimpleDialogContent(
                     title = stringResource(R.string.archer_round_stats__no_arrows_dialog_title),
                     positiveButton = ButtonState(
                             text = stringResource(R.string.archer_round_stats__no_arrows_dialog_button),
-                            onClick = { listener(ArcherRoundIntent.NoArrowsDialogOkClicked) },
+                            onClick = { listener(NoArrowsDialogOkClicked) },
                     ),
             )
         }
         SimpleDialog(
                 isShown = state.displayDeleteEndConfirmationDialog,
-                onDismissListener = { listener(ArcherRoundIntent.DeleteEndDialogCancelClicked) },
+                onDismissListener = { listener(DeleteEndDialogCancelClicked) },
         ) {
             SimpleDialogContent(
                     title = stringResource(R.string.score_pad_menu__delete_dialog_title),
@@ -99,11 +99,11 @@ class ScorePadScreen : ArcherRoundSubScreen() {
                     ),
                     positiveButton = ButtonState(
                             text = stringResource(R.string.general_delete),
-                            onClick = { listener(ArcherRoundIntent.DeleteEndDialogOkClicked) },
+                            onClick = { listener(DeleteEndDialogOkClicked) },
                     ),
                     negativeButton = ButtonState(
                             text = stringResource(R.string.general_cancel),
-                            onClick = { listener(ArcherRoundIntent.DeleteEndDialogCancelClicked) },
+                            onClick = { listener(DeleteEndDialogCancelClicked) },
                     ),
             )
         }

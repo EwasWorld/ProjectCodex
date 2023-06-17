@@ -11,6 +11,9 @@ sealed class ArcherRoundIntent {
         object ClearArrowsInputted : ArrowInputsIntent()
         object BackspaceArrowsInputted : ArrowInputsIntent()
 
+        object SubmitClicked : ArrowInputsIntent()
+        object CancelClicked : ArrowInputsIntent()
+
         data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ArrowInputsIntent()
     }
 
@@ -29,6 +32,11 @@ sealed class ArcherRoundIntent {
         object InsertEndClicked : ScorePadIntent()
         object DeleteEndClicked : ScorePadIntent()
 
+        object DeleteEndDialogOkClicked : ScorePadIntent()
+        object DeleteEndDialogCancelClicked : ScorePadIntent()
+
+        object NoArrowsDialogOkClicked : ScorePadIntent()
+
         data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ScorePadIntent()
     }
 
@@ -40,8 +48,6 @@ sealed class ArcherRoundIntent {
     }
 
     data class NavBarClicked(val screen: ArcherRoundScreen) : ArcherRoundIntent()
-    object ScreenSubmitClicked : ArcherRoundIntent()
-    object ScreenCancelClicked : ArcherRoundIntent()
 
     sealed class InvalidArcherRoundIntent : ArcherRoundIntent() {
         object ReturnToMenuClicked : InvalidArcherRoundIntent()
@@ -50,9 +56,6 @@ sealed class ArcherRoundIntent {
 
     object CannotInputEndDialogOkClicked : ArcherRoundIntent()
     object RoundCompleteDialogOkClicked : ArcherRoundIntent()
-    object NoArrowsDialogOkClicked : ArcherRoundIntent()
-    object DeleteEndDialogOkClicked : ArcherRoundIntent()
-    object DeleteEndDialogCancelClicked : ArcherRoundIntent()
     data class ErrorHandled(val error: ArcherRoundError) : ArcherRoundIntent()
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ArcherRoundIntent()
