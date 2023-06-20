@@ -3,13 +3,16 @@ package eywa.projectcodex.components.classificationTables
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -17,8 +20,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
-import eywa.projectcodex.common.sharedUi.CodexCheckbox
-import eywa.projectcodex.common.sharedUi.DataRow
+import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
@@ -135,15 +137,29 @@ class ClassificationTablesScreen : ActionBarHelp {
                     modifier = Modifier.clickable { onClick() }
             )
         }
-        DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = onDismiss,
+        SimpleDialog(
+                isShown = expanded,
+                onDismissListener = onDismiss,
         ) {
-            values.forEachIndexed { index, value ->
-                DropdownMenuItem(onClick = { onItemClick(index) }) {
-                    Text(
-                            text = value,
+            SimpleDialogContent(
+                    title = label,
+                    negativeButton = ButtonState(
+                            text = stringResource(R.string.general_cancel),
+                            onClick = onDismiss,
                     )
+            ) {
+                Column {
+                    values.forEachIndexed { index, value ->
+                        Text(
+                                text = value,
+                                style = CodexTypography.NORMAL,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                        .clickable { onItemClick(index) }
+                                        .fillMaxWidth()
+                                        .padding(10.dp)
+                        )
+                    }
                 }
             }
         }
