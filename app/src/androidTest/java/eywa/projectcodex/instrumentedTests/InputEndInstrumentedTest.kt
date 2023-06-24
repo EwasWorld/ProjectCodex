@@ -52,8 +52,8 @@ class InputEndInstrumentedTest {
     private lateinit var db: ScoresRoomDatabase
     private val arrowsPerArrowCount = 12
     private val roundsInput = listOf(
-            Round(1, "test", "Test", true, true, listOf()),
-            Round(2, "test2", "Test2", true, false, listOf())
+            Round(1, "test", "Test", true, true),
+            Round(2, "test2", "Test2", true, false)
     )
     private val arrowCountsInput = listOf(
             RoundArrowCount(1, 1, 1f, arrowsPerArrowCount),

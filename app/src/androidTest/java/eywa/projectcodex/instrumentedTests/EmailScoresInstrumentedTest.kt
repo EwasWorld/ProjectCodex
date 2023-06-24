@@ -59,8 +59,8 @@ class EmailScoresInstrumentedTest {
 
     private val arrowsPerArrowCount = 12
     private val rounds = listOf(
-            Round(1, "round1", "Round1", true, false, listOf()),
-            Round(2, "round2", "Round2", true, false, listOf())
+            Round(1, "round1", "Round1", true, false),
+            Round(2, "round2", "Round2", true, false)
     )
     private val arrowCounts = listOf(
             RoundArrowCount(1, 1, 122f, arrowsPerArrowCount),

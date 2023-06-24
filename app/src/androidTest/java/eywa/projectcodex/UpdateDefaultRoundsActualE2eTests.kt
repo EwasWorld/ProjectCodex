@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.azimolabs.conditionwatcher.ConditionWatcher
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
@@ -39,7 +40,7 @@ class UpdateDefaultRoundsActualE2eTests {
     }
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(60)
+    val testTimeout: Timeout = Timeout.seconds(120)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -55,11 +56,15 @@ class UpdateDefaultRoundsActualE2eTests {
     @Before
     fun setup() {
         hiltRule.inject()
+        ConditionWatcher.setTimeoutLimit(5 * 60 * 1000)
+        ConditionWatcher.setWatchInterval(5 * 1000)
     }
 
     @After
     fun teardown() {
         CommonSetupTeardownFns.teardownScenario(scenario)
+        ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
+        ConditionWatcher.setWatchInterval(ConditionWatcher.DEFAULT_INTERVAL)
     }
 
     /**

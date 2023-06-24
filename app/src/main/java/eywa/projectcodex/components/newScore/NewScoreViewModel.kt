@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
-import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.newScore.NewScoreEffect.PopBackstack
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -173,7 +172,7 @@ class NewScoreViewModel @Inject constructor(
 
         val selectedRoundFullInfo = roundsData?.find { it.round.roundId == roundBeingEdited.roundId }
         return copy(
-                dateShot = roundBeingEdited.dateShot.asCalendar(),
+                dateShot = roundBeingEdited.dateShot,
                 selectedRound = selectedRoundFullInfo?.round,
                 selectedSubtype = roundBeingEdited.roundSubTypeId?.let { subType ->
                     selectedRoundFullInfo?.roundSubTypes?.find { it.subTypeId == subType }

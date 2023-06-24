@@ -93,7 +93,7 @@ class ArcherRoundViewModelUnitTest {
     fun testInitialisation_ArcherRoundsAnd2023System() = runTest {
         fun create(arrowCount: Int) =
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(1, Calendar.getInstance().time, 1),
+                        archerRound = ArcherRound(1, Calendar.getInstance(), 1),
                         arrows = List(arrowCount) { ArrowValue(1, it + 1, 7, false) },
                 )
 
@@ -670,7 +670,7 @@ class ArcherRoundViewModelUnitTest {
     fun testNoArrowsDialogOkClicked() = runTest {
         db.archerRoundDao.fullArcherRounds = listOf(
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(1, Calendar.getInstance().time, 1),
+                        archerRound = ArcherRound(1, Calendar.getInstance(), 1),
                         arrows = emptyList(),
                 )
         )
@@ -735,9 +735,9 @@ class ArcherRoundViewModelUnitTest {
 
     private fun createArcherRound_WithRound(arrowCount: Int = 36) =
             DatabaseFullArcherRoundInfo(
-                    archerRound = ArcherRound(1, Calendar.getInstance().time, 1, roundId = 1),
+                    archerRound = ArcherRound(1, Calendar.getInstance(), 1, roundId = 1),
                     arrows = List(arrowCount) { ArrowValue(1, it + 1, 7, false) },
-                    round = Round(1, "", "", true, true, listOf()),
+                    round = Round(1, "", "", true, true),
                     roundArrowCounts = listOf(RoundArrowCount(1, 1, 122f, 36)),
                     allRoundSubTypes = listOf(),
                     allRoundDistances = listOf(RoundDistance(1, 1, 1, 50)),
@@ -746,7 +746,7 @@ class ArcherRoundViewModelUnitTest {
     private fun setupSimpleDbData_NoRound() {
         db.archerRoundDao.fullArcherRounds = listOf(
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(1, Calendar.getInstance().time, 1),
+                        archerRound = ArcherRound(1, Calendar.getInstance(), 1),
                         arrows = TestData.ARROWS.mapIndexed { index, arrow -> arrow.toArrowValue(1, index + 1) },
                 )
         )

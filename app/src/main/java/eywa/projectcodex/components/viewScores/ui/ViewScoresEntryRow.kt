@@ -215,7 +215,7 @@ fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEnt
                 // hr/min/s
                 1, 1, 1
         )
-    }.time.before(entry.info.archerRound.dateShot).let { wasThisYear ->
+    }.before(entry.info.archerRound.dateShot).let { wasThisYear ->
         if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE_FULL_YEAR
     }
 

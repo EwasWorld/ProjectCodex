@@ -96,7 +96,7 @@ class ClassificationTablesViewModel @Inject constructor(
                                             round = round,
                                             subType = subType ?: 1,
                                             score = it.score,
-                                            use2023Handicaps = use2023Handicaps
+                                            use2023Handicaps = use2023Handicaps,
                                     )?.roundHandicap()
                             )
                         }

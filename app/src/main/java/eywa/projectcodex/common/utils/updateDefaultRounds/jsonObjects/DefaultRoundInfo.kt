@@ -16,7 +16,6 @@ class DefaultRoundInfo(
         private val isOutdoor: Boolean,
         private val isMetric: Boolean,
         private val fiveArrowEnd: Boolean,
-        private val permittedFaces: List<String>,
         private val roundSubTypes: List<RoundInfoSubType>,
         private val roundArrowCounts: List<RoundInfoArrowCount>,
         private val roundDistances: List<RoundInfoDistance>
@@ -117,7 +116,6 @@ class DefaultRoundInfo(
                 displayName,
                 isOutdoor,
                 isMetric,
-                permittedFaces,
                 fiveArrowEnd,
                 legacyName,
                 rawRoundId,

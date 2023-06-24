@@ -334,6 +334,9 @@ object DatabaseMigrations {
     @DeleteColumn(tableName = "rounds", columnName = "isDefaultRound")
     class Migration8To9 : AutoMigrationSpec
 
+    @DeleteColumn(tableName = "rounds", columnName = "permittedFaces")
+    class Migration9To10 : AutoMigrationSpec
+
     private fun executeMigrations(
             sqlStrings: List<String>, database: SupportSQLiteDatabase,
             startVersion: Int, endVersion: Int

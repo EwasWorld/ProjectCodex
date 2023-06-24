@@ -11,7 +11,7 @@ import java.util.*
 object ArcherRoundPreviewHelper {
     fun newArcherRound(
             id: Int = 1,
-            date: Date = Calendar.getInstance().time,
+            date: Calendar = Calendar.getInstance(),
     ) = ArcherRound(
             archerRoundId = id,
             dateShot = date,

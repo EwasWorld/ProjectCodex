@@ -9,6 +9,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -101,8 +102,8 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testViewScoresEntry_Values() {
         rounds = listOf(
-                Round(1, "metricround", "Metric Round", true, true, listOf()),
-                Round(2, "imperialround", "Imperial Round", true, true, listOf()),
+                Round(1, "metricround", "Metric Round", true, true),
+                Round(2, "imperialround", "Imperial Round", true, true),
         )
         roundSubTypes = listOf(
                 RoundSubType(2, 1, "Sub Type 1"),
@@ -118,7 +119,8 @@ class ViewScoresInstrumentedTest {
                 RoundDistance(2, 1, 2, 50)
         )
 
-        val firstOfThisYear = Date(Calendar.getInstance().get(Calendar.YEAR), Calendar.JANUARY, 1, 10, 0, 0)
+        val firstOfThisYear =
+                Date(Calendar.getInstance().get(Calendar.YEAR), Calendar.JANUARY, 1, 10, 0, 0).asCalendar()
 //        val firstOfThisYear = Calendar.Builder()
 //                .setFields(
 //                        Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR),
@@ -130,10 +132,10 @@ class ViewScoresInstrumentedTest {
 //                .time
         archerRounds = listOf(
                 ArcherRound(1, firstOfThisYear, 1),
-                ArcherRound(2, Date.valueOf("2012-2-2"), 1, roundId = 1),
-                ArcherRound(3, Date.valueOf("2011-3-3"), 1, roundId = 2),
-                ArcherRound(4, Date.valueOf("2010-4-4"), 1, roundId = 2, roundSubTypeId = 2),
-                ArcherRound(5, Date.valueOf("2009-5-5"), 1),
+                ArcherRound(2, Date.valueOf("2012-2-2").asCalendar(), 1, roundId = 1),
+                ArcherRound(3, Date.valueOf("2011-3-3").asCalendar(), 1, roundId = 2),
+                ArcherRound(4, Date.valueOf("2010-4-4").asCalendar(), 1, roundId = 2, roundSubTypeId = 2),
+                ArcherRound(5, Date.valueOf("2009-5-5").asCalendar(), 1),
         )
         arrows = archerRounds.map { archerRound ->
             val archerRoundId = archerRound.archerRoundId

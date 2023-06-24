@@ -51,8 +51,8 @@ interface ArcherRoundDao {
     )
     fun getAllFullArcherRoundInfo(
             filterPersonalBest: Boolean = false,
-            fromDate: Date? = null,
-            toDate: Date? = null,
+            fromDate: Calendar? = null,
+            toDate: Calendar? = null,
             roundId: Int? = null,
             subTpeId: Int? = null,
     ): Flow<List<DatabaseFullArcherRoundInfo>>

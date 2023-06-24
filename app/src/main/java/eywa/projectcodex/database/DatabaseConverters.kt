@@ -18,8 +18,21 @@ class DatabaseConverters {
     fun calendarToTimestamp(value: Calendar?): Long? = dateToTimestamp(value?.time)
 
     @TypeConverter
-    fun toStringList(value: String): List<String> = if (value.isEmpty()) listOf() else value.split(':')
+    fun stringToList(value: String?) = if (value.isNullOrBlank()) listOf() else value.split(':')
 
     @TypeConverter
-    fun toFlatString(value: List<String>): String = value.joinToString(":")
+    fun listToString(value: List<String>?) = value?.joinToString(":")
+
+    @TypeConverter
+    fun listRoundFaceToString(value: List<RoundFace>?) = value?.map { roundFaceToInt(it).toString() }
+
+    @TypeConverter
+    fun stringToListRoundFace(value: String?) =
+            value?.let { stringToList(value).map { intToRoundFace(it.toInt()) } }
+
+    @TypeConverter
+    fun roundFaceToInt(value: RoundFace) = value.toDbData()
+
+    @TypeConverter
+    fun intToRoundFace(value: Int) = RoundFace.fromDbData(value)
 }

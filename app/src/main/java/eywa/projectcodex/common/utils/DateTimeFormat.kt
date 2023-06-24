@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
+fun Long.asCalendar(): Calendar = Date(this).asCalendar()
+
 fun Date.asCalendar(): Calendar =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Calendar.Builder().setInstant(this).build()
@@ -34,7 +36,5 @@ enum class DateTimeFormat(val pattern: String) {
     SHORT_DATE_TIME("${SHORT_DATE.pattern} ${TIME_24_HOUR.pattern}"),
     ;
 
-    @Deprecated("Use Calendar instead", ReplaceWith(""))
-    fun format(date: Date): String = SimpleDateFormat(pattern).format(date)
     fun format(date: Calendar): String = SimpleDateFormat(pattern).format(date.time)
 }

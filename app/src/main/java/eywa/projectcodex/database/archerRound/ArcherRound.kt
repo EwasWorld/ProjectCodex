@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.archerRound
 
 import androidx.room.*
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.bow.DatabaseBow
@@ -39,15 +40,18 @@ import java.util.*
 )
 data class ArcherRound(
         @PrimaryKey(autoGenerate = true) val archerRoundId: Int,
-        // TODO Use Calendar
-        val dateShot: Date,
+        val dateShot: Calendar,
         val archerId: Int,
         val countsTowardsHandicap: Boolean = true,
         @ColumnInfo(index = true) val bowId: Int? = null,
         @ColumnInfo(index = true) val roundId: Int? = null,
         val roundSubTypeId: Int? = null,
         val goalScore: Int? = null,
-        val shootStatus: String? = null
+        val shootStatus: String? = null,
+        @ColumnInfo(defaultValue = "NULL")
+        val faces: List<RoundFace>? = null,
+        @ColumnInfo(defaultValue = "0")
+        val joinWithPrevious: Boolean = false,
 ) {
     companion object {
         const val TABLE_NAME = "archer_rounds"

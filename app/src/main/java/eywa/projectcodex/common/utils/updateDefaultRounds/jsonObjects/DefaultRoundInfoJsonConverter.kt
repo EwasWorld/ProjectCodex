@@ -28,9 +28,6 @@ class DefaultRoundInfoJsonConverter(private val logger: CustomLogger) : Converte
         val isMetric = parseObject<Boolean>(jsonRoundObject, "isMetric")
         val fiveArrowEnd = parseObject<Boolean>(jsonRoundObject, "fiveArrowEnd")
 
-        val permittedFaces = (jsonRoundObject["permittedFaces"] as? JsonArray<String>)?.value
-                ?: throw KlaxonException("permittedFaces is not an array")
-
         val roundLengthsJson = jsonRoundObject["roundSubTypes"] as? JsonArray<String>
                 ?: throw KlaxonException("roundSubTypes is not an array")
         val roundLengths = mutableListOf<DefaultRoundInfo.RoundInfoSubType>()
@@ -68,7 +65,7 @@ class DefaultRoundInfoJsonConverter(private val logger: CustomLogger) : Converte
 
         return DefaultRoundInfo(
                 legacyRoundName, rawRoundId,
-                roundName, isOutdoor, isMetric, fiveArrowEnd, permittedFaces,
+                roundName, isOutdoor, isMetric, fiveArrowEnd,
                 roundLengths, roundProgressions, roundDistances
         )
     }

@@ -304,7 +304,6 @@ class UpdateDefaultRoundsUnitTest {
                    "outdoor": true,
                    "isMetric": false,
                    "fiveArrowEnd": false,
-                   "permittedFaces": [],
                     ${TestData.YORK_SUB_TYPES_JSON},
                     ${TestData.YORK_ARROW_COUNTS_JSON},
                     ${TestData.YORK_DISTANCES_JSON}
@@ -902,7 +901,6 @@ class UpdateDefaultRoundsUnitTest {
               "outdoor": true,
               "isMetric": false,
               "fiveArrowEnd": false,
-              "permittedFaces": []
             """
         const val YORK_SUB_TYPES_JSON = """
               "roundSubTypes": [
@@ -998,7 +996,7 @@ class UpdateDefaultRoundsUnitTest {
                     $YORK_DISTANCES_JSON
                 },
             """
-        val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, listOf(), true, "York", 1)
+        val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, true, "York", 1)
         val YORK_ARROW_COUNT_OBJECTS = listOf(
                 RoundArrowCount(5, 1, 122f, 72),
                 RoundArrowCount(5, 2, 122f, 48)
@@ -1040,10 +1038,6 @@ class UpdateDefaultRoundsUnitTest {
               "outdoor": false,
               "isMetric": true,
               "fiveArrowEnd": true,
-              "permittedFaces": [
-                "NO_TRIPLE",
-                "FIVE_CENTRE"
-              ],
               "roundSubTypes": [
                 {
                   "roundSubTypeId": 1,
@@ -1101,7 +1095,6 @@ class UpdateDefaultRoundsUnitTest {
                         "St. George",
                         false,
                         true,
-                        listOf("NO_TRIPLE", "FIVE_CENTRE"),
                         true,
                         "St. George",
                         2,

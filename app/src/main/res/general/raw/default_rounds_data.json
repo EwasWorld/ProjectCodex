@@ -8,7 +8,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -164,7 +163,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -320,7 +318,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -441,7 +438,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -485,7 +481,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -526,7 +521,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -647,7 +641,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -768,7 +761,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -959,7 +951,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -1080,7 +1071,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -1185,7 +1175,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1219,7 +1208,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1263,7 +1251,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1287,7 +1274,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -1318,7 +1304,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1342,7 +1327,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -1395,7 +1379,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,
@@ -1437,7 +1420,6 @@
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1461,7 +1443,6 @@
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1485,9 +1466,6 @@
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [
-        "NO_TRIPLE"
-      ],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1511,9 +1489,6 @@
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [
-        "FIVE_ZONE"
-      ],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1537,10 +1512,6 @@
       "outdoor": false,
       "isMetric": false,
       "fiveArrowEnd": true,
-      "permittedFaces": [
-        "NO_TRIPLE",
-        "FIVE_CENTRE"
-      ],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1564,9 +1535,6 @@
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [
-        "VEGAS"
-      ],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1590,7 +1558,6 @@
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1614,7 +1581,6 @@
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1638,7 +1604,6 @@
       "outdoor": false,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1672,7 +1637,6 @@
       "outdoor": true,
       "isMetric": true,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [],
       "roundArrowCounts": [
         {
@@ -1696,7 +1660,6 @@
       "outdoor": true,
       "isMetric": false,
       "fiveArrowEnd": false,
-      "permittedFaces": [],
       "roundSubTypes": [
         {
           "roundSubTypeId": 1,

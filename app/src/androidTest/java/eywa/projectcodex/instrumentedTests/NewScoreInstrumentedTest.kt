@@ -13,6 +13,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.R
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -56,7 +57,7 @@ class NewScoreInstrumentedTest {
     private val arrowCountsInput = TestUtils.ROUND_ARROW_COUNTS
     private val archerRoundInput = ArcherRound(
             1,
-            Date(2019, 5, 10, 17, 12, 13),
+            Date(2019, 5, 10, 17, 12, 13).asCalendar(),
 //            Calendar.Builder().setDate(2019, 5, 10).setTimeOfDay(17, 12, 13).build().time,
             1,
             true,
@@ -171,7 +172,7 @@ class NewScoreInstrumentedTest {
 
     @Test
     fun testNoRoundButton() = runTest {
-        roundsInput = List(20) { Round(it + 1, "$it", "$it", false, false, listOf()) }
+        roundsInput = List(20) { Round(it + 1, "$it", "$it", false, false) }
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -246,8 +247,7 @@ class NewScoreInstrumentedTest {
         val roundsAfterCreate = getCurrentArcherRounds().toMutableList()
         for (round in roundsAfterCreate) {
             if (round.archerRound.roundId == 1) continue
-            // Date returns (year - 1900)
-            assertEquals(2040 - 1900, round.archerRound.dateShot.year)
+            assertEquals(2040, round.archerRound.dateShot.get(Calendar.YEAR))
         }
     }
 
@@ -313,21 +313,20 @@ class NewScoreInstrumentedTest {
         assertEquals(
                 ArcherRound(
                         archerRoundInput.archerRoundId,
-                        calendar.time,
+                        calendar,
                         archerRoundInput.archerId,
                         archerRoundInput.countsTowardsHandicap,
                         roundId = selectedRound.roundId,
                         roundSubTypeId = 1
                 ),
-                updated!!.archerRound.copy(dateShot = calendar.time)
+                updated!!.archerRound.copy(dateShot = calendar)
         )
         val updatedDate = updated.archerRound.dateShot
-        // Date returns (year - 1900)
-        assertEquals(2040 - 1900, updatedDate.year)
-        assertEquals(9, updatedDate.month)
-        assertEquals(30, updatedDate.date)
-        assertEquals(13, updatedDate.hours)
-        assertEquals(15, updatedDate.minutes)
+        assertEquals(2040, updatedDate.get(Calendar.YEAR))
+        assertEquals(9, updatedDate.get(Calendar.MONTH))
+        assertEquals(30, updatedDate.get(Calendar.DATE))
+        assertEquals(13, updatedDate.get(Calendar.HOUR_OF_DAY))
+        assertEquals(15, updatedDate.get(Calendar.MINUTE))
     }
 
     @Test
@@ -358,10 +357,10 @@ class NewScoreInstrumentedTest {
                 ),
                 actual
         )
-        assertEquals(archerRoundInput.dateShot.year, actual.dateShot.year)
-        assertEquals(archerRoundInput.dateShot.month, actual.dateShot.month)
-        assertEquals(archerRoundInput.dateShot.date, actual.dateShot.date)
-        assertEquals(archerRoundInput.dateShot.hours, actual.dateShot.hours)
-        assertEquals(archerRoundInput.dateShot.minutes, actual.dateShot.minutes)
+        assertEquals(archerRoundInput.dateShot.get(Calendar.YEAR), actual.dateShot.get(Calendar.YEAR))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.MONTH), actual.dateShot.get(Calendar.MONTH))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.DATE), actual.dateShot.get(Calendar.DATE))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.HOUR_OF_DAY), actual.dateShot.get(Calendar.HOUR_OF_DAY))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.MINUTE), actual.dateShot.get(Calendar.MINUTE))
     }
 }

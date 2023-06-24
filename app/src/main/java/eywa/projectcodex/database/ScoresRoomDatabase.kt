@@ -27,12 +27,13 @@ import eywa.projectcodex.database.views.PersonalBest
         views = [
             ArcherRoundWithScore::class, PersonalBest::class,
         ],
-        version = 9,
+        version = 10,
         autoMigrations = [
             AutoMigration(from = 5, to = 6),
             AutoMigration(from = 6, to = 7),
             AutoMigration(from = 7, to = 8),
             AutoMigration(from = 8, to = 9, spec = DatabaseMigrations.Migration8To9::class),
+            AutoMigration(from = 9, to = 10, spec = DatabaseMigrations.Migration9To10::class),
         ],
         exportSchema = true, // Needs a schema location in the build.gradle too to export!
 )

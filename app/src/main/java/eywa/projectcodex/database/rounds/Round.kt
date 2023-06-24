@@ -23,7 +23,6 @@ data class Round(
         val displayName: String,
         val isOutdoor: Boolean,
         val isMetric: Boolean,
-        val permittedFaces: List<String>,
         val fiveArrowEnd: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") val legacyName: String? = null,
         @ColumnInfo(defaultValue = "NULL") val defaultRoundId: Int? = null,

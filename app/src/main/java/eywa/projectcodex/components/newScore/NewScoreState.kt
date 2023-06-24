@@ -126,7 +126,7 @@ data class NewScoreState(
     fun asArcherRound() = ArcherRound(
             archerRoundId = roundBeingEdited?.archerRoundId ?: 0,
             // TODO Check date locales (I want to store in UTC)
-            dateShot = dateShot.time,
+            dateShot = dateShot,
             archerId = roundBeingEdited?.archerId ?: 1,
             roundId = selectedRound?.roundId,
             roundSubTypeId = selectedSubtype?.subTypeId,

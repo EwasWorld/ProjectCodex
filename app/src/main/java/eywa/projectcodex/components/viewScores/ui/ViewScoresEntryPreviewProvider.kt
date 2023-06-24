@@ -19,8 +19,8 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 object ViewScoresEntryPreviewProvider {
     private val dates = listOf(
-            Calendar.Builder().setDate(2021, 6, 17).setTimeOfDay(18, 5, 1).build().time,
-            Calendar.Builder().setDate(2023, 5, 12).setTimeOfDay(9, 47, 1).build().time,
+            Calendar.Builder().setDate(2021, 6, 17).setTimeOfDay(18, 5, 1).build(),
+            Calendar.Builder().setDate(2023, 5, 12).setTimeOfDay(9, 47, 1).build(),
     )
 
     private val roundNames = listOf(
@@ -55,7 +55,7 @@ object ViewScoresEntryPreviewProvider {
                                 roundId = displayName?.let { 1 }
                         ),
                         round = displayName?.let {
-                            Round(1, "", displayName, true, true, listOf())
+                            Round(1, "", displayName, true, true)
                         },
                         roundSubType = null,
                         arrows = hsg?.let { generateArrows(index + 1, hsg) },
@@ -79,7 +79,7 @@ object ViewScoresEntryPreviewProvider {
                                 archerId = 1,
                                 roundId = 1
                         ),
-                        round = Round(1, "", roundNames[0]!!, true, true, listOf()),
+                        round = Round(1, "", roundNames[0]!!, true, true),
                         roundSubType = null,
                         arrows = generateArrows(1, hsg),
                         roundArrowCounts = listOf(RoundArrowCount(1, 1, 1f, hsg[0] + 1)),

@@ -20,8 +20,8 @@ class ArcherRoundsRepo(
 
         return archerRoundDao.getAllFullArcherRoundInfo(
                 filterPersonalBest = filters.contains<ArcherRoundsFilter.PersonalBests>(),
-                fromDate = datesFilter?.from?.time,
-                toDate = datesFilter?.to?.time,
+                fromDate = datesFilter?.from,
+                toDate = datesFilter?.to,
                 roundId = roundsFilter?.roundId,
                 subTpeId = roundsFilter?.nonNullSubtypeId,
         ).map { rounds ->

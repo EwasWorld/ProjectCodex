@@ -39,6 +39,8 @@ class ViewScoresEntryUnitTest {
             ),
     )
 
+    private val date = Calendar.Builder().setDate(2022, 5, 20).build()
+
     private val customLogger: CustomLogger = mock { }
 
     @Test
@@ -140,7 +142,7 @@ class ViewScoresEntryUnitTest {
     fun testScoreSummary_HasRoundWithArrows() {
         val entry = ViewScoresEntry(
                 info = ArcherRoundPreviewHelper
-                        .newFullArcherRoundInfo(archerRound = newArcherRound(1, Date(2022, 5, 20)))
+                        .newFullArcherRoundInfo(archerRound = newArcherRound(1, date))
                         .addRound(fullRoundInfo)
                         .addFullSetOfArrows(),
                 customLogger = customLogger,
@@ -156,7 +158,7 @@ class ViewScoresEntryUnitTest {
     fun testScoreSummary_NoRoundWithArrows() {
         val entry = ViewScoresEntry(
                 info = ArcherRoundPreviewHelper
-                        .newFullArcherRoundInfo(archerRound = newArcherRound(1, Date(2022, 5, 20)))
+                        .newFullArcherRoundInfo(archerRound = newArcherRound(1, date))
                         .addFullSetOfArrows(),
                 customLogger = customLogger,
         )
@@ -171,7 +173,7 @@ class ViewScoresEntryUnitTest {
     fun testScoreSummary_NoRoundNoArrows() {
         val entry = ViewScoresEntry(
                 info = ArcherRoundPreviewHelper
-                        .newFullArcherRoundInfo(archerRound = newArcherRound(1, Date(2022, 5, 20))),
+                        .newFullArcherRoundInfo(archerRound = newArcherRound(1, date)),
                 customLogger = customLogger,
         )
 

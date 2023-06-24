@@ -10,7 +10,6 @@ object RoundPreviewHelper {
                     displayName = "York",
                     isOutdoor = true,
                     isMetric = false,
-                    permittedFaces = listOf(),
             ),
             roundSubTypes = listOf(
                     RoundSubType(
@@ -73,7 +72,6 @@ object RoundPreviewHelper {
                     displayName = "WA",
                     isOutdoor = false,
                     isMetric = true,
-                    permittedFaces = listOf(),
             ),
             roundSubTypes = listOf(
                     RoundSubType(
@@ -118,7 +116,6 @@ object RoundPreviewHelper {
                     displayName = "Portsmouth",
                     isOutdoor = false,
                     isMetric = false,
-                    permittedFaces = listOf(),
             ),
 
             roundSubTypes = listOf(

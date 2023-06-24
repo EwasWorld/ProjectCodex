@@ -160,8 +160,8 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", false, true, listOf()))
-            db.roundDao().insert(Round(2, "RoundName2", "Round Name 2", true, false, listOf()))
+            db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", false, true))
+            db.roundDao().insert(Round(2, "RoundName2", "Round Name 2", true, false))
 
             arrowCounts.forEach { db.roundArrowCountDao().insert(it) }
             roundDistances.forEach { db.roundDistanceDao().insert(it) }

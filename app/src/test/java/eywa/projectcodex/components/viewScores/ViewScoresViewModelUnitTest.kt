@@ -8,6 +8,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.asDatabaseFullArcherRoundInfo
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.completeRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
@@ -32,7 +33,6 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.*
-import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ViewScoresViewModelUnitTest {
@@ -58,7 +58,7 @@ class ViewScoresViewModelUnitTest {
     fun testDataIsSetAndUpdatedCorrectly_WithSelectedItem() = runTest {
         fun create(id: Int, date: Long) =
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(id, Date(date), 1),
+                        archerRound = ArcherRound(id, date.asCalendar(), 1),
                         arrows = listOf(ArrowValue(id, 1, 10, false)),
                 )
 
@@ -96,7 +96,7 @@ class ViewScoresViewModelUnitTest {
     fun testDataIsSetAndUpdatedCorrectly_WithOldHandicapSystem() = runTest {
         fun create(id: Int, date: Long) =
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(id, Date(date), 1),
+                        archerRound = ArcherRound(id, date.asCalendar(), 1),
                         arrows = listOf(ArrowValue(id, 1, 10, false)),
                 )
 

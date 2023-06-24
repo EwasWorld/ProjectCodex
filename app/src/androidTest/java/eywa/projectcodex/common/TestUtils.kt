@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
@@ -13,6 +14,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import org.mockito.ArgumentCaptor
 import java.sql.Date
+import java.util.*
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -49,14 +51,13 @@ object TestUtils {
             RoundArrowCount(3, 3, 80f, 50),
     )
 
-    private val CORE_ROUND_FACES = listOf("NO_TRIPLE", "FIVE_ZONE", "FIVE_CENTRE", "VEGAS")
     val ROUNDS = listOf(
-            Round(1, "wa 1440", "WA 1440", true, false, listOf(), false, null, null),
-            Round(2, "st george", "St. George", true, true, listOf(), false, null, null),
-            Round(3, "national", "National", false, false, listOf(), false, null, null),
-            Round(4, "yorkhereford", "York/Hereford", false, true, listOf(), true, null, null),
-            Round(5, "wa 70m", "WA 70m", false, true, listOf(), true, "WA 70m", 1),
-            Round(6, "00", "00", false, true, CORE_ROUND_FACES, true, null, null),
+            Round(1, "wa 1440", "WA 1440", true, false, false, null, null),
+            Round(2, "st george", "St. George", true, true, false, null, null),
+            Round(3, "national", "National", false, false, false, null, null),
+            Round(4, "yorkhereford", "York/Hereford", false, true, true, null, null),
+            Round(5, "wa 70m", "WA 70m", false, true, true, "WA 70m", 1),
+            Round(6, "00", "00", false, true, true, null, null),
     )
 
     val ROUND_SUB_TYPES = listOf(
@@ -88,7 +89,7 @@ object TestUtils {
     /**
      * @return a valid date in the given year (will never return 31st of a month or 29th Feb), time 00:00
      */
-    fun generateDate(year: Int = 2019, month: Int? = null): Date {
+    fun generateDate(year: Int = 2019, month: Int? = null): Calendar {
         val generatedMonth = month ?: (Random.nextInt(12) + 1)
         val day = 1 + Random.nextInt(
                 when (month) {
@@ -97,7 +98,7 @@ object TestUtils {
                     else -> 31
                 }
         )
-        return Date.valueOf("$year-$generatedMonth-$day")
+        return Date.valueOf("$year-$generatedMonth-$day").asCalendar()
     }
 
     fun isFragmentShowing(scenario: ActivityScenario<MainActivity>, fragment: KClass<out Fragment>): Boolean {

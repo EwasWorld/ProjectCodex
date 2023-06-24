@@ -2,6 +2,7 @@ package eywa.projectcodex
 
 import eywa.projectcodex.common.archeryObjects.Handicap
 import eywa.projectcodex.common.archeryObjects.roundHandicap
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -16,7 +17,12 @@ import org.junit.Test
 class HandicapUnitTest {
     data class ScoreHandicapMapping(val score: Int, val handicap: Int)
 
-    class HandicapTableEntry(roundInfo: List<Any>, val mappings: List<ScoreHandicapMapping>, val useInnerTen: Boolean) {
+    class HandicapTableEntry(
+            roundInfo: List<Any>,
+            val mappings: List<ScoreHandicapMapping>,
+            val useInnerTen: Boolean,
+            val face: RoundFace? = null,
+    ) {
         val round: Round = roundInfo.filterIsInstance<Round>().first()
         val arrowCounts: List<RoundArrowCount> = roundInfo.filterIsInstance<RoundArrowCount>()
         val distances: List<RoundDistance> = roundInfo.filterIsInstance<RoundDistance>()
@@ -28,7 +34,7 @@ class HandicapUnitTest {
              */
             HandicapTableEntry(
                     listOf(
-                            Round(1, "western", "western", true, false, listOf()),
+                            Round(1, "western", "western", true, false),
                             RoundArrowCount(1, 1, 122f, 48),
                             RoundArrowCount(1, 2, 122f, 48),
                             RoundDistance(1, 1, 1, 60),
@@ -56,7 +62,7 @@ class HandicapUnitTest {
              */
             HandicapTableEntry(
                     listOf(
-                            Round(2, "longmetricvi", "long metric vi", true, true, listOf()),
+                            Round(2, "longmetricvi", "long metric vi", true, true),
                             RoundArrowCount(2, 1, 122f, 36),
                             RoundArrowCount(2, 2, 122f, 36),
                             RoundDistance(2, 1, 1, 40),
@@ -80,7 +86,7 @@ class HandicapUnitTest {
             ),
             HandicapTableEntry(
                     listOf(
-                            Round(3, "longmetricgents", "long metric gents", true, true, listOf()),
+                            Round(3, "longmetricgents", "long metric gents", true, true),
                             RoundArrowCount(3, 1, 122f, 36),
                             RoundArrowCount(3, 2, 122f, 36),
                             RoundDistance(3, 1, 1, 90),
@@ -97,12 +103,12 @@ class HandicapUnitTest {
                     true
             ),
             /*
-             * Vegas
+             * Vegas Triple
              */
             // Recurve
             HandicapTableEntry(
                     listOf(
-                            Round(4, "vegas", "vegas", false, true, listOf("vegas")),
+                            Round(4, "vegas", "vegas", false, true),
                             RoundArrowCount(4, 1, 40f, 60),
                             RoundDistance(4, 1, 1, 18)
                     ),
@@ -113,12 +119,13 @@ class HandicapUnitTest {
                             ScoreHandicapMapping(254, 58),
                             ScoreHandicapMapping(241, 59)
                     ),
-                    false
+                    false,
+                    RoundFace.TRIPLE,
             ),
             // Compound
             HandicapTableEntry(
                     listOf(
-                            Round(4, "vegas", "vegas", false, true, listOf("vegas")),
+                            Round(4, "vegas", "vegas", false, true),
                             RoundArrowCount(4, 1, 40f, 60),
                             RoundDistance(4, 1, 1, 18)
                     ),
@@ -129,14 +136,15 @@ class HandicapUnitTest {
                             ScoreHandicapMapping(252, 58),
                             ScoreHandicapMapping(240, 59)
                     ),
-                    true
+                    true,
+                    RoundFace.TRIPLE,
             ),
             /*
              * Worcester
              */
             HandicapTableEntry(
                     listOf(
-                            Round(5, "worcester", "worcester", false, false, listOf(), fiveArrowEnd = true),
+                            Round(5, "worcester", "worcester", false, false, fiveArrowEnd = true),
                             RoundArrowCount(5, 1, 16 * 2.54f, 60),
                             RoundDistance(5, 1, 1, 20)
                     ),
@@ -173,6 +181,7 @@ class HandicapUnitTest {
                                     score,
                                     hcEntry.useInnerTen,
                                     null,
+                                    faces = hcEntry.face?.let { listOf(it) },
                             ).roundHandicap()
                     )
                 }
@@ -196,6 +205,7 @@ class HandicapUnitTest {
                 }
 
                 for (handicap in startRangeAt..mapping.handicap) {
+                    println("echDebug $handicap")
                     Assert.assertEquals(
                             "Incorrect score for '${hcEntry.round.displayName}' handicap $handicap",
                             mapping.score.toDouble(),
@@ -205,7 +215,8 @@ class HandicapUnitTest {
                                     hcEntry.distances,
                                     handicap.toFloat(),
                                     hcEntry.useInnerTen,
-                                    null
+                                    null,
+                                    faces = hcEntry.face?.let { listOf(it) },
                             ).toDouble(),
                             delta
                     )

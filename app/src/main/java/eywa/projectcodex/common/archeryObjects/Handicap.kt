@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.archeryObjects
 
 import eywa.projectcodex.common.utils.getDistances
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -17,6 +18,7 @@ object Handicap {
             innerTenArcher: Boolean = false,
             arrows: Int? = null,
             use2023Handicaps: Boolean = false,
+            faces: List<RoundFace>? = null,
     ): Float? {
         val distances = round.getDistances(subType)
         if (round.roundArrowCounts == null || distances == null) return null
@@ -27,7 +29,8 @@ object Handicap {
                 score,
                 innerTenArcher,
                 arrows,
-                use2023Handicaps
+                use2023Handicaps,
+                faces,
         )
     }
 
@@ -48,6 +51,7 @@ object Handicap {
             innerTenArcher: Boolean = false,
             arrows: Int? = null,
             use2023Handicaps: Boolean = false,
+            faces: List<RoundFace>? = null,
     ): Float {
         require(arrows == null || arrows > 0) { "Arrows must be greater than 0" }
         require(arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount }) { "Arrows must be at most arrowCounts total" }
@@ -57,7 +61,16 @@ object Handicap {
         require(roundDistances.distinctBy { it.subTypeId }.size == 1) { "Multiple subtypes given" }
 
         fun calculate(hc: Float) =
-                getScoreForRound(round, roundArrowCounts, roundDistances, hc, innerTenArcher, arrows, use2023Handicaps)
+                getScoreForRound(
+                        round,
+                        roundArrowCounts,
+                        roundDistances,
+                        hc,
+                        innerTenArcher,
+                        arrows,
+                        use2023Handicaps,
+                        faces,
+                )
 
         val accuracy = -2
 
@@ -94,6 +107,8 @@ object Handicap {
      * @param roundDistances all distances pertaining to [round], roundId and sub type fields must be identical for all items
      * @param innerTenArcher whether or not the shooter uses inner ten scoring (unused if the round doesn't use inner ten scoring)
      * @param arrows null to calculate expected score for whole round, else calculate for X arrows shot
+     * @param faces [RoundFace]s shot at. Must be of length 0 (all [RoundFace.FULL]), 1 (all at given face),
+     *   or [roundDistances].size (first face is for lowest [RoundDistance.distanceNumber])
      * @return expected score for the handicap
      */
     fun getScoreForRound(
@@ -104,23 +119,35 @@ object Handicap {
             innerTenArcher: Boolean,
             arrows: Int?,
             use2023Handicaps: Boolean = false,
+            faces: List<RoundFace>? = null,
     ): Int {
         require(arrows == null || arrows > 0) { "Arrows must be greater than 0" }
-        require(arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount }) { "Arrows must be at most arrowCounts total" }
+        require(
+                arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount }
+        ) { "Arrows must be at most arrowCounts total" }
         require(roundArrowCounts.size == roundDistances.size) { "Arrow counts and distances size not equal" }
         require(roundArrowCounts.all { it.roundId == round.roundId }) { "Arrow count round ID incorrect" }
         require(roundDistances.all { it.roundId == round.roundId }) { "Distance round ID incorrect" }
         require(roundDistances.distinctBy { it.subTypeId }.size == 1) { "Multiple subtypes given" }
+        require(
+                faces.isNullOrEmpty() || faces.size == 1 || faces.size == roundDistances.size
+        ) { "Must provide 0, 1, or distances.size faces" }
 
         // Get score
-        val scoringType = ScoringType.getScoringType(round)
         var currentArrowCount = 0
         var score = 0.0f
-        for (countsDistances in roundArrowCounts.sortedBy { it.distanceNumber }
-                .zip(roundDistances.sortedBy { it.distanceNumber })) {
-            var arrowCount = countsDistances.first.arrowCount
-            val faceSizeInCm = countsDistances.first.faceSizeInCm
-            val distance = countsDistances.second.distance
+        val sortedArrowCounts = roundArrowCounts.sortedBy { it.distanceNumber }
+        val sortedDistances = roundDistances.sortedBy { it.distanceNumber }
+        val allFaces = when {
+            faces.isNullOrEmpty() -> null
+            faces.size == 1 -> List(roundDistances.size) { faces.first() }
+            else -> faces
+        }
+        for (i in roundArrowCounts.indices) {
+            val scoringType = ScoringType.getScoringType(round, allFaces?.get(i))
+            var arrowCount = sortedArrowCounts[i].arrowCount
+            val faceSizeInCm = sortedArrowCounts[i].faceSizeInCm
+            val distance = sortedDistances[i].distance
             if (arrows == null || currentArrowCount < arrows) {
                 if (arrows != null && currentArrowCount + arrowCount > arrows) {
                     arrowCount = arrows - currentArrowCount
@@ -142,7 +169,7 @@ object Handicap {
      * How arrows on a face are scored e.g. 10-zone metric or 5-zone imperial
      * Used for calculating average arrow score for a given handicap
      */
-    enum class ScoringType(
+    private enum class ScoringType(
             // Constants used in averageScorePerArrow
             private var initial: Int,
             private var sumMultiplier: Int,
@@ -157,31 +184,31 @@ object Handicap {
 
         // 40cm face cut off after the 6 ring (3 separate targets in a vertical line)
         TRIPLE(10, 1, 1, 4, 20, 20f / 5f, 6),
-        VEGAS(TRIPLE),
 
         // 80cm face cut off after 6 ring
         FITA_FIVE_ZONE(TRIPLE),
-        WORCESTER(5, 1, 1, 5, 10, 0f, 0),
 
         // 80cm face cut off after 5 ring
-        FITA_SIX_ZONE(10, 1, 1, 5, 20, 20f / 6f, 5);
+        FITA_SIX_ZONE(10, 1, 1, 5, 20, 20f / 6f, 5),
+
+        WORCESTER(5, 1, 1, 5, 10, 0f, 0),
+        WORCESTER_FIVE(5, 1, 1, 1, 10, 2f / 10f, 4),
+        ;
 
         companion object {
             // This is the diameter of an 1864
             private const val arrowDiameterInCm = 0.357f
 
-            // TODO Make a faces enum?
-            fun getScoringType(round: Round, face: String? = null): ScoringType {
-                return when {
-                    round.displayName.contains(WORCESTER.toString(), ignoreCase = true) -> WORCESTER
-                    round.displayName.contains(VEGAS.toString(), ignoreCase = true) -> VEGAS
-                    face != null && face.equals("triple", ignoreCase = true) -> TRIPLE
-                    face != null && face.equals("fita five", ignoreCase = true) -> FITA_FIVE_ZONE
-                    face != null && face.equals("fita six", ignoreCase = true) -> FITA_SIX_ZONE
-                    round.isMetric || !round.isOutdoor -> METRIC
-                    else -> IMPERIAL
-                }
-            }
+            fun getScoringType(round: Round, face: RoundFace? = null) =
+                    when {
+                        round.displayName.contains(WORCESTER.toString(), ignoreCase = true) ->
+                            if (face == RoundFace.WORCESTER_FIVE) WORCESTER_FIVE else WORCESTER
+                        face != null && face == RoundFace.TRIPLE -> TRIPLE
+                        face != null && face == RoundFace.FITA_FIVE -> FITA_FIVE_ZONE
+                        face != null && face == RoundFace.FITA_SIX -> FITA_SIX_ZONE
+                        round.isMetric || !round.isOutdoor -> METRIC
+                        else -> IMPERIAL
+                    }
         }
 
         constructor(scoringType: ScoringType) : this(

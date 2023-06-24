@@ -9,6 +9,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -48,8 +49,8 @@ class ArcherRoundStatsInstrumentedTest {
     private lateinit var arrows: List<ArrowValue>
     private val arrowsPerArrowCount = 12
     private val roundsInput = listOf(
-            Round(1, "round1", "Round1", true, false, listOf()),
-            Round(2, "round2", "Round2", true, false, listOf())
+            Round(1, "round1", "Round1", true, false),
+            Round(2, "round2", "Round2", true, false)
     )
     private val arrowCountsInput = listOf(
             RoundArrowCount(1, 1, 122f, arrowsPerArrowCount),
@@ -72,7 +73,7 @@ class ArcherRoundStatsInstrumentedTest {
     private val archerRounds = listOf(
             ArcherRound(
                     1,
-                    Date(2014, 6, 17, 15, 21, 37),
+                    Date(2014, 6, 17, 15, 21, 37).asCalendar(),
 //                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
                     1,
                     true
