@@ -157,10 +157,14 @@ object Handicap {
                         faceSizeInCm,
                         handicap,
                         innerTenArcher && !round.isOutdoor,
+                        round.isOutdoor,
                         use2023Handicaps,
                 )
                 currentArrowCount += arrowCount
             }
+        }
+        if (use2023Handicaps) {
+            score = ceil(score)
         }
         return score.roundToInt()
     }
@@ -192,12 +196,18 @@ object Handicap {
         FITA_SIX_ZONE(10, 1, 1, 5, 20, 20f / 6f, 5),
 
         WORCESTER(5, 1, 1, 5, 10, 0f, 0),
-        WORCESTER_FIVE(5, 1, 1, 1, 10, 2f / 10f, 4),
+        WORCESTER_FIVE(5, 1, 1, 1, 10, 10f / 2f, 4),
         ;
 
         companion object {
-            // This is the diameter of an 1864
-            private const val arrowDiameterInCm = 0.357f
+            fun getDefaultArrowRadiusInCm(isOutdoor: Boolean, use2023Handicaps: Boolean) =
+                    when {
+                        // Radius of an 18/64" diameter arrow
+                        !use2023Handicaps -> 0.357f
+                        isOutdoor -> 0.55f / 2f
+                        else -> 0.93f / 2f
+                    }
+
 
             fun getScoringType(round: Round, face: RoundFace? = null) =
                     when {
@@ -231,6 +241,7 @@ object Handicap {
                 faceSizeInCm: Float,
                 handicap: Float,
                 innerTenScoring: Boolean,
+                isOutdoor: Boolean,
                 use2023Handicaps: Boolean,
         ): Float {
             val sigma = if (use2023Handicaps) {
@@ -246,8 +257,12 @@ object Handicap {
                         ).pow(2f)
             }
 
-            fun expCalc(denominator: Float): Float =
-                    exp(-(faceSizeInCm / denominator + arrowDiameterInCm).pow(2f) / sigma)
+            fun expCalc(denominator: Float): Float = exp(
+                    (
+                            faceSizeInCm / denominator
+                                    + getDefaultArrowRadiusInCm(isOutdoor, use2023Handicaps)
+                            ).pow(2f) / (-sigma)
+            )
 
             val sumStart = sumStart + if (innerTenScoring) 1 else 0
             var total = 0f
