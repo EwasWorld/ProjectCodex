@@ -1,17 +1,13 @@
 package eywa.projectcodex.components.mainMenu
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.navigation.NavRoute
 
 sealed class MainMenuIntent {
     object HandicapDialogClicked : MainMenuIntent()
     object ExitDialogOkClicked : MainMenuIntent()
     object ExitDialogCloseClicked : MainMenuIntent()
-    object StartNewScoreClicked : MainMenuIntent()
-    object ViewScoresClicked : MainMenuIntent()
-    object HandicapTablesClicked : MainMenuIntent()
-    object SightMarksClicked : MainMenuIntent()
-    object SettingsClicked : MainMenuIntent()
-    object AboutClicked : MainMenuIntent()
-    object ClassificationTablesClicked : MainMenuIntent()
+    data class Navigate(val route: NavRoute) : MainMenuIntent()
+    object NavigateHandled : MainMenuIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : MainMenuIntent()
 }

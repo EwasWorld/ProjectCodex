@@ -6,17 +6,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.mainMenu.MainMenuIntent.*
@@ -75,10 +81,25 @@ class MainMenuScreen : ActionBarHelp {
         )
     }
 
+    @Composable
+    fun ComposeContent(
+            viewModel: MainMenuViewModel = hiltViewModel(),
+            navController: NavController,
+    ) {
+        val state by viewModel.state.collectAsState()
+        ComposeContent(state = state, listener = { viewModel.handle(it) })
+
+        LaunchedEffect(state.navigateTo) {
+            state.navigateTo?.let {
+                it.navigate(navController)
+                viewModel.handle(NavigateHandled)
+            }
+        }
+    }
+
     // TODO Fix button focus order - currently app starts focussed on the help icon in the action bar
     @Composable
     fun ComposeContent(
-            isExitDialogOpen: Boolean,
             state: MainMenuState,
             listener: (MainMenuIntent) -> Unit,
     ) {
@@ -97,7 +118,7 @@ class MainMenuScreen : ActionBarHelp {
             CodexButton(
                     text = stringResource(id = R.string.main_menu__new_score),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
-                    onClick = { listener(StartNewScoreClicked) },
+                    onClick = { listener(Navigate(CodexNavRoute.NEW_SCORE)) },
                     modifier = Modifier
                             .updateHelpDialogPosition(helpListener, R.string.help_main_menu__new_score_title)
                             .testTag(TestTag.NEW_SCORE)
@@ -105,7 +126,7 @@ class MainMenuScreen : ActionBarHelp {
             CodexButton(
                     text = stringResource(id = R.string.main_menu__view_scores),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
-                    onClick = { listener(ViewScoresClicked) },
+                    onClick = { listener(Navigate(CodexNavRoute.VIEW_SCORES)) },
                     modifier = Modifier
                             .updateHelpDialogPosition(helpListener, R.string.help_main_menu__view_scores_title)
                             .testTag(TestTag.VIEW_SCORES)
@@ -113,7 +134,7 @@ class MainMenuScreen : ActionBarHelp {
             CodexButton(
                     text = stringResource(id = R.string.main_menu__handicap_tables),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
-                    onClick = { listener(HandicapTablesClicked) },
+                    onClick = { listener(Navigate(CodexNavRoute.HANDICAP_TABLES)) },
                     modifier = Modifier
                             .updateHelpDialogPosition(helpListener, R.string.help_main_menu__handicap_tables_title)
                             .testTag(TestTag.HANDICAP_TABLES)
@@ -122,14 +143,14 @@ class MainMenuScreen : ActionBarHelp {
                 CodexButton(
                         text = stringResource(id = R.string.main_menu__classification_tables),
                         buttonStyle = CodexButtonDefaults.DefaultButton(),
-                        onClick = { listener(ClassificationTablesClicked) },
+                        onClick = { listener(Navigate(CodexNavRoute.CLASSIFICATION_TABLES)) },
                         modifier = Modifier
                 )
             }
             CodexButton(
                     text = stringResource(id = R.string.main_menu__sight_marks),
                     buttonStyle = CodexButtonDefaults.DefaultButton(),
-                    onClick = { listener(SightMarksClicked) },
+                    onClick = { listener(Navigate(CodexNavRoute.SIGHT_MARKS)) },
                     modifier = Modifier
                             .updateHelpDialogPosition(helpListener, R.string.help_main_menu__sight_marks_title)
                             .testTag(TestTag.SIGHT_MARKS)
@@ -141,7 +162,7 @@ class MainMenuScreen : ActionBarHelp {
                     modifier = Modifier.padding(top = 10.dp)
             ) {
                 CodexIconButton(
-                        onClick = { listener(SettingsClicked) },
+                        onClick = { listener(Navigate(CodexNavRoute.SETTINGS)) },
                         icon = Icons.Default.Settings,
                         contentDescription = stringResource(R.string.main_menu__settings),
                         modifier = Modifier
@@ -149,7 +170,7 @@ class MainMenuScreen : ActionBarHelp {
                                 .testTag(TestTag.SETTINGS)
                 )
                 CodexIconButton(
-                        onClick = { listener(AboutClicked) },
+                        onClick = { listener(Navigate(CodexNavRoute.ABOUT)) },
                         icon = Icons.Outlined.Info,
                         contentDescription = stringResource(R.string.main_menu__about),
                         modifier = Modifier
@@ -159,7 +180,7 @@ class MainMenuScreen : ActionBarHelp {
             }
 
             SimpleDialog(
-                    isShown = isExitDialogOpen,
+                    isShown = state.isExitDialogOpen,
                     onDismissListener = { listener(ExitDialogCloseClicked) }
             ) {
                 SimpleDialogContent(
@@ -207,7 +228,6 @@ class MainMenuScreen : ActionBarHelp {
     @Composable
     fun PreviewMainMenuScreen() {
         ComposeContent(
-                isExitDialogOpen = false,
                 state = MainMenuState(),
                 listener = {},
         )

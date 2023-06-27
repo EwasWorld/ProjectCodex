@@ -7,4 +7,5 @@ sealed class MainActivityIntent {
     object GoToNextHelpShowcaseItem : MainActivityIntent()
     object CloseHelpShowcase : MainActivityIntent()
     object ClearNoHelpShowcaseFlag : MainActivityIntent()
+    object OpenExitDialog : MainActivityIntent()
 }
