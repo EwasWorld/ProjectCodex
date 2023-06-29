@@ -27,6 +27,9 @@ val LocalCodexThemeColors = staticCompositionLocalOf { CodexThemeColors() }
 data class CodexThemeColors(
         val unassignedColor: Color = Color.Transparent,
 
+        val statusBar: Color = CodexColors.COLOR_PRIMARY_DARK,
+        val androidNavButtons: Color = Color.White,
+
         val appBackground: Color = CodexColors.COLOR_PRIMARY,
         val onAppBackground: Color = Color.White,
         val warningOnAppBackground: Color = CodexColors.WARNING_TEXT,

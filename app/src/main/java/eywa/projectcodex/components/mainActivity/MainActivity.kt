@@ -2,7 +2,7 @@ package eywa.projectcodex.components.mainActivity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.addCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.core.Animatable
@@ -12,25 +12,30 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
-import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
 import kotlinx.coroutines.launch
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -59,16 +64,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             CodexTheme {
                 val navController = rememberNavController()
-                backPressed(navController)
 
-//                window.navigationBarColor = NummiTheme.colors.androidNavButtons.toArgb()
-//                window.statusBarColor = NummiTheme.colors.statusBar.toArgb()
+                val helpState by viewModel.helpShowcase.state.collectAsState()
+                BackHandler(helpState.isInProgress) {
+                    viewModel.helpShowcase.endShowcase()
+                }
+
+                window.statusBarColor = CodexTheme.colors.statusBar.toArgb()
+                WindowCompat.getInsetsController(window, LocalView.current).isAppearanceLightStatusBars = false
+                window.navigationBarColor = CodexTheme.colors.androidNavButtons.toArgb()
+                WindowCompat.getInsetsController(window, LocalView.current).isAppearanceLightNavigationBars = true
 
                 Box(
                         modifier = Modifier.fillMaxSize()
                 ) {
                     Scaffold(
                             backgroundColor = CodexTheme.colors.appBackground,
+                            contentColor = CodexTheme.colors.onAppBackground,
+                            topBar = { TopBar(navController) }
                     ) { padding ->
                         NavHost(
                                 navController = navController,
@@ -83,17 +96,60 @@ class MainActivity : ComponentActivity() {
 
                     val state by viewModel.state.collectAsState()
 
-                    LaunchedEffect(state.closeApplication) {
-                        if (state.closeApplication) {
-                            finish()
-                            exitProcess(0)
-                        }
-                    }
-
                     HelpItem(state)
                 }
             }
         }
+    }
+
+    @Composable
+    fun TopBar(navController: NavController) {
+        val currentEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = currentEntry?.destination
+                ?.route?.takeWhile { it != '/' && it != '?' }
+                ?.let { CodexNavRoute.reverseMap[it] }
+
+        TopAppBar(
+                title = {
+                    Text(
+                            text = currentRoute?.getMenuBarTitle()
+                                    ?: stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.h6,
+                            textAlign = TextAlign.Center
+                    )
+                },
+                backgroundColor = CodexTheme.colors.appBackground,
+                actions = {
+                    IconButton(
+                            onClick = { viewModel.handle(StartHelpShowcase(null)) }
+                    ) {
+                        Icon(
+                                painter = painterResource(R.drawable.ic_help_icon),
+                                contentDescription = stringResource(R.string.action_bar__help),
+                        )
+                    }
+
+                    IconButton(
+                            onClick = {
+                                with(navController) {
+                                    if (currentRoute == CodexNavRoute.MAIN_MENU) {
+                                        ToastSpamPrevention.displayToast(
+                                                applicationContext,
+                                                resources.getString(R.string.err_action_bar__home_already_displayed),
+                                        )
+                                        return@with
+                                    }
+                                    popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
+                                }
+                            }
+                    ) {
+                        Icon(
+                                painter = painterResource(R.drawable.ic_home_icon),
+                                contentDescription = stringResource(R.string.action_bar__home),
+                        )
+                    }
+                }
+        )
     }
 
     @Composable
@@ -167,28 +223,6 @@ class MainActivity : ComponentActivity() {
                                 easing = LinearOutSlowInEasing
                         )
                 )
-            }
-        }
-    }
-
-    fun backPressed(
-            navController: NavController,
-    ) {
-        onBackPressedDispatcher.addCallback(this) {
-            if (viewModel.helpShowcase.state.value.isInProgress) {
-                viewModel.helpShowcase.endShowcase()
-                return@addCallback
-            }
-
-            if (navController.currentDestination?.route == CodexNavRoute.MAIN_MENU.routeBase) {
-                viewModel.handle(OpenExitDialog)
-                return@addCallback
-            }
-
-            if (!navController.popBackStack()) {
-                // If there was nowhere to pop to
-                CustomLogger.customLogger.w(LOG_TAG, "Pop failed, navigating to main menu")
-                navController.navigate(R.id.mainMenuFragment)
             }
         }
     }

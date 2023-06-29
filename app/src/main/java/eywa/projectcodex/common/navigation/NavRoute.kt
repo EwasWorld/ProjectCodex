@@ -119,4 +119,8 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
     override fun Screen(navController: NavController) {
         TODO()
     }
+
+    companion object {
+        val reverseMap = values().associateBy { it.routeBase }
+    }
 }

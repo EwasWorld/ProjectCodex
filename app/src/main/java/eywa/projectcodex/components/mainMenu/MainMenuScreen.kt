@@ -1,5 +1,7 @@
 package eywa.projectcodex.components.mainMenu
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -11,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +29,7 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.components.mainMenu.MainMenuIntent.*
+import kotlin.system.exitProcess
 
 class MainMenuScreen : ActionBarHelp {
     private fun addHelpInfo(
@@ -89,10 +93,19 @@ class MainMenuScreen : ActionBarHelp {
         val state by viewModel.state.collectAsState()
         ComposeContent(state = state, listener = { viewModel.handle(it) })
 
-        LaunchedEffect(state.navigateTo) {
+        BackHandler(!state.isHelpShowcaseInProgress && !state.isExitDialogOpen) {
+            viewModel.handle(OpenExitDialog)
+        }
+
+        val activity = LocalContext.current as Activity
+        LaunchedEffect(state.navigateTo, state.closeApplication) {
             state.navigateTo?.let {
                 it.navigate(navController)
                 viewModel.handle(NavigateHandled)
+            }
+            if (state.closeApplication) {
+                activity.finish()
+                exitProcess(0)
             }
         }
     }

@@ -2,43 +2,8 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainMenuFragment"
+    app:startDestination="@id/viewScoresFragment"
     >
-    <!-- TODO Find out what the label attribute is -->
-    <fragment
-        android:id="@+id/mainMenuFragment"
-        android:name="eywa.projectcodex.components.mainMenu.MainMenuFragment"
-        android:label="fragment_main_menu"
-        >
-        <action
-            android:id="@+id/actionMainMenuFragmentToNewScoreFragment"
-            app:destination="@id/newScoreFragment"
-            />
-        <action
-            android:id="@+id/actionMainMenuFragmentToViewScoresFragment"
-            app:destination="@id/viewScoresFragment"
-            />
-        <action
-            android:id="@+id/actionMainMenuFragmentToHandicapTablesFragment"
-            app:destination="@id/handicapTablesFragment"
-            />
-        <action
-            android:id="@+id/actionMainMenuFragmentToSettingsFragment"
-            app:destination="@id/settingsFragment"
-            />
-        <action
-            android:id="@+id/actionMainMenuFragmentToAboutFragment"
-            app:destination="@id/aboutFragment"
-            />
-        <action
-            android:id="@+id/actionMainMenuFragmentToSightMarksFragment"
-            app:destination="@id/sightMarksFragment"
-            />
-        <action
-            android:id="@+id/actionMainMenuFragmentToClassificationFragment"
-            app:destination="@id/classificationFragment"
-            />
-    </fragment>
     <fragment
         android:id="@+id/viewScoresFragment"
         android:name="eywa.projectcodex.components.viewScores.ViewScoresFragment"
@@ -62,11 +27,6 @@
         android:name="eywa.projectcodex.components.newScore.NewScoreFragment"
         android:label="fragment_new_score"
         >
-        <argument
-            android:name="backStackBehaviour"
-            android:defaultValue="NONE"
-            app:argType="eywa.projectcodex.components.mainActivity.BackStackBehaviour"
-            />
         <argument
             android:name="archerRoundId"
             android:defaultValue="-1"

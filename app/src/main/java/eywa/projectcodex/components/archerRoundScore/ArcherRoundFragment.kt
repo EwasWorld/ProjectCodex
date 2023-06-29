@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
@@ -44,7 +45,7 @@ class ArcherRoundFragment : Fragment(), ActionBarHelp {
                             viewModel.handle(ErrorHandled(it))
                         }
                         if (returnToMainMenu) {
-                            findNavController().popBackStack(R.id.mainMenuFragment, false)
+                            findNavController().popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
                             viewModel.handle(InvalidArcherRoundIntent.ReturnToMenuHandled)
                         }
                     }

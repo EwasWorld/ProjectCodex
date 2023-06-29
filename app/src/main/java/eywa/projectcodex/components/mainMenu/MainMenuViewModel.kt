@@ -19,7 +19,6 @@ import javax.inject.Inject
 class MainMenuViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
         private val datastore: CodexDatastore,
-        private val exitDialogRepo: ExitDialogRepo,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainMenuState())
     val state = _state.asStateFlow()
@@ -37,8 +36,8 @@ class MainMenuViewModel @Inject constructor(
                     }
         }
         viewModelScope.launch {
-            exitDialogRepo.state.collectLatest { exitDialogState ->
-                _state.update { it.copy(isExitDialogOpen = exitDialogState.isOpen) }
+            helpShowcase.state.collectLatest { helpShowcaseState ->
+                _state.update { it.copy(isHelpShowcaseInProgress = helpShowcaseState.isInProgress) }
             }
         }
     }
@@ -48,8 +47,10 @@ class MainMenuViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.MAIN_MENU::class)
             is HandicapDialogClicked ->
                 viewModelScope.launch { datastore.set(DatastoreKey.DisplayHandicapNotice, false) }
-            is ExitDialogOkClicked -> exitDialogRepo.reduce(ExitDialogState(closeApplicationClicked = true))
-            is ExitDialogCloseClicked -> exitDialogRepo.reduce(ExitDialogState())
+            OpenExitDialog -> _state.update { it.copy(isExitDialogOpen = true) }
+            is ExitDialogCloseClicked -> _state.update { it.copy(isExitDialogOpen = false) }
+            is ExitDialogOkClicked -> _state.update { it.copy(isExitDialogOpen = false, closeApplication = true) }
+            CloseApplicationHandled -> _state.update { it.copy(closeApplication = false) }
             is Navigate -> _state.update { it.copy(navigateTo = action.route) }
             is NavigateHandled -> _state.update { it.copy(navigateTo = null) }
         }

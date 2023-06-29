@@ -5,8 +5,10 @@ import eywa.projectcodex.common.navigation.NavRoute
 
 sealed class MainMenuIntent {
     object HandicapDialogClicked : MainMenuIntent()
+    object OpenExitDialog : MainMenuIntent()
     object ExitDialogOkClicked : MainMenuIntent()
     object ExitDialogCloseClicked : MainMenuIntent()
+    object CloseApplicationHandled : MainMenuIntent()
     data class Navigate(val route: NavRoute) : MainMenuIntent()
     object NavigateHandled : MainMenuIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : MainMenuIntent()
