@@ -42,8 +42,7 @@ class HelpShowcaseUseCase {
 
     fun startShowcase(screen: ActionBarHelp?) {
         _state.update {
-            // TODO_CURRENT Don't allow a null screen
-            if ((screen != null && screen::class != it.currentScreen) || it.helpInfoMap.isEmpty()) {
+            if (screen == null || screen::class != it.currentScreen || it.helpInfoMap.isEmpty()) {
                 return@update it.copy(startedButNoItems = true)
             }
 

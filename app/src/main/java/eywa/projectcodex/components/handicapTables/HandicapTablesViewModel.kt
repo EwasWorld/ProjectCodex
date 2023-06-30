@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.Handicap
 import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.getDistances
@@ -105,7 +106,7 @@ class HandicapTablesViewModel @Inject constructor(
                 it.copy(inputHandicap = !it.inputHandicap).addHandicaps()
             }
             is HandicapTablesIntent.HelpShowcaseAction ->
-                helpShowcase.handle(action.action, HandicapTablesFragment::class)
+                helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
         }
     }
 

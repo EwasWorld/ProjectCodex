@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.scale(1f / 1.2f)
                             ),
                             modifier = Modifier.testTag(MainActivityTestTag.HELP_ICON.getTestTag())
-                    ) { viewModel.handle(StartHelpShowcase(null)) }
+                    ) { viewModel.handle(StartHelpShowcase(currentRoute)) }
 
                     CodexIconButton(
                             icon = CodexIconInfo.PainterIcon(
