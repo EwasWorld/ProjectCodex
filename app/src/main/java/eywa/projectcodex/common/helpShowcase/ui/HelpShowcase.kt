@@ -14,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +27,7 @@ import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 
 // TODO Better above/below logic - can it default to below unless there isn't enough room rather than taking the larger?
 // TODO Look at alignment? Right align if oval is on the right?
@@ -50,6 +52,7 @@ fun HelpShowcase(
                         .fillMaxSize()
                         // The clear oval doesn't work unless this is <1 - can't remember why, maybe the graphics layer?
                         .alpha(0.998f)
+                        .clearAndSetSemantics { }
                         .clickable(onClick = state.overlayClickedListener)
         ) {
             drawRect(
@@ -85,7 +88,7 @@ fun HelpShowcaseText(
                 modifier = Modifier
                         .padding(bottom = 5.dp)
                         .alpha(animationState)
-                        .testTag(ComposeHelpShowcaseTestTag.TITLE)
+                        .testTag(ComposeHelpShowcaseTestTag.TITLE.getTestTag())
         )
         Text(
                 text = state.message,
@@ -106,7 +109,7 @@ fun HelpShowcaseText(
                     modifier = Modifier
                             .padding(bottom = 5.dp)
                             .alpha(animationState)
-                            .testTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
+                            .testTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON.getTestTag())
             )
         }
         ClickableText(
@@ -118,7 +121,7 @@ fun HelpShowcaseText(
                 ),
                 modifier = Modifier
                         .alpha(animationState)
-                        .testTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+                        .testTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON.getTestTag())
         )
     }
 }
@@ -176,8 +179,14 @@ class ComposeHelpShowcasePreviewProvider : PreviewParameterProvider<ComposeHelpS
     )
 }
 
-object ComposeHelpShowcaseTestTag {
-    const val TITLE = "HELP_TITLE_TEXT"
-    const val NEXT_BUTTON = "HELP_NEXT_BUTTON"
-    const val CLOSE_BUTTON = "HELP_CLOSE_BUTTON"
+enum class ComposeHelpShowcaseTestTag : CodexTestTag {
+    TITLE,
+    NEXT_BUTTON,
+    CLOSE_BUTTON,
+    ;
+
+    override val screenName: String
+        get() = "HELP_SHOWCASE"
+
+    override fun getElement(): String = name
 }

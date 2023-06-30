@@ -1,8 +1,11 @@
 package eywa.projectcodex.components.handicapTables
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -13,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,8 +73,10 @@ fun HandicapTablesScreen(
                             helpTitle = stringResource(R.string.help_handicap_tables__2023_system_title),
                             helpBody = stringResource(R.string.help_handicap_tables__2023_system_body),
                     ),
-                    textModifier = Modifier.clickable { listener(ToggleHandicapSystem) },
-                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle()
+                    onClick = { listener(ToggleHandicapSystem) },
+                    accessibilityRole = Role.Switch,
+                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle(),
+                    modifier = Modifier.padding(bottom = 2.dp)
             )
             DataRow(
                     title = stringResource(R.string.handicap_tables__input),
@@ -86,7 +92,8 @@ fun HandicapTablesScreen(
                                     else R.string.help_handicap_tables__input_type_body_score
                             ),
                     ),
-                    textModifier = Modifier.clickable { listener(ToggleInput) },
+                    onClick = { listener(ToggleInput) },
+                    accessibilityRole = Role.Switch,
                     style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle()
             )
         }
@@ -110,8 +117,6 @@ fun HandicapTablesScreen(
                             ),
                     ),
                     onValueChanged = { listener(InputChanged(it)) },
-                    modifier = Modifier
-                            .updateHelpDialogPosition(helpListener, R.string.help_handicap_tables__input_title)
             )
         }
 

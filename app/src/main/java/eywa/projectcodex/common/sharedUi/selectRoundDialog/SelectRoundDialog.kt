@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ProvideTextStyle
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,12 +19,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.*
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.Sorting
 import eywa.projectcodex.common.utils.getDistanceUnit
 import eywa.projectcodex.common.utils.getDistances
@@ -102,36 +101,36 @@ fun SelectRoundRows(
 
 
         DataRow(
-                title = R.string.create_round__round,
-                helpTitle = R.string.help_create_round__round_title,
-                helpBody = R.string.help_create_round__round_body,
-                helpListener = helpListener,
-        ) {
-            Text(
-                    text = displayedRound,
-                    color = CodexTheme.colors.linkText,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier
-                            .clickable { listener(OpenRoundSelectDialog) }
-                            .testTag(NewScoreScreen.TestTag.SELECTED_ROUND)
-            )
-        }
-        if (displayedSubtype != null) {
-            DataRow(
-                    title = R.string.create_round__round_sub_type,
-                    helpTitle = R.string.help_create_round__sub_round_title,
-                    helpBody = R.string.help_create_round__sub_round_body,
-                    helpListener = helpListener,
-            ) {
-                Text(
-                        text = displayedSubtype,
+                title = stringResource(R.string.create_round__round),
+                text = displayedRound,
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_create_round__round_title),
+                        helpBody = stringResource(R.string.help_create_round__round_body),
+                ),
+                style = LocalTextStyle.current.copy(
                         color = CodexTheme.colors.linkText,
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier
-                                .clickable { listener(OpenSubTypeSelectDialog) }
-                                .testTag(NewScoreScreen.TestTag.SELECTED_SUBTYPE)
-                )
-            }
+                ),
+                textModifier = Modifier.testTag(NewScoreScreen.TestTag.SELECTED_ROUND),
+                onClick = { listener(OpenRoundSelectDialog) },
+        )
+        if (displayedSubtype != null) {
+            DataRow(
+                    title = stringResource(R.string.create_round__round_sub_type),
+                    text = displayedSubtype,
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_create_round__sub_round_title),
+                            helpBody = stringResource(R.string.help_create_round__sub_round_body),
+                    ),
+                    style = LocalTextStyle.current.copy(
+                            color = CodexTheme.colors.linkText,
+                            textDecoration = TextDecoration.Underline,
+                    ),
+                    textModifier = Modifier.testTag(NewScoreScreen.TestTag.SELECTED_SUBTYPE),
+                    onClick = { listener(OpenSubTypeSelectDialog) },
+            )
         }
 
 
@@ -151,50 +150,47 @@ private fun RoundInfoHints(
 
     if (arrowCounts != null) {
         DataRow(
-                title = R.string.create_round__arrow_count_indicator,
-                helpTitle = R.string.help_create_round__arrow_count_indicator_title,
-                helpBody = R.string.help_create_round__arrow_count_indicator_body,
-                helpListener = helpListener,
-        ) {
-            Text(
-                    text = arrowCounts
-                            .sortedBy { it.distanceNumber }
-                            .joinToString(separator) {
-                                DecimalFormat("#.#").format(it.arrowCount / 12.0)
-                            },
-                    textAlign = TextAlign.Start,
-            )
-        }
+                title = stringResource(R.string.create_round__arrow_count_indicator),
+                text = arrowCounts
+                        .sortedBy { it.distanceNumber }
+                        .joinToString(separator) {
+                            DecimalFormat("#.#").format(it.arrowCount / 12.0)
+                        },
+                helpState = HelpState(
+                        helpTitle = stringResource(R.string.help_create_round__arrow_count_indicator_title),
+                        helpBody = stringResource(R.string.help_create_round__arrow_count_indicator_body),
+                        helpListener = helpListener,
+                ),
+                style = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+        )
     }
     roundSubtypeDistances?.takeIf { it.isNotEmpty() }?.let { distances ->
         DataRow(
-                title = R.string.create_round__distance_indicator,
-                helpTitle = R.string.help_create_round__distance_indicator_title,
-                helpBody = R.string.help_create_round__distance_indicator_body,
-                helpListener = helpListener,
-        ) {
-            Text(
-                    text = distances
-                            .sortedBy { it.distanceNumber }
-                            .joinToString(separator) { it.distance.toString() + distanceUnit },
-                    textAlign = TextAlign.Start,
-            )
-        }
+                title = stringResource(R.string.create_round__distance_indicator),
+                text = distances
+                        .sortedBy { it.distanceNumber }
+                        .joinToString(separator) { it.distance.toString() + distanceUnit },
+                helpState = HelpState(
+                        helpTitle = stringResource(R.string.help_create_round__distance_indicator_title),
+                        helpBody = stringResource(R.string.help_create_round__distance_indicator_body),
+                        helpListener = helpListener,
+                ),
+                style = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+        )
     }
     if (arrowCounts != null) {
         DataRow(
-                title = R.string.create_round__face_size_indicator,
-                helpTitle = R.string.help_create_round__face_size_indicator_title,
-                helpBody = R.string.help_create_round__face_size_indicator_body,
-                helpListener = helpListener,
-        ) {
-            Text(
-                    text = arrowCounts
-                            .sortedBy { it.distanceNumber }
-                            .joinToString(separator) { (it.faceSizeInCm.roundToInt()).toString() + faceSizeUnit },
-                    textAlign = TextAlign.Start,
-            )
-        }
+                title = stringResource(R.string.create_round__face_size_indicator),
+                text = arrowCounts
+                        .sortedBy { it.distanceNumber }
+                        .joinToString(separator) { (it.faceSizeInCm.roundToInt()).toString() + faceSizeUnit },
+                helpState = HelpState(
+                        helpTitle = stringResource(R.string.help_create_round__face_size_indicator_title),
+                        helpBody = stringResource(R.string.help_create_round__face_size_indicator_body),
+                        helpListener = helpListener,
+                ),
+                style = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+        )
     }
 }
 
@@ -219,7 +215,7 @@ fun SelectRoundDialog(
                         text = stringResource(R.string.create_round__no_round),
                         onClick = { listener(NoRoundSelected) },
                 ),
-                modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG)
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG.getTestTag())
         ) {
             Column {
                 Row(
@@ -242,7 +238,7 @@ fun SelectRoundDialog(
                                     text = stringResource(filter.chipText),
                                     state = CodexNewChipState(
                                             selected = enabledFilters.contains(filter),
-                                            testTag = SelectRoundDialogTestTag.fromFilterName(filter)
+                                            testTag = SelectRoundDialogTestTag.FILTER.getTestTag()
                                     ),
                                     colours = ChipColours.Defaults.onDialog(),
                             ) { listener(SelectRoundDialogFilterClicked(filter)) }
@@ -290,7 +286,7 @@ fun SelectSubtypeDialog(
                         text = stringResource(R.string.general_cancel),
                         onClick = { listener(CloseSubTypeSelectDialog) },
                 ),
-                modifier = Modifier.testTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG)
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG.getTestTag())
         ) {
             ItemSelector(
                     displayItems = subTypes.sortedByDescending { getDistance(it) },
@@ -327,7 +323,7 @@ private fun <T : NamedItem> ItemSelector(
             ) {
                 WrappingRow(
                         verticalAlignment = Alignment.Bottom,
-                        modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                        modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
                 ) {
                     item.label.split(" ").forEach { itemLabelWord ->
                         Text(
@@ -342,14 +338,18 @@ private fun <T : NamedItem> ItemSelector(
     }
 }
 
-object SelectRoundDialogTestTag {
-    const val ROUND_DIALOG = "SELECT_ROUND_DIALOG"
-    const val SUBTYPE_DIALOG = "SELECT_ROUND_SUBTYPE_DIALOG"
-    const val ROUND_DIALOG_ITEM = "SELECT_ROUND_DIALOG_ITEM"
+enum class SelectRoundDialogTestTag : CodexTestTag {
+    ROUND_DIALOG,
+    SUBTYPE_DIALOG,
+    ROUND_DIALOG_ITEM,
+    FILTER,
+    ;
 
-    fun fromFilterName(filter: SelectRoundFilter) = "SELECT_ROUND_FILTER_${filter.name}"
+    override val screenName: String
+        get() = "SELECT_ROUND_DIALOG"
+
+    override fun getElement(): String = name
 }
-
 
 @Preview
 @Composable

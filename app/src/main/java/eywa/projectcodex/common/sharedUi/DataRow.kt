@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.sharedUi
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -10,11 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 
 @Deprecated("Old")
 @Composable
@@ -69,16 +72,28 @@ fun DataRow(
         helpState: HelpState?,
         modifier: Modifier = Modifier,
         textModifier: Modifier = Modifier,
+        onClick: (() -> Unit)? = null,
+        onClickLabel: String? = null,
+        accessibilityRole: Role? = null,
         style: TextStyle = LocalTextStyle.current,
 ) = DataRow(
         title = title,
         helpState = helpState,
-        modifier = modifier,
+        modifier = modifier.clearAndSetSemantics {
+            contentDescription = "$text $title"
+            onClick?.let { onClick(onClickLabel) { onClick(); true } }
+            accessibilityRole?.let { role = accessibilityRole }
+        },
 ) {
     Text(
             text = text,
             style = style,
-            modifier = textModifier,
+            modifier = textModifier.modifierIf(
+                    onClick != null,
+                    Modifier
+                            .clickable { onClick!!.invoke() }
+                            .clearAndSetSemantics { },
+            ),
     )
 }
 
@@ -88,6 +103,7 @@ fun DataRow(
         title: String,
         helpState: HelpState?,
         modifier: Modifier = Modifier,
+        titleModifier: Modifier = Modifier,
         content: @Composable () -> Unit,
 ) {
     helpState?.add()
@@ -99,6 +115,7 @@ fun DataRow(
     ) {
         Text(
                 text = title,
+                modifier = titleModifier
         )
         content()
     }

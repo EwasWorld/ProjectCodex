@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.*
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -173,10 +175,12 @@ fun <I : Any> NumberSetting(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val helper = NumberSettingHelper.getHelper(clazz)!!
+    val displayValue = currentValue?.toString() ?: ""
 
     DataRow(
             title = title,
             helpState = helpState,
+            titleModifier = Modifier.clearAndSetSemantics { },
             modifier = modifier,
     ) {
         Surface(
@@ -185,7 +189,7 @@ fun <I : Any> NumberSetting(
         ) {
             CodexTextField(
                     state = CodexTextFieldState(
-                            text = currentValue?.toString() ?: "",
+                            text = displayValue,
                             onValueChange = { onValueChanged(helper.fromString(it)) },
                             testTag = "",
                     ),
@@ -206,6 +210,10 @@ fun <I : Any> NumberSetting(
                             .testTag(testTag)
                             .widthIn(min = 40.dp)
                             .width(IntrinsicSize.Min)
+                            .semantics {
+                                contentDescription = title
+                                editableText = AnnotatedString(displayValue)
+                            }
             )
         }
     }
