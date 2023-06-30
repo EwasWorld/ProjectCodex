@@ -78,7 +78,7 @@ class ViewScoresViewModelUnitTest {
                 archerRoundsInitial.map {
                     ViewScoresEntry(FullArcherRoundInfo(it, true), false, customLogger)
                 },
-                sut.state.value.data,
+                sut.state.value.data.sortedBy { it.id },
         )
 
         sut.handle(MultiSelectAction(MultiSelectBarIntent.ClickOpen))
@@ -88,7 +88,7 @@ class ViewScoresViewModelUnitTest {
                 archerRoundsSecond.map {
                     ViewScoresEntry(FullArcherRoundInfo(it, true), it.archerRound.archerRoundId == 1, customLogger)
                 },
-                sut.state.value.data,
+                sut.state.value.data.sortedBy { it.id },
         )
     }
 

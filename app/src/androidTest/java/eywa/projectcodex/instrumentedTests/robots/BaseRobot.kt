@@ -6,11 +6,9 @@ import androidx.test.espresso.Espresso.pressBack
 import eywa.projectcodex.R
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.common.click
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.about.AboutFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import java.util.*
 
@@ -43,8 +41,7 @@ abstract class BaseRobot(
 
     /**
      * Checks that the screen associated with the current robot is displayed.
-     * Checks that the node with the tag [screenTestTag] (if given) is shown,
-     * otherwise checks that [AboutFragment] is currently displayed.
+     * Checks that the node with the tag [screenTestTag] is shown,
      */
     fun checkScreenIsShown(): Boolean {
         CustomConditionWaiter.waitForComposeCondition { checkElementIsDisplayed(screenTestTag) }
@@ -141,12 +138,12 @@ abstract class BaseRobot(
     }
 
     fun clickHomeIcon(): MainMenuRobot {
-        R.id.action_bar__home.click()
+        clickElement(MainActivity.MainActivityTestTag.HOME_ICON)
         return MainMenuRobot(composeTestRule)
     }
 
     fun clickHelpIcon() {
-        R.id.action_bar__help.click()
+        clickElement(MainActivity.MainActivityTestTag.HELP_ICON)
         CustomConditionWaiter.waitForComposeCondition("Waiting for help to appear") {
             checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
         }

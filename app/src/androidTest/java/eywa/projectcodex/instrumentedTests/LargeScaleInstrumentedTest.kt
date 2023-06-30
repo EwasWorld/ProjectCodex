@@ -1,7 +1,6 @@
 package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
@@ -11,8 +10,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuFragment
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
@@ -58,7 +55,6 @@ class LargeScaleInstrumentedTest {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
-    private lateinit var navController: NavController
 
     private val sightMark = DatabaseSightMark(1, DEFAULT_BOW_ID, 50, true, Calendar.getInstance(), 2f)
 
@@ -71,7 +67,6 @@ class LargeScaleInstrumentedTest {
         // (as DAOs are inconsistent)
         scenario.onActivity {
             db = LocalDatabaseModule.scoresRoomDatabase!!
-            navController = it.navHostFragment.navController
         }
     }
 
@@ -639,7 +634,7 @@ class LargeScaleInstrumentedTest {
                 logMessage(this::class, " -> press back")
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
             logMessage(this::class, "New score")
             clickNewScore {
@@ -647,7 +642,7 @@ class LargeScaleInstrumentedTest {
                 logMessage(this::class, " -> press back")
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
             logMessage(this::class, "New score -> Input end")
             clickNewScore {
@@ -657,7 +652,7 @@ class LargeScaleInstrumentedTest {
                     pressBack()
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
             CustomConditionWaiter.waitFor(1000)
 
 
@@ -672,7 +667,7 @@ class LargeScaleInstrumentedTest {
                     }
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
             logMessage(this::class, "Main menu 2")
             pressBack()
@@ -683,7 +678,7 @@ class LargeScaleInstrumentedTest {
                 logMessage(this::class, " -> press back")
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             val rowIndex = 0
@@ -695,10 +690,10 @@ class LargeScaleInstrumentedTest {
                     logMessage(this::class, " -> press back")
                     pressBack()
                 }
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                checkScreenIsShown()
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Score pad")
@@ -708,10 +703,10 @@ class LargeScaleInstrumentedTest {
                     logMessage(this::class, " -> press back")
                     pressBack()
                 }
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                checkScreenIsShown()
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Score pad -> Score stats")
@@ -723,10 +718,10 @@ class LargeScaleInstrumentedTest {
                         pressBack()
                     }
                 }
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                checkScreenIsShown()
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Score pad -> Many")
@@ -741,10 +736,10 @@ class LargeScaleInstrumentedTest {
                     logMessage(this::class, " -> press back")
                     pressBack()
                 }
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                checkScreenIsShown()
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Insert end")
@@ -760,10 +755,10 @@ class LargeScaleInstrumentedTest {
                     waitForLoad()
                     pressBack()
                 }
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                checkScreenIsShown()
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Edit end")
@@ -778,10 +773,10 @@ class LargeScaleInstrumentedTest {
                     waitForLoad()
                     pressBack()
                 }
-                CustomConditionWaiter.waitForFragmentToShow(scenario, (ViewScoresFragment::class))
+                checkScreenIsShown()
                 pressBack()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "Handicap tables")
@@ -822,7 +817,7 @@ class LargeScaleInstrumentedTest {
         composeTestRule.mainMenuRobot {
             logMessage(this::class, "Main menu 1")
             clickHomeIcon()
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "About")
@@ -830,7 +825,7 @@ class LargeScaleInstrumentedTest {
                 logMessage(this::class, " -> press home")
                 clickHomeIcon()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "New score")
@@ -839,7 +834,7 @@ class LargeScaleInstrumentedTest {
                 logMessage(this::class, " -> press home")
                 clickHomeIcon()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "New score -> Input end")
@@ -850,7 +845,7 @@ class LargeScaleInstrumentedTest {
                     clickHomeIcon()
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
             CustomConditionWaiter.waitFor(1000)
 
 
@@ -865,12 +860,12 @@ class LargeScaleInstrumentedTest {
                     }
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "Main menu 2")
             clickHomeIcon()
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             val rowIndex = 0
@@ -879,7 +874,7 @@ class LargeScaleInstrumentedTest {
                 logMessage(this::class, " -> press home")
                 clickHomeIcon()
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "Email score")
@@ -891,7 +886,7 @@ class LargeScaleInstrumentedTest {
                     clickHomeIcon()
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Score pad")
@@ -902,7 +897,7 @@ class LargeScaleInstrumentedTest {
                     clickHomeIcon()
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Score pad -> Score stats")
@@ -915,7 +910,7 @@ class LargeScaleInstrumentedTest {
                     }
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Score pad -> Many")
@@ -931,7 +926,7 @@ class LargeScaleInstrumentedTest {
                     clickHomeIcon()
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Insert end")
@@ -945,7 +940,7 @@ class LargeScaleInstrumentedTest {
                     }
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "View rounds -> Edit end")
@@ -959,7 +954,7 @@ class LargeScaleInstrumentedTest {
                     }
                 }
             }
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
 
 
             logMessage(this::class, "Handicap tables")
@@ -987,7 +982,7 @@ class LargeScaleInstrumentedTest {
 
             logMessage(this::class, "Main menu 3")
             clickHomeIcon()
-            CustomConditionWaiter.waitForFragmentToShow(scenario, (MainMenuFragment::class))
+            checkScreenIsShown()
         }
     }
 }

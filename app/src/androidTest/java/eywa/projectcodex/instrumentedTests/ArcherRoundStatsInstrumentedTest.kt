@@ -1,7 +1,6 @@
 package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -43,7 +42,6 @@ class ArcherRoundStatsInstrumentedTest {
     var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: ActivityScenario<MainActivity>
-    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
 
     private lateinit var arrows: List<ArrowValue>
@@ -93,7 +91,6 @@ class ArcherRoundStatsInstrumentedTest {
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity { activity ->
             db = LocalDatabaseModule.scoresRoomDatabase!!
-            navController = activity.navHostFragment.navController
 
             /*
              * Fill default rounds

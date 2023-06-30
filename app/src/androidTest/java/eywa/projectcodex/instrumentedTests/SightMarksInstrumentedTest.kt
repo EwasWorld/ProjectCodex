@@ -1,7 +1,6 @@
 package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -31,7 +30,6 @@ class SightMarksInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     private lateinit var scenario: ActivityScenario<MainActivity>
-    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
 
     @Before
@@ -42,7 +40,6 @@ class SightMarksInstrumentedTest {
 
         scenario.onActivity {
             db = LocalDatabaseModule.scoresRoomDatabase!!
-            navController = it.navHostFragment.navController
         }
     }
 

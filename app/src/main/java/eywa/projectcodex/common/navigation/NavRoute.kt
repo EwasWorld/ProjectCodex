@@ -92,7 +92,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            MainMenuScreen().ComposeContent(navController = navController)
+            MainMenuScreen(navController = navController)
         }
     },
     NEW_SCORE {

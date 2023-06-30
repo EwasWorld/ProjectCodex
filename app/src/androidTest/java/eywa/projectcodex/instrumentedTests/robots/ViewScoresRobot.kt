@@ -3,15 +3,12 @@ package eywa.projectcodex.instrumentedTests.robots
 import androidx.compose.ui.test.*
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundFragment
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen.TestTag
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot
-import org.junit.Assert
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -56,7 +53,6 @@ class ViewScoresRobot(
 
     fun clickRowForMultiSelect(rowIndex: Int) {
         performOnRowItem(rowIndex) { performClick() }
-        Assert.assertFalse(TestUtils.isFragmentShowing(scenario, ArcherRoundFragment::class))
     }
 
     fun clickRow(rowIndex: Int, block: ScorePadRobot.() -> Unit = {}) {

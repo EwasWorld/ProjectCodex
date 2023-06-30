@@ -68,7 +68,8 @@ class ViewScoresInstrumentedTest {
 
         scenario.onActivity {
             db = LocalDatabaseModule.scoresRoomDatabase!!
-            navController = it.navHostFragment.navController
+            // TODO_CURRENT Fix navController
+//            navController = it.navHostFragment.navController
         }
     }
 

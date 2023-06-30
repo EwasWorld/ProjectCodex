@@ -12,14 +12,18 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,7 +36,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
 import kotlinx.coroutines.launch
@@ -120,33 +127,35 @@ class MainActivity : ComponentActivity() {
                 },
                 backgroundColor = CodexTheme.colors.appBackground,
                 actions = {
-                    IconButton(
-                            onClick = { viewModel.handle(StartHelpShowcase(null)) }
-                    ) {
-                        Icon(
-                                painter = painterResource(R.drawable.ic_help_icon),
-                                contentDescription = stringResource(R.string.action_bar__help),
-                        )
-                    }
+                    CodexIconButton(
+                            icon = CodexIconInfo.PainterIcon(
+                                    drawable = R.drawable.ic_help_icon,
+                                    contentDescription = stringResource(R.string.action_bar__help),
+                            ),
+                            modifier = Modifier
+                                    .scale(1f)
+                                    .testTag(MainActivityTestTag.HELP_ICON.getTestTag())
+                    ) { viewModel.handle(StartHelpShowcase(null)) }
 
-                    IconButton(
-                            onClick = {
-                                with(navController) {
-                                    if (currentRoute == CodexNavRoute.MAIN_MENU) {
-                                        ToastSpamPrevention.displayToast(
-                                                applicationContext,
-                                                resources.getString(R.string.err_action_bar__home_already_displayed),
-                                        )
-                                        return@with
-                                    }
-                                    popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
-                                }
-                            }
+                    CodexIconButton(
+                            icon = CodexIconInfo.PainterIcon(
+                                    drawable = R.drawable.ic_home_icon,
+                                    contentDescription = stringResource(R.string.action_bar__home),
+                            ),
+                            modifier = Modifier
+                                    .scale(1f)
+                                    .testTag(MainActivityTestTag.HOME_ICON.getTestTag())
                     ) {
-                        Icon(
-                                painter = painterResource(R.drawable.ic_home_icon),
-                                contentDescription = stringResource(R.string.action_bar__home),
-                        )
+                        with(navController) {
+                            if (currentRoute == CodexNavRoute.MAIN_MENU) {
+                                ToastSpamPrevention.displayToast(
+                                        applicationContext,
+                                        resources.getString(R.string.err_action_bar__home_already_displayed),
+                                )
+                                return@with
+                            }
+                            popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
+                        }
                     }
                 }
         )
@@ -225,5 +234,17 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    enum class MainActivityTestTag : CodexTestTag {
+        SCREEN,
+        HOME_ICON,
+        HELP_ICON,
+        ;
+
+        override val screenName: String
+            get() = "MAIN_ACTIVITY"
+
+        override fun getElement(): String = name
     }
 }

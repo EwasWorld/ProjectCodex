@@ -2,41 +2,15 @@ package eywa.projectcodex.common
 
 import android.view.View
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.FailureHandler
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import eywa.projectcodex.components.mainActivity.MainActivity
 import org.hamcrest.Matcher
-import kotlin.reflect.KClass
 
 class CustomConditionWaiter {
     companion object {
-        const val DEFAULT_THREAD_SLEEP = 2000L
-
-        /**
-         * Wait for a particular fragment to appear on the screen
-         */
-        fun waitForFragmentToShow(scenario: ActivityScenario<MainActivity>, fragment: KClass<out Fragment>) {
-            ConditionWatcher.waitForCondition(object : Instruction() {
-                override fun checkCondition(): Boolean {
-                    val isShowing = TestUtils.isFragmentShowing(scenario, fragment)
-                    if (!isShowing) {
-                        // Don't clog up the main thread in the onActivity method, wait a moment before trying again
-                        Thread.sleep(DEFAULT_THREAD_SLEEP)
-                    }
-                    return isShowing
-                }
-
-                override fun getDescription(): String {
-                    return "Wait for ${fragment.simpleName} to appear"
-                }
-            })
-        }
-
         fun waitForClassToAppear(clazz: Class<*>) {
             ConditionWatcher.waitForCondition(object : Instruction() {
                 override fun checkCondition(): Boolean {

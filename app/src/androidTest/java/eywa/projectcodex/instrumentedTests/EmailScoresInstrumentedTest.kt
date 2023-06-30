@@ -5,7 +5,6 @@ import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.intent.Intents
@@ -54,7 +53,6 @@ class EmailScoresInstrumentedTest {
     var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: ActivityScenario<MainActivity>
-    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
 
     private val arrowsPerArrowCount = 12
@@ -132,7 +130,6 @@ class EmailScoresInstrumentedTest {
         scenario.onActivity {
             db = LocalDatabaseModule.scoresRoomDatabase!!
             addSimpleTestDataToDb()
-            navController = it.navHostFragment.navController
         }
         Intents.init()
     }

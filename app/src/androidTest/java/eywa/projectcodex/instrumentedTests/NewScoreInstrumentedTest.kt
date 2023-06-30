@@ -1,12 +1,9 @@
 package eywa.projectcodex.instrumentedTests
 
-import android.os.Bundle
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -76,12 +73,7 @@ class NewScoreInstrumentedTest {
      * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
      * with all desired information
      */
-    private fun setup(archerRoundId: Int = -1) {
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-
-        val args = Bundle()
-        args.putInt("archerRoundId", archerRoundId)
-
+    private fun setup() {
         hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
@@ -110,7 +102,10 @@ class NewScoreInstrumentedTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED)
         scenario.onActivity {
-            navController = it.navHostFragment.navController
+            // TODO_CURRENT Fix get nav controller
+            // https://developer.android.com/codelabs/basic-android-kotlin-compose-test-cupcake#3
+            // https://stackoverflow.com/questions/75644786/jetpack-compose-how-to-test-navigation
+//            navController = it.navHostFragment.navController
         }
     }
 
@@ -253,7 +248,7 @@ class NewScoreInstrumentedTest {
 
     @Test
     fun testEditInfo() = runTest {
-        setup(archerRoundInput.archerRoundId)
+        setup()
 
         val selectedRound = roundsInput[1]
         val calendar = Calendar.getInstance()
@@ -331,7 +326,7 @@ class NewScoreInstrumentedTest {
 
     @Test
     fun testEditInfoToNoRound() = runTest {
-        setup(archerRoundInput.archerRoundId)
+        setup()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {

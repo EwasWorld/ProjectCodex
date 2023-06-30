@@ -9,7 +9,7 @@
 
     <!-- Action bar -->
     <string name="action_bar__help">Help</string>
-    <string name="action_bar__home">Main menu</string>
+    <string name="action_bar__home">Return to main menu</string>
     <string name="action_bar__close_help">Close help</string>
     <string name="err_action_bar__no_help_info">No help info available for this page</string>
     <string name="err_action_bar__home_already_displayed">Main menu is already displayed</string>

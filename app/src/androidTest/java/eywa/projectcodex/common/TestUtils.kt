@@ -1,12 +1,9 @@
 package eywa.projectcodex.common
 
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
-import androidx.fragment.app.Fragment
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.utils.asCalendar
-import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -16,7 +13,6 @@ import org.mockito.ArgumentCaptor
 import java.sql.Date
 import java.util.*
 import kotlin.random.Random
-import kotlin.reflect.KClass
 
 typealias ComposeTestRule<T> = AndroidComposeTestRule<ActivityScenarioRule<T>, T>
 
@@ -99,20 +95,6 @@ object TestUtils {
                 }
         )
         return Date.valueOf("$year-$generatedMonth-$day").asCalendar()
-    }
-
-    fun isFragmentShowing(scenario: ActivityScenario<MainActivity>, fragment: KClass<out Fragment>): Boolean {
-        var found = false
-        scenario.onActivity {
-            val fragments = it.navHostFragment.childFragmentManager.fragments
-            for (frag in fragments) {
-                if (frag.javaClass.name == fragment.java.name) {
-                    found = true
-                    return@onActivity
-                }
-            }
-        }
-        return found
     }
 
     fun generateArcherRounds(roundsToGenerate: Int): List<ArcherRound> = List(roundsToGenerate) { generateDate() }

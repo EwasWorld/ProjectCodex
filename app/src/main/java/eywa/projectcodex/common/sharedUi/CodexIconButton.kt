@@ -3,7 +3,6 @@ package eywa.projectcodex.common.sharedUi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -30,9 +29,31 @@ fun CodexIconButton(
         enabled: Boolean = true,
         helpState: HelpState? = null,
         onClick: () -> Unit,
+) = CodexIconButton(
+        icon = CodexIconInfo.VectorIcon(icon, contentDescription),
+        modifier = modifier,
+        captionBelow = captionBelow,
+        enabled = enabled,
+        helpState = helpState,
+        onClick = onClick,
+)
+
+@Composable
+fun CodexIconButton(
+        icon: CodexIconInfo,
+        modifier: Modifier = Modifier,
+        captionBelow: String? = null,
+        enabled: Boolean = true,
+        helpState: HelpState? = null,
+        onClick: () -> Unit,
 ) {
-    require(contentDescription != null || captionBelow != null) { "Must provide a description" }
     val color = if (enabled) CodexTheme.colors.iconButtonOnPrimary else CodexTheme.colors.disabledButton
+    val actualIcon = icon.copyIcon(
+            contentDescription = icon.contentDescription.takeIf { captionBelow.isNullOrBlank() },
+            tint = color,
+    )
+
+    require(actualIcon.contentDescription != null) { "Must provide a description" }
     helpState?.add()
 
     IconButton(
@@ -46,10 +67,7 @@ fun CodexIconButton(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                    imageVector = icon,
-                    contentDescription = contentDescription.takeIf { captionBelow.isNullOrBlank() },
-                    tint = color,
+            actualIcon.ClavaIcon(
                     modifier = Modifier.scale(1.2f),
             )
             if (!captionBelow.isNullOrBlank()) {

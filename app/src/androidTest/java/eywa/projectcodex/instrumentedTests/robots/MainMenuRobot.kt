@@ -7,33 +7,33 @@ import androidx.compose.ui.test.performClick
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.mainMenu.MainMenuScreen
+import eywa.projectcodex.components.mainMenu.MainMenuTestTag
 
 class MainMenuRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, MainMenuScreen.TestTag.SCREEN) {
+) : BaseRobot(composeTestRule, MainMenuTestTag.SCREEN) {
     fun clickNewScore(block: NewScoreRobot.() -> Unit = {}) {
-        clickElement(MainMenuScreen.TestTag.NEW_SCORE)
+        clickElement(MainMenuTestTag.NEW_SCORE)
         NewScoreRobot(composeTestRule).apply { block() }
     }
 
     fun clickViewScores(block: ViewScoresRobot.() -> Unit = {}) {
-        clickElement(MainMenuScreen.TestTag.VIEW_SCORES)
+        clickElement(MainMenuTestTag.VIEW_SCORES)
         ViewScoresRobot(composeTestRule).apply { block() }
     }
 
     fun clickHandicapTables(block: HandicapTablesRobot.() -> Unit = {}) {
-        clickElement(MainMenuScreen.TestTag.HANDICAP_TABLES)
+        clickElement(MainMenuTestTag.HANDICAP_TABLES)
         HandicapTablesRobot(composeTestRule).apply { block() }
     }
 
     fun clickSightMarks(): SightMarksRobot {
-        clickElement(MainMenuScreen.TestTag.SIGHT_MARKS)
+        clickElement(MainMenuTestTag.SIGHT_MARKS)
         return SightMarksRobot(composeTestRule, this)
     }
 
     fun clickAboutIcon(block: AboutRobot.() -> Unit) {
-        clickElement(MainMenuScreen.TestTag.ABOUT)
+        clickElement(MainMenuTestTag.ABOUT)
         AboutRobot(composeTestRule).apply(block)
     }
 
