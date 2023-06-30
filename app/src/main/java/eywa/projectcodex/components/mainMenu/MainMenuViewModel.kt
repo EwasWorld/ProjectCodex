@@ -8,10 +8,7 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.mainMenu.MainMenuIntent.*
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,8 +33,8 @@ class MainMenuViewModel @Inject constructor(
                     }
         }
         viewModelScope.launch {
-            helpShowcase.state.collectLatest { helpShowcaseState ->
-                _state.update { it.copy(isHelpShowcaseInProgress = helpShowcaseState.isInProgress) }
+            helpShowcase.state.map { it.isInProgress }.distinctUntilChanged().collectLatest { isInProgress ->
+                _state.update { it.copy(isHelpShowcaseInProgress = isInProgress) }
             }
         }
     }

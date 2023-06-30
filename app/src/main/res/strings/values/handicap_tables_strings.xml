@@ -2,15 +2,17 @@
 <resources>
     <string name="handicap_tables__title">Handicap Tables</string>
 
-    <string name="handicap_tables__input">Input:</string>
+    <string name="handicap_tables__input">Search by:</string>
     <string name="handicap_tables__handicap_field">Handicap</string>
     <string name="handicap_tables__score_field">Score</string>
-    <string name="handicap_tables__new_system_toggle">Use 2023 system</string>
+    <string name="handicap_tables__handicap_system_title">Handicap system:</string>
+    <string name="handicap_tables__handicap_system_david_lane">David Lane</string>
+    <string name="handicap_tables__handicap_system_agb_2023">2023 ArcheryGB</string>
     <string name="handicap_tables__no_tables">No data</string>
 
     <string name="help_handicap_tables__2023_system_title">Handicap system</string>
-    <string name="help_handicap_tables__2023_system_body">The handicap system was changed for the 2023 season to use a new formula from Archery GB. Pre-2023 used David Lane\'s system. Use this toggle to switch between the two systems.</string>
-    <string name="help_handicap_tables__input_type_title">Input type</string>
+    <string name="help_handicap_tables__2023_system_body">The handicap system was changed for the 2023 season to use a new formula from Archery GB. Prior to this, tables created by David Lane were used. Use this toggle to switch between the two systems.</string>
+    <string name="help_handicap_tables__input_type_title">Search by</string>
     <string name="help_handicap_tables__input_type_body_handicap">Use this toggle to switch between entering a handicap (current) to find the corresponding score, and entering a score to find the corresponding handicap</string>
     <string name="help_handicap_tables__input_type_body_score">Use this toggle to switch between entering a handicap to find the corresponding score, and entering a score to find the corresponding handicap (current)</string>
     <string name="help_handicap_tables__input_title">Input</string>
@@ -18,7 +20,7 @@
     <string name="help_handicap_tables__input_body_score">Enter a score to calculate the corresponding handicap</string>
     <string name="help_handicap_tables__round_title">Round</string>
     <string name="help_handicap_tables__round_body">Specify the round to get a handicap/score for</string>
-    <string name="help_handicap_tables__table_title">Table</string>
+    <string name="help_handicap_tables__table_title">Data</string>
     <string name="help_handicap_tables__table_body">Lists handicaps and their corresponding scores. The result of the search is highlighted</string>
 
 </resources>

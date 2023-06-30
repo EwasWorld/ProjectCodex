@@ -35,7 +35,8 @@ class HelpShowcaseUseCase {
 
     internal fun updateItem(key: ResOrActual<String>, layoutCoordinates: LayoutCoordinates) {
         _state.update {
-            val item = it.helpInfoMap[key]!!.copy(layoutCoordinates = layoutCoordinates)
+            val item = it.helpInfoMap[key]?.copy(layoutCoordinates = layoutCoordinates)
+                    ?: return@update it
             it.copy(helpInfoMap = it.helpInfoMap.plus(item.helpTitle to item))
         }
     }
@@ -83,19 +84,24 @@ class HelpShowcaseUseCase {
         when (action) {
             is HelpShowcaseIntent.Add ->
                 _state.update {
-                    val newState = if (it.currentScreen != screen) HelpShowcaseState(currentScreen = screen!!) else it
-                    newState.copy(helpInfoMap = newState.helpInfoMap.plus(action.item.helpTitle to action.item))
+                    if (it.currentScreen != screen) return@update it
+                    it.copy(helpInfoMap = it.helpInfoMap.plus(action.item.helpTitle to action.item))
                 }
             is HelpShowcaseIntent.AddDynamicInfo -> {
-                check(action.info.type == screen!!) { "Incorrect screen" }
+                require(action.info.type == screen!!) { "Incorrect screen" }
                 _state.update {
-                    val newState = if (it.currentScreen != screen) HelpShowcaseState(currentScreen = screen) else it
-                    newState.copy(dynamicHelpShowcaseInfo = action.info)
+                    if (it.currentScreen != screen) return@update it
+                    it.copy(dynamicHelpShowcaseInfo = action.info)
                 }
             }
             HelpShowcaseIntent.Clear -> _state.update { it.copy(helpInfoMap = emptyMap()) }
             is HelpShowcaseIntent.Remove -> _state.update { it.copy(helpInfoMap = it.helpInfoMap.minus(action.key)) }
             is HelpShowcaseIntent.UpdateCoordinates -> updateItem(action.key, action.layoutCoordinates)
+            is HelpShowcaseIntent.SetScreen -> _state.update {
+                require(screen == null || action.screen == screen) { "Incorrect screen" }
+                if (it.currentScreen == screen) return@update it
+                HelpShowcaseState(currentScreen = action.screen)
+            }
         }
     }
 

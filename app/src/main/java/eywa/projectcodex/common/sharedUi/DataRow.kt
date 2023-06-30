@@ -2,17 +2,21 @@ package eywa.projectcodex.common.sharedUi
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 
+@Deprecated("Old")
 @Composable
 fun DataRow(
         @StringRes title: Int,
@@ -35,6 +39,7 @@ fun DataRow(
     )
 }
 
+@Deprecated("Old")
 @Composable
 fun DataRow(
         @StringRes title: Int,
@@ -60,13 +65,34 @@ fun DataRow(
 @Composable
 fun DataRow(
         title: String,
+        text: String,
+        helpState: HelpState?,
+        modifier: Modifier = Modifier,
+        textModifier: Modifier = Modifier,
+        style: TextStyle = LocalTextStyle.current,
+) = DataRow(
+        title = title,
+        helpState = helpState,
+        modifier = modifier,
+) {
+    Text(
+            text = text,
+            style = style,
+            modifier = textModifier,
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun DataRow(
+        title: String,
         helpState: HelpState?,
         modifier: Modifier = Modifier,
         content: @Composable () -> Unit,
 ) {
     helpState?.add()
 
-    Row(
+    FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier.updateHelpDialogPosition(helpState)

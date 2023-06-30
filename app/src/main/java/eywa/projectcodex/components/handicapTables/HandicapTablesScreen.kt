@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
-import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,22 +15,21 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.CodexCheckbox
+import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
+import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.NumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 
 @Composable
@@ -48,7 +46,6 @@ fun HandicapTablesScreen(
         listener: (HandicapTablesIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
-    HelpInfo(state.inputHandicap, helpListener)
 
     Column(
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
@@ -58,59 +55,60 @@ fun HandicapTablesScreen(
                     .background(CodexTheme.colors.appBackground)
                     .verticalScroll(rememberScrollState())
                     .padding(vertical = 20.dp)
-                    .testTag(HandicapTablesTestTag.SCREEN)
+                    .testTag(HandicapTablesTestTag.SCREEN.getTestTag())
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
-            CodexCheckbox(
-                    text = stringResource(R.string.handicap_tables__new_system_toggle),
-                    checked = state.use2023Tables,
-                    onToggle = { listener(ToggleHandicapSystem) },
-                    modifier = Modifier
-                            .updateHelpDialogPosition(
-                                    helpListener,
-                                    R.string.help_handicap_tables__2023_system_title
-                            )
+            DataRow(
+                    title = stringResource(R.string.handicap_tables__handicap_system_title),
+                    text = stringResource(
+                            if (state.use2023Tables) R.string.handicap_tables__handicap_system_agb_2023
+                            else R.string.handicap_tables__handicap_system_david_lane
+                    ),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_handicap_tables__2023_system_title),
+                            helpBody = stringResource(R.string.help_handicap_tables__2023_system_body),
+                    ),
+                    textModifier = Modifier.clickable { listener(ToggleHandicapSystem) },
+                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle()
             )
-        }
-
-        Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                modifier = Modifier
-                        .clickable { listener(ToggleInput) }
-                        .updateHelpDialogPosition(helpListener, R.string.help_handicap_tables__input_type_title)
-        ) {
-            @Composable
-            fun getStyle(isEnabled: Boolean) =
-                    (if (isEnabled) CodexTypography.NORMAL else CodexTypography.SMALL).copy(
-                            color = CodexTheme.colors.onAppBackground,
-                            textDecoration = if (isEnabled) TextDecoration.None else TextDecoration.LineThrough
-                    )
-            Text(
-                    text = stringResource(R.string.handicap_tables__input),
-                    style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-            )
-            Text(
-                    text = stringResource(R.string.handicap_tables__handicap_field),
-                    style = getStyle(state.inputHandicap),
-            )
-            Switch(checked = !state.inputHandicap, onCheckedChange = { listener(ToggleInput) })
-            Text(
-                    text = stringResource(R.string.handicap_tables__score_field),
-                    style = getStyle(!state.inputHandicap),
+            DataRow(
+                    title = stringResource(R.string.handicap_tables__input),
+                    text = stringResource(
+                            if (state.inputHandicap) R.string.handicap_tables__handicap_field
+                            else R.string.handicap_tables__score_field
+                    ),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
+                            helpBody = stringResource(
+                                    if (state.inputHandicap) R.string.help_handicap_tables__input_type_body_handicap
+                                    else R.string.help_handicap_tables__input_type_body_score
+                            ),
+                    ),
+                    textModifier = Modifier.clickable { listener(ToggleInput) },
+                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle()
             )
         }
 
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
             NumberSetting(
                     clazz = Int::class,
-                    title = (
+                    title = stringResource(
                             if (state.inputHandicap) R.string.handicap_tables__handicap_field
                             else R.string.handicap_tables__score_field
-                            ),
+                    ),
                     currentValue = state.input,
                     placeholder = 50,
                     testTag = "",
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_handicap_tables__input_title),
+                            helpBody = stringResource(
+                                    if (state.inputHandicap) R.string.help_handicap_tables__input_body_handicap
+                                    else R.string.help_handicap_tables__input_body_score
+                            ),
+                    ),
                     onValueChanged = { listener(InputChanged(it)) },
                     modifier = Modifier
                             .updateHelpDialogPosition(helpListener, R.string.help_handicap_tables__input_title)
@@ -152,58 +150,22 @@ fun HandicapTablesScreen(
 }
 
 @Composable
-private fun HelpInfo(
-        inputHandicap: Boolean,
-        helpListener: (HelpShowcaseIntent) -> Unit,
-) {
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_handicap_tables__2023_system_title,
-                            helpBody = R.string.help_handicap_tables__2023_system_body,
-                    ),
-            )
-    )
-
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_handicap_tables__input_type_title,
-                            helpBody = (
-                                    if (inputHandicap) R.string.help_handicap_tables__input_type_body_handicap
-                                    else R.string.help_handicap_tables__input_type_body_score
-                                    ),
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_handicap_tables__input_title,
-                            helpBody = (
-                                    if (inputHandicap) R.string.help_handicap_tables__input_body_handicap
-                                    else R.string.help_handicap_tables__input_body_score
-                                    ),
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_handicap_tables__table_title,
-                            helpBody = R.string.help_handicap_tables__table_body,
-                    ),
-            )
-    )
-}
-
-@Composable
 private fun Table(
         handicaps: List<HandicapScore>,
         highlighted: HandicapScore?,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    ProvideTextStyle(value = CodexTypography.NORMAL) {
+    helpListener(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = R.string.help_handicap_tables__table_title,
+                            helpBody = R.string.help_handicap_tables__table_body,
+                            priority = DEFAULT_HELP_PRIORITY + 1,
+                    ),
+            )
+    )
+
+    ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
         Column(
                 verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
                 modifier = Modifier.padding(10.dp)
@@ -266,10 +228,14 @@ private fun Table(
     }
 }
 
-object HandicapTablesTestTag {
-    private const val PREFIX = "HANDICAP_TABLES_"
+enum class HandicapTablesTestTag : CodexTestTag {
+    SCREEN,
+    ;
 
-    const val SCREEN = "${PREFIX}SCREEN"
+    override val screenName: String
+        get() = "HANDICAP_TABLES"
+
+    override fun getElement(): String = name
 }
 
 @Preview

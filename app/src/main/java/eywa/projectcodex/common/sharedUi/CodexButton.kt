@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 
@@ -19,10 +21,13 @@ fun CodexButton(
         buttonStyle: CodexButtonStyle,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
+        helpState: HelpState? = null,
         onClick: () -> Unit,
 ) {
+    helpState?.add()
+
     Button(
-            modifier = modifier,
+            modifier = modifier.updateHelpDialogPosition(helpState),
             onClick = onClick,
             colors = ButtonDefaults.buttonColors(
                     backgroundColor = buttonStyle.getBackgroundColor(),

@@ -18,7 +18,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -28,12 +27,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconButton
@@ -71,6 +72,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             CodexTheme {
                 val navController = rememberNavController()
+                val currentEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = currentEntry?.currentCodexNavRoute()
+
+                LaunchedEffect(currentRoute) {
+                    currentRoute?.let {
+                        viewModel.helpShowcase.handle(HelpShowcaseIntent.SetScreen(it::class), it::class)
+                    }
+                }
 
                 val helpState by viewModel.helpShowcase.state.collectAsState()
                 BackHandler(helpState.isInProgress) {
@@ -108,11 +117,14 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
+    private fun NavBackStackEntry.currentCodexNavRoute() = destination
+            .route?.takeWhile { it != '/' && it != '?' }
+            .let { CodexNavRoute.reverseMap[it] }
+
+    @Composable
     fun TopBar(navController: NavController) {
         val currentEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = currentEntry?.destination
-                ?.route?.takeWhile { it != '/' && it != '?' }
-                ?.let { CodexNavRoute.reverseMap[it] }
+        val currentRoute = currentEntry?.currentCodexNavRoute()
 
         TopAppBar(
                 title = {
@@ -129,7 +141,6 @@ class MainActivity : ComponentActivity() {
                             icon = CodexIconInfo.PainterIcon(
                                     drawable = R.drawable.ic_help_icon,
                                     contentDescription = stringResource(R.string.action_bar__help),
-                                    modifier = Modifier.scale(1f / 1.2f)
                             ),
                             modifier = Modifier.testTag(MainActivityTestTag.HELP_ICON.getTestTag())
                     ) { viewModel.handle(StartHelpShowcase(currentRoute)) }
@@ -138,7 +149,6 @@ class MainActivity : ComponentActivity() {
                             icon = CodexIconInfo.PainterIcon(
                                     drawable = R.drawable.ic_home_icon,
                                     contentDescription = stringResource(R.string.action_bar__home),
-                                    modifier = Modifier.scale(1f / 1.2f)
                             ),
                             modifier = Modifier.testTag(MainActivityTestTag.HOME_ICON.getTestTag())
                     ) {

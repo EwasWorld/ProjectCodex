@@ -21,6 +21,8 @@
     <string name="help_main_menu__view_scores_body">View, edit, and continue existing scores</string>
     <string name="help_main_menu__handicap_tables_title">Handicap tables</string>
     <string name="help_main_menu__handicap_tables_body">Calculate handicaps for scores or vice versa</string>
+    <string name="help_main_menu__classification_tables_title">Classification tables</string>
+    <string name="help_main_menu__classification_tables_body">Look up ArcheryGB classification scores for each round</string>
     <string name="help_main_menu__sight_marks_title">Sight marks</string>
     <string name="help_main_menu__sight_marks_body">Record and edit sight marks for each distance</string>
     <string name="help_main_menu__settings_title">Settings</string>

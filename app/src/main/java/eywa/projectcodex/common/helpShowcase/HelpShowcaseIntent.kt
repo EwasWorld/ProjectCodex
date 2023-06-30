@@ -3,6 +3,7 @@ package eywa.projectcodex.common.helpShowcase
 import androidx.annotation.StringRes
 import androidx.compose.ui.layout.LayoutCoordinates
 import eywa.projectcodex.common.utils.ResOrActual
+import kotlin.reflect.KClass
 
 sealed class HelpShowcaseIntent {
     data class Add(val item: HelpShowcaseItem) : HelpShowcaseIntent()
@@ -27,4 +28,5 @@ sealed class HelpShowcaseIntent {
     }
 
     object Clear : HelpShowcaseIntent()
+    data class SetScreen(val screen: KClass<out ActionBarHelp>) : HelpShowcaseIntent()
 }

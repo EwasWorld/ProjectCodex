@@ -13,27 +13,27 @@ class MainMenuRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, MainMenuTestTag.SCREEN) {
     fun clickNewScore(block: NewScoreRobot.() -> Unit = {}) {
-        clickElement(MainMenuTestTag.NEW_SCORE)
+        clickElement(MainMenuTestTag.NEW_SCORE_BUTTON)
         NewScoreRobot(composeTestRule).apply { block() }
     }
 
     fun clickViewScores(block: ViewScoresRobot.() -> Unit = {}) {
-        clickElement(MainMenuTestTag.VIEW_SCORES)
+        clickElement(MainMenuTestTag.VIEW_SCORE_BUTTON)
         ViewScoresRobot(composeTestRule).apply { block() }
     }
 
     fun clickHandicapTables(block: HandicapTablesRobot.() -> Unit = {}) {
-        clickElement(MainMenuTestTag.HANDICAP_TABLES)
+        clickElement(MainMenuTestTag.HANDICAP_TABLES_BUTTON)
         HandicapTablesRobot(composeTestRule).apply { block() }
     }
 
     fun clickSightMarks(): SightMarksRobot {
-        clickElement(MainMenuTestTag.SIGHT_MARKS)
+        clickElement(MainMenuTestTag.SIGHT_MARKS_BUTTON)
         return SightMarksRobot(composeTestRule, this)
     }
 
     fun clickAboutIcon(block: AboutRobot.() -> Unit) {
-        clickElement(MainMenuTestTag.ABOUT)
+        clickElement(MainMenuTestTag.ABOUT_BUTTON)
         AboutRobot(composeTestRule).apply(block)
     }
 

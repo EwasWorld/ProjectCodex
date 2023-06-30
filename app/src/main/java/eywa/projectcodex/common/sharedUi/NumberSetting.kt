@@ -13,12 +13,14 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import kotlin.reflect.KClass
@@ -131,7 +133,6 @@ private sealed class NumberSettingHelper<I> {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun <I : Any> NumberSetting(
         clazz: KClass<I>,
@@ -145,15 +146,37 @@ fun <I : Any> NumberSetting(
         placeholder: I,
         onValueChanged: (I?) -> Unit,
         modifier: Modifier = Modifier,
+) = NumberSetting(
+        clazz,
+        stringResource(title),
+        currentValue,
+        isError,
+        testTag,
+        helpListener?.let { HelpState(helpListener, stringResource(helpTitle!!), stringResource(helpBody!!)) },
+        placeholder,
+        onValueChanged,
+        modifier,
+)
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun <I : Any> NumberSetting(
+        clazz: KClass<I>,
+        title: String,
+        currentValue: I?,
+        isError: Boolean = false,
+        testTag: String,
+        helpState: HelpState? = null,
+        placeholder: I,
+        onValueChanged: (I?) -> Unit,
+        modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val helper = NumberSettingHelper.getHelper(clazz)!!
 
     DataRow(
             title = title,
-            helpListener = helpListener,
-            helpTitle = helpTitle,
-            helpBody = helpBody,
+            helpState = helpState,
             modifier = modifier,
     ) {
         Surface(
