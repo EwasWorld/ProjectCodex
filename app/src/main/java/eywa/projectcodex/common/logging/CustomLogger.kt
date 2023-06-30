@@ -2,6 +2,10 @@ package eywa.projectcodex.common.logging
 
 import android.util.Log
 
+fun debugLog(message: String) {
+    Log.i("echDebug", message)
+}
+
 /**
  * Ensures all message tags are prepended with a master tag for easy searching
  */

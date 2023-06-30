@@ -101,9 +101,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    val state by viewModel.state.collectAsState()
-
-                    HelpItem(state)
+                    HelpItem()
                 }
             }
         }
@@ -131,20 +129,18 @@ class MainActivity : ComponentActivity() {
                             icon = CodexIconInfo.PainterIcon(
                                     drawable = R.drawable.ic_help_icon,
                                     contentDescription = stringResource(R.string.action_bar__help),
+                                    modifier = Modifier.scale(1f / 1.2f)
                             ),
-                            modifier = Modifier
-                                    .scale(1f)
-                                    .testTag(MainActivityTestTag.HELP_ICON.getTestTag())
+                            modifier = Modifier.testTag(MainActivityTestTag.HELP_ICON.getTestTag())
                     ) { viewModel.handle(StartHelpShowcase(null)) }
 
                     CodexIconButton(
                             icon = CodexIconInfo.PainterIcon(
                                     drawable = R.drawable.ic_home_icon,
                                     contentDescription = stringResource(R.string.action_bar__home),
+                                    modifier = Modifier.scale(1f / 1.2f)
                             ),
-                            modifier = Modifier
-                                    .scale(1f)
-                                    .testTag(MainActivityTestTag.HOME_ICON.getTestTag())
+                            modifier = Modifier.testTag(MainActivityTestTag.HOME_ICON.getTestTag())
                     ) {
                         with(navController) {
                             if (currentRoute == CodexNavRoute.MAIN_MENU) {
@@ -162,7 +158,9 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun HelpItem(state: MainActivityState) {
+    fun HelpItem() {
+        val state by viewModel.state.collectAsState()
+
         LaunchedEffect(state.helpShowcaseState?.startedButNoItems) {
             launch {
                 if (state.helpShowcaseState?.startedButNoItems == true) {
@@ -175,11 +173,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
         var displayedHelpItem by remember { mutableStateOf(state.currentHelpItem) }
         // 0 for invisible, 1 for visible
         val displayedHelpItemAnimationState =
-                remember { Animatable(if (state.currentHelpItem == null) 0f else 1f) }
+                remember { Animatable(if (displayedHelpItem == null) 0f else 1f) }
 
         val configuration = LocalConfiguration.current
 
