@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.settings.SettingsIntent.*
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
@@ -44,7 +45,7 @@ class SettingsViewModel @Inject constructor(
         when (action) {
             ToggleUse2023System -> viewModelScope.launch { datastore.toggle(Use2023HandicapSystem) }
             ToggleUseBetaFeatures -> viewModelScope.launch { datastore.toggle(UseBetaFeatures) }
-            is HelpShowcaseAction -> helpShowcaseUseCase.handle(action.action, SettingsFragment::class)
+            is HelpShowcaseAction -> helpShowcaseUseCase.handle(action.action, CodexNavRoute.SETTINGS::class)
         }
     }
 }

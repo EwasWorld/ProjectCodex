@@ -97,14 +97,14 @@ class NewScoreRobot(
     fun clickSelectedRound() {
         clickElement(TestTag.SELECTED_ROUND)
         CustomConditionWaiter.waitForComposeCondition {
-            composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.ROUND_DIALOG).assertIsDisplayed()
+            composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.ROUND_DIALOG.getTestTag()).assertIsDisplayed()
         }
     }
 
     fun clickRoundDialogRound(displayName: String, index: Int = 0) {
         composeTestRule.onAllNodes(
                 displayName.split(" ").map { hasAnyChild(hasText(it)) }.fold(
-                        hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                        hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
                 ) { a, b -> a.and(b) },
                 true,
         )[index].performClick()
@@ -129,7 +129,7 @@ class NewScoreRobot(
     fun clickSubtypeDialogSubtype(displayName: String, index: Int = 0) {
         composeTestRule.onAllNodes(
                 displayName.split(" ").map { hasAnyChild(hasText(it)) }.fold(
-                        hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                        hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
                 ) { a, b -> a.and(b) },
                 true,
         )[index].performClick()

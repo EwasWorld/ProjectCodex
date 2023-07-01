@@ -65,7 +65,7 @@ fun HandicapTablesScreen(
             DataRow(
                     title = stringResource(R.string.handicap_tables__handicap_system_title),
                     text = stringResource(
-                            if (state.use2023Tables) R.string.handicap_tables__handicap_system_agb_2023
+                            if (state.use2023System) R.string.handicap_tables__handicap_system_agb_2023
                             else R.string.handicap_tables__handicap_system_david_lane
                     ),
                     helpState = HelpState(
@@ -253,7 +253,7 @@ fun PreviewMainMenuScreen() {
                     round = HandicapTablesState.RoundInfo.Round(RoundPreviewHelper.outdoorImperialRoundData),
                     roundFilters = SelectRoundEnabledFilters(),
                     subType = 1,
-                    use2023Tables = false,
+                    use2023System = false,
                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                     isSelectRoundDialogOpen = false,
                     isSelectSubtypeDialogOpen = false,

@@ -7,8 +7,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
+import eywa.projectcodex.components.settings.SettingsScreen
 
-// TODO_CURRENT Check help clears between screens
 enum class CodexNavRoute : NavRoute, ActionBarHelp {
     ABOUT,
     ARCHER_ROUND_SCORE {
@@ -16,6 +16,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
             get() = mapOf(NavArgument.ARCHER_ROUND_ID to false, NavArgument.SCREEN to true)
     },
     CLASSIFICATION_TABLES,
+    EMAIL_SCORE,
     HANDICAP_TABLES {
         @Composable
         override fun getMenuBarTitle(): String = stringResource(R.string.handicap_tables__title)
@@ -38,7 +39,15 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(NavArgument.ARCHER_ROUND_ID to false)
     },
-    SETTINGS,
+    SETTINGS {
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.settings__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            SettingsScreen()
+        }
+    },
     SIGHT_MARKS {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(NavArgument.SIGHT_MARK_ID to false)

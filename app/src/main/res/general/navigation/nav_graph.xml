@@ -68,11 +68,6 @@
             />
     </fragment>
     <fragment
-        android:id="@+id/settingsFragment"
-        android:name="eywa.projectcodex.components.settings.SettingsFragment"
-        android:label="SettingsFragment"
-        />
-    <fragment
         android:id="@+id/sightMarksFragment"
         android:name="eywa.projectcodex.components.sightMarks.SightMarksFragment"
         android:label="SightMarksFragment"

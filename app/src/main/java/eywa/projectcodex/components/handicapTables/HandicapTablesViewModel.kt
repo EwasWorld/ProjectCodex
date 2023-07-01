@@ -29,7 +29,7 @@ class HandicapTablesViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             datastore.get(DatastoreKey.Use2023HandicapSystem).firstOrNull()?.let { use2023 ->
-                _state.update { it.copy(use2023Tables = use2023) }
+                _state.update { it.copy(use2023System = use2023) }
             }
             state.map { it.roundFilters }.distinctUntilChanged().collectLatest { filters ->
                 db.roundsRepo().fullRoundsInfo(filters).collectLatest { rounds ->
@@ -57,7 +57,7 @@ class HandicapTablesViewModel @Inject constructor(
                         handicap = handicap.toFloat(),
                         innerTenArcher = false,
                         arrows = null,
-                        use2023Handicaps = use2023Tables,
+                        use2023Handicaps = use2023System,
                         // TODO_CURRENT Faces
                 ),
         )
@@ -74,7 +74,7 @@ class HandicapTablesViewModel @Inject constructor(
                             score = input,
                             innerTenArcher = false,
                             arrows = null,
-                            use2023Handicaps = use2023Tables,
+                            use2023Handicaps = use2023System,
                             // TODO_CURRENT Faces
                     ).roundHandicap(),
             )
@@ -100,7 +100,7 @@ class HandicapTablesViewModel @Inject constructor(
             is HandicapTablesIntent.InputChanged -> _state.update { it.copy(input = action.newSize).addHandicaps() }
             is HandicapTablesIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
             HandicapTablesIntent.ToggleHandicapSystem -> _state.update {
-                it.copy(use2023Tables = !it.use2023Tables).addHandicaps()
+                it.copy(use2023System = !it.use2023System).addHandicaps()
             }
             HandicapTablesIntent.ToggleInput -> _state.update {
                 it.copy(inputHandicap = !it.inputHandicap).addHandicaps()
