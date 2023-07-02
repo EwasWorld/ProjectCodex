@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.Handicap
 import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTables
@@ -51,7 +52,7 @@ class ClassificationTablesViewModel @Inject constructor(
             BowClicked -> _state.update { it.copy(expanded = ClassificationTablesState.Dropdown.BOW) }
             CloseDropdown -> _state.update { it.copy(expanded = null) }
             is SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
-            is HelpShowcaseAction -> helpShowcase.handle(action.action, ClassificationFragment::class)
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.CLASSIFICATION_TABLES::class)
         }
     }
 

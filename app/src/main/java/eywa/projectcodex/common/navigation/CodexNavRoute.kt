@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.about.AboutScreen
+import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.settings.SettingsScreen
@@ -24,7 +25,15 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(NavArgument.ARCHER_ROUND_ID to false, NavArgument.SCREEN to true)
     },
-    CLASSIFICATION_TABLES,
+    CLASSIFICATION_TABLES {
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.classification_tables__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            ClassificationTablesScreen()
+        }
+    },
     EMAIL_SCORE,
     HANDICAP_TABLES {
         @Composable
