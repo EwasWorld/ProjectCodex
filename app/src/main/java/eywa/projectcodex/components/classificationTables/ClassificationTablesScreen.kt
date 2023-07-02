@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -22,9 +23,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.DataRow
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
@@ -67,7 +72,19 @@ fun ClassificationTablesScreen(
         )
 
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
-            CodexCheckbox(text = "Gents:", checked = state.isGent, onToggle = { listener(ToggleIsGent) })
+            DataRow(
+                    title = stringResource(R.string.classification_tables__gender_title),
+                    text = stringResource(
+                            if (state.isGent) R.string.classification_tables__gender_male
+                            else R.string.classification_tables__gender_female
+                    ),
+                    helpState = null,
+                    onClick = { listener(ToggleIsGent) },
+                    accessibilityRole = Role.Switch,
+                    style = CodexTypography.NORMAL.asClickableStyle(),
+                    modifier = Modifier.padding(vertical = 7.dp)
+            )
+
             Column(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -178,7 +195,7 @@ private fun Input(
 private fun Table(
         entries: List<ClassificationTableEntry>,
 ) {
-    ProvideTextStyle(value = CodexTypography.NORMAL) {
+    ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onListItemAppOnBackground)) {
         Surface(
                 shape = RoundedCornerShape(10),
                 color = CodexTheme.colors.listItemOnAppBackground,

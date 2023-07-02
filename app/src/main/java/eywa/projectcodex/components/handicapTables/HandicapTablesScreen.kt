@@ -75,7 +75,7 @@ fun HandicapTablesScreen(
                     ),
                     onClick = { listener(ToggleHandicapSystem) },
                     accessibilityRole = Role.Switch,
-                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle(),
+                    style = CodexTypography.NORMAL.asClickableStyle(),
                     modifier = Modifier.padding(bottom = 2.dp)
             )
             DataRow(
@@ -94,7 +94,7 @@ fun HandicapTablesScreen(
                     ),
                     onClick = { listener(ToggleInput) },
                     accessibilityRole = Role.Switch,
-                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle()
+                    style = CodexTypography.NORMAL.asClickableStyle()
             )
         }
 

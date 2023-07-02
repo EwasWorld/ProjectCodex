@@ -2,6 +2,10 @@
 <resources>
     <string name="classification_tables__title">Classifications</string>
 
+    <string name="classification_tables__gender_title">Gender</string>
+    <string name="classification_tables__gender_male">Gents</string>
+    <string name="classification_tables__gender_female">Ladies</string>
+
     <string name="classification_tables__score_field">Score</string>
     <string name="classification_tables__handicap_field">HC</string>
     <string name="classification_tables__no_tables">No data</string>
