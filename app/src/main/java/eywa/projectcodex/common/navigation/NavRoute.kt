@@ -51,13 +51,13 @@ interface NavRoute {
 
         fun NavArgument.asNameAndValue() = Pair(
                 toArgName(),
-                if (argValues == null) toArgName() else argValues[this] ?: defaultValue,
+                if (argValues == null) "{${toArgName()}}" else argValues[this] ?: defaultValue,
         )
 
         val required = req.joinToString("") { (arg, _) ->
             val value = arg.asNameAndValue().second
                     ?: throw IllegalStateException("Required argument not provided")
-            "/{$value}"
+            "/$value"
         }
         val optional = opt
                 .mapNotNull { (arg, _) ->
@@ -66,7 +66,7 @@ interface NavRoute {
                     name to value
                 }
                 .takeIf { it.isNotEmpty() }
-                ?.joinToString("&") { (name, value) -> "$name={$value}" }
+                ?.joinToString("&") { (name, value) -> "$name=$value" }
                 ?.let { "?$it" }
                 ?: ""
         return routeBase + required + optional

@@ -20,10 +20,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Add
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Remove
+import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -38,8 +42,41 @@ import java.util.*
 
 @Composable
 fun SightMarksScreen(
+        navController: NavController,
+        viewModel: SightMarksViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsState()
+    val listener = { it: SightMarksIntent -> viewModel.handle(it) }
+    SightMarksScreen(state, listener)
+
+    LaunchedEffect(state) { handleEffects(state, navController, listener) }
+}
+
+private fun handleEffects(
         state: SightMarksState,
-        listener: (SightMarksIntent) -> Unit
+        navController: NavController,
+        listener: (SightMarksIntent) -> Unit,
+) {
+    if (state !is SightMarksState.Loaded) return
+
+    if (state.openSightMarkDetail != null) {
+        CodexNavRoute.SIGHT_MARK_DETAIL.navigate(
+                navController,
+                mapOf(NavArgument.SIGHT_MARK_ID to state.openSightMarkDetail.toString()),
+        )
+        listener(SightMarksIntent.OpenSightMarkHandled)
+    }
+
+    if (state.createNewSightMark) {
+        CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController)
+        listener(SightMarksIntent.CreateSightMarkHandled)
+    }
+}
+
+@Composable
+fun SightMarksScreen(
+        state: SightMarksState,
+        listener: (SightMarksIntent) -> Unit,
 ) {
     Crossfade(
             targetState = state,

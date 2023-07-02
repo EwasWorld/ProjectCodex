@@ -19,6 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import eywa.projectcodex.R
@@ -34,6 +36,31 @@ import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.model.SightMark
 import java.util.*
+
+@Composable
+fun SightMarkDetailScreen(
+        navController: NavController,
+        viewModel: SightMarkDetailViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsState()
+    val listener = { it: SightMarkDetailIntent -> viewModel.handle(it) }
+    SightMarkDetailScreen(state, listener)
+
+    LaunchedEffect(state) { handleEffects(state, navController, listener) }
+}
+
+private fun handleEffects(
+        state: SightMarkDetailState?,
+        navController: NavController,
+        listener: (SightMarkDetailIntent) -> Unit,
+) {
+    if (state == null) return
+
+    if (state.closeScreen) {
+        listener(CloseHandled)
+        navController.popBackStack()
+    }
+}
 
 @Composable
 fun SightMarkDetailScreen(

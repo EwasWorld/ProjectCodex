@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
 import eywa.projectcodex.components.sightMarks.SightMarksState.Loaded
 import eywa.projectcodex.components.sightMarks.SightMarksState.Loading
@@ -58,7 +59,7 @@ class SightMarksViewModel @Inject constructor(
             CreateSightMarkHandled -> _state.update { (it as Loaded).copy(createNewSightMark = false) }
             OpenSightMarkHandled -> _state.update { (it as Loaded).copy(openSightMarkDetail = null) }
 
-            is HelpShowcaseAction -> helpShowcase.handle(action.action, SightMarksFragment::class)
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.SIGHT_MARKS::class)
         }
     }
 }

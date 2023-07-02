@@ -32,8 +32,8 @@ import kotlin.system.exitProcess
 
 @Composable
 fun MainMenuScreen(
-        viewModel: MainMenuViewModel = hiltViewModel(),
         navController: NavController,
+        viewModel: MainMenuViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
     MainMenuScreen(state = state, listener = { viewModel.handle(it) })

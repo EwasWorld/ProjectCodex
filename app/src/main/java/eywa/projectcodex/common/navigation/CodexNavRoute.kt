@@ -10,6 +10,8 @@ import eywa.projectcodex.components.classificationTables.ClassificationTablesScr
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.settings.SettingsScreen
+import eywa.projectcodex.components.sightMarks.SightMarksScreen
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
 
 enum class CodexNavRoute : NavRoute, ActionBarHelp {
     ABOUT {
@@ -50,7 +52,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            MainMenuScreen(navController = navController)
+            MainMenuScreen(navController)
         }
     },
     NEW_SCORE {
@@ -67,8 +69,25 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
         }
     },
     SIGHT_MARKS {
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.sight_marks__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            SightMarksScreen(navController)
+        }
+    },
+    SIGHT_MARK_DETAIL {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(NavArgument.SIGHT_MARK_ID to false)
+
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.sight_marks__detail_title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            SightMarkDetailScreen(navController)
+        }
     },
     VIEW_SCORES,
     ;

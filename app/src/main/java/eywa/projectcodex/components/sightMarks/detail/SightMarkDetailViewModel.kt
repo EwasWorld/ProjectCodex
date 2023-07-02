@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
-import eywa.projectcodex.components.sightMarks.SightMarksFragment
+import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.sightMarks.SightMarkRepo
 import eywa.projectcodex.model.SightMark
@@ -34,7 +36,8 @@ class SightMarkDetailViewModel @Inject constructor(
     private var collectSightMarkJob: Job? = null
 
     init {
-        val editId = savedStateHandle.get<Int>("sightMarkId")?.takeIf { it != SightMarksFragment.NULL_ID }
+        val editId =
+                savedStateHandle.get<Int>(NavArgument.SIGHT_MARK_ID.toArgName())?.takeIf { it != DEFAULT_INT_NAV_ARG }
         if (editId == null) {
             _state.update { SightMarkDetailState() }
         }
@@ -51,7 +54,7 @@ class SightMarkDetailViewModel @Inject constructor(
     fun handle(action: SightMarkDetailIntent) {
         when (action) {
             is SightMarkDetailIntent.HelpShowcaseAction ->
-                helpShowcase.handle(action.action, SightMarkDetailFragment::class)
+                helpShowcase.handle(action.action, CodexNavRoute.SIGHT_MARK_DETAIL::class)
 
             is SightMarkDetailIntent.DistanceUpdated ->
                 _state.update { it?.copy(distance = action.value, distanceIsDirty = true) }
