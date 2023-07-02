@@ -14,10 +14,23 @@ class SightMarksDiagramHelper(
                 floor(log10(abs(difference))).roundToInt()
             }
 
-    val majorTickDifference = 10f.pow(majorTickDifferenceLog10)
+    val majorTickDifference = 10f.pow(majorTickDifferenceLog10).let { diff ->
+        // Get the largest gap between two sight marks
+        val maxGap = sightMarks
+                .takeIf { it.size > 1 }
+                ?.map { it.sightMark }
+                ?.sortedBy { it }
+                ?.zipWithNext { a, b -> abs(a - b) }
+                ?.max()
+                ?: return@let diff
+        // Increase the major difference if the gap is large
+        // This will decrease tape size and thus less scrolling is required
+        // Less scrolling also works better for talkback
+        if (maxGap < diff * 4) diff else (diff * 2f)
+    }
     val maxMajorTick = roundMajorDiff(highestSightMark, ::ceil).addMajorTick(1)
     val minMajorTick = roundMajorDiff(lowestSightMark, ::floor).addMajorTick(-1)
-    val totalMajorTicks = ((maxMajorTick - minMajorTick) / majorTickDifference).roundToInt()
+    val totalMajorTicks = ceil(((maxMajorTick - minMajorTick) / majorTickDifference)).roundToInt()
 
     private fun Float.addMajorTick(n: Int) =
             if (highestSightMark == lowestSightMark) this + majorTickDifference * n else this

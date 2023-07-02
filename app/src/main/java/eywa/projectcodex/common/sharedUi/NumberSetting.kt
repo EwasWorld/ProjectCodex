@@ -135,6 +135,7 @@ private sealed class NumberSettingHelper<I> {
     }
 }
 
+@Deprecated("Old")
 @Composable
 fun <I : Any> NumberSetting(
         clazz: KClass<I>,
@@ -152,7 +153,7 @@ fun <I : Any> NumberSetting(
         clazz,
         stringResource(title),
         currentValue,
-        isError,
+        if (isError) "" else null,
         testTag,
         helpListener?.let { HelpState(helpListener, stringResource(helpTitle!!), stringResource(helpBody!!)) },
         placeholder,
@@ -166,7 +167,7 @@ fun <I : Any> NumberSetting(
         clazz: KClass<I>,
         title: String,
         currentValue: I?,
-        isError: Boolean = false,
+        errorMessage: String? = null,
         testTag: String,
         helpState: HelpState? = null,
         placeholder: I,
@@ -176,6 +177,10 @@ fun <I : Any> NumberSetting(
     val keyboardController = LocalSoftwareKeyboardController.current
     val helper = NumberSettingHelper.getHelper(clazz)!!
     val displayValue = currentValue?.toString() ?: ""
+
+    val error = errorMessage?.let {
+        it.takeIf { it.isNotBlank() } ?: stringResource(R.string.general_error)
+    }
 
     DataRow(
             title = title,
@@ -193,7 +198,7 @@ fun <I : Any> NumberSetting(
                             onValueChange = { onValueChanged(helper.fromString(it)) },
                             testTag = "",
                     ),
-                    isError = isError,
+                    isError = error != null,
                     placeholderText = placeholder.toString(),
                     textStyle = CodexTypography.NORMAL.copy(
                             color = CodexTheme.colors.onSurfaceOnBackground,
@@ -213,6 +218,7 @@ fun <I : Any> NumberSetting(
                             .semantics {
                                 contentDescription = title
                                 editableText = AnnotatedString(displayValue)
+                                error?.let { error(it) }
                             }
             )
         }

@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -69,8 +70,8 @@ fun SightMarksDiagram(
     Layout(
             content = {
                 SightTape(state = helper)
-                state.sightMarks.forEach { SightMarkIndicator(it, true, onClick) }
-                state.sightMarks.forEach { SightMarkIndicator(it, false, onClick) }
+                state.sightMarks.forEachIndexed { index, it -> SightMarkIndicator(it, true, index, onClick) }
+                state.sightMarks.forEachIndexed { index, it -> SightMarkIndicator(it, false, index, onClick) }
                 state.sightMarks.forEach { sightMark ->
                     Icon(
                             imageVector = Icons.Default.ChevronRight,
@@ -96,6 +97,9 @@ fun SightMarksDiagram(
                     Divider(color = sightMark.getColour(), modifier = Modifier.width(3.dp))
                 }
             },
+            modifier = Modifier.semantics {
+                collectionInfo = CollectionInfo(state.sightMarks.size, 1)
+            }
     ) { measurables, constraints ->
         /*
          * Separate measurables
@@ -139,30 +143,25 @@ fun SightMarksDiagram(
          * Place
          */
         layout(offsets.totalWidth, tape.heightWithOverhang.roundToInt()) {
-            fun List<SightMarkIndicatorGroup>.placeIndicators(isLeft: Boolean) =
-                    place(isLeft, offsets, tape) { x, y -> place(x, y) }
-
             tape.placeable.place(x = offsets.tapeOffset, y = tape.topOverhang.roundToInt())
-            placeables.left.placeIndicators(isLeft = true)
-            placeables.right.placeIndicators(isLeft = false)
+            placeables.combined.place(offsets, tape) { x, y -> place(x, y) }
         }
     }
 }
 
-private fun List<SightMarkIndicatorGroup>.place(
-        isLeft: Boolean,
+private fun List<Pair<SightMarkIndicatorGroup, Boolean>>.place(
         offsets: Offsets,
         tape: Tape,
         place: Placeable.(x: Int, y: Int) -> Unit,
 ) {
-    fun Placeable.offsetPlace(x: Float, y: Float) {
-        val startX = if (isLeft) offsets.tapeOffset else offsets.rightIndicatorOffset
-        val offset = (x * if (isLeft) -1 else 1).roundToInt()
-        val extra = if (isLeft) -width else 0
-        place(startX + offset + extra, y.roundToInt())
-    }
+    forEach { (group, isLeft) ->
+        fun Placeable.offsetPlace(x: Float, y: Float) {
+            val startX = if (isLeft) offsets.tapeOffset else offsets.rightIndicatorOffset
+            val offset = (x * if (isLeft) -1 else 1).roundToInt()
+            val extra = if (isLeft) -width else 0
+            place(startX + offset + extra, y.roundToInt())
+        }
 
-    forEach { group ->
         group.indicators.withIndex().sortedBy { it.value.getPlacePriority() }.forEach { (index, indicator) ->
             val chevronCentreY = tape.topOverhang + tape.start + indicator.originalCentreOffset
             val indicatorTop = tape.topOverhang + tape.start + group.getIndicatorTopOffset(index)
@@ -242,19 +241,36 @@ private class Tape(val placeable: Placeable) {
 private fun SightMarkIndicator(
         sightMark: SightMark,
         isLeft: Boolean,
+        index: Int,
         onClick: (SightMark) -> Unit,
 ) {
     val distanceUnit = stringResource(
             if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
     )
-    val text = listOf(
-            sightMark.sightMark.toString(),
-            "-",
-            "${sightMark.distance}$distanceUnit",
-    ).let { if (isLeft) it.asReversed() else it }
     val colour =
             if (sightMark.isArchived) CodexTheme.colors.sightMarksDisabledIndicator
             else CodexTheme.colors.sightMarksIndicator
+
+    val text =
+            listOf(
+                    sightMark.sightMark.toString(),
+                    "-",
+                    "${sightMark.distance}$distanceUnit",
+            )
+                    .let { if (isLeft) it.asReversed() else it }
+                    .joinToString(" ")
+
+    val contentDescr =
+            listOf(
+                    sightMark.sightMark.toString(),
+                    "${sightMark.distance}$distanceUnit",
+            ).plus(
+                    listOfNotNull(
+                            R.string.sight_marks__marked.takeIf { sightMark.isMarked },
+                            sightMark.note?.let { R.string.sight_marks__has_note_content_descr },
+                            R.string.sight_marks__archived.takeIf { sightMark.isArchived },
+                    ).map { stringResource(it) }
+            ).joinToString(". ")
 
     @Composable
     fun NoteIcon() {
@@ -284,10 +300,14 @@ private fun SightMarkIndicator(
                                     .padding(horizontal = 7.dp)
                     )
                     .clickable { onClick(sightMark) }
+                    .clearAndSetSemantics {
+                        contentDescription = contentDescr
+                        collectionItemInfo = CollectionItemInfo(index, 1, 0, 1)
+                    }
     ) {
         if (isLeft) NoteIcon()
         Text(
-                text = text.joinToString(" "),
+                text = text,
                 style = CodexTypography.NORMAL
                         .copy(
                                 fontStyle = if (sightMark.isMarked || sightMark.isArchived) FontStyle.Italic else FontStyle.Normal,
@@ -319,6 +339,13 @@ private class IndicatorPlaceables(
         private set
     val all: List<SightMarkIndicatorGroup>
         get() = left.plus(right)
+    val combined: List<Pair<SightMarkIndicatorGroup, Boolean>>
+        get() = all.mapIndexed { index, sightMarkIndicatorGroup -> sightMarkIndicatorGroup to (index < left.size) }
+                .let { items ->
+                    if (highestAtTop) items.sortedByDescending { it.first.firstSightMark }
+                    else items.sortedBy { it.first.firstSightMark }
+                }
+
 
     val maxOffset
         get() = all.maxOf { it.bottomOffset }

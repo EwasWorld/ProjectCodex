@@ -116,7 +116,7 @@ class ViewScoresViewModelUnitTest {
                 archerRoundsInitial.map {
                     ViewScoresEntry(FullArcherRoundInfo(it, false), false, customLogger)
                 },
-                sut.state.value.data,
+                sut.state.value.data.sortedBy { it.id },
         )
     }
 

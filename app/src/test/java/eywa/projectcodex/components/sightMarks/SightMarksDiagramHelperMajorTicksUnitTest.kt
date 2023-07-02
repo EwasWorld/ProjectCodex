@@ -34,7 +34,12 @@ class SightMarksDiagramHelperMajorTicksUnitTest(private val param: Params) {
                  * General
                  */
                 Params(3.15f, 2.1f, 1f, 4f, 2f, 2),
-                Params(3.15f, 3.1f, 0.01f, 3.15f, 3.10f, 5),
+                Params(3.13f, 3.1f, 0.01f, 3.13f, 3.10f, 3),
+
+                /*
+                 * Half tape size
+                 */
+                Params(3.15f, 3.1f, 0.02f, 3.16f, 3.10f, 3),
 
                 /*
                  * Magnitude
@@ -47,8 +52,8 @@ class SightMarksDiagramHelperMajorTicksUnitTest(private val param: Params) {
                 /*
                  * Negative
                  */
-                Params(3.15f, -2.1f, 1f, 4f, -3f, 7),
-                Params(-3.15f, 2.1f, 1f, 3f, -4f, 7),
+                Params(1.15f, -1.1f, 1f, 2f, -2f, 4),
+                Params(-1.15f, 1.1f, 1f, 2f, -2f, 4),
                 Params(-3.15f, -2.1f, 1f, -2f, -4f, 2),
 
                 /*

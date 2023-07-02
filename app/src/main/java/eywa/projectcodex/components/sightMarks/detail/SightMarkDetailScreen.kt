@@ -16,6 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -131,22 +134,26 @@ fun SightMarkDetail(
             ) {
                 NumberSetting(
                         clazz = String::class,
-                        title = R.string.sight_marks__sight,
+                        title = stringResource(R.string.sight_marks__sight),
                         currentValue = state.sightMark,
-                        isError = state.sightMarkValidatorError != null,
-                        placeholder = "2.3f",
+                        errorMessage = state.sightMarkValidatorError?.let { stringResource(it) },
+                        placeholder = "2.3",
                         testTag = SIGHT.getTestTag(),
                         onValueChanged = { listener(SightMarkUpdated(it ?: "")) },
-                        helpListener = helpListener,
-                        helpTitle = R.string.help_sight_marks__sight_title,
-                        helpBody = R.string.help_sight_marks__sight_body,
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_sight_marks__sight_title),
+                                helpBody = stringResource(R.string.help_sight_marks__sight_body),
+                        ),
                 )
                 if (state.sightMarkValidatorError != null) {
                     Text(
                             text = stringResource(state.sightMarkValidatorError),
                             style = CodexTypography.SMALL,
                             color = CodexTheme.colors.errorOnAppBackground,
-                            modifier = Modifier.testTag(SIGHT_ERROR_TEXT.getTestTag())
+                            modifier = Modifier
+                                    .testTag(SIGHT_ERROR_TEXT.getTestTag())
+                                    .clearAndSetSemantics { }
                     )
                 }
             }
@@ -160,15 +167,22 @@ fun SightMarkDetail(
                     // TODO help bubble should wrap units too, maybe even error?
                     NumberSetting(
                             clazz = String::class,
-                            title = R.string.sight_marks__distance,
+                            title = stringResource(R.string.sight_marks__distance),
                             currentValue = state.distance,
-                            isError = state.distanceValidatorError != null,
+                            errorMessage = state.distanceValidatorError?.let { stringResource(it) },
                             placeholder = "50",
                             testTag = DISTANCE.getTestTag(),
                             onValueChanged = { listener(DistanceUpdated(it ?: "")) },
-                            helpListener = helpListener,
-                            helpTitle = R.string.help_sight_marks__distance_title,
-                            helpBody = R.string.help_sight_marks__distance_body,
+                            helpState = HelpState(
+                                    helpListener = helpListener,
+                                    helpTitle = stringResource(R.string.help_sight_marks__distance_title),
+                                    helpBody = stringResource(R.string.help_sight_marks__distance_body),
+                            ),
+                    )
+
+                    val unitContentDescription = stringResource(
+                            if (state.isMetric) R.string.units_meters
+                            else R.string.units_yards
                     )
                     Text(
                             text = stringResource(
@@ -179,6 +193,9 @@ fun SightMarkDetail(
                             modifier = Modifier
                                     .clickable { listener(ToggleIsMetric) }
                                     .testTag(DISTANCE_UNIT.getTestTag())
+                                    .semantics {
+                                        contentDescription = unitContentDescription
+                                    }
                     )
                 }
                 if (state.distanceValidatorError != null) {
@@ -186,18 +203,22 @@ fun SightMarkDetail(
                             text = stringResource(state.distanceValidatorError),
                             style = CodexTypography.SMALL,
                             color = CodexTheme.colors.errorOnAppBackground,
-                            modifier = Modifier.testTag(DISTANCE_ERROR_TEXT.getTestTag())
+                            modifier = Modifier
+                                    .testTag(DISTANCE_ERROR_TEXT.getTestTag())
+                                    .clearAndSetSemantics { }
                     )
                 }
             }
 
             state.originalSightMark?.dateSet?.let { dateSet ->
                 DataRow(
-                        title = R.string.sight_marks__date_set,
+                        title = stringResource(R.string.sight_marks__date_set),
                         text = DateTimeFormat.SHORT_DATE.format(dateSet),
-                        helpListener = helpListener,
-                        helpTitle = R.string.help_sight_marks__date_title,
-                        helpBody = R.string.help_sight_marks__date_body,
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_sight_marks__date_title),
+                                helpBody = stringResource(R.string.help_sight_marks__date_body),
+                        ),
                         textModifier = Modifier.testTag(DATE.getTestTag())
                 )
             }

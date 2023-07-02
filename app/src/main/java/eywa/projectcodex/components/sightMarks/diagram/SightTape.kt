@@ -10,6 +10,7 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
@@ -60,7 +61,9 @@ internal fun SightTape(
                 // Half tick lines
                 repeat((majorTicks.size - 1) * 8) { Divider(color = tickColour, thickness = 1.dp) }
             },
-            modifier = Modifier.background(tapeColour)
+            modifier = Modifier
+                    .background(tapeColour)
+                    .clearAndSetSemantics { }
     ) { measurables, constraints ->
         var current = 0
         fun getNext(n: Int) = measurables.subList(current, current + n).apply { current += n }
