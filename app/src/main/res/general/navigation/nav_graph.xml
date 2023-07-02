@@ -52,11 +52,6 @@
             />
     </fragment>
     <fragment
-        android:id="@+id/aboutFragment"
-        android:name="eywa.projectcodex.components.about.AboutFragment"
-        android:label="fragment_about"
-        />
-    <fragment
         android:id="@+id/emailFragment"
         android:name="eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment"
         android:label="fragment_about"

@@ -5,12 +5,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.components.about.AboutScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.settings.SettingsScreen
 
 enum class CodexNavRoute : NavRoute, ActionBarHelp {
-    ABOUT,
+    ABOUT {
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.about__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            AboutScreen()
+        }
+    },
     ARCHER_ROUND_SCORE {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(NavArgument.ARCHER_ROUND_ID to false, NavArgument.SCREEN to true)
