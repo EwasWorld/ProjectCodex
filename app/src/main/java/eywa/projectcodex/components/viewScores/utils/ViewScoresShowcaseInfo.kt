@@ -3,9 +3,9 @@ package eywa.projectcodex.components.viewScores.utils
 import androidx.compose.foundation.lazy.LazyListState
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
-import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
+import eywa.projectcodex.components.viewScores.ui.ViewScoreHelpPriority
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
@@ -17,7 +17,7 @@ class ViewScoresShowcaseInfo(
         private val entryClasses: List<KClass<*>>,
         private val lazyListState: LazyListState,
 ) : DynamicHelpShowcaseInfo {
-    override val type: KClass<out ActionBarHelp> = ViewScoresFragment::class
+    override val type: KClass<out ActionBarHelp> = CodexNavRoute.VIEW_SCORES::class
 
     /**
      * The height in px of the list of entries that is unobstructed, used to decide which row's
@@ -44,10 +44,10 @@ class ViewScoresShowcaseInfo(
                             HelpShowcaseItem(
                                     helpTitle = R.string.help_view_score__row_title,
                                     helpBody = R.string.help_view_score__row_body,
-                                    priority = ViewScoresScreen.HelpItemPriority.GENERIC_ROW_ACTIONS.ordinal
+                                    priority = ViewScoreHelpPriority.GENERIC_ROW_ACTIONS.ordinal
                             )
                     ),
-                    ViewScoresFragment::class,
+                    CodexNavRoute.VIEW_SCORES::class,
             )
         }
     }

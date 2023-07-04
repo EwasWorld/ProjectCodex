@@ -29,7 +29,8 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
+import eywa.projectcodex.components.viewScores.ui.ViewScoreHelpPriority
+import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
 
 @Composable
 internal fun MultiSelectBar(
@@ -53,7 +54,7 @@ internal fun MultiSelectBar(
                         HelpShowcaseItem(
                                 helpTitle = helpTitle,
                                 helpBody = helpBody,
-                                priority = ViewScoresScreen.HelpItemPriority.MULTI_SELECT.ordinal
+                                priority = ViewScoreHelpPriority.MULTI_SELECT.ordinal
                         )
                 )
         )
@@ -82,7 +83,7 @@ internal fun MultiSelectBar(
                     contentDescription = stringResource(id = R.string.view_scores__multi_select_start),
                     helpTitle = R.string.help_view_score__start_multi_select_title,
                     helpBody = R.string.help_view_score__start_multi_select_body,
-                    modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_START),
+                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_START.getTestTag()),
             )
         }
         else {
@@ -110,7 +111,7 @@ internal fun MultiSelectBar(
                         ),
                         helpTitle = R.string.help_view_score__select_all_or_none_title,
                         helpBody = R.string.help_view_score__select_all_or_none_body,
-                        modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_ALL),
+                        modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_ALL.getTestTag()),
                 )
                 MultiSelectIconButton(
                         onClick = { listener(MultiSelectBarIntent.ClickEmail) },
@@ -118,7 +119,7 @@ internal fun MultiSelectBar(
                         contentDescription = stringResource(id = R.string.view_scores__multi_select_email),
                         helpTitle = R.string.help_view_score__action_multi_select_title,
                         helpBody = R.string.help_view_score__action_multi_select_body,
-                        modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_EMAIL),
+                        modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_EMAIL.getTestTag()),
                 )
                 MultiSelectIconButton(
                         onClick = { listener(MultiSelectBarIntent.ClickClose) },
@@ -126,7 +127,7 @@ internal fun MultiSelectBar(
                         contentDescription = stringResource(id = R.string.view_scores__multi_select_cancel),
                         helpTitle = R.string.help_view_score__cancel_multi_select_title,
                         helpBody = R.string.help_view_score__cancel_multi_select_body,
-                        modifier = Modifier.testTag(ViewScoresScreen.TestTag.MULTI_SELECT_CANCEL),
+                        modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_CANCEL.getTestTag()),
                 )
             }
         }

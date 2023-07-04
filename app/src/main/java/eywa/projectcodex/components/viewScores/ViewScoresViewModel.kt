@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
@@ -63,7 +64,7 @@ class ViewScoresViewModel @Inject constructor(
 
     fun handle(action: ViewScoresIntent) {
         when (action) {
-            is HelpShowcaseAction -> helpShowcase.handle(action.action, ViewScoresFragment::class)
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.VIEW_SCORES::class)
             is MultiSelectAction -> handleMultiSelectIntent(action.action)
             is EffectComplete -> handleEffectComplete(action)
             is ConvertScoreAction -> handleConvertScoreIntent(action.action)

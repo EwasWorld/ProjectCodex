@@ -46,7 +46,7 @@ fun ViewScoresListItem(
 
     Box(
             modifier = Modifier
-                    .testTag(ViewScoresScreen.TestTag.LIST_ITEM)
+                    .testTag(ViewScoresTestTag.LIST_ITEM.getTestTag())
                     .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
                     .pointerInput(entryIndex, isInMultiSelectMode) {
                         detectTapGestures(
@@ -94,7 +94,7 @@ fun ViewScoresListItem(
                 if (item.shouldShow == null || item.shouldShow.invoke(entry)) {
                     DropdownMenuItem(
                             onClick = { listener(ViewScoresIntent.DropdownMenuClicked(item)) },
-                            modifier = Modifier.testTag(ViewScoresScreen.TestTag.DROPDOWN_MENU_ITEM)
+                            modifier = Modifier.testTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM.getTestTag())
                     ) {
                         Text(
                                 text = stringResource(id = item.title),

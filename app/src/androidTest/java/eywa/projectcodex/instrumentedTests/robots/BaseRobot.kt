@@ -77,6 +77,9 @@ abstract class BaseRobot(
     fun checkElementIsDisplayed(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) =
             checkElementIsDisplayed(testTag.getTestTag(), text, useUnmergedTree)
 
+    fun checkAllElements(testTag: CodexTestTag, check: SemanticsMatcher, useUnmergedTree: Boolean = false) =
+            composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).assertAll(check)
+
 
     private fun checkElementIsDisplayed(testTag: String, text: String? = null, useUnmergedTree: Boolean = false) {
         var matcher = hasTestTag(testTag)
@@ -86,8 +89,12 @@ abstract class BaseRobot(
         composeTestRule.onNode(matcher, useUnmergedTree).assertIsDisplayed()
     }
 
-    fun checkAtLeastOneElementIsDisplayed(testTag: String) {
-        composeTestRule.onAllNodesWithTag(testTag).onFirst().assertIsDisplayed()
+    fun checkAtLeastOneElementIsDisplayed(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
+        composeTestRule.onAllNodesWithTag(testTag.getTestTag()).onFirst().assertIsDisplayed()
+    }
+
+    fun checkAtLeastOneElementIsDisplayed(testTag: String, useUnmergedTree: Boolean = false) {
+        composeTestRule.onAllNodesWithTag(testTag, useUnmergedTree).onFirst().assertIsDisplayed()
     }
 
     fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) =
@@ -104,6 +111,9 @@ abstract class BaseRobot(
         val node = composeTestRule.onNodeWithTag(testTag)
         if (isChecked) node.assertIsSelected() else node.assertIsNotSelected()
     }
+
+    fun scrollTo(testTag: CodexTestTag, rowIndex: Int) =
+            composeTestRule.onNodeWithTag(testTag.getTestTag()).performScrollToIndex(rowIndex)
 
     fun setText(testTag: CodexTestTag, text: String) = setText(testTag.getTestTag(), text)
 

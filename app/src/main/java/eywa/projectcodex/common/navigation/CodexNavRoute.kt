@@ -12,6 +12,7 @@ import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
+import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
 
 enum class CodexNavRoute : NavRoute, ActionBarHelp {
     ABOUT {
@@ -89,7 +90,15 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
             SightMarkDetailScreen(navController)
         }
     },
-    VIEW_SCORES,
+    VIEW_SCORES {
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.view_score__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            ViewScoresScreen(navController)
+        }
+    },
     ;
 
     override val routeBase = "main_" + name.lowercase()

@@ -6,19 +6,16 @@ import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen.TestTag
+import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, TestTag.SCREEN) {
+) : BaseRobot(composeTestRule, ViewScoresTestTag.SCREEN) {
     fun waitForLoad() {
         CustomConditionWaiter.waitForComposeCondition {
-            composeTestRule
-                    .onAllNodesWithTag(TestTag.LIST_ITEM, true)
-                    .onFirst()
-                    .assertIsDisplayed()
+            checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.LIST_ITEM, true)
         }
     }
 
@@ -33,21 +30,19 @@ class ViewScoresRobot(
     fun waitForRowCount(rowCount: Int) {
         CustomConditionWaiter.waitForComposeCondition {
             composeTestRule
-                    .onAllNodesWithTag(TestTag.LIST_ITEM, true)
+                    .onAllNodesWithTag(ViewScoresTestTag.LIST_ITEM.getTestTag(), true)
                     .assertCountEquals(rowCount)
         }
     }
 
     fun scrollToRow(rowIndex: Int) {
-        composeTestRule
-                .onNodeWithTag(TestTag.LAZY_COLUMN)
-                .performScrollToIndex(rowIndex)
+        scrollTo(ViewScoresTestTag.LAZY_COLUMN, rowIndex)
     }
 
     private fun performOnRowItem(rowIndex: Int, action: SemanticsNodeInteraction.() -> Unit) {
         scrollToRow(rowIndex)
         composeTestRule
-                .onAllNodesWithTag(TestTag.LIST_ITEM, useUnmergedTree = true)[rowIndex]
+                .onAllNodesWithTag(ViewScoresTestTag.LIST_ITEM.getTestTag(), useUnmergedTree = true)[rowIndex]
                 .action()
     }
 
@@ -62,13 +57,13 @@ class ViewScoresRobot(
 
     fun longClickRow(rowIndex: Int) {
         performOnRowItem(rowIndex) { performTouchInput { longClick() } }
-        checkAtLeastOneElementIsDisplayed(TestTag.DROPDOWN_MENU_ITEM)
+        checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
     }
 
     fun clickDropdownMenuItem(menuItem: String) {
         composeTestRule
                 .onNode(
-                        matcher = hasTestTag(TestTag.DROPDOWN_MENU_ITEM)
+                        matcher = hasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM.getTestTag())
                                 .and(hasAnyDescendant(hasText(menuItem))),
                         useUnmergedTree = true
                 )
@@ -97,14 +92,11 @@ class ViewScoresRobot(
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {
         // Check at least one menu item is showing
-        composeTestRule
-                .onAllNodesWithTag(TestTag.DROPDOWN_MENU_ITEM)
-                .onFirst()
-                .assertIsDisplayed()
+        checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
         // Check that the intended menu item is not showing
         composeTestRule
                 .onNode(
-                        hasTestTag(TestTag.DROPDOWN_MENU_ITEM)
+                        hasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM.getTestTag())
                                 .and(hasAnyDescendant(hasText(menuItem)))
                 )
                 .assertDoesNotExist()
@@ -187,29 +179,31 @@ class ViewScoresRobot(
     }
 
     fun clickStartMultiSelectMode() {
-        composeTestRule.onNodeWithTag(TestTag.MULTI_SELECT_START).performClick()
+        clickElement(ViewScoresTestTag.MULTI_SELECT_START)
     }
 
     fun clickMultiSelectSelectAll() {
-        composeTestRule.onNodeWithTag(TestTag.MULTI_SELECT_ALL).performClick()
+        clickElement(ViewScoresTestTag.MULTI_SELECT_ALL)
     }
 
     fun clickCancelMultiSelectMode() {
-        composeTestRule.onNodeWithTag(TestTag.MULTI_SELECT_CANCEL).performClick()
+        clickElement(ViewScoresTestTag.MULTI_SELECT_CANCEL)
     }
 
     fun clickMultiSelectEmail(block: EmailScoreRobot.() -> Unit = {}) {
-        composeTestRule.onNodeWithTag(TestTag.MULTI_SELECT_EMAIL).performClick()
+        clickElement(ViewScoresTestTag.MULTI_SELECT_EMAIL)
         EmailScoreRobot(composeTestRule).apply { block() }
     }
 
     fun checkMultiSelectMode(isInMultiSelectMode: Boolean = true) {
-        (if (isInMultiSelectMode) TestTag.MULTI_SELECT_CANCEL else TestTag.MULTI_SELECT_START)
-                .let { tag -> composeTestRule.onNodeWithTag(tag).assertIsDisplayed() }
+        checkElementIsDisplayed(
+                if (isInMultiSelectMode) ViewScoresTestTag.MULTI_SELECT_CANCEL
+                else ViewScoresTestTag.MULTI_SELECT_START
+        )
     }
 
     fun checkEntriesNotSelectable() {
-        composeTestRule.onAllNodesWithTag(TestTag.LIST_ITEM).assertAll(isSelectable().not())
+        checkAllElements(ViewScoresTestTag.LIST_ITEM, isSelectable().not())
     }
 
     /**
@@ -218,7 +212,7 @@ class ViewScoresRobot(
      */
     fun checkEntriesSelected(rowIndexes: Iterable<Int>, totalEntries: Int) {
         repeat(totalEntries) {
-            val node = composeTestRule.onAllNodesWithTag(TestTag.LIST_ITEM)[it]
+            val node = composeTestRule.onAllNodesWithTag(ViewScoresTestTag.LIST_ITEM.getTestTag())[it]
             node.assertIsSelectable()
             if (rowIndexes.contains(it)) node.assertIsSelected() else node.assertIsNotSelected()
         }

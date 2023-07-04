@@ -2,26 +2,8 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/viewScoresFragment"
+    app:startDestination="@id/newScoreFragment"
     >
-    <fragment
-        android:id="@+id/viewScoresFragment"
-        android:name="eywa.projectcodex.components.viewScores.ViewScoresFragment"
-        android:label="fragment_view_scores"
-        >
-        <action
-            android:id="@+id/action_viewScoresFragment_to_newScoreFragment"
-            app:destination="@id/newScoreFragment"
-            />
-        <action
-            android:id="@+id/action_viewScoresFragment_to_emailFragment"
-            app:destination="@id/emailFragment"
-            />
-        <action
-            android:id="@+id/action_viewScoresFragment_to_archerRoundFragment"
-            app:destination="@id/archerRoundFragment"
-            />
-    </fragment>
     <fragment
         android:id="@+id/newScoreFragment"
         android:name="eywa.projectcodex.components.newScore.NewScoreFragment"

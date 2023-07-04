@@ -24,11 +24,11 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.viewScores.ViewScoresFragment
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
@@ -52,10 +52,10 @@ internal fun ViewScoresEntryRow(
                     HelpShowcaseItem(
                             helpTitle = R.string.help_view_score__hsg_title,
                             helpBody = R.string.help_view_score__hsg_body,
-                            priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
+                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
                     )
             ),
-            ViewScoresFragment::class,
+            CodexNavRoute.VIEW_SCORES::class,
     )
     helpInfo.handle(
             HelpShowcaseIntent.Add(
@@ -65,20 +65,20 @@ internal fun ViewScoresEntryRow(
                                     if (entry.info.use2023HandicapSystem) R.string.help_view_score__handicap_2023_body
                                     else R.string.help_view_score__handicap_old_body
                                     ),
-                            priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
+                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
                     )
             ),
-            ViewScoresFragment::class,
+            CodexNavRoute.VIEW_SCORES::class,
     )
     helpInfo.handle(
             HelpShowcaseIntent.Add(
                     HelpShowcaseItem(
                             helpTitle = R.string.help_view_score__round_title,
                             helpBody = R.string.help_view_score__round_body,
-                            priority = ViewScoresScreen.HelpItemPriority.SPECIFIC_ROW_ACTION.ordinal
+                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
                     )
             ),
-            ViewScoresFragment::class,
+            CodexNavRoute.VIEW_SCORES::class,
     )
 
     Column(
