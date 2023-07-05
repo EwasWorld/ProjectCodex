@@ -1,10 +1,6 @@
 package eywa.projectcodex.components.viewScores.data
 
-import android.content.res.Resources
-import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.archeryObjects.ScorePadData
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
@@ -26,8 +22,7 @@ data class ViewScoresEntry(
 
     val id = info.archerRound.archerRoundId
 
-    val goldsType = if (info.round == null) GoldsType.defaultGoldsType else GoldsType.getGoldsType(info.round)
-    val golds = info.golds(goldsType)
+    val golds = info.golds()
 
     val hitsScoreGolds = listOf(info.hits, info.score, golds)
             .takeIf { info.arrowsShot > 0 }
@@ -45,34 +40,6 @@ data class ViewScoresEntry(
                                 + e.message
                 )
                 null
-            }
-
-    fun getScorePadData(endSize: Int): ScorePadData? {
-        if (info.arrows.isNullOrEmpty()) {
-            return null
-        }
-        return ScorePadData(info, endSize, goldsType)
-    }
-
-    fun getScoreSummary(resources: Resources): String =
-            if (info.arrowsShot > 0) {
-                val res = resources.getString(R.string.create_round__no_round)
-                resources.getString(
-                        R.string.email_round_summary,
-                        info.displayName ?: res,
-                        DateTimeFormat.SHORT_DATE.format(info.archerRound.dateShot),
-                        info.hits,
-                        info.score,
-                        resources.getString(goldsType.longStringId),
-                        golds,
-                )
-            }
-            else {
-                resources.getString(
-                        R.string.email_round_summary_no_arrows,
-                        info.displayName ?: resources.getString(R.string.create_round__no_round),
-                        DateTimeFormat.SHORT_DATE.format(info.archerRound.dateShot),
-                )
             }
 
     fun isRoundComplete(): Boolean {

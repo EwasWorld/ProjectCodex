@@ -26,6 +26,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.logging.CustomLogger
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -65,7 +66,7 @@ private fun handleEffects(
         listener: (ViewScoresIntent) -> Unit,
 ) {
     if (state.multiSelectEmailClicked) {
-        navController.navigate(R.id.emailFragment)
+        CodexNavRoute.EMAIL_SCORE.navigate(navController)
         listener(HandledEmailClicked)
     }
 
@@ -111,12 +112,8 @@ private fun handleEffects(
     }
 
     if (state.openEmailClicked) {
-        if (state.lastClickedEntryId != null) {
-            val args = Bundle().apply {
-                putInt("archerRoundId", state.lastClickedEntryId)
-            }
-            navController.navigate(R.id.emailFragment, args)
-        }
+        // TODO_CURRENT Combine with other email open
+        CodexNavRoute.EMAIL_SCORE.navigate(navController)
         listener(HandledEmailOpened)
     }
 

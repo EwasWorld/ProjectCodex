@@ -33,15 +33,4 @@
             app:argType="string"
             />
     </fragment>
-    <fragment
-        android:id="@+id/emailFragment"
-        android:name="eywa.projectcodex.components.viewScores.emailScores.EmailScoresFragment"
-        android:label="fragment_about"
-        >
-        <argument
-            android:name="archerRoundId"
-            android:defaultValue="-1"
-            app:argType="integer"
-            />
-    </fragment>
 </navigation>

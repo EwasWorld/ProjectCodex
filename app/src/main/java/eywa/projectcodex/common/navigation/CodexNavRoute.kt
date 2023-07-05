@@ -12,6 +12,7 @@ import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
+import eywa.projectcodex.components.viewScores.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
 
 enum class CodexNavRoute : NavRoute, ActionBarHelp {
@@ -37,7 +38,15 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
             ClassificationTablesScreen()
         }
     },
-    EMAIL_SCORE,
+    EMAIL_SCORE {
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.email_scores__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            EmailScoresScreen(navController)
+        }
+    },
     HANDICAP_TABLES {
         @Composable
         override fun getMenuBarTitle(): String = stringResource(R.string.handicap_tables__title)

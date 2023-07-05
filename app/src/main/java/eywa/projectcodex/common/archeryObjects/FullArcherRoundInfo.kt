@@ -1,5 +1,8 @@
 package eywa.projectcodex.common.archeryObjects
 
+import android.content.res.Resources
+import eywa.projectcodex.R
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -51,7 +54,8 @@ data class FullArcherRoundInfo(
 
     val score by lazy { arrows?.getScore() ?: 0 }
 
-    fun golds(type: GoldsType) = arrows?.getGolds(type) ?: 0
+    val goldsType = if (round == null) GoldsType.defaultGoldsType else GoldsType.getGoldsType(round)
+    fun golds(type: GoldsType? = null) = arrows?.getGolds(type ?: goldsType) ?: 0
 
     val arrowsShot by lazy { arrows?.size ?: 0 }
 
@@ -132,4 +136,32 @@ data class FullArcherRoundInfo(
                 use2023Handicaps = use2023HandicapSystem,
         )
     }
+
+    fun getScorePadData(endSize: Int): ScorePadData? {
+        if (arrows.isNullOrEmpty()) {
+            return null
+        }
+        return ScorePadData(this, endSize, goldsType)
+    }
+
+    fun getScoreSummary(resources: Resources): String =
+            if (arrowsShot > 0) {
+                val res = resources.getString(R.string.create_round__no_round)
+                resources.getString(
+                        R.string.email_round_summary,
+                        displayName ?: res,
+                        DateTimeFormat.SHORT_DATE.format(archerRound.dateShot),
+                        hits,
+                        score,
+                        resources.getString(goldsType.longStringId),
+                        golds(),
+                )
+            }
+            else {
+                resources.getString(
+                        R.string.email_round_summary_no_arrows,
+                        displayName ?: resources.getString(R.string.create_round__no_round),
+                        DateTimeFormat.SHORT_DATE.format(archerRound.dateShot),
+                )
+            }
 }

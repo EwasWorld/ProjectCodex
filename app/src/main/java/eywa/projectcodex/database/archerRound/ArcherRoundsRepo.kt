@@ -37,6 +37,7 @@ class ArcherRoundsRepo(
         }
     }
 
+    fun getFullArcherRoundInfo(archerRoundIds: List<Int>) = archerRoundDao.getFullArcherRoundInfo(archerRoundIds)
     fun getFullArcherRoundInfo(archerRoundId: Int) = archerRoundDao.getFullArcherRoundInfo(archerRoundId)
 
     fun getArcherRound(archerRoundId: Int): LiveData<ArcherRound> {

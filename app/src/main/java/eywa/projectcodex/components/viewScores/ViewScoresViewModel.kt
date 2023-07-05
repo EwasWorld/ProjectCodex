@@ -170,6 +170,7 @@ class ViewScoresViewModel @Inject constructor(
                 it.copy(data = it.data.map { entry -> entry.copy(isSelected = selectAll) })
             }
             MultiSelectBarIntent.ClickEmail -> _state.update {
+                // TODO_CURRENT Update use case with ids
                 if (it.data.any { entry -> entry.isSelected }) {
                     it.copy(multiSelectEmailClicked = true)
                 }

@@ -35,7 +35,10 @@ enum class ViewScoresDropdownMenuItem(
     ),
     EDIT_INFO(
             title = R.string.view_scores_menu__edit,
-            handleClick = { copy(openEditInfoClicked = true, dropdownItems = null) },
+            handleClick = {
+                // TODO_CURRENT Update use case with ids
+                copy(openEditInfoClicked = true, dropdownItems = null)
+            },
     ),
     DELETE(
             title = R.string.view_scores_menu__delete,
