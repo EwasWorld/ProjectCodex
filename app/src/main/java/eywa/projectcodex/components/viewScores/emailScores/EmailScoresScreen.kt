@@ -13,8 +13,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -22,7 +26,9 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -30,38 +36,60 @@ import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 
 @Composable
 fun EmailScoresScreen(
+        navController: NavController,
         viewModel: EmailScoresViewModel = hiltViewModel(),
 ) {
+    val state by viewModel.state.collectAsState()
+    val listener = { it: EmailScoresIntent -> viewModel.handle(it) }
+    EmailScoresScreen(state, listener)
+
+    LaunchedEffect(state) { handleEffects(state, navController) }
+}
+
+private fun handleEffects(state: EmailScoresState, navController: NavController) {
     // TODO_CURRENT
 }
 
 @Composable
 fun EmailScoresScreen(
-        error: EmailScoresError?,
-        toState: CodexTextFieldState,
-        subjectState: CodexTextFieldState,
-        messageHeaderState: CodexTextFieldState,
-        messageScoreText: String,
-        messageFooterState: CodexTextFieldState,
-        fullScoreSheetState: CodexChipState,
-        distanceTotalsSheetState: CodexChipState,
-        onSubmit: () -> Unit,
-        onErrorOkClicked: () -> Unit,
-        helpListener: (HelpShowcaseIntent) -> Unit,
+        state: EmailScoresState,
+        listener: (EmailScoresIntent) -> Unit,
 ) {
     @Composable
     fun stringOrEmptyString(@StringRes id: Int?) = id?.let { stringResource(id) } ?: ""
 
-    SimpleDialog(isShown = error != null, onDismissListener = onErrorOkClicked) {
+    fun EmailScoresTextField.asState() = CodexTextFieldState(
+            text = state.getText(this),
+            onValueChange = { listener(EmailScoresIntent.UpdateText(it, this)) },
+            testTag = EmailScoresTestTag.forTextField(this),
+    )
+
+    fun EmailScoresCheckbox.asState(enabled: Boolean = true) = state.isChecked(this).let {
+        CodexChipState(
+                selected = it,
+                onToggle = { listener(EmailScoresIntent.UpdateBoolean(!it, this)) },
+                enabled = enabled,
+                testTag = EmailScoresTestTag.forCheckbox(this),
+        )
+    }
+
+    val context = LocalContext.current
+    val helpListener = { it: HelpShowcaseIntent -> listener(EmailScoresIntent.HelpShowcaseAction(it)) }
+
+    SimpleDialog(isShown = state.error != null, onDismissListener = { listener(EmailScoresIntent.CloseError) }) {
         SimpleDialogContent(
-                title = stringOrEmptyString(error?.title),
-                message = stringOrEmptyString(error?.message),
+                title = stringOrEmptyString(state.error?.title),
+                message = stringOrEmptyString(state.error?.message),
                 positiveButton = ButtonState(
-                        text = stringOrEmptyString(error?.buttonText),
-                        onClick = onErrorOkClicked,
+                        text = stringOrEmptyString(state.error?.buttonText),
+                        onClick = { listener(EmailScoresIntent.CloseError) },
                 )
         )
     }
@@ -86,7 +114,7 @@ fun EmailScoresScreen(
                     modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_email_scores__to_title)
             ) {
                 CodexTextField(
-                        state = toState,
+                        state = EmailScoresTextField.TO.asState(),
                         placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
                         labelText = stringResource(id = R.string.email_scores__to),
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
@@ -102,7 +130,7 @@ fun EmailScoresScreen(
                     )
             ) {
                 CodexTextField(
-                        state = subjectState,
+                        state = EmailScoresTextField.SUBJECT.asState(),
                         placeholderText = stringResource(id = R.string.email_default_message_subject),
                         labelText = stringResource(id = R.string.email_scores__subject),
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
@@ -124,7 +152,7 @@ fun EmailScoresScreen(
                 )
                 CodexChip(
                         text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),
-                        state = fullScoreSheetState,
+                        state = EmailScoresCheckbox.FULL_SCORE_SHEET.asState(),
                         modifier = Modifier.updateHelpDialogPosition(
                                 helpListener,
                                 R.string.help_email_scores__full_score_sheet_attachment_title
@@ -132,7 +160,9 @@ fun EmailScoresScreen(
                 )
                 CodexChip(
                         text = stringResource(id = R.string.email_scores__full_score_sheet_with_distance_totals),
-                        state = distanceTotalsSheetState,
+                        state = EmailScoresCheckbox.DISTANCE_TOTAL.asState(
+                                state.isChecked(EmailScoresCheckbox.FULL_SCORE_SHEET)
+                        ),
                         modifier = Modifier.updateHelpDialogPosition(
                                 helpListener,
                                 R.string.help_email_scores__include_distance_totals_title
@@ -145,7 +175,7 @@ fun EmailScoresScreen(
                         modifier = Modifier.padding(10.dp)
                 ) {
                     CodexTextField(
-                            state = messageHeaderState,
+                            state = EmailScoresTextField.MESSAGE_HEADER.asState(),
                             placeholderText = stringResource(id = R.string.email_scores__message_header_placeholder),
                             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
                             modifier = Modifier
@@ -165,7 +195,9 @@ fun EmailScoresScreen(
                                     )
                     ) {
                         Text(
-                                text = messageScoreText,
+                                text = state.rounds.joinToString("\n\n") { entry ->
+                                    entry.getScoreSummary(context.resources)
+                                },
                                 style = CodexTypography.SMALL,
                                 modifier = Modifier
                                         .padding(15.dp)
@@ -174,7 +206,7 @@ fun EmailScoresScreen(
                         )
                     }
                     CodexTextField(
-                            state = messageFooterState,
+                            state = EmailScoresTextField.MESSAGE_FOOTER.asState(),
                             placeholderText = stringResource(id = R.string.email_scores__message_footer_placeholder),
                             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
                             modifier = Modifier
@@ -190,7 +222,7 @@ fun EmailScoresScreen(
         FloatingActionButton(
                 backgroundColor = CodexTheme.colors.floatingActions,
                 contentColor = CodexTheme.colors.onFloatingActions,
-                onClick = onSubmit,
+                onClick = { listener(EmailScoresIntent.SubmitClicked) },
                 modifier = Modifier
                         .padding(30.dp)
                         .updateHelpDialogPosition(helpListener, R.string.help_email_scores__send_title)
@@ -294,43 +326,28 @@ object EmailScoresTestTag {
 fun EmailScoresScreen_Preview() {
     CodexTheme {
         EmailScoresScreen(
-                error = null,
-                toState = CodexTextFieldState(
-                        text = "",
-                        onValueChange = {},
-                        testTag = "",
-                ),
-                subjectState = CodexTextFieldState(
-                        text = stringResource(id = R.string.email_default_message_subject),
-                        onValueChange = {},
-                        testTag = "",
-                ),
-                messageHeaderState = CodexTextFieldState(
-                        text = stringResource(id = R.string.email_scores__message_footer_placeholder),
-                        onValueChange = {},
-                        testTag = "",
-                ),
-                messageScoreText = stringResource(id = R.string.email_round_summary_sample_text),
-                messageFooterState = CodexTextFieldState(
-                        text = stringResource(id = R.string.email_default_message_header),
-                        onValueChange = {},
-                        testTag = "",
-                ),
-                fullScoreSheetState = CodexChipState(
-                        selected = true,
-                        enabled = true,
-                        onToggle = {},
-                        testTag = "",
-                ),
-                distanceTotalsSheetState = CodexChipState(
-                        selected = false,
-                        enabled = false,
-                        onToggle = {},
-                        testTag = "",
-                ),
-                onSubmit = {},
-                onErrorOkClicked = {},
-                helpListener = {},
-        )
+                state = EmailScoresState(
+                        rounds = listOf(
+                                ArcherRoundPreviewHelper
+                                        .newFullArcherRoundInfo(1)
+                                        .addRound(RoundPreviewHelper.indoorMetricRoundData)
+                                        .addArrows(List(36) { Arrow(7, false) }),
+                                ArcherRoundPreviewHelper
+                                        .newFullArcherRoundInfo(1)
+                                        .addRound(RoundPreviewHelper.outdoorImperialRoundData)
+                                        .addArrows(List(12) { Arrow(4, false) }),
+                        ),
+                        error = null,
+                        textFields = mapOf(
+                                EmailScoresTextField.TO to "",
+                                EmailScoresTextField.SUBJECT to "Archery Scores",
+                                EmailScoresTextField.MESSAGE_HEADER to "Hi, here are my scores",
+                                EmailScoresTextField.MESSAGE_FOOTER to "From",
+                                EmailScoresTextField.TO to "",
+                                EmailScoresTextField.TO to "",
+                        ),
+                        booleanFields = setOf(EmailScoresCheckbox.FULL_SCORE_SHEET),
+                )
+        ) {}
     }
 }

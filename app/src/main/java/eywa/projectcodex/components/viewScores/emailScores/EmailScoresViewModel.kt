@@ -1,8 +1,5 @@
 package eywa.projectcodex.components.viewScores.emailScores
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,10 +12,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,8 +26,8 @@ class EmailScoresViewModel @Inject constructor(
     private val repo = ArcherRoundsRepo(db.archerRoundDao())
 
     // TODO_CURRENT add loading state
-    var state by mutableStateOf(EmailScoresState())
-        private set
+    private val _state = MutableStateFlow(EmailScoresState())
+    val state = _state.asStateFlow()
 
     // TODO_CURRENT Remove effects
     private val _effects: MutableSharedFlow<EmailScoresEffect> =
@@ -51,34 +45,38 @@ class EmailScoresViewModel @Inject constructor(
 
     fun handle(action: EmailScoresIntent) {
         when (action) {
-            is UpdateText -> {
-                state = state.copy(
-                        textFields = state.textFields.plus(action.type to action.value),
-                        touchedFields = state.touchedFields.plus(action.type)
-                )
-            }
-            is UpdateBoolean -> {
-                state = state.copy(booleanFields = state.booleanFields.let {
-                    if (action.value) it.plus(action.type) else it.minus(action.type)
-                })
-            }
-            is SetInitialValues -> {
-                state = EmailScoresState(
-                        textFields = mapOf(
-                                EmailScoresTextField.SUBJECT to action.subject,
-                                EmailScoresTextField.MESSAGE_HEADER to action.messageHeader,
-                                EmailScoresTextField.MESSAGE_FOOTER to action.messageFooter,
-                        )
-                )
-            }
-            CloseError -> {
-                if (state.error == EmailScoresError.NO_SELECTED_ENTRIES) {
-                    viewModelScope.launch { _effects.emit(EmailScoresEffect.NavigateUp) }
+            is UpdateText ->
+                _state.update {
+                    it.copy(
+                            textFields = it.textFields.plus(action.type to action.value),
+                            touchedFields = it.touchedFields.plus(action.type)
+                    )
                 }
-                state = state.copy(error = null)
+            is UpdateBoolean ->
+                _state.update {
+                    it.copy(booleanFields = it.booleanFields.let { field ->
+                        if (action.value) field.plus(action.type) else field.minus(action.type)
+                    })
+                }
+            is SetInitialValues ->
+                _state.update {
+                    EmailScoresState(
+                            textFields = mapOf(
+                                    EmailScoresTextField.SUBJECT to action.subject,
+                                    EmailScoresTextField.MESSAGE_HEADER to action.messageHeader,
+                                    EmailScoresTextField.MESSAGE_FOOTER to action.messageFooter,
+                            )
+                    )
+                }
+            CloseError -> {
+                if (state.value.error == EmailScoresError.NO_SELECTED_ENTRIES) {
+                    viewModelScope.launch { _effects.emit(EmailScoresEffect.NavigateUp) }
+                    _state.update { it.copy(error = null) }
+                }
             }
-            is OpenError -> state = state.copy(error = action.error)
+            is OpenError -> _state.update { it.copy(error = action.error) }
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.EMAIL_SCORE::class)
+            SubmitClicked -> TODO()
         }
     }
 }

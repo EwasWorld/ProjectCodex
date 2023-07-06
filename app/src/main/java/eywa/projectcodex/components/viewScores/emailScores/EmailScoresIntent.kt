@@ -13,6 +13,7 @@ sealed class EmailScoresIntent {
 
     data class OpenError(val error: EmailScoresError) : EmailScoresIntent()
     object CloseError : EmailScoresIntent()
+    object SubmitClicked : EmailScoresIntent()
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : EmailScoresIntent()
 }

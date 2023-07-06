@@ -2,10 +2,10 @@ package eywa.projectcodex.components.viewScores.emailScores
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
-import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 
 data class EmailScoresState(
-        val rounds: List<FullRoundInfo> = emptyList(),
+        val rounds: List<FullArcherRoundInfo> = emptyList(),
         val textFields: Map<EmailScoresTextField, String> = mapOf(),
         val booleanFields: Set<EmailScoresCheckbox> = setOf(),
         val touchedFields: Set<EmailScoresTextField> = setOf(),
