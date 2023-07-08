@@ -2,12 +2,13 @@ package eywa.projectcodex.components.viewScores.utils
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
+import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
 import eywa.projectcodex.components.viewScores.ViewScoresState
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 
 enum class ViewScoresDropdownMenuItem(
         @StringRes val title: Int,
-        val handleClick: ViewScoresState.() -> ViewScoresState,
+        val handleClick: ViewScoresState.(archerRoundIdsUseCase: ArcherRoundIdsUseCase) -> ViewScoresState,
         /**
          * Only display this dropdown menu item if this returns true
          */
@@ -31,14 +32,19 @@ enum class ViewScoresDropdownMenuItem(
     ),
     EMAIL_SCORE(
             title = R.string.view_scores_menu__email_score,
-            handleClick = { copy(openEmailClicked = true, dropdownItems = null) },
+            handleClick = {
+                if (lastClickedEntryId == null) {
+                    this
+                }
+                else {
+                    it.setItems(kotlin.collections.listOf(lastClickedEntryId))
+                    copy(openEmailClicked = true, dropdownItems = null)
+                }
+            },
     ),
     EDIT_INFO(
             title = R.string.view_scores_menu__edit,
-            handleClick = {
-                // TODO_CURRENT Update use case with ids
-                copy(openEditInfoClicked = true, dropdownItems = null)
-            },
+            handleClick = { copy(openEditInfoClicked = true, dropdownItems = null) },
     ),
     DELETE(
             title = R.string.view_scores_menu__delete,

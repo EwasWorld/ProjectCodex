@@ -1,5 +1,8 @@
 package eywa.projectcodex.components.viewScores.emailScores
 
+import android.content.Intent
+import android.content.res.Resources
+import android.util.Log
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
@@ -10,10 +13,22 @@ data class EmailScoresState(
         val booleanFields: Set<EmailScoresCheckbox> = setOf(),
         val touchedFields: Set<EmailScoresTextField> = setOf(),
         val error: EmailScoresError? = null,
+        /**
+         * null if no intent needs to be sent.
+         * Otherwise contains the email intent info minus the [Intent.EXTRA_TEXT] field, which is blank
+         * (requires [Resources] to populate which is not available in the view model)
+         */
+        val intentWithoutTextExtra: Intent? = null,
+        val navigateUpTriggered: Boolean = false,
 ) {
     fun isChecked(field: EmailScoresCheckbox) = booleanFields.contains(field)
     fun getText(field: EmailScoresTextField) = textFields[field] ?: ""
     fun wasTouched(field: EmailScoresTextField) = touchedFields.contains(field)
+
+    fun getRoundsText(resources: Resources): String {
+        Log.i("EmailScores", "text gen - ${rounds.size}")
+        return rounds.joinToString("\n\n") { entry -> entry.getScoreSummary(resources) }
+    }
 }
 
 enum class EmailScoresError(

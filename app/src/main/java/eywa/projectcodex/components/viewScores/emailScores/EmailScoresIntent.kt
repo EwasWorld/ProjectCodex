@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.viewScores.emailScores
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import java.io.File
 
 sealed class EmailScoresIntent {
     data class UpdateText(val value: String, val type: EmailScoresTextField) : EmailScoresIntent()
@@ -8,12 +9,14 @@ sealed class EmailScoresIntent {
     data class SetInitialValues(
             val subject: String,
             val messageHeader: String,
-            val messageFooter: String
+            val messageFooter: String,
     ) : EmailScoresIntent()
 
     data class OpenError(val error: EmailScoresError) : EmailScoresIntent()
-    object CloseError : EmailScoresIntent()
-    object SubmitClicked : EmailScoresIntent()
+    object DismissNoEntriesError : EmailScoresIntent()
+    object NavigateUpHandled : EmailScoresIntent()
+    data class SubmitClicked(val externalFilesDir: File) : EmailScoresIntent()
+    object IntentHandledSuccessfully : EmailScoresIntent()
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : EmailScoresIntent()
 }

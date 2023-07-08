@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
+import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -31,6 +32,7 @@ class ViewScoresViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
         private val customLogger: CustomLogger,
         private val datastore: CodexDatastore,
+        private val archerRoundIdsUseCase: ArcherRoundIdsUseCase,
 ) : ViewModel() {
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.asStateFlow()
@@ -77,7 +79,8 @@ class ViewScoresViewModel @Inject constructor(
                         it.data
                                 .find { entry -> entry.id == action.archerRoundId }
                                 ?.getSingleClickAction()
-                                ?.handleClick?.invoke(it.copy(lastClickedEntryId = action.archerRoundId))
+                                ?.handleClick
+                                ?.invoke(it.copy(lastClickedEntryId = action.archerRoundId), archerRoundIdsUseCase)
                                 ?: return@update it
                     }
                 }
@@ -98,7 +101,9 @@ class ViewScoresViewModel @Inject constructor(
                 }
             }
             is DropdownMenuClicked ->
-                _state.update { if (it.dropdownItems == null) it else action.item.handleClick(it) }
+                _state.update {
+                    if (it.dropdownItems == null) it else action.item.handleClick(it, archerRoundIdsUseCase)
+                }
             DropdownMenuClosed -> _state.update { it.copy(dropdownItems = null) }
             NoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = true) }
             DeleteDialogCancelClicked -> _state.update { it.copy(deleteDialogOpen = false) }
@@ -160,6 +165,7 @@ class ViewScoresViewModel @Inject constructor(
             MultiSelectBarIntent.ClickOpen -> _state.update { it.copy(isInMultiSelectMode = true) }
             MultiSelectBarIntent.ClickClose ->
                 _state.update {
+                    archerRoundIdsUseCase.clear()
                     it.copy(
                             isInMultiSelectMode = false,
                             data = it.data.map { entry -> entry.copy(isSelected = false) },
@@ -170,13 +176,14 @@ class ViewScoresViewModel @Inject constructor(
                 it.copy(data = it.data.map { entry -> entry.copy(isSelected = selectAll) })
             }
             MultiSelectBarIntent.ClickEmail -> _state.update {
-                // TODO_CURRENT Update use case with ids
-                if (it.data.any { entry -> entry.isSelected }) {
-                    it.copy(multiSelectEmailClicked = true)
+                val selectedItems = it.data
+                        .filter { entry -> entry.isSelected }
+                if (selectedItems.isEmpty()) {
+                    return@update it.copy(multiSelectEmailNoSelection = true)
                 }
-                else {
-                    it.copy(multiSelectEmailNoSelection = true)
-                }
+
+                archerRoundIdsUseCase.setItems(selectedItems.map { item -> item.id })
+                it.copy(multiSelectEmailClicked = true)
             }
         }
     }

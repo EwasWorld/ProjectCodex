@@ -1,5 +1,7 @@
 package eywa.projectcodex.components.viewScores.emailScores
 
+import android.content.ActivityNotFoundException
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -40,6 +42,8 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.components.viewScores.emailScores.EmailScoresIntent.*
+
 
 @Composable
 fun EmailScoresScreen(
@@ -50,11 +54,41 @@ fun EmailScoresScreen(
     val listener = { it: EmailScoresIntent -> viewModel.handle(it) }
     EmailScoresScreen(state, listener)
 
-    LaunchedEffect(state) { handleEffects(state, navController) }
+    val context = LocalContext.current
+    LaunchedEffect(state) { handleEffects(state, navController, context, listener) }
+    LaunchedEffect(Unit) {
+        // TODO_CURRENT if state == Loading
+        // TODO_CURRENT check this is called every time an email flow is first started
+        viewModel.handle(
+                SetInitialValues(
+                        subject = context.getString(R.string.email_default_message_subject),
+                        messageHeader = context.getString(R.string.email_default_message_header),
+                        messageFooter = context.getString(R.string.email_default_message_footer),
+                )
+        )
+    }
 }
 
-private fun handleEffects(state: EmailScoresState, navController: NavController) {
-    // TODO_CURRENT
+private fun handleEffects(
+        state: EmailScoresState,
+        navController: NavController,
+        context: Context,
+        listener: (EmailScoresIntent) -> Unit,
+) {
+    if (state.intentWithoutTextExtra != null) {
+        try {
+            context.startActivity(state.intentWithoutTextExtra)
+            navController.popBackStack()
+            listener(IntentHandledSuccessfully)
+        }
+        catch (e: ActivityNotFoundException) {
+            listener(OpenError(EmailScoresError.NO_EMAIL_APP_FOUND))
+        }
+    }
+    if (state.navigateUpTriggered) {
+        navController.popBackStack()
+        listener(NavigateUpHandled)
+    }
 }
 
 @Composable
@@ -67,29 +101,29 @@ fun EmailScoresScreen(
 
     fun EmailScoresTextField.asState() = CodexTextFieldState(
             text = state.getText(this),
-            onValueChange = { listener(EmailScoresIntent.UpdateText(it, this)) },
+            onValueChange = { listener(UpdateText(it, this)) },
             testTag = EmailScoresTestTag.forTextField(this),
     )
 
     fun EmailScoresCheckbox.asState(enabled: Boolean = true) = state.isChecked(this).let {
         CodexChipState(
                 selected = it,
-                onToggle = { listener(EmailScoresIntent.UpdateBoolean(!it, this)) },
+                onToggle = { listener(UpdateBoolean(!it, this)) },
                 enabled = enabled,
                 testTag = EmailScoresTestTag.forCheckbox(this),
         )
     }
 
     val context = LocalContext.current
-    val helpListener = { it: HelpShowcaseIntent -> listener(EmailScoresIntent.HelpShowcaseAction(it)) }
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-    SimpleDialog(isShown = state.error != null, onDismissListener = { listener(EmailScoresIntent.CloseError) }) {
+    SimpleDialog(isShown = state.error != null, onDismissListener = { listener(DismissNoEntriesError) }) {
         SimpleDialogContent(
                 title = stringOrEmptyString(state.error?.title),
                 message = stringOrEmptyString(state.error?.message),
                 positiveButton = ButtonState(
                         text = stringOrEmptyString(state.error?.buttonText),
-                        onClick = { listener(EmailScoresIntent.CloseError) },
+                        onClick = { listener(DismissNoEntriesError) },
                 )
         )
     }
@@ -195,10 +229,9 @@ fun EmailScoresScreen(
                                     )
                     ) {
                         Text(
-                                text = state.rounds.joinToString("\n\n") { entry ->
-                                    entry.getScoreSummary(context.resources)
-                                },
+                                text = state.getRoundsText(context.resources),
                                 style = CodexTypography.SMALL,
+                                color = CodexTheme.colors.onListItemAppOnBackground,
                                 modifier = Modifier
                                         .padding(15.dp)
                                         .fillMaxWidth()
@@ -222,7 +255,14 @@ fun EmailScoresScreen(
         FloatingActionButton(
                 backgroundColor = CodexTheme.colors.floatingActions,
                 contentColor = CodexTheme.colors.onFloatingActions,
-                onClick = { listener(EmailScoresIntent.SubmitClicked) },
+                onClick = {
+                    listener(
+                            SubmitClicked(
+                                    context.getExternalFilesDir(null)
+                                            ?: throw IllegalStateException("Unable to access storage")
+                            )
+                    )
+                },
                 modifier = Modifier
                         .padding(30.dp)
                         .updateHelpDialogPosition(helpListener, R.string.help_email_scores__send_title)
