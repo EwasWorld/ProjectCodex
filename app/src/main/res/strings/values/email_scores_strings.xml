@@ -2,6 +2,8 @@
 <resources>
     <string name="email_scores__title">Email Scores</string>
 
+    <string name="email_scores__loading">Loading scores…</string>
+
     <string name="email_default_message_subject">Archery Scores</string>
     <string name="email_default_message_header">Hi,\n\nHere are my scores</string>
     <string name="email_default_message_footer">From</string>

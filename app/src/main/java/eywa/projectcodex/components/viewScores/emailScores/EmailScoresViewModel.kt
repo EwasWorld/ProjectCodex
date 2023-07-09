@@ -3,7 +3,6 @@ package eywa.projectcodex.components.viewScores.emailScores
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,7 +32,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class EmailScoresViewModel @Inject constructor(
-        // TODO_CURRENT Check this isn't going to be an issue after rotation... it's kind of cheeky anyway
+        // TODO Don't use the context here >:[ Separation of concerns
         @ApplicationContext private val context: Context,
         private val datastore: CodexDatastore,
         private val helpShowcase: HelpShowcaseUseCase,
@@ -43,7 +42,6 @@ class EmailScoresViewModel @Inject constructor(
 ) : ViewModel() {
     private val repo = ArcherRoundsRepo(db.archerRoundDao())
 
-    // TODO_CURRENT add loading state
     private val _state = MutableStateFlow(EmailScoresState())
     val state = _state.asStateFlow()
 
@@ -51,13 +49,11 @@ class EmailScoresViewModel @Inject constructor(
         viewModelScope.launch {
             archerRoundIdsUseCase.getItems
                     .flatMapLatest {
-                        Log.i(LOG_TAG, "Use case item count: ${it?.size}")
                         if (it == null) emptyFlow<List<DatabaseFullArcherRoundInfo>?>()
                         else repo.getFullArcherRoundInfo(it)
                     }
                     .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { a, b -> a to b }
                     .collectLatest { (entries, use2023System) ->
-                        Log.i(LOG_TAG, "Entries: ${entries?.size}")
                         _state.update {
                             if (entries.isNullOrEmpty()) {
                                 it.copy(error = EmailScoresError.NO_SELECTED_ENTRIES)
@@ -78,10 +74,7 @@ class EmailScoresViewModel @Inject constructor(
         when (action) {
             is UpdateText ->
                 _state.update {
-                    it.copy(
-                            textFields = it.textFields.plus(action.type to action.value),
-                            touchedFields = it.touchedFields.plus(action.type)
-                    )
+                    it.copy(textFields = it.textFields.plus(action.type to action.value))
                 }
             is UpdateBoolean ->
                 _state.update {
@@ -89,19 +82,6 @@ class EmailScoresViewModel @Inject constructor(
                         if (action.value) field.plus(action.type) else field.minus(action.type)
                     })
                 }
-            is SetInitialValues -> {
-                Log.i(LOG_TAG, "Finish him =================")
-                // TODO_CURRENT Loading until this has been done
-                _state.update {
-                    EmailScoresState(
-                            textFields = mapOf(
-                                    EmailScoresTextField.SUBJECT to action.subject,
-                                    EmailScoresTextField.MESSAGE_HEADER to action.messageHeader,
-                                    EmailScoresTextField.MESSAGE_FOOTER to action.messageFooter,
-                            )
-                    )
-                }
-            }
             DismissNoEntriesError -> {
                 if (state.value.error == EmailScoresError.NO_SELECTED_ENTRIES) {
                     archerRoundIdsUseCase.clear()

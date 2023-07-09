@@ -56,17 +56,6 @@ fun EmailScoresScreen(
 
     val context = LocalContext.current
     LaunchedEffect(state) { handleEffects(state, navController, context, listener) }
-    LaunchedEffect(Unit) {
-        // TODO_CURRENT if state == Loading
-        // TODO_CURRENT check this is called every time an email flow is first started
-        viewModel.handle(
-                SetInitialValues(
-                        subject = context.getString(R.string.email_default_message_subject),
-                        messageHeader = context.getString(R.string.email_default_message_header),
-                        messageFooter = context.getString(R.string.email_default_message_footer),
-                )
-        )
-    }
 }
 
 private fun handleEffects(
@@ -99,8 +88,9 @@ fun EmailScoresScreen(
     @Composable
     fun stringOrEmptyString(@StringRes id: Int?) = id?.let { stringResource(id) } ?: ""
 
+    @Composable
     fun EmailScoresTextField.asState() = CodexTextFieldState(
-            text = state.getText(this),
+            text = state.getText(this, default?.let { stringResource(it) } ?: ""),
             onValueChange = { listener(UpdateText(it, this)) },
             testTag = EmailScoresTestTag.forTextField(this),
     )
