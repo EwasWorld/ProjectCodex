@@ -15,11 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -36,6 +42,7 @@ fun CodexChip(
         state: CodexNewChipState,
         modifier: Modifier = Modifier,
         colours: ChipColours = ChipColours.Defaults.onPrimary(),
+        helpState: HelpState? = null,
         onToggle: () -> Unit,
 ) = CodexChip(
         text = text,
@@ -45,26 +52,7 @@ fun CodexChip(
         onToggle = onToggle,
         testTag = state.testTag,
         colours = colours,
-)
-
-/**
- * Text should be no more than 20 characters
- */
-@Deprecated("Replaced with CodexNewChipState", ReplaceWith(""))
-@Composable
-fun CodexChip(
-        text: String,
-        state: CodexChipState,
-        colours: ChipColours = ChipColours.Defaults.onPrimary(),
-        modifier: Modifier = Modifier,
-) = CodexChip(
-        text = text,
-        selected = state.selected,
-        enabled = state.enabled,
-        modifier = modifier,
-        onToggle = state.onToggle,
-        testTag = state.testTag,
-        colours = colours,
+        helpState = helpState,
 )
 
 /**
@@ -75,8 +63,8 @@ fun CodexChip(
         text: String,
         selected: Boolean,
         testTag: String,
-        enabled: Boolean = true,
         modifier: Modifier = Modifier,
+        enabled: Boolean = true,
         colours: ChipColours = ChipColours.Defaults.onPrimary(),
         helpState: HelpState? = null,
         onToggle: () -> Unit
@@ -92,6 +80,7 @@ fun CodexChip(
         else -> colours.notSelectedContentColour
     }
     val clickModifier = if (!enabled) Modifier else Modifier.selectable(selected = selected, onClick = onToggle)
+    val description = text + "." + (if (enabled) "" else (stringResource(R.string.talk_back__disabled_toggle) + "."))
 
     helpState?.add()
 
@@ -100,7 +89,14 @@ fun CodexChip(
             border = if (selected) null else BorderStroke(Dp.Hairline, onColor),
             shape = RoundedCornerShape(8.dp),
             color = surfaceColor,
-            modifier = modifier.updateHelpDialogPosition(helpState)
+            modifier = modifier
+                    .updateHelpDialogPosition(helpState)
+                    .clearAndSetSemantics {
+                        this.contentDescription = description
+                        if (enabled) {
+                            this.toggleableState = ToggleableState(selected)
+                        }
+                    }
     ) {
         Row(
                 verticalAlignment = Alignment.CenterVertically,

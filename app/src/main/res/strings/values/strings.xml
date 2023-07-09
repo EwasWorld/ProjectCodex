@@ -49,6 +49,9 @@
     <string name="err_table_view__no_data">Table is empty</string>
     <string name="help_table_open_menu_body">Long press on a row for more options</string>
 
+    <!-- Accessibility -->
+    <string name="talk_back__disabled_toggle">Disabled toggle</string>
+
     <!-- General -->
     <string name="general_ok">OK</string>
     <string name="general_back">Back</string>

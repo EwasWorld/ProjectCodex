@@ -43,7 +43,6 @@ import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ViewScoresShowcaseInfo
 import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 
-private lateinit var viewScoresShowcaseInfo: ViewScoresShowcaseInfo
 private const val LOG_TAG = "ViewScores"
 
 @Composable
@@ -141,7 +140,7 @@ fun ViewScoresScreen(
     val lazyListState = rememberLazyListState()
     listener(HelpShowcaseAction(HelpShowcaseIntent.Clear))
 
-    viewScoresShowcaseInfo = ViewScoresShowcaseInfo(state.data.map { it::class }, lazyListState)
+    val viewScoresShowcaseInfo = ViewScoresShowcaseInfo(state.data.map { it::class }, lazyListState)
     listener(HelpShowcaseAction(HelpShowcaseIntent.AddDynamicInfo(viewScoresShowcaseInfo)))
 
     SetOfDialogs(
@@ -196,7 +195,7 @@ fun ViewScoresScreen(
             }
         }
 
-        UnobstructedBox {
+        UnobstructedBox(viewScoresShowcaseInfo) {
             MultiSelectBar(
                     isInMultiSelectMode = state.isInMultiSelectMode,
                     isEveryItemSelected = state.data.all { it.isSelected },
@@ -210,7 +209,8 @@ fun ViewScoresScreen(
 
 @Composable
 private fun UnobstructedBox(
-        bottomObstruction: @Composable () -> Unit
+        viewScoresShowcaseInfo: ViewScoresShowcaseInfo,
+        bottomObstruction: @Composable () -> Unit,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,

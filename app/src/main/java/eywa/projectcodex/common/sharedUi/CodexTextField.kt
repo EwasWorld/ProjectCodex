@@ -23,22 +23,26 @@ import eywa.projectcodex.common.sharedUi.codexTheme.asPlaceholderStyle
 
 @Composable
 fun CodexTextFieldRoundedSurface(
-        color: Color = CodexTheme.colors.surfaceOnBackground,
         modifier: Modifier = Modifier,
+        color: Color = CodexTheme.colors.surfaceOnBackground,
+        helpState: HelpState? = null,
         content: @Composable () -> Unit
-) = Surface(
-        color = color,
-        shape = RoundedCornerShape(5.dp),
-        content = content,
-        modifier = modifier,
-)
+) {
+    helpState?.add()
+    Surface(
+            color = color,
+            shape = RoundedCornerShape(5.dp),
+            content = content,
+            modifier = modifier,
+    )
+}
 
 @Composable
 fun CodexTextField(
         state: CodexTextFieldState,
         placeholderText: String?,
-        labelText: String? = null,
         modifier: Modifier = Modifier,
+        labelText: String? = null,
         singleLine: Boolean = false,
         isError: Boolean = false,
         textStyle: TextStyle = TextStyle.Default,
@@ -69,8 +73,8 @@ fun CodexTextField(
         text: String,
         onValueChange: (String) -> Unit,
         placeholderText: String?,
-        labelText: String? = null,
         modifier: Modifier = Modifier,
+        labelText: String? = null,
         singleLine: Boolean = false,
         isError: Boolean = false,
         textStyle: TextStyle = TextStyle.Default,

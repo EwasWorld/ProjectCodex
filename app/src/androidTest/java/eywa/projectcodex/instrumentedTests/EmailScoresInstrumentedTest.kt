@@ -160,9 +160,9 @@ class EmailScoresInstrumentedTest {
 
     private fun EmailScoreRobot.typeInfo() {
         typeText(EmailScoresTextField.TO, "${EmailTestData.EMAIL_1};${EmailTestData.EMAIL_2}")
-        typeText(EmailScoresTextField.SUBJECT, EmailTestData.APPEND_SUBJECT)
-        typeText(EmailScoresTextField.MESSAGE_HEADER, EmailTestData.START_TEXT, true)
-        typeText(EmailScoresTextField.MESSAGE_FOOTER, EmailTestData.END_TEXT, true)
+        typeText(EmailScoresTextField.SUBJECT, EmailTestData.APPEND_SUBJECT, true)
+        typeText(EmailScoresTextField.MESSAGE_HEADER, EmailTestData.START_TEXT)
+        typeText(EmailScoresTextField.MESSAGE_FOOTER, EmailTestData.END_TEXT)
         Espresso.closeSoftKeyboard()
     }
 

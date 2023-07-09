@@ -32,7 +32,7 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -86,39 +86,19 @@ fun EmailScoresScreen(
         listener: (EmailScoresIntent) -> Unit,
 ) {
     @Composable
-    fun stringOrEmptyString(@StringRes id: Int?) = id?.let { stringResource(id) } ?: ""
-
-    @Composable
-    fun EmailScoresTextField.asState() = CodexTextFieldState(
-            text = state.getText(this, default?.let { stringResource(it) } ?: ""),
-            onValueChange = { listener(UpdateText(it, this)) },
-            testTag = EmailScoresTestTag.forTextField(this),
-    )
-
-    fun EmailScoresCheckbox.asState(enabled: Boolean = true) = state.isChecked(this).let {
-        CodexChipState(
-                selected = it,
-                onToggle = { listener(UpdateBoolean(!it, this)) },
-                enabled = enabled,
-                testTag = EmailScoresTestTag.forCheckbox(this),
-        )
-    }
-
-    val context = LocalContext.current
-    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    fun stringOrBlank(@StringRes id: Int?) = id?.let { stringResource(id) } ?: ""
 
     SimpleDialog(isShown = state.error != null, onDismissListener = { listener(DismissNoEntriesError) }) {
         SimpleDialogContent(
-                title = stringOrEmptyString(state.error?.title),
-                message = stringOrEmptyString(state.error?.message),
+                title = stringOrBlank(state.error?.title),
+                message = stringOrBlank(state.error?.message),
                 positiveButton = ButtonState(
-                        text = stringOrEmptyString(state.error?.buttonText),
+                        text = stringOrBlank(state.error?.buttonText),
                         onClick = { listener(DismissNoEntriesError) },
                 )
         )
     }
 
-    HelpDialogs(helpListener)
     Box(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
@@ -134,206 +114,206 @@ fun EmailScoresScreen(
                         .background(CodexTheme.colors.appBackground)
                         .padding(15.dp)
         ) {
+            ToAndSubject(state, listener)
+            Attachments(state, listener)
+            MessageBody(state, listener)
+        }
+        SendButton(listener)
+    }
+}
+
+@Composable
+private fun EmailScoresTextField.asTextFieldState(
+        state: EmailScoresState,
+        listener: (EmailScoresIntent) -> Unit,
+) = CodexTextFieldState(
+        text = state.getText(this, default?.let { stringResource(it) } ?: ""),
+        onValueChange = { listener(UpdateText(it, this)) },
+        testTag = EmailScoresTestTag.forTextField(this),
+)
+
+@Composable
+private fun ToAndSubject(
+        state: EmailScoresState,
+        listener: (EmailScoresIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    CodexTextFieldRoundedSurface(
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_email_scores__to_title),
+                    helpBody = stringResource(R.string.help_email_scores__to_body),
+            ),
+    ) {
+        CodexTextField(
+                state = EmailScoresTextField.TO.asTextFieldState(state, listener),
+                placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
+                labelText = stringResource(id = R.string.email_scores__to),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+        )
+    }
+    CodexTextFieldRoundedSurface(
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_email_scores__subject_title),
+                    helpBody = stringResource(R.string.help_email_scores__subject_body),
+            ),
+    ) {
+        CodexTextField(
+                state = EmailScoresTextField.SUBJECT.asTextFieldState(state, listener),
+                placeholderText = stringResource(id = R.string.email_default_message_subject),
+                labelText = stringResource(id = R.string.email_scores__subject),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun Attachments(
+        state: EmailScoresState,
+        listener: (EmailScoresIntent) -> Unit,
+) {
+    fun EmailScoresCheckbox.asState(enabled: Boolean = true) = CodexNewChipState(
+            selected = state.isChecked(this),
+            enabled = enabled,
+            testTag = EmailScoresTestTag.forCheckbox(this),
+    )
+
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    val checkboxListener = { it: EmailScoresCheckbox -> listener(UpdateBoolean(!state.isChecked(it), it)) }
+
+    Row(
+            horizontalArrangement = Arrangement.spacedBy(CODEX_CHIP_SPACING, Alignment.Start),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+    ) {
+        Text(
+                text = stringResource(R.string.email_scores__attachments_title),
+                style = CodexTypography.SMALL.copy(CodexTheme.colors.onAppBackground)
+        )
+        CodexChip(
+                text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),
+                state = EmailScoresCheckbox.FULL_SCORE_SHEET.asState(),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_email_scores__full_score_sheet_attachment_title),
+                        helpBody = stringResource(R.string.help_email_scores__full_score_sheet_attachment_body),
+                ),
+                onToggle = { checkboxListener(EmailScoresCheckbox.FULL_SCORE_SHEET) },
+        )
+        CodexChip(
+                text = stringResource(id = R.string.email_scores__full_score_sheet_with_distance_totals),
+                state = EmailScoresCheckbox.DISTANCE_TOTAL.asState(
+                        state.isChecked(EmailScoresCheckbox.FULL_SCORE_SHEET)
+                ),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_email_scores__include_distance_totals_title),
+                        helpBody = stringResource(R.string.help_email_scores__include_distance_totals_body),
+                ),
+                onToggle = { checkboxListener(EmailScoresCheckbox.DISTANCE_TOTAL) },
+        )
+    }
+}
+
+@Composable
+private fun MessageBody(
+        state: EmailScoresState,
+        listener: (EmailScoresIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    CodexTextFieldRoundedSurface {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(10.dp)
+        ) {
+            CodexTextField(
+                    state = EmailScoresTextField.MESSAGE_HEADER.asTextFieldState(state, listener),
+                    placeholderText = stringResource(id = R.string.email_scores__message_header_placeholder),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_email_scores__message_start_title),
+                            helpBody = stringResource(R.string.help_email_scores__message_start_body),
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+            )
             CodexTextFieldRoundedSurface(
-                    modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_email_scores__to_title)
-            ) {
-                CodexTextField(
-                        state = EmailScoresTextField.TO.asState(),
-                        placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
-                        labelText = stringResource(id = R.string.email_scores__to),
-                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-                        modifier = Modifier
-                                .padding(10.dp)
-                                .fillMaxWidth()
-                )
-            }
-            CodexTextFieldRoundedSurface(
-                    modifier = Modifier.updateHelpDialogPosition(
-                            helpListener,
-                            R.string.help_email_scores__subject_title
-                    )
-            ) {
-                CodexTextField(
-                        state = EmailScoresTextField.SUBJECT.asState(),
-                        placeholderText = stringResource(id = R.string.email_default_message_subject),
-                        labelText = stringResource(id = R.string.email_scores__subject),
-                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-                        modifier = Modifier
-                                .padding(10.dp)
-                                .fillMaxWidth()
-                )
-            }
-            Row(
-                    horizontalArrangement = Arrangement.spacedBy(CODEX_CHIP_SPACING, Alignment.Start),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
+                    color = CodexTheme.colors.disabledOnSurfaceOnBackground,
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_email_scores__scores_title),
+                            helpBody = stringResource(R.string.help_email_scores__scores_body),
+                    ),
+                    modifier = Modifier.padding(horizontal = 5.dp)
             ) {
                 Text(
-                        text = stringResource(R.string.email_scores__attachments_title),
-                        style = CodexTypography.SMALL.copy(CodexTheme.colors.onAppBackground)
-                )
-                CodexChip(
-                        text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),
-                        state = EmailScoresCheckbox.FULL_SCORE_SHEET.asState(),
-                        modifier = Modifier.updateHelpDialogPosition(
-                                helpListener,
-                                R.string.help_email_scores__full_score_sheet_attachment_title
-                        )
-                )
-                CodexChip(
-                        text = stringResource(id = R.string.email_scores__full_score_sheet_with_distance_totals),
-                        state = EmailScoresCheckbox.DISTANCE_TOTAL.asState(
-                                state.isChecked(EmailScoresCheckbox.FULL_SCORE_SHEET)
-                        ),
-                        modifier = Modifier.updateHelpDialogPosition(
-                                helpListener,
-                                R.string.help_email_scores__include_distance_totals_title
-                        )
+                        text = state.getRoundsText(LocalContext.current.resources),
+                        style = CodexTypography.SMALL,
+                        color = CodexTheme.colors.onListItemAppOnBackground,
+                        modifier = Modifier
+                                .padding(15.dp)
+                                .fillMaxWidth()
+                                .testTag(EmailScoresTestTag.SCORE_TEXT)
                 )
             }
-            CodexTextFieldRoundedSurface {
-                Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.padding(10.dp)
-                ) {
-                    CodexTextField(
-                            state = EmailScoresTextField.MESSAGE_HEADER.asState(),
-                            placeholderText = stringResource(id = R.string.email_scores__message_header_placeholder),
-                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
-                            modifier = Modifier
-                                    .fillMaxWidth()
-                                    .updateHelpDialogPosition(
-                                            helpListener,
-                                            R.string.help_email_scores__message_start_title
-                                    )
-                    )
-                    CodexTextFieldRoundedSurface(
-                            color = CodexTheme.colors.disabledOnSurfaceOnBackground,
-                            modifier = Modifier
-                                    .padding(horizontal = 5.dp)
-                                    .updateHelpDialogPosition(
-                                            helpListener,
-                                            R.string.help_email_scores__scores_title
-                                    )
-                    ) {
-                        Text(
-                                text = state.getRoundsText(context.resources),
-                                style = CodexTypography.SMALL,
-                                color = CodexTheme.colors.onListItemAppOnBackground,
-                                modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxWidth()
-                                        .testTag(EmailScoresTestTag.SCORE_TEXT)
-                        )
-                    }
-                    CodexTextField(
-                            state = EmailScoresTextField.MESSAGE_FOOTER.asState(),
-                            placeholderText = stringResource(id = R.string.email_scores__message_footer_placeholder),
-                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
-                            modifier = Modifier
-                                    .fillMaxWidth()
-                                    .updateHelpDialogPosition(
-                                            helpListener,
-                                            R.string.help_email_scores__message_end_title
-                                    )
-                    )
-                }
-            }
-        }
-        FloatingActionButton(
-                backgroundColor = CodexTheme.colors.floatingActions,
-                contentColor = CodexTheme.colors.onFloatingActions,
-                onClick = {
-                    listener(
-                            SubmitClicked(
-                                    context.getExternalFilesDir(null)
-                                            ?: throw IllegalStateException("Unable to access storage")
-                            )
-                    )
-                },
-                modifier = Modifier
-                        .padding(30.dp)
-                        .updateHelpDialogPosition(helpListener, R.string.help_email_scores__send_title)
-                        .testTag(EmailScoresTestTag.SEND_BUTTON)
-        ) {
-            Icon(
-                    Icons.Default.Send,
-                    contentDescription = stringResource(R.string.email_scores__send)
+            CodexTextField(
+                    state = EmailScoresTextField.MESSAGE_FOOTER.asTextFieldState(state, listener),
+                    placeholderText = stringResource(id = R.string.email_scores__message_footer_placeholder),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_email_scores__message_end_title),
+                            helpBody = stringResource(R.string.help_email_scores__message_end_body),
+                    ),
+                    modifier = Modifier.fillMaxWidth()
             )
         }
     }
 }
 
 @Composable
-private fun HelpDialogs(
-        helpListener: (HelpShowcaseIntent) -> Unit,
+private fun SendButton(
+        listener: (EmailScoresIntent) -> Unit,
 ) {
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__to_title,
-                            helpBody = R.string.help_email_scores__to_body,
-                    ),
-            )
+    val context = LocalContext.current
+    val sendHelpState = HelpState(
+            helpListener = { listener(HelpShowcaseAction(it)) },
+            helpTitle = stringResource(R.string.help_email_scores__send_title),
+            helpBody = stringResource(R.string.help_email_scores__send_body),
     )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__subject_title,
-                            helpBody = R.string.help_email_scores__subject_body,
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__message_start_title,
-                            helpBody = R.string.help_email_scores__message_start_body,
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__scores_title,
-                            helpBody = R.string.help_email_scores__scores_body,
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__message_end_title,
-                            helpBody = R.string.help_email_scores__message_end_body,
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__full_score_sheet_attachment_title,
-                            helpBody = R.string.help_email_scores__full_score_sheet_attachment_body,
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__include_distance_totals_title,
-                            helpBody = R.string.help_email_scores__include_distance_totals_body,
-                    ),
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_email_scores__send_title,
-                            helpBody = R.string.help_email_scores__send_body,
-                    ),
-            )
-    )
+    sendHelpState.add()
+    FloatingActionButton(
+            backgroundColor = CodexTheme.colors.floatingActions,
+            contentColor = CodexTheme.colors.onFloatingActions,
+            onClick = {
+                listener(
+                        SubmitClicked(
+                                context.getExternalFilesDir(null)
+                                        ?: throw IllegalStateException("Unable to access storage")
+                        )
+                )
+            },
+            modifier = Modifier
+                    .padding(15.dp)
+                    .updateHelpDialogPosition(sendHelpState)
+                    .testTag(EmailScoresTestTag.SEND_BUTTON)
+    ) {
+        Icon(
+                Icons.Default.Send,
+                contentDescription = stringResource(R.string.email_scores__send)
+        )
+    }
 }
 
 object EmailScoresTestTag {

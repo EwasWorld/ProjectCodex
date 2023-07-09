@@ -90,7 +90,7 @@ abstract class BaseRobot(
     }
 
     fun checkAtLeastOneElementIsDisplayed(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
-        composeTestRule.onAllNodesWithTag(testTag.getTestTag()).onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).onFirst().assertIsDisplayed()
     }
 
     fun checkAtLeastOneElementIsDisplayed(testTag: String, useUnmergedTree: Boolean = false) {
@@ -117,8 +117,10 @@ abstract class BaseRobot(
 
     fun setText(testTag: CodexTestTag, text: String) = setText(testTag.getTestTag(), text)
 
-    fun setText(testTag: String, text: String) {
-        composeTestRule.onNodeWithTag(testTag).performTextClearance()
+    fun setText(testTag: String, text: String, append: Boolean = false) {
+        if (!append) {
+            composeTestRule.onNodeWithTag(testTag).performTextClearance()
+        }
         composeTestRule.onNodeWithTag(testTag).performTextInput(text)
     }
 
