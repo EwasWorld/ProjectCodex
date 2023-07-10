@@ -18,9 +18,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.logging.debugLog
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
@@ -46,11 +49,21 @@ fun ViewScoresListItem(
     val context = LocalContext.current
     fun stringFromRes(@StringRes resId: Int) = context.resources.getString(resId)
 
-    debugLog("dropdownMenuItems: ${dropdownMenuItems?.size}")
+    genericHelpInfo.handle(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_score__row_title),
+                            helpBody = stringResource(R.string.help_view_score__row_body),
+                            priority = ViewScoreHelpPriority.GENERIC_ROW_ACTIONS.ordinal
+                    )
+            ),
+            CodexNavRoute.VIEW_SCORES::class,
+    )
+
     Box(
             modifier = Modifier
                     .testTag(ViewScoresTestTag.LIST_ITEM.getTestTag())
-                    .updateHelpDialogPosition(genericHelpInfo, R.string.help_view_score__row_title)
+                    .updateHelpDialogPosition(genericHelpInfo, stringResource(R.string.help_view_score__row_title))
                     .pointerInput(entryIndex, isInMultiSelectMode) {
                         detectTapGestures(
                                 onTap = { listener(ViewScoresIntent.EntryClicked(entry.id)) },

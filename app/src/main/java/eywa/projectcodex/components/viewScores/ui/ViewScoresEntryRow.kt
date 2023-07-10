@@ -47,39 +47,6 @@ internal fun ViewScoresEntryRow(
         modifier: Modifier = Modifier,
         showPbs: Boolean,
 ) {
-    helpInfo.handle(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_view_score__hsg_title,
-                            helpBody = R.string.help_view_score__hsg_body,
-                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
-                    )
-            ),
-            CodexNavRoute.VIEW_SCORES::class,
-    )
-    helpInfo.handle(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_view_score__handicap_title,
-                            helpBody = (
-                                    if (entry.info.use2023HandicapSystem) R.string.help_view_score__handicap_2023_body
-                                    else R.string.help_view_score__handicap_old_body
-                                    ),
-                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
-                    )
-            ),
-            CodexNavRoute.VIEW_SCORES::class,
-    )
-    helpInfo.handle(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_view_score__round_title,
-                            helpBody = R.string.help_view_score__round_body,
-                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
-                    )
-            ),
-            CodexNavRoute.VIEW_SCORES::class,
-    )
 
     Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -119,6 +86,16 @@ private fun DateAndRoundNameColumn(
         helpInfo: HelpShowcaseUseCase,
         modifier: Modifier = Modifier,
 ) {
+    helpInfo.handle(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_score__round_title),
+                            helpBody = stringResource(R.string.help_view_score__round_body),
+                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
+                    )
+            ),
+            CodexNavRoute.VIEW_SCORES::class,
+    )
     Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = columnVerticalArrangement,
@@ -140,7 +117,8 @@ private fun DateAndRoundNameColumn(
                         if (entry.info.round == null || entry.isRoundComplete()) TextDecoration.None
                         else TextDecoration.LineThrough
                         ),
-                modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__round_title)
+                modifier = Modifier
+                        .updateHelpDialogPosition(helpInfo, stringResource(R.string.help_view_score__round_title))
         )
     }
 }
@@ -151,6 +129,16 @@ private fun HsgColumn(
         entry: ViewScoresEntry,
         helpInfo: HelpShowcaseUseCase,
 ) {
+    helpInfo.handle(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_score__hsg_title),
+                            helpBody = stringResource(R.string.help_view_score__hsg_body),
+                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
+                    )
+            ),
+            CodexNavRoute.VIEW_SCORES::class,
+    )
     Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = columnVerticalArrangement,
@@ -165,7 +153,8 @@ private fun HsgColumn(
         Text(
                 text = entry.hitsScoreGolds ?: stringResource(R.string.view_score__hsg_placeholder),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__hsg_title)
+                modifier = Modifier
+                        .updateHelpDialogPosition(helpInfo, stringResource(R.string.help_view_score__hsg_title))
         )
     }
 }
@@ -175,6 +164,19 @@ private fun HandicapColumn(
         entry: ViewScoresEntry,
         helpInfo: HelpShowcaseUseCase,
 ) {
+    helpInfo.handle(
+            HelpShowcaseIntent.Add(
+                    HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_score__handicap_title),
+                            helpBody = stringResource(
+                                    if (entry.info.use2023HandicapSystem) R.string.help_view_score__handicap_2023_body
+                                    else R.string.help_view_score__handicap_old_body
+                            ),
+                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
+                    )
+            ),
+            CodexNavRoute.VIEW_SCORES::class,
+    )
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = columnVerticalArrangement,
@@ -192,7 +194,11 @@ private fun HandicapColumn(
                     text = entry.handicap?.toString()
                             ?: stringResource(R.string.view_score__handicap_placeholder),
                     style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                    modifier = Modifier.updateHelpDialogPosition(helpInfo, R.string.help_view_score__handicap_title)
+                    modifier = Modifier
+                            .updateHelpDialogPosition(
+                                    helpInfo,
+                                    stringResource(R.string.help_view_score__handicap_title)
+                            )
             )
             // Force width to always accommodate "00" - this will forces columns into alignment
             Text(

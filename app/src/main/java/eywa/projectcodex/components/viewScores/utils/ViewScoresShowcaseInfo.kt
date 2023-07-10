@@ -1,11 +1,12 @@
 package eywa.projectcodex.components.viewScores.utils
 
 import androidx.compose.foundation.lazy.LazyListState
-import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.helpShowcase.DynamicHelpShowcaseInfo
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.components.viewScores.ui.ViewScoreHelpPriority
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
@@ -37,20 +38,7 @@ class ViewScoresShowcaseInfo(
      * This info is generic and common to all rows.
      * Indexes match that in [entryClasses]
      */
-    val genericEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) {
-        HelpShowcaseUseCase().apply {
-            handle(
-                    HelpShowcaseIntent.Add(
-                            HelpShowcaseItem(
-                                    helpTitle = R.string.help_view_score__row_title,
-                                    helpBody = R.string.help_view_score__row_body,
-                                    priority = ViewScoreHelpPriority.GENERIC_ROW_ACTIONS.ordinal
-                            )
-                    ),
-                    CodexNavRoute.VIEW_SCORES::class,
-            )
-        }
-    }
+    val genericEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) { HelpShowcaseUseCase() }
 
     private var currentShowcase: Map<ResOrActual<String>, HelpShowcaseItem>? = null
 

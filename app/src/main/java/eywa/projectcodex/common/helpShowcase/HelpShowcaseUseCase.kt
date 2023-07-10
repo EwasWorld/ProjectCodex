@@ -12,17 +12,29 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlin.reflect.KClass
 
+@Deprecated("Use string", ReplaceWith(""))
 fun Modifier.updateHelpDialogPosition(helpListener: (HelpShowcaseIntent) -> Unit, @StringRes key: Int) =
         onGloballyPositioned { helpListener(HelpShowcaseIntent.UpdateCoordinates(key, it)) }
 
 fun Modifier.updateHelpDialogPosition(helpListener: (HelpShowcaseIntent) -> Unit, key: String) =
         onGloballyPositioned { helpListener(HelpShowcaseIntent.UpdateCoordinates(key, it)) }
 
+@Deprecated("Use string", ReplaceWith(""))
 fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, @StringRes key: Int) =
         onGloballyPositioned { helpItemsMap.updateItem(key, it) }
 
+fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, key: String) =
+        onGloballyPositioned { helpItemsMap.updateItem(key, it) }
+
+fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, key: ResOrActual<String>) =
+        onGloballyPositioned { helpItemsMap.updateItem(key, it) }
+
 fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
-        modifierIf(helpState != null) { updateHelpDialogPosition(helpState!!.helpListener, helpState.helpTitle) }
+        modifierIf(helpState != null) {
+            val title = helpState!!.helpShowcaseItem.helpTitle
+            if (title.res != null) updateHelpDialogPosition(helpState.helpListener, title.res)
+            else updateHelpDialogPosition(helpState.helpListener, title.actual!!)
+        }
 
 class HelpShowcaseUseCase {
     private val _state = MutableStateFlow(HelpShowcaseInternalState())

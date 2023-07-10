@@ -2,8 +2,13 @@ package eywa.projectcodex.common.helpShowcase
 
 data class HelpState(
         val helpListener: (HelpShowcaseIntent) -> Unit,
-        val helpTitle: String,
-        val helpBody: String,
+        val helpShowcaseItem: HelpShowcaseItem,
 ) {
-    fun add() = helpListener(HelpShowcaseIntent.Add(HelpShowcaseItem(helpTitle, helpBody)))
+    constructor(
+            helpListener: (HelpShowcaseIntent) -> Unit,
+            helpTitle: String,
+            helpBody: String,
+    ) : this(helpListener, HelpShowcaseItem(helpTitle, helpBody))
+
+    fun add() = helpListener(HelpShowcaseIntent.Add(helpShowcaseItem))
 }

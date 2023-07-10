@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
+import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
@@ -44,10 +45,11 @@ class ViewScoresViewModelUnitTest {
     private val helpShowcase: HelpShowcaseUseCase = mock { }
     private val customLogger: CustomLogger = mock { }
     private val datastore = MockDatastore()
+    private val archerRoundIdsUseCase = ArcherRoundIdsUseCase()
 
     private fun getSut(datastoreUse2023System: Boolean = true): ViewScoresViewModel {
         datastore.values = mapOf(DatastoreKey.Use2023HandicapSystem to datastoreUse2023System)
-        return ViewScoresViewModel(db.mock, helpShowcase, customLogger, datastore.mock)
+        return ViewScoresViewModel(db.mock, helpShowcase, customLogger, datastore.mock, archerRoundIdsUseCase)
     }
 
     /**
@@ -275,20 +277,14 @@ class ViewScoresViewModelUnitTest {
 
         sut.handle(EntryLongClicked(1))
         expectedState = expectedState.copy(
-                dropdownItems = listOf(
-                        ViewScoresDropdownMenuItem.SCORE_PAD,
-                        ViewScoresDropdownMenuItem.CONTINUE,
-                        ViewScoresDropdownMenuItem.EMAIL_SCORE,
-                        ViewScoresDropdownMenuItem.EDIT_INFO,
-                        ViewScoresDropdownMenuItem.DELETE,
-                        ViewScoresDropdownMenuItem.CONVERT,
-                ),
+                dropdownMenuOpen = true,
                 lastClickedEntryId = 1,
         )
         checkState()
 
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONVERT))
-        expectedState = expectedState.copy(dropdownItems = null, lastClickedEntryId = 1, convertScoreDialogOpen = true)
+        expectedState =
+                expectedState.copy(dropdownMenuOpen = false, lastClickedEntryId = 1, convertScoreDialogOpen = true)
         checkState()
 
         advanceUntilIdle()
@@ -371,22 +367,22 @@ class ViewScoresViewModelUnitTest {
 
         // Open dropdown - with continue
         sut.handle(EntryLongClicked(1))
-        expectedState = expectedState.copy(dropdownItems = allDropdownItems, lastClickedEntryId = 1)
+        expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
         checkState()
 
         // Close
         sut.handle(DropdownMenuClosed)
-        expectedState = expectedState.copy(dropdownItems = null, lastClickedEntryId = 1)
+        expectedState = expectedState.copy(dropdownMenuOpen = false, lastClickedEntryId = 1)
         checkState()
 
         // Open dropdown - no continue
         sut.handle(EntryLongClicked(2))
-        expectedState = expectedState.copy(dropdownItems = noContinueDropdownItems, lastClickedEntryId = 2)
+        expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 2)
         checkState()
 
         // Close
         sut.handle(DropdownMenuClosed)
-        expectedState = expectedState.copy(dropdownItems = null, lastClickedEntryId = 2)
+        expectedState = expectedState.copy(dropdownMenuOpen = false, lastClickedEntryId = 2)
         checkState()
     }
 
@@ -405,14 +401,14 @@ class ViewScoresViewModelUnitTest {
 
         fun openDropdown() {
             sut.handle(EntryLongClicked(1))
-            expectedState = expectedState.copy(dropdownItems = allDropdownItems, lastClickedEntryId = 1)
+            expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
             checkState()
         }
 
         // SCORE_PAD
         openDropdown()
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.SCORE_PAD))
-        expectedState = expectedState.copy(openScorePadClicked = true, dropdownItems = null)
+        expectedState = expectedState.copy(openScorePadClicked = true, dropdownMenuOpen = false)
         checkState()
 
         sut.handle(HandledScorePadOpened)
@@ -422,7 +418,7 @@ class ViewScoresViewModelUnitTest {
         // EMAIL_SCORE
         openDropdown()
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.EMAIL_SCORE))
-        expectedState = expectedState.copy(openEmailClicked = true, dropdownItems = null)
+        expectedState = expectedState.copy(openEmailClicked = true, dropdownMenuOpen = false)
         checkState()
 
         sut.handle(HandledEmailOpened)
@@ -432,7 +428,7 @@ class ViewScoresViewModelUnitTest {
         // EDIT_INFO
         openDropdown()
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.EDIT_INFO))
-        expectedState = expectedState.copy(openEditInfoClicked = true, dropdownItems = null)
+        expectedState = expectedState.copy(openEditInfoClicked = true, dropdownMenuOpen = false)
         checkState()
 
         sut.handle(HandledEditInfoOpened)
@@ -460,11 +456,11 @@ class ViewScoresViewModelUnitTest {
 
         // Continue incomplete round
         sut.handle(EntryLongClicked(1))
-        expectedState = expectedState.copy(dropdownItems = allDropdownItems, lastClickedEntryId = 1)
+        expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
         checkState()
 
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE))
-        expectedState = expectedState.copy(openInputEndClicked = true, dropdownItems = null)
+        expectedState = expectedState.copy(openInputEndClicked = true, dropdownMenuOpen = false)
         checkState()
 
         sut.handle(HandledInputEndOpened)
@@ -473,7 +469,7 @@ class ViewScoresViewModelUnitTest {
 
         // Continue completed round
         sut.handle(EntryLongClicked(2))
-        expectedState = expectedState.copy(dropdownItems = noContinueDropdownItems, lastClickedEntryId = 2)
+        expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 2)
         checkState()
 
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE))
@@ -500,11 +496,11 @@ class ViewScoresViewModelUnitTest {
 
         // Open -> Delete -> Cancel
         sut.handle(EntryLongClicked(1))
-        expectedState = expectedState.copy(dropdownItems = allDropdownItems, lastClickedEntryId = 1)
+        expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
         checkState()
 
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.DELETE))
-        expectedState = expectedState.copy(deleteDialogOpen = true, dropdownItems = null)
+        expectedState = expectedState.copy(deleteDialogOpen = true, dropdownMenuOpen = false)
         checkState()
 
         sut.handle(DeleteDialogCancelClicked)
@@ -513,11 +509,11 @@ class ViewScoresViewModelUnitTest {
 
         // Open -> Delete -> OK
         sut.handle(EntryLongClicked(1))
-        expectedState = expectedState.copy(dropdownItems = allDropdownItems, lastClickedEntryId = 1)
+        expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
         checkState()
 
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.DELETE))
-        expectedState = expectedState.copy(deleteDialogOpen = true, dropdownItems = null)
+        expectedState = expectedState.copy(deleteDialogOpen = true, dropdownMenuOpen = false)
         checkState()
 
         advanceUntilIdle()
@@ -546,17 +542,4 @@ class ViewScoresViewModelUnitTest {
     }
 
     private fun ViewScoresState.reorderDataById() = copy(data = data.sortedBy { it.id })
-
-    companion object {
-        private val allDropdownItems = listOf(
-                ViewScoresDropdownMenuItem.SCORE_PAD,
-                ViewScoresDropdownMenuItem.CONTINUE,
-                ViewScoresDropdownMenuItem.EMAIL_SCORE,
-                ViewScoresDropdownMenuItem.EDIT_INFO,
-                ViewScoresDropdownMenuItem.DELETE,
-                ViewScoresDropdownMenuItem.CONVERT,
-        )
-        private val noContinueDropdownItems =
-                allDropdownItems.filterNot { it == ViewScoresDropdownMenuItem.CONTINUE }
-    }
 }

@@ -157,12 +157,12 @@ private fun SightMarksScreen(
                         .padding(top = 10.dp)
                         .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
         )
-        listener(HelpShowcaseAction(Remove(R.string.help_sight_marks__diagram_title)))
+        listener(HelpShowcaseAction(Remove(stringResource(R.string.help_sight_marks__diagram_title))))
     }
     else {
         HelpShowcaseItem(
-                helpTitle = R.string.help_sight_marks__diagram_title,
-                helpBody = R.string.help_sight_marks__diagram_body,
+                helpTitle = stringResource(R.string.help_sight_marks__diagram_title),
+                helpBody = stringResource(R.string.help_sight_marks__diagram_body),
                 shape = HelpShowcaseShape.NO_SHAPE,
                 priority = DEFAULT_HELP_PRIORITY - 1,
         ).let { helpListener(Add(it)) }

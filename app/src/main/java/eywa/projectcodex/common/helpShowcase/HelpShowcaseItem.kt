@@ -16,6 +16,7 @@ data class HelpShowcaseItem(
         private val shape: HelpShowcaseShape = HelpShowcaseShape.OVAL,
         val layoutCoordinates: LayoutCoordinates? = null,
 ) {
+    @Deprecated("Use string-based constructor")
     constructor(
             helpTitle: Int,
             helpBody: Int,

@@ -163,8 +163,8 @@ private fun Table(
     helpListener(
             HelpShowcaseIntent.Add(
                     HelpShowcaseItem(
-                            helpTitle = R.string.help_handicap_tables__table_title,
-                            helpBody = R.string.help_handicap_tables__table_body,
+                            helpTitle = stringResource(R.string.help_handicap_tables__table_title),
+                            helpBody = stringResource(R.string.help_handicap_tables__table_body),
                             priority = DEFAULT_HELP_PRIORITY + 1,
                     ),
             )
@@ -204,7 +204,7 @@ private fun Table(
                                                     .background(CodexTheme.colors.appBackground)
                                                     .updateHelpDialogPosition(
                                                             helpListener,
-                                                            R.string.help_handicap_tables__table_title
+                                                            stringResource(R.string.help_handicap_tables__table_title),
                                                     )
                                     )
                                     .fillMaxWidth(0.6f)
@@ -226,7 +226,10 @@ private fun Table(
                 Text(
                         text = stringResource(R.string.handicap_tables__no_tables),
                         modifier = Modifier
-                                .updateHelpDialogPosition(helpListener, R.string.help_handicap_tables__table_title)
+                                .updateHelpDialogPosition(
+                                        helpListener,
+                                        stringResource(R.string.help_handicap_tables__table_title),
+                                )
                 )
             }
         }

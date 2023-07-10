@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -16,7 +14,6 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -26,7 +23,9 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.viewScores.ui.ViewScoreHelpPriority
@@ -49,26 +48,23 @@ internal fun MultiSelectBar(
             @StringRes helpBody: Int,
             modifier: Modifier = Modifier,
     ) {
-        helpShowcaseListener(
-                HelpShowcaseIntent.Add(
+        CodexIconButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = imageVector,
+                        tint = CodexTheme.colors.onFloatingActions,
+                        contentDescription = contentDescription,
+                ),
+                helpState = HelpState(
+                        helpShowcaseListener,
                         HelpShowcaseItem(
-                                helpTitle = helpTitle,
-                                helpBody = helpBody,
-                                priority = ViewScoreHelpPriority.MULTI_SELECT.ordinal
+                                helpTitle = stringResource(helpTitle),
+                                helpBody = stringResource(helpBody),
+                                priority = ViewScoreHelpPriority.MULTI_SELECT.ordinal,
                         )
-                )
-        )
-        IconButton(
+                ),
                 onClick = onClick,
-                modifier = modifier.updateHelpDialogPosition(helpShowcaseListener, helpTitle)
-        ) {
-            Icon(
-                    imageVector = imageVector,
-                    contentDescription = contentDescription,
-                    tint = CodexTheme.colors.onFloatingActions,
-                    modifier = Modifier.scale(1.2f)
-            )
-        }
+                modifier = modifier
+        )
     }
 
     Surface(
@@ -80,7 +76,7 @@ internal fun MultiSelectBar(
             MultiSelectIconButton(
                     onClick = { listener(MultiSelectBarIntent.ClickOpen) },
                     imageVector = Icons.Default.SelectAll,
-                    contentDescription = stringResource(id = R.string.view_scores__multi_select_start),
+                    contentDescription = stringResource(R.string.view_scores__multi_select_start),
                     helpTitle = R.string.help_view_score__start_multi_select_title,
                     helpBody = R.string.help_view_score__start_multi_select_body,
                     modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_START.getTestTag()),
@@ -91,7 +87,7 @@ internal fun MultiSelectBar(
                     verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                        text = stringResource(id = R.string.view_scores__multi_select_title),
+                        text = stringResource(R.string.view_scores__multi_select_title),
                         style = CodexTypography.NORMAL.copy(
                                 color = CodexTheme.colors.onFloatingActions,
                                 fontWeight = FontWeight.Bold,
@@ -116,7 +112,7 @@ internal fun MultiSelectBar(
                 MultiSelectIconButton(
                         onClick = { listener(MultiSelectBarIntent.ClickEmail) },
                         imageVector = Icons.Outlined.Email,
-                        contentDescription = stringResource(id = R.string.view_scores__multi_select_email),
+                        contentDescription = stringResource(R.string.view_scores__multi_select_email),
                         helpTitle = R.string.help_view_score__action_multi_select_title,
                         helpBody = R.string.help_view_score__action_multi_select_body,
                         modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_EMAIL.getTestTag()),
@@ -124,7 +120,7 @@ internal fun MultiSelectBar(
                 MultiSelectIconButton(
                         onClick = { listener(MultiSelectBarIntent.ClickClose) },
                         imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(id = R.string.view_scores__multi_select_cancel),
+                        contentDescription = stringResource(R.string.view_scores__multi_select_cancel),
                         helpTitle = R.string.help_view_score__cancel_multi_select_title,
                         helpBody = R.string.help_view_score__cancel_multi_select_body,
                         modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_CANCEL.getTestTag()),
