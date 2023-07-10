@@ -71,6 +71,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CodexTheme {
+                val state by viewModel.state.collectAsState()
+
                 val navController = rememberNavController()
                 val currentEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = currentEntry?.currentCodexNavRoute()
@@ -81,8 +83,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val helpState by viewModel.helpShowcase.state.collectAsState()
-                BackHandler(helpState.isInProgress) {
+                BackHandler(state.helpShowcaseState?.isInProgress == true) {
                     viewModel.helpShowcase.endShowcase()
                 }
 
@@ -110,7 +111,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    HelpItem()
+                    HelpItem(state)
                 }
             }
         }
@@ -168,9 +169,9 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun HelpItem() {
-        val state by viewModel.state.collectAsState()
-
+    fun HelpItem(
+            state: MainActivityState,
+    ) {
         LaunchedEffect(state.helpShowcaseState?.startedButNoItems) {
             launch {
                 if (state.helpShowcaseState?.startedButNoItems == true) {

@@ -5,6 +5,13 @@ import eywa.projectcodex.components.mainActivity.MainActivity
 import kotlin.reflect.KClass
 
 data class HelpShowcaseState(
+        val isInProgress: Boolean = false,
+        val currentItem: HelpShowcaseItem? = null,
+        val hasNextItem: Boolean = false,
+        val startedButNoItems: Boolean = false,
+)
+
+internal data class HelpShowcaseInternalState(
         /**
          * The current screen that is displayed. This is updated by [MainActivity] when the current route changes.
          * Have to do it like this rather than the old way of last call to [HelpShowcaseIntent.Add] compose navigation
@@ -20,18 +27,26 @@ data class HelpShowcaseState(
 
         val startedButNoItems: Boolean = false,
 ) {
-    val isInProgress
+    private val isInProgress
         get() = currentShowcase != null && currentlyDisplayedIndex != null
                 && currentlyDisplayedIndex in currentShowcase.indices
 
-    val currentItem
+    private val currentItem
         get() =
             if (!isInProgress) null
             else currentShowcase!![currentlyDisplayedIndex!!].let {
                 helpInfoMap[it] ?: dynamicHelpShowcaseInfo!!.getInfoShowcases(it)!!
             }
 
-    val hasNextItem
+    private val hasNextItem
         get() = currentShowcase != null && currentlyDisplayedIndex != null
                 && (currentlyDisplayedIndex + 1) in currentShowcase.indices
+
+    fun asExternalState() = HelpShowcaseState(
+            isInProgress = isInProgress,
+            currentItem = currentItem,
+            hasNextItem = hasNextItem,
+            startedButNoItems = startedButNoItems,
+    )
 }
+

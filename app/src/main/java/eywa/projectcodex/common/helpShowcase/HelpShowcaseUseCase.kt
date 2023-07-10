@@ -7,7 +7,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.utils.ResOrActual
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlin.reflect.KClass
 
@@ -24,8 +25,8 @@ fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
         modifierIf(helpState != null) { updateHelpDialogPosition(helpState!!.helpListener, helpState.helpTitle) }
 
 class HelpShowcaseUseCase {
-    private val _state = MutableStateFlow(HelpShowcaseState())
-    val state = _state.asStateFlow()
+    private val _state = MutableStateFlow(HelpShowcaseInternalState())
+    val state = _state.map { it.asExternalState() }.distinctUntilChanged()
 
     internal fun updateItem(@StringRes key: Int, layoutCoordinates: LayoutCoordinates) =
             updateItem(ResOrActual.fromRes(key), layoutCoordinates)
@@ -100,14 +101,14 @@ class HelpShowcaseUseCase {
             is HelpShowcaseIntent.SetScreen -> _state.update {
                 require(screen == null || action.screen == screen) { "Incorrect screen" }
                 if (it.currentScreen == screen) return@update it
-                HelpShowcaseState(currentScreen = action.screen)
+                HelpShowcaseInternalState(currentScreen = action.screen)
             }
         }
     }
 
     companion object {
         fun combineContent(showcases: List<HelpShowcaseUseCase>): Map<ResOrActual<String>, HelpShowcaseItem> {
-            val allStates = showcases.map { it.state.value }
+            val allStates = showcases.map { it._state.value }
             val screens = allStates.mapNotNull { it.currentScreen }.distinct()
             require(screens.size <= 1) { "Must all be the same screen" }
             return allStates.flatMap { s -> s.helpInfoMap.map { it.key to it.value } }.toMap()

@@ -6,8 +6,9 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseState
 data class MainActivityState(
         val helpShowcaseState: HelpShowcaseState? = null,
 ) {
-    val currentHelpItem: HelpShowcaseMainActivityState?
-        get() = helpShowcaseState?.currentItem?.let { HelpShowcaseMainActivityState(it, helpShowcaseState.hasNextItem) }
+    val currentHelpItem
+        get() = helpShowcaseState?.currentItem
+                ?.let { HelpShowcaseMainActivityState(helpShowcaseState.currentItem, helpShowcaseState.hasNextItem) }
 }
 
 data class HelpShowcaseMainActivityState(
