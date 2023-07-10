@@ -257,6 +257,7 @@ private fun MessageBody(
                     ),
                     modifier = Modifier.padding(horizontal = 5.dp)
             ) {
+                // TODO Might be better accessibility-wise if each round was in a separate box?
                 Text(
                         text = state.getRoundsText(LocalContext.current.resources),
                         style = CodexTypography.SMALL,

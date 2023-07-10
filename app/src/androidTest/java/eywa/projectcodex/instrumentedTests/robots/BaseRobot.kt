@@ -81,7 +81,7 @@ abstract class BaseRobot(
             composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).assertAll(check)
 
 
-    private fun checkElementIsDisplayed(testTag: String, text: String? = null, useUnmergedTree: Boolean = false) {
+    fun checkElementIsDisplayed(testTag: String, text: String? = null, useUnmergedTree: Boolean = false) {
         var matcher = hasTestTag(testTag)
         if (text != null) {
             matcher = matcher.and(hasText(text))
@@ -104,11 +104,11 @@ abstract class BaseRobot(
         composeTestRule.onNodeWithTag(testTag, useUnmergedTree).assertDoesNotExist()
     }
 
-    fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean) =
-            checkCheckboxState(testTag.getTestTag(), isChecked)
+    fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean, useUnmergedTree: Boolean = false) =
+            checkCheckboxState(testTag.getTestTag(), isChecked, useUnmergedTree)
 
-    fun checkCheckboxState(testTag: String, isChecked: Boolean) {
-        val node = composeTestRule.onNodeWithTag(testTag)
+    fun checkCheckboxState(testTag: String, isChecked: Boolean, useUnmergedTree: Boolean = false) {
+        val node = composeTestRule.onNodeWithTag(testTag, useUnmergedTree)
         if (isChecked) node.assertIsSelected() else node.assertIsNotSelected()
     }
 

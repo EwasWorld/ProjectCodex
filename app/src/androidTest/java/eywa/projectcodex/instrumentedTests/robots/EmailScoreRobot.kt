@@ -13,17 +13,15 @@ class EmailScoreRobot(
             setText(EmailScoresTestTag.forTextField(field), text, append)
 
     fun clickCheckbox(field: EmailScoresCheckbox) =
-            clickElement(EmailScoresTestTag.forCheckbox(field))
+            clickElement(EmailScoresTestTag.forCheckbox(field), useUnmergedTree = true)
 
     fun checkTextFieldText(field: EmailScoresTextField, text: String) =
-            checkElementText(EmailScoresTestTag.forTextField(field), text)
+            checkElementIsDisplayed(EmailScoresTestTag.forTextField(field), text)
 
-    fun clickSend() =
-            clickElement(EmailScoresTestTag.SEND_BUTTON)
+    fun clickSend() = clickElement(EmailScoresTestTag.SEND_BUTTON)
 
     fun checkCheckboxState(field: EmailScoresCheckbox, expectIsChecked: Boolean) =
-            checkCheckboxState(EmailScoresTestTag.forCheckbox(field), expectIsChecked)
+            checkCheckboxState(EmailScoresTestTag.forCheckbox(field), expectIsChecked, useUnmergedTree = true)
 
-    fun checkScoreText(text: String) =
-            checkElementText(EmailScoresTestTag.SCORE_TEXT, text)
+    fun checkScoreText(text: String) = checkElementText(EmailScoresTestTag.SCORE_TEXT, text)
 }
