@@ -178,8 +178,8 @@ fun ViewScoresScreen(
                         entry = entry,
                         entryIndex = entryIndex,
                         isInMultiSelectMode = state.isInMultiSelectMode,
-                        dropdownMenuItems = state.dropdownItems
-                                ?.takeIf { entry.id == state.lastClickedEntryId },
+                        dropdownMenuItems = entry.getDropdownMenuItems(),
+                        dropdownExpanded = entry.id == state.lastClickedEntryId,
                         listener = listener,
                         genericHelpInfo = viewScoresShowcaseInfo.genericEntryHelpInfo[entryIndex],
                         semanticsContentDescription = viewScoresEntryRowAccessibilityString(

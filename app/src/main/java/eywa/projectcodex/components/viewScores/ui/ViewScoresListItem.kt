@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
@@ -37,6 +38,7 @@ fun ViewScoresListItem(
         genericHelpInfo: HelpShowcaseUseCase,
         isInMultiSelectMode: Boolean,
         dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
+        dropdownExpanded: Boolean,
         listener: (ViewScoresIntent) -> Unit,
         semanticsContentDescription: String,
         content: @Composable () -> Unit,
@@ -44,6 +46,7 @@ fun ViewScoresListItem(
     val context = LocalContext.current
     fun stringFromRes(@StringRes resId: Int) = context.resources.getString(resId)
 
+    debugLog("dropdownMenuItems: ${dropdownMenuItems?.size}")
     Box(
             modifier = Modifier
                     .testTag(ViewScoresTestTag.LIST_ITEM.getTestTag())
@@ -54,7 +57,7 @@ fun ViewScoresListItem(
                                 onLongPress = { listener(ViewScoresIntent.EntryLongClicked(entry.id)) },
                         )
                     }
-                    .clearAndSetSemantics {
+                    .semantics(mergeDescendants = true) {
                         contentDescription = semanticsContentDescription
                         if (isInMultiSelectMode) {
                             selected = entry.isSelected
@@ -72,6 +75,7 @@ fun ViewScoresListItem(
                         )
 
                         customActions = dropdownMenuItems?.map {
+                            debugLog(it.name)
                             CustomAccessibilityAction(stringFromRes(it.title)) {
                                 listener(ViewScoresIntent.DropdownMenuClicked(it))
                                 true
@@ -84,11 +88,14 @@ fun ViewScoresListItem(
                         .takeIf { isInMultiSelectMode && entry.isSelected },
                 color = CodexTheme.colors.listItemOnAppBackground,
                 content = content,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .clearAndSetSemantics {}
         )
         DropdownMenu(
-                expanded = !dropdownMenuItems.isNullOrEmpty(),
-                onDismissRequest = { listener(ViewScoresIntent.DropdownMenuClosed) }
+                expanded = dropdownExpanded && !dropdownMenuItems.isNullOrEmpty(),
+                onDismissRequest = { listener(ViewScoresIntent.DropdownMenuClosed) },
+                modifier = Modifier.clearAndSetSemantics { }
         ) {
             dropdownMenuItems?.forEach { item ->
                 if (item.shouldShow == null || item.shouldShow.invoke(entry)) {

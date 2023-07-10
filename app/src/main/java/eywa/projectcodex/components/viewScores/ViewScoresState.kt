@@ -1,7 +1,6 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 
@@ -15,10 +14,9 @@ data class ViewScoresState(
 
         val lastClickedEntryId: Int? = null,
         /**
-         * The [ViewScoresDropdownMenuItem] that should be shown for entry [lastClickedEntryId].
-         * Empty/null if no dropdown should be shown
+         * True if dropdown should be shown for entry [lastClickedEntryId]
          */
-        val dropdownItems: List<ViewScoresDropdownMenuItem>? = null,
+        val dropdownMenuOpen: Boolean = false,
 
         val convertScoreDialogOpen: Boolean = false,
         val deleteDialogOpen: Boolean = false,

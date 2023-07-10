@@ -16,7 +16,7 @@ enum class ViewScoresDropdownMenuItem(
 ) {
     SCORE_PAD(
             title = R.string.view_scores_menu__score_pad,
-            handleClick = { copy(openScorePadClicked = true, dropdownItems = null) }
+            handleClick = { copy(openScorePadClicked = true, dropdownMenuOpen = false) }
     ),
     CONTINUE(
             title = R.string.view_scores_menu__continue,
@@ -25,7 +25,7 @@ enum class ViewScoresDropdownMenuItem(
                     copy(openInputEndOnCompletedRound = true)
                 }
                 else {
-                    copy(openInputEndClicked = true, dropdownItems = null)
+                    copy(openInputEndClicked = true, dropdownMenuOpen = false)
                 }
             },
             shouldShow = { entry -> !entry.isRoundComplete() }
@@ -37,21 +37,21 @@ enum class ViewScoresDropdownMenuItem(
                     this
                 }
                 else {
-                    it.setItems(kotlin.collections.listOf(lastClickedEntryId))
-                    copy(openEmailClicked = true, dropdownItems = null)
+                    it.setItems(listOf(lastClickedEntryId))
+                    copy(openEmailClicked = true, dropdownMenuOpen = false)
                 }
             },
     ),
     EDIT_INFO(
             title = R.string.view_scores_menu__edit,
-            handleClick = { copy(openEditInfoClicked = true, dropdownItems = null) },
+            handleClick = { copy(openEditInfoClicked = true, dropdownMenuOpen = false) },
     ),
     DELETE(
             title = R.string.view_scores_menu__delete,
-            handleClick = { copy(deleteDialogOpen = true, dropdownItems = null) },
+            handleClick = { copy(deleteDialogOpen = true, dropdownMenuOpen = false) },
     ),
     CONVERT(
             title = R.string.view_scores_menu__convert,
-            handleClick = { copy(convertScoreDialogOpen = true, dropdownItems = null) },
+            handleClick = { copy(convertScoreDialogOpen = true, dropdownMenuOpen = false) },
     ),
 }

@@ -85,26 +85,17 @@ class ViewScoresViewModel @Inject constructor(
                     }
                 }
             }
-            is EntryLongClicked -> {
+            is EntryLongClicked ->
                 _state.update {
-                    if (it.isInMultiSelectMode) {
-                        it.selectItem(action.archerRoundId)
-                    }
-                    else {
-                        val entry = it.data.find { entry -> entry.id == action.archerRoundId }
-                                ?: return@update it
-                        it.copy(
-                                lastClickedEntryId = action.archerRoundId,
-                                dropdownItems = entry.getDropdownMenuItems(),
-                        )
-                    }
+                    if (it.isInMultiSelectMode) it.selectItem(action.archerRoundId)
+                    else it.copy(lastClickedEntryId = action.archerRoundId, dropdownMenuOpen = true)
                 }
-            }
             is DropdownMenuClicked ->
                 _state.update {
-                    if (it.dropdownItems == null) it else action.item.handleClick(it, archerRoundIdsUseCase)
+                    if (!it.dropdownMenuOpen) it
+                    else action.item.handleClick(it, archerRoundIdsUseCase)
                 }
-            DropdownMenuClosed -> _state.update { it.copy(dropdownItems = null) }
+            DropdownMenuClosed -> _state.update { it.copy(dropdownMenuOpen = false) }
             NoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = true) }
             DeleteDialogCancelClicked -> _state.update { it.copy(deleteDialogOpen = false) }
             DeleteDialogOkClicked -> {
