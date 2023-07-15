@@ -14,22 +14,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.archeryObjects.getOverallPbString
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
+import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import java.util.*
@@ -46,23 +53,37 @@ internal fun ViewScoresEntryRow(
         helpInfo: HelpShowcaseUseCase,
         modifier: Modifier = Modifier,
         showPbs: Boolean,
-) {
+) = ViewScoresEntryRow(
+        entries = ViewScoresEntryList(entry),
+        helpInfo = helpInfo,
+        showPbs = showPbs,
+        modifier = modifier,
+)
 
+/**
+ * Displays a [ViewScoresEntry]
+ *
+ * @param showPbs true if pb labels should be shown if applicable
+ */
+@Composable
+internal fun ViewScoresEntryRow(
+        entries: ViewScoresEntryList,
+        helpInfo: HelpShowcaseUseCase,
+        modifier: Modifier = Modifier,
+        showPbs: Boolean,
+) {
     Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.padding(start = 8.dp, end = 15.dp, top = 5.dp, bottom = 8.dp)
     ) {
-        if (entry.info.isPersonalBest && showPbs) {
+        if (!entries.allPbTypes.isNullOrEmpty() && showPbs) {
             Surface(
                     color = CodexTheme.colors.targetFaceGold,
                     shape = RoundedCornerShape(100),
             ) {
                 Text(
-                        text = stringResource(
-                                if (entry.info.isTiedPersonalBest) R.string.view_score__round_personal_best_tied
-                                else R.string.view_score__round_personal_best
-                        ),
+                        text = stringResource(entries.allPbTypes.getOverallPbString(entries.isMulti)),
                         style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
@@ -71,18 +92,40 @@ internal fun ViewScoresEntryRow(
         }
         Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Top,
+                verticalAlignment = Alignment.CenterVertically,
         ) {
-            DateAndRoundNameColumn(entry, helpInfo, Modifier.weight(1f))
-            HsgColumn(entry, helpInfo)
-            HandicapColumn(entry, helpInfo)
+            DateAndFirstNameColumn(entries, helpInfo, Modifier.weight(1f))
+            HsgColumn(entries, helpInfo)
+            HandicapColumn(entries, helpInfo)
+        }
+        if (entries.secondDisplayName != null || entries.totalUndisplayedNamesCount != null) {
+            Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.align(Alignment.Start)
+            ) {
+                entries.secondDisplayName?.let {
+                    DisplayName(
+                            nameInfo = it,
+                            modifier = Modifier.weight(1f, false)
+                    )
+                }
+                // Will display up to 2 round names. Indicate how many more there are to the user
+                entries.totalUndisplayedNamesCount?.let { remaining ->
+                    Text(
+                            text = stringResource(R.string.view_score__multiple_ellipses, remaining),
+                            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
+                            fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun DateAndRoundNameColumn(
-        entry: ViewScoresEntry,
+private fun DateAndFirstNameColumn(
+        entries: ViewScoresEntryList,
         helpInfo: HelpShowcaseUseCase,
         modifier: Modifier = Modifier,
 ) {
@@ -102,31 +145,45 @@ private fun DateAndRoundNameColumn(
             modifier = modifier
     ) {
         Text(
-                text = DateTimeFormat.SHORT_DATE_TIME.format(entry.info.archerRound.dateShot),
+                text = DateTimeFormat.SHORT_DATE_TIME.format(entries.dateShot),
                 style = CodexTypography.SMALL.copy(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
         )
-        Text(
-                text = entry.info.displayName
-                        ?: stringResource(R.string.create_round__no_round),
-                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textDecoration = (
-                        if (entry.info.round == null || entry.isRoundComplete()) TextDecoration.None
-                        else TextDecoration.LineThrough
-                        ),
+        DisplayName(
+                nameInfo = entries.firstDisplayName,
                 modifier = Modifier
                         .updateHelpDialogPosition(helpInfo, stringResource(R.string.help_view_score__round_title))
         )
     }
 }
 
+@Composable
+private fun DisplayName(
+        nameInfo: ViewScoresRoundNameInfo,
+        modifier: Modifier = Modifier,
+) {
+    val text = (nameInfo.displayName ?: stringResource(R.string.create_round__no_round))
+            .let { text ->
+                if (nameInfo.prefixWithAmpersand) stringResource(R.string.view_score__joiner, text)
+                else if (nameInfo.identicalCount <= 1) text
+                else if (nameInfo.identicalCount == 2) stringResource(R.string.view_score__double, text)
+                else stringResource(R.string.view_score__multiple, nameInfo.identicalCount, text)
+            }
+
+    Text(
+            text = text,
+            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textDecoration = if (nameInfo.strikethrough) TextDecoration.LineThrough else TextDecoration.None,
+            modifier = modifier
+    )
+}
 
 @Composable
 private fun HsgColumn(
-        entry: ViewScoresEntry,
+        entries: ViewScoresEntryList,
         helpInfo: HelpShowcaseUseCase,
 ) {
     helpInfo.handle(
@@ -149,9 +206,8 @@ private fun HsgColumn(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
         )
-        @Suppress("RemoveRedundantQualifierName")
         Text(
-                text = entry.hitsScoreGolds ?: stringResource(R.string.view_score__hsg_placeholder),
+                text = entries.hitsScoreGolds ?: stringResource(R.string.view_score__hsg_placeholder),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 modifier = Modifier
                         .updateHelpDialogPosition(helpInfo, stringResource(R.string.help_view_score__hsg_title))
@@ -161,7 +217,7 @@ private fun HsgColumn(
 
 @Composable
 private fun HandicapColumn(
-        entry: ViewScoresEntry,
+        entries: ViewScoresEntryList,
         helpInfo: HelpShowcaseUseCase,
 ) {
     helpInfo.handle(
@@ -169,7 +225,7 @@ private fun HandicapColumn(
                     HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_view_score__handicap_title),
                             helpBody = stringResource(
-                                    if (entry.info.use2023HandicapSystem) R.string.help_view_score__handicap_2023_body
+                                    if (entries.use2023System) R.string.help_view_score__handicap_2023_body
                                     else R.string.help_view_score__handicap_old_body
                             ),
                             priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
@@ -191,7 +247,7 @@ private fun HandicapColumn(
                 contentAlignment = Alignment.Center
         ) {
             Text(
-                    text = entry.handicap?.toString()
+                    text = entries.handicap?.toString()
                             ?: stringResource(R.string.view_score__handicap_placeholder),
                     style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                     modifier = Modifier
@@ -230,7 +286,7 @@ fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEnt
             entry.info.displayName,
             accessibilityString(title = R.string.view_score__score, value = entry.info.score),
             accessibilityString(title = R.string.view_score__handicap_full, value = entry.handicap),
-            accessibilityString(title = R.string.view_score__golds, value = entry.golds),
+            accessibilityString(title = R.string.view_score__golds, value = entry.golds()),
             accessibilityString(title = R.string.view_score__hits, value = entry.info.hits),
     ).joinToString()
 }
@@ -238,13 +294,16 @@ fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEnt
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(
         showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
+        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT,
+        widthDp = 350,
 )
 @Composable
-fun ViewScoresEntryRow_Preview() {
+fun ViewScoresEntryRow_Preview(
+        @PreviewParameter(ViewScoresEntryRowPreviewProvider::class) param: ViewScoresEntryList,
+) {
     CodexTheme {
         ViewScoresEntryRow(
-                entry = ViewScoresEntryPreviewProvider.generateEntries(1).first(),
+                entries = param,
                 helpInfo = HelpShowcaseUseCase(),
                 showPbs = true,
         )
@@ -252,52 +311,27 @@ fun ViewScoresEntryRow_Preview() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
-)
-@Composable
-fun Incomplete_ViewScoresEntryRow_Preview() {
-    CodexTheme {
-        ViewScoresEntryRow(
-                entry = ViewScoresEntryPreviewProvider.generateIncompleteRound(),
-                helpInfo = HelpShowcaseUseCase(),
-                showPbs = true,
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
-)
-@Composable
-fun PersonalBest_ViewScoresEntryRow_Preview() {
-    CodexTheme {
-        ViewScoresEntryRow(
-                entry = ViewScoresEntryPreviewProvider.generateEntries(1).setPersonalBests(listOf(0)).first(),
-                helpInfo = HelpShowcaseUseCase(),
-                showPbs = true,
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_LIGHT_ACCENT
-)
-@Composable
-fun TiedPersonalBest_ViewScoresEntryRow_Preview() {
-    CodexTheme {
-        ViewScoresEntryRow(
-                entry = ViewScoresEntryPreviewProvider.generateEntries(1)
+class ViewScoresEntryRowPreviewProvider : CollectionPreviewParameterProvider<ViewScoresEntryList>(
+        listOf(
+                ViewScoresEntryPreviewProvider.generateEntries(1),
+                listOf(ViewScoresEntryPreviewProvider.generateIncompleteRound()),
+                ViewScoresEntryPreviewProvider.generateEntries(1).setPersonalBests(listOf(0)),
+                ViewScoresEntryPreviewProvider.generateEntries(1)
                         .setPersonalBests(listOf(0))
-                        .setTiedPersonalBests(listOf(0))
-                        .first(),
-                helpInfo = HelpShowcaseUseCase(),
-                showPbs = true,
-        )
-    }
-}
+                        .setTiedPersonalBests(listOf(0)),
+                ViewScoresEntryPreviewProvider.generateEntries(2),
+                ViewScoresEntryPreviewProvider.generateEntries(2).reversed(),
+                ViewScoresEntryPreviewProvider.generateEntries(4),
+                ViewScoresEntryPreviewProvider.generateEntries(4).let { listOf(it[1], it[0]).plus(it.drop(2)) },
+                List(2) { ViewScoresEntryPreviewProvider.generateEntries(1).first() },
+                List(3) { ViewScoresEntryPreviewProvider.generateEntries(1).first() },
+                listOf(
+                        ViewScoresEntryPreviewProvider.generateEntries(1).first(),
+                        ViewScoresEntryPreviewProvider.generateIncompleteRound(),
+                ),
+                listOf(
+                        ViewScoresEntryPreviewProvider.generateEntries(2).last(),
+                        ViewScoresEntryPreviewProvider.generateIncompleteRound(),
+                ),
+        ).map { ViewScoresEntryList(it) }.orderPreviews()
+)

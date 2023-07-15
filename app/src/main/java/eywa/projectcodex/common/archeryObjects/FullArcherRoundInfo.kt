@@ -57,6 +57,13 @@ data class FullArcherRoundInfo(
     val goldsType = if (round == null) GoldsType.defaultGoldsType else GoldsType.getGoldsType(round)
     fun golds(type: GoldsType? = null) = arrows?.getGolds(type ?: goldsType) ?: 0
 
+    val pbType
+        get() = when {
+            isTiedPersonalBest -> PbType.SINGLE_TIED
+            isPersonalBest -> PbType.SINGLE
+            else -> null
+        }
+
     val arrowsShot by lazy { arrows?.size ?: 0 }
 
     val remainingArrows by lazy {

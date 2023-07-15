@@ -16,4 +16,13 @@ object ComposeUtils {
      */
     @Composable
     fun isInEditMode() = LocalInspectionMode.current
+
+    fun <T> List<T>.orderPreviews(): List<T> {
+        val finalPos = indices.sortedBy { it.toString() }
+        val final = MutableList(size) { first() }
+        for ((i, pos) in finalPos.withIndex()) {
+            final[pos] = get(i)
+        }
+        return final
+    }
 }

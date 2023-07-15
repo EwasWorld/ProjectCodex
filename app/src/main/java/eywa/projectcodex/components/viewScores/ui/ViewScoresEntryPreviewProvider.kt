@@ -52,18 +52,18 @@ object ViewScoresEntryPreviewProvider {
                                 archerRoundId = index + 1,
                                 dateShot = dates[index % dates.size],
                                 archerId = 1,
-                                roundId = displayName?.let { 1 }
+                                roundId = displayName?.let { index + 1 }
                         ),
                         round = displayName?.let {
-                            Round(1, "", displayName, true, true)
+                            Round(index + 1, "", displayName, true, true)
                         },
                         roundSubType = null,
                         arrows = hsg?.let { generateArrows(index + 1, hsg) },
                         roundArrowCounts = (
                                 if (!hasRoundInfo) null
-                                else hsg?.let { listOf(RoundArrowCount(1, 1, 1f, hsg[0])) }
+                                else hsg?.let { listOf(RoundArrowCount(index + 1, 1, 1f, hsg[0])) }
                                 ),
-                        roundDistances = if (!hasRoundInfo) null else listOf(RoundDistance(1, 1, 1, 20)),
+                        roundDistances = if (!hasRoundInfo) null else listOf(RoundDistance(index + 1, 1, 1, 20)),
                 ),
                 isSelected = index % 3 != 1,
                 customLogger = CustomLogger(),
@@ -77,13 +77,13 @@ object ViewScoresEntryPreviewProvider {
                                 archerRoundId = 1,
                                 dateShot = dates[0],
                                 archerId = 1,
-                                roundId = 1
+                                roundId = 5
                         ),
-                        round = Round(1, "", roundNames[0]!!, true, true),
+                        round = Round(5, "", roundNames[5]!!, true, true),
                         roundSubType = null,
                         arrows = generateArrows(1, hsg),
-                        roundArrowCounts = listOf(RoundArrowCount(1, 1, 1f, hsg[0] + 1)),
-                        roundDistances = listOf(RoundDistance(1, 1, 1, 20)),
+                        roundArrowCounts = listOf(RoundArrowCount(5, 1, 1f, hsg[0] + 1)),
+                        roundDistances = listOf(RoundDistance(5, 1, 1, 20)),
                 ),
                 isSelected = false,
                 customLogger = CustomLogger(),
@@ -124,4 +124,6 @@ object ViewScoresEntryPreviewProvider {
     fun List<ViewScoresEntry>.setTiedPersonalBests(indexes: List<Int>) = mapIndexed { index, entry ->
         entry.copy(info = entry.info.copy(isTiedPersonalBest = indexes.contains(index)))
     }
+
+    fun List<ViewScoresEntry>.clearArrows() = map { it.copy(info = it.info.copy(arrows = listOf())) }
 }

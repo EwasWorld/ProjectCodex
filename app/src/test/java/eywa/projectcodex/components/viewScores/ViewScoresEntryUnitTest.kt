@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.viewScores
 
+import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.archeryObjects.Handicap
 import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.logging.CustomLogger
@@ -50,6 +51,15 @@ class ViewScoresEntryUnitTest {
                 customLogger = customLogger,
         )
         assertEquals("3", entry.hitsScoreGolds?.split("/")?.last())
+    }
+
+    @Test
+    fun testGolds_Custom() {
+        val entry = ViewScoresEntry(
+                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addFullSetOfArrows(),
+                customLogger = customLogger,
+        )
+        assertEquals(1, entry.golds(GoldsType.XS))
     }
 
     @Test
