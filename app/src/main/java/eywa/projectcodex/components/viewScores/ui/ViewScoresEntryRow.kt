@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.viewScores.ui
 
 import android.content.Context
+import android.content.res.Resources
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
@@ -162,23 +164,34 @@ private fun DateAndFirstNameColumn(
 private fun DisplayName(
         nameInfo: ViewScoresRoundNameInfo,
         modifier: Modifier = Modifier,
-) {
-    val text = (nameInfo.displayName ?: stringResource(R.string.create_round__no_round))
-            .let { text ->
-                if (nameInfo.prefixWithAmpersand) stringResource(R.string.view_score__joiner, text)
-                else if (nameInfo.identicalCount <= 1) text
-                else if (nameInfo.identicalCount == 2) stringResource(R.string.view_score__double, text)
-                else stringResource(R.string.view_score__multiple, nameInfo.identicalCount, text)
-            }
+) =
+        Text(
+                text = getDisplayName(nameInfo, LocalContext.current.resources),
+                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = if (nameInfo.strikethrough) TextDecoration.LineThrough else TextDecoration.None,
+                modifier = modifier
+        )
 
-    Text(
-            text = text,
-            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textDecoration = if (nameInfo.strikethrough) TextDecoration.LineThrough else TextDecoration.None,
-            modifier = modifier
-    )
+private fun getDisplayName(
+        nameInfo: ViewScoresRoundNameInfo,
+        resources: Resources,
+): String {
+    var text = nameInfo.displayName ?: resources.getString(R.string.create_round__no_round)
+
+    if (nameInfo.identicalCount == 2) {
+        text = resources.getString(R.string.view_score__double, text)
+    }
+    else if (nameInfo.identicalCount > 2) {
+        text = resources.getString(R.string.view_score__multiple, nameInfo.identicalCount, text)
+    }
+
+    if (nameInfo.prefixWithAmpersand) {
+        text = resources.getString(R.string.view_score__joiner, text)
+    }
+
+    return text
 }
 
 @Composable
@@ -266,9 +279,12 @@ private fun HandicapColumn(
     }
 }
 
-fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEntry): String {
+fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEntry) =
+        viewScoresEntryRowAccessibilityString(context.resources, ViewScoresEntryList(entry))
+
+fun viewScoresEntryRowAccessibilityString(resources: Resources, entryList: ViewScoresEntryList): String {
     fun accessibilityString(@StringRes title: Int, value: Int?) =
-            value?.let { context.resources.getString(title) + " $it" }
+            value?.let { resources.getString(title) + " $it" }
 
     val dateFormat = Calendar.getInstance().apply {
         set(
@@ -277,17 +293,20 @@ fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEnt
                 // hr/min/s
                 1, 1, 1
         )
-    }.before(entry.info.archerRound.dateShot).let { wasThisYear ->
+    }.before(entryList.dateShot).let { wasThisYear ->
         if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE_FULL_YEAR
     }
 
     return listOfNotNull(
-            dateFormat.format(entry.info.archerRound.dateShot),
-            entry.info.displayName,
-            accessibilityString(title = R.string.view_score__score, value = entry.info.score),
-            accessibilityString(title = R.string.view_score__handicap_full, value = entry.handicap),
-            accessibilityString(title = R.string.view_score__golds, value = entry.golds()),
-            accessibilityString(title = R.string.view_score__hits, value = entry.info.hits),
+            dateFormat.format(entryList.dateShot),
+            getDisplayName(entryList.firstDisplayName, resources),
+            entryList.secondDisplayName?.let { getDisplayName(it, resources) },
+            entryList.totalUndisplayedNamesCount
+                    ?.let { resources.getString(R.string.view_score__multiple_ellipses, it) },
+            accessibilityString(title = R.string.view_score__score, value = entryList.score),
+            accessibilityString(title = R.string.view_score__handicap_full, value = entryList.handicap),
+            accessibilityString(title = R.string.view_score__golds, value = entryList.golds),
+            accessibilityString(title = R.string.view_score__hits, value = entryList.hits),
     ).joinToString()
 }
 

@@ -30,17 +30,16 @@ data class ViewScoresEntryList(
      * Note golds will use the [GoldsType] of the first [entries]
      */
     val hitsScoreGolds
-        get() = when {
-            entries.size == 1 -> entries.first().hitsScoreGolds
-            entries.all { it.info.arrowsShot == 0 } -> null
-            else -> listOf(
-                    entries.sumOf { it.info.hits },
-                    entries.sumOf { it.info.score },
-                    entries.sumOf { it.golds(entries.first().info.goldsType) },
-            )
-                    .takeIf { entries.any { it.info.arrowsShot > 0 } }
-                    ?.joinToString("/")
-        }
+        get() = listOf(hits, score, golds)
+                .takeIf { entries.any { it.info.arrowsShot > 0 } }
+                ?.joinToString("/")
+
+    val hits
+        get() = entries.sumOf { it.info.hits }
+    val score
+        get() = entries.sumOf { it.info.score }
+    val golds
+        get() = entries.sumOf { it.golds(entries.first().info.goldsType) }
 
     val handicapFloat
         get() = entries
