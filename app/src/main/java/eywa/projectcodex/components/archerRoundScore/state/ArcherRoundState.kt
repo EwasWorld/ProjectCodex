@@ -29,8 +29,6 @@ import eywa.projectcodex.datastore.DatastoreKey
 private const val DEFAULT_END_SIZE = 6
 
 sealed class ArcherRoundState : HasBetaFeaturesFlag {
-    open val interruptBackButtonListener = false
-
     data class InvalidArcherRoundError(
             val mainMenuClicked: Boolean = false,
     ) : ArcherRoundState() {
@@ -95,9 +93,6 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
 
         val showNavBar
             get() = currentScreen.isMainScreen
-
-        override val interruptBackButtonListener
-            get() = !currentScreen.isMainScreen
 
         private val scorePadSelectedEndFirstArrowNumberAndEndSize by lazy {
             val all = scorePadData.data

@@ -17,7 +17,7 @@ fun String.toNavArgument() =
 
 enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     ARCHER_ROUND_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
-    SCREEN(type = NavType.StringType, defaultValue = ArcherRoundScreen.SCORE_PAD),
+    SCREEN(type = NavType.StringType, defaultValue = ArcherRoundScreen.SCORE_PAD.toString()),
     SIGHT_MARK_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     ;
 

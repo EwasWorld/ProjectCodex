@@ -22,7 +22,6 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -88,7 +87,6 @@ fun ViewScoresListItem(
                         )
 
                         customActions = dropdownMenuItems?.map {
-                            debugLog(it.name)
                             CustomAccessibilityAction(stringFromRes(it.title)) {
                                 listener(ViewScoresIntent.DropdownMenuClicked(it))
                                 true

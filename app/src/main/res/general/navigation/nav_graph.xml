@@ -14,23 +14,5 @@
             android:defaultValue="-1"
             app:argType="integer"
             />
-        <action
-            android:id="@+id/action_newScoreFragment_to_archerRoundFragment"
-            app:destination="@id/archerRoundFragment"
-            />
-    </fragment>
-    <fragment
-        android:id="@+id/archerRoundFragment"
-        android:name="eywa.projectcodex.components.archerRoundScore.ArcherRoundFragment"
-        android:label="fragment_archer_round"
-        >
-        <argument
-            android:name="archerRoundId"
-            app:argType="integer"
-            />
-        <argument
-            android:name="screen"
-            app:argType="string"
-            />
     </fragment>
 </navigation>

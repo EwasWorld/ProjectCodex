@@ -212,10 +212,10 @@ class ScorePadScreen : ArcherRoundSubScreen() {
                 text = text
                         ?: columnType?.let { rowData!!.getContent(it, LocalContext.current.resources) }
                         ?: rowData!!.getRowHeader().get(),
-                style = CodexTypography.NORMAL.copy(
-                        textAlign = TextAlign.Center,
-                        fontWeight = if (isHeaderOrTotal) FontWeight.Bold else FontWeight.Normal,
-                ),
+                style = CodexTypography.NORMAL,
+                textAlign = TextAlign.Center,
+                fontWeight = if (isHeaderOrTotal) FontWeight.Bold else FontWeight.Normal,
+                color = CodexTheme.colors.onListItemAppOnBackground,
                 modifier = modifier
                         .fillMaxWidth()
                         .padding(2.dp)

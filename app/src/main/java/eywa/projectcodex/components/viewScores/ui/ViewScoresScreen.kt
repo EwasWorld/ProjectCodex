@@ -27,6 +27,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -79,11 +80,13 @@ private fun handleEffects(
 
     if (state.openScorePadClicked) {
         if (state.lastClickedEntryId != null) {
-            val args = Bundle().apply {
-                putString("screen", ArcherRoundScreen.SCORE_PAD.name)
-                putInt("archerRoundId", state.lastClickedEntryId)
-            }
-            navController.navigate(R.id.archerRoundFragment, args)
+            CodexNavRoute.ARCHER_ROUND_SCORE.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.SCREEN to ArcherRoundScreen.SCORE_PAD.name,
+                            NavArgument.ARCHER_ROUND_ID to state.lastClickedEntryId.toString(),
+                    ),
+            )
         }
         listener(HandledScorePadOpened)
     }
@@ -101,11 +104,13 @@ private fun handleEffects(
 
     if (state.openInputEndClicked) {
         if (state.lastClickedEntryId != null) {
-            val args = Bundle().apply {
-                putString("screen", ArcherRoundScreen.INPUT_END.name)
-                putInt("archerRoundId", state.lastClickedEntryId)
-            }
-            navController.navigate(R.id.archerRoundFragment, args)
+            CodexNavRoute.ARCHER_ROUND_SCORE.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.SCREEN to ArcherRoundScreen.INPUT_END.name,
+                            NavArgument.ARCHER_ROUND_ID to state.lastClickedEntryId.toString(),
+                    ),
+            )
         }
         listener(HandledInputEndOpened)
     }

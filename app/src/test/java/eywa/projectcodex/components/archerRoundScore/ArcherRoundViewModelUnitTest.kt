@@ -4,6 +4,7 @@ import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundError.EndFullCannotAddMore
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundError.NoArrowsCannotBackSpace
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
@@ -404,7 +405,7 @@ class ArcherRoundViewModelUnitTest {
         val intent = HelpShowcaseIntent.Clear
         sut.handle(ArrowInputsIntent.HelpShowcaseAction(intent))
         assertEquals(state, sut.getLoadedStateValue())
-        verify(helpShowcase).handle(intent, ArcherRoundFragment::class)
+        verify(helpShowcase).handle(intent, CodexNavRoute.ARCHER_ROUND_SCORE::class)
     }
 
     /*
@@ -539,7 +540,7 @@ class ArcherRoundViewModelUnitTest {
         val intent = HelpShowcaseIntent.Clear
         sut.handle(ScorePadIntent.HelpShowcaseAction(intent))
         assertEquals(state, sut.getLoadedStateValue())
-        verify(helpShowcase).handle(intent, ArcherRoundFragment::class)
+        verify(helpShowcase).handle(intent, CodexNavRoute.ARCHER_ROUND_SCORE::class)
     }
 
     /*
@@ -580,7 +581,7 @@ class ArcherRoundViewModelUnitTest {
         val intent = HelpShowcaseIntent.Clear
         sut.handle(SettingsIntent.HelpShowcaseAction(intent))
         assertEquals(state, sut.getLoadedStateValue())
-        verify(helpShowcase).handle(intent, ArcherRoundFragment::class)
+        verify(helpShowcase).handle(intent, CodexNavRoute.ARCHER_ROUND_SCORE::class)
     }
 
     /*
@@ -726,7 +727,7 @@ class ArcherRoundViewModelUnitTest {
         val intent = HelpShowcaseIntent.Clear
         sut.handle(HelpShowcaseAction(intent))
         assertEquals(state, sut.getLoadedStateValue())
-        verify(helpShowcase).handle(intent, ArcherRoundFragment::class)
+        verify(helpShowcase).handle(intent, CodexNavRoute.ARCHER_ROUND_SCORE::class)
     }
 
     /*

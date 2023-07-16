@@ -13,7 +13,6 @@ import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -33,11 +32,13 @@ class NewScoreFragment : Fragment(), ActionBarHelp {
         lifecycleScope.launch {
             viewModel.effects.collect { effect ->
                 when (effect) {
-                    is NewScoreEffect.NavigateToInputEnd -> findNavController().navigate(
-                            NewScoreFragmentDirections.actionNewScoreFragmentToArcherRoundFragment(
-                                    effect.archerRoundId, ArcherRoundScreen.INPUT_END.name
-                            )
-                    )
+                    is NewScoreEffect.NavigateToInputEnd -> {
+//                        findNavController().navigate(
+//                                NewScoreFragmentDirections.actionNewScoreFragmentToArcherRoundFragment(
+//                                        effect.archerRoundId, ArcherRoundScreen.INPUT_END.name
+//                                )
+//                        )
+                    }
                     NewScoreEffect.PopBackstack -> findNavController().popBackStack()
                 }
             }

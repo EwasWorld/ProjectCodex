@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.archerRoundScore
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -7,19 +8,28 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loaded
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.Loading
+import kotlinx.coroutines.launch
 
 abstract class ArcherRoundSubScreen {
     @Composable
@@ -28,6 +38,45 @@ abstract class ArcherRoundSubScreen {
             modifier: Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     )
+}
+
+@Composable
+fun ArcherRoundMainScreen(
+        navController: NavController,
+        viewModel: ArcherRoundViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsState()
+    val listener = { it: ArcherRoundIntent -> viewModel.handle(it) }
+    ArcherRoundMainScreen(state, listener)
+
+    BackHandler((state as? Loaded)?.currentScreen?.isMainScreen == false) {
+        viewModel.handle(ArrowInputsIntent.CancelClicked)
+    }
+
+    handleEffects(navController, state, listener)
+}
+
+@Composable
+private fun handleEffects(
+        navController: NavController,
+        state: ArcherRoundState,
+        listener: (ArcherRoundIntent) -> Unit,
+) {
+    val context = LocalContext.current
+    val errors = (state as? ArcherRoundState.Loaded)?.errors
+    val returnToMainMenu = (state as? ArcherRoundState.InvalidArcherRoundError)?.mainMenuClicked ?: false
+    LaunchedEffect(errors, returnToMainMenu) {
+        launch {
+            errors?.forEach {
+                ToastSpamPrevention.displayToast(context, context.resources.getString(it.messageId))
+                listener(ErrorHandled(it))
+            }
+            if (returnToMainMenu) {
+                navController.popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
+                listener(InvalidArcherRoundIntent.ReturnToMenuHandled)
+            }
+        }
+    }
 }
 
 @Composable

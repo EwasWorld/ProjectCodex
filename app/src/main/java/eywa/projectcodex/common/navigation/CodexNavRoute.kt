@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.about.AboutScreen
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundMainScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
@@ -27,7 +28,15 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
     },
     ARCHER_ROUND_SCORE {
         override val args: Map<NavArgument, Boolean>
-            get() = mapOf(NavArgument.ARCHER_ROUND_ID to false, NavArgument.SCREEN to true)
+            get() = mapOf(NavArgument.ARCHER_ROUND_ID to true, NavArgument.SCREEN to true)
+
+        @Composable
+        override fun getMenuBarTitle(): String = stringResource(R.string.archer_round_title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            ArcherRoundMainScreen(navController)
+        }
     },
     CLASSIFICATION_TABLES {
         @Composable

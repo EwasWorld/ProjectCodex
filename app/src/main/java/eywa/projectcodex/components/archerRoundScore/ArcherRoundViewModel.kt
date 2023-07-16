@@ -8,6 +8,7 @@ import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
@@ -112,7 +113,7 @@ class ArcherRoundViewModel @Inject constructor(
             RoundCompleteDialogOkClicked ->
                 _state.update { (it as Loaded).changeScreen(STATS).copy(displayRoundCompletedDialog = false) }
             CannotInputEndDialogOkClicked -> _state.update { (it as Loaded).copy(displayCannotInputEndDialog = false) }
-            is HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.ARCHER_ROUND_SCORE::class)
             is ErrorHandled -> _state.update {
                 it as Loaded
                 it.copy(errors = it.errors.minus(action.error))
@@ -203,7 +204,8 @@ class ArcherRoundViewModel @Inject constructor(
                 }
             ArrowInputsIntent.ClearArrowsInputted -> _state.update { (it as Loaded).copy(newInputArrows = listOf()) }
             ArrowInputsIntent.ResetArrowsInputted -> _state.update { (it as Loaded).setupArrowInputsOnEditScreen() }
-            is ArrowInputsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
+            is ArrowInputsIntent.HelpShowcaseAction ->
+                helpShowcase.handle(action.action, CodexNavRoute.ARCHER_ROUND_SCORE::class)
             ArrowInputsIntent.CancelClicked ->
                 _state.update {
                     it as Loaded
@@ -254,7 +256,8 @@ class ArcherRoundViewModel @Inject constructor(
                 _state.update { (it as Loaded).copy(scorePadSelectedEnd = action.endNumber) }
             is ScorePadIntent.RowLongClicked ->
                 _state.update { (it as Loaded).copy(scorePadSelectedEnd = action.endNumber) }
-            is ScorePadIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
+            is ScorePadIntent.HelpShowcaseAction ->
+                helpShowcase.handle(action.action, CodexNavRoute.ARCHER_ROUND_SCORE::class)
             ScorePadIntent.DeleteEndDialogCancelClicked ->
                 _state.update {
                     (it as Loaded).copy(displayDeleteEndConfirmationDialog = false, scorePadSelectedEnd = null)
@@ -286,7 +289,8 @@ class ArcherRoundViewModel @Inject constructor(
                 _state.update { (it as Loaded).copy(inputEndSizePartial = action.endSize) }
             is SettingsIntent.ScorePadEndSizeChanged ->
                 _state.update { (it as Loaded).copy(scorePadEndSizePartial = action.endSize) }
-            is SettingsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, ArcherRoundFragment::class)
+            is SettingsIntent.HelpShowcaseAction ->
+                helpShowcase.handle(action.action, CodexNavRoute.ARCHER_ROUND_SCORE::class)
         }
     }
 }
