@@ -29,13 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
+import eywa.projectcodex.common.navigation.CodexNavHost
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
@@ -47,23 +47,10 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    companion object {
-        private const val LOG_TAG = "MainActivity"
-    }
-
     private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val navRoutes = CodexNavRoute.values()
-        val duplicateRoutes = navRoutes
-                .groupBy { it.routeBase.lowercase() }
-                .filter { (_, v) -> v.size > 1 }
-                .keys
-        if (duplicateRoutes.isNotEmpty()) {
-            throw IllegalStateException("Duplicate navRoutes found: " + duplicateRoutes.joinToString(","))
-        }
 
         // TODO Don't re-run on activity recreate
         viewModel.updateDefaultRounds()
@@ -71,7 +58,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CodexTheme {
-                val state by viewModel.state.collectAsState()
 
                 val navController = rememberNavController()
                 val currentEntry by navController.currentBackStackEntryAsState()
@@ -81,10 +67,6 @@ class MainActivity : ComponentActivity() {
                     currentRoute?.let {
                         viewModel.helpShowcase.handle(HelpShowcaseIntent.SetScreen(it::class), it::class)
                     }
-                }
-
-                BackHandler(state.helpShowcaseState?.isInProgress == true) {
-                    viewModel.helpShowcase.endShowcase()
                 }
 
                 window.statusBarColor = CodexTheme.colors.statusBar.toArgb()
@@ -100,18 +82,13 @@ class MainActivity : ComponentActivity() {
                             contentColor = CodexTheme.colors.onAppBackground,
                             topBar = { TopBar(navController) }
                     ) { padding ->
-                        NavHost(
-                                navController = navController,
-                                startDestination = CodexNavRoute.MAIN_MENU.routeBase,
+                        CodexNavHost(
+                                navHostController = navController,
                                 modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
-                        ) {
-                            navRoutes.forEach { route ->
-                                route.create(this, navController)
-                            }
-                        }
+                        )
                     }
 
-                    HelpItem(state)
+                    HelpItem()
                 }
             }
         }
@@ -169,9 +146,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun HelpItem(
-            state: MainActivityState,
-    ) {
+    fun HelpItem() {
+        val state by viewModel.state.collectAsState()
+
+        BackHandler(state.helpShowcaseState?.isInProgress == true) {
+            viewModel.helpShowcase.endShowcase()
+        }
+
         LaunchedEffect(state.helpShowcaseState?.startedButNoItems) {
             launch {
                 if (state.helpShowcaseState?.startedButNoItems == true) {

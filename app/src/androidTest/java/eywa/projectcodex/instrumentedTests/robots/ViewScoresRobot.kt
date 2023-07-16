@@ -57,7 +57,9 @@ class ViewScoresRobot(
 
     fun longClickRow(rowIndex: Int) {
         performOnRowItem(rowIndex) { performTouchInput { longClick() } }
-        checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+        CustomConditionWaiter.waitForComposeCondition {
+            checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM, useUnmergedTree = true)
+        }
     }
 
     fun clickDropdownMenuItem(menuItem: String) {
@@ -92,7 +94,7 @@ class ViewScoresRobot(
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {
         // Check at least one menu item is showing
-        checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+        checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM, useUnmergedTree = true)
         // Check that the intended menu item is not showing
         composeTestRule
                 .onNode(

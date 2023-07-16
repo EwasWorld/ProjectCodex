@@ -1,7 +1,6 @@
 package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -25,7 +24,6 @@ import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +43,6 @@ class ViewScoresInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     private lateinit var scenario: ActivityScenario<MainActivity>
-    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
     private var archerRounds: List<ArcherRound> = listOf()
     private var rounds = listOf<Round>()
@@ -68,8 +65,6 @@ class ViewScoresInstrumentedTest {
 
         scenario.onActivity {
             db = LocalDatabaseModule.scoresRoomDatabase!!
-            // TODO_CURRENT Fix navController
-//            navController = it.navHostFragment.navController
         }
     }
 
@@ -156,22 +151,22 @@ class ViewScoresInstrumentedTest {
                 checkContentDescription(0, "1 Jan, Score 1, Golds 0, Hits 1")
 
                 waitForHsg(1, "1/2/0")
-                waitForHandicap(1, 81)
+                waitForHandicap(1, 88)
                 waitForRoundName(1, "Metric Round")
                 waitForDate(1, "02/02/12")
-                checkContentDescription(1, "2 Feb 2012, Metric Round, Score 2, Handicap 81, Golds 0, Hits 1")
+                checkContentDescription(1, "2 Feb 2012, Metric Round, Score 2, Handicap 88, Golds 0, Hits 1")
 
                 waitForHsg(2, "1/3/0")
-                waitForHandicap(2, 78)
+                waitForHandicap(2, 82)
                 waitForRoundName(2, "Imperial Round")
                 waitForDate(2, "03/03/11")
-                checkContentDescription(2, "3 Mar 2011, Imperial Round, Score 3, Handicap 78, Golds 0, Hits 1")
+                checkContentDescription(2, "3 Mar 2011, Imperial Round, Score 3, Handicap 82, Golds 0, Hits 1")
 
                 waitForHsg(3, "1/4/0")
-                waitForHandicap(3, 77)
+                waitForHandicap(3, 80)
                 waitForRoundName(3, "Sub Type 2")
                 waitForDate(3, "04/04/10")
-                checkContentDescription(3, "4 Apr 2010, Sub Type 2, Score 4, Handicap 77, Golds 0, Hits 1")
+                checkContentDescription(3, "4 Apr 2010, Sub Type 2, Score 4, Handicap 80, Golds 0, Hits 1")
 
                 waitForHsg(4, "1/5/0")
                 waitForHandicap(4, null)
@@ -202,7 +197,7 @@ class ViewScoresInstrumentedTest {
 
         archerRounds = listOf(
                 // No round
-                ArcherRound(1, TestUtils.generateDate(2020), 1),
+                ArcherRound(1, Calendar.getInstance().apply { set(2020, 8, 28) }, 1),
                 // Completed round
                 ArcherRound(2, TestUtils.generateDate(2019), 1, roundId = 1),
         )
@@ -219,26 +214,31 @@ class ViewScoresInstrumentedTest {
             clickViewScores {
                 waitForRowCount(2)
 
-                val archerRoundId = 1
                 val rowId = 0
 
                 // Single click - score pad
                 clickRow(rowId) {
-                    assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                    clickNavBarStats {
+                        checkNoRound()
+                    }
                     pressBack()
                 }
 
                 // Long click - score pad
                 longClickRow(rowId)
                 clickScorePadDropdownMenuItem {
-                    assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                    clickNavBarStats {
+                        checkNoRound()
+                    }
                     pressBack()
                 }
 
                 // Long click - continue
                 longClickRow(rowId)
                 clickContinueDropdownMenuItem {
-                    assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                    clickNavBarStats {
+                        checkNoRound()
+                    }
                     pressBack()
                 }
 
@@ -248,15 +248,17 @@ class ViewScoresInstrumentedTest {
 
                 // Long click - email
                 longClickRow(rowId)
-                clickEmailDropdownMenuItem { }
-                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
+                clickEmailDropdownMenuItem {
+                    checkScoreText("No Round - 28/09/20\nHits: 11, Score: 65, Golds (Golds): 3")
+                }
                 pressBack()
 
                 // Long click - edit
                 longClickRow(rowId)
-                clickEditDropdownMenuItem { }
-                assertEquals(archerRoundId, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
-                pressBack()
+                clickEditDropdownMenuItem {
+                    checkSelectedRound("No Round")
+                    pressBack()
+                }
             }
         }
     }

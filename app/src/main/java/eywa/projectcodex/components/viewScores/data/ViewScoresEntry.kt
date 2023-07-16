@@ -3,6 +3,7 @@ package eywa.projectcodex.components.viewScores.data
 import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.logging.CustomLogger
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -29,18 +30,18 @@ data class ViewScoresEntry(
             ?.joinToString("/")
 
     val handicap =
-//            try {
-            info.handicap
-//            }
-//            catch (e: IllegalArgumentException) {
-//                customLogger.e(
-//                        LOG_TAG,
-//                        "Failed to get handicap for round with id $id (date shot: %s), reason: "
-//                                .format(DateTimeFormat.SHORT_DATE_TIME.format(info.archerRound.dateShot))
-//                                + e.message
-//                )
-//                null
-//            }
+            try {
+                info.handicap
+            }
+            catch (e: IllegalArgumentException) {
+                customLogger.e(
+                        LOG_TAG,
+                        "Failed to get handicap for round with id $id (date shot: %s), reason: "
+                                .format(DateTimeFormat.SHORT_DATE_TIME.format(info.archerRound.dateShot))
+                                + e.message
+                )
+                null
+            }
 
     fun isRoundComplete(): Boolean {
         if (info.roundArrowCounts.isNullOrEmpty() || info.arrows.isNullOrEmpty()) {

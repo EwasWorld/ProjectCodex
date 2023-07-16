@@ -299,7 +299,7 @@ fun viewScoresEntryRowAccessibilityString(resources: Resources, entryList: ViewS
 
     return listOfNotNull(
             dateFormat.format(entryList.dateShot),
-            getDisplayName(entryList.firstDisplayName, resources),
+            entryList.firstDisplayName.takeIf { it.displayName != null }?.let { getDisplayName(it, resources) },
             entryList.secondDisplayName?.let { getDisplayName(it, resources) },
             entryList.totalUndisplayedNamesCount
                     ?.let { resources.getString(R.string.view_score__multiple_ellipses, it) },
