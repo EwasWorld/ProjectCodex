@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "rounds": [
     {
       "roundName": "York / Hereford",
@@ -1608,12 +1608,12 @@
       "roundArrowCounts": [
         {
           "distanceNumber": 1,
-          "faceSizeInCm": 40,
+          "faceSizeInCm": 60,
           "arrowCount": 60
         },
         {
           "distanceNumber": 2,
-          "faceSizeInCm": 60,
+          "faceSizeInCm": 40,
           "arrowCount": 60
         }
       ],
@@ -1757,6 +1757,28 @@
           "distanceNumber": 1,
           "roundSubTypeId": 8,
           "distance": 10
+        }
+      ]
+    },
+    {
+      "roundName": "Vegas 300",
+      "id": 29,
+      "outdoor": false,
+      "isMetric": false,
+      "fiveArrowEnd": false,
+      "roundSubTypes": [],
+      "roundArrowCounts": [
+        {
+          "distanceNumber": 1,
+          "faceSizeInCm": 40,
+          "arrowCount": 30
+        }
+      ],
+      "roundDistances": [
+        {
+          "distanceNumber": 1,
+          "roundSubTypeId": null,
+          "distance": 20
         }
       ]
     }

@@ -48,7 +48,6 @@ open class UpdateDefaultRoundsTask(
     private val _state: MutableStateFlow<UpdateDefaultRoundsState?> = MutableStateFlow(null)
     open val state: StateFlow<UpdateDefaultRoundsState?> = _state
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     open suspend fun runTask() = withContext(dispatcher) {
         if (_state.value != null) {
             return@withContext false
@@ -161,14 +160,15 @@ open class UpdateDefaultRoundsTask(
                  * Compare and update db
                  */
                 // Should not be null as empty database will return an empty list
-                val dbRoundInfo = dbRoundsInfo.find {
+                val dbRoundInfo = dbRoundsInfo.find { fullInfo ->
+                    val legacyName = readRoundInfo.legacyName?.let { DefaultRoundInfoHelper.formatToDbName(it) }
                     // Older versions matched on names
                     if (currentVersion != null && currentVersion < 4) {
-                        it.round.name == DefaultRoundInfoHelper.formatToDbName(readRoundInfo.legacyName)
+                        fullInfo.round.name == legacyName
                     }
                     // Newer versions use an ID
                     else {
-                        it.round.defaultRoundId == readRoundInfo.rawRoundId
+                        fullInfo.round.defaultRoundId == readRoundInfo.rawRoundId
                     }
                 }
                 val dbUpdateItems = if (dbRoundInfo == null) {

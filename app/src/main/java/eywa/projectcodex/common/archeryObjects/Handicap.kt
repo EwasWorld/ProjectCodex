@@ -78,6 +78,7 @@ object Handicap {
         // TODO Error if score is worse than max handicap
         var high = if (use2023Handicaps) 150f else 100f // worst possible handicap
         while (true) {
+            check(high > low) { "Binary search bounds gone bad" }
             var testHC = (high + low) / 2f
             val testHCScore = calculate(testHC)
             when {
@@ -98,6 +99,30 @@ object Handicap {
                 else -> high = testHC
             }
         }
+    }
+
+    fun getScoreForRound(
+            round: FullRoundInfo,
+            subType: Int?,
+            handicap: Float,
+            innerTenArcher: Boolean,
+            arrows: Int?,
+            use2023Handicaps: Boolean = false,
+            faces: List<RoundFace>? = null,
+    ): Int? {
+        val distances = round.getDistances(subType)
+        if (round.roundArrowCounts == null || distances == null) return null
+
+        return getScoreForRound(
+                round.round,
+                round.roundArrowCounts,
+                distances,
+                handicap,
+                innerTenArcher,
+                arrows,
+                use2023Handicaps,
+                faces,
+        )
     }
 
     /**

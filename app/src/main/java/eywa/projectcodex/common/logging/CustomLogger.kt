@@ -9,7 +9,7 @@ fun debugLog(message: String) {
 /**
  * Ensures all message tags are prepended with a master tag for easy searching
  */
-class CustomLogger {
+open class CustomLogger {
     companion object {
         private const val MASTER_TAG = "ProjCoLog"
 

@@ -20,7 +20,7 @@ class DefaultRoundInfoJsonConverter(private val logger: CustomLogger) : Converte
         val klaxon = Klaxon()
         val jsonRoundObject = jv.obj ?: throw KlaxonException("Top level item is not an object: ${jv.string}")
 
-        val legacyRoundName = parseObject<String>(jsonRoundObject, "legacyRoundName")
+        val legacyRoundName = parseOptionalObject<String>(jsonRoundObject, "legacyRoundName")
         val rawRoundId = parseObject<Int>(jsonRoundObject, "id")
         val roundName = parseObject<String>(jsonRoundObject, "roundName")
         logger.i(CONVERTER_LOG_TAG, roundName)
