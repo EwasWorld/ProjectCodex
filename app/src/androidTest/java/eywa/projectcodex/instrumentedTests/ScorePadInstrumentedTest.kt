@@ -147,10 +147,10 @@ class ScorePadInstrumentedTest {
                 5, 5, 5, 5, 5, 5,
         )
         val arrowCounts = listOf(
-                RoundArrowCount(1, 1, 1f, 18),
-                RoundArrowCount(1, 2, 1f, 18),
-                RoundArrowCount(2, 1, 1f, 18),
-                RoundArrowCount(2, 2, 1f, 18),
+                RoundArrowCount(1, 1, 1.0, 18),
+                RoundArrowCount(1, 2, 1.0, 18),
+                RoundArrowCount(2, 1, 1.0, 18),
+                RoundArrowCount(2, 2, 1.0, 18),
         )
         val roundDistances = listOf(
                 RoundDistance(1, 1, 1, 60),

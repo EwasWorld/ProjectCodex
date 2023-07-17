@@ -113,7 +113,7 @@ class HandicapE2eTest {
 
                 val diff = (outcome - score)
                 if (abs(diff) > 0) {
-                    incorrect.add(HandicapOutcome(pair, outcome.toFloat(), data.roundName))
+                    incorrect.add(HandicapOutcome(pair, outcome.toDouble(), data.roundName))
                     freq[diff] = freq.getOrDefault(diff, 0) + 1
                 }
             }
@@ -349,10 +349,10 @@ data class HandicapData(
             if (testScores && nextScore == score) {
                 continue
             }
-            tests.add(HandicapPair(handicap = handicap.toFloat(), score = score))
+            tests.add(HandicapPair(handicap = handicap.toDouble(), score = score))
 
             if (testScores && nextScore != null && (score - 1) > nextScore) {
-                tests.add(HandicapPair(handicap = handicap + 1f, score = score - 1))
+                tests.add(HandicapPair(handicap = handicap + 1.0, score = score - 1))
             }
         }
 
@@ -418,7 +418,7 @@ data class HandicapData(
                             RoundArrowCount(
                                     roundId = 1,
                                     distanceNumber = 1,
-                                    faceSizeInCm = faceSizeInCm.toFloat(),
+                                    faceSizeInCm = faceSizeInCm.toDouble(),
                                     arrowCount = arrowCount,
                             )
                     ),
@@ -437,7 +437,7 @@ data class HandicapData(
 
 data class HandicapOutcome(
         val expected: HandicapPair,
-        val actual: Float,
+        val actual: Double,
         val roundName: String,
 ) {
     fun toHandicapString() = "$roundName - HC: ${expected.handicap} - expected: ${expected.score}, actual: $actual"

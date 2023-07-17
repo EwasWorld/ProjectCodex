@@ -154,7 +154,7 @@ class UpdateDefaultRoundsUnitTest {
                 roundSubTypes = listOf(TestData.YORK_SUB_TYPE_OBJECTS[0].copy(name = "SomeSillyName"))
                         .plus(TestData.YORK_SUB_TYPE_OBJECTS.drop(1)),
                 roundArrowCounts =
-                listOf(TestData.YORK_ARROW_COUNT_OBJECTS[0].copy(faceSizeInCm = 10_000f, arrowCount = 10_000))
+                listOf(TestData.YORK_ARROW_COUNT_OBJECTS[0].copy(faceSizeInCm = 10_000.0, arrowCount = 10_000))
                         .plus(TestData.YORK_ARROW_COUNT_OBJECTS.drop(1)),
                 roundDistances = listOf(TestData.YORK_DISTANCE_OBJECTS[0].copy(distance = 10_000))
                         .plus(TestData.YORK_DISTANCE_OBJECTS.drop(1)),
@@ -998,8 +998,8 @@ class UpdateDefaultRoundsUnitTest {
             """
         val YORK_ROUND_OBJECT = Round(5, "york", "York", true, false, true, "York", 1)
         val YORK_ARROW_COUNT_OBJECTS = listOf(
-                RoundArrowCount(5, 1, 122f, 72),
-                RoundArrowCount(5, 2, 122f, 48)
+                RoundArrowCount(5, 1, 122.0, 72),
+                RoundArrowCount(5, 2, 122.0, 48)
         )
         val YORK_SUB_TYPE_OBJECTS = listOf(
                 RoundSubType(5, 1, "York"),
@@ -1101,8 +1101,8 @@ class UpdateDefaultRoundsUnitTest {
                 ),
                 RoundSubType(6, 1, "St. George"),
                 RoundSubType(6, 2, "Albion"),
-                RoundArrowCount(6, 1, 122f, 36),
-                RoundArrowCount(6, 2, 122f, 36),
+                RoundArrowCount(6, 1, 122.0, 36),
+                RoundArrowCount(6, 2, 122.0, 36),
                 RoundDistance(6, 1, 1, 100),
                 RoundDistance(6, 2, 1, 80),
                 RoundDistance(6, 1, 2, 80),

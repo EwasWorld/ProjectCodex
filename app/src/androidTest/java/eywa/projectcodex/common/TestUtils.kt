@@ -36,15 +36,15 @@ object TestUtils {
     )
 
     val ROUND_ARROW_COUNTS = listOf(
-            RoundArrowCount(1, 1, 122f, 48),
-            RoundArrowCount(1, 2, 122f, 36),
-            RoundArrowCount(1, 3, 60f, 24),
-            RoundArrowCount(2, 1, 922f, 60),
-            RoundArrowCount(2, 2, 922f, 48),
-            RoundArrowCount(2, 3, 90f, 36),
-            RoundArrowCount(3, 1, 822f, 70),
-            RoundArrowCount(3, 2, 822f, 60),
-            RoundArrowCount(3, 3, 80f, 50),
+            RoundArrowCount(1, 1, 122.0, 48),
+            RoundArrowCount(1, 2, 122.0, 36),
+            RoundArrowCount(1, 3, 60.0, 24),
+            RoundArrowCount(2, 1, 922.0, 60),
+            RoundArrowCount(2, 2, 922.0, 48),
+            RoundArrowCount(2, 3, 90.0, 36),
+            RoundArrowCount(3, 1, 822.0, 70),
+            RoundArrowCount(3, 2, 822.0, 60),
+            RoundArrowCount(3, 3, 80.0, 50),
     )
 
     val ROUNDS = listOf(

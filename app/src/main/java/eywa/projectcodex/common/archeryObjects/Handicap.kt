@@ -8,7 +8,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import kotlin.math.*
 
-fun Float.roundHandicap() = ceil(this).roundToInt()
+fun Double.roundHandicap() = ceil(this).roundToInt()
 
 object Handicap {
     fun getHandicapForRound(
@@ -19,7 +19,7 @@ object Handicap {
             arrows: Int? = null,
             use2023Handicaps: Boolean = false,
             faces: List<RoundFace>? = null,
-    ): Float? {
+    ): Double? {
         val distances = round.getDistances(subType)
         if (round.roundArrowCounts == null || distances == null) return null
         return getHandicapForRound(
@@ -53,7 +53,7 @@ object Handicap {
             arrows: Int? = null,
             use2023Handicaps: Boolean = false,
             faces: List<RoundFace>? = null,
-    ): Float {
+    ): Double {
         require(arrows == null || arrows > 0) { "Arrows must be greater than 0" }
         require(arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount }) { "Arrows must be at most arrowCounts total" }
         require(roundArrowCounts.size == roundDistances.size) { "Arrow counts and distances size not equal" }
@@ -61,7 +61,7 @@ object Handicap {
         require(roundDistances.all { it.roundId == round.roundId }) { "Distance round ID incorrect" }
         require(roundDistances.distinctBy { it.subTypeId }.size == 1) { "Multiple subtypes given" }
 
-        fun calculate(hc: Float) =
+        fun calculate(hc: Double) =
                 HandicapPair(
                         handicap = hc,
                         score = getScoreForRound(
@@ -73,8 +73,8 @@ object Handicap {
 
         val accuracy = -2
 
-        var low = calculate(0f) // best possible handicap
-        var high = calculate(if (use2023Handicaps) 150f else 100f) // worst possible handicap
+        var low = calculate(0.0) // best possible handicap
+        var high = calculate(if (use2023Handicaps) 150.0 else 100.0) // worst possible handicap
 
         if (low.score < score) return low.handicap
         if (high.score >= score) return high.handicap
@@ -86,8 +86,8 @@ object Handicap {
             check(high.handicap > low.handicap) { "Binary search bounds gone bad" }
 
             val testHc = when {
-                high.score != score - 1 || low.score != score || high.handicap - low.handicap > 10f.pow(accuracy) ->
-                    (high.handicap + low.handicap) / 2f
+                high.score != score - 1 || low.score != score || high.handicap - low.handicap > 10.0.pow(accuracy) ->
+                    (high.handicap + low.handicap) / 2.0
                 floor(high.handicap) == floor(low.handicap) -> break
                 (low.isIntegerHandicap() || high.isIntegerHandicap()) -> break
                 else -> floor(high.handicap)
@@ -105,7 +105,7 @@ object Handicap {
         val highCheck = calculate(ceil(high.handicap))
         check(highCheck.handicap > lowCheck.handicap) { "Binary search bounds gone bad" }
 
-        if (highCheck.handicap - lowCheck.handicap == 1f && lowCheck.score == score && highCheck.score < score) {
+        if (highCheck.handicap - lowCheck.handicap == 1.0 && lowCheck.score == score && highCheck.score < score) {
             return lowCheck.handicap
         }
 
@@ -115,7 +115,7 @@ object Handicap {
     fun getScoreForRound(
             round: FullRoundInfo,
             subType: Int?,
-            handicap: Float,
+            handicap: Double,
             innerTenArcher: Boolean,
             arrows: Int?,
             use2023Handicaps: Boolean = false,
@@ -151,7 +151,7 @@ object Handicap {
             round: Round,
             roundArrowCounts: List<RoundArrowCount>,
             roundDistances: List<RoundDistance>,
-            handicap: Float,
+            handicap: Double,
             innerTenArcher: Boolean,
             arrows: Int?,
             use2023Handicaps: Boolean = false,
@@ -171,7 +171,7 @@ object Handicap {
 
         // Get score
         var currentArrowCount = 0
-        var score = 0.0f
+        var score = 0.0
         val sortedArrowCounts = roundArrowCounts.sortedBy { it.distanceNumber }
         val sortedDistances = roundDistances.sortedBy { it.distanceNumber }
         val allFaces = when {
@@ -189,7 +189,7 @@ object Handicap {
                     arrowCount = arrows - currentArrowCount
                 }
                 score += arrowCount * scoringType.averageScorePerArrow(
-                        if (round.isMetric) distance.toFloat() else distance * 0.9144f,
+                        if (round.isMetric) distance.toDouble() else distance * 0.9144,
                         faceSizeInCm,
                         handicap,
                         innerTenArcher && !round.isOutdoor,
@@ -201,24 +201,13 @@ object Handicap {
         }
 
         if (use2023Handicaps) {
-            // TODO Investigate and fix rounding error
-            if (
-            // Magic number: picked a number that made the most tests pass
-            // This is probably a rounding error
-                (score - floor(score)).takeIf { it > 0 && it < 0.000265f } != null
-                // Warwick 50 is within tolerance but shouldn't be rounded
-                && !(round.defaultRoundId == 7 && roundDistances.first().subTypeId == 4)
-            ) {
-                score = floor(score)
-            }
-
             score = ceil(score)
         }
         return score.roundToInt()
     }
 
     data class HandicapPair(
-            val handicap: Float,
+            val handicap: Double,
             val score: Int,
     ) {
         override fun toString(): String {
@@ -239,32 +228,32 @@ object Handicap {
             private var sumStart: Int,
             private var sumEnd: Int,
             private var sumInternalDenominator: Int,
-            private var subtractInternalDenominator: Float,
+            private var subtractInternalDenominator: Double,
             private var subtractMultiplier: Int
     ) {
-        IMPERIAL(9, 2, 1, 4, 10, 2f, 1),
-        METRIC(10, 1, 1, 10, 20, 0f, 0),
+        IMPERIAL(9, 2, 1, 4, 10, 2.0, 1),
+        METRIC(10, 1, 1, 10, 20, 0.0, 0),
 
         // 40cm face cut off after the 6 ring (3 separate targets in a vertical line)
-        TRIPLE(10, 1, 1, 4, 20, 20f / 5f, 6),
+        TRIPLE(10, 1, 1, 4, 20, 20.0 / 5.0, 6),
 
         // 80cm face cut off after 6 ring
         FITA_FIVE_ZONE(TRIPLE),
 
         // 80cm face cut off after 5 ring
-        FITA_SIX_ZONE(10, 1, 1, 5, 20, 20f / 6f, 5),
+        FITA_SIX_ZONE(10, 1, 1, 5, 20, 20.0 / 6.0, 5),
 
-        WORCESTER(5, 1, 1, 5, 10, 0f, 0),
-        WORCESTER_FIVE(5, 1, 1, 1, 10, 10f / 2f, 4),
+        WORCESTER(5, 1, 1, 5, 10, 0.0, 0),
+        WORCESTER_FIVE(5, 1, 1, 1, 10, 10.0 / 2.0, 4),
         ;
 
         companion object {
             fun getDefaultArrowRadiusInCm(isOutdoor: Boolean, use2023Handicaps: Boolean) =
                     when {
                         // Radius of an 18/64" diameter arrow
-                        !use2023Handicaps -> 0.357f
-                        isOutdoor -> 0.55f / 2f
-                        else -> 0.93f / 2f
+                        !use2023Handicaps -> 0.357
+                        isOutdoor -> 0.55 / 2.0
+                        else -> 0.93 / 2.0
                     }
 
 
@@ -296,42 +285,42 @@ object Handicap {
          * @param innerTenScoring true if only the inner ten ring should be counted as 10
          */
         fun averageScorePerArrow(
-                rangeInM: Float,
-                faceSizeInCm: Float,
-                handicap: Float,
+                rangeInM: Double,
+                faceSizeInCm: Double,
+                handicap: Double,
                 innerTenScoring: Boolean,
                 isOutdoor: Boolean,
                 use2023Handicaps: Boolean,
-        ): Float {
+        ): Double {
             val sigma = if (use2023Handicaps) {
-                (rangeInM * 1.035f.pow(handicap + 6f)
-                        * 0.05f
-                        * exp(0.00365f * rangeInM)
-                        ).pow(2f)
+                (rangeInM * 1.035.pow(handicap + 6.0)
+                        * 0.05
+                        * exp(0.00365 * rangeInM)
+                        ).pow(2.0)
             }
             else {
-                (rangeInM * 1.036f.pow(handicap + 12.9f)
-                        * 0.05f
-                        * (1 + 0.000001429f * 1.07f.pow(handicap + 4.3f) * rangeInM.pow(2f))
-                        ).pow(2f)
+                (rangeInM * 1.036.pow(handicap + 12.9)
+                        * 0.05
+                        * (1 + 0.000001429 * 1.07.pow(handicap + 4.3) * rangeInM.pow(2.0))
+                        ).pow(2.0)
             }
 
-            fun expCalc(denominator: Float): Float = exp(
+            fun expCalc(denominator: Double): Double = exp(
                     (
                             faceSizeInCm / denominator
                                     + getDefaultArrowRadiusInCm(isOutdoor, use2023Handicaps)
-                            ).pow(2f) / (-sigma)
+                            ).pow(2.0) / (-sigma)
             )
 
             val sumStart = sumStart + if (innerTenScoring) 1 else 0
-            var total = 0f
+            var total = 0.0
             for (i in sumStart..sumEnd) {
-                total += expCalc(sumInternalDenominator.toFloat() / i)
+                total += expCalc(sumInternalDenominator.toDouble() / i)
             }
             total = initial - sumMultiplier * total - (subtractMultiplier
                     * expCalc(subtractInternalDenominator))
             if (innerTenScoring) {
-                total -= expCalc(40f)
+                total -= expCalc(40.0)
             }
             return total
         }

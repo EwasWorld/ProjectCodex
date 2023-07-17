@@ -51,10 +51,10 @@ class ArcherRoundStatsInstrumentedTest {
             Round(2, "round2", "Round2", true, false)
     )
     private val arrowCountsInput = listOf(
-            RoundArrowCount(1, 1, 122f, arrowsPerArrowCount),
-            RoundArrowCount(1, 2, 122f, arrowsPerArrowCount),
-            RoundArrowCount(2, 1, 122f, arrowsPerArrowCount),
-            RoundArrowCount(2, 2, 122f, arrowsPerArrowCount)
+            RoundArrowCount(1, 1, 122.0, arrowsPerArrowCount),
+            RoundArrowCount(1, 2, 122.0, arrowsPerArrowCount),
+            RoundArrowCount(2, 1, 122.0, arrowsPerArrowCount),
+            RoundArrowCount(2, 2, 122.0, arrowsPerArrowCount)
     )
     private val distancesInput = listOf(
             RoundDistance(1, 1, 1, 60),

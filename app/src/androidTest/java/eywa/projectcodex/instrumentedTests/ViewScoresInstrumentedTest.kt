@@ -106,8 +106,8 @@ class ViewScoresInstrumentedTest {
                 RoundSubType(2, 2, "Sub Type 2")
         )
         roundArrowCounts = listOf(
-                RoundArrowCount(1, 1, 122f, 48),
-                RoundArrowCount(2, 1, 122f, 36)
+                RoundArrowCount(1, 1, 122.0, 48),
+                RoundArrowCount(2, 1, 122.0, 36)
         )
         roundDistances = listOf(
                 RoundDistance(1, 1, 1, 70),

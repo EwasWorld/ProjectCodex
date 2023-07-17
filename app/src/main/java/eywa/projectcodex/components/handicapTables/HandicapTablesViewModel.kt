@@ -54,7 +54,7 @@ class HandicapTablesViewModel @Inject constructor(
                         round = round.info.round,
                         roundArrowCounts = round.info.roundArrowCounts,
                         roundDistances = subtypeDistances,
-                        handicap = handicap.toFloat(),
+                        handicap = handicap.toDouble(),
                         innerTenArcher = false,
                         arrows = null,
                         use2023Handicaps = use2023System,

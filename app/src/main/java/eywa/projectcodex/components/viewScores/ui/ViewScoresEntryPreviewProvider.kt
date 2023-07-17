@@ -61,7 +61,7 @@ object ViewScoresEntryPreviewProvider {
                         arrows = hsg?.let { generateArrows(index + 1, hsg) },
                         roundArrowCounts = (
                                 if (!hasRoundInfo) null
-                                else hsg?.let { listOf(RoundArrowCount(index + 1, 1, 1f, hsg[0])) }
+                                else hsg?.let { listOf(RoundArrowCount(index + 1, 1, 1.0, hsg[0])) }
                                 ),
                         roundDistances = if (!hasRoundInfo) null else listOf(RoundDistance(index + 1, 1, 1, 20)),
                 ),
@@ -82,7 +82,7 @@ object ViewScoresEntryPreviewProvider {
                         round = Round(5, "", roundNames[5]!!, true, true),
                         roundSubType = null,
                         arrows = generateArrows(1, hsg),
-                        roundArrowCounts = listOf(RoundArrowCount(5, 1, 1f, hsg[0] + 1)),
+                        roundArrowCounts = listOf(RoundArrowCount(5, 1, 1.0, hsg[0] + 1)),
                         roundDistances = listOf(RoundDistance(5, 1, 1, 20)),
                 ),
                 isSelected = false,

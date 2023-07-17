@@ -25,7 +25,7 @@ data class RoundArrowCount(
          * distanceNumber 1 is the first distance shot
          */
         val distanceNumber: Int,
-        val faceSizeInCm: Float,
+        val faceSizeInCm: Double,
         val arrowCount: Int
 ) {
     companion object {

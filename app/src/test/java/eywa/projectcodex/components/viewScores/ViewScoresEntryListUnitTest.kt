@@ -244,8 +244,8 @@ class ViewScoresEntryListUnitTest {
                         info = it.info.addRound(
                                 RoundPreviewHelper.outdoorImperialRoundData.copy(
                                         roundArrowCounts = listOf(
-                                                RoundArrowCount(1, 1, 120f, 72),
-                                                RoundArrowCount(1, 2, 120f, 72),
+                                                RoundArrowCount(1, 1, 120.0, 72),
+                                                RoundArrowCount(1, 2, 120.0, 72),
                                         )
                                 )
                         )

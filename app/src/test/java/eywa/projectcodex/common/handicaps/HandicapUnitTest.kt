@@ -106,7 +106,7 @@ class HandicapUnitTest {
                                     hcEntry.round,
                                     hcEntry.arrowCounts,
                                     hcEntry.distances,
-                                    handicap.toFloat(),
+                                    handicap.toDouble(),
                                     hcEntry.useInnerTen,
                                     null,
                                     faces = hcEntry.face?.let { listOf(it) },

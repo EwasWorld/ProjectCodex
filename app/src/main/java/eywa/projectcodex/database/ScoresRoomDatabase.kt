@@ -98,8 +98,8 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                 RoundSubType(102, 2, "Sub Type 2")
         ).forEach { roundSubTypeDao().insert(it) }
         listOf(
-                RoundArrowCount(101, 1, 122f, 48),
-                RoundArrowCount(102, 1, 122f, 36)
+                RoundArrowCount(101, 1, 122.0, 48),
+                RoundArrowCount(102, 1, 122.0, 36)
         ).forEach { roundArrowCountDao().insert(it) }
         listOf(
                 RoundDistance(101, 1, 1, 70),

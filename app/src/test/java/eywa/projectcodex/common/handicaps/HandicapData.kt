@@ -15,8 +15,8 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(1, "western", "western", true, false),
-                                RoundArrowCount(1, 1, 122f, 48),
-                                RoundArrowCount(1, 2, 122f, 48),
+                                RoundArrowCount(1, 1, 122.0, 48),
+                                RoundArrowCount(1, 2, 122.0, 48),
                                 RoundDistance(1, 1, 1, 60),
                                 RoundDistance(1, 2, 1, 50)
                         ),
@@ -42,8 +42,8 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(2, "longmetricvi", "long metric vi", true, true),
-                                RoundArrowCount(2, 1, 122f, 36),
-                                RoundArrowCount(2, 2, 122f, 36),
+                                RoundArrowCount(2, 1, 122.0, 36),
+                                RoundArrowCount(2, 2, 122.0, 36),
                                 RoundDistance(2, 1, 1, 40),
                                 RoundDistance(2, 2, 1, 30)
                         ),
@@ -65,8 +65,8 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(3, "longmetricgents", "long metric gents", true, true),
-                                RoundArrowCount(3, 1, 122f, 36),
-                                RoundArrowCount(3, 2, 122f, 36),
+                                RoundArrowCount(3, 1, 122.0, 36),
+                                RoundArrowCount(3, 2, 122.0, 36),
                                 RoundDistance(3, 1, 1, 90),
                                 RoundDistance(3, 2, 1, 70)
                         ),
@@ -86,7 +86,7 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(4, "vegas", "vegas", false, true),
-                                RoundArrowCount(4, 1, 40f, 60),
+                                RoundArrowCount(4, 1, 40.0, 60),
                                 RoundDistance(4, 1, 1, 18)
                         ),
                         listOf(
@@ -106,7 +106,7 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(4, "vegas comp", "vegas comp", false, true),
-                                RoundArrowCount(4, 1, 40f, 60),
+                                RoundArrowCount(4, 1, 40.0, 60),
                                 RoundDistance(4, 1, 1, 18)
                         ),
                         listOf(
@@ -128,7 +128,7 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(5, "worcester", "worcester", false, false, fiveArrowEnd = true),
-                                RoundArrowCount(5, 1, 16f * 2.54f, 60),
+                                RoundArrowCount(5, 1, 16.0 * 2.54, 60),
                                 RoundDistance(5, 1, 1, 20)
                         ),
                         listOf(
@@ -145,7 +145,7 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(5, "worcester  five", "worcester five", false, false, fiveArrowEnd = true),
-                                RoundArrowCount(5, 1, 16f * 2.54f, 60),
+                                RoundArrowCount(5, 1, 16.0 * 2.54, 60),
                                 RoundDistance(5, 1, 1, 20)
                         ),
                         listOf(
@@ -166,8 +166,8 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(1, "western", "western", true, false),
-                                RoundArrowCount(1, 1, 122f, 48),
-                                RoundArrowCount(1, 2, 122f, 48),
+                                RoundArrowCount(1, 1, 122.0, 48),
+                                RoundArrowCount(1, 2, 122.0, 48),
                                 RoundDistance(1, 1, 1, 60),
                                 RoundDistance(1, 2, 1, 50)
                         ),
@@ -193,8 +193,8 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(2, "longmetricvi", "long metric iv", true, true),
-                                RoundArrowCount(2, 1, 122f, 36),
-                                RoundArrowCount(2, 2, 122f, 36),
+                                RoundArrowCount(2, 1, 122.0, 36),
+                                RoundArrowCount(2, 2, 122.0, 36),
                                 RoundDistance(2, 1, 1, 40),
                                 RoundDistance(2, 2, 1, 30)
                         ),
@@ -217,8 +217,8 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(3, "longmetricgents", "long metric gents", true, true),
-                                RoundArrowCount(3, 1, 122f, 36),
-                                RoundArrowCount(3, 2, 122f, 36),
+                                RoundArrowCount(3, 1, 122.0, 36),
+                                RoundArrowCount(3, 2, 122.0, 36),
                                 RoundDistance(3, 1, 1, 90),
                                 RoundDistance(3, 2, 1, 70)
                         ),
@@ -237,7 +237,7 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(4, "vegas", "vegas", false, true),
-                                RoundArrowCount(4, 1, 40f, 60),
+                                RoundArrowCount(4, 1, 40.0, 60),
                                 RoundDistance(4, 1, 1, 18)
                         ),
                         listOf(
@@ -254,7 +254,7 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(4, "vegas comp", "vegas comp", false, true),
-                                RoundArrowCount(4, 1, 40f, 60),
+                                RoundArrowCount(4, 1, 40.0, 60),
                                 RoundDistance(4, 1, 1, 18)
                         ),
                         listOf(
@@ -273,7 +273,7 @@ object HandicapData {
                 HandicapTableEntry(
                         listOf(
                                 Round(5, "worcester", "worcester", false, false, fiveArrowEnd = true),
-                                RoundArrowCount(5, 1, 16 * 2.54f, 60),
+                                RoundArrowCount(5, 1, 16 * 2.54, 60),
                                 RoundDistance(5, 1, 1, 20)
                         ),
                         listOf(

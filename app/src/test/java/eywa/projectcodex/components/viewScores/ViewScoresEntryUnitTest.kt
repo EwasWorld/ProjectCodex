@@ -24,8 +24,8 @@ class ViewScoresEntryUnitTest {
             round = RoundPreviewHelper.indoorMetricRoundData.round.copy(roundId = 1),
             roundSubTypes = null,
             roundArrowCounts = listOf(
-                    RoundArrowCount(1, 1, 122f, 18),
-                    RoundArrowCount(1, 2, 122f, 18),
+                    RoundArrowCount(1, 1, 122.0, 18),
+                    RoundArrowCount(1, 2, 122.0, 18),
             ),
             roundDistances = listOf(
                     RoundDistance(1, 1, 1, 20),

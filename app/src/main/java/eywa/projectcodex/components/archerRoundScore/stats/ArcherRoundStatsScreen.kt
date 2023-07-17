@@ -154,7 +154,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                                         }
                                     },
                             )
-                            FloatDataColumn("HC", extras.map { it.handicap })
+                            DoubleDataColumn("HC", extras.map { it.handicap })
                             FloatDataColumn("avgEnd", extras.map { it.averageEnd })
                             FloatDataColumn("endStD", extras.map { it.endStDev }, 2)
                             FloatDataColumn("avgArr", extras.map { it.averageArrow })
@@ -170,6 +170,10 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
             }
         }
     }
+
+    @Composable
+    private fun DoubleDataColumn(title: String, strings: List<Double?>, decimalPlaces: Int = 1) =
+            DataColumn(title, strings.map { it?.let { "%.${decimalPlaces}f".format(it) } ?: "-" })
 
     @Composable
     private fun FloatDataColumn(title: String, strings: List<Float?>, decimalPlaces: Int = 1) =

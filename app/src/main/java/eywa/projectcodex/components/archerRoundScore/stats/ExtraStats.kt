@@ -9,7 +9,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 open class ExtraStats(
         arrows: List<ArrowValue>,
         endSize: Int,
-        val handicap: Float?
+        val handicap: Double?
 ) {
     val averageEnd: Float
     val endStDev: Float
@@ -37,11 +37,11 @@ class DistanceExtra(
         roundArrowCount: RoundArrowCount,
         arrows: List<ArrowValue>,
         endSize: Int,
-        calculateHandicap: (arrows: List<ArrowValue>, arrowCount: RoundArrowCount, distance: RoundDistance) -> Float?,
+        calculateHandicap: (arrows: List<ArrowValue>, arrowCount: RoundArrowCount, distance: RoundDistance) -> Double?,
 ) : ExtraStats(arrows, endSize, calculateHandicap(arrows, roundArrowCount, distance))
 
 class GrandTotalExtra(
         arrows: List<ArrowValue>,
         endSize: Int,
-        handicap: Float?,
+        handicap: Double?,
 ) : ExtraStats(arrows, endSize, handicap)

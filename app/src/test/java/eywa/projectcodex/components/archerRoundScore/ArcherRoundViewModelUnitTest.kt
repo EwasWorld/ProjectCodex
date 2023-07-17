@@ -739,7 +739,7 @@ class ArcherRoundViewModelUnitTest {
                     archerRound = ArcherRound(1, Calendar.getInstance(), 1, roundId = 1),
                     arrows = List(arrowCount) { ArrowValue(1, it + 1, 7, false) },
                     round = Round(1, "", "", true, true),
-                    roundArrowCounts = listOf(RoundArrowCount(1, 1, 122f, 36)),
+                    roundArrowCounts = listOf(RoundArrowCount(1, 1, 122.0, 36)),
                     allRoundSubTypes = listOf(),
                     allRoundDistances = listOf(RoundDistance(1, 1, 1, 50)),
             )

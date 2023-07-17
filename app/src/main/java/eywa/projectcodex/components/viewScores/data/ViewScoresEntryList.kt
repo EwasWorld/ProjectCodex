@@ -46,7 +46,7 @@ data class ViewScoresEntryList(
                 .mapNotNull { it.info.handicapFloat }
                 .takeIf { it.size == entries.size }
                 ?.average()
-                ?.toFloat()
+                ?.toDouble()
 
     val handicap
         get() = handicapFloat?.roundHandicap()
