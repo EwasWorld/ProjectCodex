@@ -8,7 +8,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import eywa.projectcodex.common.archeryObjects.Handicap
 import eywa.projectcodex.common.archeryObjects.Handicap.HandicapPair
 import eywa.projectcodex.common.archeryObjects.roundHandicap
-import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.utils.transpose
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.RoundFace
@@ -91,8 +90,7 @@ class HandicapE2eTest {
     }
 
     @Test
-    fun testHandicapToScore() = runTest(dispatcher) {
-        debugLog("testHandicapToScore")
+    fun test2023HandicapToScore() = runTest(dispatcher) {
         populateDb()
 
         val incorrect = mutableListOf<HandicapOutcome>()
@@ -124,14 +122,11 @@ class HandicapE2eTest {
             assertTrue(pairs.size > 80)
         }
 
-        debugLog("Incorrect count: ${incorrect.size}")
-        debugLog(freq.entries.sortedBy { it.key }.joinToString { "${it.key}:${it.value}" })
-        assertEquals("", incorrect.joinToString("\n") { it.toHandicapString() })
+        assertEquals(emptyList<HandicapOutcome>(), incorrect.map { it.toHandicapString() })
     }
 
     @Test
-    fun testScoreToHandicap() = runTest(dispatcher) {
-        debugLog("testScoreToHandicap")
+    fun testScoreTo2023Handicap() = runTest(dispatcher) {
         populateDb()
 
         val incorrect = mutableListOf<HandicapOutcome>()
@@ -163,9 +158,7 @@ class HandicapE2eTest {
             assertTrue("pairs too small: ${pairs.size}", pairs.size > 130)
         }
 
-        debugLog("Incorrect count: ${incorrect.size}")
-        debugLog(freq.entries.sortedBy { it.key }.joinToString { "${it.key}:${it.value}" })
-        assertEquals("", incorrect.joinToString("\n") { it.toScoreString() })
+        assertEquals(emptyList<HandicapOutcome>(), incorrect.map { it.toScoreString() })
     }
 
     companion object {
