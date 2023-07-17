@@ -9,7 +9,7 @@ interface NavRoute {
     val args: Map<NavArgument, Boolean>
 
     @Composable
-    fun getMenuBarTitle(): String
+    fun getMenuBarTitle(entry: NavBackStackEntry?): String
 
     @Composable
     fun Screen(navController: NavController)

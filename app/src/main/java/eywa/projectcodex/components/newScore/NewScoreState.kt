@@ -40,6 +40,12 @@ data class NewScoreState(
         val dateShot: Calendar = getDefaultDate(),
         val selectedRound: Round? = null,
         val selectedSubtype: RoundSubType? = null,
+
+        /*
+         * Effects
+         */
+        val navigateToInputEnd: Int? = null,
+        val popBackstack: Boolean = false,
 ) {
     val isEditing by lazy { roundBeingEdited != null }
 

@@ -5,8 +5,6 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
 
 sealed class NewScoreIntent {
-    data class Initialise(val roundBeingEditedId: Int?) : NewScoreIntent()
-
     data class DateChanged(val info: UpdateCalendarInfo) : NewScoreIntent()
 
     data class SelectRoundDialogAction(val action: SelectRoundDialogIntent) : NewScoreIntent()
@@ -16,4 +14,7 @@ sealed class NewScoreIntent {
     object ResetEditInfo : NewScoreIntent()
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : NewScoreIntent()
+
+    object HandleNavigate : NewScoreIntent()
+    object HandlePopBackstack : NewScoreIntent()
 }

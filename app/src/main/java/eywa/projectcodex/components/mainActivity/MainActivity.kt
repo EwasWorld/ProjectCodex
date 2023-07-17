@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
         TopAppBar(
                 title = {
                     Text(
-                            text = currentRoute?.getMenuBarTitle()
+                            text = currentRoute?.getMenuBarTitle(currentEntry)
                                     ?: stringResource(R.string.app_name),
                             style = MaterialTheme.typography.h6,
                             textAlign = TextAlign.Center

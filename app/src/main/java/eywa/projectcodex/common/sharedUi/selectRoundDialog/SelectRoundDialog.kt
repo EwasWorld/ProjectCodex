@@ -30,7 +30,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.Sorting
 import eywa.projectcodex.common.utils.getDistanceUnit
 import eywa.projectcodex.common.utils.getDistances
-import eywa.projectcodex.components.newScore.NewScoreScreen
+import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.database.rounds.*
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
@@ -112,7 +112,7 @@ fun SelectRoundRows(
                         color = CodexTheme.colors.linkText,
                         textDecoration = TextDecoration.Underline,
                 ),
-                textModifier = Modifier.testTag(NewScoreScreen.TestTag.SELECTED_ROUND),
+                textModifier = Modifier.testTag(NewScoreTestTag.SELECTED_ROUND),
                 onClick = { listener(OpenRoundSelectDialog) },
         )
         if (displayedSubtype != null) {
@@ -128,7 +128,7 @@ fun SelectRoundRows(
                             color = CodexTheme.colors.linkText,
                             textDecoration = TextDecoration.Underline,
                     ),
-                    textModifier = Modifier.testTag(NewScoreScreen.TestTag.SELECTED_SUBTYPE),
+                    textModifier = Modifier.testTag(NewScoreTestTag.SELECTED_SUBTYPE),
                     onClick = { listener(OpenSubTypeSelectDialog) },
             )
         }

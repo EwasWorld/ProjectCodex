@@ -2,7 +2,6 @@ package eywa.projectcodex.components.viewScores.ui
 
 import android.content.Context
 import android.os.Build
-import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -123,10 +122,10 @@ private fun handleEffects(
 
     if (state.openEditInfoClicked) {
         if (state.lastClickedEntryId != null) {
-            val args = Bundle().apply {
-                putInt("archerRoundId", state.lastClickedEntryId)
-            }
-            navController.navigate(R.id.newScoreFragment, args)
+            CodexNavRoute.NEW_SCORE.navigate(
+                    navController,
+                    mapOf(NavArgument.ARCHER_ROUND_ID to state.lastClickedEntryId.toString()),
+            )
         }
         listener(HandledEditInfoOpened)
     }

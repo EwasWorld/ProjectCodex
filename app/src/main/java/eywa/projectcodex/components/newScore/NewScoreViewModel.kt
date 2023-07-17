@@ -3,23 +3,23 @@ package eywa.projectcodex.components.newScore
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.components.newScore.NewScoreEffect.PopBackstack
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.*
@@ -33,14 +33,11 @@ class NewScoreViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         updateDefaultRoundsTask: UpdateDefaultRoundsTask,
         private val helpShowcase: HelpShowcaseUseCase,
+        savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     var state by mutableStateOf(NewScoreState())
         private set
-
-    private val _effects: MutableSharedFlow<NewScoreEffect> =
-            MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    val effects: Flow<NewScoreEffect> = _effects
 
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
@@ -48,8 +45,12 @@ class NewScoreViewModel @Inject constructor(
     private var editingRoundJob: Job? = null
 
     init {
-        val roundRepo = RoundRepo(db)
+        initialiseRoundBeingEdited(
+                savedStateHandle.get<Int>(NavArgument.ARCHER_ROUND_ID.toArgName())
+                        ?.takeIf { it != DEFAULT_INT_NAV_ARG }
+        )
 
+        val roundRepo = RoundRepo(db)
         viewModelScope.launch {
             roundRepo.fullRoundsInfo.collect { state = state.copy(roundsData = it).resetEditInfo() }
         }
@@ -85,28 +86,29 @@ class NewScoreViewModel @Inject constructor(
 
     fun handle(action: NewScoreIntent) {
         when (action) {
-            is NewScoreIntent.Initialise -> initialiseRoundBeingEdited(action.roundBeingEditedId)
             is NewScoreIntent.DateChanged -> state = state.copy(dateShot = action.info.updateCalendar(state.dateShot))
             is NewScoreIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
-            is NewScoreIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, NewScoreFragment::class)
+            is NewScoreIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.NEW_SCORE::class)
 
             /*
              * Final actions
              */
-            NewScoreIntent.CancelEditInfo -> viewModelScope.launch { _effects.emit(PopBackstack) }
+            NewScoreIntent.CancelEditInfo -> state = state.copy(popBackstack = true)
             NewScoreIntent.ResetEditInfo -> state = state.resetEditInfo()
             NewScoreIntent.Submit -> {
                 viewModelScope.launch {
                     if (state.isEditing) {
                         archerRoundsRepo.update(state.asArcherRound())
-                        _effects.emit(PopBackstack)
+                        state = state.copy(popBackstack = true)
                     }
                     else {
                         val newId = archerRoundsRepo.insert(state.asArcherRound())
-                        _effects.emit(NewScoreEffect.NavigateToInputEnd(newId.toInt()))
+                        state = state.copy(navigateToInputEnd = newId.toInt())
                     }
                 }
             }
+            NewScoreIntent.HandleNavigate -> state = state.copy(navigateToInputEnd = null)
+            NewScoreIntent.HandlePopBackstack -> state = state.copy(popBackstack = false)
         }
     }
 
