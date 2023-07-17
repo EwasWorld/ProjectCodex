@@ -6,6 +6,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import eywa.projectcodex.common.archeryObjects.Handicap
+import eywa.projectcodex.common.archeryObjects.Handicap.HandicapPair
 import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.utils.transpose
@@ -94,7 +95,6 @@ class HandicapE2eTest {
         debugLog("testHandicapToScore")
         populateDb()
 
-
         val incorrect = mutableListOf<HandicapOutcome>()
         val freq = mutableMapOf<Int, Int>()
 
@@ -106,7 +106,7 @@ class HandicapE2eTest {
                 val outcome = Handicap.getScoreForRound(
                         round = data.roundInfo,
                         subType = data.roundInfo.roundSubTypes?.firstOrNull()?.subTypeId,
-                        handicap = handicap.toFloat(),
+                        handicap = handicap,
                         innerTenArcher = data.isCompound,
                         arrows = null,
                         use2023Handicaps = true,
@@ -152,15 +152,15 @@ class HandicapE2eTest {
                         faces = listOf(data.faceType),
                 )!!
 
-                val diff = (outcome.roundHandicap() - handicap)
-                if (abs(diff) > 10 && !(handicap == 150 && outcome > 150)) {
+                val diff = (outcome.roundHandicap() - handicap.roundHandicap())
+                if (abs(diff) > 0 && !(handicap.roundHandicap() == 150 && outcome > 150)) {
                     incorrect.add(HandicapOutcome(pair, outcome, data.roundName))
                     freq[diff] = freq.getOrDefault(diff, 0) + 1
                 }
             }
 
             // Check that a reasonable number of tests have run
-            assertTrue(pairs.size > 80)
+            assertTrue("pairs too small: ${pairs.size}", pairs.size > 130)
         }
 
         debugLog("Incorrect count: ${incorrect.size}")
@@ -343,20 +343,23 @@ data class HandicapData(
 ) {
     fun getHandicapsToTest(): List<HandicapPair> = getScoresToTest(false)
 
-    fun getScoresToTest(withIntermediates: Boolean = true): List<HandicapPair> {
+    fun getScoresToTest(testScores: Boolean = true): List<HandicapPair> {
         val tests = mutableListOf<HandicapPair>()
 
         for ((handicap, score) in scores.withIndex()) {
             val prevScore = scores.getOrNull(handicap - 1)
             val nextScore = scores.getOrNull(handicap + 1)
 
-            if (prevScore == score && nextScore == score) {
+            if (!testScores && prevScore == score && nextScore == score) {
                 continue
             }
-            tests.add(HandicapPair(handicap = handicap, score = score))
+            if (testScores && nextScore == score) {
+                continue
+            }
+            tests.add(HandicapPair(handicap = handicap.toFloat(), score = score))
 
-            if (withIntermediates && nextScore != null && (score - 1) != nextScore) {
-                tests.add(HandicapPair(handicap = handicap + 1, score = score - 1))
+            if (testScores && nextScore != null && (score - 1) > nextScore) {
+                tests.add(HandicapPair(handicap = handicap + 1f, score = score - 1))
             }
         }
 
@@ -438,11 +441,6 @@ data class HandicapData(
         }
     }
 }
-
-data class HandicapPair(
-        val handicap: Int,
-        val score: Int,
-)
 
 data class HandicapOutcome(
         val expected: HandicapPair,

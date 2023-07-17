@@ -36,7 +36,8 @@ object Handicap {
 
     /**
      * Binary search for the handicap of the given [score]. Will find the worst (highest) possible (e.g. 599 portsmouth
-     * can be 3, 4, or 5 so return 5)
+     * can be 3, 4, or 5 so return 5). If the score is worse than the score for the worst (highest) possible handicap
+     * (e.g. > 150 for [use2023Handicaps]), then the max handicap will be returned (150 in this case)
      *
      * @param innerTenArcher whether or not the shooter uses inner ten scoring (unused if the round doesn't use inner
      * ten scoring)
@@ -61,44 +62,54 @@ object Handicap {
         require(roundDistances.distinctBy { it.subTypeId }.size == 1) { "Multiple subtypes given" }
 
         fun calculate(hc: Float) =
-                getScoreForRound(
-                        round,
-                        roundArrowCounts,
-                        roundDistances,
-                        hc,
-                        innerTenArcher,
-                        arrows,
-                        use2023Handicaps,
-                        faces,
+                HandicapPair(
+                        handicap = hc,
+                        score = getScoreForRound(
+                                round, roundArrowCounts, roundDistances,
+                                hc, innerTenArcher,
+                                arrows, use2023Handicaps, faces,
+                        ),
                 )
 
         val accuracy = -2
 
-        var low = 0f // best possible handicap
-        // TODO Error if score is worse than max handicap
-        var high = if (use2023Handicaps) 150f else 100f // worst possible handicap
-        while (true) {
-            check(high > low) { "Binary search bounds gone bad" }
-            var testHC = (high + low) / 2f
-            val testHCScore = calculate(testHC)
-            when {
-                testHCScore == score -> {
-                    // Some scores can have multiple possible handicaps - find the worst (highest) integer
-                    val cl = calculate(ceil(testHC))
-                    val fl = calculate(floor(testHC))
+        var low = calculate(0f) // best possible handicap
+        var high = calculate(if (use2023Handicaps) 150f else 100f) // worst possible handicap
 
-                    if (fl - cl > 1) return testHC
-                    testHC = if (cl == score) ceil(testHC) else floor(testHC)
-                    while (calculate(testHC + 1) == score) {
-                        testHC++
-                    }
-                    return testHC
-                }
-                high - low <= 10f.pow(accuracy) -> return if (score < testHCScore) low else high
-                score < testHCScore -> low = testHC
-                else -> high = testHC
+        if (low.score < score) return low.handicap
+        if (high.score >= score) return high.handicap
+
+        /*
+         * Find the handicap at which the [score] turns into [score - 1]
+         */
+        while (true) {
+            check(high.handicap > low.handicap) { "Binary search bounds gone bad" }
+
+            val testHc = when {
+                high.score != score - 1 || low.score != score || high.handicap - low.handicap > 10f.pow(accuracy) ->
+                    (high.handicap + low.handicap) / 2f
+                floor(high.handicap) == floor(low.handicap) -> break
+                (low.isIntegerHandicap() || high.isIntegerHandicap()) -> break
+                else -> floor(high.handicap)
+            }
+
+            val testPair = calculate(testHc)
+
+            when {
+                testPair.score < score -> high = testPair
+                else -> low = testPair
             }
         }
+
+        val lowCheck = calculate(floor(low.handicap))
+        val highCheck = calculate(ceil(high.handicap))
+        check(highCheck.handicap > lowCheck.handicap) { "Binary search bounds gone bad" }
+
+        if (highCheck.handicap - lowCheck.handicap == 1f && lowCheck.score == score && highCheck.score < score) {
+            return lowCheck.handicap
+        }
+
+        return low.handicap
     }
 
     fun getScoreForRound(
@@ -192,6 +203,17 @@ object Handicap {
             score = ceil(score)
         }
         return score.roundToInt()
+    }
+
+    data class HandicapPair(
+            val handicap: Float,
+            val score: Int,
+    ) {
+        override fun toString(): String {
+            return "%.3f-$score".format(handicap)
+        }
+
+        fun isIntegerHandicap() = floor(handicap) == handicap
     }
 
     /**
