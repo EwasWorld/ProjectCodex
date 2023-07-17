@@ -35,7 +35,6 @@ object HandicapData {
                                 ScoreHandicapMapping(739, 38),
                                 ScoreHandicapMapping(730, 39)
                         ),
-                        true
                 ),
                 /*
                  * Metric
@@ -62,7 +61,6 @@ object HandicapData {
                                 ScoreHandicapMapping(289, 73),
                                 ScoreHandicapMapping(272, 74)
                         ),
-                        true
                 ),
                 HandicapTableEntry(
                         listOf(
@@ -80,7 +78,6 @@ object HandicapData {
                                 ScoreHandicapMapping(2, 89),
                                 ScoreHandicapMapping(1, 95)
                         ),
-                        true
                 ),
                 /*
                  * Vegas Triple
@@ -141,7 +138,6 @@ object HandicapData {
                                 ScoreHandicapMapping(230, 48),
                                 ScoreHandicapMapping(226, 49)
                         ),
-                        false
                 ),
                 /*
                  * Worcester
@@ -159,7 +155,6 @@ object HandicapData {
                                 ScoreHandicapMapping(178, 48),
                                 ScoreHandicapMapping(170, 49)
                         ),
-                        false,
                         face = RoundFace.WORCESTER_FIVE,
                 ),
         )
@@ -191,7 +186,6 @@ object HandicapData {
                                 ScoreHandicapMapping(772, 38),
                                 ScoreHandicapMapping(766, 39),
                         ),
-                        true
                 ),
                 /*
                  * Metric
@@ -219,7 +213,6 @@ object HandicapData {
                                 ScoreHandicapMapping(446, 73),
                                 ScoreHandicapMapping(435, 74),
                         ),
-                        true
                 ),
                 HandicapTableEntry(
                         listOf(
@@ -236,7 +229,6 @@ object HandicapData {
                                 ScoreHandicapMapping(3, 137),
                                 ScoreHandicapMapping(2, 147),
                         ),
-                        true
                 ),
                 /*
                  * Vegas Triple
@@ -291,7 +283,6 @@ object HandicapData {
                                 ScoreHandicapMapping(255, 48),
                                 ScoreHandicapMapping(252, 49),
                         ),
-                        false
                 )
         )
 }

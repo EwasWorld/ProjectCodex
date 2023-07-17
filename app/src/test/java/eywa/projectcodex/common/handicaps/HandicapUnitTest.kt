@@ -20,7 +20,7 @@ class HandicapUnitTest {
     class HandicapTableEntry(
             roundInfo: List<Any>,
             val mappings: List<ScoreHandicapMapping>,
-            val useInnerTen: Boolean,
+            val useInnerTen: Boolean = false,
             val face: RoundFace? = null,
     ) {
         val round: Round = roundInfo.filterIsInstance<Round>().first()
@@ -44,7 +44,8 @@ class HandicapUnitTest {
                 else "${fails.size} of $count\n" + fails.joinToString("\n")
     }
 
-    private fun testHandicapCalculations(entries: Iterable<HandicapTableEntry>, use2023Handicaps: Boolean) {
+    @Suppress("KotlinConstantConditions") // It is mistaken
+    private fun testScoreToHandicap(entries: Iterable<HandicapTableEntry>, use2023Handicaps: Boolean) {
         val outcome = Outcome()
         for (hcEntry in entries) {
             var previous: ScoreHandicapMapping? = null
@@ -81,11 +82,12 @@ class HandicapUnitTest {
         assertEquals(null, outcome.getFails())
     }
 
-    private fun testScoreCalculations(entries: Iterable<HandicapTableEntry>, use2023Handicaps: Boolean) {
+    @Suppress("KotlinConstantConditions") // It is mistaken
+    private fun testHandicapToScore(entries: Iterable<HandicapTableEntry>, use2023Handicaps: Boolean) {
         val outcome = Outcome()
         for (hcEntry in entries) {
             var previous: ScoreHandicapMapping? = null
-            for (mapping in hcEntry.mappings.sortedByDescending { it.handicap }) {
+            for (mapping in hcEntry.mappings.sortedByDescending { it.score }) {
                 // If the scores differ by one but the handicaps differ by more than one, test all values in the
                 //      handicap to ensure the correct score is always given
                 val range = when (mapping.score) {
@@ -120,16 +122,18 @@ class HandicapUnitTest {
     }
 
     @Test
-    fun testDavidLaneHandicaps_Handicap() = testHandicapCalculations(HandicapData.davidLaneHandicapEntries, false)
+    fun testDavidLaneHandicaps_ScoreToHandicap() = testScoreToHandicap(HandicapData.davidLaneHandicapEntries, false)
 
     @Test
-    fun testDavidLaneHandicaps_Score() = testScoreCalculations(HandicapData.davidLaneHandicapEntries, false)
+    fun testDavidLaneHandicaps_HandicapToScore() = testHandicapToScore(HandicapData.davidLaneHandicapEntries, false)
 
     @Test
-    fun testAgb2023Handicaps_Handicap() = testHandicapCalculations(HandicapData.archerGb2023HandicapTableEntries, true)
+    fun testAgb2023Handicaps_ScoreToHandicap() =
+            testScoreToHandicap(HandicapData.archerGb2023HandicapTableEntries, true)
 
     @Test
-    fun testAgb2023Handicaps_Score() = testScoreCalculations(HandicapData.archerGb2023HandicapTableEntries, true)
+    fun testAgb2023Handicaps_HandicapToScore() =
+            testHandicapToScore(HandicapData.archerGb2023HandicapTableEntries, true)
 
     @Test
     fun testPartialHandicap() {
