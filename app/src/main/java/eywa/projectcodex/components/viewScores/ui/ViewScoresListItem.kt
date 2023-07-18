@@ -88,7 +88,7 @@ fun ViewScoresListItem(
 
                         customActions = dropdownMenuItems?.map {
                             CustomAccessibilityAction(stringFromRes(it.title)) {
-                                listener(ViewScoresIntent.DropdownMenuClicked(it))
+                                listener(ViewScoresIntent.DropdownMenuClicked(it, entry.id))
                                 true
                             }
                         } ?: listOf()
@@ -111,7 +111,7 @@ fun ViewScoresListItem(
             dropdownMenuItems?.forEach { item ->
                 if (item.shouldShow == null || item.shouldShow.invoke(entry)) {
                     DropdownMenuItem(
-                            onClick = { listener(ViewScoresIntent.DropdownMenuClicked(item)) },
+                            onClick = { listener(ViewScoresIntent.DropdownMenuClicked(item, entry.id)) },
                             modifier = Modifier.testTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM.getTestTag())
                     ) {
                         Text(

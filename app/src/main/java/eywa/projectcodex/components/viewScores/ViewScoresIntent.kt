@@ -14,7 +14,7 @@ sealed class ViewScoresIntent {
     data class MultiSelectAction(val action: MultiSelectBarIntent) : ViewScoresIntent()
     data class ConvertScoreAction(val action: ConvertScoreIntent) : ViewScoresIntent()
 
-    data class DropdownMenuClicked(val item: ViewScoresDropdownMenuItem) : ViewScoresIntent()
+    data class DropdownMenuClicked(val item: ViewScoresDropdownMenuItem, val archerRoundId: Int) : ViewScoresIntent()
     object DropdownMenuClosed : ViewScoresIntent()
 
     object NoRoundsDialogOkClicked : ViewScoresIntent()
