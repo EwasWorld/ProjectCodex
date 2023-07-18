@@ -12,13 +12,13 @@ import eywa.projectcodex.common.*
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.newScore.NewScoreScreen.TestTag
+import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import java.util.*
 
 class NewScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : BaseRobot(composeTestRule, TestTag.SCREEN) {
+) : BaseRobot(composeTestRule, NewScoreTestTag.SCREEN) {
     init {
         waitForDatabaseUpdate()
     }
@@ -28,7 +28,7 @@ class NewScoreRobot(
             override fun getDescription() = "Waiting for database update to complete"
 
             override fun checkCondition() = try {
-                checkElementDoesNotExist(TestTag.DATABASE_WARNING)
+                checkElementDoesNotExist(NewScoreTestTag.DATABASE_WARNING)
                 true
             }
             catch (e: java.lang.AssertionError) {
@@ -38,11 +38,11 @@ class NewScoreRobot(
     }
 
     fun checkTime(time: String) {
-        checkElementText(TestTag.TIME_BUTTON, time)
+        checkElementText(NewScoreTestTag.TIME_BUTTON, time)
     }
 
     fun checkDate(date: String) {
-        checkElementText(TestTag.DATE_BUTTON, date)
+        checkElementText(NewScoreTestTag.DATE_BUTTON, date)
     }
 
     fun setTime(calendar: Calendar) {
@@ -53,7 +53,7 @@ class NewScoreRobot(
     }
 
     fun setTime(hours: Int, minutes: Int) {
-        clickElement(TestTag.TIME_BUTTON)
+        clickElement(NewScoreTestTag.TIME_BUTTON)
         CustomConditionWaiter.waitForClassToAppear(TimePicker::class.java)
         onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(hours, minutes))
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
@@ -68,7 +68,7 @@ class NewScoreRobot(
     }
 
     fun setDate(day: Int, month: Int, year: Int) {
-        clickElement(TestTag.DATE_BUTTON)
+        clickElement(NewScoreTestTag.DATE_BUTTON)
         val calendar = Calendar.getInstance()
         // Use a different hour/minute to ensure it's not overwriting the time
         calendar.set(year, month, day, 13, 15, 0)
@@ -78,24 +78,27 @@ class NewScoreRobot(
     }
 
     fun clickSubmitNewScore(block: InputEndRobot.() -> Unit = {}) {
-        clickElement(TestTag.SUBMIT_BUTTON)
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
         InputEndRobot(composeTestRule).apply { block() }
     }
 
     fun clickSubmitEditScore() {
-        clickElement(TestTag.SUBMIT_BUTTON)
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
     }
 
     fun clickReset() {
-        clickElement(TestTag.RESET_BUTTON)
+        clickElement(NewScoreTestTag.RESET_BUTTON)
     }
 
     fun clickCancel() {
-        clickElement(TestTag.CANCEL_BUTTON)
+        clickElement(NewScoreTestTag.CANCEL_BUTTON)
     }
 
     fun clickSelectedRound() {
-        clickElement(TestTag.SELECTED_ROUND)
+        composeTestRule.onNode(
+                hasParent(hasTestTag(NewScoreTestTag.SELECTED_ROUND.getTestTag())).and(hasClickAction()),
+                useUnmergedTree = true,
+        ).performClick()
         CustomConditionWaiter.waitForComposeCondition {
             composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.ROUND_DIALOG.getTestTag()).assertIsDisplayed()
         }
@@ -115,15 +118,24 @@ class NewScoreRobot(
     }
 
     fun checkSelectedRound(displayName: String) {
-        checkElementText(TestTag.SELECTED_ROUND, displayName)
+        composeTestRule.onNode(
+                hasTestTag(NewScoreTestTag.SELECTED_ROUND.getTestTag()).and(hasAnyChild(hasText(displayName))),
+                useUnmergedTree = true,
+        ).assertIsDisplayed()
     }
 
     fun checkSelectedSubtype(displayName: String) {
-        checkElementText(TestTag.SELECTED_SUBTYPE, displayName)
+        checkElementText(NewScoreTestTag.SELECTED_SUBTYPE, displayName)
     }
 
     fun clickSelectedSubtype() {
-        clickElement(TestTag.SELECTED_SUBTYPE)
+        composeTestRule.onNode(
+                hasParent(hasTestTag(NewScoreTestTag.SELECTED_SUBTYPE.getTestTag())).and(hasClickAction()),
+                useUnmergedTree = true,
+        ).performClick()
+        CustomConditionWaiter.waitForComposeCondition {
+            composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG.getTestTag()).assertIsDisplayed()
+        }
     }
 
     fun clickSubtypeDialogSubtype(displayName: String, index: Int = 0) {

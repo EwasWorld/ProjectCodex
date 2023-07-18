@@ -1,6 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots
 
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
@@ -72,13 +73,15 @@ class SightMarkDetailRobot(
         checkElementText(DISTANCE_UNIT, if (sightMark.isMetric) "m" else "yd")
 
         if (!isNew) {
-            checkElementText(DATE, DateTimeFormat.SHORT_DATE.format(sightMark.dateSet))
+            checkElementText(DATE, DateTimeFormat.SHORT_DATE.format(sightMark.dateSet), useUnmergedTree = true)
         }
 
-        checkCheckboxState(MARKED, sightMark.isMarked)
-        checkCheckboxState(ARCHIVED, sightMark.isArchived)
+        CustomConditionWaiter.waitForComposeCondition {
+            checkCheckboxState(MARKED, sightMark.isMarked, useUnmergedTree = true)
+        }
+        checkCheckboxState(ARCHIVED, sightMark.isArchived, useUnmergedTree = true)
 
-        checkElementText(NOTE, sightMark.note ?: "", true)
+        checkElementText(NOTE, sightMark.note ?: "", useUnmergedTree = true)
 
 
         checkButtons(isNew)

@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.helpShowcase
 
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.mainActivity.MainActivity
 import kotlin.reflect.KClass
@@ -18,7 +19,7 @@ internal data class HelpShowcaseInternalState(
          * animates transitions between screens, causing the old screen to be recomposed multiple times while
          * fading out. This means that the last call of [HelpShowcaseIntent.Add] is not guaranteed to be the new screen
          */
-        val currentScreen: KClass<out ActionBarHelp>? = null,
+        val currentScreen: KClass<out ActionBarHelp> = CodexNavRoute.MAIN_MENU::class,
         val helpInfoMap: Map<ResOrActual<String>, HelpShowcaseItem> = emptyMap(),
         val dynamicHelpShowcaseInfo: DynamicHelpShowcaseInfo? = null,
 

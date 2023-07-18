@@ -626,7 +626,6 @@ class LargeScaleInstrumentedTest {
         composeTestRule.mainMenuRobot {
             logMessage(this::class, "Main menu 1")
             pressBack()
-            pressBack()
             clickCancelOnExitDialog()
 
             logMessage(this::class, "About")

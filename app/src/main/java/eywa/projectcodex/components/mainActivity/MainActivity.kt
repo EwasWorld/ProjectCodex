@@ -179,7 +179,9 @@ class MainActivity : ComponentActivity() {
                     endShowcaseListener = { viewModel.handle(CloseHelpShowcase) },
                     screenHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx() },
                     screenWidth = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() },
-            )?.let { HelpShowcase(it, displayedHelpItemAnimationState.value) }
+            )?.let {
+                HelpShowcase(it, displayedHelpItemAnimationState.value)
+            }
         }
 
         LaunchedEffect(state.currentHelpItem) {

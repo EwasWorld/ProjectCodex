@@ -112,7 +112,7 @@ fun SelectRoundRows(
                         color = CodexTheme.colors.linkText,
                         textDecoration = TextDecoration.Underline,
                 ),
-                textModifier = Modifier.testTag(NewScoreTestTag.SELECTED_ROUND),
+                modifier = Modifier.testTag(NewScoreTestTag.SELECTED_ROUND.getTestTag()),
                 onClick = { listener(OpenRoundSelectDialog) },
         )
         if (displayedSubtype != null) {
@@ -128,7 +128,7 @@ fun SelectRoundRows(
                             color = CodexTheme.colors.linkText,
                             textDecoration = TextDecoration.Underline,
                     ),
-                    textModifier = Modifier.testTag(NewScoreTestTag.SELECTED_SUBTYPE),
+                    modifier = Modifier.testTag(NewScoreTestTag.SELECTED_SUBTYPE.getTestTag()),
                     onClick = { listener(OpenSubTypeSelectDialog) },
             )
         }

@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -13,6 +14,7 @@ import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -141,12 +143,25 @@ class NewScoreInstrumentedTest {
     @Test
     fun addAnotherRound() = runTest {
         setup()
-        val ar = ArcherRound(2, TestUtils.generateDate(), 1, true)
+        val ar = ArcherRound(2, TestUtils.generateDate(2020), 1, true)
         db.archerRoundDao().insert(ar)
 
+        db.arrowValueDao().insert(
+                *List(2) { ArrowValue(it + 1, 1, 6 + it, false) }.toTypedArray()
+        )
+
         composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(2)
+                waitForHsg(0, "1/6/0")
+                waitForHsg(1, "1/7/0")
+                pressBack()
+            }
+
             clickNewScore {
-                clickSubmitNewScore()
+                clickSubmitNewScore {
+                    checkIndicatorTable(0, 0)
+                }
             }
         }
 
@@ -159,10 +174,6 @@ class NewScoreInstrumentedTest {
         assert(roundsAfterCreate[1].archerRoundId > ar.archerRoundId)
         assertEquals(null, roundsAfterCreate[1].roundId)
         assertEquals(null, roundsAfterCreate[1].roundSubTypeId)
-
-        // TODO_CURRENT Test nav
-//        assertEquals(R.id.archerRoundFragment, navController.currentDestination?.id)
-        assertEquals(3, navController.currentBackStackEntry?.arguments?.get("archerRoundId"))
     }
 
     @Test

@@ -28,6 +28,9 @@ import org.junit.Test
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import java.util.*
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.roundToInt
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -170,7 +173,7 @@ class ArcherRoundStatsInstrumentedTest {
                         // the first distance has been shot so this is what's being use to calculate the handicap
                         checkHandicap(36)
                         // divide by 2 because only one dozen was shot
-                        checkPredictedScore((192 + 201) / 2)
+                        checkPredictedScore(ceil((192 + 201) / 2f).roundToInt())
                     }
                 }
             }
@@ -201,7 +204,7 @@ class ArcherRoundStatsInstrumentedTest {
                         // the first distance has been shot so this is what's being use to calculate the handicap
                         checkHandicap(32)
                         // divide by 2 because only one dozen was shot
-                        checkPredictedScore((192 + 201) / 2)
+                        checkPredictedScore(floor((192 + 201) / 2f).roundToInt())
                     }
                 }
             }
@@ -227,7 +230,7 @@ class ArcherRoundStatsInstrumentedTest {
                         // the first distance has been shot so this is what's being use to calculate the handicap
                         checkHandicap(36)
                         // divide by 2 because only one dozen was shot
-                        checkPredictedScore((192 + 201) / 2)
+                        checkPredictedScore(ceil((192 + 201) / 2f).roundToInt())
                     }
                 }
             }

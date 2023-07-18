@@ -16,7 +16,7 @@ enum class ViewScoresDropdownMenuItem(
 ) {
     SCORE_PAD(
             title = R.string.view_scores_menu__score_pad,
-            handleClick = { copy(openScorePadClicked = true, dropdownMenuOpen = false) }
+            handleClick = { copy(openScorePadClicked = true) }
     ),
     CONTINUE(
             title = R.string.view_scores_menu__continue,
@@ -25,7 +25,7 @@ enum class ViewScoresDropdownMenuItem(
                     copy(openInputEndOnCompletedRound = true)
                 }
                 else {
-                    copy(openInputEndClicked = true, dropdownMenuOpen = false)
+                    copy(openInputEndClicked = true)
                 }
             },
             shouldShow = { entry -> !entry.isRoundComplete() }
@@ -38,20 +38,20 @@ enum class ViewScoresDropdownMenuItem(
                 }
                 else {
                     it.setItems(listOf(lastClickedEntryId))
-                    copy(openEmailClicked = true, dropdownMenuOpen = false)
+                    copy(openEmailClicked = true)
                 }
             },
     ),
     EDIT_INFO(
             title = R.string.view_scores_menu__edit,
-            handleClick = { copy(openEditInfoClicked = true, dropdownMenuOpen = false) },
+            handleClick = { copy(openEditInfoClicked = true) },
     ),
     DELETE(
             title = R.string.view_scores_menu__delete,
-            handleClick = { copy(deleteDialogOpen = true, dropdownMenuOpen = false) },
+            handleClick = { copy(deleteDialogOpen = true) },
     ),
     CONVERT(
             title = R.string.view_scores_menu__convert,
-            handleClick = { copy(convertScoreDialogOpen = true, dropdownMenuOpen = false) },
+            handleClick = { copy(convertScoreDialogOpen = true) },
     ),
 }

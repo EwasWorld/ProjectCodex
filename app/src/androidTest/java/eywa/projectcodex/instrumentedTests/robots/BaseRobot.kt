@@ -70,8 +70,8 @@ abstract class BaseRobot(
         composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree)[index].assertTextEquals(text)
     }
 
-    fun checkLastElementText(testTag: CodexTestTag, text: String) {
-        composeTestRule.onAllNodesWithTag(testTag.getTestTag()).onLast().assertTextEquals(text)
+    fun checkLastElementText(testTag: CodexTestTag, text: String, useUnmergedTree: Boolean = false) {
+        composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).onLast().assertTextEquals(text)
     }
 
     fun checkElementIsDisplayed(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) =
@@ -127,13 +127,13 @@ abstract class BaseRobot(
     fun setChip(testTag: CodexTestTag, value: Boolean) {
         var actual = false
         try {
-            checkCheckboxState(testTag, false)
+            checkCheckboxState(testTag, false, useUnmergedTree = true)
         }
         catch (e: AssertionError) {
             actual = true
         }
         if (actual != value) {
-            clickElement(testTag)
+            clickElement(testTag, useUnmergedTree = true)
         }
     }
 

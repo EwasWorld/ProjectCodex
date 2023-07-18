@@ -10,6 +10,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,8 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
@@ -38,6 +39,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
 import eywa.projectcodex.common.utils.get
@@ -53,7 +55,7 @@ fun NewScoreScreen(
         navController: NavController,
         viewModel: NewScoreViewModel = hiltViewModel(),
 ) {
-    val state = viewModel.state
+    val state by viewModel.state.collectAsState()
     val listener = { it: NewScoreIntent -> viewModel.handle(it) }
 
     NewScoreScreen(state, listener)
@@ -73,7 +75,12 @@ private fun handleEffects(
                         NavArgument.SCREEN to ArcherRoundScreen.INPUT_END.name,
                         NavArgument.ARCHER_ROUND_ID to state.navigateToInputEnd.toString(),
                 ),
-        )
+        ) {
+            val currentRoute = navController.currentDestination?.route
+            if (currentRoute != null) {
+                popUpTo(currentRoute) { inclusive = true }
+            }
+        }
         listener(HandleNavigate)
     }
     if (state.popBackstack) {
@@ -99,7 +106,7 @@ fun NewScoreScreen(
                         .verticalScroll(rememberScrollState())
                         .background(CodexTheme.colors.appBackground)
                         .padding(25.dp)
-                        .testTag(NewScoreTestTag.SCREEN)
+                        .testTag(NewScoreTestTag.SCREEN.getTestTag())
         ) {
             DateRow(state, listener)
 
@@ -110,10 +117,10 @@ fun NewScoreScreen(
                                 color = CodexTheme.colors.warningOnAppBackground,
                                 textAlign = TextAlign.Center,
                         ),
-                        modifier = Modifier.testTag(NewScoreTestTag.DATABASE_WARNING)
+                        modifier = Modifier.testTag(NewScoreTestTag.DATABASE_WARNING.getTestTag())
                 )
                 DataRow(
-                        title = R.string.create_round__default_rounds_updating_warning_status,
+                        title = stringResource(R.string.create_round__default_rounds_updating_warning_status),
                         text = state.updateDefaultRoundsState.asDisplayString(LocalContext.current.resources),
                 )
             }
@@ -145,23 +152,18 @@ private fun NewScoreEndRows(
         listener: (NewScoreIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_create_round__new_submit_title,
-                            helpBody = R.string.help_create_round__new_submit_body,
-                    )
-            )
-    )
-
     CodexButton(
             text = stringResource(R.string.create_round__submit),
             buttonStyle = CodexButtonDefaults.DefaultButton(),
             onClick = { listener(Submit) },
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_create_round__new_submit_title),
+                    helpBody = stringResource(R.string.help_create_round__new_submit_body),
+            ),
             modifier = Modifier
                     .padding(top = 10.dp)
-                    .updateHelpDialogPosition(helpListener, R.string.help_create_round__new_submit_title)
-                    .testTag(NewScoreTestTag.SUBMIT_BUTTON)
+                    .testTag(NewScoreTestTag.SUBMIT_BUTTON.getTestTag())
     )
 }
 
@@ -171,31 +173,6 @@ private fun EditingEndRows(
         listener: (NewScoreIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_create_round__edit_cancel_title,
-                            helpBody = R.string.help_create_round__edit_cancel_body,
-                    )
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_create_round__edit_reset_title,
-                            helpBody = R.string.help_create_round__edit_reset_body,
-                    )
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_create_round__edit_submit_title,
-                            helpBody = R.string.help_create_round__edit_submit_body,
-                    )
-            )
-    )
-
     if (state.tooManyArrowsWarningShown) {
         Text(
                 text = stringResource(
@@ -223,21 +200,23 @@ private fun EditingEndRows(
                 text = stringResource(R.string.general_cancel),
                 buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(CancelEditInfo) },
-                modifier = Modifier
-                        .updateHelpDialogPosition(
-                                helpListener, R.string.help_create_round__edit_cancel_title
-                        )
-                        .testTag(NewScoreTestTag.CANCEL_BUTTON)
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_create_round__edit_cancel_title),
+                        helpBody = stringResource(R.string.help_create_round__edit_cancel_body),
+                ),
+                modifier = Modifier.testTag(NewScoreTestTag.CANCEL_BUTTON.getTestTag())
         )
         CodexButton(
                 text = stringResource(R.string.general__reset_edits),
                 buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(ResetEditInfo) },
-                modifier = Modifier
-                        .updateHelpDialogPosition(
-                                helpListener, R.string.help_create_round__edit_reset_title
-                        )
-                        .testTag(NewScoreTestTag.RESET_BUTTON)
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_create_round__edit_reset_title),
+                        helpBody = stringResource(R.string.help_create_round__edit_reset_body),
+                ),
+                modifier = Modifier.testTag(NewScoreTestTag.RESET_BUTTON.getTestTag())
         )
     }
     CodexButton(
@@ -245,11 +224,12 @@ private fun EditingEndRows(
             enabled = !state.tooManyArrowsWarningShown,
             buttonStyle = CodexButtonDefaults.DefaultButton(),
             onClick = { listener(Submit) },
-            modifier = Modifier
-                    .updateHelpDialogPosition(
-                            helpListener, R.string.help_create_round__edit_submit_title
-                    )
-                    .testTag(NewScoreTestTag.SUBMIT_BUTTON)
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_create_round__edit_submit_title),
+                    helpBody = stringResource(R.string.help_create_round__edit_submit_body),
+            ),
+            modifier = Modifier.testTag(NewScoreTestTag.SUBMIT_BUTTON.getTestTag())
     )
 }
 
@@ -283,40 +263,46 @@ private fun DateRow(
     }
 
     DataRow(
-            title = R.string.create_round__date,
-            helpTitle = R.string.help_create_round__date_title,
-            helpBody = R.string.help_create_round__date_body,
-            helpListener = { listener(HelpShowcaseAction(it)) },
+            title = stringResource(R.string.create_round__date),
+            helpState = HelpState(
+                    helpTitle = stringResource(R.string.help_create_round__date_title),
+                    helpBody = stringResource(R.string.help_create_round__date_body),
+                    helpListener = { listener(HelpShowcaseAction(it)) },
+            ),
     ) {
         Text(
                 text = DateTimeFormat.TIME_24_HOUR.format(state.dateShot),
                 style = CodexTypography.NORMAL.asClickableStyle(),
                 modifier = Modifier
                         .clickable { timePicker.show() }
-                        .testTag(NewScoreTestTag.TIME_BUTTON)
+                        .testTag(NewScoreTestTag.TIME_BUTTON.getTestTag())
         )
         Text(
                 text = DateTimeFormat.LONG_DATE.format(state.dateShot),
                 style = CodexTypography.NORMAL.asClickableStyle(),
                 modifier = Modifier
                         .clickable { datePicker.show() }
-                        .testTag(NewScoreTestTag.DATE_BUTTON)
+                        .testTag(NewScoreTestTag.DATE_BUTTON.getTestTag())
         )
     }
 }
 
-object NewScoreTestTag {
-    private const val PREFIX = "NEW_SCORE_"
+enum class NewScoreTestTag : CodexTestTag {
+    SCREEN,
+    DATABASE_WARNING,
+    SUBMIT_BUTTON,
+    CANCEL_BUTTON,
+    RESET_BUTTON,
+    SELECTED_ROUND,
+    SELECTED_SUBTYPE,
+    DATE_BUTTON,
+    TIME_BUTTON,
+    ;
 
-    const val SCREEN = "${PREFIX}SCREEN"
-    const val DATABASE_WARNING = "${PREFIX}DATABASE_WARNING"
-    const val SUBMIT_BUTTON = "${PREFIX}SUBMIT"
-    const val CANCEL_BUTTON = "${PREFIX}CANCEL"
-    const val RESET_BUTTON = "${PREFIX}RESET"
-    const val SELECTED_ROUND = "${PREFIX}ROUND_BUTTON"
-    const val SELECTED_SUBTYPE = "${PREFIX}SUBTYPE_BUTTON"
-    const val DATE_BUTTON = "${PREFIX}DATE_BUTTON"
-    const val TIME_BUTTON = "${PREFIX}TIME_BUTTON"
+    override val screenName: String
+        get() = "NEW_SCORE"
+
+    override fun getElement(): String = name
 }
 
 
@@ -364,6 +350,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             NewScoreState(
                     roundsData = roundsData,
                     selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
+                    selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes.first(),
                     roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound(),
                     roundBeingEditedArrowsShot = 1000,
             ),
@@ -375,6 +362,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             NewScoreState(
                     roundsData = roundsData,
                     selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
+                    selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes.first(),
                     isSelectSubTypeDialogOpen = true,
             )
     )

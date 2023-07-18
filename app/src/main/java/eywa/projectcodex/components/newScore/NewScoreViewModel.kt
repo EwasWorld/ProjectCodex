@@ -1,8 +1,5 @@
 package eywa.projectcodex.components.newScore
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
@@ -20,7 +17,10 @@ import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -35,9 +35,8 @@ class NewScoreViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
         savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
-    var state by mutableStateOf(NewScoreState())
-        private set
+    private val _state = MutableStateFlow(NewScoreState())
+    val state = _state.asStateFlow()
 
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
@@ -52,63 +51,65 @@ class NewScoreViewModel @Inject constructor(
 
         val roundRepo = RoundRepo(db)
         viewModelScope.launch {
-            roundRepo.fullRoundsInfo.collect { state = state.copy(roundsData = it).resetEditInfo() }
+            roundRepo.fullRoundsInfo.collect { data ->
+                _state.update { it.copy(roundsData = data).resetEditInfo() }
+            }
         }
         viewModelScope.launch {
-            updateDefaultRoundsTask.state.collect {
-                state = state.copy(updateDefaultRoundsState = it).resetEditInfo()
+            updateDefaultRoundsTask.state.collect { updateState ->
+                _state.update { it.copy(updateDefaultRoundsState = updateState).resetEditInfo() }
             }
         }
     }
 
     private fun initialiseRoundBeingEdited(roundBeingEditedId: Int?) {
         if (roundBeingEditedId == null) {
-            state = state.copy(
-                    roundBeingEdited = null,
-                    roundBeingEditedArrowsShot = null,
-            )
+            _state.update { it.copy(roundBeingEdited = null, roundBeingEditedArrowsShot = null) }
             return
         }
-        if (roundBeingEditedId == state.roundBeingEdited?.archerRoundId) return
 
         editingRoundJob?.cancel()
         editingRoundJob = viewModelScope.launch {
             archerRoundsRepo.getArcherRound(roundBeingEditedId).asFlow()
                     .combine(arrowValuesRepo.getArrowValuesForRound(roundBeingEditedId).asFlow()) { a, b -> a to b }
                     .collect { (archerRound, arrowValues) ->
-                        state = state.copy(
-                                roundBeingEdited = archerRound,
-                                roundBeingEditedArrowsShot = arrowValues.count()
-                        ).resetEditInfo()
+                        _state.update {
+                            it.copy(
+                                    roundBeingEdited = archerRound,
+                                    roundBeingEditedArrowsShot = arrowValues.count()
+                            ).resetEditInfo()
+                        }
                     }
         }
     }
 
     fun handle(action: NewScoreIntent) {
         when (action) {
-            is NewScoreIntent.DateChanged -> state = state.copy(dateShot = action.info.updateCalendar(state.dateShot))
+            is NewScoreIntent.DateChanged ->
+                _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
             is NewScoreIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
             is NewScoreIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.NEW_SCORE::class)
 
             /*
              * Final actions
              */
-            NewScoreIntent.CancelEditInfo -> state = state.copy(popBackstack = true)
-            NewScoreIntent.ResetEditInfo -> state = state.resetEditInfo()
+            NewScoreIntent.CancelEditInfo -> _state.update { it.copy(popBackstack = true) }
+            NewScoreIntent.ResetEditInfo -> _state.update { it.resetEditInfo() }
             NewScoreIntent.Submit -> {
+                val currentState = state.value
                 viewModelScope.launch {
-                    if (state.isEditing) {
-                        archerRoundsRepo.update(state.asArcherRound())
-                        state = state.copy(popBackstack = true)
+                    if (currentState.isEditing) {
+                        archerRoundsRepo.update(currentState.asArcherRound())
+                        _state.update { it.copy(popBackstack = true) }
                     }
                     else {
-                        val newId = archerRoundsRepo.insert(state.asArcherRound())
-                        state = state.copy(navigateToInputEnd = newId.toInt())
+                        val newId = archerRoundsRepo.insert(currentState.asArcherRound())
+                        _state.update { it.copy(navigateToInputEnd = newId.toInt()) }
                     }
                 }
             }
-            NewScoreIntent.HandleNavigate -> state = state.copy(navigateToInputEnd = null)
-            NewScoreIntent.HandlePopBackstack -> state = state.copy(popBackstack = false)
+            NewScoreIntent.HandleNavigate -> _state.update { it.copy(navigateToInputEnd = null) }
+            NewScoreIntent.HandlePopBackstack -> _state.update { it.copy(popBackstack = false) }
         }
     }
 
@@ -117,55 +118,46 @@ class NewScoreViewModel @Inject constructor(
             /*
              * Select round dialog
              */
-            SelectRoundDialogIntent.OpenRoundSelectDialog -> {
-                state = state.copy(
-                        isSelectRoundDialogOpen = true,
-                        enabledRoundFilters = SelectRoundEnabledFilters(),
-                )
-            }
-            SelectRoundDialogIntent.CloseRoundSelectDialog -> {
-                state = state.copy(isSelectRoundDialogOpen = false)
-            }
-            SelectRoundDialogIntent.NoRoundSelected -> {
-                state = state.copy(
-                        isSelectRoundDialogOpen = false,
-                        selectedRound = null,
-                        selectedSubtype = null,
-                )
-            }
-            is SelectRoundDialogIntent.RoundSelected -> {
-                state = state.copy(
-                        isSelectRoundDialogOpen = false,
-                        selectedRound = action.round,
-                ).let {
-                    // Select the furthest distance if subtypes are available
-                    it.copy(selectedSubtype = it.selectedRoundInfo?.roundSubTypes?.maxByOrNull { subType ->
-                        state.getFurthestDistance(subType).distance
-                    })
+            SelectRoundDialogIntent.OpenRoundSelectDialog ->
+                _state.update {
+                    it.copy(
+                            isSelectRoundDialogOpen = true,
+                            enabledRoundFilters = SelectRoundEnabledFilters(),
+                    )
                 }
-            }
-            is SelectRoundDialogIntent.SelectRoundDialogFilterClicked -> {
-                state = state.copy(enabledRoundFilters = state.enabledRoundFilters.toggle(action.filter))
-            }
-            SelectRoundDialogIntent.SelectRoundDialogClearFilters -> {
-                state = state.copy(enabledRoundFilters = SelectRoundEnabledFilters())
-            }
+            SelectRoundDialogIntent.CloseRoundSelectDialog -> _state.update { it.copy(isSelectRoundDialogOpen = false) }
+            SelectRoundDialogIntent.NoRoundSelected ->
+                _state.update {
+                    it.copy(
+                            isSelectRoundDialogOpen = false,
+                            selectedRound = null,
+                            selectedSubtype = null,
+                    )
+                }
+            is SelectRoundDialogIntent.RoundSelected ->
+                _state.update {
+                    val new = it.copy(isSelectRoundDialogOpen = false, selectedRound = action.round)
+                    // Select the furthest distance if subtypes are available
+                    new.copy(
+                            selectedSubtype = new.selectedRoundInfo?.roundSubTypes?.maxByOrNull { subType ->
+                                new.getFurthestDistance(subType).distance
+                            }
+                    )
+                }
+            is SelectRoundDialogIntent.SelectRoundDialogFilterClicked ->
+                _state.update { it.copy(enabledRoundFilters = it.enabledRoundFilters.toggle(action.filter)) }
+            SelectRoundDialogIntent.SelectRoundDialogClearFilters ->
+                _state.update { it.copy(enabledRoundFilters = SelectRoundEnabledFilters()) }
 
             /*
              * Select sub type dialog
              */
-            SelectRoundDialogIntent.OpenSubTypeSelectDialog -> {
-                state = state.copy(isSelectSubTypeDialogOpen = true)
-            }
-            SelectRoundDialogIntent.CloseSubTypeSelectDialog -> {
-                state = state.copy(isSelectSubTypeDialogOpen = false)
-            }
-            is SelectRoundDialogIntent.SubTypeSelected -> {
-                state = state.copy(
-                        isSelectSubTypeDialogOpen = false,
-                        selectedSubtype = action.subType,
-                )
-            }
+            SelectRoundDialogIntent.OpenSubTypeSelectDialog ->
+                _state.update { it.copy(isSelectSubTypeDialogOpen = true) }
+            SelectRoundDialogIntent.CloseSubTypeSelectDialog ->
+                _state.update { it.copy(isSelectSubTypeDialogOpen = false) }
+            is SelectRoundDialogIntent.SubTypeSelected ->
+                _state.update { it.copy(isSelectSubTypeDialogOpen = false, selectedSubtype = action.subType) }
         }
     }
 

@@ -33,7 +33,7 @@ fun CodexTextFieldRoundedSurface(
             color = color,
             shape = RoundedCornerShape(5.dp),
             content = content,
-            modifier = modifier,
+            modifier = modifier.updateHelpDialogPosition(helpState),
     )
 }
 

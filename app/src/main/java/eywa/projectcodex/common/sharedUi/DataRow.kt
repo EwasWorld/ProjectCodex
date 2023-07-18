@@ -69,9 +69,9 @@ fun DataRow(
 fun DataRow(
         title: String,
         text: String,
-        helpState: HelpState?,
         modifier: Modifier = Modifier,
         textModifier: Modifier = Modifier,
+        helpState: HelpState? = null,
         onClick: (() -> Unit)? = null,
         onClickLabel: String? = null,
         accessibilityRole: Role? = null,
@@ -90,9 +90,7 @@ fun DataRow(
             style = style,
             modifier = textModifier.modifierIf(
                     onClick != null,
-                    Modifier
-                            .clickable { onClick!!.invoke() }
-                            .clearAndSetSemantics { },
+                    Modifier.clickable { onClick!!.invoke() }
             ),
     )
 }

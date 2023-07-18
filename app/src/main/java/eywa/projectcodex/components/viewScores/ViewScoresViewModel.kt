@@ -93,7 +93,7 @@ class ViewScoresViewModel @Inject constructor(
             is DropdownMenuClicked ->
                 _state.update {
                     if (!it.dropdownMenuOpen) it
-                    else action.item.handleClick(it, archerRoundIdsUseCase)
+                    else action.item.handleClick(it, archerRoundIdsUseCase).copy(dropdownMenuOpen = false)
                 }
             DropdownMenuClosed -> _state.update { it.copy(dropdownMenuOpen = false) }
             NoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = true) }

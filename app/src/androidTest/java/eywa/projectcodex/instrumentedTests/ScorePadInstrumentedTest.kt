@@ -52,7 +52,12 @@ class ScorePadInstrumentedTest {
 
     private suspend fun addArcherRound(archerRoundId: Int = 1, roundId: Int? = null, year: Int = 2022) {
         db.archerRoundDao().insert(
-                ArcherRound(archerRoundId, TestUtils.generateDate(year), 1, true, roundId = roundId)
+                ArcherRound(
+                        archerRoundId = archerRoundId,
+                        dateShot = TestUtils.generateDate(year),
+                        archerId = 1,
+                        roundId = roundId,
+                )
         )
     }
 
@@ -166,7 +171,7 @@ class ScorePadInstrumentedTest {
             arrowCounts.forEach { db.roundArrowCountDao().insert(it) }
             roundDistances.forEach { db.roundDistanceDao().insert(it) }
 
-            addArcherRound(archerRoundId = 0, roundId = 1, year = 2022)
+            addArcherRound(archerRoundId = 1, roundId = 1, year = 2022)
             addArrows(indexes = arrows, archerRoundId = 1)
 
             addArcherRound(archerRoundId = 2, roundId = 2, year = 2021)

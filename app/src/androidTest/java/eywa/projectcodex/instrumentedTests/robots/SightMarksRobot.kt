@@ -57,8 +57,8 @@ class SightMarksRobot(
     }
 
     fun checkDiagramTickLabelRange(topTick: String, bottomTick: String) {
-        checkElementText(DIAGRAM_TICK_LABEL, 0, topTick)
-        checkLastElementText(DIAGRAM_TICK_LABEL, bottomTick)
+        checkElementText(DIAGRAM_TICK_LABEL, 0, topTick, useUnmergedTree = true)
+        checkLastElementText(DIAGRAM_TICK_LABEL, bottomTick, useUnmergedTree = true)
     }
 
     fun flipDiagram() {
