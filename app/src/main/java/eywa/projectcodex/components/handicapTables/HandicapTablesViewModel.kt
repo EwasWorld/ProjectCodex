@@ -58,7 +58,7 @@ class HandicapTablesViewModel @Inject constructor(
                         innerTenArcher = false,
                         arrows = null,
                         use2023Handicaps = use2023System,
-                        // TODO_CURRENT Faces
+                        faces = faces,
                 ),
         )
 
@@ -75,7 +75,7 @@ class HandicapTablesViewModel @Inject constructor(
                             innerTenArcher = false,
                             arrows = null,
                             use2023Handicaps = use2023System,
-                            // TODO_CURRENT Faces
+                            faces = faces,
                     ).roundHandicap(),
             )
         }

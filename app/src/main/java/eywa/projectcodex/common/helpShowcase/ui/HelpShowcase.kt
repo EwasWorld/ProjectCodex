@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexButton
-import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
@@ -140,8 +139,8 @@ private fun ComposeHelpShowcasePreview(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.DefaultButton()) {}
-        CodexButton(text = "Hello", buttonStyle = CodexButtonDefaults.DefaultButton()) {}
+        CodexButton(text = "Hello") {}
+        CodexButton(text = "Hello") {}
     }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         HelpShowcase(

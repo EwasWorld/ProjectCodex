@@ -234,13 +234,10 @@ object Handicap {
         IMPERIAL(9, 2, 1, 4, 10, 2.0, 1),
         METRIC(10, 1, 1, 10, 20, 0.0, 0),
 
-        // 40cm face cut off after the 6 ring (3 separate targets in a vertical line)
+        // Half face - cut off after the 6 ring (3 separate targets in a vertical line)
         TRIPLE(10, 1, 1, 4, 20, 20.0 / 5.0, 6),
 
-        // 80cm face cut off after 6 ring
-        FITA_FIVE_ZONE(TRIPLE),
-
-        // 80cm face cut off after 5 ring
+        // Cut off after 5 ring (6 total zones, shows entire blue)
         FITA_SIX_ZONE(10, 1, 1, 5, 20, 20.0 / 6.0, 5),
 
         WORCESTER(5, 1, 1, 5, 10, 0.0, 0),
@@ -262,7 +259,7 @@ object Handicap {
                         round.displayName.contains(WORCESTER.toString(), ignoreCase = true) ->
                             if (face == RoundFace.WORCESTER_FIVE) WORCESTER_FIVE else WORCESTER
                         face != null && face == RoundFace.TRIPLE -> TRIPLE
-                        face != null && face == RoundFace.FITA_FIVE -> FITA_FIVE_ZONE
+                        face != null && face == RoundFace.HALF -> TRIPLE
                         face != null && face == RoundFace.FITA_SIX -> FITA_SIX_ZONE
                         round.isMetric || !round.isOutdoor -> METRIC
                         else -> IMPERIAL

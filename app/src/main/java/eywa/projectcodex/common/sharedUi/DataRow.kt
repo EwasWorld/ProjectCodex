@@ -18,6 +18,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 
 @Deprecated("Old")
 @Composable
@@ -85,9 +86,10 @@ fun DataRow(
             accessibilityRole?.let { role = accessibilityRole }
         },
 ) {
+    val finalStyle = if (onClick == null) style else style.asClickableStyle()
     Text(
             text = text,
-            style = style,
+            style = finalStyle,
             modifier = textModifier.modifierIf(
                     onClick != null,
                     Modifier.clickable { onClick!!.invoke() }

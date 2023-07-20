@@ -142,6 +142,7 @@ data class FullArcherRoundInfo(
                 innerTenArcher = isInnerTenArcher,
                 arrows = null,
                 use2023Handicaps = use2023HandicapSystem,
+                faces = archerRound.faces,
         )
     }
 

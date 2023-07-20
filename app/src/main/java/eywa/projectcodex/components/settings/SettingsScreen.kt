@@ -28,7 +28,6 @@ import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
 
 @Composable
@@ -70,7 +69,7 @@ fun SettingsScreen(
                     ),
                     onClick = { listener(SettingsIntent.ToggleUse2023System) },
                     accessibilityRole = Role.Switch,
-                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle(),
+                    style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground),
                     modifier = Modifier.padding(bottom = 2.dp)
             )
 
@@ -91,7 +90,7 @@ fun SettingsScreen(
                         ),
                         onClick = { listener(SettingsIntent.ToggleUseBetaFeatures) },
                         accessibilityRole = Role.Switch,
-                        style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground).asClickableStyle(),
+                        style = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground),
                         modifier = Modifier.padding(bottom = 2.dp)
                 )
 

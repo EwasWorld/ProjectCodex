@@ -30,7 +30,6 @@ import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
-import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -39,6 +38,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
@@ -140,6 +140,18 @@ fun NewScoreScreen(
                         helpListener = helpListener,
                         listener = { listener(SelectRoundDialogAction(it)) },
                 )
+
+                if (state.selectedRound != null) {
+                    SelectRoundFaceDialog(
+                            isShown = state.isSelectFaceDialogOpen,
+                            selectSingle = state.isSelectFaceDialogSingleMode,
+                            selectedFaces = state.faces,
+                            round = state.selectedRound,
+                            distances = state.roundSubtypeDistances?.map { it.distance },
+                            dropdownExpandedFor = state.selectFaceDialogDropdownOpenFor,
+                            listener = { listener(SelectFaceDialogAction(it)) },
+                    )
+                }
             }
 
             if (state.isEditing) EditingEndRows(state, listener) else NewScoreEndRows(listener)
@@ -154,7 +166,6 @@ private fun NewScoreEndRows(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
     CodexButton(
             text = stringResource(R.string.create_round__submit),
-            buttonStyle = CodexButtonDefaults.DefaultButton(),
             onClick = { listener(Submit) },
             helpState = HelpState(
                     helpListener = helpListener,
@@ -198,7 +209,6 @@ private fun EditingEndRows(
         // TODO Lower the emphasis on cancel
         CodexButton(
                 text = stringResource(R.string.general_cancel),
-                buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(CancelEditInfo) },
                 helpState = HelpState(
                         helpListener = helpListener,
@@ -209,7 +219,6 @@ private fun EditingEndRows(
         )
         CodexButton(
                 text = stringResource(R.string.general__reset_edits),
-                buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(ResetEditInfo) },
                 helpState = HelpState(
                         helpListener = helpListener,
@@ -222,7 +231,6 @@ private fun EditingEndRows(
     CodexButton(
             text = stringResource(R.string.general_save),
             enabled = !state.tooManyArrowsWarningShown,
-            buttonStyle = CodexButtonDefaults.DefaultButton(),
             onClick = { listener(Submit) },
             helpState = HelpState(
                     helpListener = helpListener,

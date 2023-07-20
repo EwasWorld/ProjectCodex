@@ -36,6 +36,18 @@
     <string name="arrow_value_10">10</string>
     <string name="arrow_value_x">X</string>
 
+    <!-- Round faces -->
+    <string name="round_face_full">Full</string>
+    <string name="round_face_full_help">A full face for the given round with all rings</string>
+    <string name="round_face_triple">Triple</string>
+    <string name="round_face_triple_help">A set of 3 targets consisting of 5 rings (scoring zones 10 through 6)</string>
+    <string name="round_face_five">Half</string>
+    <string name="round_face_five_help">Scoring zones 10 through 6 only (half the number of rings as a full face)</string>
+    <string name="round_face_six">6-ring</string>
+    <string name="round_face_six_help">Scoring zones 10 through 5 only (6 total rings)</string>
+    <string name="round_face_worcester">Five-spot</string>
+    <string name="round_face_worcester_help">Scoring zones 4 and 5 only of a Worcester round face</string>
+
     <!-- Table View -->
     <string name="table_hits_header">H</string>
     <string name="table_score_header">S</string>

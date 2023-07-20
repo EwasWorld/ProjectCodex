@@ -14,7 +14,6 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
-import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent
@@ -113,7 +112,6 @@ fun ArrowInputsScaffold(
                 )
                 CodexButton(
                         text = stringResource(R.string.general_cancel),
-                        buttonStyle = CodexButtonDefaults.DefaultButton(),
                         onClick = { listener(ArrowInputsIntent.CancelClicked) },
                         modifier = Modifier
                                 .testTag(ArrowInputsTestTag.CANCEL_BUTTON)
@@ -131,7 +129,6 @@ fun ArrowInputsScaffold(
             )
             CodexButton(
                     text = submitButtonText,
-                    buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = { listener(ArrowInputsIntent.SubmitClicked) },
                     modifier = Modifier
                             .testTag(ArrowInputsTestTag.SUBMIT_BUTTON)

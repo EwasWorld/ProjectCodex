@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.handicapTables
 
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.FullRoundInfo
 
 data class HandicapTablesState(
@@ -10,6 +11,8 @@ data class HandicapTablesState(
         val roundFilters: SelectRoundEnabledFilters = SelectRoundEnabledFilters(),
         val subType: Int? = null,
         val use2023System: Boolean = false,
+        // TODO_CURRENT Way to set faces
+        val faces: List<RoundFace>? = null,
         val allRounds: List<FullRoundInfo>? = null,
         val isSelectRoundDialogOpen: Boolean = false,
         val isSelectSubtypeDialogOpen: Boolean = false,

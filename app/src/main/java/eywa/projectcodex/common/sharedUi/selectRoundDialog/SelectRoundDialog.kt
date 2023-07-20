@@ -14,7 +14,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
@@ -108,10 +107,6 @@ fun SelectRoundRows(
                         helpTitle = stringResource(R.string.help_create_round__round_title),
                         helpBody = stringResource(R.string.help_create_round__round_body),
                 ),
-                style = LocalTextStyle.current.copy(
-                        color = CodexTheme.colors.linkText,
-                        textDecoration = TextDecoration.Underline,
-                ),
                 modifier = Modifier.testTag(NewScoreTestTag.SELECTED_ROUND.getTestTag()),
                 onClick = { listener(OpenRoundSelectDialog) },
         )
@@ -123,10 +118,6 @@ fun SelectRoundRows(
                             helpListener = helpListener,
                             helpTitle = stringResource(R.string.help_create_round__sub_round_title),
                             helpBody = stringResource(R.string.help_create_round__sub_round_body),
-                    ),
-                    style = LocalTextStyle.current.copy(
-                            color = CodexTheme.colors.linkText,
-                            textDecoration = TextDecoration.Underline,
                     ),
                     modifier = Modifier.testTag(NewScoreTestTag.SELECTED_SUBTYPE.getTestTag()),
                     onClick = { listener(OpenSubTypeSelectDialog) },

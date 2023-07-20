@@ -4,6 +4,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
@@ -34,12 +35,17 @@ data class NewScoreState(
         val isSelectSubTypeDialogOpen: Boolean = false,
         val enabledRoundFilters: SelectRoundEnabledFilters = SelectRoundEnabledFilters(),
 
+        val isSelectFaceDialogOpen: Boolean = false,
+        val isSelectFaceDialogSingleMode: Boolean = false,
+        val selectFaceDialogDropdownOpenFor: Int? = null,
+
         /*
          * User-set info
          */
         val dateShot: Calendar = getDefaultDate(),
         val selectedRound: Round? = null,
         val selectedSubtype: RoundSubType? = null,
+        val faces: List<RoundFace>? = null,
 
         /*
          * Effects
@@ -125,6 +131,17 @@ data class NewScoreState(
     }
 
     /**
+     * Tidy up and validate [faces] for storage in the database
+     */
+    val finalFaces
+        get() = when {
+            faces.isNullOrEmpty() || faces.all { it == RoundFace.FULL } -> null
+            faces.distinctBy { it }.size == 1 -> listOf(faces.first())
+            faces.size != roundSubtypeDistances?.size -> throw IllegalStateException("Invalid faces size")
+            else -> faces
+        }
+
+    /**
      * Convert the information on the screen to an [ArcherRound].
      * Edited rounds copy their old data, overwriting fields selected on the screen
      * New rounds defaults: [ArcherRound.archerRoundId] is 0, [ArcherRound.archerId] is 1
@@ -136,6 +153,7 @@ data class NewScoreState(
             archerId = roundBeingEdited?.archerId ?: 1,
             roundId = selectedRound?.roundId,
             roundSubTypeId = selectedSubtype?.subTypeId,
+            faces = finalFaces,
     )
 
     fun getFurthestDistance(subType: RoundSubType) = roundsData

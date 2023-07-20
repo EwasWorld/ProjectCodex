@@ -45,6 +45,9 @@ fun SimpleDialog(
         content: @Composable () -> Unit,
 ) {
     // TODO Show/hide animations
+
+    // TODO Compose has a bug where it doesn't recompose the dialog when the content height changes.
+    //  This will be fixed in 1.5 (not stable yet). https://issuetracker.google.com/issues/221643630
     if (isShown) {
         Dialog(
                 onDismissRequest = onDismissListener,

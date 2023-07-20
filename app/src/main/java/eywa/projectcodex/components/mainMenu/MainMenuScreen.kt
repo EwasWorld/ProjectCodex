@@ -74,7 +74,6 @@ private fun MainMenuScreen(
 
         CodexButton(
                 text = stringResource(id = R.string.main_menu__new_score),
-                buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(Navigate(CodexNavRoute.NEW_SCORE)) },
                 helpState = HelpState(
                         helpListener = helpListener,
@@ -85,7 +84,6 @@ private fun MainMenuScreen(
         )
         CodexButton(
                 text = stringResource(id = R.string.main_menu__view_scores),
-                buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(Navigate(CodexNavRoute.VIEW_SCORES)) },
                 helpState = HelpState(
                         helpListener = helpListener,
@@ -96,7 +94,6 @@ private fun MainMenuScreen(
         )
         CodexButton(
                 text = stringResource(id = R.string.main_menu__handicap_tables),
-                buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(Navigate(CodexNavRoute.HANDICAP_TABLES)) },
                 helpState = HelpState(
                         helpListener = helpListener,
@@ -108,7 +105,6 @@ private fun MainMenuScreen(
         if (state.useBetaFeatures) {
             CodexButton(
                     text = stringResource(id = R.string.main_menu__classification_tables),
-                    buttonStyle = CodexButtonDefaults.DefaultButton(),
                     onClick = { listener(Navigate(CodexNavRoute.CLASSIFICATION_TABLES)) },
                     helpState = HelpState(
                             helpListener = helpListener,
@@ -120,7 +116,6 @@ private fun MainMenuScreen(
         }
         CodexButton(
                 text = stringResource(id = R.string.main_menu__sight_marks),
-                buttonStyle = CodexButtonDefaults.DefaultButton(),
                 onClick = { listener(Navigate(CodexNavRoute.SIGHT_MARKS)) },
                 helpState = HelpState(
                         helpListener = helpListener,

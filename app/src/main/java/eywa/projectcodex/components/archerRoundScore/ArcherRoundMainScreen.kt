@@ -20,7 +20,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.ToastSpamPrevention
@@ -103,7 +106,6 @@ fun ArcherRoundMainScreen(
                     )
                     CodexButton(
                             text = stringResource(R.string.archer_round_not_found_button),
-                            buttonStyle = CodexButtonDefaults.DefaultButton(),
                             onClick = { listener(InvalidArcherRoundIntent.ReturnToMenuClicked) },
                     )
                 }

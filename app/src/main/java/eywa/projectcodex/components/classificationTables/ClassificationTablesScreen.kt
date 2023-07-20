@@ -29,7 +29,6 @@ import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
@@ -81,7 +80,7 @@ fun ClassificationTablesScreen(
                     helpState = null,
                     onClick = { listener(ToggleIsGent) },
                     accessibilityRole = Role.Switch,
-                    style = CodexTypography.NORMAL.asClickableStyle(),
+                    style = CodexTypography.NORMAL,
                     modifier = Modifier.padding(vertical = 7.dp)
             )
 
