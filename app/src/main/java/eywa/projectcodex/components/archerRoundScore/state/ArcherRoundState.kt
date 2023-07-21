@@ -151,9 +151,6 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
             get() = fullArcherRoundInfo.isRoundComplete
         override val dropdownMenuOpenForEndNumber
             get() = scorePadSelectedEnd
-
-        override val round
-            get() = fullArcherRoundInfo.round
     }
 }
 

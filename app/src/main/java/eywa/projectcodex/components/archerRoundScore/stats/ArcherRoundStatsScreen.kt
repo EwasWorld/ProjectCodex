@@ -20,6 +20,7 @@ import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
@@ -38,13 +39,14 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
             modifier: Modifier,
             listener: (ArcherRoundIntent) -> Unit,
     ) {
-        ScreenContent(state, modifier)
+        ScreenContent(state, modifier, listener)
     }
 
     @Composable
     private fun ScreenContent(
             state: ArcherRoundStatsState,
             modifier: Modifier = Modifier,
+            listener: (ArcherRoundIntent) -> Unit,
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
             Column(
@@ -66,6 +68,13 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                                     ?: stringResource(R.string.archer_round_stats__no_round),
                             textModifier = Modifier.testTag(TestTag.ROUND_TEXT),
                     )
+                    if (state.fullArcherRoundInfo.round != null) {
+                        SelectFaceRow(
+                                selectedFaces = state.fullArcherRoundInfo.archerRound.faces,
+                                helpListener = { listener(ArcherRoundIntent.HelpShowcaseAction(it)) },
+                                onClick = null,
+                        )
+                    }
                 }
 
                 val hits = state.fullArcherRoundInfo.hits
@@ -239,7 +248,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
         CodexTheme {
             ScreenContent(
                     ArcherRoundStatePreviewHelper.SIMPLE,
-            )
+            ) {}
         }
     }
 }

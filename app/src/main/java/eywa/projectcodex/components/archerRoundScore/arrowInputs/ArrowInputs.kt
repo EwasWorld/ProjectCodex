@@ -23,6 +23,8 @@ import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
@@ -73,7 +75,8 @@ fun ArrowInputs(
         )
 
         ArrowButtonGroup(
-                round = state.round,
+                round = state.fullArcherRoundInfo.round,
+                roundFace = state.fullArcherRoundInfo.currentFace,
                 onClick = { listener(ArrowInputted(it)) },
                 horizontalPadding = horizontalPadding,
                 modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_input_end__arrow_inputs_title)
@@ -181,7 +184,8 @@ fun ArrowInputs_Preview(
     CodexTheme {
         ArrowInputs(
                 state = object : ArrowInputsState {
-                    override val round = RoundPreviewHelper.outdoorImperialRoundData.round
+                    override val fullArcherRoundInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo()
+                            .addRound(RoundPreviewHelper.outdoorImperialRoundData)
                     override val enteredArrows = ArcherRoundStatePreviewHelper.inputArrows
                     override val inputEndSize = 6
                 },

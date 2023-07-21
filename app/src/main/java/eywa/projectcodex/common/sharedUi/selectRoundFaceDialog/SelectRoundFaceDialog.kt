@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexThemeColors
@@ -27,6 +30,38 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
+
+
+/**
+ * The text to display on the [DataRow] for selecting [RoundFace]s
+ */
+@Composable
+fun SelectFaceRow(
+        selectedFaces: List<RoundFace>?,
+        modifier: Modifier = Modifier,
+        helpListener: (HelpShowcaseIntent) -> Unit,
+        onClick: (() -> Unit)?,
+) {
+    val text = if (selectedFaces == null || selectedFaces.size < 2 || selectedFaces.distinct().size == 1) {
+        stringResource((selectedFaces?.firstOrNull() ?: RoundFace.FULL).text)
+    }
+    else {
+        val context = LocalContext.current
+        selectedFaces.joinToString { context.resources.getString(it.text) }
+    }
+
+    DataRow(
+            title = stringResource(R.string.create_round__select_a_face_title),
+            text = text,
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_create_round__face_title),
+                    helpBody = stringResource(R.string.help_create_round__face_body),
+            ),
+            modifier = modifier,
+            onClick = onClick,
+    )
+}
 
 /**
  * @param selectSingle use the same face for all distances (if multiple distances)
@@ -41,17 +76,18 @@ fun SelectRoundFaceDialog(
         round: Round?,
         distances: List<Int>?,
         dropdownExpandedFor: Int? = null,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         listener: (SelectRoundFaceDialogIntent) -> Unit,
 ) {
+    if (round != null && !round.isMetric && round.isOutdoor) return
+
     val count = distances?.takeIf { it.isNotEmpty() }?.size ?: 1
     val pluralCount = if (selectSingle) 1 else count
 
-    DataRow(
-            title = stringResource(R.string.create_round__select_a_face_title),
-            text = stringResource(getRowText(selectedFaces)),
-            helpState = null,
-            onClick = { listener(Open) },
-    )
+    SelectFaceRow(
+            selectedFaces = selectedFaces,
+            helpListener = helpListener,
+    ) { listener(Open) }
 
     SimpleDialog(
             isShown = isShown,
@@ -114,17 +150,6 @@ fun SelectRoundFaceDialog(
         }
     }
 }
-
-/**
- * The text to display on the [DataRow] for selecting [RoundFace]s
- */
-private fun getRowText(selectedFaces: List<RoundFace>?) =
-        if (selectedFaces == null || selectedFaces.size < 2 || selectedFaces.distinct().size == 1) {
-            (selectedFaces?.firstOrNull() ?: RoundFace.FULL).text
-        }
-        else {
-            R.string.create_round__select_a_face_various
-        }
 
 @Composable
 private fun Selectors(
@@ -244,6 +269,7 @@ fun RoundSingle_SelectRoundFaceDialog_Preview() {
                 selectedFaces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF),
                 round = Round(roundId = 1, name = "", displayName = "", isOutdoor = true, isMetric = true),
                 dropdownExpandedFor = null,
+                helpListener = {},
         ) {}
     }
 }
@@ -259,6 +285,7 @@ fun RoundMulti_SelectRoundFaceDialog_Preview() {
                 selectedFaces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF),
                 round = Round(roundId = 1, name = "", displayName = "", isOutdoor = true, isMetric = true),
                 dropdownExpandedFor = null,
+                helpListener = {},
         ) {}
     }
 }
@@ -277,6 +304,7 @@ fun Worcester_SelectRoundFaceDialog_Preview() {
                         isMetric = false, defaultRoundId = 22,
                 ),
                 dropdownExpandedFor = null,
+                helpListener = {},
         ) {}
     }
 }
@@ -292,6 +320,7 @@ fun NoRound_SelectRoundFaceDialog_Preview() {
                 selectedFaces = null,
                 round = null,
                 dropdownExpandedFor = null,
+                helpListener = {},
         ) {}
     }
 }

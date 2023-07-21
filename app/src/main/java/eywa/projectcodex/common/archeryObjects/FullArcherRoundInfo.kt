@@ -76,6 +76,18 @@ data class FullArcherRoundInfo(
     val isRoundComplete
         get() = remainingArrows?.let { it <= 0 } ?: false
 
+    val currentFace
+        get() = when {
+            archerRound.faces.isNullOrEmpty() -> null
+            archerRound.faces.size == 1 -> archerRound.faces.first()
+            round == null -> throw IllegalStateException("Cannot have more than one face with no round")
+            remainingArrows == null || remainingArrows!! <= 0 -> null
+            else -> {
+                val distancesRemaining = remainingArrowsAtDistances!!.size
+                archerRound.faces[archerRound.faces.size - distancesRemaining]
+            }
+        }
+
     /**
      * Pairs of arrow counts to distances in order (earlier distances first)
      */

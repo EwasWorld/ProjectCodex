@@ -22,6 +22,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
 
 private val SPACING = 5.dp
@@ -31,6 +32,7 @@ private val SPACING = 5.dp
 fun ArrowButtonGroup(
         round: Round?,
         modifier: Modifier = Modifier,
+        roundFace: RoundFace? = null,
         horizontalPadding: Dp = 0.dp,
         onClick: (Arrow) -> Unit,
 ) {
@@ -40,59 +42,115 @@ fun ArrowButtonGroup(
                     .padding(horizontal = horizontalPadding)
     ) {
         when {
-            round == null -> TenZoneArrowButtonGroup(onClick)
-            round.name.contains("WORCESTER", ignoreCase = true) -> WorcesterArrowButtonGroup(onClick)
-            round.isMetric || !round.isOutdoor -> TenZoneArrowButtonGroup(onClick)
-            else -> FiveZoneArrowButtonGroup(onClick)
+            round == null -> TenZoneArrowButtonGroup(roundFace, onClick)
+            round.name.contains("WORCESTER", ignoreCase = true) -> WorcesterArrowButtonGroup(roundFace, onClick)
+            round.isImperial && round.isOutdoor -> FiveZoneArrowButtonGroup(onClick)
+            else -> TenZoneArrowButtonGroup(roundFace, onClick)
         }
     }
 }
 
 @Composable
 private fun TenZoneArrowButtonGroup(
-        onClick: (Arrow) -> Unit
+        roundFace: RoundFace? = null,
+        onClick: (Arrow) -> Unit,
+) =
+        when (roundFace) {
+            null, RoundFace.FULL -> FullFaceTenZoneArrowButtonGroup(onClick)
+            RoundFace.FITA_SIX -> FitaSixFaceTenZoneArrowButtonGroup(onClick)
+            RoundFace.WORCESTER_FIVE -> WorcesterArrowButtonGroup(roundFace, onClick)
+            else -> HalfFaceTenZoneArrowButtonGroup(roundFace, onClick)
+        }
+
+@Composable
+private fun FullFaceTenZoneArrowButtonGroup(
+        onClick: (Arrow) -> Unit,
 ) {
     ColumnSection {
         RowSection {
-            GeneralTargetScoreButton.M.Button(onClick)
-            GeneralTargetScoreButton.ONE.Button(onClick)
-            GeneralTargetScoreButton.TWO.Button(onClick)
-            GeneralTargetScoreButton.THREE.Button(onClick)
-            GeneralTargetScoreButton.FOUR.Button(onClick)
-            GeneralTargetScoreButton.FIVE.Button(onClick)
+            GeneralTargetScoreButton.M.Button(null, onClick)
+            GeneralTargetScoreButton.ONE.Button(null, onClick)
+            GeneralTargetScoreButton.TWO.Button(null, onClick)
+            GeneralTargetScoreButton.THREE.Button(null, onClick)
+            GeneralTargetScoreButton.FOUR.Button(null, onClick)
+            GeneralTargetScoreButton.FIVE.Button(null, onClick)
         }
         RowSection {
-            GeneralTargetScoreButton.SIX.Button(onClick)
-            GeneralTargetScoreButton.SEVEN.Button(onClick)
-            GeneralTargetScoreButton.EIGHT.Button(onClick)
-            GeneralTargetScoreButton.NINE.Button(onClick)
-            GeneralTargetScoreButton.TEN.Button(onClick)
-            GeneralTargetScoreButton.X.Button(onClick)
+            GeneralTargetScoreButton.SIX.Button(null, onClick)
+            GeneralTargetScoreButton.SEVEN.Button(null, onClick)
+            GeneralTargetScoreButton.EIGHT.Button(null, onClick)
+            GeneralTargetScoreButton.NINE.Button(null, onClick)
+            GeneralTargetScoreButton.TEN.Button(null, onClick)
+            GeneralTargetScoreButton.X.Button(null, onClick)
+        }
+    }
+}
+
+@Composable
+private fun HalfFaceTenZoneArrowButtonGroup(
+        roundFace: RoundFace? = null,
+        onClick: (Arrow) -> Unit,
+) {
+    RowSection {
+        GeneralTargetScoreButton.M.Button(roundFace, onClick)
+
+        ColumnSection {
+            RowSection {
+                GeneralTargetScoreButton.SIX.Button(roundFace, onClick)
+                GeneralTargetScoreButton.SEVEN.Button(roundFace, onClick)
+                GeneralTargetScoreButton.EIGHT.Button(roundFace, onClick)
+            }
+            RowSection {
+                GeneralTargetScoreButton.NINE.Button(roundFace, onClick)
+                GeneralTargetScoreButton.TEN.Button(roundFace, onClick)
+                GeneralTargetScoreButton.X.Button(roundFace, onClick)
+            }
+        }
+    }
+}
+
+@Composable
+private fun FitaSixFaceTenZoneArrowButtonGroup(
+        onClick: (Arrow) -> Unit,
+) {
+    ColumnSection {
+        RowSection {
+            GeneralTargetScoreButton.M.Button(RoundFace.FITA_SIX, onClick)
+            GeneralTargetScoreButton.FIVE.Button(RoundFace.FITA_SIX, onClick)
+            GeneralTargetScoreButton.SIX.Button(RoundFace.FITA_SIX, onClick)
+            GeneralTargetScoreButton.SEVEN.Button(RoundFace.FITA_SIX, onClick)
+        }
+        RowSection {
+            GeneralTargetScoreButton.EIGHT.Button(RoundFace.FITA_SIX, onClick)
+            GeneralTargetScoreButton.NINE.Button(RoundFace.FITA_SIX, onClick)
+            GeneralTargetScoreButton.TEN.Button(RoundFace.FITA_SIX, onClick)
+            GeneralTargetScoreButton.X.Button(RoundFace.FITA_SIX, onClick)
         }
     }
 }
 
 @Composable
 private fun FiveZoneArrowButtonGroup(
-        onClick: (Arrow) -> Unit
+        onClick: (Arrow) -> Unit,
 ) {
     RowSection {
-        GeneralTargetScoreButton.M.Button(onClick)
-        GeneralTargetScoreButton.ONE.Button(onClick)
-        GeneralTargetScoreButton.THREE.Button(onClick)
-        GeneralTargetScoreButton.FIVE.Button(onClick)
-        GeneralTargetScoreButton.SEVEN.Button(onClick)
-        GeneralTargetScoreButton.NINE.Button(onClick)
+        GeneralTargetScoreButton.M.Button(null, onClick)
+        GeneralTargetScoreButton.ONE.Button(null, onClick)
+        GeneralTargetScoreButton.THREE.Button(null, onClick)
+        GeneralTargetScoreButton.FIVE.Button(null, onClick)
+        GeneralTargetScoreButton.SEVEN.Button(null, onClick)
+        GeneralTargetScoreButton.NINE.Button(null, onClick)
     }
 }
 
 @Composable
 private fun WorcesterArrowButtonGroup(
-        onClick: (Arrow) -> Unit
+        roundFace: RoundFace? = null,
+        onClick: (Arrow) -> Unit,
 ) {
     RowSection {
         WorcesterTargetScoreButton.values().forEach {
-            it.Button(onClick)
+            it.Button(roundFace, onClick)
         }
     }
 }
@@ -118,8 +176,11 @@ private fun RowSection(content: @Composable RowScope.() -> Unit) {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ArrowButton.Button(
+        roundFace: RoundFace?,
         onClick: (Arrow) -> Unit,
 ) {
+    if (roundFace != null && !shouldShow(roundFace)) return
+
     Surface(
             onClick = { onClick(arrow) },
             color = getBackgroundColour(),
@@ -143,7 +204,7 @@ private fun ArrowButton.Button(
 @Preview(
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-        widthDp = 480
+        widthDp = 480,
 )
 @Composable
 fun ArrowButtonGroup_Preview(
@@ -169,7 +230,10 @@ fun ArrowButtonGroup_Preview(
 class ArrowButtonGroupPreviewProvider : CollectionPreviewParameterProvider<Pair<String, @Composable () -> Unit>>(
         listOf(
                 "10-zone" to { TenZoneArrowButtonGroup {} },
+                "10-zone: triple" to { TenZoneArrowButtonGroup(RoundFace.TRIPLE) {} },
+                "10-zone: six" to { TenZoneArrowButtonGroup(RoundFace.FITA_SIX) {} },
                 "5-zone" to { FiveZoneArrowButtonGroup {} },
                 "Worcester" to { WorcesterArrowButtonGroup {} },
+                "Worcester 5" to { WorcesterArrowButtonGroup(RoundFace.WORCESTER_FIVE) {} },
         )
 )

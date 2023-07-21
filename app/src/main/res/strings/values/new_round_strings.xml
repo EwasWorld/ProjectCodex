@@ -34,7 +34,6 @@
     <string name="create_round__select_a_face_all_same">Click here to use the same face for all distances</string>
     <string name="create_round__select_a_face_all_diff">Click here to use a different face for each distance</string>
     <string name="create_round__select_a_face_title">Face:</string>
-    <string name="create_round__select_a_face_various">Various</string>
     <string name="create_round__face_type_help_button">Face type help</string>
 
     <string name="err_create_round__too_many_arrows">This score has too many arrows (%1$d) entered to change the type to %2$s (max %3$d)</string> <!-- e.g. ... too many arrows (144) ... the type to FITA (max 36) -->
@@ -59,4 +58,6 @@
     <string name="help_create_round__edit_reset_body">Reset all changes made to the information</string>
     <string name="help_create_round__edit_cancel_title">Cancel editing</string>
     <string name="help_create_round__edit_cancel_body">Closes the edit screen without saving the information</string>
+    <string name="help_create_round__face_title">Face</string>
+    <string name="help_create_round__face_body">Select the face being shot at (if in doubt, use \'Full\')</string>
 </resources>

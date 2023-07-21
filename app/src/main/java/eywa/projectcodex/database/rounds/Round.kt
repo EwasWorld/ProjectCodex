@@ -30,6 +30,9 @@ data class Round(
     override val label: String
         get() = displayName
 
+    val isImperial
+        get() = !isMetric
+
     companion object {
         const val TABLE_NAME = "rounds"
     }

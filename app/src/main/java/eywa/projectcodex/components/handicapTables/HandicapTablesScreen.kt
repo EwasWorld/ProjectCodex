@@ -32,6 +32,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 
@@ -117,29 +118,40 @@ fun HandicapTablesScreen(
                     ),
                     onValueChanged = { listener(InputChanged(it)) },
             )
-        }
 
-        Surface(
-                shape = RoundedCornerShape(20),
-                border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
-                color = CodexTheme.colors.appBackground,
-                modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
-            Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+            Surface(
+                    shape = RoundedCornerShape(20),
+                    border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+                    color = CodexTheme.colors.appBackground,
+                    modifier = Modifier.padding(horizontal = 20.dp)
             ) {
-                SelectRoundRows(
-                        isSelectRoundDialogOpen = state.isSelectRoundDialogOpen,
-                        isSelectSubtypeDialogOpen = state.isSelectSubtypeDialogOpen,
-                        selectedRound = state.round?.info,
-                        selectedSubtypeId = state.subType ?: 1,
-                        rounds = state.allRounds,
-                        filters = state.roundFilters,
-                        helpListener = helpListener,
-                        listener = { listener(SelectRoundDialogAction(it)) },
-                )
+                Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                ) {
+                    SelectRoundRows(
+                            isSelectRoundDialogOpen = state.isSelectRoundDialogOpen,
+                            isSelectSubtypeDialogOpen = state.isSelectSubtypeDialogOpen,
+                            selectedRound = state.round?.info,
+                            selectedSubtypeId = state.subType ?: 1,
+                            rounds = state.allRounds,
+                            filters = state.roundFilters,
+                            helpListener = helpListener,
+                            listener = { listener(SelectRoundDialogAction(it)) },
+                    )
+                    if (state.round != null) {
+                        SelectRoundFaceDialog(
+                                isShown = state.isSelectFaceDialogOpen,
+                                selectSingle = state.isSelectFaceDialogSingleMode,
+                                selectedFaces = state.faces,
+                                round = state.round.info.round,
+                                distances = state.subtypeDistances?.map { it.distance },
+                                helpListener = helpListener,
+                                listener = { listener(SelectFaceDialogAction(it)) },
+                        )
+                    }
+                }
             }
         }
 
@@ -252,11 +264,11 @@ fun PreviewMainMenuScreen() {
             HandicapTablesState(
                     input = 31,
                     inputHandicap = true,
-                    round = HandicapTablesState.RoundInfo.Round(RoundPreviewHelper.outdoorImperialRoundData),
+                    round = HandicapTablesState.RoundInfo.Round(RoundPreviewHelper.indoorMetricRoundData),
                     roundFilters = SelectRoundEnabledFilters(),
                     subType = 1,
                     use2023System = false,
-                    allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
+                    allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
                     isSelectRoundDialogOpen = false,
                     isSelectSubtypeDialogOpen = false,
                     handicaps = listOf(
