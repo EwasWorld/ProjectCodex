@@ -143,12 +143,7 @@ fun NewScoreScreen(
 
                 if (state.selectedRound != null) {
                     SelectRoundFaceDialog(
-                            isShown = state.isSelectFaceDialogOpen,
-                            selectSingle = state.isSelectFaceDialogSingleMode,
-                            selectedFaces = state.faces,
-                            round = state.selectedRound,
-                            distances = state.roundSubtypeDistances?.map { it.distance },
-                            dropdownExpandedFor = state.selectFaceDialogDropdownOpenFor,
+                            state = state.selectedFaceDialogState,
                             helpListener = { listener(HelpShowcaseAction(it)) },
                             listener = { listener(SelectFaceDialogAction(it)) },
                     )

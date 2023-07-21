@@ -63,48 +63,38 @@ fun SelectFaceRow(
     )
 }
 
-/**
- * @param selectSingle use the same face for all distances (if multiple distances)
- * @param dropdownExpandedFor the index in [distances] (sorted descending) that the dropdown is expanded for.
- * Null if no dropdown expanded
- */
 @Composable
 fun SelectRoundFaceDialog(
-        isShown: Boolean,
-        selectSingle: Boolean,
-        selectedFaces: List<RoundFace>?,
-        round: Round?,
-        distances: List<Int>?,
-        dropdownExpandedFor: Int? = null,
+        state: SelectRoundFaceDialogState,
         helpListener: (HelpShowcaseIntent) -> Unit,
         listener: (SelectRoundFaceDialogIntent) -> Unit,
 ) {
-    if (round != null && !round.isMetric && round.isOutdoor) return
+    if (state.round != null && !state.round.isMetric && state.round.isOutdoor) return
 
-    val count = distances?.takeIf { it.isNotEmpty() }?.size ?: 1
-    val pluralCount = if (selectSingle) 1 else count
+    val count = state.distances?.takeIf { it.isNotEmpty() }?.size ?: 1
+    val pluralCount = if (state.isSingleMode) 1 else count
 
     SelectFaceRow(
-            selectedFaces = selectedFaces,
+            selectedFaces = state.selectedFaces,
             helpListener = helpListener,
     ) { listener(Open) }
 
     SimpleDialog(
-            isShown = isShown,
+            isShown = state.isShown,
             onDismissListener = { listener(Close) },
     ) {
         SimpleDialogContent(
                 title = pluralStringResource(R.plurals.create_round__select_a_face_dialog_title, pluralCount),
                 message = stringResource(R.string.create_round__select_a_face_subtitle)
-                        .takeIf { selectSingle && count > 1 },
+                        .takeIf { state.isSingleMode && count > 1 },
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
                         onClick = { listener(Close) },
-                ).takeIf { selectSingle },
+                ).takeIf { state.isSingleMode },
                 positiveButton = ButtonState(
                         text = stringResource(R.string.general_complete),
                         onClick = { listener(Close) },
-                ).takeIf { !selectSingle },
+                ).takeIf { !state.isSingleMode },
                 modifier = Modifier.testTag(SelectRoundFaceDialogTestTag.DIALOG.getTestTag())
         ) {
             Column(
@@ -126,13 +116,13 @@ fun SelectRoundFaceDialog(
 //                )
 //                Spacer(modifier = Modifier.height(7.dp))
 
-                Selectors(selectedFaces, selectSingle, round, distances, dropdownExpandedFor, listener)
+                Selectors(state, listener)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 if (count > 1) {
                     CodexButton(
                             text = stringResource(
-                                    if (selectSingle) R.string.create_round__select_a_face_all_diff
+                                    if (state.isSingleMode) R.string.create_round__select_a_face_all_diff
                                     else R.string.create_round__select_a_face_all_same
                             ),
                             buttonStyle = object : OutlinedButton() {
@@ -153,19 +143,15 @@ fun SelectRoundFaceDialog(
 
 @Composable
 private fun Selectors(
-        selectedFaces: List<RoundFace>?,
-        selectSingle: Boolean,
-        round: Round?,
-        distances: List<Int>?,
-        dropdownExpandedFor: Int? = null,
+        state: SelectRoundFaceDialogState,
         listener: (SelectRoundFaceDialogIntent) -> Unit,
 ) {
     val availableFaces =
-            if (round == null) RoundFace.values().toList()
-            else RoundFace.values().filter { it.shouldShow(round) }
+            if (state.round == null) RoundFace.values().toList()
+            else RoundFace.values().filter { it.shouldShow(state.round) }
 
     ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground)) {
-        if (selectSingle || distances == null || distances.size < 2) {
+        if (state.isSingleMode || state.distances == null || state.distances.size < 2) {
             availableFaces.forEach {
                 Text(
                         text = stringResource(it.text),
@@ -180,10 +166,10 @@ private fun Selectors(
         else {
             IndividualSelectors(
                     availableFaces = availableFaces,
-                    selectedFaces = selectedFaces,
-                    round = round,
-                    distances = distances,
-                    dropdownExpandedFor = dropdownExpandedFor,
+                    selectedFaces = state.selectedFaces,
+                    round = state.round,
+                    distances = state.distances,
+                    dropdownExpandedFor = state.dropdownExpandedFor,
                     listener = listener,
             )
         }
@@ -263,12 +249,14 @@ enum class SelectRoundFaceDialogTestTag : CodexTestTag {
 fun RoundSingle_SelectRoundFaceDialog_Preview() {
     DialogPreviewHelper {
         SelectRoundFaceDialog(
-                isShown = true,
-                selectSingle = true,
-                distances = listOf(70, 60, 50, 30),
-                selectedFaces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF),
-                round = Round(roundId = 1, name = "", displayName = "", isOutdoor = true, isMetric = true),
-                dropdownExpandedFor = null,
+                SelectRoundFaceDialogState(
+                        isShown = true,
+                        isSingleMode = true,
+                        distances = listOf(70, 60, 50, 30),
+                        selectedFaces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF),
+                        round = Round(roundId = 1, name = "", displayName = "", isOutdoor = true, isMetric = true),
+                        dropdownExpandedFor = null,
+                ),
                 helpListener = {},
         ) {}
     }
@@ -279,12 +267,14 @@ fun RoundSingle_SelectRoundFaceDialog_Preview() {
 fun RoundMulti_SelectRoundFaceDialog_Preview() {
     DialogPreviewHelper {
         SelectRoundFaceDialog(
-                isShown = true,
-                selectSingle = false,
-                distances = listOf(70, 60, 50, 30),
-                selectedFaces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF),
-                round = Round(roundId = 1, name = "", displayName = "", isOutdoor = true, isMetric = true),
-                dropdownExpandedFor = null,
+                SelectRoundFaceDialogState(
+                        isShown = true,
+                        isSingleMode = false,
+                        distances = listOf(70, 60, 50, 30),
+                        selectedFaces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF),
+                        round = Round(roundId = 1, name = "", displayName = "", isOutdoor = true, isMetric = true),
+                        dropdownExpandedFor = null,
+                ),
                 helpListener = {},
         ) {}
     }
@@ -295,15 +285,17 @@ fun RoundMulti_SelectRoundFaceDialog_Preview() {
 fun Worcester_SelectRoundFaceDialog_Preview() {
     DialogPreviewHelper {
         SelectRoundFaceDialog(
-                isShown = true,
-                selectSingle = false,
-                distances = listOf(20),
-                selectedFaces = null,
-                round = Round(
-                        roundId = 1, name = "", displayName = "", isOutdoor = false,
-                        isMetric = false, defaultRoundId = 22,
+                SelectRoundFaceDialogState(
+                        isShown = true,
+                        isSingleMode = false,
+                        distances = listOf(20),
+                        selectedFaces = null,
+                        round = Round(
+                                roundId = 1, name = "", displayName = "", isOutdoor = false,
+                                isMetric = false, defaultRoundId = 22,
+                        ),
+                        dropdownExpandedFor = null,
                 ),
-                dropdownExpandedFor = null,
                 helpListener = {},
         ) {}
     }
@@ -314,12 +306,14 @@ fun Worcester_SelectRoundFaceDialog_Preview() {
 fun NoRound_SelectRoundFaceDialog_Preview() {
     DialogPreviewHelper {
         SelectRoundFaceDialog(
-                isShown = true,
-                selectSingle = false,
-                distances = null,
-                selectedFaces = null,
-                round = null,
-                dropdownExpandedFor = null,
+                SelectRoundFaceDialogState(
+                        isShown = true,
+                        isSingleMode = false,
+                        distances = null,
+                        selectedFaces = null,
+                        round = null,
+                        dropdownExpandedFor = null,
+                ),
                 helpListener = {},
         ) {}
     }

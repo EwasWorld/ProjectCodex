@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.handicapTables
 
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
 import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.FullRoundInfo
@@ -18,7 +19,10 @@ data class HandicapTablesState(
         val isSelectSubtypeDialogOpen: Boolean = false,
         val handicaps: List<HandicapScore> = emptyList(),
         val highlightedHandicap: HandicapScore? = null,
-        val isSelectFaceDialogOpen: Boolean = false,
+        val selectedFaceDialogState: SelectRoundFaceDialogState = SelectRoundFaceDialogState(
+                round = round?.info?.round,
+                distances = round?.info?.getDistances(subType ?: 1)?.map { it.distance }
+        ),
         val isSelectFaceDialogSingleMode: Boolean = false,
         val selectFaceDialogDropdownOpenFor: Int? = null,
 ) {

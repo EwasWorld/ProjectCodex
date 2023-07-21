@@ -2,9 +2,10 @@ package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
 import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
-import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
@@ -29,23 +30,26 @@ data class NewScoreState(
         val roundsData: List<FullRoundInfo>? = null,
 
         /*
+         * User-set info
+         */
+        val dateShot: Calendar = getDefaultDate(),
+        val selectedRound: Round? = null,
+        val selectedSubtype: RoundSubType? = null,
+
+        /*
          * Dialogs
          */
         val isSelectRoundDialogOpen: Boolean = false,
         val isSelectSubTypeDialogOpen: Boolean = false,
         val enabledRoundFilters: SelectRoundEnabledFilters = SelectRoundEnabledFilters(),
 
-        val isSelectFaceDialogOpen: Boolean = false,
-        val isSelectFaceDialogSingleMode: Boolean = false,
-        val selectFaceDialogDropdownOpenFor: Int? = null,
-
-        /*
-         * User-set info
-         */
-        val dateShot: Calendar = getDefaultDate(),
-        val selectedRound: Round? = null,
-        val selectedSubtype: RoundSubType? = null,
-        val faces: List<RoundFace>? = null,
+        val selectedFaceDialogState: SelectRoundFaceDialogState = SelectRoundFaceDialogState(
+                round = selectedRound,
+                distances = selectedRound?.roundId
+                        ?.let { roundId -> roundsData?.find { it.round.roundId == roundId } }
+                        ?.getDistances(selectedSubtype?.subTypeId)
+                        ?.map { it.distance }
+        ),
 
         /*
          * Effects
@@ -77,11 +81,7 @@ data class NewScoreState(
     /**
      * All distances for [selectedSubtype]
      */
-    val roundSubtypeDistances by lazy {
-        selectedSubtype?.subTypeId?.let { subtypeId ->
-            selectedRoundInfo?.roundDistances?.filter { it.subTypeId == subtypeId }
-        } ?: selectedRoundInfo?.roundDistances
-    }
+    val roundSubtypeDistances by lazy { selectedRoundInfo?.getDistances(selectedSubtype?.subTypeId) }
 
     /**
      * Resource id of the unit for [selectedRound]'s distances (e.g. yd/m)
@@ -131,17 +131,6 @@ data class NewScoreState(
     }
 
     /**
-     * Tidy up and validate [faces] for storage in the database
-     */
-    val finalFaces
-        get() = when {
-            faces.isNullOrEmpty() || faces.all { it == RoundFace.FULL } -> null
-            faces.distinctBy { it }.size == 1 -> listOf(faces.first())
-            faces.size != roundSubtypeDistances?.size -> throw IllegalStateException("Invalid faces size")
-            else -> faces
-        }
-
-    /**
      * Convert the information on the screen to an [ArcherRound].
      * Edited rounds copy their old data, overwriting fields selected on the screen
      * New rounds defaults: [ArcherRound.archerRoundId] is 0, [ArcherRound.archerId] is 1
@@ -153,13 +142,12 @@ data class NewScoreState(
             archerId = roundBeingEdited?.archerId ?: 1,
             roundId = selectedRound?.roundId,
             roundSubTypeId = selectedSubtype?.subTypeId,
-            faces = finalFaces,
+            faces = selectedFaceDialogState.selectedFaces,
     )
 
     fun getFurthestDistance(subType: RoundSubType) = roundsData
             ?.find { it.round.roundId == subType.roundId }
-            ?.roundDistances
-            ?.filter { it.subTypeId == subType.subTypeId }
+            ?.getDistances(subType.subTypeId)
             ?.maxByOrNull { it.distance }!!
 
     companion object {

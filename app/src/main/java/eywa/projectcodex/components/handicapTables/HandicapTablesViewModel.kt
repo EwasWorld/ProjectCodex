@@ -10,7 +10,6 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
-import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -99,7 +98,8 @@ class HandicapTablesViewModel @Inject constructor(
         when (action) {
             is HandicapTablesIntent.InputChanged -> _state.update { it.copy(input = action.newSize).addHandicaps() }
             is HandicapTablesIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
-            is HandicapTablesIntent.SelectFaceDialogAction -> handleSelectFaceDialogIntent(action.action)
+            is HandicapTablesIntent.SelectFaceDialogAction ->
+                _state.update { it.copy(selectedFaceDialogState = action.action.handle(it.selectedFaceDialogState)) }
             HandicapTablesIntent.ToggleHandicapSystem -> _state.update {
                 it.copy(use2023System = !it.use2023System).addHandicaps()
             }
@@ -116,13 +116,25 @@ class HandicapTablesViewModel @Inject constructor(
             SelectRoundDialogIntent.OpenRoundSelectDialog -> _state.update { it.copy(isSelectRoundDialogOpen = true) }
             SelectRoundDialogIntent.CloseRoundSelectDialog -> _state.update { it.copy(isSelectRoundDialogOpen = false) }
             SelectRoundDialogIntent.NoRoundSelected ->
-                _state.update { it.copy(isSelectRoundDialogOpen = false, round = null).addHandicaps() }
+                _state.update {
+                    it.copy(
+                            isSelectRoundDialogOpen = false,
+                            round = null,
+                            selectedFaceDialogState = SelectRoundFaceDialogIntent.SetNoRound
+                                    .handle(it.selectedFaceDialogState),
+                    ).addHandicaps()
+                }
             is SelectRoundDialogIntent.RoundSelected ->
                 _state.update {
                     val round = it.allRounds
                             ?.find { round -> round.round.roundId == action.round.roundId }
                             ?.let { roundInfo -> HandicapTablesState.RoundInfo.Round(roundInfo) }
-                    it.copy(isSelectRoundDialogOpen = false, round = round).addHandicaps()
+                    val new =
+                            it.copy(isSelectRoundDialogOpen = false, round = round, subType = null).addHandicaps()
+                    val faceAction =
+                            if (round == null) SelectRoundFaceDialogIntent.SetNoRound
+                            else SelectRoundFaceDialogIntent.SetRound(round.info.round, new.subtypeDistances!!)
+                    new.copy(selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState))
                 }
             SelectRoundDialogIntent.SelectRoundDialogClearFilters ->
                 _state.update { it.copy(roundFilters = SelectRoundEnabledFilters()) }
@@ -135,38 +147,14 @@ class HandicapTablesViewModel @Inject constructor(
                 _state.update { it.copy(isSelectSubtypeDialogOpen = false) }
             is SelectRoundDialogIntent.SubTypeSelected ->
                 _state.update {
-                    it.copy(isSelectSubtypeDialogOpen = false, subType = action.subType.subTypeId).addHandicaps()
+                    val new = it
+                            .copy(isSelectSubtypeDialogOpen = false, subType = action.subType.subTypeId)
+                            .addHandicaps()
+                    val faceAction =
+                            if (new.round == null) SelectRoundFaceDialogIntent.SetNoRound
+                            else SelectRoundFaceDialogIntent.SetDistances(new.subtypeDistances!!)
+                    new.copy(selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState))
                 }
-        }
-    }
-
-    private fun handleSelectFaceDialogIntent(action: SelectRoundFaceDialogIntent) {
-        when (action) {
-            SelectRoundFaceDialogIntent.Open -> _state.update { it.copy(isSelectFaceDialogOpen = true) }
-            SelectRoundFaceDialogIntent.Close -> _state.update { it.copy(isSelectFaceDialogOpen = false) }
-            SelectRoundFaceDialogIntent.CloseDropdown ->
-                _state.update { it.copy(selectFaceDialogDropdownOpenFor = null) }
-            SelectRoundFaceDialogIntent.ToggleAllDifferentAllSame ->
-                _state.update { it.copy(isSelectFaceDialogSingleMode = !it.isSelectFaceDialogSingleMode) }
-            is SelectRoundFaceDialogIntent.DropdownItemClicked ->
-                _state.update {
-                    if (it.subtypeDistances.isNullOrEmpty()) {
-                        return@update it.copy(selectFaceDialogDropdownOpenFor = null)
-                    }
-
-                    val newFaces = List(it.subtypeDistances.size) { index ->
-                        if (index == action.index) action.face
-                        else it.faces?.getOrNull(index) ?: it.faces?.firstOrNull() ?: RoundFace.FULL
-                    }
-                    it.copy(selectFaceDialogDropdownOpenFor = null, faces = newFaces)
-                }
-            is SelectRoundFaceDialogIntent.OpenDropdown ->
-                _state.update { it.copy(selectFaceDialogDropdownOpenFor = action.index) }
-            is SelectRoundFaceDialogIntent.SingleFaceClicked ->
-                _state.update {
-                    it.copy(isSelectFaceDialogOpen = false, faces = listOf(action.face))
-                }
-            SelectRoundFaceDialogIntent.FaceTypeHelpClicked -> TODO()
         }
     }
 }

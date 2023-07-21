@@ -13,7 +13,6 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
@@ -90,7 +89,8 @@ class NewScoreViewModel @Inject constructor(
             is NewScoreIntent.DateChanged ->
                 _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
             is NewScoreIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
-            is NewScoreIntent.SelectFaceDialogAction -> handleSelectFaceDialogIntent(action.action)
+            is NewScoreIntent.SelectFaceDialogAction ->
+                _state.update { it.copy(selectedFaceDialogState = action.action.handle(it.selectedFaceDialogState)) }
             is NewScoreIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.NEW_SCORE::class)
 
             /*
@@ -135,18 +135,20 @@ class NewScoreViewModel @Inject constructor(
                             isSelectRoundDialogOpen = false,
                             selectedRound = null,
                             selectedSubtype = null,
+                            selectedFaceDialogState = SelectRoundFaceDialogIntent.SetNoRound
+                                    .handle(it.selectedFaceDialogState),
                     )
                 }
             is SelectRoundDialogIntent.RoundSelected ->
                 _state.update {
                     val new = it.copy(isSelectRoundDialogOpen = false, selectedRound = action.round)
+                    val faceAction = SelectRoundFaceDialogIntent.SetRound(action.round, new.roundSubtypeDistances!!)
                     // Select the furthest distance if subtypes are available
                     // Reset selected faces
                     new.copy(
-                            selectedSubtype = new.selectedRoundInfo?.roundSubTypes?.maxByOrNull { subType ->
-                                new.getFurthestDistance(subType).distance
-                            },
-                            faces = new.finalFaces?.firstOrNull()?.let { face -> listOf(face) },
+                            selectedSubtype = new.selectedRoundInfo?.roundSubTypes
+                                    ?.maxByOrNull { subType -> new.getFurthestDistance(subType).distance },
+                            selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState),
                     )
                 }
             is SelectRoundDialogIntent.SelectRoundDialogFilterClicked ->
@@ -162,37 +164,11 @@ class NewScoreViewModel @Inject constructor(
             SelectRoundDialogIntent.CloseSubTypeSelectDialog ->
                 _state.update { it.copy(isSelectSubTypeDialogOpen = false) }
             is SelectRoundDialogIntent.SubTypeSelected ->
-                _state.update { it.copy(isSelectSubTypeDialogOpen = false, selectedSubtype = action.subType) }
-        }
-    }
-
-    private fun handleSelectFaceDialogIntent(action: SelectRoundFaceDialogIntent) {
-        when (action) {
-            SelectRoundFaceDialogIntent.Open -> _state.update { it.copy(isSelectFaceDialogOpen = true) }
-            SelectRoundFaceDialogIntent.Close -> _state.update { it.copy(isSelectFaceDialogOpen = false) }
-            SelectRoundFaceDialogIntent.CloseDropdown ->
-                _state.update { it.copy(selectFaceDialogDropdownOpenFor = null) }
-            SelectRoundFaceDialogIntent.ToggleAllDifferentAllSame ->
-                _state.update { it.copy(isSelectFaceDialogSingleMode = !it.isSelectFaceDialogSingleMode) }
-            is SelectRoundFaceDialogIntent.DropdownItemClicked ->
                 _state.update {
-                    if (it.roundSubtypeDistances.isNullOrEmpty()) {
-                        return@update it.copy(selectFaceDialogDropdownOpenFor = null)
-                    }
-
-                    val newFaces = List(it.roundSubtypeDistances!!.size) { index ->
-                        if (index == action.index) action.face
-                        else it.faces?.getOrNull(index) ?: it.faces?.firstOrNull() ?: RoundFace.FULL
-                    }
-                    it.copy(selectFaceDialogDropdownOpenFor = null, faces = newFaces)
+                    val new = it.copy(isSelectSubTypeDialogOpen = false, selectedSubtype = action.subType)
+                    val faceAction = SelectRoundFaceDialogIntent.SetDistances(new.roundSubtypeDistances!!)
+                    new.copy(selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState))
                 }
-            is SelectRoundFaceDialogIntent.OpenDropdown ->
-                _state.update { it.copy(selectFaceDialogDropdownOpenFor = action.index) }
-            is SelectRoundFaceDialogIntent.SingleFaceClicked ->
-                _state.update {
-                    it.copy(isSelectFaceDialogOpen = false, faces = listOf(action.face))
-                }
-            SelectRoundFaceDialogIntent.FaceTypeHelpClicked -> TODO()
         }
     }
 

@@ -142,11 +142,7 @@ fun HandicapTablesScreen(
                     )
                     if (state.round != null) {
                         SelectRoundFaceDialog(
-                                isShown = state.isSelectFaceDialogOpen,
-                                selectSingle = state.isSelectFaceDialogSingleMode,
-                                selectedFaces = state.faces,
-                                round = state.round.info.round,
-                                distances = state.subtypeDistances?.map { it.distance },
+                                state = state.selectedFaceDialogState,
                                 helpListener = helpListener,
                                 listener = { listener(SelectFaceDialogAction(it)) },
                         )
