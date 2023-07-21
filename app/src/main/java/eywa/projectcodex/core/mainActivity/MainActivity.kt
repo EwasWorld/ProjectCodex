@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.mainActivity
+package eywa.projectcodex.core.mainActivity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -42,7 +42,7 @@ import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint

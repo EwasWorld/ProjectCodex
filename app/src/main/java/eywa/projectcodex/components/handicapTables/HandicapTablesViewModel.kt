@@ -3,8 +3,6 @@ package eywa.projectcodex.components.handicapTables
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.common.archeryObjects.Handicap
-import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
@@ -13,6 +11,8 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.model.Handicap
+import eywa.projectcodex.model.roundHandicap
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject

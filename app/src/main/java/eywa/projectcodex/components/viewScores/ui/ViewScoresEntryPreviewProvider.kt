@@ -2,8 +2,6 @@ package eywa.projectcodex.components.viewScores.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
@@ -11,6 +9,8 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.FullArcherRoundInfo
 import java.util.*
 
 /**

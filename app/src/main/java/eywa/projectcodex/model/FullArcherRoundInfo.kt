@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.archeryObjects
+package eywa.projectcodex.model
 
 import android.content.res.Resources
 import eywa.projectcodex.R

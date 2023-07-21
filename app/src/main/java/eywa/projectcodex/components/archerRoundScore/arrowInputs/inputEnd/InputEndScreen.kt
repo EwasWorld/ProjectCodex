@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -24,6 +23,7 @@ import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaf
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
+import eywa.projectcodex.model.FullArcherRoundInfo
 
 // TODO Help info for table and remaining arrows
 class InputEndScreen : ArcherRoundSubScreen() {

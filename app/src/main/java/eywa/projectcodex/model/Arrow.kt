@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.archeryObjects
+package eywa.projectcodex.model
 
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.arrowScoreAsString

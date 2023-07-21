@@ -5,10 +5,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Settings
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.archeryObjects.ScorePadData
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd.EditEndScreen
@@ -25,6 +21,10 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsScreen
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsState
 import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.GoldsType
+import eywa.projectcodex.model.ScorePadData
 
 private const val DEFAULT_END_SIZE = 6
 

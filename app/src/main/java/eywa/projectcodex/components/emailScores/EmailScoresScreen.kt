@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.emailScores
+package eywa.projectcodex.components.emailScores
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -42,7 +41,8 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresIntent.*
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
+import eywa.projectcodex.model.Arrow
 
 
 @Composable

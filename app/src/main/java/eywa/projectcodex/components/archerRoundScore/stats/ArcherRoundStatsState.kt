@@ -1,13 +1,13 @@
 package eywa.projectcodex.components.archerRoundScore.stats
 
-import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.archeryObjects.Handicap
 import eywa.projectcodex.components.archerRoundScore.state.HasBetaFeaturesFlag
 import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo
 import eywa.projectcodex.components.archerRoundScore.state.HasScorePadEndSize
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.model.GoldsType
+import eywa.projectcodex.model.Handicap
 
 interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, HasBetaFeaturesFlag {
     val goldsType: GoldsType

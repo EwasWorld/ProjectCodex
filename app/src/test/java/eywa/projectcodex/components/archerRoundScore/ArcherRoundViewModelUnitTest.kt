@@ -1,7 +1,5 @@
 package eywa.projectcodex.components.archerRoundScore
 
-import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -17,6 +15,8 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.FullArcherRoundInfo
 import eywa.projectcodex.testUtils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy

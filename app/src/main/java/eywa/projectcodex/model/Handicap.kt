@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.archeryObjects
+package eywa.projectcodex.model
 
 import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.database.RoundFace

@@ -1,11 +1,11 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.common.archeryObjects.End
-import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.exceptions.UserException
+import eywa.projectcodex.model.End
+import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.testUtils.TestData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail

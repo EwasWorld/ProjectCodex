@@ -2,11 +2,6 @@ package eywa.projectcodex.common
 
 import android.content.res.Resources
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.archeryObjects.ScorePadData
-import eywa.projectcodex.common.archeryObjects.ScorePadData.ColumnHeader
-import eywa.projectcodex.common.archeryObjects.ScorePadData.ScorePadRow
-import eywa.projectcodex.common.archeryObjects.ScorePadData.ScorePadRow.*
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
@@ -18,6 +13,11 @@ import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.model.GoldsType
+import eywa.projectcodex.model.ScorePadData
+import eywa.projectcodex.model.ScorePadData.ColumnHeader
+import eywa.projectcodex.model.ScorePadData.ScorePadRow
+import eywa.projectcodex.model.ScorePadData.ScorePadRow.*
 import eywa.projectcodex.testUtils.TestData
 import eywa.projectcodex.testUtils.TestUtils
 import org.junit.Assert

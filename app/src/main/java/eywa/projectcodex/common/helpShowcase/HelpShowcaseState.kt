@@ -2,7 +2,7 @@ package eywa.projectcodex.common.helpShowcase
 
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import kotlin.reflect.KClass
 
 data class HelpShowcaseState(

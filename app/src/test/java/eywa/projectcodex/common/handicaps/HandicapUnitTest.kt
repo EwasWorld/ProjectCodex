@@ -1,11 +1,11 @@
 package eywa.projectcodex.common.handicaps
 
-import eywa.projectcodex.common.archeryObjects.Handicap
-import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.model.Handicap
+import eywa.projectcodex.model.roundHandicap
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

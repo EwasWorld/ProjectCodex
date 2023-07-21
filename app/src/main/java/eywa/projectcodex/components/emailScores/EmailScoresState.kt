@@ -1,10 +1,10 @@
-package eywa.projectcodex.components.viewScores.emailScores
+package eywa.projectcodex.components.emailScores
 
 import android.content.Intent
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
+import eywa.projectcodex.model.FullArcherRoundInfo
 
 data class EmailScoresState(
         val rounds: List<FullArcherRoundInfo> = emptyList(),

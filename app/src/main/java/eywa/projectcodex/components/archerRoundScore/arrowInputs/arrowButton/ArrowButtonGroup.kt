@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -24,6 +23,7 @@ import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.model.Arrow
 
 private val SPACING = 5.dp
 

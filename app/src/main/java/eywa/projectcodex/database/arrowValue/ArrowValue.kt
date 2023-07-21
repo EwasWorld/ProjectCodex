@@ -3,11 +3,11 @@ package eywa.projectcodex.database.arrowValue
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.archeryObjects.getArrowValueString
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue.Companion.TABLE_NAME
+import eywa.projectcodex.model.GoldsType
+import eywa.projectcodex.model.getArrowValueString
 
 @Entity(
         tableName = TABLE_NAME,

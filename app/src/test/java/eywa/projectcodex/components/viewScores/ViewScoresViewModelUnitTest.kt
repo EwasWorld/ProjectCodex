@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.viewScores
 
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
@@ -22,6 +21,7 @@ import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.model.FullArcherRoundInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase

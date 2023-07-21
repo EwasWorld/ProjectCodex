@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.emailScores
+package eywa.projectcodex.components.emailScores
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R

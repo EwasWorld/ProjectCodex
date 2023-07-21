@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.elements
+package eywa.projectcodex.common.dialogFragment
 
 import android.view.View
 import android.widget.TimePicker

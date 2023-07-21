@@ -1,6 +1,6 @@
 package eywa.projectcodex.testUtils
 
-import eywa.projectcodex.common.archeryObjects.Arrow
+import eywa.projectcodex.model.Arrow
 
 class TestData {
     companion object {

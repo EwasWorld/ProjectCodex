@@ -1,8 +1,8 @@
 package eywa.projectcodex.components.archerRoundScore
 
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
+import eywa.projectcodex.model.Arrow
 
 sealed class ArcherRoundIntent {
     sealed class ArrowInputsIntent : ArcherRoundIntent() {

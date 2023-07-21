@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.mainActivity
+package eywa.projectcodex.core.mainActivity
 
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 

@@ -13,10 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup"
-        android:name=".components.app.App"
+        android:name=".core.App"
         >
         <activity
-            android:name="eywa.projectcodex.components.mainActivity.MainActivity"
+            android:name="eywa.projectcodex.core.mainActivity.MainActivity"
             android:label="@string/app_name"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"

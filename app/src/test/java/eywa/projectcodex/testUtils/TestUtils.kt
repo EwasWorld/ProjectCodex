@@ -1,7 +1,7 @@
 package eywa.projectcodex.testUtils
 
 import android.content.res.Resources
-import eywa.projectcodex.common.archeryObjects.ScorePadData
+import eywa.projectcodex.model.ScorePadData
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import org.mockito.kotlin.anyVararg

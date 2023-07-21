@@ -1,6 +1,6 @@
 package eywa.projectcodex.components.archerRoundScore.scorePad
 
-import eywa.projectcodex.common.archeryObjects.ScorePadData
+import eywa.projectcodex.model.ScorePadData
 
 // TODO Half way total
 interface ScorePadState {

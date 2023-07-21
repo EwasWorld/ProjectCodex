@@ -1,8 +1,8 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.common.archeryObjects.getArrowScore
-import eywa.projectcodex.common.archeryObjects.isX
+import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.getArrowScore
+import eywa.projectcodex.model.isX
 import org.junit.Assert
 import org.junit.Test
 

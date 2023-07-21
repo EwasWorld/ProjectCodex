@@ -1,8 +1,5 @@
 package eywa.projectcodex.components.viewScores
 
-import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.archeryObjects.Handicap
-import eywa.projectcodex.common.archeryObjects.roundHandicap
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addFullSetOfArrows
@@ -14,6 +11,9 @@ import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.model.GoldsType
+import eywa.projectcodex.model.Handicap
+import eywa.projectcodex.model.roundHandicap
 import eywa.projectcodex.testUtils.TestData
 import org.junit.Assert.assertEquals
 import org.junit.Test

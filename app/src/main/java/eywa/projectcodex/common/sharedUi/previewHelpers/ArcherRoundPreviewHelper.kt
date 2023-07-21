@@ -1,11 +1,11 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
-import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.FullArcherRoundInfo
 import java.util.*
 
 object ArcherRoundPreviewHelper {

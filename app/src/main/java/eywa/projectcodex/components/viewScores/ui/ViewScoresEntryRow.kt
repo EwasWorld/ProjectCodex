@@ -25,7 +25,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.getOverallPbString
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
@@ -41,6 +40,7 @@ import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
+import eywa.projectcodex.model.getOverallPbString
 import java.util.*
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)

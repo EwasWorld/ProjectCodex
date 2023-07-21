@@ -1,8 +1,8 @@
 package eywa.projectcodex.components.viewScores.data
 
-import eywa.projectcodex.common.archeryObjects.GoldsType
-import eywa.projectcodex.common.archeryObjects.PbType
-import eywa.projectcodex.common.archeryObjects.roundHandicap
+import eywa.projectcodex.model.GoldsType
+import eywa.projectcodex.model.PbType
+import eywa.projectcodex.model.roundHandicap
 
 data class ViewScoresEntryList(
         private val entries: List<ViewScoresEntry>,

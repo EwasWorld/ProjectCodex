@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.emailScores
+package eywa.projectcodex.components.emailScores
 
 import android.content.Context
 import android.content.Intent
@@ -9,19 +9,19 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.FullArcherRoundInfo
-import eywa.projectcodex.common.archeryObjects.ScorePadData
 import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresIntent.*
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.exceptions.UserException
+import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.ScorePadData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

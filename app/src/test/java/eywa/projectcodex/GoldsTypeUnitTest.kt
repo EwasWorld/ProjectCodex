@@ -1,6 +1,6 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.common.archeryObjects.GoldsType
+import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.testUtils.TestData
 import org.junit.Assert.assertFalse
 import org.junit.Test

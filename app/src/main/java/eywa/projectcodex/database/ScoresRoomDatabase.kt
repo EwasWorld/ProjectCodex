@@ -6,7 +6,6 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import eywa.projectcodex.BuildConfig
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archer.ArcherDao
@@ -21,6 +20,7 @@ import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
 import eywa.projectcodex.database.views.ArcherRoundWithScore
 import eywa.projectcodex.database.views.PersonalBest
+import eywa.projectcodex.model.Arrow
 import kotlinx.coroutines.flow.first
 import java.sql.Date
 import java.util.*

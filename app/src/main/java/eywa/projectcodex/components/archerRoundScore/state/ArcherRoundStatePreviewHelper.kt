@@ -1,11 +1,11 @@
 package eywa.projectcodex.components.archerRoundScore.state
 
-import eywa.projectcodex.common.archeryObjects.Arrow
-import eywa.projectcodex.common.archeryObjects.GoldsType
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.GoldsType
 
 object ArcherRoundStatePreviewHelper {
     val inputArrows = listOf(

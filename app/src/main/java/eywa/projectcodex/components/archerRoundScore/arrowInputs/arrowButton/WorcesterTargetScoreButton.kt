@@ -3,10 +3,10 @@ package eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import eywa.projectcodex.R
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.database.RoundFace
+import eywa.projectcodex.model.Arrow
 
 enum class WorcesterTargetScoreButton(
         override val text: ResOrActual<String>,

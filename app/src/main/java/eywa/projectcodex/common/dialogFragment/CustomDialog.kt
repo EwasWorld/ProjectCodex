@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.elements
+package eywa.projectcodex.common.dialogFragment
 
 import android.app.AlertDialog
 import android.app.Dialog

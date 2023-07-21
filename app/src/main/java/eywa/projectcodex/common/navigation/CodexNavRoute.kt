@@ -9,13 +9,13 @@ import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.about.AboutScreen
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundMainScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
+import eywa.projectcodex.components.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.newScore.NewScoreScreen
 import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
 
 enum class CodexNavRoute : NavRoute, ActionBarHelp {

@@ -1,7 +1,7 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.model.Arrow
 
 object ArrowValuesPreviewHelper {
     val ARROWS = arrayOf(

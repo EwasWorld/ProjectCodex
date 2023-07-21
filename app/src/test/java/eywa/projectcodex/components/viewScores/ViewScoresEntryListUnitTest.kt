@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.viewScores
 
-import eywa.projectcodex.common.archeryObjects.PbType
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
@@ -11,6 +10,7 @@ import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.model.PbType
 import org.junit.Assert.*
 import org.junit.Test
 

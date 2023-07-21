@@ -1,11 +1,11 @@
-package eywa.projectcodex.components.mainActivity
+package eywa.projectcodex.core.mainActivity
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.components.mainActivity.MainActivityIntent.*
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
