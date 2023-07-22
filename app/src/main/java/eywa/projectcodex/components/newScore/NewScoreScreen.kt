@@ -141,13 +141,11 @@ fun NewScoreScreen(
                         listener = { listener(SelectRoundDialogAction(it)) },
                 )
 
-                if (state.selectedRound != null) {
-                    SelectRoundFaceDialog(
-                            state = state.selectedFaceDialogState,
-                            helpListener = { listener(HelpShowcaseAction(it)) },
-                            listener = { listener(SelectFaceDialogAction(it)) },
-                    )
-                }
+                SelectRoundFaceDialog(
+                        state = state.selectedFaceDialogState,
+                        helpListener = { listener(HelpShowcaseAction(it)) },
+                        listener = { listener(SelectFaceDialogAction(it)) },
+                )
             }
 
             if (state.isEditing) EditingEndRows(state, listener) else NewScoreEndRows(listener)

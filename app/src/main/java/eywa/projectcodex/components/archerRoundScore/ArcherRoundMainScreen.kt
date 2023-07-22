@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.SimpleDialog
@@ -56,11 +57,11 @@ fun ArcherRoundMainScreen(
         viewModel.handle(ArrowInputsIntent.CancelClicked)
     }
 
-    handleEffects(navController, state, listener)
+    HandleEffects(navController, state, listener)
 }
 
 @Composable
-private fun handleEffects(
+private fun HandleEffects(
         navController: NavController,
         state: ArcherRoundState,
         listener: (ArcherRoundIntent) -> Unit,
@@ -77,6 +78,13 @@ private fun handleEffects(
             if (returnToMainMenu) {
                 navController.popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
                 listener(InvalidArcherRoundIntent.ReturnToMenuHandled)
+            }
+            if ((state as? Loaded)?.openEditScoreScreen == true) {
+                CodexNavRoute.NEW_SCORE.navigate(
+                        navController,
+                        mapOf(NavArgument.ARCHER_ROUND_ID to state.fullArcherRoundInfo.id.toString()),
+                )
+                listener(StatsIntent.EditHandled)
             }
         }
     }

@@ -1,11 +1,16 @@
 package eywa.projectcodex.components.archerRoundScore.stats
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -23,9 +29,13 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.StatsIntent
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.StatsIntent.EditClicked
+import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.StatsIntent.HelpShowcaseAction
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
+import eywa.projectcodex.database.RoundFace
 import kotlin.math.abs
 
 @Composable
@@ -46,7 +56,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
     private fun ScreenContent(
             state: ArcherRoundStatsState,
             modifier: Modifier = Modifier,
-            listener: (ArcherRoundIntent) -> Unit,
+            listener: (StatsIntent) -> Unit,
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
             Column(
@@ -56,25 +66,42 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                             .padding(25.dp)
                             .testTag(TestTag.SCREEN)
             ) {
-                Section {
-                    DataRow(
-                            title = R.string.archer_round_stats__date,
-                            text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.archerRound.dateShot),
-                            textModifier = Modifier.testTag(TestTag.DATE_TEXT),
-                    )
-                    DataRow(
-                            title = R.string.archer_round_stats__round,
-                            text = state.fullArcherRoundInfo.displayName
-                                    ?: stringResource(R.string.archer_round_stats__no_round),
-                            textModifier = Modifier.testTag(TestTag.ROUND_TEXT),
-                    )
-                    if (state.fullArcherRoundInfo.round != null) {
-                        SelectFaceRow(
-                                selectedFaces = state.fullArcherRoundInfo.archerRound.faces,
-                                helpListener = { listener(ArcherRoundIntent.HelpShowcaseAction(it)) },
-                                onClick = null,
-                        )
+                Box(
+                        contentAlignment = Alignment.BottomEnd,
+                ) {
+                    Surface(
+                            shape = RoundedCornerShape(20),
+                            border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+                            color = CodexTheme.colors.appBackground,
+                            modifier = Modifier.padding(5.dp)
+                    ) {
+                        Section(
+                                modifier = Modifier.padding(horizontal = 25.dp, vertical = 20.dp)
+                        ) {
+                            DataRow(
+                                    title = R.string.archer_round_stats__date,
+                                    text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.archerRound.dateShot),
+                                    textModifier = Modifier.testTag(TestTag.DATE_TEXT),
+                            )
+                            DataRow(
+                                    title = R.string.archer_round_stats__round,
+                                    text = state.fullArcherRoundInfo.displayName
+                                            ?: stringResource(R.string.archer_round_stats__no_round),
+                                    textModifier = Modifier.testTag(TestTag.ROUND_TEXT),
+                            )
+                            SelectFaceRow(
+                                    selectedFaces = state.fullArcherRoundInfo.archerRound.faces,
+                                    helpListener = { listener(HelpShowcaseAction(it)) },
+                                    onClick = null,
+                            )
+                        }
                     }
+                    CodexIconButton(
+                            icon = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.archer_round_stats__edit_content_description),
+                            onClick = { listener(EditClicked) },
+                            modifier = Modifier.padding(horizontal = 0.dp, vertical = 0.dp)
+                    )
                 }
 
                 val hits = state.fullArcherRoundInfo.hits
@@ -214,12 +241,13 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
 
     @Composable
     private fun Section(
-            content: @Composable () -> Unit
+            modifier: Modifier = Modifier,
+            content: @Composable () -> Unit,
     ) {
         Column(
                 verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
+                modifier = modifier
         ) {
             content()
         }
@@ -244,10 +272,27 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
             backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
     )
     @Composable
-    fun ArcherRoundStatsScreen_Preview() {
+    fun NoRound_ArcherRoundStatsScreen_Preview() {
         CodexTheme {
             ScreenContent(
                     ArcherRoundStatePreviewHelper.SIMPLE,
+            ) {}
+        }
+    }
+
+    @Preview(
+            showBackground = true,
+            backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+    )
+    @Composable
+    fun Round_ArcherRoundStatsScreen_Preview() {
+        CodexTheme {
+            ScreenContent(
+                    ArcherRoundStatePreviewHelper.WITH_SHOT_ARROWS.let { state ->
+                        val faces = listOf(RoundFace.TRIPLE, RoundFace.FITA_SIX)
+                        val far = state.fullArcherRoundInfo
+                        state.copy(fullArcherRoundInfo = far.copy(archerRound = far.archerRound.copy(faces = faces)))
+                    },
             ) {}
         }
     }

@@ -25,6 +25,6 @@ object ArcherRoundStatePreviewHelper {
     val WITH_SHOT_ARROWS = SIMPLE.copy(
             fullArcherRoundInfo = SIMPLE.fullArcherRoundInfo
                     .addIdenticalArrows(20, 7)
-                    .addRound(RoundPreviewHelper.indoorMetricRoundData)
+                    .addRound(RoundPreviewHelper.outdoorImperialRoundData)
     )
 }

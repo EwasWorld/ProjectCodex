@@ -140,13 +140,11 @@ fun HandicapTablesScreen(
                             helpListener = helpListener,
                             listener = { listener(SelectRoundDialogAction(it)) },
                     )
-                    if (state.round != null) {
-                        SelectRoundFaceDialog(
-                                state = state.selectedFaceDialogState,
-                                helpListener = helpListener,
-                                listener = { listener(SelectFaceDialogAction(it)) },
-                        )
-                    }
+                    SelectRoundFaceDialog(
+                            state = state.selectedFaceDialogState,
+                            helpListener = helpListener,
+                            listener = { listener(SelectFaceDialogAction(it)) },
+                    )
                 }
             }
         }

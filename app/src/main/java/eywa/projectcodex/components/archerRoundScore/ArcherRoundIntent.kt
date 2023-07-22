@@ -54,6 +54,12 @@ sealed class ArcherRoundIntent {
         object ReturnToMenuHandled : InvalidArcherRoundIntent()
     }
 
+    sealed class StatsIntent : ArcherRoundIntent() {
+        object EditClicked : StatsIntent()
+        object EditHandled : StatsIntent()
+        data class HelpShowcaseAction(val action: HelpShowcaseIntent) : StatsIntent()
+    }
+
     object CannotInputEndDialogOkClicked : ArcherRoundIntent()
     object RoundCompleteDialogOkClicked : ArcherRoundIntent()
     data class ErrorHandled(val error: ArcherRoundError) : ArcherRoundIntent()

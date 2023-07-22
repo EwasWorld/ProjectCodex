@@ -76,6 +76,7 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
             override val displayDeleteEndConfirmationDialog: Boolean = false,
             override val useBetaFeatures: Boolean = DatastoreKey.UseBetaFeatures.defaultValue,
             val errors: Set<eywa.projectcodex.components.archerRoundScore.ArcherRoundError> = emptySet(),
+            override val openEditScoreScreen: Boolean = false,
     ) : ArcherRoundState(), InputEndState, ArcherRoundStatsState, ScorePadState, ArcherRoundSettingsState, EditEndState,
             InsertEndState {
         override val scorePadData by lazy {

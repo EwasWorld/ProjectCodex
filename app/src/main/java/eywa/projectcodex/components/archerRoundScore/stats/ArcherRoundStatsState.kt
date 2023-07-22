@@ -11,6 +11,7 @@ import eywa.projectcodex.model.Handicap
 
 interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, HasBetaFeaturesFlag {
     val goldsType: GoldsType
+    val openEditScoreScreen: Boolean
 
     val extras: List<ExtraStats>?
         get() {

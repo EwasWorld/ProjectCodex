@@ -17,4 +17,5 @@
     <string name="archer_round_stats__no_arrows_dialog_title">No arrows entered</string>
     <string name="archer_round_stats__no_arrows_dialog_button">Go to input end</string>
     <string name="archer_round_stats__no_round">N/A</string>
+    <string name="archer_round_stats__edit_content_description">Edit round information</string>
 </resources>

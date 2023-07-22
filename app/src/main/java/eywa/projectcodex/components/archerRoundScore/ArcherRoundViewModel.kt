@@ -110,6 +110,7 @@ class ArcherRoundViewModel @Inject constructor(
             is ArrowInputsIntent -> handleArrowInputIntent(action)
             is ScorePadIntent -> handleScorePadIntent(action)
             is SettingsIntent -> handleSettingsIntent(action)
+            is StatsIntent -> handleStatsIntent(action)
             RoundCompleteDialogOkClicked ->
                 _state.update { (it as Loaded).changeScreen(STATS).copy(displayRoundCompletedDialog = false) }
             CannotInputEndDialogOkClicked -> _state.update { (it as Loaded).copy(displayCannotInputEndDialog = false) }
@@ -290,6 +291,17 @@ class ArcherRoundViewModel @Inject constructor(
             is SettingsIntent.ScorePadEndSizeChanged ->
                 _state.update { (it as Loaded).copy(scorePadEndSizePartial = action.endSize) }
             is SettingsIntent.HelpShowcaseAction ->
+                helpShowcase.handle(action.action, CodexNavRoute.ARCHER_ROUND_SCORE::class)
+        }
+    }
+
+    private fun handleStatsIntent(action: StatsIntent) {
+        state.value as Loaded
+
+        when (action) {
+            StatsIntent.EditClicked -> _state.update { (it as Loaded).copy(openEditScoreScreen = true) }
+            StatsIntent.EditHandled -> _state.update { (it as Loaded).copy(openEditScoreScreen = false) }
+            is StatsIntent.HelpShowcaseAction ->
                 helpShowcase.handle(action.action, CodexNavRoute.ARCHER_ROUND_SCORE::class)
         }
     }
