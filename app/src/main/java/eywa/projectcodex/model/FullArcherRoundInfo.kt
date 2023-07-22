@@ -46,7 +46,7 @@ data class FullArcherRoundInfo(
 
     val displayName by lazy { roundSubType?.name ?: round?.displayName }
 
-    val distanceUnit by lazy { round?.distanceUnitStringRes() }
+    val distanceUnit by lazy { round?.getDistanceUnitRes() }
 
     val id: Int by lazy { archerRound.archerRoundId }
 

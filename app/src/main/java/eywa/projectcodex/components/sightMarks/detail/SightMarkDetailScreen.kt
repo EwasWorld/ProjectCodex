@@ -37,6 +37,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
+import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.model.SightMark
 import java.util.*
 
@@ -107,10 +108,7 @@ fun SightMarkDetail(
                 message = stringResource(
                         R.string.sight_marks__delete_confirmation_body,
                         state.originalSightMark?.distance ?: state.distance.toIntOrNull() ?: 0,
-                        stringResource(
-                                if (state.originalSightMark?.isMetric ?: state.isMetric) R.string.units_meters_short
-                                else R.string.units_yards_short
-                        ),
+                        stringResource(getDistanceUnitRes(state.originalSightMark?.isMetric ?: true)!!),
                 ),
                 positiveButton = ButtonState(
                         text = stringResource(R.string.general_delete),
@@ -185,9 +183,7 @@ fun SightMarkDetail(
                             else R.string.units_yards
                     )
                     Text(
-                            text = stringResource(
-                                    if (state.isMetric) R.string.units_meters_short else R.string.units_yards_short
-                            ),
+                            text = stringResource(getDistanceUnitRes(state.isMetric)!!),
                             color = CodexTheme.colors.linkText,
                             textDecoration = TextDecoration.Underline,
                             modifier = Modifier

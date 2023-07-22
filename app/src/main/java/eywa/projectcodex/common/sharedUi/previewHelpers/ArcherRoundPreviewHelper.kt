@@ -4,6 +4,7 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.getDistances
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullArcherRoundInfo
 import java.util.*
@@ -39,7 +40,7 @@ object ArcherRoundPreviewHelper {
                     round = fullRoundInfo.round,
                     roundArrowCounts = fullRoundInfo.roundArrowCounts,
                     roundSubType = fullRoundInfo.roundSubTypes?.find { it.subTypeId == 1 },
-                    roundDistances = fullRoundInfo.roundDistances!!.filter { it.subTypeId == 1 },
+                    roundDistances = fullRoundInfo.getDistances(subTypeId = 1),
             )
 
     fun FullArcherRoundInfo.completeRound(arrowScore: Int, isX: Boolean = false) =

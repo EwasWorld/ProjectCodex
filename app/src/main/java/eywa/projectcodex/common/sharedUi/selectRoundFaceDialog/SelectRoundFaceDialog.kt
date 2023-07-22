@@ -30,6 +30,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.getDistanceUnitRes
 
 
 /**
@@ -185,8 +186,7 @@ private fun IndividualSelectors(
         dropdownExpandedFor: Int? = null,
         listener: (SelectRoundFaceDialogIntent) -> Unit,
 ) {
-    val distanceUnit =
-            stringResource(if (round!!.isMetric) R.string.units_meters_short else R.string.units_yards_short)
+    val distanceUnit = stringResource(round.getDistanceUnitRes()!!)
     val facesActual =
             if (selectedFaces.orEmpty().size > 1) selectedFaces
             else List(distances.size) { selectedFaces?.firstOrNull() }

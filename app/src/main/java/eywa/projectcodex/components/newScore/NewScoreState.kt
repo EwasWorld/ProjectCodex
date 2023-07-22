@@ -4,13 +4,9 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.rounds.FullRoundInfo
-import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.rounds.distanceUnitStringRes
+import eywa.projectcodex.database.rounds.*
 import java.util.*
 
 data class NewScoreState(
@@ -86,7 +82,7 @@ data class NewScoreState(
     /**
      * Resource id of the unit for [selectedRound]'s distances (e.g. yd/m)
      */
-    val distanceUnitStringRes by lazy { selectedRound?.distanceUnitStringRes() }
+    val distanceUnitStringRes by lazy { selectedRound?.getDistanceUnitRes() }
 
     /**
      * The subtype to display on the screen. No subtype is shown if no round selected or if there's only one subtype

@@ -1,6 +1,8 @@
 package eywa.projectcodex.database.rounds
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.database.rounds.Round.Companion.TABLE_NAME
@@ -38,24 +40,13 @@ data class Round(
     }
 }
 
-data class FullRoundInfo(
-        @Embedded val round: Round,
-
-        @Relation(parentColumn = "roundId", entityColumn = "roundId")
-        val roundSubTypes: List<RoundSubType>? = null,
-
-        @Relation(parentColumn = "roundId", entityColumn = "roundId")
-        val roundArrowCounts: List<RoundArrowCount>? = null,
-
-        @Relation(parentColumn = "roundId", entityColumn = "roundId")
-        val roundDistances: List<RoundDistance>? = null,
-)
-
 /**
  * Resource id of the unit for a [Round]'s distances (e.g. yd/m)
  */
-fun Round?.distanceUnitStringRes() = when {
-    this == null -> null
+fun Round?.getDistanceUnitRes() = getDistanceUnitRes(this?.isMetric)
+
+fun getDistanceUnitRes(isMetric: Boolean?) = when {
+    isMetric == null -> null
     isMetric -> R.string.units_meters_short
     else -> R.string.units_yards_short
 }

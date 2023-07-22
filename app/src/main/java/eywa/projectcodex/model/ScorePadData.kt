@@ -10,6 +10,7 @@ import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.database.arrowValue.*
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.getDistanceUnitRes
 
 class ScorePadData(
         info: FullArcherRoundInfo,
@@ -34,11 +35,7 @@ class ScorePadData(
         require(endSize > 0) { "endSize must be >0" }
         if (info.arrows.isNullOrEmpty()) return mutableListOf()
 
-        val distanceUnit = when {
-            info.round == null -> null
-            info.round.isMetric -> R.string.units_meters_short
-            else -> R.string.units_yards_short
-        }
+        val distanceUnit = info.round.getDistanceUnitRes()
 
         val remainingArrows = info.arrows.toMutableList()
         val tableData = mutableListOf<ScorePadRow>()

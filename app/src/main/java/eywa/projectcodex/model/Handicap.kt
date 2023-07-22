@@ -1,11 +1,7 @@
 package eywa.projectcodex.model
 
-import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.database.rounds.FullRoundInfo
-import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.database.rounds.RoundArrowCount
-import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.*
 import kotlin.math.*
 
 fun Double.roundHandicap() = ceil(this).roundToInt()

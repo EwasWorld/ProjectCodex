@@ -2,9 +2,9 @@ package eywa.projectcodex.components.handicapTables
 
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
-import eywa.projectcodex.common.utils.getDistances
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.getDistances
 
 data class HandicapTablesState(
         val input: Int? = null,
