@@ -282,7 +282,7 @@ class ViewScoresViewModelUnitTest {
         )
         checkState()
 
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONVERT))
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONVERT, 1))
         expectedState =
                 expectedState.copy(dropdownMenuOpen = false, lastClickedEntryId = 1, convertScoreDialogOpen = true)
         checkState()
@@ -407,7 +407,7 @@ class ViewScoresViewModelUnitTest {
 
         // SCORE_PAD
         openDropdown()
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.SCORE_PAD))
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.SCORE_PAD, 1))
         expectedState = expectedState.copy(openScorePadClicked = true, dropdownMenuOpen = false)
         checkState()
 
@@ -417,7 +417,7 @@ class ViewScoresViewModelUnitTest {
 
         // EMAIL_SCORE
         openDropdown()
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.EMAIL_SCORE))
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.EMAIL_SCORE, 1))
         expectedState = expectedState.copy(openEmailClicked = true, dropdownMenuOpen = false)
         checkState()
 
@@ -427,7 +427,7 @@ class ViewScoresViewModelUnitTest {
 
         // EDIT_INFO
         openDropdown()
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.EDIT_INFO))
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.EDIT_INFO, 1))
         expectedState = expectedState.copy(openEditInfoClicked = true, dropdownMenuOpen = false)
         checkState()
 
@@ -459,7 +459,7 @@ class ViewScoresViewModelUnitTest {
         expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
         checkState()
 
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE))
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE, 1))
         expectedState = expectedState.copy(openInputEndClicked = true, dropdownMenuOpen = false)
         checkState()
 
@@ -472,8 +472,8 @@ class ViewScoresViewModelUnitTest {
         expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 2)
         checkState()
 
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE))
-        expectedState = expectedState.copy(openInputEndOnCompletedRound = true)
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE, 2))
+        expectedState = expectedState.copy(openInputEndOnCompletedRound = true, dropdownMenuOpen = false)
         checkState()
 
         sut.handle(HandledInputEndOnCompletedRound)
@@ -499,7 +499,7 @@ class ViewScoresViewModelUnitTest {
         expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
         checkState()
 
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.DELETE))
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.DELETE, 1))
         expectedState = expectedState.copy(deleteDialogOpen = true, dropdownMenuOpen = false)
         checkState()
 
@@ -512,7 +512,7 @@ class ViewScoresViewModelUnitTest {
         expectedState = expectedState.copy(dropdownMenuOpen = true, lastClickedEntryId = 1)
         checkState()
 
-        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.DELETE))
+        sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.DELETE, 1))
         expectedState = expectedState.copy(deleteDialogOpen = true, dropdownMenuOpen = false)
         checkState()
 

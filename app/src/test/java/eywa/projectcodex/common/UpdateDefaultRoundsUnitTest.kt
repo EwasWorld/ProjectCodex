@@ -97,7 +97,7 @@ class UpdateDefaultRoundsUnitTest {
         val startTime = Calendar.getInstance()
         assert(sut.runTask())
         assertEquals(
-                Complete(4, CompletionType.COMPLETE),
+                Complete(5, CompletionType.COMPLETE),
                 sut.state.value
         )
         val endTime = Calendar.getInstance()
