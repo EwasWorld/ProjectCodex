@@ -1,84 +1,92 @@
-package eywa.projectcodex
+package eywa.projectcodex.common.handicaps
 
 import android.content.SharedPreferences
 import android.content.res.Resources
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import eywa.projectcodex.common.archeryObjects.Handicap
-import eywa.projectcodex.common.archeryObjects.Handicap.HandicapPair
-import eywa.projectcodex.common.archeryObjects.roundHandicap
+import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.transpose
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
-import eywa.projectcodex.databaseTests.DatabaseTestUtils
+import eywa.projectcodex.model.Handicap
+import eywa.projectcodex.model.Handicap.HandicapPair
+import eywa.projectcodex.model.roundHandicap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
-import org.junit.After
+import org.junit.Assert
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import java.io.FileInputStream
 import kotlin.math.abs
+import kotlin.reflect.KClass
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(AndroidJUnit4::class)
-class HandicapE2eTest {
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+class FullAgbHandicapUnitTest {
+    private suspend fun runUpdateTask(): List<Any> {
+        val allItems = mutableListOf<Any>()
 
-    private val dispatcher = UnconfinedTestDispatcher()
-
-    private lateinit var db: ScoresRoomDatabase
-    private lateinit var updateTask: UpdateDefaultRoundsTask
-    private lateinit var handicapData: List<HandicapData>
-
-    @Before
-    fun setup() {
-        db = DatabaseTestUtils.createDatabase()
-        val raw = InstrumentationRegistry.getInstrumentation().targetContext
-                .resources.openRawResource(R.raw.default_rounds_data)
-
-        val resources = mock<Resources> {
-            on { getString(any()) } doReturn ""
-            on { openRawResource(R.raw.default_rounds_data) } doReturn raw
-        }
-        val editor = mock<SharedPreferences.Editor> { }
-        val sharedPreferences = mock<SharedPreferences> {
-            on { getInt(any(), any()) } doReturn (-1)
-            on { edit() } doReturn editor
+        val repo = mock<RoundRepo> {
+            on { fullRoundsInfo } doReturn flow { emit(emptyList()) }
+            onBlocking { updateRounds(any()) } doAnswer {
+                @Suppress("UNCHECKED_CAST")
+                allItems.addAll((it.arguments[0] as Map<Any, UpdateType>).keys)
+                Unit
+            }
         }
 
-        updateTask = UpdateDefaultRoundsTask(
-                RoundRepo(db.roundDao(), db.roundArrowCountDao(), db.roundSubTypeDao(), db.roundDistanceDao()),
-                resources,
-                sharedPreferences,
-                mock { },
-                dispatcher,
-        )
+        @Suppress("BlockingMethodInNonBlockingContext")
+        val inputStream = FileInputStream("src\\main\\res\\general\\raw\\default_rounds_data.json")
+        val resources = mock<Resources> { on { openRawResource(any()) } doReturn inputStream }
+
+        val sharedPrefsEditor = mock<SharedPreferences.Editor> {}
+        val sharedPrefs = mock<SharedPreferences> {
+            on { getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1) } doReturn -1
+            on { edit() } doReturn sharedPrefsEditor
+        }
+
+        UpdateDefaultRoundsTask(
+                repository = repo,
+                resources = resources,
+                sharedPreferences = sharedPrefs,
+                logger = mock {},
+        ).runTask()
+
+        return allItems
     }
 
-    @After
-    fun closeDb() {
-        db.close()
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified T> Map<KClass<out Any>, List<Any>>.get() = get(T::class) as List<T>
+
+    private fun List<Any>.asFullRoundInfo(): List<FullRoundInfo> {
+        val groupedByClass = groupBy { it::class }
+        val info = mutableListOf<FullRoundInfo>()
+
+        for (round in groupedByClass.get<Round>()) {
+            val roundId = round.roundId
+
+            info.add(
+                    FullRoundInfo(
+                            round = round,
+                            roundSubTypes = groupedByClass.get<RoundSubType>().filter { it.roundId == roundId },
+                            roundArrowCounts = groupedByClass.get<RoundArrowCount>().filter { it.roundId == roundId },
+                            roundDistances = groupedByClass.get<RoundDistance>().filter { it.roundId == roundId },
+                    )
+            )
+        }
+
+        return info
     }
 
-    private suspend fun populateDb() {
-        updateTask.runTask()
-
-        val allRounds = db.roundDao().getAllRoundsFullInfo().first().associateBy { it.round.defaultRoundId!! }
+    private suspend fun getHandicapData(): List<HandicapData> {
+        val allRounds = runUpdateTask().asFullRoundInfo().associateBy { it.round.defaultRoundId!! }
         assertEquals(29, allRounds.size)
 
-        handicapData = csvData
+        val handicapData = csvData
                 // String -> 2d array
                 .split("\n").map { it.split(",") }
                 .transpose()
@@ -87,11 +95,12 @@ class HandicapE2eTest {
                 .map { HandicapData.fromCsvRow(it, allRounds) }
 
         assertEquals(111, handicapData.size)
+        return handicapData
     }
 
     @Test
-    fun test2023HandicapToScore() = runTest(dispatcher) {
-        populateDb()
+    fun test2023HandicapToScore() = runTest {
+        val handicapData = getHandicapData()
 
         val incorrect = mutableListOf<HandicapOutcome>()
         val freq = mutableMapOf<Int, Int>()
@@ -119,15 +128,15 @@ class HandicapE2eTest {
             }
 
             // Check that a reasonable number of tests have run
-            assertTrue(pairs.size > 80)
+            Assert.assertTrue(pairs.size > 80)
         }
 
         assertEquals(emptyList<HandicapOutcome>(), incorrect.map { it.toHandicapString() })
     }
 
     @Test
-    fun testScoreTo2023Handicap() = runTest(dispatcher) {
-        populateDb()
+    fun testScoreTo2023Handicap() = runTest {
+        val handicapData = getHandicapData()
 
         val incorrect = mutableListOf<HandicapOutcome>()
         val freq = mutableMapOf<Int, Int>()
@@ -155,7 +164,7 @@ class HandicapE2eTest {
             }
 
             // Check that a reasonable number of tests have run
-            assertTrue("pairs too small: ${pairs.size}", pairs.size > 130)
+            Assert.assertTrue("pairs too small: ${pairs.size}", pairs.size > 130)
         }
 
         assertEquals(emptyList<HandicapOutcome>(), incorrect.map { it.toScoreString() })
@@ -325,122 +334,126 @@ class HandicapE2eTest {
             150,2,3,6,9,18,50,2,3,5,8,17,55,1,2,4,5,9,20,4,8,1,2,3,4,6,13,1,1,2,3,5,10,4,4,5,10,28,39,1,2,3,4,7,14,3,3,6,22,26,6,4,2,2,3,5,9,2,2,4,2,2,5,3,4,2,1,2,1,3,3,5,2,2,2,3,2,2,5,3,4,2,1,3,2,2,3,2,5,3,1,1,1,2,3,5,10,1,1,2,5,8,18,1,1,1,1,2,3,7,13,27
         """.trimIndent()
     }
-}
 
-data class HandicapData(
-        val roundInfo: FullRoundInfo,
-        val isCompound: Boolean,
-        val faceType: RoundFace,
-        val roundName: String,
-        val scores: List<Int>,
-) {
-    fun getHandicapsToTest(): List<HandicapPair> = getScoresToTest(false)
+    data class HandicapData(
+            val roundInfo: FullRoundInfo,
+            val isCompound: Boolean,
+            val faceType: RoundFace,
+            val roundName: String,
+            val scores: List<Int>,
+    ) {
+        fun getHandicapsToTest(): List<HandicapPair> = getScoresToTest(false)
 
-    fun getScoresToTest(testScores: Boolean = true): List<HandicapPair> {
-        val tests = mutableListOf<HandicapPair>()
+        fun getScoresToTest(testScores: Boolean = true): List<HandicapPair> {
+            val tests = mutableListOf<HandicapPair>()
 
-        for ((handicap, score) in scores.withIndex()) {
-            val prevScore = scores.getOrNull(handicap - 1)
-            val nextScore = scores.getOrNull(handicap + 1)
+            for ((handicap, score) in scores.withIndex()) {
+                val prevScore = scores.getOrNull(handicap - 1)
+                val nextScore = scores.getOrNull(handicap + 1)
 
-            if (!testScores && prevScore == score && nextScore == score) {
-                continue
+                if (!testScores && prevScore == score && nextScore == score) {
+                    continue
+                }
+                if (testScores && nextScore == score) {
+                    continue
+                }
+                tests.add(HandicapPair(handicap = handicap.toDouble(), score = score))
+
+                if (testScores && nextScore != null && (score - 1) > nextScore) {
+                    tests.add(HandicapPair(handicap = handicap + 1.0, score = score - 1))
+                }
             }
-            if (testScores && nextScore == score) {
-                continue
-            }
-            tests.add(HandicapPair(handicap = handicap.toDouble(), score = score))
 
-            if (testScores && nextScore != null && (score - 1) > nextScore) {
-                tests.add(HandicapPair(handicap = handicap + 1.0, score = score - 1))
-            }
+            return tests
         }
 
-        return tests
+        companion object {
+            fun fromCsvRow(data: List<String>, dbData: Map<Int, FullRoundInfo>): HandicapData {
+
+                val isCompound = data[4].takeIfNotNull() == "1"
+                val faceType = data[5].takeIfNotNull()?.let { RoundFace.valueOf(it.uppercase()) } ?: RoundFace.FULL
+                val roundId = data[7].takeIfNotNull()?.toInt()
+                val roundName = data[8].takeIfNotNull()!!
+                val scores = data.drop(9).map { it.toInt() }
+
+                check(scores.size == 151) { "Scores size should be 151: ${scores.size}" }
+
+                return HandicapData(
+                        roundInfo = (
+                                if (roundId != null) getFullRoundInfoFromRoundId(data, dbData)
+                                else getFullRoundInfoFromSingleDistance(data)
+                                ),
+                        isCompound = isCompound,
+                        faceType = faceType,
+                        roundName = roundName,
+                        scores = scores,
+                )
+            }
+
+            private fun String.takeIfNotNull() = takeIf { it != "null" }
+
+            private fun getFullRoundInfoFromRoundId(
+                    data: List<String>,
+                    dbData: Map<Int, FullRoundInfo>
+            ): FullRoundInfo {
+                val subtypeId = data[6].takeIfNotNull()?.toInt() ?: 1
+                val roundId = data[7].takeIfNotNull()?.toInt()
+
+                val info = dbData[roundId]!!
+                return info.copy(
+                        roundSubTypes = info.roundSubTypes?.filter { it.subTypeId == subtypeId },
+                        roundDistances = info.roundDistances?.filter { it.subTypeId == subtypeId },
+                )
+            }
+
+            private fun getFullRoundInfoFromSingleDistance(data: List<String>): FullRoundInfo {
+                val isMetric = data[0].takeIfNotNull() == "1"
+                val arrowCount = data[1].takeIfNotNull()?.toInt()!!
+                val faceSizeInCm = data[2].takeIfNotNull()?.toInt()!!
+                val distance = data[3].takeIfNotNull()?.toInt()!!
+                val roundName = data[8].takeIfNotNull()!!
+
+                return FullRoundInfo(
+                        round = Round(
+                                roundId = 1,
+                                name = roundName,
+                                displayName = roundName,
+                                isOutdoor = true,
+                                isMetric = isMetric,
+                                fiveArrowEnd = roundName.lowercase().contains("worcester"),
+                                legacyName = null,
+                                defaultRoundId = null,
+                        ),
+                        roundSubTypes = emptyList(),
+                        roundArrowCounts = listOf(
+                                RoundArrowCount(
+                                        roundId = 1,
+                                        distanceNumber = 1,
+                                        faceSizeInCm = faceSizeInCm.toDouble(),
+                                        arrowCount = arrowCount,
+                                )
+                        ),
+                        roundDistances = listOf(
+                                RoundDistance(
+                                        roundId = 1,
+                                        distanceNumber = 1,
+                                        subTypeId = 1,
+                                        distance = distance,
+                                )
+                        ),
+                )
+            }
+        }
     }
 
-    companion object {
-        fun fromCsvRow(data: List<String>, dbData: Map<Int, FullRoundInfo>): HandicapData {
-
-            val isCompound = data[4].takeIfNotNull() == "1"
-            val faceType = data[5].takeIfNotNull()?.let { RoundFace.valueOf(it.uppercase()) } ?: RoundFace.FULL
-            val roundId = data[7].takeIfNotNull()?.toInt()
-            val roundName = data[8].takeIfNotNull()!!
-            val scores = data.drop(9).map { it.toInt() }
-
-            check(scores.size == 151) { "Scores size should be 151: ${scores.size}" }
-
-            return HandicapData(
-                    roundInfo = (
-                            if (roundId != null) getFullRoundInfoFromRoundId(data, dbData)
-                            else getFullRoundInfoFromSingleDistance(data)
-                            ),
-                    isCompound = isCompound,
-                    faceType = faceType,
-                    roundName = roundName,
-                    scores = scores,
-            )
-        }
-
-        private fun String.takeIfNotNull() = takeIf { it != "null" }
-
-        private fun getFullRoundInfoFromRoundId(data: List<String>, dbData: Map<Int, FullRoundInfo>): FullRoundInfo {
-            val subtypeId = data[6].takeIfNotNull()?.toInt() ?: 1
-            val roundId = data[7].takeIfNotNull()?.toInt()
-
-            val info = dbData[roundId]!!
-            return info.copy(
-                    roundSubTypes = info.roundSubTypes?.filter { it.subTypeId == subtypeId },
-                    roundDistances = info.roundDistances?.filter { it.subTypeId == subtypeId },
-            )
-        }
-
-        private fun getFullRoundInfoFromSingleDistance(data: List<String>): FullRoundInfo {
-            val isMetric = data[0].takeIfNotNull() == "1"
-            val arrowCount = data[1].takeIfNotNull()?.toInt()!!
-            val faceSizeInCm = data[2].takeIfNotNull()?.toInt()!!
-            val distance = data[3].takeIfNotNull()?.toInt()!!
-            val roundName = data[8].takeIfNotNull()!!
-
-            return FullRoundInfo(
-                    round = Round(
-                            roundId = 1,
-                            name = roundName,
-                            displayName = roundName,
-                            isOutdoor = true,
-                            isMetric = isMetric,
-                            fiveArrowEnd = roundName.lowercase().contains("worcester"),
-                            legacyName = null,
-                            defaultRoundId = null,
-                    ),
-                    roundSubTypes = emptyList(),
-                    roundArrowCounts = listOf(
-                            RoundArrowCount(
-                                    roundId = 1,
-                                    distanceNumber = 1,
-                                    faceSizeInCm = faceSizeInCm.toDouble(),
-                                    arrowCount = arrowCount,
-                            )
-                    ),
-                    roundDistances = listOf(
-                            RoundDistance(
-                                    roundId = 1,
-                                    distanceNumber = 1,
-                                    subTypeId = 1,
-                                    distance = distance,
-                            )
-                    ),
-            )
-        }
+    data class HandicapOutcome(
+            val expected: HandicapPair,
+            val actual: Double,
+            val roundName: String,
+    ) {
+        fun toHandicapString() = "$roundName - HC: ${expected.handicap} - expected: ${expected.score}, actual: $actual"
+        fun toScoreString() =
+                "$roundName - score: ${expected.score} - expected: ${expected.handicap}, actual: ${actual.roundHandicap()} ($actual)"
     }
 }
 
-data class HandicapOutcome(
-        val expected: HandicapPair,
-        val actual: Double,
-        val roundName: String,
-) {
-    fun toHandicapString() = "$roundName - HC: ${expected.handicap} - expected: ${expected.score}, actual: $actual"
-    fun toScoreString() =
-            "$roundName - score: ${expected.score} - expected: ${expected.handicap}, actual: ${actual.roundHandicap()} ($actual)"
-}
