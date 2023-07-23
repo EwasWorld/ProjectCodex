@@ -19,6 +19,15 @@ data class SelectRoundFaceDialogState(
         val distances: List<Int>? = null,
         val round: Round? = null,
 ) {
+    init {
+        check(
+                (round == null && distances == null) || (round != null && !distances.isNullOrEmpty())
+        ) { "If a round is given, distances must also be given, and vice versa" }
+        check(
+                selectedFaces.orEmpty().size <= 1 || selectedFaces.orEmpty().size == distances.orEmpty().size
+        ) { "selectedFaces size must be 0, 1, or distances.size" }
+    }
+
     /**
      * Tidy up and validate [selectedFaces] for storage in the database
      */
@@ -29,4 +38,7 @@ data class SelectRoundFaceDialogState(
             selectedFaces.size != distances?.size -> throw IllegalStateException("Invalid faces size")
             else -> selectedFaces
         }
+
+    val firstFaceAsSingleton
+        get() = selectedFaces?.take(1)?.takeIf { it.isNotEmpty() }
 }

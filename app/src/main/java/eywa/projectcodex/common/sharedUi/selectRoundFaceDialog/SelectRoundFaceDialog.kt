@@ -133,7 +133,7 @@ fun SelectRoundFaceDialog(
                                 override val textStyle: TextStyle
                                     get() = CodexTypography.SMALL
                             },
-                            onClick = { listener(ToggleAllDifferentAllSame) },
+                            onClick = { listener(ToggleSingleMode) },
                             modifier = Modifier.padding(vertical = 5.dp)
                     )
                 }
@@ -222,7 +222,7 @@ private fun IndividualSelectors(
             ) {
                 availableFaces.forEach {
                     DropdownMenuItem(
-                            onClick = { listener(DropdownItemClicked(it, index)) },
+                            onClick = { listener(DropdownItemClicked(it)) },
                     ) {
                         Text(
                                 text = stringResource(it.text),
