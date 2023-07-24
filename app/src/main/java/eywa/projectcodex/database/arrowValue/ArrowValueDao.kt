@@ -1,6 +1,5 @@
 package eywa.projectcodex.database.arrowValue
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import eywa.projectcodex.database.arrowValue.ArrowValue.Companion.TABLE_NAME
 
@@ -14,15 +13,6 @@ interface ArrowValueDao {
 
     @Update
     suspend fun update(vararg arrowValues: ArrowValue)
-
-    /**
-     * When returning LiveData, suspend is not needed as LiveData is already async
-     */
-    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
-    fun getArrowValuesForRound(archerRoundId: Int): LiveData<List<ArrowValue>>
-
-    @Query("SELECT * FROM $TABLE_NAME")
-    fun getAllArrowValues(): LiveData<List<ArrowValue>>
 
     @Query("DELETE FROM $TABLE_NAME")
     suspend fun deleteAll()

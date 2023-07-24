@@ -1,6 +1,5 @@
 package eywa.projectcodex.database.archerRound
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.views.ArcherRoundWithScore
@@ -15,13 +14,6 @@ interface ArcherRoundDao {
 
     @Update
     suspend fun update(vararg archerRounds: ArcherRound)
-
-    // TODO_CURRENT Clear all LiveData
-    @Query("SELECT MAX(archerRoundId) FROM $TABLE_NAME")
-    fun getMaxId(): LiveData<Int>
-
-    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId = :id")
-    fun getArcherRoundById(id: Int): LiveData<ArcherRound>
 
     @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId IN (:archerRoundIds)")
     fun getFullArcherRoundInfo(archerRoundIds: List<Int>): Flow<List<DatabaseFullArcherRoundInfo>>

@@ -1,6 +1,5 @@
 package eywa.projectcodex.database.rounds
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import eywa.projectcodex.database.rounds.Round.Companion.TABLE_NAME
 import kotlinx.coroutines.flow.Flow
@@ -9,15 +8,6 @@ import kotlinx.coroutines.flow.Flow
 interface RoundDao : RoundTypeDao<Round> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     override suspend fun insert(insertItem: Round)
-
-    @Query("SELECT * FROM $TABLE_NAME WHERE name = :uniqueName")
-    fun getRoundByName(uniqueName: String): LiveData<List<Round>>
-
-    @Query("SELECT * FROM $TABLE_NAME WHERE roundId = :id")
-    fun getRoundById(id: Int): LiveData<Round>
-
-    @Query("SELECT * FROM $TABLE_NAME")
-    fun getAllRounds(): LiveData<List<Round>>
 
     @Transaction
     @Query("SELECT * FROM $TABLE_NAME")
@@ -39,9 +29,6 @@ interface RoundDao : RoundTypeDao<Round> {
             allMetricImperial: Boolean,
             isMetric: Boolean,
     ): Flow<List<FullRoundInfo>>
-
-    @Query("SELECT MAX(roundId) FROM $TABLE_NAME")
-    fun getMaxRoundId(): LiveData<Int>
 
     @Update
     override fun updateSingle(updateItem: Round)

@@ -1,6 +1,5 @@
 package eywa.projectcodex.database.archerRound
 
-import androidx.lifecycle.LiveData
 import androidx.room.Transaction
 import eywa.projectcodex.database.Filters
 import kotlinx.coroutines.flow.*
@@ -39,10 +38,6 @@ class ArcherRoundsRepo(
 
     fun getFullArcherRoundInfo(archerRoundIds: List<Int>) = archerRoundDao.getFullArcherRoundInfo(archerRoundIds)
     fun getFullArcherRoundInfo(archerRoundId: Int) = archerRoundDao.getFullArcherRoundInfo(archerRoundId)
-
-    fun getArcherRound(archerRoundId: Int): LiveData<ArcherRound> {
-        return archerRoundDao.getArcherRoundById(archerRoundId)
-    }
 
     suspend fun insert(archerRound: ArcherRound) = archerRoundDao.insert(archerRound)
 

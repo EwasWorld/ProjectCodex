@@ -1,6 +1,5 @@
 package eywa.projectcodex.database.rounds
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import eywa.projectcodex.database.rounds.RoundDistance.Companion.TABLE_NAME
 
@@ -8,12 +7,6 @@ import eywa.projectcodex.database.rounds.RoundDistance.Companion.TABLE_NAME
 interface RoundDistanceDao : RoundTypeDao<RoundDistance> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     override suspend fun insert(insertItem: RoundDistance)
-
-    @Query("SELECT * FROM $TABLE_NAME")
-    fun getAllDistances(): LiveData<List<RoundDistance>>
-
-    @Query("SELECT * FROM $TABLE_NAME WHERE roundId = :roundId AND subTypeId = :subTypeId")
-    fun getDistancesForRound(roundId: Int, subTypeId: Int?): LiveData<List<RoundDistance>>
 
     @Update
     override fun updateSingle(updateItem: RoundDistance)

@@ -2,7 +2,6 @@ package eywa.projectcodex.components.newScore
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
@@ -15,12 +14,10 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
-import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.database.rounds.RoundRepo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.*
@@ -40,7 +37,6 @@ class NewScoreViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
-    private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
 
     private var editingRoundJob: Job? = null
 
@@ -71,13 +67,13 @@ class NewScoreViewModel @Inject constructor(
 
         editingRoundJob?.cancel()
         editingRoundJob = viewModelScope.launch {
-            archerRoundsRepo.getArcherRound(roundBeingEditedId).asFlow()
-                    .combine(arrowValuesRepo.getArrowValuesForRound(roundBeingEditedId).asFlow()) { a, b -> a to b }
-                    .collect { (archerRound, arrowValues) ->
+            archerRoundsRepo.getFullArcherRoundInfo(roundBeingEditedId)
+                    .collect { info ->
                         _state.update {
+                            if (info == null) return@update it.copy(roundNotFoundError = true)
                             it.copy(
-                                    roundBeingEdited = archerRound,
-                                    roundBeingEditedArrowsShot = arrowValues.count()
+                                    roundBeingEdited = info.archerRound,
+                                    roundBeingEditedArrowsShot = info.arrows.orEmpty().count()
                             ).resetEditInfo()
                         }
                     }

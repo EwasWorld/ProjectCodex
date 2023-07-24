@@ -52,6 +52,7 @@ data class NewScoreState(
          */
         val navigateToInputEnd: Int? = null,
         val popBackstack: Boolean = false,
+        val roundNotFoundError: Boolean = false,
 ) {
     val isEditing by lazy { roundBeingEdited != null }
 

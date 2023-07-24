@@ -36,4 +36,13 @@ class SelectRoundEnabledFilters private constructor(private val filters: Set<Sel
     fun contains(element: SelectRoundFilter) = filters.contains(element)
 
     fun filter(rounds: Iterable<Round>) = rounds.filter { round -> filters.all { it.predicate(round) } }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is SelectRoundEnabledFilters) return false
+        return filters == other.filters
+    }
+
+    override fun hashCode(): Int {
+        return filters.hashCode()
+    }
 }

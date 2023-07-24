@@ -1,6 +1,5 @@
 package eywa.projectcodex.database.arrowValue
 
-import androidx.lifecycle.LiveData
 import androidx.room.Transaction
 
 /**
@@ -11,11 +10,6 @@ import androidx.room.Transaction
  *  If DAOs have just one or two methods then repositories are often combined
  */
 class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
-    val allArrowValues: LiveData<List<ArrowValue>> = arrowValueDao.getAllArrowValues()
-
-    fun getArrowValuesForRound(archerRoundId: Int): LiveData<List<ArrowValue>> =
-            arrowValueDao.getArrowValuesForRound(archerRoundId)
-
     suspend fun insert(vararg arrowValues: ArrowValue) {
         arrowValueDao.insert(*arrowValues)
     }
@@ -26,10 +20,6 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
 
     suspend fun deleteAll() {
         arrowValueDao.deleteAll()
-    }
-
-    suspend fun deleteRoundsArrows(archerRoundId: Int) {
-        arrowValueDao.deleteRoundsArrows(archerRoundId)
     }
 
     /**

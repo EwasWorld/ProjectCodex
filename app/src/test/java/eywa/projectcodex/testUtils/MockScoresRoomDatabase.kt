@@ -4,6 +4,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundDao
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -17,10 +18,18 @@ import org.mockito.kotlin.mock
 class MockScoresRoomDatabase {
     val archerRoundDao = MockArcherRoundDao()
     val arrowValueDao: ArrowValueDao = mock {}
+    val roundDao = MockRoundDao()
+    val roundArrowCountDao: RoundArrowCountDao = mock {}
+    val roundSubTypeDao: RoundSubTypeDao = mock {}
+    val roundDistanceDao: RoundDistanceDao = mock {}
 
     val mock: ScoresRoomDatabase = mock {
         on { archerRoundDao() } doReturn archerRoundDao.mock
         on { arrowValueDao() } doReturn arrowValueDao
+        on { roundDao() } doReturn roundDao.mock
+        on { roundArrowCountDao() } doReturn roundArrowCountDao
+        on { roundSubTypeDao() } doReturn roundSubTypeDao
+        on { roundDistanceDao() } doReturn roundDistanceDao
     }
 
     class MockArcherRoundDao {
@@ -38,6 +47,24 @@ class MockScoresRoomDatabase {
             emit(fullArcherRounds)
 
             secondFullArcherRounds.takeIf { !it.isNullOrEmpty() }?.let {
+                delay(FLOW_EMIT_DELAY)
+                emit(it)
+            }
+        }
+    }
+
+    class MockRoundDao {
+        var fullRoundsInfo: List<FullRoundInfo> = listOf()
+        var secondFullRoundsInfo: List<FullRoundInfo>? = null
+
+        val mock: RoundDao = mock {
+            on { getAllRoundsFullInfo() } doReturn getRoundsInfo()
+        }
+
+        private fun getRoundsInfo() = flow {
+            emit(fullRoundsInfo)
+
+            secondFullRoundsInfo.takeIf { !it.isNullOrEmpty() }?.let {
                 delay(FLOW_EMIT_DELAY)
                 emit(it)
             }

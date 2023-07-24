@@ -584,6 +584,34 @@ class ArcherRoundViewModelUnitTest {
         verify(helpShowcase).handle(intent, CodexNavRoute.ARCHER_ROUND_SCORE::class)
     }
 
+    @Test
+    fun testStatsIntent_EditClickedEditHandled() = runTest {
+        setupSimpleDbData_NoRound()
+        val sut = getSut(startingScreen = ArcherRoundScreen.SETTINGS)
+        advanceUntilIdle()
+        val state = sut.getLoadedStateValue()
+        assertEquals(6, state.scorePadEndSizePartial)
+
+        sut.handle(StatsIntent.EditClicked)
+        assertEquals(state.copy(openEditScoreScreen = true), sut.getLoadedStateValue())
+
+        sut.handle(StatsIntent.EditHandled)
+        assertEquals(state, sut.getLoadedStateValue())
+    }
+
+    @Test
+    fun testStatsIntent_HelpShowcaseAction() = runTest {
+        setupSimpleDbData_NoRound()
+        val sut = getSut()
+        advanceUntilIdle()
+        val state = sut.getLoadedStateValue()
+
+        val intent = HelpShowcaseIntent.Clear
+        sut.handle(StatsIntent.HelpShowcaseAction(intent))
+        assertEquals(state, sut.getLoadedStateValue())
+        verify(helpShowcase).handle(intent, CodexNavRoute.ARCHER_ROUND_SCORE::class)
+    }
+
     /*
      * Other
      */
