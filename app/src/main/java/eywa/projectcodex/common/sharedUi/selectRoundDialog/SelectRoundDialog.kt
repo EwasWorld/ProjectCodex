@@ -24,7 +24,8 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.*
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.RoundIntent.*
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.SubTypeIntent.*
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.Sorting
 import eywa.projectcodex.components.newScore.NewScoreTestTag
@@ -32,33 +33,28 @@ import eywa.projectcodex.database.rounds.*
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
+// TODO Turn empty rounds into a different field and show a warning message instead
 @Composable
 fun SelectRoundRows(
-        isSelectRoundDialogOpen: Boolean,
-        isSelectSubtypeDialogOpen: Boolean,
-        selectedRound: FullRoundInfo?,
-        selectedSubtypeId: Int?,
-        rounds: List<FullRoundInfo>?,
-        filters: SelectRoundEnabledFilters,
+        state: SelectRoundDialogState,
         helpListener: (HelpShowcaseIntent) -> Unit,
         style: TextStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
         listener: (SelectRoundDialogIntent) -> Unit,
 ) = SelectRoundRows(
-        displayedRound =
-        if (rounds == null) stringResource(R.string.create_round__no_rounds_found)
-        else selectedRound?.round?.displayName ?: stringResource(R.string.create_round__no_round),
-        displayedSubtype = selectedRound?.roundSubTypes?.find { it.subTypeId == selectedSubtypeId }?.name,
-        isSelectRoundDialogOpen = isSelectRoundDialogOpen,
-        isSelectSubtypeDialogOpen = isSelectSubtypeDialogOpen,
-        rounds = rounds?.map { it.round } ?: emptyList(),
-        filters = filters,
-        subTypes = selectedRound?.roundSubTypes ?: emptyList(),
-        arrowCounts = selectedRound?.roundArrowCounts,
-        roundSubtypeDistances = selectedRound?.getDistances(selectedSubtypeId),
-        distanceUnit = selectedRound?.getDistanceUnit(),
-        getDistance = { subType ->
-            selectedRound?.getDistances(subType.subTypeId)?.maxByOrNull { it.distance }!!.distance
-        },
+        displayedRound = (
+                if (state.allRounds.isNullOrEmpty()) stringResource(R.string.create_round__no_rounds_found)
+                else state.selectedRound?.round?.displayName ?: stringResource(R.string.create_round__no_round)
+                ),
+        displayedSubtype = state.selectedSubType?.name,
+        isSelectRoundDialogOpen = state.isRoundDialogOpen,
+        isSelectSubtypeDialogOpen = state.isSubtypeDialogOpen,
+        rounds = state.allRounds?.map { it.round } ?: emptyList(),
+        filters = state.filters,
+        subTypes = state.selectedRound?.roundSubTypes ?: emptyList(),
+        arrowCounts = state.selectedRound?.roundArrowCounts,
+        roundSubtypeDistances = state.selectedRound?.getDistances(state.selectedSubTypeId),
+        distanceUnit = state.selectedRound?.getDistanceUnit(),
+        getDistance = { subType -> state.getFurthestDistance(subType)!!.distance },
         helpListener = helpListener,
         style = style,
         listener = listener,
@@ -106,7 +102,7 @@ fun SelectRoundRows(
                         helpBody = stringResource(R.string.help_create_round__round_body),
                 ),
                 modifier = Modifier.testTag(NewScoreTestTag.SELECTED_ROUND.getTestTag()),
-                onClick = { listener(OpenRoundSelectDialog) },
+                onClick = { listener(OpenRoundDialog) },
         )
         if (displayedSubtype != null) {
             DataRow(
@@ -118,7 +114,7 @@ fun SelectRoundRows(
                             helpBody = stringResource(R.string.help_create_round__sub_round_body),
                     ),
                     modifier = Modifier.testTag(NewScoreTestTag.SELECTED_SUBTYPE.getTestTag()),
-                    onClick = { listener(OpenSubTypeSelectDialog) },
+                    onClick = { listener(OpenSubTypeDialog) },
             )
         }
 
@@ -192,13 +188,13 @@ fun SelectRoundDialog(
 ) {
     SimpleDialog(
             isShown = isShown,
-            onDismissListener = { listener(CloseRoundSelectDialog) },
+            onDismissListener = { listener(CloseRoundDialog) },
     ) {
         SimpleDialogContent(
                 title = stringResource(R.string.create_round__select_a_round_title),
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
-                        onClick = { listener(CloseRoundSelectDialog) },
+                        onClick = { listener(CloseRoundDialog) },
                 ),
                 positiveButton = ButtonState(
                         text = stringResource(R.string.create_round__no_round),
@@ -230,10 +226,10 @@ fun SelectRoundDialog(
                                             testTag = SelectRoundDialogTestTag.FILTER.getTestTag()
                                     ),
                                     colours = ChipColours.Defaults.onDialog(),
-                            ) { listener(SelectRoundDialogFilterClicked(filter)) }
+                            ) { listener(FilterClicked(filter)) }
                         }
                     }
-                    IconButton(onClick = { listener(SelectRoundDialogClearFilters) }) {
+                    IconButton(onClick = { listener(ClearFilters) }) {
                         Icon(
                                 painter = painterResource(R.drawable.ic_baseline_clear_filter),
                                 contentDescription = stringResource(
@@ -266,14 +262,14 @@ fun SelectSubtypeDialog(
 ) {
     SimpleDialog(
             isShown = isShown,
-            onDismissListener = { listener(CloseSubTypeSelectDialog) },
+            onDismissListener = { listener(CloseSubTypeDialog) },
     ) {
         SimpleDialogContent(
                 title = stringResource(R.string.create_round__select_a_subtype_title),
                 message = stringResource(R.string.create_round__select_a_subtype_message),
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
-                        onClick = { listener(CloseSubTypeSelectDialog) },
+                        onClick = { listener(CloseSubTypeDialog) },
                 ),
                 modifier = Modifier.testTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG.getTestTag())
         ) {

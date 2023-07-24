@@ -1,9 +1,8 @@
 package eywa.projectcodex.components.newScore
 
-import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
-import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.*
@@ -23,14 +22,10 @@ data class NewScoreState(
          */
         val updateDefaultRoundsState: UpdateDefaultRoundsState? = null,
 
-        val roundsData: List<FullRoundInfo>? = null,
-
         /*
          * User-set info
          */
         val dateShot: Calendar = getDefaultDate(),
-        val selectedRound: Round? = null,
-        val selectedSubtype: RoundSubType? = null,
 
         /*
          * Dialogs
@@ -39,12 +34,10 @@ data class NewScoreState(
         val isSelectSubTypeDialogOpen: Boolean = false,
         val enabledRoundFilters: SelectRoundEnabledFilters = SelectRoundEnabledFilters(),
 
-        val selectedFaceDialogState: SelectRoundFaceDialogState = SelectRoundFaceDialogState(
-                round = selectedRound,
-                distances = selectedRound?.roundId
-                        ?.let { roundId -> roundsData?.find { it.round.roundId == roundId } }
-                        ?.getDistances(selectedSubtype?.subTypeId)
-                        ?.map { it.distance }
+        val selectRoundDialogState: SelectRoundDialogState = SelectRoundDialogState(),
+        val selectFaceDialogState: SelectRoundFaceDialogState = SelectRoundFaceDialogState(
+                round = selectRoundDialogState.selectedRound?.round,
+                distances = selectRoundDialogState.roundSubTypeDistances?.map { it.distance }
         ),
 
         /*
@@ -69,62 +62,18 @@ data class NewScoreState(
         }
     }
 
-    val selectedRoundInfo by lazy {
-        selectedRound?.roundId?.let { roundId ->
-            roundsData?.find { it.round.roundId == roundId }
-        }
-    }
-
-    /**
-     * All distances for [selectedSubtype]
-     */
-    val roundSubtypeDistances by lazy { selectedRoundInfo?.getDistances(selectedSubtype?.subTypeId) }
-
-    /**
-     * Resource id of the unit for [selectedRound]'s distances (e.g. yd/m)
-     */
-    val distanceUnitStringRes by lazy { selectedRound?.getDistanceUnitRes() }
-
-    /**
-     * The subtype to display on the screen. No subtype is shown if no round selected or if there's only one subtype
-     */
-    val displayedSubtype by lazy {
-        when {
-            selectedRound != null && (selectedRoundInfo?.roundSubTypes?.size ?: 0) > 1 -> selectedSubtype!!
-            else -> null
-        }
-    }
-
-    /**
-     * The round to display on the screen. Round name when one is selected, 'No Round' if no round is selected,
-     * 'No rounds in database' if nothing in the database
-     * TODO Turn no rounds into a different field and show a warning message instead
-     */
-    val displayedRound by lazy {
-        when {
-            selectedRound != null -> ResOrActual.fromActual(selectedRound.displayName)
-            roundsData.isNullOrEmpty() -> ResOrActual.fromRes(R.string.create_round__no_rounds_found)
-            else -> ResOrActual.fromRes(R.string.create_round__no_round)
-        }
-    }
-
-    /**
-     * Rounds to be displayed on the round select dialog. Filtered by [enabledRoundFilters]
-     */
-    val roundsOnSelectDialog by lazy {
-        enabledRoundFilters.filter(roundsData?.map { it.round } ?: listOf())
-    }
-
     /**
      * Number of arrows to be shot for [selectedRound]
      */
-    val totalArrowsInSelectedRound by lazy { selectedRoundInfo?.roundArrowCounts?.sumOf { it.arrowCount } }
+    val totalArrowsInSelectedRound by lazy {
+        selectRoundDialogState.selectedRound?.roundArrowCounts?.sumOf { it.arrowCount }
+    }
 
     /**
      * True if there are more [roundBeingEditedArrowsShot] than there are [totalArrowsInSelectedRound]
      */
     val tooManyArrowsWarningShown by lazy {
-        selectedRound != null && (roundBeingEditedArrowsShot ?: 0) > totalArrowsInSelectedRound!!
+        selectRoundDialogState.selectedRound != null && (roundBeingEditedArrowsShot ?: 0) > totalArrowsInSelectedRound!!
     }
 
     /**
@@ -137,15 +86,10 @@ data class NewScoreState(
             // TODO Check date locales (I want to store in UTC)
             dateShot = dateShot,
             archerId = roundBeingEdited?.archerId ?: 1,
-            roundId = selectedRound?.roundId,
-            roundSubTypeId = selectedSubtype?.subTypeId,
-            faces = selectedFaceDialogState.selectedFaces,
+            roundId = selectRoundDialogState.selectedRoundId,
+            roundSubTypeId = selectRoundDialogState.selectedSubTypeId,
+            faces = selectFaceDialogState.selectedFaces,
     )
-
-    fun getFurthestDistance(subType: RoundSubType) = roundsData
-            ?.find { it.round.roundId == subType.roundId }
-            ?.getDistances(subType.subTypeId)
-            ?.maxByOrNull { it.distance }!!
 
     companion object {
         private fun getDefaultDate() = Calendar

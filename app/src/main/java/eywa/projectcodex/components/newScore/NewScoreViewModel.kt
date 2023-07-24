@@ -9,9 +9,8 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
-import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
+import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.rounds.RoundRepo
@@ -49,7 +48,7 @@ class NewScoreViewModel @Inject constructor(
         val roundRepo = RoundRepo(db)
         viewModelScope.launch {
             roundRepo.fullRoundsInfo.collect { data ->
-                _state.update { it.copy(roundsData = data).resetEditInfo() }
+                handle(SelectRoundDialogAction(SelectRoundDialogIntent.SetRounds(data)))
             }
         }
         viewModelScope.launch {
@@ -82,19 +81,29 @@ class NewScoreViewModel @Inject constructor(
 
     fun handle(action: NewScoreIntent) {
         when (action) {
-            is NewScoreIntent.DateChanged ->
+            is DateChanged ->
                 _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
-            is NewScoreIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
-            is NewScoreIntent.SelectFaceDialogAction ->
-                _state.update { it.copy(selectedFaceDialogState = action.action.handle(it.selectedFaceDialogState)) }
-            is NewScoreIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.NEW_SCORE::class)
+            is SelectRoundDialogAction -> {
+                _state.update {
+                    val (selectRoundDialogState, faceIntent) = action.action.handle(it.selectRoundDialogState)
+                    val selectFaceDialogState = faceIntent?.handle(it.selectFaceDialogState)
+                            ?: it.selectFaceDialogState
+                    it.copy(
+                            selectRoundDialogState = selectRoundDialogState,
+                            selectFaceDialogState = selectFaceDialogState,
+                    )
+                }
+            }
+            is SelectFaceDialogAction ->
+                _state.update { it.copy(selectFaceDialogState = action.action.handle(it.selectFaceDialogState)) }
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.NEW_SCORE::class)
 
             /*
              * Final actions
              */
-            NewScoreIntent.CancelEditInfo -> _state.update { it.copy(popBackstack = true) }
-            NewScoreIntent.ResetEditInfo -> _state.update { it.resetEditInfo() }
-            NewScoreIntent.Submit -> {
+            CancelEditInfo -> _state.update { it.copy(popBackstack = true) }
+            ResetEditInfo -> _state.update { it.resetEditInfo() }
+            Submit -> {
                 val currentState = state.value
                 viewModelScope.launch {
                     if (currentState.isEditing) {
@@ -107,77 +116,20 @@ class NewScoreViewModel @Inject constructor(
                     }
                 }
             }
-            NewScoreIntent.HandleNavigate -> _state.update { it.copy(navigateToInputEnd = null) }
-            NewScoreIntent.HandlePopBackstack -> _state.update { it.copy(popBackstack = false) }
-        }
-    }
-
-    private fun handleSelectRoundDialogIntent(action: SelectRoundDialogIntent) {
-        when (action) {
-            /*
-             * Select round dialog
-             */
-            SelectRoundDialogIntent.OpenRoundSelectDialog ->
-                _state.update {
-                    it.copy(
-                            isSelectRoundDialogOpen = true,
-                            enabledRoundFilters = SelectRoundEnabledFilters(),
-                    )
-                }
-            SelectRoundDialogIntent.CloseRoundSelectDialog -> _state.update { it.copy(isSelectRoundDialogOpen = false) }
-            SelectRoundDialogIntent.NoRoundSelected ->
-                _state.update {
-                    it.copy(
-                            isSelectRoundDialogOpen = false,
-                            selectedRound = null,
-                            selectedSubtype = null,
-                            selectedFaceDialogState = SelectRoundFaceDialogIntent.SetNoRound
-                                    .handle(it.selectedFaceDialogState),
-                    )
-                }
-            is SelectRoundDialogIntent.RoundSelected ->
-                _state.update {
-                    val new = it.copy(isSelectRoundDialogOpen = false, selectedRound = action.round)
-                    val faceAction = SelectRoundFaceDialogIntent.SetRound(action.round, new.roundSubtypeDistances!!)
-                    // Select the furthest distance if subtypes are available
-                    // Reset selected faces
-                    new.copy(
-                            selectedSubtype = new.selectedRoundInfo?.roundSubTypes
-                                    ?.maxByOrNull { subType -> new.getFurthestDistance(subType).distance },
-                            selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState),
-                    )
-                }
-            is SelectRoundDialogIntent.SelectRoundDialogFilterClicked ->
-                _state.update { it.copy(enabledRoundFilters = it.enabledRoundFilters.toggle(action.filter)) }
-            SelectRoundDialogIntent.SelectRoundDialogClearFilters ->
-                _state.update { it.copy(enabledRoundFilters = SelectRoundEnabledFilters()) }
-
-            /*
-             * Select sub type dialog
-             */
-            SelectRoundDialogIntent.OpenSubTypeSelectDialog ->
-                _state.update { it.copy(isSelectSubTypeDialogOpen = true) }
-            SelectRoundDialogIntent.CloseSubTypeSelectDialog ->
-                _state.update { it.copy(isSelectSubTypeDialogOpen = false) }
-            is SelectRoundDialogIntent.SubTypeSelected ->
-                _state.update {
-                    val new = it.copy(isSelectSubTypeDialogOpen = false, selectedSubtype = action.subType)
-                    val faceAction = SelectRoundFaceDialogIntent.SetDistances(new.roundSubtypeDistances!!)
-                    new.copy(selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState))
-                }
+            HandleNavigate -> _state.update { it.copy(navigateToInputEnd = null) }
+            HandlePopBackstack -> _state.update { it.copy(popBackstack = false) }
         }
     }
 
     private fun NewScoreState.resetEditInfo(): NewScoreState {
         if (roundBeingEdited == null) return this
 
-        val selectedRoundFullInfo = roundsData?.find { it.round.roundId == roundBeingEdited.roundId }
         return copy(
                 dateShot = roundBeingEdited.dateShot,
-                selectedRound = selectedRoundFullInfo?.round,
-                selectedSubtype = roundBeingEdited.roundSubTypeId?.let { subType ->
-                    selectedRoundFullInfo?.roundSubTypes?.find { it.subTypeId == subType }
-                },
+                selectRoundDialogState = selectRoundDialogState.copy(
+                        selectedRoundId = roundBeingEdited.roundId,
+                        selectedSubTypeId = roundBeingEdited.roundSubTypeId,
+                ),
         )
     }
 }

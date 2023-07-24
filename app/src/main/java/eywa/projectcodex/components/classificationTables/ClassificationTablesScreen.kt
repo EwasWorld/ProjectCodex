@@ -30,6 +30,7 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.utils.CodexTestTag
@@ -124,12 +125,7 @@ fun ClassificationTablesScreen(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 SelectRoundRows(
-                        isSelectRoundDialogOpen = state.isSelectRoundDialogOpen,
-                        isSelectSubtypeDialogOpen = state.isSelectSubtypeDialogOpen,
-                        selectedRound = state.round,
-                        selectedSubtypeId = state.subType ?: 1,
-                        rounds = state.allRounds,
-                        filters = state.roundFilters,
+                        state = state.selectRoundDialogState,
                         helpListener = helpListener,
                         listener = { listener(SelectRoundDialogAction(it)) },
                 )
@@ -273,12 +269,13 @@ enum class TestTag : CodexTestTag {
 fun PreviewClassificationTablesScreen() {
     ClassificationTablesScreen(
             ClassificationTablesState(
-                    round = RoundPreviewHelper.outdoorImperialRoundData,
-                    roundFilters = SelectRoundEnabledFilters(),
-                    subType = 1,
-                    allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
-                    isSelectRoundDialogOpen = false,
-                    isSelectSubtypeDialogOpen = false,
+                    selectRoundDialogState = SelectRoundDialogState(
+                            selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,
+                            filters = SelectRoundEnabledFilters(),
+                            allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
+                            isRoundDialogOpen = false,
+                            isSubtypeDialogOpen = false,
+                    ),
                     scores = listOf(
                             "1,Women,Recurve,Senior,York,211",
                             "2,Women,Recurve,Senior,York,309",

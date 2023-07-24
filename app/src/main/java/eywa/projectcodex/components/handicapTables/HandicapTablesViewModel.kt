@@ -6,8 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
-import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -31,34 +30,36 @@ class HandicapTablesViewModel @Inject constructor(
             datastore.get(DatastoreKey.Use2023HandicapSystem).firstOrNull()?.let { use2023 ->
                 _state.update { it.copy(use2023System = use2023) }
             }
-            state.map { it.roundFilters }.distinctUntilChanged().collectLatest { filters ->
+            state.map { it.selectRoundDialogState.filters }.distinctUntilChanged().collectLatest { filters ->
                 db.roundsRepo().fullRoundsInfo(filters).collectLatest { rounds ->
-                    _state.update { it.copy(allRounds = rounds) }
+                    handle(SelectRoundDialogAction(SelectRoundDialogIntent.SetRounds(rounds)))
                 }
             }
         }
     }
 
     private fun HandicapTablesState.addHandicaps(): HandicapTablesState {
+        val round = selectRoundDialogState.selectedRound
         if (
             input == null
             || (inputHandicap && (input < 0 || input > 150))
-            || round == null || round.info.roundArrowCounts.isNullOrEmpty() || subtypeDistances.isNullOrEmpty()
+            || round == null
+            || round.roundArrowCounts.isNullOrEmpty()
+            || selectRoundDialogState.roundSubTypeDistances.isNullOrEmpty()
         )
             return copy(handicaps = emptyList(), highlightedHandicap = null)
 
         fun getScore(handicap: Int) = HandicapScore(
                 handicap,
                 Handicap.getScoreForRound(
-                        round = round.info.round,
-                        roundArrowCounts = round.info.roundArrowCounts,
-                        roundDistances = subtypeDistances,
+                        round = round,
+                        subType = selectRoundDialogState.selectedSubTypeId,
                         handicap = handicap.toDouble(),
                         innerTenArcher = false,
                         arrows = null,
                         use2023Handicaps = use2023System,
                         faces = faces,
-                ),
+                )!!,
         )
 
         val initial = if (inputHandicap) {
@@ -67,9 +68,9 @@ class HandicapTablesViewModel @Inject constructor(
         else {
             getScore(
                     Handicap.getHandicapForRound(
-                            round = round.info.round,
-                            roundArrowCounts = round.info.roundArrowCounts,
-                            roundDistances = subtypeDistances,
+                            round = round.round,
+                            roundArrowCounts = round.roundArrowCounts,
+                            roundDistances = selectRoundDialogState.roundSubTypeDistances!!,
                             score = input,
                             innerTenArcher = false,
                             arrows = null,
@@ -96,65 +97,23 @@ class HandicapTablesViewModel @Inject constructor(
 
     fun handle(action: HandicapTablesIntent) {
         when (action) {
-            is HandicapTablesIntent.InputChanged -> _state.update { it.copy(input = action.newSize).addHandicaps() }
-            is HandicapTablesIntent.SelectRoundDialogAction -> handleSelectRoundDialogIntent(action.action)
-            is HandicapTablesIntent.SelectFaceDialogAction ->
-                _state.update { it.copy(selectedFaceDialogState = action.action.handle(it.selectedFaceDialogState)) }
-            HandicapTablesIntent.ToggleHandicapSystem -> _state.update {
-                it.copy(use2023System = !it.use2023System).addHandicaps()
-            }
-            HandicapTablesIntent.ToggleInput -> _state.update {
-                it.copy(inputHandicap = !it.inputHandicap).addHandicaps()
-            }
-            is HandicapTablesIntent.HelpShowcaseAction ->
-                helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
-        }
-    }
-
-    private fun handleSelectRoundDialogIntent(action: SelectRoundDialogIntent) {
-        when (action) {
-            SelectRoundDialogIntent.OpenRoundSelectDialog -> _state.update { it.copy(isSelectRoundDialogOpen = true) }
-            SelectRoundDialogIntent.CloseRoundSelectDialog -> _state.update { it.copy(isSelectRoundDialogOpen = false) }
-            SelectRoundDialogIntent.NoRoundSelected ->
+            is InputChanged -> _state.update { it.copy(input = action.newSize).addHandicaps() }
+            is SelectRoundDialogAction -> {
                 _state.update {
+                    val (selectRoundDialogState, faceIntent) = action.action.handle(it.selectRoundDialogState)
+                    val selectFaceDialogState = faceIntent?.handle(it.selectFaceDialogState)
+                            ?: it.selectFaceDialogState
                     it.copy(
-                            isSelectRoundDialogOpen = false,
-                            round = null,
-                            selectedFaceDialogState = SelectRoundFaceDialogIntent.SetNoRound
-                                    .handle(it.selectedFaceDialogState),
+                            selectRoundDialogState = selectRoundDialogState,
+                            selectFaceDialogState = selectFaceDialogState,
                     ).addHandicaps()
                 }
-            is SelectRoundDialogIntent.RoundSelected ->
-                _state.update {
-                    val round = it.allRounds
-                            ?.find { round -> round.round.roundId == action.round.roundId }
-                            ?.let { roundInfo -> HandicapTablesState.RoundInfo.Round(roundInfo) }
-                    val new =
-                            it.copy(isSelectRoundDialogOpen = false, round = round, subType = null).addHandicaps()
-                    val faceAction =
-                            if (round == null) SelectRoundFaceDialogIntent.SetNoRound
-                            else SelectRoundFaceDialogIntent.SetRound(round.info.round, new.subtypeDistances!!)
-                    new.copy(selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState))
-                }
-            SelectRoundDialogIntent.SelectRoundDialogClearFilters ->
-                _state.update { it.copy(roundFilters = SelectRoundEnabledFilters()) }
-            is SelectRoundDialogIntent.SelectRoundDialogFilterClicked ->
-                _state.update { it.copy(roundFilters = it.roundFilters.toggle(action.filter)) }
-
-            SelectRoundDialogIntent.OpenSubTypeSelectDialog ->
-                _state.update { it.copy(isSelectSubtypeDialogOpen = true) }
-            SelectRoundDialogIntent.CloseSubTypeSelectDialog ->
-                _state.update { it.copy(isSelectSubtypeDialogOpen = false) }
-            is SelectRoundDialogIntent.SubTypeSelected ->
-                _state.update {
-                    val new = it
-                            .copy(isSelectSubtypeDialogOpen = false, subType = action.subType.subTypeId)
-                            .addHandicaps()
-                    val faceAction =
-                            if (new.round == null) SelectRoundFaceDialogIntent.SetNoRound
-                            else SelectRoundFaceDialogIntent.SetDistances(new.subtypeDistances!!)
-                    new.copy(selectedFaceDialogState = faceAction.handle(it.selectedFaceDialogState))
-                }
+            }
+            is SelectFaceDialogAction ->
+                _state.update { it.copy(selectFaceDialogState = action.action.handle(it.selectFaceDialogState)) }
+            ToggleHandicapSystem -> _state.update { it.copy(use2023System = !it.use2023System).addHandicaps() }
+            ToggleInput -> _state.update { it.copy(inputHandicap = !it.inputHandicap).addHandicaps() }
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
         }
     }
 }

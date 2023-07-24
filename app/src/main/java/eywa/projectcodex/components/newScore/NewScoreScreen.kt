@@ -37,12 +37,12 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
-import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.asDisplayString
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
@@ -126,23 +126,13 @@ fun NewScoreScreen(
             }
             else {
                 SelectRoundRows(
-                        displayedRound = state.displayedRound.get(),
-                        displayedSubtype = state.displayedSubtype?.name,
-                        isSelectRoundDialogOpen = state.isSelectRoundDialogOpen,
-                        isSelectSubtypeDialogOpen = state.isSelectSubTypeDialogOpen,
-                        rounds = state.roundsOnSelectDialog,
-                        filters = state.enabledRoundFilters,
-                        subTypes = state.selectedRoundInfo?.roundSubTypes ?: listOf(),
-                        arrowCounts = state.selectedRoundInfo?.roundArrowCounts?.takeIf { it.isNotEmpty() },
-                        roundSubtypeDistances = state.roundSubtypeDistances,
-                        distanceUnit = state.distanceUnitStringRes?.let { stringResource(it) },
-                        getDistance = { state.getFurthestDistance(it).distance },
+                        state = state.selectRoundDialogState,
                         helpListener = helpListener,
                         listener = { listener(SelectRoundDialogAction(it)) },
                 )
 
                 SelectRoundFaceDialog(
-                        state = state.selectedFaceDialogState,
+                        state = state.selectFaceDialogState,
                         helpListener = { listener(HelpShowcaseAction(it)) },
                         listener = { listener(SelectFaceDialogAction(it)) },
                 )
@@ -183,7 +173,7 @@ private fun EditingEndRows(
                 text = stringResource(
                         R.string.err_create_round__too_many_arrows,
                         state.roundBeingEditedArrowsShot!!,
-                        state.selectedRound!!.displayName,
+                        state.selectRoundDialogState.displayName!!,
                         state.totalArrowsInSelectedRound!!,
                 ),
                 style = CodexTypography.NORMAL.copy(
@@ -330,6 +320,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             RoundPreviewHelper.indoorMetricRoundData,
             RoundPreviewHelper.singleSubtypeRoundData,
     )
+    val round = RoundPreviewHelper.outdoorImperialRoundData
 
     override val values = sequenceOf(
             // No Round
@@ -337,35 +328,52 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
 
             // Has Round
             NewScoreState(
-                    roundsData = roundsData,
-                    selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
-                    selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes!!.first(),
+                    selectRoundDialogState = SelectRoundDialogState(
+                            allRounds = roundsData,
+                            selectedRoundId = round.round.roundId,
+                            selectedSubTypeId = round.roundSubTypes!!.first().subTypeId,
+                    ),
             ),
 
             // Editing
-            NewScoreState(roundsData = roundsData, roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound()),
+            NewScoreState(
+                    selectRoundDialogState = SelectRoundDialogState(allRounds = roundsData),
+                    roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound(),
+            ),
 
             // DbInProgress
-            NewScoreState(roundsData = roundsData, updateDefaultRoundsState = UpdateDefaultRoundsState.DeletingOld(1)),
+            NewScoreState(
+                    selectRoundDialogState = SelectRoundDialogState(allRounds = roundsData),
+                    updateDefaultRoundsState = UpdateDefaultRoundsState.DeletingOld(1),
+            ),
 
             // TooManyArrows
             NewScoreState(
-                    roundsData = roundsData,
-                    selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
-                    selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes.first(),
+                    selectRoundDialogState = SelectRoundDialogState(
+                            allRounds = roundsData,
+                            selectedRoundId = round.round.roundId,
+                            selectedSubTypeId = round.roundSubTypes.first().subTypeId,
+                    ),
                     roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound(),
                     roundBeingEditedArrowsShot = 1000,
             ),
 
             // Select Round Dialog
-            NewScoreState(roundsData = roundsData, isSelectRoundDialogOpen = true),
+            NewScoreState(
+                    selectRoundDialogState = SelectRoundDialogState(
+                            allRounds = roundsData,
+                            isRoundDialogOpen = true,
+                    )
+            ),
 
             // Select Subtype Dialog
             NewScoreState(
-                    roundsData = roundsData,
-                    selectedRound = RoundPreviewHelper.outdoorImperialRoundData.round,
-                    selectedSubtype = RoundPreviewHelper.outdoorImperialRoundData.roundSubTypes.first(),
-                    isSelectSubTypeDialogOpen = true,
+                    selectRoundDialogState = SelectRoundDialogState(
+                            allRounds = roundsData,
+                            selectedRoundId = round.round.roundId,
+                            selectedSubTypeId = round.roundSubTypes.first().subTypeId,
+                            isSubtypeDialogOpen = true,
+                    ),
             )
     )
 }

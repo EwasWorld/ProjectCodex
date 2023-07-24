@@ -2,6 +2,7 @@ package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
@@ -36,6 +37,8 @@ class NewScoreViewModelUnitTest {
     private val updateDefaultRoundsStatesDelay: Long = 1000
 
     private val updateDefaultRoundsCompleteState = Complete(1, CompletionType.ALREADY_UP_TO_DATE)
+
+    private val emptyRoundsData = SelectRoundDialogState(allRounds = emptyList())
 
     private suspend fun getSut(
             testScope: CoroutineScope,
@@ -75,7 +78,7 @@ class NewScoreViewModelUnitTest {
         advanceUntilIdle()
         Assert.assertEquals(
                 NewScoreState(
-                        roundsData = emptyList(),
+                        selectRoundDialogState = emptyRoundsData,
                         roundNotFoundError = true,
                 ),
                 sut.state.value,
@@ -88,7 +91,7 @@ class NewScoreViewModelUnitTest {
 
         Assert.assertEquals(NewScoreState(), sut.state.value)
         advanceUntilIdle()
-        Assert.assertEquals(NewScoreState(roundsData = emptyList()), sut.state.value)
+        Assert.assertEquals(NewScoreState(selectRoundDialogState = emptyRoundsData), sut.state.value)
     }
 
     @Test
@@ -112,9 +115,7 @@ class NewScoreViewModelUnitTest {
                         roundBeingEdited = archerRoundInitial.archerRound,
                         roundBeingEditedArrowsShot = archerRoundInitial.arrows.orEmpty().count(),
                         dateShot = archerRoundInitial.archerRound.dateShot,
-                        selectedRound = archerRoundInitial.round,
-                        selectedSubtype = archerRoundInitial.roundSubType,
-                        roundsData = emptyList(),
+                        selectRoundDialogState = emptyRoundsData,
                 ),
                 sut.state.value,
         )
@@ -125,9 +126,7 @@ class NewScoreViewModelUnitTest {
                         roundBeingEdited = archerRoundSecond.archerRound,
                         roundBeingEditedArrowsShot = archerRoundSecond.arrows.orEmpty().count(),
                         dateShot = archerRoundSecond.archerRound.dateShot,
-                        selectedRound = archerRoundSecond.round,
-                        selectedSubtype = archerRoundSecond.roundSubType,
-                        roundsData = emptyList(),
+                        selectRoundDialogState = emptyRoundsData,
                 ),
                 sut.state.value,
         )
@@ -147,7 +146,7 @@ class NewScoreViewModelUnitTest {
         advanceTimeBy(1)
         Assert.assertEquals(
                 NewScoreState(
-                        roundsData = emptyList(),
+                        selectRoundDialogState = emptyRoundsData,
                         updateDefaultRoundsState = Initialising
                 ),
                 sut.state.value,
@@ -155,7 +154,7 @@ class NewScoreViewModelUnitTest {
         advanceUntilIdle()
         Assert.assertEquals(
                 NewScoreState(
-                        roundsData = emptyList(),
+                        selectRoundDialogState = emptyRoundsData,
                         updateDefaultRoundsState = updateDefaultRoundsCompleteState
                 ),
                 sut.state.value,
@@ -176,12 +175,12 @@ class NewScoreViewModelUnitTest {
         Assert.assertEquals(NewScoreState(), sut.state.value)
         advanceTimeBy(1)
         Assert.assertEquals(
-                NewScoreState(roundsData = data),
+                NewScoreState(selectRoundDialogState = SelectRoundDialogState(allRounds = data)),
                 sut.state.value,
         )
         advanceUntilIdle()
         Assert.assertEquals(
-                NewScoreState(roundsData = data.take(1)),
+                NewScoreState(selectRoundDialogState = SelectRoundDialogState(allRounds = data.take(1))),
                 sut.state.value,
         )
     }

@@ -30,7 +30,7 @@ import eywa.projectcodex.common.sharedUi.NumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
@@ -131,17 +131,12 @@ fun HandicapTablesScreen(
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
                     SelectRoundRows(
-                            isSelectRoundDialogOpen = state.isSelectRoundDialogOpen,
-                            isSelectSubtypeDialogOpen = state.isSelectSubtypeDialogOpen,
-                            selectedRound = state.round?.info,
-                            selectedSubtypeId = state.subType ?: 1,
-                            rounds = state.allRounds,
-                            filters = state.roundFilters,
+                            state = state.selectRoundDialogState,
                             helpListener = helpListener,
                             listener = { listener(SelectRoundDialogAction(it)) },
                     )
                     SelectRoundFaceDialog(
-                            state = state.selectedFaceDialogState,
+                            state = state.selectFaceDialogState,
                             helpListener = helpListener,
                             listener = { listener(SelectFaceDialogAction(it)) },
                     )
@@ -258,13 +253,11 @@ fun PreviewMainMenuScreen() {
             HandicapTablesState(
                     input = 31,
                     inputHandicap = true,
-                    round = HandicapTablesState.RoundInfo.Round(RoundPreviewHelper.indoorMetricRoundData),
-                    roundFilters = SelectRoundEnabledFilters(),
-                    subType = 1,
                     use2023System = false,
-                    allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
-                    isSelectRoundDialogOpen = false,
-                    isSelectSubtypeDialogOpen = false,
+                    selectRoundDialogState = SelectRoundDialogState(
+                            selectedRoundId = RoundPreviewHelper.indoorMetricRoundData.round.roundId,
+                            allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
+                    ),
                     handicaps = listOf(
                             HandicapScore(26, 333),
                             HandicapScore(27, 331),
