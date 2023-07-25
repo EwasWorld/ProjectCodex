@@ -3,13 +3,16 @@ package eywa.projectcodex.databaseTests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
-import eywa.projectcodex.common.retrieveValue
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
 import eywa.projectcodex.database.rounds.RoundDistanceDao
 import eywa.projectcodex.database.rounds.RoundSubTypeDao
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -23,6 +26,7 @@ import java.io.IOException
  * Test DAOs
  * TODO Split these into separate classes
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class GeneralDatabaseTests {
     @get:Rule
@@ -54,8 +58,8 @@ class GeneralDatabaseTests {
      * Test add, retrieve, update (existent and non-existent record), and remove
      */
     @Test
-    fun roundsTest() {
-        val retrievedRounds = roundDao.getAllRounds()
+    fun roundsTest() = runTest {
+        val retrievedRounds = roundDao.getAllRoundsFullInfo().map { all -> all.map { it.round } }
 
         /*
          * Add and retrieve
@@ -67,7 +71,7 @@ class GeneralDatabaseTests {
                 roundDao.insert(round)
             }
         }
-        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
+        assertEquals(rounds.toSet(), retrievedRounds.first().toSet())
 
         /*
          * Update (existing)
@@ -84,13 +88,9 @@ class GeneralDatabaseTests {
         rounds.add(0, updatedRound2)
         rounds.add(0, updatedRound1)
 
-        runBlocking {
-            roundDao.update(updatedRound1)
-        }
-        runBlocking {
-            roundDao.update(updatedRound2)
-        }
-        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
+        roundDao.update(updatedRound1)
+        roundDao.update(updatedRound2)
+        assertEquals(rounds.toSet(), retrievedRounds.first().toSet())
 
         /*
          * Update (doesn't exist)
@@ -100,143 +100,120 @@ class GeneralDatabaseTests {
                 name = "bananas",
                 displayName = "bananas",
         )
-        runBlocking {
-            roundDao.update(nonExistentUpdatedRound)
-        }
-        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
+        roundDao.update(nonExistentUpdatedRound)
+        assertEquals(rounds.toSet(), retrievedRounds.first().toSet())
 
         /*
          * Delete
          */
         rounds.removeAt(0)
-        runBlocking {
-            roundDao.delete(round1.roundId)
-        }
-        assertEquals(rounds.toSet(), retrievedRounds.retrieveValue()!!.toSet())
+        roundDao.delete(round1.roundId)
+        assertEquals(rounds.toSet(), retrievedRounds.first().toSet())
     }
 
     /**
      * Tests adding, retrieving, deleting one entry, and deleting a round's entries
      */
     @Test
-    fun roundArrowCountsTest() {
-        runBlocking {
-            TestUtils.ROUNDS.forEach { roundDao.insert(it) }
-        }
+    fun roundArrowCountsTest() = runTest {
+        TestUtils.ROUNDS.forEach { roundDao.insert(it) }
 
-        val retrievedArrowCounts = roundArrowCountDao.getAllArrowCounts()
+        val retrievedArrowCounts =
+                roundDao.getAllRoundsFullInfo().map { all -> all.flatMap { it.roundArrowCounts.orEmpty() } }
 
         /*
          * Add and retrieve
          */
         val arrowCounts = TestUtils.ROUND_ARROW_COUNTS.toMutableList()
         for (arrowCount in arrowCounts) {
-            runBlocking {
-                roundArrowCountDao.insert(arrowCount)
-            }
+            roundArrowCountDao.insert(arrowCount)
         }
-        assertEquals(arrowCounts.toSet(), retrievedArrowCounts.retrieveValue()!!.toSet())
+        assertEquals(arrowCounts.toSet(), retrievedArrowCounts.first().toSet())
 
         /*
          * Delete
          */
         val deleteArrowCount = arrowCounts[0]
         arrowCounts.removeAt(0)
-        runBlocking {
-            roundArrowCountDao.delete(deleteArrowCount.roundId, deleteArrowCount.distanceNumber)
-        }
-        assertEquals(arrowCounts.toSet(), retrievedArrowCounts.retrieveValue()!!.toSet())
+        roundArrowCountDao.delete(deleteArrowCount.roundId, deleteArrowCount.distanceNumber)
+        assertEquals(arrowCounts.toSet(), retrievedArrowCounts.first().toSet())
 
         /*
          * Delete all
          */
-        runBlocking {
-            roundArrowCountDao.deleteAll(2)
-        }
-        assertEquals(arrowCounts.filterNot { it.roundId == 2 }.toSet(), retrievedArrowCounts.retrieveValue()!!.toSet())
+        roundArrowCountDao.deleteAll(2)
+        assertEquals(arrowCounts.filterNot { it.roundId == 2 }.toSet(), retrievedArrowCounts.first().toSet())
     }
 
     /**
      * Tests adding, retrieving, deleting one entry, and deleting a round's entries
      */
     @Test
-    fun roundSubTypesTest() {
-        runBlocking {
-            TestUtils.ROUNDS.forEach { roundDao.insert(it) }
-        }
+    fun roundSubTypesTest() = runTest {
+        TestUtils.ROUNDS.forEach { roundDao.insert(it) }
 
-        val retrievedSubTypes = roundSubTypeDao.getAllSubTypes()
+        val retrievedSubTypes =
+                roundDao.getAllRoundsFullInfo().map { all -> all.flatMap { it.roundSubTypes.orEmpty() } }
 
         /*
          * Add and retrieve
          */
         val subTypes = TestUtils.ROUND_SUB_TYPES.toMutableList()
         for (subType in subTypes) {
-            runBlocking {
-                roundSubTypeDao.insert(subType)
-            }
+            roundSubTypeDao.insert(subType)
         }
-        assertEquals(subTypes.toSet(), retrievedSubTypes.retrieveValue()!!.toSet())
+        assertEquals(subTypes.toSet(), retrievedSubTypes.first().toSet())
 
         /*
          * Delete
          */
         val deleteSubType = subTypes[0]
         subTypes.removeAt(0)
-        runBlocking {
-            roundSubTypeDao.delete(deleteSubType.roundId, deleteSubType.subTypeId)
-        }
-        assertEquals(subTypes.toSet(), retrievedSubTypes.retrieveValue()!!.toSet())
+        roundSubTypeDao.delete(deleteSubType.roundId, deleteSubType.subTypeId)
+        assertEquals(subTypes.toSet(), retrievedSubTypes.first().toSet())
 
         /*
          * Delete all
          */
-        runBlocking {
-            roundSubTypeDao.deleteAll(2)
-        }
-        assertEquals(subTypes.filterNot { it.roundId == 2 }.toSet(), retrievedSubTypes.retrieveValue()!!.toSet())
+        roundSubTypeDao.deleteAll(2)
+        assertEquals(subTypes.filterNot { it.roundId == 2 }.toSet(), retrievedSubTypes.first().toSet())
     }
 
     /**
      * Tests adding, retrieving, deleting one entry, and deleting a round's entries
      */
     @Test
-    fun roundDistancesTest() {
+    fun roundDistancesTest() = runTest {
         runBlocking {
             TestUtils.ROUNDS.forEach { roundDao.insert(it) }
         }
 
-        val retrievedDistances = roundDistanceDao.getAllDistances()
+        val retrievedDistances =
+                roundDao.getAllRoundsFullInfo().map { all -> all.flatMap { it.roundDistances.orEmpty() } }
 
         /*
          * Add and retrieve
          */
         val distances = TestUtils.ROUND_DISTANCES.toMutableList()
         for (distance in distances) {
-            runBlocking {
-                roundDistanceDao.insert(distance)
-            }
+            roundDistanceDao.insert(distance)
         }
-        assertEquals(distances.toSet(), retrievedDistances.retrieveValue()!!.toSet())
+        assertEquals(distances.toSet(), retrievedDistances.first().toSet())
 
         /*
          * Delete
          */
         val deleteDistance = distances[0]
         distances.removeAt(0)
-        runBlocking {
-            roundDistanceDao.delete(
-                    deleteDistance.roundId, deleteDistance.distanceNumber, deleteDistance.subTypeId
-            )
-        }
-        assertEquals(distances.toSet(), retrievedDistances.retrieveValue()!!.toSet())
+        roundDistanceDao.delete(
+                deleteDistance.roundId, deleteDistance.distanceNumber, deleteDistance.subTypeId
+        )
+        assertEquals(distances.toSet(), retrievedDistances.first().toSet())
 
         /*
          * Delete all
          */
-        runBlocking {
-            roundDistanceDao.deleteAll(2)
-        }
-        assertEquals(distances.filterNot { it.roundId == 2 }.toSet(), retrievedDistances.retrieveValue()!!.toSet())
+        roundDistanceDao.deleteAll(2)
+        assertEquals(distances.filterNot { it.roundId == 2 }.toSet(), retrievedDistances.first().toSet())
     }
 }

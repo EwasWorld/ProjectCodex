@@ -3,7 +3,7 @@ package eywa.projectcodex.databaseTests
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import eywa.projectcodex.common.CommonStrings
+import eywa.projectcodex.common.testDatabaseName
 import eywa.projectcodex.database.ScoresRoomDatabase
 
 object DatabaseTestUtils {
@@ -15,7 +15,7 @@ object DatabaseTestUtils {
 
     fun createDatabase(): ScoresRoomDatabase {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        context.deleteDatabase(CommonStrings.testDatabaseName)
+        context.deleteDatabase(testDatabaseName)
         return Room
                 .inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java)
                 .allowMainThreadQueries()

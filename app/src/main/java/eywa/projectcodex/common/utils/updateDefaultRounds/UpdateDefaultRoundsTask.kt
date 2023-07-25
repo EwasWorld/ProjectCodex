@@ -1,12 +1,11 @@
 package eywa.projectcodex.common.utils.updateDefaultRounds
 
-import android.content.SharedPreferences
 import android.content.res.Resources
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.KlaxonException
+import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.R
 import eywa.projectcodex.common.logging.CustomLogger
-import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.CompletionType.ALREADY_UP_TO_DATE
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.CompletionType.COMPLETE
@@ -17,11 +16,15 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects.RoundsVers
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundRepo
+import eywa.projectcodex.datastore.CodexDatastore
+import eywa.projectcodex.datastore.DatastoreKey.AppVersionAtLastDefaultRoundsUpdate
+import eywa.projectcodex.datastore.DatastoreKey.CurrentDefaultRoundsVersion
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -41,43 +44,53 @@ object DefaultRoundInfoHelper {
 open class UpdateDefaultRoundsTask(
         private val repository: RoundRepo,
         private val resources: Resources,
-        private val sharedPreferences: SharedPreferences,
+        private val datastore: CodexDatastore,
         private val logger: CustomLogger,
         private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    private val _state: MutableStateFlow<UpdateDefaultRoundsState?> = MutableStateFlow(null)
-    open val state: StateFlow<UpdateDefaultRoundsState?> = _state
+    private val _state = MutableStateFlow<UpdateDefaultRoundsState>(NotStarted)
+    open val state = _state.asStateFlow()
 
     open suspend fun runTask() = withContext(dispatcher) {
-        if (_state.value != null) {
+        if (_state.value != NotStarted) {
             return@withContext false
         }
         logger.d(LOG_TAG, "runTask")
         setState(Initialising)
 
-        // TODO Check whether app version has changed
-
         /*
          * Check if an update is needed
          */
-        val currentVersion = sharedPreferences.getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1).takeIf { it != -1 }
+        val datastoreInfo =
+                datastore.get(listOf(AppVersionAtLastDefaultRoundsUpdate, CurrentDefaultRoundsVersion)).first()
+        val appVersionAtLastUpdate = datastoreInfo[AppVersionAtLastDefaultRoundsUpdate]!!
+                .takeIf { it != AppVersionAtLastDefaultRoundsUpdate.defaultValue }
+        val dbRoundsCurrentVersion = datastoreInfo[CurrentDefaultRoundsVersion]!!
+                .takeIf { it != CurrentDefaultRoundsVersion.defaultValue }
+
+        if (BuildConfig.VERSION_CODE == appVersionAtLastUpdate && dbRoundsCurrentVersion != null) {
+            setState(Complete(dbRoundsCurrentVersion, ALREADY_UP_TO_DATE))
+            return@withContext true
+        }
+
         val rawString =
                 resources.openRawResource(R.raw.default_rounds_data).bufferedReader().use { it.readText() }
         val klaxon = Klaxon().converter(RoundsVersion.RoundsVersionJsonConverter())
-        val dataVersion: Int?
+        val defaultRoundsFileVersion: Int?
         try {
-            dataVersion = klaxon.parse<RoundsVersion>(rawString)?.version
+            defaultRoundsFileVersion = klaxon.parse<RoundsVersion>(rawString)?.version
         }
         catch (e: KlaxonException) {
-            setState(InternalError(currentVersion, "Failed to parse default rounds file"))
+            setState(InternalError(dbRoundsCurrentVersion, "Failed to parse default rounds file"))
             return@withContext true
         }
-        if (dataVersion == null) {
-            setState(InternalError(currentVersion, "Nothing returned from JSON parse of file"))
+        if (defaultRoundsFileVersion == null) {
+            setState(InternalError(dbRoundsCurrentVersion, "Nothing returned from JSON parse of file"))
             return@withContext true
         }
-        if ((currentVersion ?: -1) >= dataVersion) {
-            setState(Complete(currentVersion, ALREADY_UP_TO_DATE))
+        if ((dbRoundsCurrentVersion ?: -1) >= defaultRoundsFileVersion) {
+            datastore.set(AppVersionAtLastDefaultRoundsUpdate, BuildConfig.VERSION_CODE)
+            setState(Complete(dbRoundsCurrentVersion, ALREADY_UP_TO_DATE))
             return@withContext true
         }
 
@@ -104,7 +117,7 @@ open class UpdateDefaultRoundsTask(
             klaxon.converter(RoundsList.RoundsListJsonConverter())
             val fileRoundStrings: List<String>? = klaxon.parse<RoundsList>(rawString)?.rounds
             if (fileRoundStrings == null) {
-                setState(InternalError(currentVersion, "Nothing returned from JSON parse of round strings"))
+                setState(InternalError(dbRoundsCurrentVersion, "Nothing returned from JSON parse of round strings"))
                 return@withContext true
             }
 
@@ -118,7 +131,7 @@ open class UpdateDefaultRoundsTask(
             klaxon.converter(DefaultRoundInfoJsonConverter(logger))
             val progressTokenTotalItems = fileRoundStrings.size
             for (readRound in fileRoundStrings.withIndex()) {
-                setState(StartProcessingNew(currentVersion, readRound.index + 1, progressTokenTotalItems))
+                setState(StartProcessingNew(dbRoundsCurrentVersion, readRound.index + 1, progressTokenTotalItems))
                 val readRoundInfo: DefaultRoundInfo?
                 try {
                     readRoundInfo = klaxon.parse<DefaultRoundInfo>(readRound.value)
@@ -128,7 +141,7 @@ open class UpdateDefaultRoundsTask(
                     val klaxonMessage = if (e is KlaxonException) e.message ?: "KlaxonException" else null
                     setState(
                             InternalError(
-                                    currentVersion,
+                                    dbRoundsCurrentVersion,
                                     "Failed to create rounds object at index ${readRound.index}" +
                                             (klaxonMessage?.let { ". $it" } ?: ""),
                             )
@@ -139,7 +152,7 @@ open class UpdateDefaultRoundsTask(
                     // TODO Rollback all updates?
                     setState(
                             InternalError(
-                                    currentVersion,
+                                    dbRoundsCurrentVersion,
                                     "Nothing returned from JSON parse of round at index ${readRound.index}",
                             )
                     )
@@ -152,7 +165,12 @@ open class UpdateDefaultRoundsTask(
                 val fileRoundName = DefaultRoundInfoHelper.formatToDbName(readRoundInfo.displayName)
                 if (!fileRoundNames.add(fileRoundName)) {
                     // TODO Rollback all updates?
-                    setState(InternalError(currentVersion, "Duplicate name in default rounds file: $fileRoundName"))
+                    setState(
+                            InternalError(
+                                    dbRoundsCurrentVersion,
+                                    "Duplicate name in default rounds file: $fileRoundName",
+                            )
+                    )
                     return@withContext true
                 }
 
@@ -163,7 +181,7 @@ open class UpdateDefaultRoundsTask(
                 val dbRoundInfo = dbRoundsInfo.find { fullInfo ->
                     val legacyName = readRoundInfo.legacyName?.let { DefaultRoundInfoHelper.formatToDbName(it) }
                     // Older versions matched on names
-                    if (currentVersion != null && currentVersion < 4) {
+                    if (dbRoundsCurrentVersion != null && dbRoundsCurrentVersion < 4) {
                         fullInfo.round.name == legacyName
                     }
                     // Newer versions use an ID
@@ -189,7 +207,7 @@ open class UpdateDefaultRoundsTask(
             /*
              * Remove rounds and related objects from the database that are not in readRounds
              */
-            setState(DeletingOld(currentVersion))
+            setState(DeletingOld(dbRoundsCurrentVersion))
             repository.fullRoundsInfo.first()
                     .filter { !fileRoundNames.contains(it.round.name) }
                     .flatMap { fullRoundInfo ->
@@ -210,22 +228,21 @@ open class UpdateDefaultRoundsTask(
             /*
              * Update the version so that we only update if necessary
              */
-            val editor = sharedPreferences.edit()
-            editor.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, dataVersion)
-            editor.apply()
-            logger.d(LOG_TAG, "runTask successfully completed")
+            datastore.set(AppVersionAtLastDefaultRoundsUpdate, BuildConfig.VERSION_CODE)
+            datastore.set(CurrentDefaultRoundsVersion, defaultRoundsFileVersion)
 
-            setState(Complete(dataVersion, COMPLETE))
+            setState(Complete(defaultRoundsFileVersion, COMPLETE))
             return@withContext true
         }
         finally {
             logger.d(LOG_TAG, "runTask finally")
+            setState(UnexpectedFinish)
             // TODO Is a lock required?
 //            RoundRepo.repositoryWriteLock.unlock()
         }
     }
 
-    private suspend fun setState(state: UpdateDefaultRoundsState) {
+    private fun setState(state: UpdateDefaultRoundsState) {
         when (state) {
             is InternalError -> state.message
             is TemporaryError -> state.type.name
@@ -237,7 +254,21 @@ open class UpdateDefaultRoundsTask(
                             + "\nlast progress token was " + _state.value.asLogString()
             )
         }
-        _state.emit(state)
+        _state.update {
+            if (state == UnexpectedFinish && it.hasTaskFinished) {
+                return@update it
+            }
+
+            if (state == UnexpectedFinish) {
+                logger.e(
+                        LOG_TAG,
+                        "Update default rounds task finished unexpectedly: "
+                                + "\nlast progress token was " + it.asLogString()
+                )
+            }
+
+            state
+        }
     }
 
     /**

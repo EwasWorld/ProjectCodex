@@ -25,7 +25,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
-import eywa.projectcodex.common.utils.updateDefaultRounds.asDisplayString
 
 @Composable
 fun AboutScreen(
@@ -37,7 +36,7 @@ fun AboutScreen(
 
 @Composable
 fun AboutScreen(
-        state: UpdateDefaultRoundsState?
+        state: UpdateDefaultRoundsState
 ) {
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
         Column(
@@ -66,7 +65,7 @@ fun AboutScreen(
                 Text(
                         text = stringResource(
                                 R.string.about__rounds_version,
-                                state?.databaseVersion ?: -1,
+                                state.databaseVersion ?: -1,
                         ),
                         textAlign = TextAlign.Center,
                 )

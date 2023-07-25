@@ -3,7 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.model.SightMark
 

@@ -15,6 +15,7 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsSta
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
+import eywa.projectcodex.datastore.CodexDatastore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Singleton
@@ -28,14 +29,14 @@ class LocalUpdateDefaultRoundsModule {
     fun providesDefaultRoundsInfo(
             @ApplicationContext context: Context,
             db: ScoresRoomDatabase,
-            sharedPreferences: SharedPreferences,
+            datastore: CodexDatastore,
             logging: CustomLogger,
     ): UpdateDefaultRoundsTask {
         return if (useActual) {
-            UpdateDefaultRoundsTask(RoundRepo(db), context.resources, sharedPreferences, logging)
+            UpdateDefaultRoundsTask(RoundRepo(db), context.resources, datastore, logging)
         }
         else {
-            FakeUpdateDefaultRoundsTask(RoundRepo(db), context, sharedPreferences, logging)
+            FakeUpdateDefaultRoundsTask(RoundRepo(db), context, datastore, logging)
                     .apply { mockedTask = this }
         }
     }
@@ -54,9 +55,9 @@ class LocalUpdateDefaultRoundsModule {
 class FakeUpdateDefaultRoundsTask(
         repository: RoundRepo,
         context: Context,
-        sharedPreferences: SharedPreferences,
+        datastore: CodexDatastore,
         customLogger: CustomLogger,
-) : UpdateDefaultRoundsTask(repository, context.resources, sharedPreferences, customLogger) {
+) : UpdateDefaultRoundsTask(repository, context.resources, datastore, customLogger) {
     var runTaskFakeReturn = true
     var stateFakeReturn = UpdateDefaultRoundsState.Complete(1, CompletionType.ALREADY_UP_TO_DATE)
 
@@ -65,7 +66,7 @@ class FakeUpdateDefaultRoundsTask(
     var stateCalls = 0
         private set
 
-    override val state: StateFlow<UpdateDefaultRoundsState?>
+    override val state: StateFlow<UpdateDefaultRoundsState>
         get() {
             stateCalls++
             return MutableStateFlow(stateFakeReturn)

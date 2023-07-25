@@ -8,8 +8,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.*
-import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
@@ -38,12 +37,6 @@ import kotlin.reflect.jvm.jvmName
  */
 @HiltAndroidTest
 class LargeScaleInstrumentedTest {
-    companion object {
-        init {
-            SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
-        }
-    }
-
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 

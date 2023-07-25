@@ -2,17 +2,19 @@ package eywa.projectcodex
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
-import eywa.projectcodex.common.CommonStrings
-import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.common.CustomConditionWaiter
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.hiltModules.LocalUpdateDefaultRoundsModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
@@ -22,7 +24,6 @@ import org.junit.runner.RunWith
 class UpdateDefaultRoundsActualE2eTests {
     companion object {
         init {
-            SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
             LocalUpdateDefaultRoundsModule.useActual = true
         }
 
@@ -44,9 +45,6 @@ class UpdateDefaultRoundsActualE2eTests {
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
-
-    @get:Rule
-    var rule = ActivityScenarioRule(MainActivity::class.java)
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
@@ -72,7 +70,7 @@ class UpdateDefaultRoundsActualE2eTests {
      */
     @Test
     fun testUpdateTime() {
-        scenario = rule.scenario
+        scenario = composeTestRule.activityRule.scenario
 
         composeTestRule.mainMenuRobot {
             clickAboutIcon {

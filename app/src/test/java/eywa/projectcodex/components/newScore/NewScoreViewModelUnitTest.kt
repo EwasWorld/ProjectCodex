@@ -43,7 +43,7 @@ class NewScoreViewModelUnitTest {
     private suspend fun getSut(
             testScope: CoroutineScope,
             archerRoundId: Int? = null,
-            updateDefaultRoundsStates: List<UpdateDefaultRoundsState?>? = listOf(updateDefaultRoundsCompleteState),
+            updateDefaultRoundsStates: List<UpdateDefaultRoundsState>? = listOf(updateDefaultRoundsCompleteState),
     ): NewScoreViewModel {
         val savedStateHandle = MockSavedStateHandle().apply {
             archerRoundId?.let { values["archerRoundId"] = it }
@@ -52,7 +52,7 @@ class NewScoreViewModelUnitTest {
         val updateDefaultRoundsTask: UpdateDefaultRoundsTask = mock {
             on { state } doReturn flow {
                 if (updateDefaultRoundsStates.isNullOrEmpty()) {
-                    emit(null)
+                    emit(NotStarted)
                 }
                 updateDefaultRoundsStates?.forEach {
                     emit(it)

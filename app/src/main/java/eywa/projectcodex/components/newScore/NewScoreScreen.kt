@@ -44,7 +44,6 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
-import eywa.projectcodex.common.utils.updateDefaultRounds.asDisplayString
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import java.util.*
@@ -110,7 +109,7 @@ fun NewScoreScreen(
         ) {
             DateRow(state, listener)
 
-            if (state.isUpdateDefaultRoundsInProgress) {
+            if (!state.updateDefaultRoundsState.hasTaskFinished) {
                 Text(
                         text = stringResource(R.string.create_round__default_rounds_updating_warning),
                         style = CodexTypography.NORMAL.copy(

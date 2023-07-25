@@ -4,7 +4,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsScreen.TestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 
 class ArcherRoundStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>

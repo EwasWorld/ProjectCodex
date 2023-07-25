@@ -4,7 +4,7 @@ import androidx.compose.ui.test.*
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 
 abstract class ArrowInputsRobot(
         composeTestRule: ComposeTestRule<MainActivity>,

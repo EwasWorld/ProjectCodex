@@ -2,16 +2,10 @@ package eywa.projectcodex.instrumentedTests
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import eywa.projectcodex.common.CommonStrings
-import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import org.junit.Rule
 
 class ActivityScenarioTest {
-    init {
-        SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
-    }
-
     @get:Rule
     var rule = ActivityScenarioRule(MainActivity::class.java)
 

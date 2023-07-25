@@ -1,10 +1,10 @@
 package eywa.projectcodex.instrumentedTests.robots
 
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresCheckbox
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresTestTag
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresTextField
+import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.components.emailScores.EmailScoresCheckbox
+import eywa.projectcodex.components.emailScores.EmailScoresTestTag
+import eywa.projectcodex.components.emailScores.EmailScoresTextField
 
 class EmailScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>

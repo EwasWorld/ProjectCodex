@@ -7,7 +7,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndScreen.TestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 
 class InputEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>

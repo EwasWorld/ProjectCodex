@@ -8,10 +8,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
-import eywa.projectcodex.common.CommonStrings
 import eywa.projectcodex.common.TestUtils
-import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
@@ -31,12 +29,6 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class ScorePadInstrumentedTest {
-    companion object {
-        init {
-            SharedPrefs.sharedPreferencesCustomName = CommonStrings.testSharedPrefsName
-        }
-    }
-
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 

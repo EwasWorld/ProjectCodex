@@ -6,7 +6,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import org.hamcrest.Matcher
 
 

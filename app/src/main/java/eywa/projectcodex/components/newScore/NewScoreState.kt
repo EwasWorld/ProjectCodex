@@ -20,7 +20,7 @@ data class NewScoreState(
         /**
          * Should block round selection while this is true
          */
-        val updateDefaultRoundsState: UpdateDefaultRoundsState? = null,
+        val updateDefaultRoundsState: UpdateDefaultRoundsState = UpdateDefaultRoundsState.NotStarted,
 
         /*
          * User-set info
@@ -48,19 +48,6 @@ data class NewScoreState(
         val roundNotFoundError: Boolean = false,
 ) {
     val isEditing by lazy { roundBeingEdited != null }
-
-    val isUpdateDefaultRoundsInProgress by lazy {
-        when (updateDefaultRoundsState) {
-            UpdateDefaultRoundsState.Initialising,
-            is UpdateDefaultRoundsState.StartProcessingNew,
-            is UpdateDefaultRoundsState.DeletingOld -> true
-
-            null,
-            is UpdateDefaultRoundsState.TemporaryError,
-            is UpdateDefaultRoundsState.InternalError,
-            is UpdateDefaultRoundsState.Complete -> false
-        }
-    }
 
     /**
      * Number of arrows to be shot for [selectedRound]

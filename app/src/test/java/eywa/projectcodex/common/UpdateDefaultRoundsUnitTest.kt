@@ -1,13 +1,15 @@
 package eywa.projectcodex.common
 
-import android.content.SharedPreferences
 import android.content.res.Resources
-import eywa.projectcodex.common.utils.SharedPrefs
+import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.datastore.CodexDatastore
+import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.testUtils.MockDatastore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flow
@@ -31,8 +33,7 @@ class UpdateDefaultRoundsUnitTest {
 
     private lateinit var repo: RoundRepo
     private lateinit var resources: Resources
-    private lateinit var sharedPrefs: SharedPreferences
-    private lateinit var sharedPrefsEditor: SharedPreferences.Editor
+    private lateinit var mockDatastore: CodexDatastore
 
     private lateinit var capturedUpdates: MutableList<Map<Any, UpdateType>>
 
@@ -50,16 +51,21 @@ class UpdateDefaultRoundsUnitTest {
             }
         }
 
-        sharedPrefsEditor = mock {}
-        sharedPrefs = mock {
-            on { getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1) } doReturn currentDbVersion
-            on { edit() } doReturn sharedPrefsEditor
+        val datastoreValues = mutableMapOf<DatastoreKey<Int>, Int>()
+        if (currentDbVersion != null) {
+            datastoreValues[DatastoreKey.CurrentDefaultRoundsVersion] = currentDbVersion
         }
+        if (lastUpdateAppVersion != null) {
+            datastoreValues[DatastoreKey.AppVersionAtLastDefaultRoundsUpdate] = lastUpdateAppVersion
+        }
+
+        val datastore = MockDatastore().apply { values = datastoreValues.toMap() }
+        mockDatastore = datastore.mock
 
         sut = UpdateDefaultRoundsTask(
                 repository = repo,
                 resources = resources,
-                sharedPreferences = sharedPrefs,
+                datastore = mockDatastore,
                 logger = mock {},
                 dispatcher = dispatcher,
         )
@@ -125,7 +131,7 @@ class UpdateDefaultRoundsUnitTest {
         val actualStates = collector.stopCollecting()
         assertEquals(
                 listOf(
-                        null,
+                        NotStarted,
                         Initialising,
                         StartProcessingNew(null, 1, 2),
                         StartProcessingNew(null, 2, 2),
@@ -135,8 +141,8 @@ class UpdateDefaultRoundsUnitTest {
                 actualStates,
         )
 
-        verify(sharedPrefs).getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
-        verify(sharedPrefsEditor).putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, TestData.FILE_DB_VERSION)
+        verify(mockDatastore).set(DatastoreKey.CurrentDefaultRoundsVersion, TestData.FILE_DB_VERSION)
+        verify(mockDatastore).set(DatastoreKey.AppVersionAtLastDefaultRoundsUpdate, BuildConfig.VERSION_CODE)
 
         checkCapturedUpdates(
                 TestData.YORK_ALL_ROUND_OBJECTS.associateWith { UpdateType.NEW },
@@ -174,7 +180,7 @@ class UpdateDefaultRoundsUnitTest {
         val actualStates = collector.stopCollecting()
         assertEquals(
                 listOf(
-                        null,
+                        NotStarted,
                         Initialising,
                         StartProcessingNew(null, 1, 1),
                         DeletingOld(null),
@@ -183,8 +189,8 @@ class UpdateDefaultRoundsUnitTest {
                 actualStates,
         )
 
-        verify(sharedPrefs).getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
-        verify(sharedPrefsEditor).putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, TestData.FILE_DB_VERSION)
+        verify(mockDatastore).set(DatastoreKey.CurrentDefaultRoundsVersion, TestData.FILE_DB_VERSION)
+        verify(mockDatastore).set(DatastoreKey.AppVersionAtLastDefaultRoundsUpdate, BuildConfig.VERSION_CODE)
 
         checkCapturedUpdates(
                 listOf(
@@ -215,7 +221,7 @@ class UpdateDefaultRoundsUnitTest {
         val actualStates = collector.stopCollecting()
         assertEquals(
                 listOf(
-                        null,
+                        NotStarted,
                         Initialising,
                         StartProcessingNew(null, 1, 1),
                         DeletingOld(null),
@@ -224,8 +230,8 @@ class UpdateDefaultRoundsUnitTest {
                 actualStates,
         )
 
-        verify(sharedPrefs).getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
-        verify(sharedPrefsEditor).putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, TestData.FILE_DB_VERSION)
+        verify(mockDatastore).set(DatastoreKey.CurrentDefaultRoundsVersion, TestData.FILE_DB_VERSION)
+        verify(mockDatastore).set(DatastoreKey.AppVersionAtLastDefaultRoundsUpdate, BuildConfig.VERSION_CODE)
 
         checkCapturedUpdates(
                 TestData.YORK_ALL_ROUND_OBJECTS.associateWith { UpdateType.DELETE },
@@ -236,7 +242,7 @@ class UpdateDefaultRoundsUnitTest {
      * Test that is the database is already up to date, the task will cancel early
      */
     @Test
-    fun testUpToDate() = runTest(dispatcher) {
+    fun testFileVersionUpToDate() = runTest(dispatcher) {
         SetupParams(
                 currentDbVersion = TestData.FILE_DB_VERSION,
         ).apply {
@@ -251,15 +257,48 @@ class UpdateDefaultRoundsUnitTest {
         val actualStates = collector.stopCollecting()
         assertEquals(
                 listOf(
-                        null,
+                        NotStarted,
                         Initialising,
                         Complete(TestData.FILE_DB_VERSION, CompletionType.ALREADY_UP_TO_DATE),
                 ),
                 actualStates,
         )
 
-        verify(sharedPrefs).getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1)
-        verify(sharedPrefsEditor, never()).putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, TestData.FILE_DB_VERSION)
+        verify(mockDatastore, never()).set(DatastoreKey.CurrentDefaultRoundsVersion, TestData.FILE_DB_VERSION)
+        verify(mockDatastore).set(DatastoreKey.AppVersionAtLastDefaultRoundsUpdate, BuildConfig.VERSION_CODE)
+
+        checkCapturedUpdates()
+    }
+
+    /**
+     * Test that is the database is already up to date, the task will cancel early
+     */
+    @Test
+    fun testAppUpToDate() = runTest(dispatcher) {
+        SetupParams(
+                currentDbVersion = TestData.FILE_DB_VERSION,
+                lastUpdateAppVersion = BuildConfig.VERSION_CODE,
+        ).apply {
+            setFileText(TestData.EMPTY_ROUNDS_JSON)
+            setup()
+        }
+
+        val collector = StateCollector().apply { startCollecting() }
+
+        assert(sut.runTask())
+
+        val actualStates = collector.stopCollecting()
+        assertEquals(
+                listOf(
+                        NotStarted,
+                        Initialising,
+                        Complete(TestData.FILE_DB_VERSION, CompletionType.ALREADY_UP_TO_DATE),
+                ),
+                actualStates,
+        )
+
+        verify(mockDatastore, never()).set(DatastoreKey.CurrentDefaultRoundsVersion, TestData.FILE_DB_VERSION)
+        verify(mockDatastore, never()).set(DatastoreKey.AppVersionAtLastDefaultRoundsUpdate, BuildConfig.VERSION_CODE)
 
         checkCapturedUpdates()
     }
@@ -281,7 +320,7 @@ class UpdateDefaultRoundsUnitTest {
         val actualStates = collector.stopCollecting()
         assertEquals(
                 listOf(
-                        null,
+                        NotStarted,
                         Initialising,
                         InternalError(null, "Failed to parse default rounds file"),
                 ),
@@ -325,7 +364,7 @@ class UpdateDefaultRoundsUnitTest {
         val actualStates = collector.stopCollecting()
         assertEquals(
                 listOf(
-                        null,
+                        NotStarted,
                         Initialising,
                         StartProcessingNew(null, 1, 2),
                         StartProcessingNew(null, 2, 2),
@@ -755,7 +794,7 @@ class UpdateDefaultRoundsUnitTest {
 
     private inner class StateCollector {
         private var collectorJob: Job? = null
-        private val collectedStates = mutableListOf<UpdateDefaultRoundsState?>()
+        private val collectedStates = mutableListOf<UpdateDefaultRoundsState>()
 
         fun TestScope.startCollecting() {
             require(collectorJob == null) { "Cannot call startCollecting more than once" }
@@ -764,7 +803,7 @@ class UpdateDefaultRoundsUnitTest {
             }
         }
 
-        fun stopCollecting(): List<UpdateDefaultRoundsState?> {
+        fun stopCollecting(): List<UpdateDefaultRoundsState> {
             require(collectorJob != null) { "Must call startCollecting first" }
             collectorJob!!.cancel()
             return collectedStates
@@ -861,7 +900,8 @@ class UpdateDefaultRoundsUnitTest {
     }
 
     class SetupParams(
-            val currentDbVersion: Int = DEFAULT_DB_VERSION,
+            val currentDbVersion: Int? = null,
+            val lastUpdateAppVersion: Int? = null,
             val fullRoundInfo: List<FullRoundInfo> = listOf(),
     ) {
         private var fileText: String? = null
@@ -877,10 +917,6 @@ class UpdateDefaultRoundsUnitTest {
         fun setFileStream(value: InputStream) {
             fileText = null
             fileStream = value
-        }
-
-        companion object {
-            const val DEFAULT_DB_VERSION = -1
         }
     }
 

@@ -9,7 +9,7 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.asCalendar
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue

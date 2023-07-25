@@ -1,8 +1,6 @@
 package eywa.projectcodex.common.handicaps
 
-import android.content.SharedPreferences
 import android.content.res.Resources
-import eywa.projectcodex.common.utils.SharedPrefs
 import eywa.projectcodex.common.utils.transpose
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.RoundFace
@@ -11,6 +9,7 @@ import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.model.Handicap.HandicapPair
 import eywa.projectcodex.model.roundHandicap
+import eywa.projectcodex.testUtils.MockDatastore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -43,16 +42,10 @@ class FullAgbHandicapUnitTest {
         val inputStream = FileInputStream("src\\main\\res\\general\\raw\\default_rounds_data.json")
         val resources = mock<Resources> { on { openRawResource(any()) } doReturn inputStream }
 
-        val sharedPrefsEditor = mock<SharedPreferences.Editor> {}
-        val sharedPrefs = mock<SharedPreferences> {
-            on { getInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, -1) } doReturn -1
-            on { edit() } doReturn sharedPrefsEditor
-        }
-
         UpdateDefaultRoundsTask(
                 repository = repo,
                 resources = resources,
-                sharedPreferences = sharedPrefs,
+                datastore = MockDatastore().mock,
                 logger = mock {},
         ).runTask()
 

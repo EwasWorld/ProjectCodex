@@ -9,7 +9,7 @@ import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import java.util.*
 
 abstract class BaseRobot(

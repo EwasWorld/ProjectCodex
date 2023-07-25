@@ -2,13 +2,13 @@ package eywa.projectcodex.common
 
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import eywa.projectcodex.common.archeryObjects.Arrow
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.model.Arrow
 import org.mockito.ArgumentCaptor
 import java.sql.Date
 import java.util.*

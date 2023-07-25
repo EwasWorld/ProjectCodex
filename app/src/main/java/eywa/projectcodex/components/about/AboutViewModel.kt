@@ -19,13 +19,13 @@ import javax.inject.Inject
 class AboutViewModel @Inject constructor(
         val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
 ) : ViewModel() {
-    private val _state: MutableStateFlow<UpdateDefaultRoundsState?> = MutableStateFlow(null)
+    private val _state = MutableStateFlow<UpdateDefaultRoundsState>(UpdateDefaultRoundsState.NotStarted)
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            updateDefaultRoundsTask.state.collectLatest { defautRoundsState ->
-                _state.update { defautRoundsState }
+            updateDefaultRoundsTask.state.collectLatest { defaultRoundsState ->
+                _state.update { defaultRoundsState }
             }
         }
     }

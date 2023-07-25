@@ -33,5 +33,24 @@ class MockDatastore {
                 }
             }
         }
+        on { get<Any>(keys = any()) } doAnswer {
+            @Suppress("UNCHECKED_CAST")
+            flow {
+                fun getEmission(keys: Collection<DatastoreKey<*>>, keyValues: Map<DatastoreKey<out Any>, Any>) =
+                        keys.associateWith { keyValues[it] ?: it.defaultValue } as Map<DatastoreKey<Any>, Any>
+
+                val keys = it.arguments.first() as Collection<DatastoreKey<*>>
+                val firstEmission = getEmission(keys, values)
+                emit(firstEmission)
+
+                valuesDelayed.takeIf { !it.isNullOrEmpty() }?.let {
+                    val secondEmission = getEmission(keys, it)
+                    if (secondEmission != firstEmission) {
+                        delay(TestUtils.FLOW_EMIT_DELAY)
+                        emit(secondEmission)
+                    }
+                }
+            }
+        }
     }
 }

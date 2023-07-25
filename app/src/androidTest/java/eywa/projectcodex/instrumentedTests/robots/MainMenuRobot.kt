@@ -6,7 +6,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuTestTag
 
 class MainMenuRobot(

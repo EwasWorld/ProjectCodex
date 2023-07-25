@@ -11,7 +11,7 @@ import com.azimolabs.conditionwatcher.Instruction
 import eywa.projectcodex.common.*
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import java.util.*

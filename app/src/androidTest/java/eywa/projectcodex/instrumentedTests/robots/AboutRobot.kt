@@ -3,7 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.components.about.AboutScreenTestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 
 class AboutRobot(
         composeTestRule: ComposeTestRule<MainActivity>

@@ -5,7 +5,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot

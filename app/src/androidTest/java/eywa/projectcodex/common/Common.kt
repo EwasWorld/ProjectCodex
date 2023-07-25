@@ -10,9 +10,6 @@ import android.widget.DatePicker
 import android.widget.NumberPicker
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.*
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
@@ -21,16 +18,13 @@ import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import eywa.projectcodex.common.utils.SharedPrefs
-import eywa.projectcodex.common.utils.SharedPrefs.Companion.getSharedPreferences
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.TypeSafeMatcher
 import java.util.*
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
@@ -40,6 +34,7 @@ import kotlin.reflect.KClass
  */
 val latchAwaitTimeSeconds = if (Debug.isDebuggerConnected()) 60L * 60 else 10L
 val latchAwaitTimeUnit = TimeUnit.SECONDS
+const val testDatabaseName = "test_database"
 
 fun logMessage(logClass: KClass<*>, message: String) {
     Log.i("ProjCodexTest" + logClass.simpleName, message)
@@ -124,18 +119,6 @@ fun AppCompatActivity.idFromString(name: String): Int {
     return resources.getIdentifier(name, "id", packageName)
 }
 
-fun <T> LiveData<T>.retrieveValue(): T? {
-    var value: T? = null
-    val latch = CountDownLatch(1)
-    val observer = Observer<T> { t ->
-        value = t
-        latch.countDown()
-    }
-    observeForever(observer)
-    latch.await(2, TimeUnit.SECONDS)
-    return value
-}
-
 fun setNumberPickerValue(value: Int): ViewAction {
     return object : ViewAction {
         override fun perform(uiController: UiController?, view: View) {
@@ -213,12 +196,4 @@ fun clickAlertDialog(alertDialogText: String, buttonText: String = "OK") {
         }
     })
     onView(withText(buttonText)).perform(ViewActions.click())
-}
-
-fun setSharedPrefs(scenario: ActivityScenario<MainActivity>, value: Int = -1) {
-    scenario.onActivity { activity ->
-        val prefs = activity.getSharedPreferences().edit()
-        prefs.putInt(SharedPrefs.DEFAULT_ROUNDS_VERSION.key, value)
-        prefs.apply()
-    }
 }

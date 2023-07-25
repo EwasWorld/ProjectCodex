@@ -1,7 +1,6 @@
 package eywa.projectcodex.hiltModules
 
 import android.content.Context
-import android.content.SharedPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,6 +10,7 @@ import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
+import eywa.projectcodex.datastore.CodexDatastore
 import javax.inject.Singleton
 
 @Module
@@ -21,7 +21,7 @@ class UpdateDefaultRoundsModule {
     fun providesDefaultRoundsInfo(
             @ApplicationContext context: Context,
             db: ScoresRoomDatabase,
-            sharedPreferences: SharedPreferences,
+            datastore: CodexDatastore,
             logging: CustomLogger,
-    ) = UpdateDefaultRoundsTask(RoundRepo(db), context.resources, sharedPreferences, logging)
+    ) = UpdateDefaultRoundsTask(RoundRepo(db), context.resources, datastore, logging)
 }

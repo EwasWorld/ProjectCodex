@@ -5,7 +5,7 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 
@@ -33,11 +33,6 @@ class CommonSetupTeardownFns {
          * - Resets shared preferences
          */
         private fun teardownScenarioWithoutClosing(scenario: ActivityScenario<MainActivity>) {
-            /*
-             * General cleanup
-             */
-            setSharedPrefs(scenario)
-
             /*
              * Destroy the fragment before clearing the database
              *      else the UI can react to the empty database and fail

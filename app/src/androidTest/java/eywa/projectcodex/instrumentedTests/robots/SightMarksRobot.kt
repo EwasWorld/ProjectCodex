@@ -5,7 +5,7 @@ import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.components.mainActivity.MainActivity
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.model.SightMark
 

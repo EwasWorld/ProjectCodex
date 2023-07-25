@@ -18,9 +18,9 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.mainActivity.MainActivity
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresCheckbox
-import eywa.projectcodex.components.viewScores.emailScores.EmailScoresTextField
+import eywa.projectcodex.components.emailScores.EmailScoresCheckbox
+import eywa.projectcodex.components.emailScores.EmailScoresTextField
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
