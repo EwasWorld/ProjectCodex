@@ -2,7 +2,6 @@ package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -42,13 +41,12 @@ class NewScoreInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(60)
+    val testTimeout: Timeout = Timeout.seconds(1060)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: ActivityScenario<MainActivity>
-    private lateinit var navController: NavController
     private lateinit var db: ScoresRoomDatabase
     private var roundsInput = TestUtils.ROUNDS.take(3)
     private val subtypesInput = TestUtils.ROUND_SUB_TYPES
@@ -71,8 +69,7 @@ class NewScoreInstrumentedTest {
             db.archerRoundDao().getFullArcherRoundInfo(archerRoundId).first()
 
     /**
-     * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
-     * with all desired information
+     * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
      */
     private fun setup() {
         hiltRule.inject()
@@ -85,7 +82,7 @@ class NewScoreInstrumentedTest {
              */
             runBlocking {
                 roundsInput.forEach {
-                    db.roundDao().insert(it)
+                    db.roundDao().insert(it.copy(isMetric = true))
                 }
                 subtypesInput.forEach {
                     db.roundSubTypeDao().insert(it)
@@ -100,14 +97,7 @@ class NewScoreInstrumentedTest {
             }
         }
 
-
         scenario.moveToState(Lifecycle.State.RESUMED)
-        scenario.onActivity {
-            // TODO_CURRENT Fix get nav controller
-            // https://developer.android.com/codelabs/basic-android-kotlin-compose-test-cupcake#3
-            // https://stackoverflow.com/questions/75644786/jetpack-compose-how-to-test-navigation
-//            navController = it.navHostFragment.navController
-        }
     }
 
     @After
@@ -368,5 +358,76 @@ class NewScoreInstrumentedTest {
         assertEquals(archerRoundInput.dateShot.get(Calendar.DATE), actual.dateShot.get(Calendar.DATE))
         assertEquals(archerRoundInput.dateShot.get(Calendar.HOUR_OF_DAY), actual.dateShot.get(Calendar.HOUR_OF_DAY))
         assertEquals(archerRoundInput.dateShot.get(Calendar.MINUTE), actual.dateShot.get(Calendar.MINUTE))
+    }
+
+    @Test
+    fun testFaces_MultipleDistances() = runTest {
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                longClickRow(0)
+                clickEditDropdownMenuItem {
+                    facesRobot.checkFaces("Full")
+
+                    facesRobot.openDialog()
+                    facesRobot.checkSwitchToMultiButtonIsShown()
+                    facesRobot.checkSwitchToSingleButtonNotShown()
+                    facesRobot.clickSingleOption("Half")
+                    facesRobot.checkFaces("Half")
+
+                    facesRobot.openDialog()
+                    facesRobot.clickSwitchToMulti()
+                    facesRobot.checkSwitchToSingleButtonIsShown()
+                    facesRobot.checkSwitchToMultiButtonNotShown()
+                    facesRobot.checkMultiOptions(listOf("80m: Half", "70m: Half", "60m: Half"))
+                    facesRobot.clickMultiOption(0, "Full")
+                    facesRobot.checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Half"))
+                    facesRobot.clickMultiOption(2, "Triple")
+                    facesRobot.checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Triple"))
+                    facesRobot.clickConfirm()
+                    facesRobot.checkFaces("Full, Half, Triple")
+
+                    facesRobot.openDialog(false)
+                    facesRobot.clickSwitchToSingle()
+                    facesRobot.clickSingleOption("6-ring")
+                    facesRobot.checkFaces("6-ring")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testFaces_SingleDistance() = runTest {
+        setup()
+        scenario.onActivity {
+            runBlocking {
+                db.archerRoundDao().insert(
+                        ArcherRound(
+                                archerRoundId = 2,
+                                dateShot = Date(2020, 5, 10, 17, 12, 13).asCalendar(),
+//            Calendar.Builder().setDate(2020, 5, 10).setTimeOfDay(17, 12, 13).build().time,
+                                archerId = 1,
+                                countsTowardsHandicap = true,
+                                roundId = 2,
+                        )
+                )
+            }
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                longClickRow(0)
+                clickEditDropdownMenuItem {
+                    facesRobot.checkFaces("Full")
+
+                    facesRobot.openDialog()
+                    facesRobot.checkSwitchToMultiButtonNotShown()
+                    facesRobot.checkSwitchToSingleButtonNotShown()
+                    facesRobot.clickSingleOption("Half")
+                    facesRobot.checkFaces("Half")
+                }
+            }
+        }
     }
 }

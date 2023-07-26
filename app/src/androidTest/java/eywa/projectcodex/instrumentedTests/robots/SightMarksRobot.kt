@@ -51,7 +51,7 @@ class SightMarksRobot(
         clickElement(
                 SIGHT_MARK_TEXT,
                 sightMark.asText(isLeft),
-                true,
+                useUnmergedTree = true,
         )
         return SightMarkDetailRobot(composeTestRule, sightMark, this, true)
     }

@@ -10,6 +10,7 @@ import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -73,18 +74,33 @@ class ArcherRoundStatsInstrumentedTest {
     )
     private val archerRounds = listOf(
             ArcherRound(
-                    1,
-                    Date(2014, 6, 17, 15, 21, 37).asCalendar(),
+                    archerRoundId = 1,
+                    dateShot = Date(2014, 6, 17, 15, 21, 37).asCalendar(),
 //                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
-                    1,
-                    true
+                    archerId = 1,
+                    countsTowardsHandicap = true,
+                    faces = listOf(RoundFace.HALF),
             ),
-            ArcherRound(2, TestUtils.generateDate(2013), 1, true, roundId = 1),
-            ArcherRound(3, TestUtils.generateDate(2012), 1, true, roundId = 2, roundSubTypeId = 1)
+            ArcherRound(
+                    archerRoundId = 2,
+                    dateShot = TestUtils.generateDate(2013),
+                    archerId = 1,
+                    countsTowardsHandicap = true,
+                    roundId = 1,
+            ),
+            ArcherRound(
+                    archerRoundId = 3,
+                    dateShot = TestUtils.generateDate(2012),
+                    archerId = 1,
+                    countsTowardsHandicap = true,
+                    roundId = 2,
+                    roundSubTypeId = 1,
+                    faces = listOf(RoundFace.FULL, RoundFace.HALF),
+            )
     )
 
     /**
-     * Set up [scenario] with desired fragment in the resumed state, [navController] to allow transitions, and [db]
+     * Set up [scenario] with desired fragment in the resumed state, and [db]
      * with all desired information
      */
     private fun setup() {
@@ -92,7 +108,7 @@ class ArcherRoundStatsInstrumentedTest {
 
         // Start initialised so we can add to the database before the onCreate methods are called
         scenario = composeTestRule.activityRule.scenario
-        scenario.onActivity { activity ->
+        scenario.onActivity {
             db = LocalDatabaseModule.scoresRoomDatabase!!
 
             /*
@@ -145,6 +161,7 @@ class ArcherRoundStatsInstrumentedTest {
                         checkNoRemainingArrows()
                         checkNoHandicap()
                         checkNoPredictedScore()
+                        facesRobot.checkFaces("Half")
                     }
                 }
             }
@@ -174,6 +191,7 @@ class ArcherRoundStatsInstrumentedTest {
                         checkHandicap(36)
                         // divide by 2 because only one dozen was shot
                         checkPredictedScore(ceil((192 + 201) / 2f).roundToInt())
+                        facesRobot.checkFaces("Full")
                     }
                 }
             }
@@ -213,24 +231,20 @@ class ArcherRoundStatsInstrumentedTest {
 
     @Test
     fun testRoundWithSubTypeEmptyScore() {
-        val archerRoundId = archerRounds[ArcherRoundTypes.SUBTYPE.row].archerRoundId
-        var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
+        arrows = emptyList()
         setup()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                clickRow(ArcherRoundTypes.SUBTYPE.row) {
+                longClickRow(ArcherRoundTypes.SUBTYPE.row)
+                clickContinueDropdownMenuItem {
                     waitForLoad()
                     clickNavBarStats {
                         checkRound(subTypesInput[0].name!!)
-                        checkRemainingArrows(arrowsPerArrowCount)
-                        // Checked these values in the handicap tables (2023) - double and use score for 2 doz as only
-                        // the first distance has been shot so this is what's being use to calculate the handicap
-                        checkHandicap(36)
-                        // divide by 2 because only one dozen was shot
-                        checkPredictedScore(ceil((192 + 201) / 2f).roundToInt())
+                        checkRemainingArrows(arrowsPerArrowCount * 2)
+                        checkNoHandicap()
+                        facesRobot.checkFaces("Full, Half")
                     }
                 }
             }

@@ -27,6 +27,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexThemeColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent.*
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.*
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
@@ -61,6 +62,7 @@ fun SelectFaceRow(
             ),
             modifier = modifier,
             onClick = onClick,
+            textModifier = Modifier.testTag(ROW_TEXT.getTestTag())
     )
 }
 
@@ -96,7 +98,7 @@ fun SelectRoundFaceDialog(
                         text = stringResource(R.string.general_complete),
                         onClick = { listener(Close) },
                 ).takeIf { !state.isSingleMode },
-                modifier = Modifier.testTag(SelectRoundFaceDialogTestTag.DIALOG.getTestTag())
+                modifier = Modifier.testTag(DIALOG.getTestTag())
         ) {
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -134,7 +136,12 @@ fun SelectRoundFaceDialog(
                                     get() = CodexTypography.SMALL
                             },
                             onClick = { listener(ToggleSingleMode) },
-                            modifier = Modifier.padding(vertical = 5.dp)
+                            modifier = Modifier
+                                    .padding(vertical = 5.dp)
+                                    .testTag(
+                                            if (state.isSingleMode) SWITCH_TO_MULTI_BUTTON.getTestTag()
+                                            else SWITCH_TO_SINGLE_BUTTON.getTestTag()
+                                    )
                     )
                 }
             }
@@ -161,6 +168,7 @@ private fun Selectors(
                                 .clickable { listener(SingleFaceClicked(it)) }
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
+                                .testTag(SINGLE_OPTION.getTestTag())
                 )
             }
         }
@@ -195,26 +203,23 @@ private fun IndividualSelectors(
         val title = "$distance$distanceUnit:"
         val face = stringResource((facesActual?.getOrNull(index) ?: RoundFace.FULL).text)
 
+
         DataRow(
                 title = title,
                 helpState = null,
                 modifier = Modifier
                         .padding(vertical = 8.dp)
+                        .testTag(MULTI_OPTION.getTestTag())
                         .clearAndSetSemantics {
                             contentDescription = "$title $face"
                             role = Role.DropdownList
-                            onClick {
-                                listener(OpenDropdown(index))
-                                true
-                            }
+                            onClick { listener(OpenDropdown(index)); true }
                         }
         ) {
             Text(
                     text = face,
                     style = LocalTextStyle.current.asClickableStyle(),
-                    modifier = Modifier
-                            .clearAndSetSemantics { }
-                            .clickable { listener(OpenDropdown(index)) }
+                    modifier = Modifier.clickable { listener(OpenDropdown(index)) }
             )
             DropdownMenu(
                     expanded = dropdownExpandedFor == index,
@@ -226,6 +231,7 @@ private fun IndividualSelectors(
                     ) {
                         Text(
                                 text = stringResource(it.text),
+                                modifier = Modifier.testTag(MULTI_DROPDOWN_OPTION.getTestTag())
                         )
                     }
                 }
@@ -236,6 +242,12 @@ private fun IndividualSelectors(
 
 enum class SelectRoundFaceDialogTestTag : CodexTestTag {
     DIALOG,
+    ROW_TEXT,
+    SWITCH_TO_MULTI_BUTTON,
+    SWITCH_TO_SINGLE_BUTTON,
+    SINGLE_OPTION,
+    MULTI_OPTION,
+    MULTI_DROPDOWN_OPTION,
     ;
 
     override val screenName: String

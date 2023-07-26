@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import eywa.projectcodex.R
 import eywa.projectcodex.database.rounds.Round
 
-private const val WORCESTER_DEFAULT_ID = 22
+const val WORCESTER_DEFAULT_ID = 22
 
 enum class RoundFace(
         @StringRes val text: Int,

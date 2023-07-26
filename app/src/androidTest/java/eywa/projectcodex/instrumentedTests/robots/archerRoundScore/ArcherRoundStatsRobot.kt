@@ -3,12 +3,16 @@ package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag
 import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsScreen.TestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.robots.subComponents.SelectFaceRobot
 
 class ArcherRoundStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ArcherRoundRobot(composeTestRule, TestTag.SCREEN) {
+    val facesRobot = SelectFaceRobot(composeTestRule, TestTag.SCREEN)
+
     fun checkDate(text: String) {
         composeTestRule
                 .onNodeWithTag(TestTag.DATE_TEXT)

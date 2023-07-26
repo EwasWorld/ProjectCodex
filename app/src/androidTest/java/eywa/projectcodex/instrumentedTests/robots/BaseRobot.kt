@@ -48,22 +48,42 @@ abstract class BaseRobot(
         return true
     }
 
-    fun clickElement(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) =
-            clickElement(testTag.getTestTag(), text, useUnmergedTree)
+    fun clickElement(
+            testTag: CodexTestTag,
+            text: String? = null,
+            index: Int? = null,
+            useUnmergedTree: Boolean = false
+    ) =
+            clickElement(testTag.getTestTag(), text, index, useUnmergedTree)
 
-    fun clickElement(testTag: String, text: String? = null, useUnmergedTree: Boolean = false) {
+    fun clickElement(testTag: String, text: String? = null, index: Int? = null, useUnmergedTree: Boolean = false) {
         var matcher = hasTestTag(testTag)
         if (text != null) {
             matcher = matcher.and(hasText(text))
         }
-        composeTestRule.onNode(matcher, useUnmergedTree).performClick()
+
+        val node = if (index != null) {
+            composeTestRule.onAllNodes(matcher, useUnmergedTree)[index]
+        }
+        else {
+            composeTestRule.onNode(matcher, useUnmergedTree)
+        }
+
+        node.performClick()
     }
 
-    fun checkElementText(testTag: CodexTestTag, text: String, useUnmergedTree: Boolean = false) =
-            checkElementText(testTag.getTestTag(), text, useUnmergedTree)
+    fun checkElementText(testTag: CodexTestTag, text: String, index: Int? = null, useUnmergedTree: Boolean = false) =
+            checkElementText(testTag.getTestTag(), text, index, useUnmergedTree)
 
-    fun checkElementText(testTag: String, text: String, useUnmergedTree: Boolean = false) {
-        composeTestRule.onNodeWithTag(testTag, useUnmergedTree).assertTextEquals(text)
+    fun checkElementText(testTag: String, text: String, index: Int? = null, useUnmergedTree: Boolean = false) {
+        val node = if (index != null) {
+            composeTestRule.onAllNodesWithTag(testTag, useUnmergedTree)[index]
+        }
+        else {
+            composeTestRule.onNodeWithTag(testTag, useUnmergedTree)
+        }
+
+        node.assertTextEquals(text)
     }
 
     fun checkElementText(testTag: CodexTestTag, index: Int, text: String, useUnmergedTree: Boolean = false) {
@@ -137,15 +157,19 @@ abstract class BaseRobot(
         }
     }
 
-    fun clickDialogOk(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.POSITIVE_BUTTON)
-    fun clickDialogCancel(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.NEGATIVE_BUTTON)
-
-    private fun clickDialog(titleText: String, buttonTag: String) {
+    fun checkDialogIsDisplayed(titleText: String) {
         CustomConditionWaiter.waitForComposeCondition("Waiting for $titleText dialog to display") {
             composeTestRule
                     .onNode(hasTestTag(SimpleDialogTestTag.TITLE).and(hasText(titleText)))
                     .assertIsDisplayed()
         }
+    }
+
+    fun clickDialogOk(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.POSITIVE_BUTTON)
+    fun clickDialogCancel(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.NEGATIVE_BUTTON)
+
+    private fun clickDialog(titleText: String, buttonTag: String) {
+        checkDialogIsDisplayed(titleText)
         composeTestRule.onNodeWithTag(buttonTag).performClick()
     }
 

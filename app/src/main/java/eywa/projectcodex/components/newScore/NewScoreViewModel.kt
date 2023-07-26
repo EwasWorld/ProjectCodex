@@ -9,6 +9,7 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -88,10 +89,12 @@ class NewScoreViewModel @Inject constructor(
                     val (selectRoundDialogState, faceIntent) = action.action.handle(it.selectRoundDialogState)
                     val selectFaceDialogState = faceIntent?.handle(it.selectFaceDialogState)
                             ?: it.selectFaceDialogState
-                    it.copy(
+                    val newState = it.copy(
                             selectRoundDialogState = selectRoundDialogState,
                             selectFaceDialogState = selectFaceDialogState,
                     )
+                    if (action.action is SelectRoundDialogIntent.SetRounds) newState.resetEditInfo()
+                    else newState
                 }
             }
             is SelectFaceDialogAction ->
@@ -123,13 +126,22 @@ class NewScoreViewModel @Inject constructor(
 
     private fun NewScoreState.resetEditInfo(): NewScoreState {
         if (roundBeingEdited == null) return this
+        val roundsState = selectRoundDialogState.copy(
+                selectedRoundId = roundBeingEdited.roundId,
+                selectedSubTypeId = roundBeingEdited.roundSubTypeId,
+        )
+        val faceAction =
+                if (roundsState.selectedRound == null) SelectRoundFaceDialogIntent.SetNoRound
+                else SelectRoundFaceDialogIntent.SetRound(
+                        roundsState.selectedRound!!.round,
+                        roundsState.roundSubTypeDistances!!,
+                )
 
         return copy(
                 dateShot = roundBeingEdited.dateShot,
-                selectRoundDialogState = selectRoundDialogState.copy(
-                        selectedRoundId = roundBeingEdited.roundId,
-                        selectedSubTypeId = roundBeingEdited.roundSubTypeId,
-                ),
+                selectRoundDialogState = roundsState,
+                selectFaceDialogState = faceAction.handle(selectFaceDialogState)
+                        .copy(selectedFaces = roundBeingEdited.faces),
         )
     }
 }
