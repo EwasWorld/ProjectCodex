@@ -75,6 +75,7 @@ class ArcherRoundsTest {
                     allRoundSubTypes = listOf(),
                     allRoundDistances = listOf(),
                     isPersonalBest = false,
+                    joinedDate = it.dateShot,
             )
         }
 
@@ -329,5 +330,54 @@ class ArcherRoundsTest {
                         ArcherRoundsFilter.PersonalBests
                 ),
         )
+    }
+
+    @Test
+    fun testGetJoinedArcherRoundIds() = runTest {
+        val archerRounds = List(12) {
+            ArcherRound(
+                    archerRoundId = 1 + it,
+                    dateShot = TestUtils.generateDate(2020, 1 + it),
+                    archerId = 1,
+                    countsTowardsHandicap = true,
+                    joinWithPrevious = (it + 1) in 3..5
+            )
+        }
+        archerRounds.forEach { archerRoundDao.insert(it) }
+
+        archerRounds.forEach {
+            assertEquals(
+                    if (it.archerRoundId in 2..5) (2..5).toList() else listOf(it.archerRoundId),
+                    archerRoundDao
+                            .getJoinedFullArcherRounds(it.archerRoundId)
+                            .first()
+                            .map { dbFar -> dbFar.archerRound.archerRoundId }
+            )
+        }
+    }
+
+    @Test
+    fun testGetAllFullArcherRoundInfoWithFiltersAndJoinedRounds() = runTest {
+        val archerRounds = List(12) {
+            ArcherRound(
+                    archerRoundId = 1 + it,
+                    dateShot = TestUtils.generateDate(2020, 1 + it),
+                    archerId = 1,
+                    countsTowardsHandicap = true,
+                    joinWithPrevious = (it + 1) in 3..5
+            )
+        }
+        archerRounds.forEach { archerRoundDao.insert(it) }
+
+        archerRounds.forEach {
+            val start = if (it.archerRoundId in 2..5) 2 else it.archerRoundId
+            assertEquals(
+                    (start..12).toList(),
+                    archerRoundDao
+                            .getAllFullArcherRoundInfo(fromDate = it.dateShot)
+                            .first()
+                            .map { dbFar -> dbFar.archerRound.archerRoundId }
+            )
+        }
     }
 }

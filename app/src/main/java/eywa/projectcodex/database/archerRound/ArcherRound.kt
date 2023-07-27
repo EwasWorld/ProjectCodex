@@ -108,6 +108,8 @@ data class DatabaseFullArcherRoundInfo(
          * Only valid if [isPersonalBest] is true
          */
         val isTiedPersonalBest: Boolean? = null,
+
+        val joinedDate: Calendar? = null,
 ) {
     val roundSubType
         get() = allRoundSubTypes?.find { it.subTypeId == archerRound.roundSubTypeId }

@@ -5,6 +5,7 @@ import androidx.room.Embedded
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.RoundArrowCount
+import java.util.*
 
 @DatabaseView(
         value = """
@@ -12,7 +13,14 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
                     archerRound.*, 
                     arrows.score,
                     (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,
-                    ((NOT archerRound.roundId IS NULL) AND arrows.count = roundCount.count) as isComplete
+                    ((NOT archerRound.roundId IS NULL) AND arrows.count = roundCount.count) as isComplete,
+                    ( 
+                        -- Find the latest date earlier than or equal to this one that doesn't join with previous
+                        -- This will be the first round (inclusive) in the sequence
+                        SELECT MAX(dateShot)
+                        FROM ${ArcherRound.TABLE_NAME}
+                        WHERE dateShot <= archerRound.dateShot AND NOT joinWithPrevious
+                    ) as joinedDate
                 FROM ${ArcherRound.TABLE_NAME} as archerRound
                 LEFT JOIN (
                     SELECT SUM(arrowCount) as count, roundId
@@ -33,6 +41,7 @@ data class ArcherRoundWithScore(
         val score: Int,
         val nonNullSubTypeId: Int,
         val isComplete: Boolean,
+        val joinedDate: Calendar,
 ) {
     companion object {
         const val TABLE_NAME = "completed_round_scores"
