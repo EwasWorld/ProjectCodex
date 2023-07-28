@@ -9,6 +9,7 @@ import eywa.projectcodex.components.settings.SettingsIntent.*
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
 import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
+import eywa.projectcodex.datastore.retrieve
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -33,8 +34,8 @@ class SettingsViewModel @Inject constructor(
             ).collect { values ->
                 _state.update {
                     it.copy(
-                            use2023System = values[Use2023HandicapSystem]!!,
-                            useBetaFeatures = values[UseBetaFeatures]!!,
+                            use2023System = values.retrieve(Use2023HandicapSystem),
+                            useBetaFeatures = values.retrieve(UseBetaFeatures),
                     )
                 }
             }

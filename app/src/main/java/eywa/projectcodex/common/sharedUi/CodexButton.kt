@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -25,8 +26,11 @@ fun CodexButton(
         buttonStyle: CodexButtonStyle = CodexButtonDefaults.DefaultButton(),
         enabled: Boolean = true,
         helpState: HelpState? = null,
+        trailingIconInfo: CodexIconInfo? = null,
         onClick: () -> Unit,
 ) {
+    val textColor = buttonStyle.getTextColor(CodexTheme.colors)
+
     helpState?.add()
 
     Button(
@@ -34,7 +38,7 @@ fun CodexButton(
             onClick = onClick,
             colors = ButtonDefaults.buttonColors(
                     backgroundColor = buttonStyle.getBackgroundColor(CodexTheme.colors),
-                    contentColor = buttonStyle.getTextColor(CodexTheme.colors)
+                    contentColor = textColor,
             ),
             elevation = if (buttonStyle.hasElevation) ButtonDefaults.elevation() else null,
             shape = RoundedCornerShape(100),
@@ -47,12 +51,18 @@ fun CodexButton(
                 textAlign = TextAlign.Center,
                 modifier = with(buttonStyle) { Modifier.textModifier() }
         )
+        trailingIconInfo
+                ?.copyIcon(tint = trailingIconInfo.tint ?: textColor)
+                ?.ClavaIcon(
+                        modifier = Modifier.padding(start = buttonStyle.trailingIconStartPadding)
+                )
     }
 }
 
 abstract class CodexButtonStyle {
     open val hasElevation: Boolean = true
     open val textStyle: TextStyle = CodexTypography.SMALL
+    open val trailingIconStartPadding: Dp = 8.dp
 
     abstract fun getBackgroundColor(themeColors: CodexThemeColors): Color
     abstract fun getTextColor(themeColors: CodexThemeColors): Color
@@ -91,6 +101,7 @@ abstract class OutlinedButton : CodexButtonStyle() {
 sealed class CodexButtonDefaults : CodexButtonStyle() {
     open class DefaultButton : ColouredButton() {
         override val textStyle: TextStyle = CodexTypography.NORMAL
+        override val trailingIconStartPadding: Dp = 0.dp
 
         override fun getBackgroundColor(themeColors: CodexThemeColors): Color = themeColors.filledButton
         override fun getTextColor(themeColors: CodexThemeColors): Color = themeColors.onFilledButton

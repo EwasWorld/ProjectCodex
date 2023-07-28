@@ -38,8 +38,8 @@ class FakeDatastore : CodexDatastore {
             values.map { (it[key] as? T) ?: key.defaultValue }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> get(keys: Collection<DatastoreKey<T>>): Flow<Map<DatastoreKey<T>, T>> =
-            values.map { keys.associateWith { key -> (it[key] as? T) ?: key.defaultValue } }
+    override fun get(keys: Collection<DatastoreKey<*>>): Flow<Map<DatastoreKey<*>, *>> =
+            values.map { keys.associateWith { key -> it[key] ?: key.defaultValue } }
 
     override suspend fun <T : Any> set(key: DatastoreKey<T>, value: T) {
         values.update { it.plus(key to value) }

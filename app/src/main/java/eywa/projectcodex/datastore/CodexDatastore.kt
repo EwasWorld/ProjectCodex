@@ -2,10 +2,20 @@ package eywa.projectcodex.datastore
 
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Helper function for getting the value of a specific [key] out of the map returned by [CodexDatastore.get]
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> Map<DatastoreKey<*>, *>.retrieve(key: DatastoreKey<T>) =
+        (this[key] ?: throw NoSuchElementException()) as T
+
 interface CodexDatastore {
     fun <T : Any> get(key: DatastoreKey<T>): Flow<T>
-    fun <T : Any> get(keys: Collection<DatastoreKey<T>>): Flow<Map<DatastoreKey<T>, T>>
+
+    /**
+     * @see retrieve
+     */
+    fun get(keys: Collection<DatastoreKey<*>>): Flow<Map<DatastoreKey<*>, *>>
     suspend fun <T : Any> set(key: DatastoreKey<T>, value: T)
     suspend fun toggle(key: DatastoreKey<Boolean>)
 }
-

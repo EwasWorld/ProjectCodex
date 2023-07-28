@@ -154,6 +154,14 @@ private fun MainMenuScreen(
             )
         }
 
+        WhatsNewButtonAndDialog(
+                isDialogShown = state.whatsNewDialogOpen,
+                lastShownAppVersion = state.whatsNewDialogLastSeenAppVersion,
+                onDialogDismiss = { listener(WhatsNewClose(it)) },
+                helpListener = helpListener,
+                buttonOnClick = { listener(WhatsNewOpen) },
+        )
+
         SimpleDialog(
                 isShown = state.isExitDialogOpen,
                 onDismissListener = { listener(ExitDialogCloseClicked) }
@@ -168,19 +176,6 @@ private fun MainMenuScreen(
                     negativeButton = ButtonState(
                             text = stringResource(R.string.general_cancel),
                             onClick = { listener(ExitDialogCloseClicked) },
-                    ),
-            )
-        }
-        SimpleDialog(
-                isShown = state.isHandicapNoticeDialogOpen,
-                onDismissListener = { listener(HandicapDialogClicked) }
-        ) {
-            SimpleDialogContent(
-                    title = R.string.main_menu__handicap_dialog_title,
-                    message = R.string.main_menu__handicap_dialog_body,
-                    positiveButton = ButtonState(
-                            text = stringResource(R.string.general_ok),
-                            onClick = { listener(HandicapDialogClicked) },
                     ),
             )
         }

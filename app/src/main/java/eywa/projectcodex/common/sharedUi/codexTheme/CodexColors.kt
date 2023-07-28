@@ -51,6 +51,7 @@ data class CodexThemeColors(
 
         // Dialogs
         val dialogBackground: Color = Color.White,
+        val dialogBackgroundAccent: Color = CodexColors.COLOR_PRIMARY_LIGHT,
         val onDialogBackground: Color = Color.Black,
         val dialogRadioButton: Color = CodexColors.COLOR_PRIMARY,
         val dialogPositiveText: Color = CodexColors.COLOR_PRIMARY,

@@ -8,6 +8,7 @@ data class MainMenuState(
         val isExitDialogOpen: Boolean = false,
         val closeApplication: Boolean = false,
         val navigateTo: NavRoute? = null,
-        val isHandicapNoticeDialogOpen: Boolean = false,
+        val whatsNewDialogLastSeenAppVersion: AppVersion? = null,
+        val whatsNewDialogOpen: Boolean = false,
         val useBetaFeatures: Boolean = DatastoreKey.UseBetaFeatures.defaultValue,
 )

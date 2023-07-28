@@ -4,7 +4,8 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.navigation.NavRoute
 
 sealed class MainMenuIntent {
-    object HandicapDialogClicked : MainMenuIntent()
+    object WhatsNewOpen : MainMenuIntent()
+    data class WhatsNewClose(val latestUpdateAppVersion: AppVersion) : MainMenuIntent()
     object OpenExitDialog : MainMenuIntent()
     object ExitDialogOkClicked : MainMenuIntent()
     object ExitDialogCloseClicked : MainMenuIntent()

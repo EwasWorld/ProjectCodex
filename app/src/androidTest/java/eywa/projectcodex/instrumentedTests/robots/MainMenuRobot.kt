@@ -1,13 +1,8 @@
 package eywa.projectcodex.instrumentedTests.robots
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.performClick
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.mainMenu.MainMenuTestTag
+import eywa.projectcodex.core.mainActivity.MainActivity
 
 class MainMenuRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -37,10 +32,11 @@ class MainMenuRobot(
         AboutRobot(composeTestRule).apply(block)
     }
 
+    fun clickCancelWhatsNewDialog() {
+        clickDialogCancel("What's new")
+    }
+
     fun clickCancelOnExitDialog() {
-        composeTestRule
-                .onNode(hasTestTag(SimpleDialogTestTag.TITLE).and(hasText("Going so soon?")))
-                .assertIsDisplayed()
-        composeTestRule.onNode(hasTestTag(SimpleDialogTestTag.NEGATIVE_BUTTON)).performClick()
+        clickDialogCancel("Going so soon?")
     }
 }

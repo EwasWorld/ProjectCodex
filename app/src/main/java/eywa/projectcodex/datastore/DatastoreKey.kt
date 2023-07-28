@@ -3,6 +3,7 @@ package eywa.projectcodex.datastore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 
 sealed class DatastoreKey<T : Any>(val key: Preferences.Key<T>, val defaultValue: T) {
@@ -20,4 +21,6 @@ sealed class DatastoreKey<T : Any>(val key: Preferences.Key<T>, val defaultValue
      * The version of the default_rounds_data.json file currently loaded into the database
      */
     object CurrentDefaultRoundsVersion : DatastoreKey<Int>(intPreferencesKey("current_default_rounds_version"), -1)
+    object WhatsNewLastOpenedAppVersion :
+            DatastoreKey<String>(stringPreferencesKey("whats_new_last_opened_app_version"), "")
 }

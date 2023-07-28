@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.HelpState
@@ -43,6 +44,7 @@ fun CodexIconButton(
         icon: CodexIconInfo,
         modifier: Modifier = Modifier,
         captionBelow: String? = null,
+        captionStyle: TextStyle = CodexTypography.X_SMALL,
         enabled: Boolean = true,
         helpState: HelpState? = null,
         onClick: () -> Unit,
@@ -73,7 +75,7 @@ fun CodexIconButton(
             if (!captionBelow.isNullOrBlank()) {
                 Text(
                         text = captionBelow,
-                        style = CodexTypography.X_SMALL,
+                        style = captionStyle,
                         color = color,
                 )
             }

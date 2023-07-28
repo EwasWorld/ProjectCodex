@@ -33,11 +33,11 @@ class MockDatastore {
                 }
             }
         }
-        on { get<Any>(keys = any()) } doAnswer {
+        on { get(keys = any()) } doAnswer {
             @Suppress("UNCHECKED_CAST")
             flow {
                 fun getEmission(keys: Collection<DatastoreKey<*>>, keyValues: Map<DatastoreKey<out Any>, Any>) =
-                        keys.associateWith { keyValues[it] ?: it.defaultValue } as Map<DatastoreKey<Any>, Any>
+                        keys.associateWith { keyValues[it] ?: it.defaultValue }
 
                 val keys = it.arguments.first() as Collection<DatastoreKey<*>>
                 val firstEmission = getEmission(keys, values)

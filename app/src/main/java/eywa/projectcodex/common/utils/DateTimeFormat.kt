@@ -36,5 +36,6 @@ enum class DateTimeFormat(val pattern: String) {
     SHORT_DATE_TIME("${SHORT_DATE.pattern} ${TIME_24_HOUR.pattern}"),
     ;
 
-    fun format(date: Calendar): String = SimpleDateFormat(pattern).format(date.time)
+    fun format(date: Calendar): String = SimpleDateFormat(pattern, Locale.UK).format(date.time)
+    fun parse(date: String): Calendar = SimpleDateFormat(pattern, Locale.UK).parse(date)!!.asCalendar()
 }

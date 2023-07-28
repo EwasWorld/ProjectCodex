@@ -19,6 +19,7 @@ import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.AppVersionAtLastDefaultRoundsUpdate
 import eywa.projectcodex.datastore.DatastoreKey.CurrentDefaultRoundsVersion
+import eywa.projectcodex.datastore.retrieve
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,9 +64,9 @@ open class UpdateDefaultRoundsTask(
          */
         val datastoreInfo =
                 datastore.get(listOf(AppVersionAtLastDefaultRoundsUpdate, CurrentDefaultRoundsVersion)).first()
-        val appVersionAtLastUpdate = datastoreInfo[AppVersionAtLastDefaultRoundsUpdate]!!
+        val appVersionAtLastUpdate = datastoreInfo.retrieve(AppVersionAtLastDefaultRoundsUpdate)
                 .takeIf { it != AppVersionAtLastDefaultRoundsUpdate.defaultValue }
-        val dbRoundsCurrentVersion = datastoreInfo[CurrentDefaultRoundsVersion]!!
+        val dbRoundsCurrentVersion = datastoreInfo.retrieve(CurrentDefaultRoundsVersion)
                 .takeIf { it != CurrentDefaultRoundsVersion.defaultValue }
 
         if (BuildConfig.VERSION_CODE == appVersionAtLastUpdate && dbRoundsCurrentVersion != null) {
