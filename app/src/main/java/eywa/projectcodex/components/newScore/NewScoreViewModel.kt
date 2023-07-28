@@ -136,12 +136,16 @@ class NewScoreViewModel @Inject constructor(
                         roundsState.selectedRound!!.round,
                         roundsState.roundSubTypeDistances!!,
                 )
+        // Sometimes roundsState.allRounds loads late so need ignore multi-faces if selected round doesn't come up yet
+        val faces =
+                if (roundsState.selectedRound != null) roundBeingEdited.faces
+                else roundBeingEdited.faces?.firstOrNull()?.let { listOf(it) }
 
         return copy(
                 dateShot = roundBeingEdited.dateShot,
                 selectRoundDialogState = roundsState,
                 selectFaceDialogState = faceAction.handle(selectFaceDialogState)
-                        .copy(selectedFaces = roundBeingEdited.faces),
+                        .copy(selectedFaces = faces),
         )
     }
 }

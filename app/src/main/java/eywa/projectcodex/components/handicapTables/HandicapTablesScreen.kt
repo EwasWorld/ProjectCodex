@@ -50,6 +50,7 @@ fun HandicapTablesScreen(
         listener: (HandicapTablesIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    helpListener(HelpShowcaseIntent.Clear)
 
     Column(
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),

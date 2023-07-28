@@ -26,7 +26,7 @@ interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, Ha
                         innerTenArcher = info.isInnerTenArcher,
                         arrows = null,
                         use2023Handicaps = info.use2023HandicapSystem,
-                        faces = info.archerRound.faces,
+                        faces = info.getFaceForDistance(distance)?.let { listOf(it) },
                 )
             }
 

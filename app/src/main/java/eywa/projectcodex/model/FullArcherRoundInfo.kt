@@ -3,6 +3,7 @@ package eywa.projectcodex.model
 import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrowValue.ArrowValue
@@ -87,6 +88,18 @@ data class FullArcherRoundInfo(
                 archerRound.faces[archerRound.faces.size - distancesRemaining]
             }
         }
+
+    fun getFaceForDistance(distance: RoundDistance): RoundFace? {
+        if (archerRound.faces.isNullOrEmpty()) return null
+        if (roundDistances.isNullOrEmpty()) throw IllegalStateException("No distances found")
+        val distanceIndex = roundDistances
+                .sortedBy { it.distanceNumber }
+                .indexOfFirst { it.distanceNumber == distance.distanceNumber }
+                .takeIf { it != -1 }
+                ?: throw IllegalStateException("Distance ${distance.distanceNumber} not found")
+        return archerRound.faces.getOrNull(distanceIndex)
+                ?: archerRound.faces.getOrNull(0)
+    }
 
     /**
      * Pairs of arrow counts to distances in order (earlier distances first)

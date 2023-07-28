@@ -58,7 +58,7 @@ class HandicapTablesViewModel @Inject constructor(
                         innerTenArcher = false,
                         arrows = null,
                         use2023Handicaps = use2023System,
-                        faces = faces,
+                        faces = selectFaceDialogState.selectedFaces,
                 )!!,
         )
 
@@ -75,7 +75,7 @@ class HandicapTablesViewModel @Inject constructor(
                             innerTenArcher = false,
                             arrows = null,
                             use2023Handicaps = use2023System,
-                            faces = faces,
+                            faces = selectFaceDialogState.selectedFaces,
                     ).roundHandicap(),
             )
         }
@@ -110,7 +110,9 @@ class HandicapTablesViewModel @Inject constructor(
                 }
             }
             is SelectFaceDialogAction ->
-                _state.update { it.copy(selectFaceDialogState = action.action.handle(it.selectFaceDialogState)) }
+                _state.update {
+                    it.copy(selectFaceDialogState = action.action.handle(it.selectFaceDialogState)).addHandicaps()
+                }
             ToggleHandicapSystem -> _state.update { it.copy(use2023System = !it.use2023System).addHandicaps() }
             ToggleInput -> _state.update { it.copy(inputHandicap = !it.inputHandicap).addHandicaps() }
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
