@@ -67,11 +67,10 @@ private fun HandleEffects(
         listener: (ArcherRoundIntent) -> Unit,
 ) {
     val context = LocalContext.current
-    val errors = (state as? ArcherRoundState.Loaded)?.errors
     val returnToMainMenu = (state as? ArcherRoundState.InvalidArcherRoundError)?.mainMenuClicked ?: false
-    LaunchedEffect(errors, returnToMainMenu) {
+    LaunchedEffect(state) {
         launch {
-            errors?.forEach {
+            (state as? Loaded)?.errors?.forEach {
                 ToastSpamPrevention.displayToast(context, context.resources.getString(it.messageId))
                 listener(ErrorHandled(it))
             }

@@ -178,7 +178,7 @@ private enum class WhatsNewInfo(
 ) {
     V2_3_0(
             appVersion = AppVersion("2.3.0"),
-            releaseDate = DateTimeFormat.SHORT_DATE.parse("27/07/23"),
+            releaseDate = DateTimeFormat.SHORT_DATE.parse("29/07/23"),
             importantUpdates = R.string.whats_new__2_3_0_important_update,
             updates = R.string.whats_new__2_3_0_update,
     ),
