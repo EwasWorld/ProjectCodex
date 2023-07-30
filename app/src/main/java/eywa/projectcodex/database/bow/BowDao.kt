@@ -15,8 +15,8 @@ interface BowDao {
     @Query(
             """
                 INSERT OR IGNORE 
-                INTO $TABLE_NAME (id, name, description, isSightMarkDiagramHighestAtTop) 
-                VALUES ($DEFAULT_BOW_ID, "Default", NULL, 0)
+                INTO $TABLE_NAME (id, name, description, type, isSightMarkDiagramHighestAtTop) 
+                VALUES ($DEFAULT_BOW_ID, "Default", NULL, "RECURVE", 0)
             """
     )
     suspend fun insertDefaultBowIfNotExist()
