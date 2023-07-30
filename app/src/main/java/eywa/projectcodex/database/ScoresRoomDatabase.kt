@@ -34,7 +34,7 @@ import java.util.*
         views = [
             ArcherRoundWithScore::class, PersonalBest::class,
         ],
-        version = 10,
+        version = 11,
         autoMigrations = [
             AutoMigration(from = 5, to = 6),
             AutoMigration(from = 6, to = 7),

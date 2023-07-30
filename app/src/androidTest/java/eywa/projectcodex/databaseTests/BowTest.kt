@@ -40,9 +40,9 @@ class BowTest {
     fun testGetDefaultBow() = runBlocking {
         val defaultBowId = -1
         val bows = listOf(
-                DatabaseBow(defaultBowId, false),
-                DatabaseBow(1, true),
-                DatabaseBow(2, false),
+                DatabaseBow(id = defaultBowId, name = "Default", isSightMarkDiagramHighestAtTop = false),
+                DatabaseBow(id = 1, name = "One", isSightMarkDiagramHighestAtTop = true),
+                DatabaseBow(id = 2, name = "Two", isSightMarkDiagramHighestAtTop = false),
         )
 
         bows.forEach {

@@ -48,10 +48,8 @@ data class ArcherRound(
         val roundSubTypeId: Int? = null,
         val goalScore: Int? = null,
         val shootStatus: String? = null,
-        @ColumnInfo(defaultValue = "NULL")
-        val faces: List<RoundFace>? = null,
-        @ColumnInfo(defaultValue = "0")
-        val joinWithPrevious: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") val faces: List<RoundFace>? = null,
+        @ColumnInfo(defaultValue = "0") val joinWithPrevious: Boolean = false,
 ) {
     companion object {
         const val TABLE_NAME = "archer_rounds"

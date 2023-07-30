@@ -12,7 +12,13 @@ interface BowDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(bow: DatabaseBow)
 
-    @Query("INSERT OR IGNORE INTO $TABLE_NAME (id, isSightMarkDiagramHighestAtTop) VALUES ($DEFAULT_BOW_ID, 0)")
+    @Query(
+            """
+                INSERT OR IGNORE 
+                INTO $TABLE_NAME (id, name, description, isSightMarkDiagramHighestAtTop) 
+                VALUES ($DEFAULT_BOW_ID, "Default", NULL, 0)
+            """
+    )
     suspend fun insertDefaultBowIfNotExist()
 
     @Query("SELECT * FROM $TABLE_NAME WHERE id = $DEFAULT_BOW_ID")
