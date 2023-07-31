@@ -3,7 +3,7 @@ package eywa.projectcodex.components.archerRoundScore.stats
 import eywa.projectcodex.components.archerRoundScore.state.HasBetaFeaturesFlag
 import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo
 import eywa.projectcodex.components.archerRoundScore.state.HasScorePadEndSize
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.model.GoldsType
@@ -16,17 +16,18 @@ interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, Ha
     val extras: List<ExtraStats>?
         get() {
             val info = fullArcherRoundInfo
-            val calculateHandicap = { arrows: List<ArrowValue>, arrowCount: RoundArrowCount, distance: RoundDistance ->
-                if (info.handicap == null) null
-                else Handicap.getHandicapForRound(
-                        round = info.round!!,
-                        roundArrowCounts = listOf(arrowCount.copy(arrowCount = arrows.count())),
-                        roundDistances = listOf(distance),
-                        score = arrows.sumOf { it.score },
-                        innerTenArcher = info.isInnerTenArcher,
-                        arrows = null,
-                        use2023Handicaps = info.use2023HandicapSystem,
-                        faces = info.getFaceForDistance(distance)?.let { listOf(it) },
+            val calculateHandicap =
+                    { arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance ->
+                        if (info.handicap == null) null
+                        else Handicap.getHandicapForRound(
+                                round = info.round!!,
+                                roundArrowCounts = listOf(arrowCount.copy(arrowCount = arrows.count())),
+                                roundDistances = listOf(distance),
+                                score = arrows.sumOf { it.score },
+                                innerTenArcher = info.isInnerTenArcher,
+                                arrows = null,
+                                use2023Handicaps = info.use2023HandicapSystem,
+                                faces = info.getFaceForDistance(distance)?.let { listOf(it) },
                 )
             }
 

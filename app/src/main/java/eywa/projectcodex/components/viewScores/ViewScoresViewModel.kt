@@ -13,7 +13,7 @@ import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScor
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
-import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
+import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.FullArcherRoundInfo
@@ -37,7 +37,7 @@ class ViewScoresViewModel @Inject constructor(
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.asStateFlow()
 
-    private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
+    private val arrowScoresRepo: ArrowScoresRepo = ArrowScoresRepo(db.arrowScoreDao())
     private val archerRoundsRepo: ArcherRoundsRepo = db.archerRoundsRepo()
 
     init {
@@ -194,7 +194,7 @@ class ViewScoresViewModel @Inject constructor(
                         ?: return@update it.copy(convertScoreDialogOpen = false)
 
                 viewModelScope.launch {
-                    arrowValuesRepo.update(*arrows.toTypedArray())
+                    arrowScoresRepo.update(*arrows.toTypedArray())
                 }
                 it.copy(convertScoreDialogOpen = false)
             }

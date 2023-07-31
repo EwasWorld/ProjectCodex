@@ -3,11 +3,9 @@ package eywa.projectcodex.database.archerRound
 import androidx.room.Transaction
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.model.FullArcherRoundInfo
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-/**
- * @see ArrowValuesRepo
- */
 class ArcherRoundsRepo(
         private val archerRoundDao: ArcherRoundDao,
         private val shootDetailDao: ShootDetailDao,

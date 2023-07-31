@@ -13,7 +13,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -50,7 +50,7 @@ class ViewScoresInstrumentedTest {
     private var roundSubTypes = listOf<RoundSubType>()
     private var roundArrowCounts = listOf<RoundArrowCount>()
     private var roundDistances = listOf<RoundDistance>()
-    private var arrows: List<List<ArrowValue>> = listOf()
+    private var arrows: List<List<DatabaseArrowScore>> = listOf()
     private var shootRound: List<DatabaseShootRound> = listOf()
 
     @Before
@@ -83,7 +83,7 @@ class ViewScoresInstrumentedTest {
                 roundArrowCounts.forEach { db.roundArrowCountDao().insert(it) }
                 roundDistances.forEach { db.roundDistanceDao().insert(it) }
                 archerRounds.forEach { db.archerRoundDao().insert(it) }
-                arrows.flatten().forEach { db.arrowValueDao().insert(it) }
+                arrows.flatten().forEach { db.arrowScoreDao().insert(it) }
                 shootRound.forEach { db.shootRoundDao().insert(it) }
             }
         }
@@ -143,7 +143,7 @@ class ViewScoresInstrumentedTest {
         )
         arrows = archerRounds.map { archerRound ->
             val archerRoundId = archerRound.archerRoundId
-            List(1) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
+            List(1) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowScore(archerRoundId, arrowNumber) }
         }
 
         populateDb()
@@ -211,10 +211,10 @@ class ViewScoresInstrumentedTest {
         )
         shootRound = listOf(DatabaseShootRound(2, roundId = 1))
         arrows = listOf(
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowScore(1, i) },
                 // Add the correct number of arrows to complete the round
                 List(roundArrowCounts.sumOf { it.arrowCount }) {
-                    TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowValue(2, it)
+                    TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowScore(2, it)
                 },
         )
         populateDb()
@@ -279,8 +279,8 @@ class ViewScoresInstrumentedTest {
                 ArcherRound(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
-                List(36) { TestUtils.ARROWS[1].toArrowValue(1, it) },
-                List(36) { TestUtils.ARROWS[10].toArrowValue(2, it) },
+                List(36) { TestUtils.ARROWS[1].toArrowScore(1, it) },
+                List(36) { TestUtils.ARROWS[10].toArrowScore(2, it) },
         )
         populateDb()
 
@@ -313,8 +313,8 @@ class ViewScoresInstrumentedTest {
                 ArcherRound(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(2, i) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowScore(1, i) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowScore(2, i) },
         )
         populateDb()
 
@@ -368,7 +368,7 @@ class ViewScoresInstrumentedTest {
         archerRounds = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
             val roundId = archerRounds[i].archerRoundId
-            TestUtils.generateArrowValues(roundId, 36, roundId)
+            TestUtils.generateArrowScores(roundId, 36, roundId)
         }
         populateDb()
 
@@ -431,7 +431,7 @@ class ViewScoresInstrumentedTest {
         archerRounds = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
             val roundId = archerRounds[i].archerRoundId
-            TestUtils.generateArrowValues(roundId, 36, roundId)
+            TestUtils.generateArrowScores(roundId, 36, roundId)
         }
         populateDb()
 

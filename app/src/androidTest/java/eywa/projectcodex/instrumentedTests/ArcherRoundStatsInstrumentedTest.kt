@@ -15,7 +15,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseShootDetail
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -50,7 +50,7 @@ class ArcherRoundStatsInstrumentedTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
 
-    private lateinit var arrows: List<ArrowValue>
+    private lateinit var arrows: List<DatabaseArrowScore>
     private val arrowsPerArrowCount = 12
     private val roundsInput = listOf(
             Round(1, "round1", "Round1", true, false),
@@ -135,7 +135,7 @@ class ArcherRoundStatsInstrumentedTest {
                 subTypesInput.forEach { db.roundSubTypeDao().insert(it) }
                 distancesInput.forEach { db.roundDistanceDao().insert(it) }
                 archerRounds.forEach { db.archerRoundDao().insert(it) }
-                arrows.forEach { db.arrowValueDao().insert(it) }
+                arrows.forEach { db.arrowScoreDao().insert(it) }
                 shootRounds.forEach { db.shootRoundDao().insert(it) }
                 shootDetails.forEach { db.shootDetailDao().insert(it) }
             }
@@ -156,9 +156,9 @@ class ArcherRoundStatsInstrumentedTest {
 
         var arrowNumber = 1
         arrows = listOf(
-                List(6) { TestUtils.ARROWS[10].toArrowValue(archerRoundId, arrowNumber++) },
-                List(38) { TestUtils.ARROWS[5].toArrowValue(archerRoundId, arrowNumber++) },
-                List(4) { TestUtils.ARROWS[0].toArrowValue(archerRoundId, arrowNumber++) }
+                List(6) { TestUtils.ARROWS[10].toArrowScore(archerRoundId, arrowNumber++) },
+                List(38) { TestUtils.ARROWS[5].toArrowScore(archerRoundId, arrowNumber++) },
+                List(4) { TestUtils.ARROWS[0].toArrowScore(archerRoundId, arrowNumber++) }
         ).flatten()
 
         val expectedScore = 38 * 5 + 6 * 10
@@ -193,7 +193,7 @@ class ArcherRoundStatsInstrumentedTest {
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(archerRoundId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -226,7 +226,7 @@ class ArcherRoundStatsInstrumentedTest {
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(archerRoundId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {

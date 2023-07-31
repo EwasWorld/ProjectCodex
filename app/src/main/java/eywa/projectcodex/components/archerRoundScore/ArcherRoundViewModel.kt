@@ -13,7 +13,7 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.*
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
+import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.Arrow
@@ -38,7 +38,7 @@ class ArcherRoundViewModel @Inject constructor(
     )
     val state = _state.asStateFlow()
 
-    private val arrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
+    private val arrowScoresRepo = ArrowScoresRepo(db.arrowScoreDao())
 
     init {
         val archerRoundId = savedStateHandle.get<Int>("archerRoundId")
@@ -133,7 +133,7 @@ class ArcherRoundViewModel @Inject constructor(
 
         var arrowNumber = state.fullArcherRoundInfo.arrows?.maxOfOrNull { it.arrowNumber } ?: 0
         val arrows = state.currentScreenInputArrows.map {
-            it.toArrowValue(state.fullArcherRoundInfo.id, ++arrowNumber)
+            it.toArrowScore(state.fullArcherRoundInfo.id, ++arrowNumber)
         }
 
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been inputted" }
@@ -142,7 +142,7 @@ class ArcherRoundViewModel @Inject constructor(
             return
         }
 
-        viewModelScope.launch { arrowValuesRepo.insert(*arrows.toTypedArray()) }
+        viewModelScope.launch { arrowScoresRepo.insert(*arrows.toTypedArray()) }
         _state.update { (it as Loaded).copy(newInputArrows = listOf()) }
     }
 
@@ -151,7 +151,7 @@ class ArcherRoundViewModel @Inject constructor(
 
         var arrowNumber = state.scorePadSelectedEndFirstArrowNumber
         val arrows = state.currentScreenInputArrows.map { arrow ->
-            arrow.toArrowValue(state.fullArcherRoundInfo.id, arrowNumber++)
+            arrow.toArrowScore(state.fullArcherRoundInfo.id, arrowNumber++)
         }
 
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been marked for edit" }
@@ -160,7 +160,7 @@ class ArcherRoundViewModel @Inject constructor(
             return
         }
 
-        viewModelScope.launch { arrowValuesRepo.update(*arrows.toTypedArray()) }
+        viewModelScope.launch { arrowScoresRepo.update(*arrows.toTypedArray()) }
         _state.update {
             (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null, subScreenInputArrows = emptyList())
         }
@@ -171,11 +171,11 @@ class ArcherRoundViewModel @Inject constructor(
 
         var arrowNumber = state.scorePadSelectedEndFirstArrowNumber
         val arrows = state.currentScreenInputArrows.map { arrow ->
-            arrow.toArrowValue(state.fullArcherRoundInfo.id, arrowNumber++)
+            arrow.toArrowScore(state.fullArcherRoundInfo.id, arrowNumber++)
         }
         check(arrows.size <= state.currentScreenEndSize) { "Too many arrows have been inputted" }
 
-        viewModelScope.launch { arrowValuesRepo.insertEnd(state.fullArcherRoundInfo.arrows!!, arrows) }
+        viewModelScope.launch { arrowScoresRepo.insertEnd(state.fullArcherRoundInfo.arrows!!, arrows) }
         _state.update {
             (it as Loaded).changeScreen(SCORE_PAD).copy(scorePadSelectedEnd = null, subScreenInputArrows = emptyList())
         }
@@ -266,7 +266,7 @@ class ArcherRoundViewModel @Inject constructor(
                 val currentState = state.value as Loaded
                 viewModelScope.launch {
                     currentState.let {
-                        arrowValuesRepo.deleteEnd(
+                        arrowScoresRepo.deleteEnd(
                                 it.fullArcherRoundInfo.arrows!!,
                                 it.scorePadSelectedEndFirstArrowNumber,
                                 it.scorePadSelectedEndSize,

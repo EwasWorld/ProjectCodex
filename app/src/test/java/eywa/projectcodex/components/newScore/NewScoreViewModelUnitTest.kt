@@ -8,7 +8,7 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsSta
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockSavedStateHandle
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -99,7 +99,7 @@ class NewScoreViewModelUnitTest {
         fun create(arrowCount: Int) =
                 DatabaseFullArcherRoundInfo(
                         archerRound = ArcherRound(1, Calendar.getInstance(), 1),
-                        arrows = List(arrowCount) { ArrowValue(1, it + 1, 7, false) },
+                        arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                 )
 
         val archerRoundInitial = create(0)

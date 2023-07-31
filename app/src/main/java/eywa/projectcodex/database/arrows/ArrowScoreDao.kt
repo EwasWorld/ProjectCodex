@@ -1,18 +1,18 @@
-package eywa.projectcodex.database.arrowValue
+package eywa.projectcodex.database.arrows
 
 import androidx.room.*
-import eywa.projectcodex.database.arrowValue.ArrowValue.Companion.TABLE_NAME
+import eywa.projectcodex.database.arrows.DatabaseArrowScore.Companion.TABLE_NAME
 
 @Dao
-interface ArrowValueDao {
+interface ArrowScoreDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(arrowValue: ArrowValue)
+    suspend fun insert(arrowScore: DatabaseArrowScore)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(vararg arrowValue: ArrowValue)
+    suspend fun insert(vararg arrowScore: DatabaseArrowScore)
 
     @Update
-    suspend fun update(vararg arrowValues: ArrowValue)
+    suspend fun update(vararg arrowScores: DatabaseArrowScore)
 
     @Query("DELETE FROM $TABLE_NAME")
     suspend fun deleteAll()
@@ -47,15 +47,18 @@ interface ArrowValueDao {
      * @param delArcherRoundId passed to deleteArrowsBetween
      * @param delFromArrowNumber passed to deleteArrowsBetween
      * @param delToArrowNumber passed to deleteArrowsBetween
-     * @param updateArrowValue passed to update
+     * @param updateArrowScore passed to update
      * @see update
      * @see deleteArrowsBetween
      */
     @Transaction
     suspend fun deleteEndTransaction(
-            delArcherRoundId: Int, delFromArrowNumber: Int, delToArrowNumber: Int, vararg updateArrowValue: ArrowValue
+            delArcherRoundId: Int,
+            delFromArrowNumber: Int,
+            delToArrowNumber: Int,
+            vararg updateArrowScore: DatabaseArrowScore
     ) {
-        update(*updateArrowValue)
+        update(*updateArrowScore)
         deleteArrowsBetween(delArcherRoundId, delFromArrowNumber, delToArrowNumber)
     }
 
@@ -66,7 +69,7 @@ interface ArrowValueDao {
      * @see insert
      */
     @Transaction
-    suspend fun updateAndInsert(update: List<ArrowValue>, insert: List<ArrowValue>) {
+    suspend fun updateAndInsert(update: List<DatabaseArrowScore>, insert: List<DatabaseArrowScore>) {
         update(*update.toTypedArray())
         insert(*insert.toTypedArray())
     }

@@ -3,7 +3,7 @@ package eywa.projectcodex.model
 import eywa.projectcodex.R
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.database.UpdateType
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.exceptions.UserException
 import kotlin.math.min
 
@@ -19,7 +19,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
      * Used if the end is already represented in the database. This stores the arrows as they are in the database so
      * they can be overwritten when the end is pushed to the database
      */
-    private var originalEnd: List<ArrowValue>? = null
+    private var originalEnd: List<DatabaseArrowScore>? = null
 
     /**
      * When a temporary end size is being used, store the usual end size
@@ -42,7 +42,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
     /**
      * @param arrowsList must all belong to the same archerRound
      */
-    constructor(arrowsList: List<ArrowValue>, arrowPlaceholder: String, arrowDeliminator: String) :
+    constructor(arrowsList: List<DatabaseArrowScore>, arrowPlaceholder: String, arrowDeliminator: String) :
             this(arrowsList.size, arrowPlaceholder, arrowDeliminator) {
         require(arrowsList.map { it.archerRoundId }.distinct().size == 1) { "Arrows must be from the same round" }
         for (arrow in arrowsList) {
@@ -200,7 +200,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
     fun getDatabaseUpdates(
             archerRoundId: Int?,
             firstArrowId: Int?
-    ): Pair<UpdateType, List<ArrowValue>> {
+    ): Pair<UpdateType, List<DatabaseArrowScore>> {
         val origArcherRoundIds = originalEnd?.map { it.archerRoundId }?.distinct()
         val finalArcherRoundId = origArcherRoundIds?.get(0) ?: archerRoundId
         check(finalArcherRoundId != null) { "Must provide archerRoundId" }
@@ -228,7 +228,12 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         if (!originalEnd.isNullOrEmpty()) {
             CustomLogger.customLogger.i(LOG_TAG, "Updating end " + originalEnd.toString() + " " + toString())
             return UpdateType.UPDATE to originalEnd!!.mapIndexed { i, originalValue ->
-                ArrowValue(originalValue.archerRoundId, originalValue.arrowNumber, arrows[i].score, arrows[i].isX)
+                DatabaseArrowScore(
+                        originalValue.archerRoundId,
+                        originalValue.arrowNumber,
+                        arrows[i].score,
+                        arrows[i].isX
+                )
             }
         }
         /*
@@ -237,13 +242,13 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         else {
             CustomLogger.customLogger.i(LOG_TAG, "Adding new end")
             var arrowID = firstArrowId!!
-            return UpdateType.NEW to arrows.map { it.toArrowValue(finalArcherRoundId, arrowID++) }
+            return UpdateType.NEW to arrows.map { it.toArrowScore(finalArcherRoundId, arrowID++) }
         }
     }
 
-    fun toArrowValues(archerRoundId: Int, firstArrowId: Int): List<ArrowValue> {
+    fun toArrowScores(archerRoundId: Int, firstArrowId: Int): List<DatabaseArrowScore> {
         var arrowNumber = firstArrowId
-        return arrows.map { ArrowValue(archerRoundId, arrowNumber++, it.score, it.isX) }
+        return arrows.map { DatabaseArrowScore(archerRoundId, arrowNumber++, it.score, it.isX) }
     }
 
     interface UpdateEndSizeListener {

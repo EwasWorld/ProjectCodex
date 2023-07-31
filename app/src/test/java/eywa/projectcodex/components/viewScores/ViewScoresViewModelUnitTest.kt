@@ -19,7 +19,7 @@ import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.FullArcherRoundInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
@@ -61,7 +61,7 @@ class ViewScoresViewModelUnitTest {
         fun create(id: Int, date: Long) =
                 DatabaseFullArcherRoundInfo(
                         archerRound = ArcherRound(id, date.asCalendar(), 1),
-                        arrows = listOf(ArrowValue(id, 1, 10, false)),
+                        arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
 
         val archerRoundsInitial = listOf(create(1, 5), create(3, 3))
@@ -99,7 +99,7 @@ class ViewScoresViewModelUnitTest {
         fun create(id: Int, date: Long) =
                 DatabaseFullArcherRoundInfo(
                         archerRound = ArcherRound(id, date.asCalendar(), 1),
-                        arrows = listOf(ArrowValue(id, 1, 10, false)),
+                        arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
 
         val archerRoundsInitial = listOf(create(1, 5), create(3, 3))
@@ -235,15 +235,15 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_ConvertXS_TO_TENS() = testConvertScore(
-            originalArrows = List(12) { ArrowValue(1, it, if (it < 6) 10 else 5, it < 6) },
-            changedArrows = List(6) { ArrowValue(1, it, 10, false) },
+            originalArrows = List(12) { DatabaseArrowScore(1, it, if (it < 6) 10 else 5, it < 6) },
+            changedArrows = List(6) { DatabaseArrowScore(1, it, 10, false) },
             type = ConvertScoreType.XS_TO_TENS,
     )
 
     @Test
     fun testDropdownMenu_ConvertTO_FIVE_ZONE() = testConvertScore(
-            originalArrows = List(12) { ArrowValue(1, it, if (it < 6) 10 else 5, it < 6) },
-            changedArrows = List(6) { ArrowValue(1, it, 9, false) },
+            originalArrows = List(12) { DatabaseArrowScore(1, it, if (it < 6) 10 else 5, it < 6) },
+            changedArrows = List(6) { DatabaseArrowScore(1, it, 9, false) },
             type = ConvertScoreType.TO_FIVE_ZONE,
     )
 
@@ -252,13 +252,13 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_ConvertClose() = testConvertScore(
-            originalArrows = List(12) { ArrowValue(1, it, if (it < 6) 10 else 5, it < 6) },
+            originalArrows = List(12) { DatabaseArrowScore(1, it, if (it < 6) 10 else 5, it < 6) },
             testClose = true,
     )
 
     private fun testConvertScore(
-            originalArrows: List<ArrowValue>,
-            changedArrows: List<ArrowValue>? = null,
+            originalArrows: List<DatabaseArrowScore>,
+            changedArrows: List<DatabaseArrowScore>? = null,
             type: ConvertScoreType = ConvertScoreType.TO_FIVE_ZONE,
             testClose: Boolean = false,
     ) = runTest {
@@ -288,7 +288,7 @@ class ViewScoresViewModelUnitTest {
         checkState()
 
         advanceUntilIdle()
-        verify(db.arrowValueDao, never()).update(anyVararg())
+        verify(db.arrowScoreDao, never()).update(anyVararg())
 
         if (testClose) {
             sut.handle(ConvertScoreAction(ConvertScoreIntent.Close))
@@ -301,10 +301,10 @@ class ViewScoresViewModelUnitTest {
 
         advanceUntilIdle()
         if (changedArrows.isNullOrEmpty() || testClose) {
-            verify(db.arrowValueDao, never()).update(anyVararg())
+            verify(db.arrowScoreDao, never()).update(anyVararg())
         }
         else {
-            verify(db.arrowValueDao).update(*changedArrows.toTypedArray())
+            verify(db.arrowScoreDao).update(*changedArrows.toTypedArray())
         }
     }
 

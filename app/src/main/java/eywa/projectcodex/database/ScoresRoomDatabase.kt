@@ -10,8 +10,10 @@ import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archer.ArcherDao
 import eywa.projectcodex.database.archerRound.*
-import eywa.projectcodex.database.arrowValue.ArrowValue
-import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.database.arrows.ArrowCountDao
+import eywa.projectcodex.database.arrows.ArrowScoreDao
+import eywa.projectcodex.database.arrows.DatabaseArrowCount
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.rounds.*
@@ -26,10 +28,10 @@ import java.util.*
 
 @Database(
         entities = [
-            ArcherRound::class, Archer::class, ArrowValue::class,
+            ArcherRound::class, Archer::class, DatabaseArrowScore::class,
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class,
             DatabaseBow::class, DatabaseSightMark::class,
-            DatabaseShootRound::class, DatabaseShootDetail::class,
+            DatabaseShootRound::class, DatabaseShootDetail::class, DatabaseArrowCount::class,
         ],
         views = [
             ArcherRoundWithScore::class, PersonalBest::class,
@@ -49,7 +51,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
 
     abstract fun archerDao(): ArcherDao
     abstract fun archerRoundDao(): ArcherRoundDao
-    abstract fun arrowValueDao(): ArrowValueDao
+    abstract fun arrowScoreDao(): ArrowScoreDao
     abstract fun roundDao(): RoundDao
     abstract fun roundArrowCountDao(): RoundArrowCountDao
     abstract fun roundSubTypeDao(): RoundSubTypeDao
@@ -58,6 +60,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun bowDao(): BowDao
     abstract fun shootDetailDao(): ShootDetailDao
     abstract fun shootRoundDao(): ShootRoundDao
+    abstract fun arrowCountDao(): ArrowCountDao
 
     fun roundsRepo() = RoundRepo(
             roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao()
@@ -125,8 +128,8 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
         archerRounds.forEach { archerRoundDao().insert(it) }
         archerRounds.map { archerRound ->
             val archerRoundId = archerRound.archerRoundId
-            List(1) { arrowNumber -> arrowTypes[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
-        }.flatten().forEach { arrowValueDao().insert(it) }
+            List(1) { arrowNumber -> arrowTypes[archerRoundId].toArrowScore(archerRoundId, arrowNumber) }
+        }.flatten().forEach { arrowScoreDao().insert(it) }
 
         listOf(
                 DatabaseShootRound(2, roundId = 101),

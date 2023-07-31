@@ -1,7 +1,7 @@
 package eywa.projectcodex.model
 
 import eywa.projectcodex.R
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 
 /**
@@ -59,7 +59,7 @@ enum class GoldsType(
         return isGold(arrow.score, arrow.isX)
     }
 
-    fun isGold(arrow: ArrowValue): Boolean {
+    fun isGold(arrow: DatabaseArrowScore): Boolean {
         return isGold(arrow.score, arrow.isX)
     }
 

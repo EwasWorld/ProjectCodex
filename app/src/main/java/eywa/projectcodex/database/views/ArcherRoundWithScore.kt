@@ -4,7 +4,7 @@ import androidx.room.DatabaseView
 import androidx.room.Embedded
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import java.util.*
 
@@ -33,7 +33,7 @@ import java.util.*
                 ) as roundCount ON shootRound.roundId = roundCount.roundId
                 LEFT JOIN (
                     SELECT COUNT(*) as count, SUM(score) as score, archerRoundId
-                    FROM ${ArrowValue.TABLE_NAME}
+                    FROM ${DatabaseArrowScore.TABLE_NAME}
                     GROUP BY archerRoundId
                 ) as arrows ON archerRound.archerRoundId = arrows.archerRoundId
                 """,

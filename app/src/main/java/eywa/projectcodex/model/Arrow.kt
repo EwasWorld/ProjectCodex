@@ -1,7 +1,7 @@
 package eywa.projectcodex.model
 
-import eywa.projectcodex.database.arrowValue.ArrowValue
-import eywa.projectcodex.database.arrowValue.arrowScoreAsString
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.arrows.arrowScoreAsString
 
 /**
  * @param arrow the arrow value as a string
@@ -29,8 +29,14 @@ fun isX(arrowScore: String): Boolean {
     return arrowScore == "X" || arrowScore == "x"
 }
 
-@Deprecated("Use arrowScoreAs String")
-fun getArrowValueString(score: Int, isX: Boolean): String {
+@Deprecated(
+        "Use arrowScoreAs String",
+        ReplaceWith(
+                "arrowScoreAsString(score = score, isX = isX)",
+                "eywa.projectcodex.model.getArrowScoreString"
+        )
+)
+fun getArrowScoreString(score: Int, isX: Boolean): String {
     // TODO Hardcoded string
     return when {
         score == 10 && isX -> "X"
@@ -46,11 +52,11 @@ data class Arrow(val score: Int, val isX: Boolean) {
     )
 
     override fun toString(): String {
-        return getArrowValueString(score, isX)
+        return getArrowScoreString(score, isX)
     }
 
-    fun toArrowValue(archerRoundId: Int, arrowNumber: Int): ArrowValue {
-        return ArrowValue(archerRoundId, arrowNumber, score, isX)
+    fun toArrowScore(archerRoundId: Int, arrowNumber: Int): DatabaseArrowScore {
+        return DatabaseArrowScore(archerRoundId, arrowNumber, score, isX)
     }
 
     fun asString() = arrowScoreAsString(score, isX)

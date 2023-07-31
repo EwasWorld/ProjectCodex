@@ -2,7 +2,7 @@ package eywa.projectcodex
 
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.database.UpdateType
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.model.End
 import eywa.projectcodex.model.GoldsType
@@ -32,16 +32,16 @@ class EndUnitTest {
 
     @Test
     fun testCreateEndFromList() {
-        val arrowValues = TestData.ARROWS.map { ArrowValue(1, 1, it.score, it.isX) }
+        val arrowScores = TestData.ARROWS.map { DatabaseArrowScore(1, 1, it.score, it.isX) }
 
-        val endArrows = mutableListOf(arrowValues[0], arrowValues[3], arrowValues[11])
+        val endArrows = mutableListOf(arrowScores[0], arrowScores[3], arrowScores[11])
         end = End(endArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         assertEquals(13, end.getScore())
         assertEquals(1, end.getGolds(GoldsType.XS))
 
-        endArrows.add(arrowValues[1])
-        endArrows.add(arrowValues[1])
-        endArrows.add(arrowValues[1])
+        endArrows.add(arrowScores[1])
+        endArrows.add(arrowScores[1])
+        endArrows.add(arrowScores[1])
         end = End(endArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         assertEquals(16, end.getScore())
     }
@@ -87,7 +87,7 @@ class EndUnitTest {
     }
 
     @Test
-    fun testAddArrowValueToEnd() {
+    fun testAddArrowScoreToEnd() {
         end.addArrowToEnd(TestData.ARROWS[1])
         assertEquals(1, end.getScore())
 
@@ -223,10 +223,10 @@ class EndUnitTest {
     @Test
     fun testAddArrowsToDatabaseEditEnd() {
         val oldArrows = listOf(
-                ArrowValue(archerRoundId, 4, 3, false),
-                ArrowValue(archerRoundId, 6, 6, false),
-                ArrowValue(archerRoundId, 7, 7, false),
-                ArrowValue(archerRoundId, 8, 10, true)
+                DatabaseArrowScore(archerRoundId, 4, 3, false),
+                DatabaseArrowScore(archerRoundId, 6, 6, false),
+                DatabaseArrowScore(archerRoundId, 7, 7, false),
+                DatabaseArrowScore(archerRoundId, 8, 10, true)
         )
         val arrowScores = listOf(1, 5, 6, 10)
         val end = End(oldArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
@@ -310,12 +310,12 @@ class EndUnitTest {
     @Test(expected = UserException::class)
     fun testReduceEndSizeEditEnd() {
         val oldArrows = listOf(
-                ArrowValue(archerRoundId, 1, 3, false),
-                ArrowValue(archerRoundId, 2, 3, false),
-                ArrowValue(archerRoundId, 3, 3, false),
-                ArrowValue(archerRoundId, 4, 6, false),
-                ArrowValue(archerRoundId, 5, 7, false),
-                ArrowValue(archerRoundId, 6, 10, true)
+                DatabaseArrowScore(archerRoundId, 1, 3, false),
+                DatabaseArrowScore(archerRoundId, 2, 3, false),
+                DatabaseArrowScore(archerRoundId, 3, 3, false),
+                DatabaseArrowScore(archerRoundId, 4, 6, false),
+                DatabaseArrowScore(archerRoundId, 5, 7, false),
+                DatabaseArrowScore(archerRoundId, 6, 10, true)
         )
         end = End(oldArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         val listener = mock(End.UpdateEndSizeListener::class.java)

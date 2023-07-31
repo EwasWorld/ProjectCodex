@@ -3,7 +3,7 @@ package eywa.projectcodex.testUtils
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundDao
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
-import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
 import kotlinx.coroutines.delay
@@ -17,7 +17,7 @@ import org.mockito.kotlin.mock
 
 class MockScoresRoomDatabase {
     val archerRoundDao = MockArcherRoundDao()
-    val arrowValueDao: ArrowValueDao = mock {}
+    val arrowScoreDao: ArrowScoreDao = mock {}
     val roundDao = MockRoundDao()
     val roundArrowCountDao: RoundArrowCountDao = mock {}
     val roundSubTypeDao: RoundSubTypeDao = mock {}
@@ -25,7 +25,7 @@ class MockScoresRoomDatabase {
 
     val mock: ScoresRoomDatabase = mock {
         on { archerRoundDao() } doReturn archerRoundDao.mock
-        on { arrowValueDao() } doReturn arrowValueDao
+        on { arrowScoreDao() } doReturn arrowScoreDao
         on { roundDao() } doReturn roundDao.mock
         on { roundArrowCountDao() } doReturn roundArrowCountDao
         on { roundSubTypeDao() } doReturn roundSubTypeDao

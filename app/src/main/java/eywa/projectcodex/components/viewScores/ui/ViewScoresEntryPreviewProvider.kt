@@ -6,7 +6,7 @@ import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -96,9 +96,9 @@ object ViewScoresEntryPreviewProvider {
     private fun generateArrows(archerRoundId: Int, hsg: List<Int>) =
             generateArrows(archerRoundId, hsg[0], hsg[1], hsg[2])
 
-    private fun generateArrows(archerRoundId: Int, hits: Int, score: Int, golds: Int): List<ArrowValue> {
+    private fun generateArrows(archerRoundId: Int, hits: Int, score: Int, golds: Int): List<DatabaseArrowScore> {
         if (hits == 0 && score == 0 && golds == 0) {
-            return listOf(ArrowValue(archerRoundId, 1, 0, false))
+            return listOf(DatabaseArrowScore(archerRoundId, 1, 0, false))
         }
 
         val nonGoldHits = hits - golds
@@ -116,7 +116,7 @@ object ViewScoresEntryPreviewProvider {
 
         return goldArrows.plus(hitArrows)
                 .mapIndexed { index, arrow ->
-                    arrow.toArrowValue(archerRoundId, index)
+                    arrow.toArrowScore(archerRoundId, index)
                 }
     }
 

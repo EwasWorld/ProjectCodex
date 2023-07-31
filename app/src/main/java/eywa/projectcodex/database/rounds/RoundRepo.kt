@@ -4,11 +4,11 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFil
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundFilter
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
-import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
+import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import kotlinx.coroutines.flow.Flow
 
 /**
- * @see ArrowValuesRepo
+ * @see ArrowScoresRepo
  */
 class RoundRepo(
         private val roundDao: RoundDao,

@@ -6,10 +6,10 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowValuesPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowScoresPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -47,7 +47,7 @@ class ScorePadDataUnitTest {
     )
 
     private val arrows = List(36) {
-        ArrowValuesPreviewHelper.ARROWS[ArrowValuesPreviewHelper.ARROWS.size - 1 - (it / 6)]
+        ArrowScoresPreviewHelper.ARROWS[ArrowScoresPreviewHelper.ARROWS.size - 1 - (it / 6)]
     }
 
     @Before
@@ -237,15 +237,15 @@ class ScorePadDataUnitTest {
                 .newFullArcherRoundInfo()
                 .let { info ->
                     info.copy(
-                            arrows = List(11) { ArrowValue(info.id, it, it, false) }
-                                    .plus(ArrowValue(info.id, 11, 10, true))
+                            arrows = List(11) { DatabaseArrowScore(info.id, it, it, false) }
+                                    .plus(DatabaseArrowScore(info.id, 11, 10, true))
                     )
                 }
 
         val expectedRows = listOf(
                 End(
                         endNumber = 1,
-                        arrowValues = ALL_ARROW_VALUE_RES_OR_ACTUAL.take(6),
+                        arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL.take(6),
                         hits = 5,
                         score = 15,
                         golds = 0,
@@ -253,7 +253,7 @@ class ScorePadDataUnitTest {
                 ),
                 End(
                         endNumber = 2,
-                        arrowValues = ALL_ARROW_VALUE_RES_OR_ACTUAL.drop(6),
+                        arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL.drop(6),
                         hits = 6,
                         score = 50,
                         golds = 3,
@@ -282,7 +282,7 @@ class ScorePadDataUnitTest {
         fun getExpectedRows(expectedGolds: Int) = listOf(
                 End(
                         endNumber = 1,
-                        arrowValues = ALL_ARROW_VALUE_RES_OR_ACTUAL,
+                        arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
                         hits = 11,
                         score = 65,
                         golds = expectedGolds,
@@ -299,8 +299,8 @@ class ScorePadDataUnitTest {
                 .newFullArcherRoundInfo()
                 .let { info ->
                     info.copy(
-                            arrows = List(11) { ArrowValue(info.id, it, it, false) }
-                                    .plus(ArrowValue(info.id, 11, 10, true))
+                            arrows = List(11) { DatabaseArrowScore(info.id, it, it, false) }
+                                    .plus(DatabaseArrowScore(info.id, 11, 10, true))
                     )
                 }
 
@@ -322,7 +322,7 @@ class ScorePadDataUnitTest {
     fun testRowHeaders() {
         val end = End(
                 endNumber = 1,
-                arrowValues = ALL_ARROW_VALUE_RES_OR_ACTUAL,
+                arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
                 hits = 11,
                 score = 65,
                 golds = 3,
@@ -350,7 +350,7 @@ class ScorePadDataUnitTest {
     fun testGetContent_End() {
         val row = End(
                 endNumber = 1,
-                arrowValues = ALL_ARROW_VALUE_RES_OR_ACTUAL,
+                arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
                 hits = 11,
                 score = 65,
                 golds = 3,
@@ -606,7 +606,7 @@ class ScorePadDataUnitTest {
         var expected = List(fullEnds) { endIndex ->
             End(
                     endNumber = firstEndNumber + endIndex,
-                    arrowValues = List(endSize) { ResOrActual.fromActual(arrowScore.toString()) },
+                    arrowScores = List(endSize) { ResOrActual.fromActual(arrowScore.toString()) },
                     hits = endSize,
                     score = endSize * arrowScore,
                     golds = 0,
@@ -617,7 +617,7 @@ class ScorePadDataUnitTest {
             expected = expected.plus(
                     End(
                             endNumber = firstEndNumber + fullEnds,
-                            arrowValues = List(lastEndSize) { ResOrActual.fromActual(arrowScore.toString()) },
+                            arrowScores = List(lastEndSize) { ResOrActual.fromActual(arrowScore.toString()) },
                             hits = lastEndSize,
                             score = lastEndSize * arrowScore,
                             golds = 0,

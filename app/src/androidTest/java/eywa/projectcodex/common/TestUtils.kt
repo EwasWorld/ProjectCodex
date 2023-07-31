@@ -120,10 +120,10 @@ object TestUtils {
         }
     }
 
-    fun generateArrowValues(archerRoundId: Int, numberToGenerate: Int, desiredTotal: Int? = null) =
+    fun generateArrowScores(archerRoundId: Int, numberToGenerate: Int, desiredTotal: Int? = null) =
             generateArrows(numberToGenerate, desiredTotal)
                     .mapIndexed { arrowIndex, arrow ->
-                        arrow.toArrowValue(archerRoundId, arrowIndex + 1)
+                        arrow.toArrowScore(archerRoundId, arrowIndex + 1)
 
                     }
 

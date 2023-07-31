@@ -14,7 +14,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -133,8 +133,8 @@ class NewScoreInstrumentedTest {
         val ar = ArcherRound(2, TestUtils.generateDate(2020), 1, true)
         db.archerRoundDao().insert(ar)
 
-        db.arrowValueDao().insert(
-                *List(2) { ArrowValue(it + 1, 1, 6 + it, false) }.toTypedArray()
+        db.arrowScoreDao().insert(
+                *List(2) { DatabaseArrowScore(it + 1, 1, 6 + it, false) }.toTypedArray()
         )
 
         composeTestRule.mainMenuRobot {

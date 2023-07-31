@@ -6,8 +6,10 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.*
-import eywa.projectcodex.database.arrowValue.ArrowValue
-import eywa.projectcodex.database.arrowValue.ArrowValueDao
+import eywa.projectcodex.database.arrows.ArrowCountDao
+import eywa.projectcodex.database.arrows.ArrowScoreDao
+import eywa.projectcodex.database.arrows.DatabaseArrowCount
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
 import eywa.projectcodex.database.rounds.RoundSubTypeDao
@@ -35,7 +37,8 @@ class ArcherRoundsTest {
     private lateinit var roundDao: RoundDao
     private lateinit var roundSubTypeDao: RoundSubTypeDao
     private lateinit var roundArrowCountsDao: RoundArrowCountDao
-    private lateinit var arrowValueDao: ArrowValueDao
+    private lateinit var arrowScoreDao: ArrowScoreDao
+    private lateinit var arrowCountDao: ArrowCountDao
 
     @Before
     fun createDb() {
@@ -44,9 +47,10 @@ class ArcherRoundsTest {
         roundDao = db.roundDao()
         roundSubTypeDao = db.roundSubTypeDao()
         roundArrowCountsDao = db.roundArrowCountDao()
-        arrowValueDao = db.arrowValueDao()
+        arrowScoreDao = db.arrowScoreDao()
         shootDetailDao = db.shootDetailDao()
         shootRoundDao = db.shootRoundDao()
+        arrowCountDao = db.arrowCountDao()
     }
 
     @After
@@ -247,13 +251,13 @@ class ArcherRoundsTest {
         val roundOneArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 1 }.sumOf { it.arrowCount }
         val roundTwoArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 2 }.sumOf { it.arrowCount }
         val arrows = listOf(
-                List(roundOneArrowCount - 3) { ArrowValue(1, it, 10, false) },
-                List(roundTwoArrowCount) { ArrowValue(2, it, 10, false) },
-                List(roundOneArrowCount) { ArrowValue(3, it, 5, false) },
-                List(roundOneArrowCount) { ArrowValue(4, it, 5, false) },
-                List(roundTwoArrowCount) { ArrowValue(5, it, 5, false) },
-                List(36) { ArrowValue(6, it, 10, false) },
-                List(roundOneArrowCount) { ArrowValue(7, it, 1, false) },
+                List(roundOneArrowCount - 3) { DatabaseArrowScore(1, it, 10, false) },
+                List(roundTwoArrowCount) { DatabaseArrowScore(2, it, 10, false) },
+                List(roundOneArrowCount) { DatabaseArrowScore(3, it, 5, false) },
+                List(roundOneArrowCount) { DatabaseArrowScore(4, it, 5, false) },
+                List(roundTwoArrowCount) { DatabaseArrowScore(5, it, 5, false) },
+                List(36) { DatabaseArrowScore(6, it, 10, false) },
+                List(roundOneArrowCount) { DatabaseArrowScore(7, it, 1, false) },
         ).flatten()
 
         for (round in rounds) {
@@ -269,7 +273,7 @@ class ArcherRoundsTest {
             archerRoundDao.insert(archerRound)
         }
         for (arrow in arrows) {
-            arrowValueDao.insert(arrow)
+            arrowScoreDao.insert(arrow)
         }
         for (shootRound in shootRounds) {
             shootRoundDao.insert(shootRound)
@@ -313,14 +317,14 @@ class ArcherRoundsTest {
         val roundOneArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 1 }.sumOf { it.arrowCount }
         val roundTwoArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 2 }.sumOf { it.arrowCount }
         val arrows = listOf(
-                List(roundOneArrowCount - 3) { ArrowValue(1, it, 10, false) },
-                List(roundTwoArrowCount) { ArrowValue(2, it, 10, false) },
-                List(roundOneArrowCount) { ArrowValue(3, it, 5, false) },
-                List(roundOneArrowCount) { ArrowValue(4, it, 5, false) },
-                List(roundTwoArrowCount) { ArrowValue(5, it, 5, false) },
-                List(36) { ArrowValue(6, it, 10, false) },
-                List(roundOneArrowCount) { ArrowValue(7, it, 1, false) },
-                List(roundOneArrowCount) { ArrowValue(8, it, 1, false) },
+                List(roundOneArrowCount - 3) { DatabaseArrowScore(1, it, 10, false) },
+                List(roundTwoArrowCount) { DatabaseArrowScore(2, it, 10, false) },
+                List(roundOneArrowCount) { DatabaseArrowScore(3, it, 5, false) },
+                List(roundOneArrowCount) { DatabaseArrowScore(4, it, 5, false) },
+                List(roundTwoArrowCount) { DatabaseArrowScore(5, it, 5, false) },
+                List(36) { DatabaseArrowScore(6, it, 10, false) },
+                List(roundOneArrowCount) { DatabaseArrowScore(7, it, 1, false) },
+                List(roundOneArrowCount) { DatabaseArrowScore(8, it, 1, false) },
         ).flatten()
 
         for (round in rounds) {
@@ -336,7 +340,7 @@ class ArcherRoundsTest {
             archerRoundDao.insert(archerRound)
         }
         for (arrow in arrows) {
-            arrowValueDao.insert(arrow)
+            arrowScoreDao.insert(arrow)
         }
         for (shootRound in shootRounds) {
             shootRoundDao.insert(shootRound)
@@ -426,5 +430,30 @@ class ArcherRoundsTest {
                             .map { dbFar -> dbFar.archerRound.archerRoundId }
             )
         }
+    }
+
+    @Test
+    fun testWithArrowCounts() = runTest {
+        val archerRound = ArcherRound(
+                archerRoundId = 1,
+                dateShot = TestUtils.generateDate(),
+                archerId = 1,
+                countsTowardsHandicap = true,
+        )
+        archerRoundDao.insert(archerRound)
+        val arrowCount = DatabaseArrowCount(
+                archerRoundId = 1,
+                12,
+        )
+        arrowCountDao.insert(arrowCount)
+
+
+        assertEquals(
+                arrowCount,
+                archerRoundDao
+                        .getFullArcherRoundInfo(1)
+                        .first()!!
+                        .arrowCount
+        )
     }
 }

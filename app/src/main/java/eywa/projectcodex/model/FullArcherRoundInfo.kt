@@ -8,15 +8,15 @@ import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.archerRound.DatabaseShootDetail
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
-import eywa.projectcodex.database.arrowValue.getGolds
-import eywa.projectcodex.database.arrowValue.getHits
-import eywa.projectcodex.database.arrowValue.getScore
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.arrows.getGolds
+import eywa.projectcodex.database.arrows.getHits
+import eywa.projectcodex.database.arrows.getScore
 import eywa.projectcodex.database.rounds.*
 
 data class FullArcherRoundInfo(
         val archerRound: ArcherRound,
-        val arrows: List<ArrowValue>?,
+        val arrows: List<DatabaseArrowScore>?,
         val round: Round? = null,
         val roundArrowCounts: List<RoundArrowCount>? = null,
         val roundSubType: RoundSubType? = null,

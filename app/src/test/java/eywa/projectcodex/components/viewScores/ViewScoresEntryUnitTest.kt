@@ -5,7 +5,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addFullSetOfArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.completeRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowValuesPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowScoresPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.rounds.FullRoundInfo
@@ -69,7 +69,7 @@ class ViewScoresEntryUnitTest {
                 customLogger = customLogger,
         )
         assertEquals(
-                ArrowValuesPreviewHelper.ARROWS.sumOf { it.score }.toString(),
+                ArrowScoresPreviewHelper.ARROWS.sumOf { it.score }.toString(),
                 entry.hitsScoreGolds?.split("/")?.get(1)
         )
     }
@@ -81,7 +81,7 @@ class ViewScoresEntryUnitTest {
                 customLogger = customLogger,
         )
         assertEquals(
-                (ArrowValuesPreviewHelper.ARROWS.count() - 1).toString(),
+                (ArrowScoresPreviewHelper.ARROWS.count() - 1).toString(),
                 entry.hitsScoreGolds?.split("/")?.get(0)
         )
     }

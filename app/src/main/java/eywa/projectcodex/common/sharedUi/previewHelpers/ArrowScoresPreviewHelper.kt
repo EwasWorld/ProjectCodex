@@ -1,9 +1,9 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.model.Arrow
 
-object ArrowValuesPreviewHelper {
+object ArrowScoresPreviewHelper {
     val ARROWS = arrayOf(
             Arrow(0, false),
             Arrow(1, false),
@@ -25,7 +25,7 @@ object ArrowValuesPreviewHelper {
             firstArrowNumber: Int = 1,
             score: Int,
             isX: Boolean,
-    ) = List(size) { ArrowValue(archerRoundId, firstArrowNumber + it, score, isX) }
+    ) = List(size) { DatabaseArrowScore(archerRoundId, firstArrowNumber + it, score, isX) }
 
     fun getArrowsInOrder(
             archerRoundId: Int = 1,
@@ -35,7 +35,7 @@ object ArrowValuesPreviewHelper {
     ) = List(size) {
         var index = it % ARROWS.size
         if (!ascending) index -= ARROWS.size - 1
-        ARROWS[index].toArrowValue(archerRoundId, firstArrowNumber + it)
+        ARROWS[index].toArrowScore(archerRoundId, firstArrowNumber + it)
     }
 
     fun getArrowsInOrderFullSet(
@@ -43,6 +43,6 @@ object ArrowValuesPreviewHelper {
             firstArrowNumber: Int = 1,
             ascending: Boolean = true,
     ) = ARROWS
-            .mapIndexed { index, arrow -> arrow.toArrowValue(archerRoundId, index + firstArrowNumber) }
+            .mapIndexed { index, arrow -> arrow.toArrowScore(archerRoundId, index + firstArrowNumber) }
             .let { if (ascending) it else it.reversed() }
 }

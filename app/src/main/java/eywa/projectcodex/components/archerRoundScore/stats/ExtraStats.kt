@@ -2,12 +2,12 @@ package eywa.projectcodex.components.archerRoundScore.stats
 
 import eywa.projectcodex.common.utils.standardDeviation
 import eywa.projectcodex.common.utils.standardDeviationInt
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 
 open class ExtraStats(
-        arrows: List<ArrowValue>,
+        arrows: List<DatabaseArrowScore>,
         endSize: Int,
         val handicap: Double?
 ) {
@@ -35,13 +35,13 @@ open class ExtraStats(
 class DistanceExtra(
         val distance: RoundDistance,
         roundArrowCount: RoundArrowCount,
-        arrows: List<ArrowValue>,
+        arrows: List<DatabaseArrowScore>,
         endSize: Int,
-        calculateHandicap: (arrows: List<ArrowValue>, arrowCount: RoundArrowCount, distance: RoundDistance) -> Double?,
+        calculateHandicap: (arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance) -> Double?,
 ) : ExtraStats(arrows, endSize, calculateHandicap(arrows, roundArrowCount, distance))
 
 class GrandTotalExtra(
-        arrows: List<ArrowValue>,
+        arrows: List<DatabaseArrowScore>,
         endSize: Int,
         handicap: Double?,
 ) : ExtraStats(arrows, endSize, handicap)

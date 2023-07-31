@@ -63,8 +63,8 @@ class ScorePadInstrumentedTest {
 
     private suspend fun addArrows(indexes: List<Int>, archerRoundId: Int = 1) {
         indexes
-                .mapIndexed { index, it -> TestUtils.ARROWS[it].toArrowValue(archerRoundId, index + 1) }
-                .forEach { db.arrowValueDao().insert(it) }
+                .mapIndexed { index, it -> TestUtils.ARROWS[it].toArrowScore(archerRoundId, index + 1) }
+                .forEach { db.arrowScoreDao().insert(it) }
     }
 
     private fun setupActivity(setupDb: suspend () -> Unit) {

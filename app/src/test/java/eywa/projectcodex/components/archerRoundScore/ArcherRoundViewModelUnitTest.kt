@@ -10,7 +10,7 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -95,7 +95,7 @@ class ArcherRoundViewModelUnitTest {
         fun create(arrowCount: Int) =
                 DatabaseFullArcherRoundInfo(
                         archerRound = ArcherRound(1, Calendar.getInstance(), 1),
-                        arrows = List(arrowCount) { ArrowValue(1, it + 1, 7, false) },
+                        arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                 )
 
         val archerRoundInitial = create(0)
@@ -285,7 +285,7 @@ class ArcherRoundViewModelUnitTest {
         assertEquals(state.copy(inputArrows = emptyList()), sut.getLoadedStateValue())
         advanceUntilIdle()
 
-        verify(db.arrowValueDao).insert(*List(6) { ArrowValue(1, it + 13, 10, true) }.toTypedArray())
+        verify(db.arrowScoreDao).insert(*List(6) { DatabaseArrowScore(1, it + 13, 10, true) }.toTypedArray())
     }
 
     @Test
@@ -314,10 +314,10 @@ class ArcherRoundViewModelUnitTest {
         )
         advanceUntilIdle()
 
-        verify(db.arrowValueDao).updateAndInsert(
-                update = List(6) { ArrowValue(1, it + 1, 10, true) }
-                        .plus(TestData.ARROWS.take(6).mapIndexed { index, arrow -> arrow.toArrowValue(1, index + 7) }),
-                insert = TestData.ARROWS.takeLast(6).mapIndexed { index, arrow -> arrow.toArrowValue(1, index + 13) },
+        verify(db.arrowScoreDao).updateAndInsert(
+                update = List(6) { DatabaseArrowScore(1, it + 1, 10, true) }
+                        .plus(TestData.ARROWS.take(6).mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 7) }),
+                insert = TestData.ARROWS.takeLast(6).mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 13) },
         )
     }
 
@@ -348,7 +348,7 @@ class ArcherRoundViewModelUnitTest {
         )
         advanceUntilIdle()
 
-        verify(db.arrowValueDao).update(*List(6) { ArrowValue(1, it + 1, 10, true) }.toTypedArray())
+        verify(db.arrowScoreDao).update(*List(6) { DatabaseArrowScore(1, it + 1, 10, true) }.toTypedArray())
     }
 
     @Test
@@ -521,13 +521,13 @@ class ArcherRoundViewModelUnitTest {
                 ), sut.getLoadedStateValue()
         )
         advanceUntilIdle()
-        verify(db.arrowValueDao).update(
+        verify(db.arrowScoreDao).update(
                 *TestData.ARROWS
                         .takeLast(6)
-                        .mapIndexed { index, arrow -> arrow.toArrowValue(1, index + 1) }
+                        .mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 1) }
                         .toTypedArray()
         )
-        verify(db.arrowValueDao).deleteArrows(1, (7..12).toList())
+        verify(db.arrowScoreDao).deleteArrows(1, (7..12).toList())
     }
 
     @Test
@@ -765,7 +765,7 @@ class ArcherRoundViewModelUnitTest {
     private fun createArcherRound_WithRound(arrowCount: Int = 36) =
             DatabaseFullArcherRoundInfo(
                     archerRound = ArcherRound(1, Calendar.getInstance(), 1, roundId = 1),
-                    arrows = List(arrowCount) { ArrowValue(1, it + 1, 7, false) },
+                    arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                     round = Round(1, "", "", true, true),
                     roundArrowCounts = listOf(RoundArrowCount(1, 1, 122.0, 36)),
                     allRoundSubTypes = listOf(),
@@ -776,7 +776,7 @@ class ArcherRoundViewModelUnitTest {
         db.archerRoundDao.fullArcherRounds = listOf(
                 DatabaseFullArcherRoundInfo(
                         archerRound = ArcherRound(1, Calendar.getInstance(), 1),
-                        arrows = TestData.ARROWS.mapIndexed { index, arrow -> arrow.toArrowValue(1, index + 1) },
+                        arrows = TestData.ARROWS.mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 1) },
                 )
         )
     }

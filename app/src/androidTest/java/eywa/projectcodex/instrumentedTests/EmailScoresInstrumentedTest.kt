@@ -97,7 +97,7 @@ class EmailScoresInstrumentedTest {
         val desiredCount = if (arrowsInRound == 0) (arrowsPerArrowCount * 2 - i * 6) else (arrowsInRound + i * 6)
         val testDataSize = TestUtils.ARROWS.size
         List(desiredCount) {
-            TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].toArrowValue(
+            TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].toArrowScore(
                     archerRound.archerRoundId,
                     it
             )
@@ -112,7 +112,7 @@ class EmailScoresInstrumentedTest {
                 distances.forEach { item -> db.roundDistanceDao().insert(item) }
                 subTypes.forEach { item -> db.roundSubTypeDao().insert(item) }
                 archerRounds.forEach { item -> db.archerRoundDao().insert(item) }
-                arrows.forEach { item -> db.arrowValueDao().insert(item) }
+                arrows.forEach { item -> db.arrowScoreDao().insert(item) }
                 shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
         }

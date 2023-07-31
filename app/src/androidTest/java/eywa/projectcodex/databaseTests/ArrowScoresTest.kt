@@ -5,9 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRoundDao
-import eywa.projectcodex.database.arrowValue.ArrowValue
-import eywa.projectcodex.database.arrowValue.ArrowValueDao
-import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
+import eywa.projectcodex.database.arrows.ArrowScoreDao
+import eywa.projectcodex.database.arrows.ArrowScoresRepo
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.databaseTests.DatabaseTestUtils.brokenTransactionMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -20,19 +20,19 @@ import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-class ArrowValueTest {
+class ArrowScoresTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var db: ScoresRoomDatabase
-    private lateinit var arrowValueDao: ArrowValueDao
+    private lateinit var arrowScoreDao: ArrowScoreDao
     private lateinit var archerRoundDao: ArcherRoundDao
 
     @Before
     fun createDb() {
         db = DatabaseTestUtils.createDatabase()
         archerRoundDao = db.archerRoundDao()
-        arrowValueDao = db.arrowValueDao()
+        arrowScoreDao = db.arrowScoreDao()
 
         runBlocking {
             TestUtils.generateArcherRounds(2).forEach { archerRoundDao.insert(it) }
@@ -51,14 +51,14 @@ class ArrowValueTest {
      */
     @Test
     fun basicTest() = runTest {
-        val arrows1 = TestUtils.generateArrowValues(1, 6)
-        val arrows2 = TestUtils.generateArrowValues(2, 12)
+        val arrows1 = TestUtils.generateArrowScores(1, 6)
+        val arrows2 = TestUtils.generateArrowScores(2, 12)
 
         /*
          * Add and retrieve
          */
         for (arrow in arrows1.plus(arrows2)) {
-            arrowValueDao.insert(arrow)
+            arrowScoreDao.insert(arrow)
         }
         var retrievedArrows1 = archerRoundDao.getFullArcherRoundInfo(1).map { it?.arrows }.first()!!
         var retrievedArrows2 = archerRoundDao.getFullArcherRoundInfo(2).map { it?.arrows }.first()!!
@@ -69,7 +69,7 @@ class ArrowValueTest {
         /*
          * Delete
          */
-        arrowValueDao.deleteRoundsArrows(1)
+        arrowScoreDao.deleteRoundsArrows(1)
 
         retrievedArrows1 = archerRoundDao.getFullArcherRoundInfo(1).map { it?.arrows }.first()!!
         retrievedArrows2 = archerRoundDao.getFullArcherRoundInfo(2).map { it?.arrows }.first()!!
@@ -79,10 +79,10 @@ class ArrowValueTest {
 
     @Test
     fun deleteSpecificArrowNumbersTest() = runTest {
-        val arrows1 = TestUtils.generateArrowValues(1, 18)
-        val arrows2 = TestUtils.generateArrowValues(2, 18)
+        val arrows1 = TestUtils.generateArrowScores(1, 18)
+        val arrows2 = TestUtils.generateArrowScores(2, 18)
         for (arrow in arrows1.plus(arrows2)) {
-            arrowValueDao.insert(arrow)
+            arrowScoreDao.insert(arrow)
         }
 
         /*
@@ -90,7 +90,7 @@ class ArrowValueTest {
          */
         val from = 7
         val count = 6
-        arrowValueDao.deleteArrowsBetween(1, from, from + count)
+        arrowScoreDao.deleteArrowsBetween(1, from, from + count)
 
         val retrievedArrows1 = archerRoundDao.getFullArcherRoundInfo(1).map { it?.arrows }.first()!!
         val retrievedArrows2 = archerRoundDao.getFullArcherRoundInfo(2).map { it?.arrows }.first()!!
@@ -108,12 +108,12 @@ class ArrowValueTest {
     @Test
     fun deleteEndRepoTst() = runTest {
         val archerRoundId = 1
-        val arrowValuesRepo = ArrowValuesRepo(arrowValueDao)
+        val arrowScoresRepo = ArrowScoresRepo(arrowScoreDao)
 
         for (arrowNumber in 1..24) {
             runBlocking {
-                arrowValueDao.insert(
-                        TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowValue(archerRoundId, arrowNumber)
+                arrowScoreDao.insert(
+                        TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowScore(archerRoundId, arrowNumber)
                 )
             }
         }
@@ -125,16 +125,16 @@ class ArrowValueTest {
         val count = 6
         val originalArrows = archerRoundDao.getFullArcherRoundInfo(archerRoundId).map { it?.arrows }.first()!!
         runBlocking {
-            arrowValuesRepo.deleteEnd(originalArrows, from, count)
+            arrowScoresRepo.deleteEnd(originalArrows, from, count)
         }
 
         /*
          * Check
          */
-        val expectedArrows = mutableListOf<ArrowValue>()
+        val expectedArrows = mutableListOf<DatabaseArrowScore>()
         for (arrowNumber in 1..(24 - count)) {
             val testDataIndex = (if (arrowNumber < from) arrowNumber else arrowNumber + count) % TestUtils.ARROWS.size
-            expectedArrows.add(TestUtils.ARROWS[testDataIndex].toArrowValue(archerRoundId, arrowNumber))
+            expectedArrows.add(TestUtils.ARROWS[testDataIndex].toArrowScore(archerRoundId, arrowNumber))
         }
         val retrievedArrows = archerRoundDao.getFullArcherRoundInfo(archerRoundId).map { it?.arrows }.first()!!
         Assert.assertEquals(expectedArrows.toSet(), retrievedArrows.toSet())
@@ -145,11 +145,11 @@ class ArrowValueTest {
     @Test
     fun insertEndRepoTest() = runTest {
         val archerRoundId = 1
-        val arrowValuesRepo = ArrowValuesRepo(arrowValueDao)
+        val arrowScoresRepo = ArrowScoresRepo(arrowScoreDao)
 
         for (arrowNumber in 1..24) {
-            arrowValueDao.insert(
-                    TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowValue(archerRoundId, arrowNumber)
+            arrowScoreDao.insert(
+                    TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowScore(archerRoundId, arrowNumber)
             )
         }
 
@@ -160,11 +160,11 @@ class ArrowValueTest {
         val at = 5
         var newArrowId = at
         val newArrows = (7 until 14).map {
-            TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowValue(
+            TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowScore(
                     archerRoundId, newArrowId++
             )
         }
-        arrowValuesRepo.insertEnd(originalArrows, newArrows)
+        arrowScoresRepo.insertEnd(originalArrows, newArrows)
 
         /*
          * Check
@@ -172,7 +172,7 @@ class ArrowValueTest {
         val expectedArrows = newArrows.toMutableSet()
         for (arrow in originalArrows) {
             val newArrNum = if (arrow.arrowNumber < at) arrow.arrowNumber else arrow.arrowNumber + newArrows.size
-            expectedArrows.add(ArrowValue(archerRoundId, newArrNum, arrow.score, arrow.isX))
+            expectedArrows.add(DatabaseArrowScore(archerRoundId, newArrNum, arrow.score, arrow.isX))
         }
 
         val retrievedArrows = archerRoundDao.getFullArcherRoundInfo(archerRoundId).map { it?.arrows }.first()!!

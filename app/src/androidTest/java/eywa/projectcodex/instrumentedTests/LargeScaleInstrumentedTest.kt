@@ -70,13 +70,13 @@ class LargeScaleInstrumentedTest {
     }
 
     private fun addSimpleTestDataToDb() {
-        val arrows = List(12) { i -> TestUtils.ARROWS[5].toArrowValue(1, i) }
+        val arrows = List(12) { i -> TestUtils.ARROWS[5].toArrowScore(1, i) }
         val archerRound = ArcherRound(1, TestUtils.generateDate(), 1, false)
         scenario.onActivity {
             runBlocking {
                 db.archerRoundDao().insert(archerRound)
                 for (arrow in arrows) {
-                    db.arrowValueDao().insert(arrow)
+                    db.arrowScoreDao().insert(arrow)
                 }
                 addSightMarkToDb()
             }

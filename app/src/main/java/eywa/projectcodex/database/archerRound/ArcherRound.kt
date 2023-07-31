@@ -2,7 +2,8 @@ package eywa.projectcodex.database.archerRound
 
 import androidx.room.*
 import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowCount
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -59,7 +60,13 @@ data class DatabaseFullArcherRoundInfo(
                 parentColumn = "archerRoundId",
                 entityColumn = "archerRoundId",
         )
-        val arrows: List<ArrowValue>? = null,
+        val arrows: List<DatabaseArrowScore>? = null,
+
+        @Relation(
+                parentColumn = "archerRoundId",
+                entityColumn = "archerRoundId",
+        )
+        val arrowCount: DatabaseArrowCount? = null,
 
         @Relation(
                 parentColumn = "archerRoundId",

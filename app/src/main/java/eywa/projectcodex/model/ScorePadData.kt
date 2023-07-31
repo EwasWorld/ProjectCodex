@@ -7,7 +7,7 @@ import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.get
-import eywa.projectcodex.database.arrowValue.*
+import eywa.projectcodex.database.arrows.*
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
@@ -99,7 +99,7 @@ class ScorePadData(
      * @param endNumber 1-indexed
      */
     private fun generateRowsForDistance(
-            arrows: MutableList<ArrowValue>,
+            arrows: MutableList<DatabaseArrowScore>,
             distance: RoundDistance? = null,
             arrowCount: RoundArrowCount? = null,
             @StringRes distanceUnit: Int? = null,
@@ -227,7 +227,7 @@ class ScorePadData(
          */
         data class End(
                 internal val endNumber: Int,
-                val arrowValues: List<ResOrActual<String>>,
+                val arrowScores: List<ResOrActual<String>>,
                 override val hits: Int,
                 override val score: Int,
                 override val golds: Int,
@@ -235,7 +235,7 @@ class ScorePadData(
         ) : ScorePadRow() {
             internal constructor(
                     endNumber: Int,
-                    arrows: List<ArrowValue>,
+                    arrows: List<DatabaseArrowScore>,
                     goldsType: GoldsType,
                     runningTotal: Int,
             ) : this(
@@ -247,7 +247,7 @@ class ScorePadData(
                     runningTotal
             )
 
-            override fun getArrowsString(resources: Resources): String = arrowValues
+            override fun getArrowsString(resources: Resources): String = arrowScores
                     .joinToString(resources.getString(R.string.end_to_string_arrow_deliminator)) { it.get(resources) }
 
             override fun getRowHeader() = ResOrActual.fromActual(endNumber.toString())
@@ -261,7 +261,7 @@ class ScorePadData(
                 override val golds: Int,
         ) : ScorePadRow() {
             internal constructor(
-                    arrows: List<ArrowValue>,
+                    arrows: List<DatabaseArrowScore>,
                     goldsType: GoldsType,
                     distance: Int,
                     @StringRes distanceUnit: Int
@@ -281,7 +281,7 @@ class ScorePadData(
                 override val score: Int,
                 override val golds: Int,
         ) : ScorePadRow() {
-            constructor(arrows: List<ArrowValue>, goldsType: GoldsType)
+            constructor(arrows: List<DatabaseArrowScore>, goldsType: GoldsType)
                     : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
 
             override fun getArrowsString(resources: Resources): String =
@@ -295,7 +295,7 @@ class ScorePadData(
                 override val score: Int,
                 override val golds: Int,
         ) : ScorePadRow() {
-            constructor(arrows: List<ArrowValue>, goldsType: GoldsType)
+            constructor(arrows: List<DatabaseArrowScore>, goldsType: GoldsType)
                     : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
 
             override fun getArrowsString(resources: Resources): String =

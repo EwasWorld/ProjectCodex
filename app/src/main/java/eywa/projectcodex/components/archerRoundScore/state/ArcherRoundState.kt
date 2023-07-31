@@ -101,9 +101,9 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
                     .sortedBy { it.endNumber }
             val end = scorePadSelectedEnd!! - 1
             all.take(end)
-                    .sumOf { it.arrowValues.size }
+                    .sumOf { it.arrowScores.size }
                     // +1 because arrowNumbers are 1-indexed
-                    .plus(1) to all[end].arrowValues.size
+                    .plus(1) to all[end].arrowScores.size
         }
 
         val scorePadSelectedEndFirstArrowNumber

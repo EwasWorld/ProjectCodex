@@ -3,7 +3,7 @@ package eywa.projectcodex.common.sharedUi.previewHelpers
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
-import eywa.projectcodex.database.arrowValue.ArrowValue
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.getDistances
 import eywa.projectcodex.model.Arrow
@@ -27,13 +27,13 @@ object ArcherRoundPreviewHelper {
             FullArcherRoundInfo(archerRound = archerRound, arrows = null, use2023HandicapSystem = true)
 
     fun FullArcherRoundInfo.addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) =
-            copy(arrows = ArrowValuesPreviewHelper.getArrows(archerRound.archerRoundId, size, 1, score, isX))
+            copy(arrows = ArrowScoresPreviewHelper.getArrows(archerRound.archerRoundId, size, 1, score, isX))
 
     fun FullArcherRoundInfo.addFullSetOfArrows() =
-            copy(arrows = ArrowValuesPreviewHelper.getArrowsInOrderFullSet(archerRound.archerRoundId))
+            copy(arrows = ArrowScoresPreviewHelper.getArrowsInOrderFullSet(archerRound.archerRoundId))
 
     fun FullArcherRoundInfo.addArrows(arrows: List<Arrow>) =
-            copy(arrows = arrows.mapIndexed { i, arrow -> arrow.toArrowValue(archerRound.archerRoundId, i + 1) })
+            copy(arrows = arrows.mapIndexed { i, arrow -> arrow.toArrowScore(archerRound.archerRoundId, i + 1) })
 
     fun FullArcherRoundInfo.addRound(fullRoundInfo: FullRoundInfo) =
             copy(
@@ -51,7 +51,7 @@ object ArcherRoundPreviewHelper {
     fun FullArcherRoundInfo.completeRound(arrowScore: Int, isX: Boolean = false) =
             copy(
                     arrows = List(roundArrowCounts!!.sumOf { it.arrowCount }) {
-                        ArrowValue(archerRound.archerRoundId, it, arrowScore, isX)
+                        DatabaseArrowScore(archerRound.archerRoundId, it, arrowScore, isX)
                     }
             )
 

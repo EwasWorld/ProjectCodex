@@ -1,4 +1,4 @@
-package eywa.projectcodex.database.arrowValue
+package eywa.projectcodex.database.arrows
 
 import androidx.room.Transaction
 
@@ -9,17 +9,17 @@ import androidx.room.Transaction
  *
  *  If DAOs have just one or two methods then repositories are often combined
  */
-class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
-    suspend fun insert(vararg arrowValues: ArrowValue) {
-        arrowValueDao.insert(*arrowValues)
+class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
+    suspend fun insert(vararg arrowScores: DatabaseArrowScore) {
+        arrowScoreDao.insert(*arrowScores)
     }
 
-    suspend fun update(vararg arrowValues: ArrowValue) {
-        arrowValueDao.update(*arrowValues)
+    suspend fun update(vararg arrowScores: DatabaseArrowScore) {
+        arrowScoreDao.update(*arrowScores)
     }
 
     suspend fun deleteAll() {
-        arrowValueDao.deleteAll()
+        arrowScoreDao.deleteAll()
     }
 
     /**
@@ -30,7 +30,7 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
      * @throws IllegalStateException if this repo was created without an archerRoundId
      */
     @Transaction
-    suspend fun deleteEnd(allArrowsInRound: List<ArrowValue>, firstArrowToDelete: Int, numberToDelete: Int) {
+    suspend fun deleteEnd(allArrowsInRound: List<DatabaseArrowScore>, firstArrowToDelete: Int, numberToDelete: Int) {
         require(numberToDelete > 0) { "numberToDelete must be > 0" }
         require(
                 allArrowsInRound.distinctBy { it.archerRoundId }.size == 1
@@ -52,16 +52,16 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
 
         val deletedCount = numberToDelete.coerceAtMost(arrows.size)
         arrows.drop(deletedCount).takeIf { it.isNotEmpty() }
-                ?.map { ArrowValue(it.archerRoundId, it.arrowNumber - deletedCount, it.score, it.isX) }
+                ?.map { DatabaseArrowScore(it.archerRoundId, it.arrowNumber - deletedCount, it.score, it.isX) }
                 ?.let { update(*it.toTypedArray()) }
 
-        arrowValueDao.deleteArrows(
+        arrowScoreDao.deleteArrows(
                 allArrowsInRound[0].archerRoundId,
                 arrows.takeLast(deletedCount).map { it.arrowNumber },
         )
     }
 
-    suspend fun insertEnd(allArrowsInRound: List<ArrowValue>, toInsert: List<ArrowValue>) {
+    suspend fun insertEnd(allArrowsInRound: List<DatabaseArrowScore>, toInsert: List<DatabaseArrowScore>) {
         if (toInsert.isEmpty()) return
         val distinctByArcherRoundIds = allArrowsInRound.distinctBy { it.archerRoundId }
         require(distinctByArcherRoundIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
@@ -84,13 +84,13 @@ class ArrowValuesRepo(private val arrowValueDao: ArrowValueDao) {
         // Shift other arrowNumbers to make space for inserted ones
         val allArrowsReady =
                 toInsert.plus(allArrowsInRound.filter { it.arrowNumber >= minArrowNumber }.map {
-                    ArrowValue(archerRoundId, it.arrowNumber + toInsert.size, it.score, it.isX)
+                    DatabaseArrowScore(archerRoundId, it.arrowNumber + toInsert.size, it.score, it.isX)
                 })
 
         val currentArrowNumbers = allArrowsInRound.map { it.arrowNumber }
         val updateArrows = allArrowsReady.filter { currentArrowNumbers.contains(it.arrowNumber) }
         val insertArrows = allArrowsReady.filter { !currentArrowNumbers.contains(it.arrowNumber) }
 
-        arrowValueDao.updateAndInsert(updateArrows, insertArrows)
+        arrowScoreDao.updateAndInsert(updateArrows, insertArrows)
     }
 }
