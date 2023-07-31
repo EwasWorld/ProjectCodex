@@ -23,6 +23,7 @@ import eywa.projectcodex.components.emailScores.EmailScoresTextField
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -80,13 +81,18 @@ class EmailScoresInstrumentedTest {
     )
     private val archerRounds = listOf(
             ArcherRound(1, TestUtils.generateDate(2024), 1, true),
-            ArcherRound(2, TestUtils.generateDate(2023), 1, true, roundId = 1),
-            ArcherRound(3, TestUtils.generateDate(2022), 1, true, roundId = 2, roundSubTypeId = 1),
+            ArcherRound(2, TestUtils.generateDate(2023), 1, true),
+            ArcherRound(3, TestUtils.generateDate(2022), 1, true),
             ArcherRound(4, TestUtils.generateDate(2021), 1, true),
             ArcherRound(5, TestUtils.generateDate(2020), 1, true)
     )
+    private val shootRounds = listOf(
+            DatabaseShootRound(2, roundId = 1),
+            DatabaseShootRound(3, roundId = 2, roundSubTypeId = 1),
+    )
     private val arrows = archerRounds.mapIndexed { i, archerRound ->
-        val round = rounds.find { it.roundId == archerRound.roundId }
+        val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }
+        val round = rounds.find { it.roundId == shootRound?.roundId }
         val arrowsInRound = arrowCounts.sumOf { if (it.roundId == round?.roundId) it.roundId else 0 }
         val desiredCount = if (arrowsInRound == 0) (arrowsPerArrowCount * 2 - i * 6) else (arrowsInRound + i * 6)
         val testDataSize = TestUtils.ARROWS.size
@@ -101,24 +107,13 @@ class EmailScoresInstrumentedTest {
     private fun addSimpleTestDataToDb() {
         scenario.onActivity {
             runBlocking {
-                for (item in rounds) {
-                    db.roundDao().insert(item)
-                }
-                for (item in arrowCounts) {
-                    db.roundArrowCountDao().insert(item)
-                }
-                for (item in distances) {
-                    db.roundDistanceDao().insert(item)
-                }
-                for (item in subTypes) {
-                    db.roundSubTypeDao().insert(item)
-                }
-                for (item in archerRounds) {
-                    db.archerRoundDao().insert(item)
-                }
-                for (item in arrows) {
-                    db.arrowValueDao().insert(item)
-                }
+                rounds.forEach { item -> db.roundDao().insert(item) }
+                arrowCounts.forEach { item -> db.roundArrowCountDao().insert(item) }
+                distances.forEach { item -> db.roundDistanceDao().insert(item) }
+                subTypes.forEach { item -> db.roundSubTypeDao().insert(item) }
+                archerRounds.forEach { item -> db.archerRoundDao().insert(item) }
+                arrows.forEach { item -> db.arrowValueDao().insert(item) }
+                shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
         }
     }

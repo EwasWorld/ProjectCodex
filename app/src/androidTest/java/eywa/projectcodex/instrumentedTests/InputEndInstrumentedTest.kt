@@ -15,6 +15,8 @@ import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.WORCESTER_DEFAULT_ID
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootDetail
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -73,8 +75,12 @@ class InputEndInstrumentedTest {
     )
     private val archerRounds = listOf(
             ArcherRound(1, TestUtils.generateDate(2020), 1, true),
-            ArcherRound(2, TestUtils.generateDate(2019), 1, true, roundId = 1),
-            ArcherRound(3, TestUtils.generateDate(2018), 1, true, roundId = 2),
+            ArcherRound(2, TestUtils.generateDate(2019), 1, true),
+            ArcherRound(3, TestUtils.generateDate(2018), 1, true),
+    )
+    private val shootRounds = listOf(
+            DatabaseShootRound(2, roundId = 1),
+            DatabaseShootRound(3, roundId = 2),
     )
 
     /**
@@ -91,21 +97,12 @@ class InputEndInstrumentedTest {
             /*
              * Fill default rounds
              */
-            for (i in distancesInput.indices) {
-                runBlocking {
-                    if (i < roundsInput.size) {
-                        db.roundDao().insert(roundsInput[i])
-                    }
-                    if (i < arrowCountsInput.size) {
-                        db.roundArrowCountDao().insert(arrowCountsInput[i])
-                    }
-                    if (i < distancesInput.size) {
-                        db.roundDistanceDao().insert(distancesInput[i])
-                    }
-                    if (i < archerRounds.size) {
-                        db.archerRoundDao().insert(archerRounds[i])
-                    }
-                }
+            runBlocking {
+                roundsInput.forEach { item -> db.roundDao().insert(item) }
+                arrowCountsInput.forEach { item -> db.roundArrowCountDao().insert(item) }
+                distancesInput.forEach { item -> db.roundDistanceDao().insert(item) }
+                archerRounds.forEach { item -> db.archerRoundDao().insert(item) }
+                shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
         }
     }
@@ -401,8 +398,13 @@ class InputEndInstrumentedTest {
                                     dateShot = TestUtils.generateDate(2021, 1 + index),
                                     archerId = 1,
                                     countsTowardsHandicap = true,
-                                    faces = listOf(face),
                             ),
+                    )
+                    db.shootDetailDao().insert(
+                            DatabaseShootDetail(
+                                    archerRoundId = 4 + index,
+                                    face = face,
+                            )
                     )
                 }
 
@@ -412,9 +414,14 @@ class InputEndInstrumentedTest {
                                 dateShot = TestUtils.generateDate(2021, 5),
                                 archerId = 1,
                                 countsTowardsHandicap = true,
+                        ),
+                )
+                db.shootRoundDao().insert(
+                        DatabaseShootRound(
+                                archerRoundId = 8,
                                 faces = listOf(RoundFace.WORCESTER_FIVE),
                                 roundId = 3,
-                        ),
+                        )
                 )
                 db.archerRoundDao().insert(
                         ArcherRound(
@@ -422,8 +429,13 @@ class InputEndInstrumentedTest {
                                 dateShot = TestUtils.generateDate(2021, 6),
                                 archerId = 1,
                                 countsTowardsHandicap = true,
-                                roundId = 3,
                         ),
+                )
+                db.shootRoundDao().insert(
+                        DatabaseShootRound(
+                                archerRoundId = 9,
+                                roundId = 3,
+                        )
                 )
             }
         }

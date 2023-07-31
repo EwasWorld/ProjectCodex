@@ -13,6 +13,7 @@ import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
@@ -57,8 +58,11 @@ class NewScoreInstrumentedTest {
 //            Calendar.Builder().setDate(2019, 5, 10).setTimeOfDay(17, 12, 13).build().time,
             1,
             true,
+    )
+    private val shootRoundInput = DatabaseShootRound(
+            archerRoundId = 1,
             roundId = 1,
-            roundSubTypeId = 2
+            roundSubTypeId = 2,
     )
 
     private val distancesInput = TestUtils.ROUND_DISTANCES
@@ -81,19 +85,12 @@ class NewScoreInstrumentedTest {
              * Fill default rounds
              */
             runBlocking {
-                roundsInput.forEach {
-                    db.roundDao().insert(it.copy(isMetric = true))
-                }
-                subtypesInput.forEach {
-                    db.roundSubTypeDao().insert(it)
-                }
-                arrowCountsInput.forEach {
-                    db.roundArrowCountDao().insert(it)
-                }
-                distancesInput.forEach {
-                    db.roundDistanceDao().insert(it)
-                }
+                roundsInput.forEach { db.roundDao().insert(it.copy(isMetric = true)) }
+                subtypesInput.forEach { db.roundSubTypeDao().insert(it) }
+                arrowCountsInput.forEach { db.roundArrowCountDao().insert(it) }
+                distancesInput.forEach { db.roundDistanceDao().insert(it) }
                 db.archerRoundDao().insert(archerRoundInput)
+                db.shootRoundDao().insert(shootRoundInput)
             }
         }
 
@@ -158,12 +155,11 @@ class NewScoreInstrumentedTest {
         runBlocking { delay(1000) }
         val roundsAfterCreate = getCurrentArcherRounds()
                 .filterNot { it.archerRound.archerRoundId == ar.archerRoundId }
-                .map { it.archerRound }
         assertEquals(2, roundsAfterCreate.size)
-        assertEquals(archerRoundInput, roundsAfterCreate[0])
-        assert(roundsAfterCreate[1].archerRoundId > ar.archerRoundId)
-        assertEquals(null, roundsAfterCreate[1].roundId)
-        assertEquals(null, roundsAfterCreate[1].roundSubTypeId)
+        assertEquals(archerRoundInput, roundsAfterCreate[0].archerRound)
+        assert(roundsAfterCreate[1].archerRound.archerRoundId > ar.archerRoundId)
+        assertEquals(null, roundsAfterCreate[1].shootRound?.roundId)
+        assertEquals(null, roundsAfterCreate[1].shootRound?.roundSubTypeId)
     }
 
     @Test
@@ -211,11 +207,11 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val roundsAfterCreate = getCurrentArcherRounds().map { it.archerRound }
+        val roundsAfterCreate = getCurrentArcherRounds()
         assertEquals(2, roundsAfterCreate.size)
-        assertEquals(archerRoundInput, roundsAfterCreate[0])
-        assertEquals(selectedRound.roundId, roundsAfterCreate[1].roundId)
-        assertEquals(selectedSubtype.subTypeId, roundsAfterCreate[1].roundSubTypeId)
+        assertEquals(archerRoundInput, roundsAfterCreate[0].archerRound)
+        assertEquals(selectedRound.roundId, roundsAfterCreate[1].shootRound?.roundId)
+        assertEquals(selectedSubtype.subTypeId, roundsAfterCreate[1].shootRound?.roundSubTypeId)
     }
 
     @Test
@@ -242,7 +238,7 @@ class NewScoreInstrumentedTest {
         runBlocking { delay(1000) }
         val roundsAfterCreate = getCurrentArcherRounds().toMutableList()
         for (round in roundsAfterCreate) {
-            if (round.archerRound.roundId == 1) continue
+            if (round.shootRound?.roundId == 1) continue
             assertEquals(2040, round.archerRound.dateShot.get(Calendar.YEAR))
         }
     }
@@ -265,7 +261,7 @@ class NewScoreInstrumentedTest {
                     checkTime("17:12")
                     checkDate("10 Jun 19")
 
-                    checkSelectedRound(roundsInput.find { it.roundId == archerRoundInput.roundId }!!.displayName)
+                    checkSelectedRound(roundsInput.find { it.roundId == shootRoundInput.roundId }!!.displayName)
 
                     /*
                      * Change some stuff
@@ -312,10 +308,16 @@ class NewScoreInstrumentedTest {
                         calendar,
                         archerRoundInput.archerId,
                         archerRoundInput.countsTowardsHandicap,
-                        roundId = selectedRound.roundId,
-                        roundSubTypeId = 1
                 ),
                 updated!!.archerRound.copy(dateShot = calendar)
+        )
+        assertEquals(
+                DatabaseShootRound(
+                        archerRoundId = archerRoundInput.archerRoundId,
+                        roundId = selectedRound.roundId,
+                        roundSubTypeId = 1,
+                ),
+                updated.shootRound,
         )
         val updatedDate = updated.archerRound.dateShot
         assertEquals(2040, updatedDate.get(Calendar.YEAR))
@@ -341,23 +343,26 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val actual = getArcherRounds(archerRoundInput.archerRoundId)!!.archerRound
+        val actual = getArcherRounds(archerRoundInput.archerRoundId)!!
+        val actualDateShot = actual.archerRound.dateShot
         assertEquals(
                 ArcherRound(
-                        archerRoundInput.archerRoundId,
-                        actual.dateShot,
-                        archerRoundInput.archerId,
-                        archerRoundInput.countsTowardsHandicap,
-                        roundId = null,
-                        roundSubTypeId = null
+                        archerRoundId = archerRoundInput.archerRoundId,
+                        dateShot = actualDateShot,
+                        archerId = archerRoundInput.archerId,
+                        countsTowardsHandicap = archerRoundInput.countsTowardsHandicap,
                 ),
-                actual
+                actual.archerRound,
         )
-        assertEquals(archerRoundInput.dateShot.get(Calendar.YEAR), actual.dateShot.get(Calendar.YEAR))
-        assertEquals(archerRoundInput.dateShot.get(Calendar.MONTH), actual.dateShot.get(Calendar.MONTH))
-        assertEquals(archerRoundInput.dateShot.get(Calendar.DATE), actual.dateShot.get(Calendar.DATE))
-        assertEquals(archerRoundInput.dateShot.get(Calendar.HOUR_OF_DAY), actual.dateShot.get(Calendar.HOUR_OF_DAY))
-        assertEquals(archerRoundInput.dateShot.get(Calendar.MINUTE), actual.dateShot.get(Calendar.MINUTE))
+        assertEquals(
+                null,
+                actual.shootRound,
+        )
+        assertEquals(archerRoundInput.dateShot.get(Calendar.YEAR), actualDateShot.get(Calendar.YEAR))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.MONTH), actualDateShot.get(Calendar.MONTH))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.DATE), actualDateShot.get(Calendar.DATE))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.HOUR_OF_DAY), actualDateShot.get(Calendar.HOUR_OF_DAY))
+        assertEquals(archerRoundInput.dateShot.get(Calendar.MINUTE), actualDateShot.get(Calendar.MINUTE))
     }
 
     @Test
@@ -409,9 +414,9 @@ class NewScoreInstrumentedTest {
 //            Calendar.Builder().setDate(2020, 5, 10).setTimeOfDay(17, 12, 13).build().time,
                                 archerId = 1,
                                 countsTowardsHandicap = true,
-                                roundId = 2,
                         )
                 )
+                db.shootRoundDao().insert(DatabaseShootRound(archerRoundId = 2, roundId = 2))
             }
         }
 

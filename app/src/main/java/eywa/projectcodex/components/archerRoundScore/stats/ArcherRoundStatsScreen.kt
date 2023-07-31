@@ -90,7 +90,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                                     textModifier = Modifier.testTag(TestTag.ROUND_TEXT),
                             )
                             SelectFaceRow(
-                                    selectedFaces = state.fullArcherRoundInfo.archerRound.faces,
+                                    selectedFaces = state.fullArcherRoundInfo.faces,
                                     helpListener = { listener(HelpShowcaseAction(it)) },
                                     onClick = null,
                             )
@@ -291,7 +291,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                     ArcherRoundStatePreviewHelper.WITH_SHOT_ARROWS.let { state ->
                         val faces = listOf(RoundFace.TRIPLE, RoundFace.FITA_SIX)
                         val far = state.fullArcherRoundInfo
-                        state.copy(fullArcherRoundInfo = far.copy(archerRound = far.archerRound.copy(faces = faces)))
+                        state.copy(fullArcherRoundInfo = far.copy(shootRound = far.shootRound!!.copy(faces = faces)))
                     },
             ) {}
         }

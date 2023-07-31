@@ -13,6 +13,8 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootDetail
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -79,24 +81,37 @@ class ArcherRoundStatsInstrumentedTest {
 //                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
                     archerId = 1,
                     countsTowardsHandicap = true,
-                    faces = listOf(RoundFace.HALF),
             ),
             ArcherRound(
                     archerRoundId = 2,
                     dateShot = TestUtils.generateDate(2013),
                     archerId = 1,
                     countsTowardsHandicap = true,
-                    roundId = 1,
             ),
             ArcherRound(
                     archerRoundId = 3,
                     dateShot = TestUtils.generateDate(2012),
                     archerId = 1,
                     countsTowardsHandicap = true,
+            )
+    )
+    private val shootRounds = listOf(
+            DatabaseShootRound(
+                    archerRoundId = 2,
+                    roundId = 1,
+            ),
+            DatabaseShootRound(
+                    archerRoundId = 3,
                     roundId = 2,
                     roundSubTypeId = 1,
                     faces = listOf(RoundFace.FULL, RoundFace.HALF),
             )
+    )
+    private val shootDetails = listOf(
+            DatabaseShootDetail(
+                    archerRoundId = 1,
+                    face = RoundFace.HALF,
+            ),
     )
 
     /**
@@ -121,6 +136,8 @@ class ArcherRoundStatsInstrumentedTest {
                 distancesInput.forEach { db.roundDistanceDao().insert(it) }
                 archerRounds.forEach { db.archerRoundDao().insert(it) }
                 arrows.forEach { db.arrowValueDao().insert(it) }
+                shootRounds.forEach { db.shootRoundDao().insert(it) }
+                shootDetails.forEach { db.shootDetailDao().insert(it) }
             }
         }
 
@@ -172,7 +189,8 @@ class ArcherRoundStatsInstrumentedTest {
     fun testHasRound() {
         val archerRoundId = archerRounds[ArcherRoundTypes.ROUND.row].archerRoundId
         val archerRound = archerRounds.find { it.archerRoundId == archerRoundId }!!
-        val round = roundsInput.find { it.roundId == archerRound.roundId }!!
+        val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }!!
+        val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
         arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }
@@ -204,7 +222,8 @@ class ArcherRoundStatsInstrumentedTest {
 
         val archerRoundId = archerRounds[ArcherRoundTypes.ROUND.row].archerRoundId
         val archerRound = archerRounds.find { it.archerRoundId == archerRoundId }!!
-        val round = roundsInput.find { it.roundId == archerRound.roundId }!!
+        val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }!!
+        val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
         arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowValue(archerRoundId, arrowNumber++) }

@@ -13,7 +13,6 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState.*
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrowValue.ArrowValuesRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -48,7 +47,7 @@ class ArcherRoundViewModel @Inject constructor(
         }
         else {
             viewModelScope.launch {
-                ArcherRoundsRepo(db.archerRoundDao()).getFullArcherRoundInfo(archerRoundId)
+                db.archerRoundsRepo().getFullArcherRoundInfo(archerRoundId)
                         .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
                         .collect { (dbInfo, use2023System) ->
                             if (dbInfo == null) {

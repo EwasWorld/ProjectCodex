@@ -12,6 +12,7 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -48,9 +49,16 @@ class ScorePadInstrumentedTest {
                         archerRoundId = archerRoundId,
                         dateShot = TestUtils.generateDate(year),
                         archerId = 1,
-                        roundId = roundId,
                 )
         )
+        roundId?.let {
+            db.shootRoundDao().insert(
+                    DatabaseShootRound(
+                            archerRoundId = archerRoundId,
+                            roundId = roundId,
+                    )
+            )
+        }
     }
 
     private suspend fun addArrows(indexes: List<Int>, archerRoundId: Int = 1) {

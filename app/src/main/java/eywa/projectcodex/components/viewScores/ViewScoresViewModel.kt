@@ -38,7 +38,7 @@ class ViewScoresViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private val arrowValuesRepo: ArrowValuesRepo = ArrowValuesRepo(db.arrowValueDao())
-    private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
+    private val archerRoundsRepo: ArcherRoundsRepo = db.archerRoundsRepo()
 
     init {
         viewModelScope.launch {

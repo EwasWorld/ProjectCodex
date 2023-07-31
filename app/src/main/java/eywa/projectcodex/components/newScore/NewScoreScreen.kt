@@ -36,6 +36,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
@@ -337,7 +338,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // Editing
             NewScoreState(
                     selectRoundDialogState = SelectRoundDialogState(allRounds = roundsData),
-                    roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound(),
+                    roundBeingEdited = ArcherRoundPreviewHelper.newFullArcherRoundInfo(),
             ),
 
             // DbInProgress
@@ -353,7 +354,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             selectedRoundId = round.round.roundId,
                             selectedSubTypeId = round.roundSubTypes.first().subTypeId,
                     ),
-                    roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound(),
+                    roundBeingEdited = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(round),
                     roundBeingEditedArrowsShot = 1000,
             ),
 

@@ -2,6 +2,7 @@ package eywa.projectcodex.common.sharedUi.previewHelpers
 
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.getDistances
@@ -36,11 +37,15 @@ object ArcherRoundPreviewHelper {
 
     fun FullArcherRoundInfo.addRound(fullRoundInfo: FullRoundInfo) =
             copy(
-                    archerRound = archerRound.copy(roundId = fullRoundInfo.round.roundId, roundSubTypeId = 1),
                     round = fullRoundInfo.round,
                     roundArrowCounts = fullRoundInfo.roundArrowCounts,
                     roundSubType = fullRoundInfo.roundSubTypes?.find { it.subTypeId == 1 },
                     roundDistances = fullRoundInfo.getDistances(subTypeId = 1),
+                    shootRound = DatabaseShootRound(
+                            archerRoundId = archerRound.archerRoundId,
+                            roundId = fullRoundInfo.round.roundId,
+                            roundSubTypeId = 1,
+                    ),
             )
 
     fun FullArcherRoundInfo.completeRound(arrowScore: Int, isX: Boolean = false) =

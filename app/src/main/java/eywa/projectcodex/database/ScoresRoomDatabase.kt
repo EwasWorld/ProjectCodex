@@ -9,8 +9,7 @@ import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archer.ArcherDao
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.ArcherRoundDao
+import eywa.projectcodex.database.archerRound.*
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.ArrowValueDao
 import eywa.projectcodex.database.bow.BowDao
@@ -30,6 +29,7 @@ import java.util.*
             ArcherRound::class, Archer::class, ArrowValue::class,
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class,
             DatabaseBow::class, DatabaseSightMark::class,
+            DatabaseShootRound::class, DatabaseShootDetail::class,
         ],
         views = [
             ArcherRoundWithScore::class, PersonalBest::class,
@@ -56,9 +56,15 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun roundDistanceDao(): RoundDistanceDao
     abstract fun sightMarkDao(): SightMarkDao
     abstract fun bowDao(): BowDao
+    abstract fun shootDetailDao(): ShootDetailDao
+    abstract fun shootRoundDao(): ShootRoundDao
 
     fun roundsRepo() = RoundRepo(
             roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao()
+    )
+
+    fun archerRoundsRepo() = ArcherRoundsRepo(
+            archerRoundDao(), shootDetailDao(), shootRoundDao(),
     )
 
     suspend fun insertDefaults() {
@@ -111,9 +117,9 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                 Date(Calendar.getInstance().get(Calendar.YEAR), Calendar.JANUARY, 1, 10, 0, 0).asCalendar()
         val archerRounds = listOf(
                 ArcherRound(1, firstOfThisYear, 1),
-                ArcherRound(2, Date.valueOf("2012-2-2").asCalendar(), 1, roundId = 101),
-                ArcherRound(3, Date.valueOf("2011-3-3").asCalendar(), 1, roundId = 102),
-                ArcherRound(4, Date.valueOf("2010-4-4").asCalendar(), 1, roundId = 102, roundSubTypeId = 2),
+                ArcherRound(2, Date.valueOf("2012-2-2").asCalendar(), 1),
+                ArcherRound(3, Date.valueOf("2011-3-3").asCalendar(), 1),
+                ArcherRound(4, Date.valueOf("2010-4-4").asCalendar(), 1),
                 ArcherRound(5, Date.valueOf("2009-5-5").asCalendar(), 1),
         )
         archerRounds.forEach { archerRoundDao().insert(it) }
@@ -121,6 +127,12 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
             val archerRoundId = archerRound.archerRoundId
             List(1) { arrowNumber -> arrowTypes[archerRoundId].toArrowValue(archerRoundId, arrowNumber) }
         }.flatten().forEach { arrowValueDao().insert(it) }
+
+        listOf(
+                DatabaseShootRound(2, roundId = 101),
+                DatabaseShootRound(3, roundId = 102),
+                DatabaseShootRound(4, roundId = 102, roundSubTypeId = 2),
+        ).forEach { shootRoundDao().insert(it) }
     }
 
     companion object {

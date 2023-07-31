@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -52,8 +53,10 @@ object ViewScoresEntryPreviewProvider {
                                 archerRoundId = index + 1,
                                 dateShot = dates[index % dates.size],
                                 archerId = 1,
-                                roundId = displayName?.let { index + 1 }
                         ),
+                        shootRound = displayName?.let {
+                            DatabaseShootRound(archerRoundId = index + 1, roundId = index + 1)
+                        },
                         round = displayName?.let {
                             Round(index + 1, "", displayName, true, true)
                         },
@@ -77,7 +80,7 @@ object ViewScoresEntryPreviewProvider {
                                 archerRoundId = 1,
                                 dateShot = dates[0],
                                 archerId = 1,
-                                roundId = 5
+//                                roundId = 5
                         ),
                         round = Round(5, "", roundNames[5]!!, true, true),
                         roundSubType = null,

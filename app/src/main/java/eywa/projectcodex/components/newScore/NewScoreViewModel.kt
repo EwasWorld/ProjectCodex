@@ -13,8 +13,8 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.rounds.RoundRepo
+import eywa.projectcodex.model.FullArcherRoundInfo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +36,7 @@ class NewScoreViewModel @Inject constructor(
     private val _state = MutableStateFlow(NewScoreState())
     val state = _state.asStateFlow()
 
-    private val archerRoundsRepo: ArcherRoundsRepo = ArcherRoundsRepo(db.archerRoundDao())
+    private val archerRoundsRepo = db.archerRoundsRepo()
 
     private var editingRoundJob: Job? = null
 
@@ -72,7 +72,7 @@ class NewScoreViewModel @Inject constructor(
                         _state.update {
                             if (info == null) return@update it.copy(roundNotFoundError = true)
                             it.copy(
-                                    roundBeingEdited = info.archerRound,
+                                    roundBeingEdited = FullArcherRoundInfo(info, true),
                                     roundBeingEditedArrowsShot = info.arrows.orEmpty().count()
                             ).resetEditInfo()
                         }
@@ -110,11 +110,20 @@ class NewScoreViewModel @Inject constructor(
                 val currentState = state.value
                 viewModelScope.launch {
                     if (currentState.isEditing) {
-                        archerRoundsRepo.update(currentState.asArcherRound())
+                        archerRoundsRepo.update(
+                                original = currentState.roundBeingEdited!!,
+                                archerRound = currentState.asArcherRound(),
+                                shootRound = currentState.asShootRound(),
+                                shootDetail = currentState.asShootDetail(),
+                        )
                         _state.update { it.copy(popBackstack = true) }
                     }
                     else {
-                        val newId = archerRoundsRepo.insert(currentState.asArcherRound())
+                        val newId = archerRoundsRepo.insert(
+                                archerRound = currentState.asArcherRound(),
+                                shootRound = currentState.asShootRound(),
+                                shootDetail = currentState.asShootDetail(),
+                        )
                         _state.update { it.copy(navigateToInputEnd = newId.toInt()) }
                     }
                 }
@@ -127,8 +136,8 @@ class NewScoreViewModel @Inject constructor(
     private fun NewScoreState.resetEditInfo(): NewScoreState {
         if (roundBeingEdited == null) return this
         val roundsState = selectRoundDialogState.copy(
-                selectedRoundId = roundBeingEdited.roundId,
-                selectedSubTypeId = roundBeingEdited.roundSubTypeId,
+                selectedRoundId = roundBeingEdited.shootRound?.roundId,
+                selectedSubTypeId = roundBeingEdited.shootRound?.roundSubTypeId,
         )
         val faceAction =
                 if (roundsState.selectedRound == null) SelectRoundFaceDialogIntent.SetNoRound
@@ -142,7 +151,7 @@ class NewScoreViewModel @Inject constructor(
                 else roundBeingEdited.faces?.firstOrNull()?.let { listOf(it) }
 
         return copy(
-                dateShot = roundBeingEdited.dateShot,
+                dateShot = roundBeingEdited.archerRound.dateShot,
                 selectRoundDialogState = roundsState,
                 selectFaceDialogState = faceAction.handle(selectFaceDialogState)
                         .copy(selectedFaces = faces),

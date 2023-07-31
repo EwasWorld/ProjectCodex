@@ -5,14 +5,17 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFil
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootDetail
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.model.FullArcherRoundInfo
 import java.util.*
 
 data class NewScoreState(
         /**
          * Non-null if the fragment is being used to edit an existing round
          */
-        val roundBeingEdited: ArcherRound? = null,
+        val roundBeingEdited: FullArcherRoundInfo? = null,
         /**
          * Only used if a round is being edited
          */
@@ -69,14 +72,32 @@ data class NewScoreState(
      * New rounds defaults: [ArcherRound.archerRoundId] is 0, [ArcherRound.archerId] is 1
      */
     fun asArcherRound() = ArcherRound(
-            archerRoundId = roundBeingEdited?.archerRoundId ?: 0,
+            archerRoundId = roundBeingEdited?.archerRound?.archerRoundId ?: 0,
             // TODO Check date locales (I want to store in UTC)
             dateShot = dateShot,
-            archerId = roundBeingEdited?.archerId ?: 1,
-            roundId = selectRoundDialogState.selectedRoundId,
-            roundSubTypeId = selectRoundDialogState.selectedSubTypeId,
-            faces = selectFaceDialogState.selectedFaces,
+            archerId = roundBeingEdited?.archerRound?.archerId ?: 1,
     )
+
+    fun asShootRound() =
+            if (selectRoundDialogState.selectedRoundId == null) null
+            else DatabaseShootRound(
+                    archerRoundId = roundBeingEdited?.archerRound?.archerRoundId ?: 0,
+                    roundId = selectRoundDialogState.selectedRoundId,
+                    roundSubTypeId = selectRoundDialogState.selectedSubTypeId,
+                    faces = selectFaceDialogState.selectedFaces,
+            )
+
+    fun asShootDetail() =
+            if (
+                selectRoundDialogState.selectedRoundId != null
+                || listOfNotNull(
+                        selectFaceDialogState.selectedFaces?.takeIf { it.isNotEmpty() },
+                ).isEmpty()
+            ) null
+            else DatabaseShootDetail(
+                    archerRoundId = roundBeingEdited?.archerRound?.archerRoundId ?: 0,
+                    face = selectFaceDialogState.selectedFaces?.firstOrNull(),
+            )
 
     companion object {
         private fun getDefaultDate() = Calendar

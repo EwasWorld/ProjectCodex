@@ -1,7 +1,6 @@
 package eywa.projectcodex.database.archerRound
 
 import androidx.room.*
-import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.bow.DatabaseBow
@@ -19,18 +18,6 @@ import java.util.*
         tableName = TABLE_NAME,
         foreignKeys = [
             ForeignKey(
-                    entity = Round::class,
-                    parentColumns = ["roundId"],
-                    childColumns = ["roundId"],
-                    onDelete = ForeignKey.SET_NULL,
-            ),
-            ForeignKey(
-                    entity = RoundSubType::class,
-                    parentColumns = ["roundId", "subTypeId"],
-                    childColumns = ["roundId", "roundSubTypeId"],
-                    onDelete = ForeignKey.SET_NULL,
-            ),
-            ForeignKey(
                     entity = DatabaseBow::class,
                     parentColumns = ["id"],
                     childColumns = ["bowId"],
@@ -44,11 +31,8 @@ data class ArcherRound(
         val archerId: Int,
         val countsTowardsHandicap: Boolean = true,
         @ColumnInfo(index = true) val bowId: Int? = null,
-        @ColumnInfo(index = true) val roundId: Int? = null,
-        val roundSubTypeId: Int? = null,
         val goalScore: Int? = null,
         val shootStatus: String? = null,
-        @ColumnInfo(defaultValue = "NULL") val faces: List<RoundFace>? = null,
         @ColumnInfo(defaultValue = "0") val joinWithPrevious: Boolean = false,
 ) {
     companion object {
@@ -63,17 +47,39 @@ data class DatabaseFullArcherRoundInfo(
                 parentColumn = "archerRoundId",
                 entityColumn = "archerRoundId",
         )
+        val shootRound: DatabaseShootRound? = null,
+
+        @Relation(
+                parentColumn = "archerRoundId",
+                entityColumn = "archerRoundId",
+        )
+        val shootDetail: DatabaseShootDetail? = null,
+
+        @Relation(
+                parentColumn = "archerRoundId",
+                entityColumn = "archerRoundId",
+        )
         val arrows: List<ArrowValue>? = null,
 
         @Relation(
-                parentColumn = "roundId",
+                parentColumn = "archerRoundId",
                 entityColumn = "roundId",
+                associateBy = Junction(
+                        value = DatabaseShootRound::class,
+                        parentColumn = "archerRoundId",
+                        entityColumn = "roundId",
+                ),
         )
         val round: Round? = null,
 
         @Relation(
-                parentColumn = "roundId",
+                parentColumn = "archerRoundId",
                 entityColumn = "roundId",
+                associateBy = Junction(
+                        value = DatabaseShootRound::class,
+                        parentColumn = "archerRoundId",
+                        entityColumn = "roundId",
+                ),
         )
         val roundArrowCounts: List<RoundArrowCount>? = null,
 
@@ -83,8 +89,13 @@ data class DatabaseFullArcherRoundInfo(
          * but we don't expect more than ~5 subtypes for any given round
          */
         @Relation(
-                parentColumn = "roundId",
+                parentColumn = "archerRoundId",
                 entityColumn = "roundId",
+                associateBy = Junction(
+                        value = DatabaseShootRound::class,
+                        parentColumn = "archerRoundId",
+                        entityColumn = "roundId",
+                ),
         )
         private val allRoundSubTypes: List<RoundSubType>? = null,
 
@@ -94,8 +105,13 @@ data class DatabaseFullArcherRoundInfo(
          * but we don't expect more than ~5 subtypes for any given round
          */
         @Relation(
-                parentColumn = "roundId",
+                parentColumn = "archerRoundId",
                 entityColumn = "roundId",
+                associateBy = Junction(
+                        value = DatabaseShootRound::class,
+                        parentColumn = "archerRoundId",
+                        entityColumn = "roundId",
+                ),
         )
         private val allRoundDistances: List<RoundDistance>? = null,
 
@@ -110,7 +126,7 @@ data class DatabaseFullArcherRoundInfo(
         val joinedDate: Calendar? = null,
 ) {
     val roundSubType
-        get() = allRoundSubTypes?.find { it.subTypeId == archerRound.roundSubTypeId }
+        get() = allRoundSubTypes?.find { it.subTypeId == shootRound!!.roundSubTypeId }
     val roundDistances
-        get() = allRoundDistances?.filter { it.subTypeId == (archerRound.roundSubTypeId ?: 1) }
+        get() = allRoundDistances?.filter { it.subTypeId == (shootRound!!.roundSubTypeId ?: 1) }
 }

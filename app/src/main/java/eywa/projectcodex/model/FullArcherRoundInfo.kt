@@ -6,6 +6,8 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.archerRound.DatabaseShootDetail
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.arrowValue.getGolds
 import eywa.projectcodex.database.arrowValue.getHits
@@ -22,6 +24,8 @@ data class FullArcherRoundInfo(
         val isPersonalBest: Boolean = false,
         val isTiedPersonalBest: Boolean = false,
         val use2023HandicapSystem: Boolean = false,
+        val shootRound: DatabaseShootRound? = null,
+        val shootDetail: DatabaseShootDetail? = null,
 ) {
     constructor(full: DatabaseFullArcherRoundInfo, use2023HandicapSystem: Boolean) : this(
             archerRound = full.archerRound,
@@ -33,6 +37,8 @@ data class FullArcherRoundInfo(
             isPersonalBest = full.isPersonalBest ?: false,
             isTiedPersonalBest = (full.isPersonalBest ?: false) && (full.isTiedPersonalBest ?: false),
             use2023HandicapSystem = use2023HandicapSystem,
+            shootRound = full.shootRound,
+            shootDetail = full.shootDetail,
     )
 
     init {
@@ -40,9 +46,10 @@ data class FullArcherRoundInfo(
         require(roundArrowCounts?.all { it.roundId == round?.roundId } != false) { "Arrow counts mismatched id" }
         require(
                 roundDistances?.all {
-                    it.roundId == round?.roundId && it.subTypeId == (archerRound.roundSubTypeId ?: 1)
+                    it.roundId == round?.roundId && it.subTypeId == (shootRound?.roundSubTypeId ?: 1)
                 } != false
         ) { "Distances mismatched id" }
+        require(shootRound == null || shootDetail == null) { "Cannot have a round and detail" }
     }
 
     val displayName by lazy { roundSubType?.name ?: round?.displayName }
@@ -77,28 +84,30 @@ data class FullArcherRoundInfo(
     val isRoundComplete
         get() = remainingArrows?.let { it <= 0 } ?: false
 
+    val faces = shootRound?.faces ?: shootDetail?.face?.let { listOf(it) }
+
     val currentFace
         get() = when {
-            archerRound.faces.isNullOrEmpty() -> null
-            archerRound.faces.size == 1 -> archerRound.faces.first()
+            faces.isNullOrEmpty() -> null
+            faces.size == 1 -> faces.first()
             round == null -> throw IllegalStateException("Cannot have more than one face with no round")
             remainingArrows == null || remainingArrows!! <= 0 -> null
             else -> {
                 val distancesRemaining = remainingArrowsAtDistances!!.size
-                archerRound.faces[archerRound.faces.size - distancesRemaining]
+                faces[faces.size - distancesRemaining]
             }
         }
 
     fun getFaceForDistance(distance: RoundDistance): RoundFace? {
-        if (archerRound.faces.isNullOrEmpty()) return null
+        if (faces.isNullOrEmpty()) return null
         if (roundDistances.isNullOrEmpty()) throw IllegalStateException("No distances found")
         val distanceIndex = roundDistances
                 .sortedBy { it.distanceNumber }
                 .indexOfFirst { it.distanceNumber == distance.distanceNumber }
                 .takeIf { it != -1 }
                 ?: throw IllegalStateException("Distance ${distance.distanceNumber} not found")
-        return archerRound.faces.getOrNull(distanceIndex)
-                ?: archerRound.faces.getOrNull(0)
+        return faces.getOrNull(distanceIndex)
+                ?: faces.getOrNull(0)
     }
 
     /**
@@ -148,7 +157,7 @@ data class FullArcherRoundInfo(
                 innerTenArcher = isInnerTenArcher,
                 arrows = arrowsShot,
                 use2023Handicaps = use2023HandicapSystem,
-                faces = archerRound.faces,
+                faces = faces,
         )
     }
 
@@ -167,7 +176,7 @@ data class FullArcherRoundInfo(
                 innerTenArcher = isInnerTenArcher,
                 arrows = null,
                 use2023Handicaps = use2023HandicapSystem,
-                faces = archerRound.faces,
+                faces = faces,
         )
     }
 

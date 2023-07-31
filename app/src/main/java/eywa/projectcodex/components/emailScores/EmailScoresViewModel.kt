@@ -15,7 +15,6 @@ import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -40,7 +39,7 @@ class EmailScoresViewModel @Inject constructor(
         private val archerRoundIdsUseCase: ArcherRoundIdsUseCase,
         private val customLogger: CustomLogger,
 ) : ViewModel() {
-    private val repo = ArcherRoundsRepo(db.archerRoundDao())
+    private val repo = db.archerRoundsRepo()
 
     private val _state = MutableStateFlow(EmailScoresState())
     val state = _state.asStateFlow()

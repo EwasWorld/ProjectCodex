@@ -64,30 +64,30 @@ interface ArcherRoundDao {
     @Query(
             """
                 SELECT 
-                        ar.*, 
-                        (ar.isComplete = 1 AND ar.score = pb.score) as isPersonalBest
-                FROM ${ArcherRoundWithScore.TABLE_NAME} as ar 
-                LEFT JOIN ${PersonalBest.TABLE_NAME} as pb 
-                        ON ar.roundId = pb.roundId AND ar.nonNullSubTypeId = pb.roundSubTypeId
+                        archerRound.*, 
+                        (archerRound.isComplete = 1 AND archerRound.score = personalBest.score) as isPersonalBest
+                FROM ${ArcherRoundWithScore.TABLE_NAME} as archerRound
+                LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
+                        ON archerRound.roundId = personalBest.roundId AND archerRound.nonNullSubTypeId = personalBest.roundSubTypeId
                 LEFT JOIN (
                     SELECT 
-                            (archerRound.isComplete = 1 AND archerRound.score = pb.score) as ljIsPersonalBest,
-                            archerRound.joinedDate,
+                            (ar.isComplete = 1 AND ar.score = pb.score) as ljIsPersonalBest,
+                            ar.joinedDate,
                             COUNT(*) as count
-                    FROM ${ArcherRoundWithScore.TABLE_NAME} as archerRound 
+                    FROM ${ArcherRoundWithScore.TABLE_NAME} as ar 
                     LEFT JOIN ${PersonalBest.TABLE_NAME} as pb 
-                            ON archerRound.roundId = pb.roundId AND archerRound.nonNullSubTypeId = pb.roundSubTypeId
-                    WHERE (:fromDate IS NULL OR archerRound.dateShot >= :fromDate)
-                    AND (:toDate IS NULL OR archerRound.dateShot <= :toDate)
-                    AND (:roundId IS NULL OR archerRound.roundId = :roundId)
+                            ON ar.roundId = pb.roundId AND ar.nonNullSubTypeId = pb.roundSubTypeId
+                    WHERE (:fromDate IS NULL OR ar.dateShot >= :fromDate)
+                    AND (:toDate IS NULL OR ar.dateShot <= :toDate)
+                    AND (:roundId IS NULL OR ar.roundId = :roundId)
                     AND (
                             :roundId IS NULL OR :subTpeId IS NULL 
-                            OR archerRound.roundSubTypeId = :subTpeId 
-                            OR (archerRound.roundSubTypeId IS NULL AND :subTpeId = 1 AND NOT archerRound.roundId IS NULL)
+                            OR ar.nonNullSubTypeId = :subTpeId 
+                            OR (ar.nonNullSubTypeId IS NULL AND :subTpeId = 1 AND NOT ar.roundId IS NULL)
                     )
                     AND (ljIsPersonalBest OR NOT :filterPersonalBest)
-                    GROUP BY archerRound.joinedDate
-                ) as counts ON counts.joinedDate = ar.joinedDate
+                    GROUP BY ar.joinedDate
+                ) as counts ON counts.joinedDate = archerRound.joinedDate
                 WHERE counts.count > 0
             """
     )

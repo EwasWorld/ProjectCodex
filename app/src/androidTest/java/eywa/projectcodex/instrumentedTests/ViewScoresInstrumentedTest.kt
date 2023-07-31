@@ -12,6 +12,7 @@ import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrowValue.ArrowValue
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -50,6 +51,7 @@ class ViewScoresInstrumentedTest {
     private var roundArrowCounts = listOf<RoundArrowCount>()
     private var roundDistances = listOf<RoundDistance>()
     private var arrows: List<List<ArrowValue>> = listOf()
+    private var shootRound: List<DatabaseShootRound> = listOf()
 
     @Before
     fun beforeEach() {
@@ -82,6 +84,7 @@ class ViewScoresInstrumentedTest {
                 roundDistances.forEach { db.roundDistanceDao().insert(it) }
                 archerRounds.forEach { db.archerRoundDao().insert(it) }
                 arrows.flatten().forEach { db.arrowValueDao().insert(it) }
+                shootRound.forEach { db.shootRoundDao().insert(it) }
             }
         }
     }
@@ -128,10 +131,15 @@ class ViewScoresInstrumentedTest {
 //                .time
         archerRounds = listOf(
                 ArcherRound(1, firstOfThisYear, 1),
-                ArcherRound(2, Date.valueOf("2012-2-2").asCalendar(), 1, roundId = 1),
-                ArcherRound(3, Date.valueOf("2011-3-3").asCalendar(), 1, roundId = 2),
-                ArcherRound(4, Date.valueOf("2010-4-4").asCalendar(), 1, roundId = 2, roundSubTypeId = 2),
+                ArcherRound(2, Date.valueOf("2012-2-2").asCalendar(), 1),
+                ArcherRound(3, Date.valueOf("2011-3-3").asCalendar(), 1),
+                ArcherRound(4, Date.valueOf("2010-4-4").asCalendar(), 1),
                 ArcherRound(5, Date.valueOf("2009-5-5").asCalendar(), 1),
+        )
+        shootRound = listOf(
+                DatabaseShootRound(2, roundId = 1),
+                DatabaseShootRound(3, roundId = 2),
+                DatabaseShootRound(4, roundId = 2, roundSubTypeId = 2),
         )
         arrows = archerRounds.map { archerRound ->
             val archerRoundId = archerRound.archerRoundId
@@ -199,8 +207,9 @@ class ViewScoresInstrumentedTest {
                 // No round
                 ArcherRound(1, Calendar.getInstance().apply { set(2020, 8, 28) }, 1),
                 // Completed round
-                ArcherRound(2, TestUtils.generateDate(2019), 1, roundId = 1),
+                ArcherRound(2, TestUtils.generateDate(2019), 1),
         )
+        shootRound = listOf(DatabaseShootRound(2, roundId = 1))
         arrows = listOf(
                 TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowValue(1, i) },
                 // Add the correct number of arrows to complete the round
