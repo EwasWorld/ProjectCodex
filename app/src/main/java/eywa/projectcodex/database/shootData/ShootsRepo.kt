@@ -2,24 +2,24 @@ package eywa.projectcodex.database.shootData
 
 import androidx.room.Transaction
 import eywa.projectcodex.database.Filters
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ArcherRoundsRepo(
-        private val archerRoundDao: ArcherRoundDao,
+class ShootsRepo(
+        private val shootDao: ShootDao,
         private val shootDetailDao: ShootDetailDao,
         private val shootRoundDao: ShootRoundDao,
 ) {
     @Transaction
-    fun getFullArcherRoundInfo(
-            filters: Filters<ArcherRoundsFilter> = Filters(),
-    ): Flow<List<DatabaseFullArcherRoundInfo>> {
-        val datesFilter = filters.get<ArcherRoundsFilter.DateRange>()
-        val roundsFilter = filters.get<ArcherRoundsFilter.Round>()
+    fun getFullShootInfo(
+            filters: Filters<ShootFilter> = Filters(),
+    ): Flow<List<DatabaseFullShootInfo>> {
+        val datesFilter = filters.get<ShootFilter.DateRange>()
+        val roundsFilter = filters.get<ShootFilter.Round>()
 
-        return archerRoundDao.getAllFullArcherRoundInfo(
-                filterPersonalBest = filters.contains<ArcherRoundsFilter.PersonalBests>(),
+        return shootDao.getAllFullShootInfo(
+                filterPersonalBest = filters.contains<ShootFilter.PersonalBests>(),
                 fromDate = datesFilter?.from,
                 toDate = datesFilter?.to,
                 roundId = roundsFilter?.roundId,
@@ -37,10 +37,10 @@ class ArcherRoundsRepo(
         }
     }
 
-    fun getFullArcherRoundInfo(archerRoundIds: List<Int>) = archerRoundDao.getFullArcherRoundInfo(archerRoundIds)
-    fun getFullArcherRoundInfo(archerRoundId: Int) = archerRoundDao.getFullArcherRoundInfo(archerRoundId)
+    fun getFullShootInfo(shootIds: List<Int>) = shootDao.getFullShootInfo(shootIds)
+    fun getFullShootInfo(shootId: Int) = shootDao.getFullShootInfo(shootId)
 
-    suspend fun insert(shoot: DatabaseShoot) = archerRoundDao.insert(shoot)
+    suspend fun insert(shoot: DatabaseShoot) = shootDao.insert(shoot)
 
     @Transaction
     suspend fun insert(
@@ -50,56 +50,56 @@ class ArcherRoundsRepo(
     ): Long {
         require(
                 listOfNotNull(
-                        shoot.archerRoundId,
-                        shootRound?.archerRoundId,
-                        shootDetail?.archerRoundId,
+                        shoot.shootId,
+                        shootRound?.shootId,
+                        shootDetail?.shootId,
                 ).distinct().size == 1
-        ) { "Mismatched archerRoundIds" }
+        ) { "Mismatched shootIds" }
         require(shootRound == null || shootDetail == null) { "Clashing details/round" }
 
-        val id = archerRoundDao.insert(shoot)
-        if (shootRound != null) shootRoundDao.insert(shootRound.copy(archerRoundId = id.toInt()))
-        if (shootDetail != null) shootDetailDao.insert(shootDetail.copy(archerRoundId = id.toInt()))
+        val id = shootDao.insert(shoot)
+        if (shootRound != null) shootRoundDao.insert(shootRound.copy(shootId = id.toInt()))
+        if (shootDetail != null) shootDetailDao.insert(shootDetail.copy(shootId = id.toInt()))
         return id
     }
 
-    suspend fun deleteRound(archerRoundId: Int) {
-        archerRoundDao.deleteRound(archerRoundId)
+    suspend fun deleteRound(shootId: Int) {
+        shootDao.deleteRound(shootId)
     }
 
     suspend fun update(
-            original: FullArcherRoundInfo,
+            original: FullShootInfo,
             shoot: DatabaseShoot,
             shootRound: DatabaseShootRound?,
             shootDetail: DatabaseShootDetail?,
     ) {
         require(
                 listOfNotNull(
-                        original.shoot.archerRoundId,
-                        shoot.archerRoundId,
-                        shootRound?.archerRoundId,
-                        shootDetail?.archerRoundId,
+                        original.shoot.shootId,
+                        shoot.shootId,
+                        shootRound?.shootId,
+                        shootDetail?.shootId,
                 ).distinct().size == 1
-        ) { "Mismatched archerRoundIds" }
+        ) { "Mismatched shootIds" }
         require(shootRound == null || shootDetail == null) { "Clashing details/round" }
 
-        archerRoundDao.update(shoot)
+        shootDao.update(shoot)
 
         if (shootRound != null) {
             if (original.shootRound != null) shootRoundDao.update(shootRound)
             else shootRoundDao.insert(shootRound)
 
-            if (original.shootDetail != null) shootDetailDao.delete(shoot.archerRoundId)
+            if (original.shootDetail != null) shootDetailDao.delete(shoot.shootId)
         }
         else if (shootDetail != null) {
             if (original.shootDetail != null) shootDetailDao.update(shootDetail)
             else shootDetailDao.insert(shootDetail)
 
-            if (original.shootRound != null) shootRoundDao.delete(shoot.archerRoundId)
+            if (original.shootRound != null) shootRoundDao.delete(shoot.shootId)
         }
         else {
-            shootRoundDao.delete(shoot.archerRoundId)
-            shootDetailDao.delete(shoot.archerRoundId)
+            shootRoundDao.delete(shoot.shootId)
+            shootDetailDao.delete(shoot.shootId)
         }
     }
 }

@@ -23,7 +23,7 @@ import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsScaf
 import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 
 // TODO Help info for table and remaining arrows
 class InputEndScreen : ArcherRoundSubScreen() {
@@ -56,10 +56,10 @@ class InputEndScreen : ArcherRoundSubScreen() {
                 listener = listener,
         ) {
             ScoreIndicator(
-                    state.fullArcherRoundInfo.score,
-                    state.fullArcherRoundInfo.arrowsShot,
+                    state.fullShootInfo.score,
+                    state.fullShootInfo.arrowsShot,
             )
-            RemainingArrowsIndicator(state.fullArcherRoundInfo)
+            RemainingArrowsIndicator(state.fullShootInfo)
             Spacer(modifier = Modifier.size(DpSize.Zero))
         }
     }
@@ -121,15 +121,15 @@ class InputEndScreen : ArcherRoundSubScreen() {
 
     @Composable
     private fun RemainingArrowsIndicator(
-            fullArcherRoundInfo: FullArcherRoundInfo
+            fullShootInfo: FullShootInfo
     ) {
-        fullArcherRoundInfo.remainingArrowsAtDistances?.let {
+        fullShootInfo.remainingArrowsAtDistances?.let {
             val remainingStrings = it.map { (count, distance) ->
                 stringResource(
                         R.string.input_end__round_indicator_at,
                         count,
                         distance,
-                        stringResource(fullArcherRoundInfo.distanceUnit!!)
+                        stringResource(fullShootInfo.distanceUnit!!)
                 )
             }
 

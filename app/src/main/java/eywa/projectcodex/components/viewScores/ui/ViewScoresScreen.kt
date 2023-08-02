@@ -41,7 +41,7 @@ import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ViewScoresShowcaseInfo
-import eywa.projectcodex.database.shootData.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.ShootFilter
 
 private const val LOG_TAG = "ViewScores"
 
@@ -193,7 +193,7 @@ fun ViewScoresScreen(
                     ViewScoresEntryRow(
                             entry = entry,
                             helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
-                            showPbs = !state.filters.contains<ArcherRoundsFilter.PersonalBests>(),
+                            showPbs = !state.filters.contains<ShootFilter.PersonalBests>(),
                     )
                 }
             }

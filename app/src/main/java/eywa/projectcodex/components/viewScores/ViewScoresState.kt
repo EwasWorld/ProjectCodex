@@ -2,7 +2,7 @@ package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.Filters
-import eywa.projectcodex.database.shootData.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.ShootFilter
 
 data class ViewScoresState(
         val isInMultiSelectMode: Boolean = false,
@@ -27,7 +27,7 @@ data class ViewScoresState(
         val openEmailClicked: Boolean = false,
         val openEditInfoClicked: Boolean = false,
 
-        val filters: Filters<ArcherRoundsFilter> = Filters(),
+        val filters: Filters<ShootFilter> = Filters(),
 ) {
     val lastClickedEntry by lazy {
         lastClickedEntryId?.let { id -> data.find { it.id == id } }

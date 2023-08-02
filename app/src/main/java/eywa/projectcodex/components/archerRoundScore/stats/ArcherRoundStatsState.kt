@@ -15,7 +15,7 @@ interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, Ha
 
     val extras: List<ExtraStats>?
         get() {
-            val info = fullArcherRoundInfo
+            val info = fullShootInfo
             val calculateHandicap =
                     { arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance ->
                         if (info.handicap == null) null

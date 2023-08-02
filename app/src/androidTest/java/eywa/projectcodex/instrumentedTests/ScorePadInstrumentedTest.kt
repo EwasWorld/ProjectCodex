@@ -44,9 +44,9 @@ class ScorePadInstrumentedTest {
     private lateinit var db: ScoresRoomDatabase
 
     private suspend fun addArcherRound(archerRoundId: Int = 1, roundId: Int? = null, year: Int = 2022) {
-        db.archerRoundDao().insert(
+        db.shootDao().insert(
                 DatabaseShoot(
-                        archerRoundId = archerRoundId,
+                        shootId = archerRoundId,
                         dateShot = TestUtils.generateDate(year),
                         archerId = 1,
                 )
@@ -54,7 +54,7 @@ class ScorePadInstrumentedTest {
         roundId?.let {
             db.shootRoundDao().insert(
                     DatabaseShootRound(
-                            archerRoundId = archerRoundId,
+                            shootId = archerRoundId,
                             roundId = roundId,
                     )
             )

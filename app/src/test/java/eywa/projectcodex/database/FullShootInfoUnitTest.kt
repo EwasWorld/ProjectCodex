@@ -15,7 +15,7 @@ import org.junit.Assert
 import org.junit.Test
 import java.util.*
 
-class FullArcherRoundInfoUnitTest {
+class FullShootInfoUnitTest {
     private val resources: Resources = setUpResources()
 
     private val fullRoundInfo = FullRoundInfo(

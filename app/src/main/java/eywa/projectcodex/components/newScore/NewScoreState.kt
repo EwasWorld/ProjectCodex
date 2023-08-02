@@ -8,14 +8,14 @@ import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import java.util.*
 
 data class NewScoreState(
         /**
          * Non-null if the fragment is being used to edit an existing round
          */
-        val roundBeingEdited: FullArcherRoundInfo? = null,
+        val roundBeingEdited: FullShootInfo? = null,
         /**
          * Only used if a round is being edited
          */
@@ -69,10 +69,10 @@ data class NewScoreState(
     /**
      * Convert the information on the screen to an [DatabaseShoot].
      * Edited rounds copy their old data, overwriting fields selected on the screen
-     * New rounds defaults: [DatabaseShoot.archerRoundId] is 0, [DatabaseShoot.archerId] is 1
+     * New rounds defaults: [DatabaseShoot.shootId] is 0, [DatabaseShoot.archerId] is 1
      */
     fun asArcherRound() = DatabaseShoot(
-            archerRoundId = roundBeingEdited?.shoot?.archerRoundId ?: 0,
+            shootId = roundBeingEdited?.shoot?.shootId ?: 0,
             // TODO Check date locales (I want to store in UTC)
             dateShot = dateShot,
             archerId = roundBeingEdited?.shoot?.archerId ?: 1,
@@ -81,7 +81,7 @@ data class NewScoreState(
     fun asShootRound() =
             if (selectRoundDialogState.selectedRoundId == null) null
             else DatabaseShootRound(
-                    archerRoundId = roundBeingEdited?.shoot?.archerRoundId ?: 0,
+                    shootId = roundBeingEdited?.shoot?.shootId ?: 0,
                     roundId = selectRoundDialogState.selectedRoundId,
                     roundSubTypeId = selectRoundDialogState.selectedSubTypeId,
                     faces = selectFaceDialogState.selectedFaces,
@@ -95,7 +95,7 @@ data class NewScoreState(
                 ).isEmpty()
             ) null
             else DatabaseShootDetail(
-                    archerRoundId = roundBeingEdited?.shoot?.archerRoundId ?: 0,
+                    shootId = roundBeingEdited?.shoot?.shootId ?: 0,
                     face = selectFaceDialogState.selectedFaces?.firstOrNull(),
             )
 

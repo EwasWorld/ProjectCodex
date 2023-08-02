@@ -2,11 +2,11 @@ package eywa.projectcodex.common.sharedUi.previewHelpers
 
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
-import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.model.Arrow
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import java.util.*
 
 object ArcherRoundPreviewHelper {
@@ -14,47 +14,47 @@ object ArcherRoundPreviewHelper {
             id: Int = 1,
             date: Calendar = Calendar.getInstance(),
     ) = DatabaseShoot(
-            archerRoundId = id,
+            shootId = id,
             dateShot = date,
             archerId = 1,
     )
 
     fun newFullArcherRoundInfo(id: Int) =
-            FullArcherRoundInfo(shoot = newArcherRound(id = id), arrows = null, use2023HandicapSystem = true)
+            FullShootInfo(shoot = newArcherRound(id = id), arrows = null, use2023HandicapSystem = true)
 
     fun newFullArcherRoundInfo(shoot: DatabaseShoot = newArcherRound()) =
-            FullArcherRoundInfo(shoot = shoot, arrows = null, use2023HandicapSystem = true)
+            FullShootInfo(shoot = shoot, arrows = null, use2023HandicapSystem = true)
 
-    fun FullArcherRoundInfo.addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) =
-            copy(arrows = ArrowScoresPreviewHelper.getArrows(shoot.archerRoundId, size, 1, score, isX))
+    fun FullShootInfo.addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) =
+            copy(arrows = ArrowScoresPreviewHelper.getArrows(shoot.shootId, size, 1, score, isX))
 
-    fun FullArcherRoundInfo.addFullSetOfArrows() =
-            copy(arrows = ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.archerRoundId))
+    fun FullShootInfo.addFullSetOfArrows() =
+            copy(arrows = ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId))
 
-    fun FullArcherRoundInfo.addArrows(arrows: List<Arrow>) =
-            copy(arrows = arrows.mapIndexed { i, arrow -> arrow.toArrowScore(shoot.archerRoundId, i + 1) })
+    fun FullShootInfo.addArrows(arrows: List<Arrow>) =
+            copy(arrows = arrows.mapIndexed { i, arrow -> arrow.toArrowScore(shoot.shootId, i + 1) })
 
-    fun FullArcherRoundInfo.addRound(fullRoundInfo: FullRoundInfo) =
+    fun FullShootInfo.addRound(fullRoundInfo: FullRoundInfo) =
             copy(
                     round = fullRoundInfo.round,
                     roundArrowCounts = fullRoundInfo.roundArrowCounts,
                     roundSubType = fullRoundInfo.roundSubTypes?.find { it.subTypeId == 1 },
                     roundDistances = fullRoundInfo.getDistances(subTypeId = 1),
                     shootRound = DatabaseShootRound(
-                            archerRoundId = shoot.archerRoundId,
+                            shootId = shoot.shootId,
                             roundId = fullRoundInfo.round.roundId,
                             roundSubTypeId = 1,
                     ),
             )
 
-    fun FullArcherRoundInfo.completeRound(arrowScore: Int, isX: Boolean = false) =
+    fun FullShootInfo.completeRound(arrowScore: Int, isX: Boolean = false) =
             copy(
                     arrows = List(roundArrowCounts!!.sumOf { it.arrowCount }) {
-                        DatabaseArrowScore(shoot.archerRoundId, it, arrowScore, isX)
+                        DatabaseArrowScore(shoot.shootId, it, arrowScore, isX)
                     }
             )
 
-    fun FullArcherRoundInfo.asDatabaseFullArcherRoundInfo() = DatabaseFullArcherRoundInfo(
+    fun FullShootInfo.asDatabaseFullArcherRoundInfo() = DatabaseFullShootInfo(
             shoot = shoot,
             arrows = arrows,
             round = round,

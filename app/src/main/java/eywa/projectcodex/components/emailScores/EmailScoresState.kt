@@ -4,10 +4,10 @@ import android.content.Intent
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 
 data class EmailScoresState(
-        val rounds: List<FullArcherRoundInfo> = emptyList(),
+        val rounds: List<FullShootInfo> = emptyList(),
         val textFields: Map<EmailScoresTextField, String> = mapOf(),
         val booleanFields: Set<EmailScoresCheckbox> = setOf(),
         val error: EmailScoresError? = null,

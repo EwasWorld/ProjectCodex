@@ -12,12 +12,12 @@ import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.Arrow
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.testUtils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
@@ -94,7 +94,7 @@ class ArcherRoundViewModelUnitTest {
     @Test
     fun testInitialisation_ArcherRoundsAnd2023System() = runTest {
         fun create(arrowCount: Int) =
-                DatabaseFullArcherRoundInfo(
+                DatabaseFullShootInfo(
                         shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                 )
@@ -114,7 +114,7 @@ class ArcherRoundViewModelUnitTest {
         assertEquals(
                 ArcherRoundState.Loaded(
                         currentScreen = ArcherRoundScreen.INPUT_END,
-                        fullArcherRoundInfo = FullArcherRoundInfo(archerRoundInitial, true),
+                        fullShootInfo = FullShootInfo(archerRoundInitial, true),
                 ),
                 sut.state.value,
         )
@@ -123,7 +123,7 @@ class ArcherRoundViewModelUnitTest {
         assertEquals(
                 ArcherRoundState.Loaded(
                         currentScreen = ArcherRoundScreen.INPUT_END,
-                        fullArcherRoundInfo = FullArcherRoundInfo(archerRoundSecond, false),
+                        fullShootInfo = FullShootInfo(archerRoundSecond, false),
                 ),
                 sut.state.value,
         )
@@ -141,7 +141,7 @@ class ArcherRoundViewModelUnitTest {
         assertEquals(
                 ArcherRoundState.Loaded(
                         currentScreen = ArcherRoundScreen.INPUT_END,
-                        fullArcherRoundInfo = FullArcherRoundInfo(archerRoundInitial, true),
+                        fullShootInfo = FullShootInfo(archerRoundInitial, true),
                 ),
                 sut.state.value,
         )
@@ -150,7 +150,7 @@ class ArcherRoundViewModelUnitTest {
         assertEquals(
                 ArcherRoundState.Loaded(
                         currentScreen = ArcherRoundScreen.INPUT_END,
-                        fullArcherRoundInfo = FullArcherRoundInfo(archerRoundSecond, true),
+                        fullShootInfo = FullShootInfo(archerRoundSecond, true),
                         displayRoundCompletedDialog = true,
                 ),
                 sut.state.value,
@@ -699,7 +699,7 @@ class ArcherRoundViewModelUnitTest {
     @Test
     fun testNoArrowsDialogOkClicked() = runTest {
         db.archerRoundDao.fullArcherRounds = listOf(
-                DatabaseFullArcherRoundInfo(
+                DatabaseFullShootInfo(
                         shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = emptyList(),
                 )
@@ -764,7 +764,7 @@ class ArcherRoundViewModelUnitTest {
      */
 
     private fun createArcherRound_WithRound(arrowCount: Int = 36) =
-            DatabaseFullArcherRoundInfo(
+            DatabaseFullShootInfo(
                     shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                     shootRound = DatabaseShootRound(1, roundId = 1),
                     arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
@@ -776,7 +776,7 @@ class ArcherRoundViewModelUnitTest {
 
     private fun setupSimpleDbData_NoRound() {
         db.archerRoundDao.fullArcherRounds = listOf(
-                DatabaseFullArcherRoundInfo(
+                DatabaseFullShootInfo(
                         shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = TestData.ARROWS.mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 1) },
                 )

@@ -17,13 +17,13 @@ object ArcherRoundStatePreviewHelper {
 
     val SIMPLE = ArcherRoundState.Loaded(
             currentScreen = ArcherRoundScreen.INPUT_END,
-            fullArcherRoundInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo(),
+            fullShootInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo(),
             goldsType = GoldsType.NINES,
             inputArrows = inputArrows,
     )
 
     val WITH_SHOT_ARROWS = SIMPLE.copy(
-            fullArcherRoundInfo = SIMPLE.fullArcherRoundInfo
+            fullShootInfo = SIMPLE.fullShootInfo
                     .addIdenticalArrows(20, 7)
                     .addRound(RoundPreviewHelper.outdoorImperialRoundData)
     )

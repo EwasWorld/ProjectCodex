@@ -17,11 +17,11 @@ import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
-import eywa.projectcodex.database.shootData.ArcherRoundsFilter
-import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.ShootFilter
 import eywa.projectcodex.datastore.DatastoreKey
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -59,7 +59,7 @@ class ViewScoresViewModelUnitTest {
     @Test
     fun testDataIsSetAndUpdatedCorrectly_WithSelectedItem() = runTest {
         fun create(id: Int, date: Long) =
-                DatabaseFullArcherRoundInfo(
+                DatabaseFullShootInfo(
                         shoot = DatabaseShoot(id, date.asCalendar(), 1),
                         arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
@@ -78,7 +78,7 @@ class ViewScoresViewModelUnitTest {
         advanceTimeBy(1)
         assertEquals(
                 archerRoundsInitial.map {
-                    ViewScoresEntry(FullArcherRoundInfo(it, true), false, customLogger)
+                    ViewScoresEntry(FullShootInfo(it, true), false, customLogger)
                 },
                 sut.state.value.data.sortedBy { it.id },
         )
@@ -88,7 +88,7 @@ class ViewScoresViewModelUnitTest {
         advanceUntilIdle()
         assertEquals(
                 archerRoundsSecond.map {
-                    ViewScoresEntry(FullArcherRoundInfo(it, true), it.shoot.archerRoundId == 1, customLogger)
+                    ViewScoresEntry(FullShootInfo(it, true), it.shoot.shootId == 1, customLogger)
                 },
                 sut.state.value.data.sortedBy { it.id },
         )
@@ -97,7 +97,7 @@ class ViewScoresViewModelUnitTest {
     @Test
     fun testDataIsSetAndUpdatedCorrectly_WithOldHandicapSystem() = runTest {
         fun create(id: Int, date: Long) =
-                DatabaseFullArcherRoundInfo(
+                DatabaseFullShootInfo(
                         shoot = DatabaseShoot(id, date.asCalendar(), 1),
                         arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
@@ -116,7 +116,7 @@ class ViewScoresViewModelUnitTest {
         advanceTimeBy(1)
         assertEquals(
                 archerRoundsInitial.map {
-                    ViewScoresEntry(FullArcherRoundInfo(it, false), false, customLogger)
+                    ViewScoresEntry(FullShootInfo(it, false), false, customLogger)
                 },
                 sut.state.value.data.sortedBy { it.id },
         )
@@ -131,19 +131,19 @@ class ViewScoresViewModelUnitTest {
         val sut = getSut()
         advanceUntilIdle()
 
-        assertEquals(Filters<ArcherRoundsFilter>(), sut.state.value.filters)
+        assertEquals(Filters<ShootFilter>(), sut.state.value.filters)
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.archerRoundDao.mock).getAllFullArcherRoundInfo(false, null, null, null, null)
+        verify(db.archerRoundDao.mock).getAllFullShootInfo(false, null, null, null, null)
 
-        sut.handle(AddFilter(ArcherRoundsFilter.PersonalBests))
+        sut.handle(AddFilter(ShootFilter.PersonalBests))
         advanceUntilIdle()
 
-        assertEquals(Filters<ArcherRoundsFilter>(setOf(ArcherRoundsFilter.PersonalBests)), sut.state.value.filters)
+        assertEquals(Filters<ShootFilter>(setOf(ShootFilter.PersonalBests)), sut.state.value.filters)
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.archerRoundDao.mock).getAllFullArcherRoundInfo(true, null, null, null, null)
+        verify(db.archerRoundDao.mock).getAllFullShootInfo(true, null, null, null, null)
 
         verify(db.archerRoundDao.mock, times(2))
-                .getAllFullArcherRoundInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
+                .getAllFullShootInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
     }
 
     @Test

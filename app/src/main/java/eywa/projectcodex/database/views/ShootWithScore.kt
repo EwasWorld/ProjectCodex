@@ -11,7 +11,7 @@ import java.util.*
 @DatabaseView(
         value = """
                 SELECT 
-                    archerRound.*, 
+                    shoot.*, 
                     arrows.score,
                     shootRound.roundId,
                     (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,
@@ -21,25 +21,25 @@ import java.util.*
                         -- This will be the first round (inclusive) in the sequence
                         SELECT MAX(dateShot)
                         FROM ${DatabaseShoot.TABLE_NAME}
-                        WHERE dateShot <= archerRound.dateShot AND NOT joinWithPrevious
+                        WHERE dateShot <= shoot.dateShot AND NOT joinWithPrevious
                     ) as joinedDate
-                FROM ${DatabaseShoot.TABLE_NAME} as archerRound
+                FROM ${DatabaseShoot.TABLE_NAME} as shoot
                 LEFT JOIN ${DatabaseShootRound.TABLE_NAME} as shootRound 
-                        ON shootRound.archerRoundId = archerRound.archerRoundId
+                        ON shootRound.shootId = shoot.shootId
                 LEFT JOIN (
                     SELECT SUM(arrowCount) as count, roundId
                     FROM ${RoundArrowCount.TABLE_NAME}
                     GROUP BY roundId
                 ) as roundCount ON shootRound.roundId = roundCount.roundId
                 LEFT JOIN (
-                    SELECT COUNT(*) as count, SUM(score) as score, archerRoundId
+                    SELECT COUNT(*) as count, SUM(score) as score, shootId
                     FROM ${DatabaseArrowScore.TABLE_NAME}
-                    GROUP BY archerRoundId
-                ) as arrows ON archerRound.archerRoundId = arrows.archerRoundId
+                    GROUP BY shootId
+                ) as arrows ON shoot.shootId = arrows.shootId
                 """,
-        viewName = ArcherRoundWithScore.TABLE_NAME,
+        viewName = ShootWithScore.TABLE_NAME,
 )
-data class ArcherRoundWithScore(
+data class ShootWithScore(
         @Embedded val shoot: DatabaseShoot,
         val score: Int,
         val roundId: Int?,

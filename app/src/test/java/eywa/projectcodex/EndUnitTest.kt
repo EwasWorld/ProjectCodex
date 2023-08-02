@@ -211,7 +211,7 @@ class EndUnitTest {
         val output = end.getDatabaseUpdates(archerRoundId, arrowNumber)
         assertEquals(UpdateType.NEW, output.first)
         for (arrow in output.second) {
-            assertEquals(archerRoundId, arrow.archerRoundId)
+            assertEquals(archerRoundId, arrow.shootId)
             assertEquals(arrowNumber, arrow.arrowNumber)
             assertEquals(arrowScores[arrowNumber - 1], arrow.score)
             // Only the last arrow, 6, should be an X
@@ -240,7 +240,7 @@ class EndUnitTest {
         val output = end.getDatabaseUpdates(archerRoundId, firstArrowNumber)
         assertEquals(UpdateType.UPDATE, output.first)
         for (i in output.second.indices) {
-            assertEquals(archerRoundId, output.second[i].archerRoundId)
+            assertEquals(archerRoundId, output.second[i].shootId)
             assertEquals(
                     if (i < oldArrows.size) oldArrows[i].arrowNumber else i + firstArrowNumber - oldArrows.size,
                     output.second[i].arrowNumber

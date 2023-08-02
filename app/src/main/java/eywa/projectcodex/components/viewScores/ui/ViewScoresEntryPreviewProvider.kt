@@ -11,7 +11,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.model.Arrow
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import java.util.*
 
 /**
@@ -48,14 +48,14 @@ object ViewScoresEntryPreviewProvider {
         val hsg = desiredHsg[index % desiredHsg.size]
         val hasRoundInfo = index % 5 != 1 && displayName != null
         ViewScoresEntry(
-                info = FullArcherRoundInfo(
+                info = FullShootInfo(
                         shoot = DatabaseShoot(
-                                archerRoundId = index + 1,
+                                shootId = index + 1,
                                 dateShot = dates[index % dates.size],
                                 archerId = 1,
                         ),
                         shootRound = displayName?.let {
-                            DatabaseShootRound(archerRoundId = index + 1, roundId = index + 1)
+                            DatabaseShootRound(shootId = index + 1, roundId = index + 1)
                         },
                         round = displayName?.let {
                             Round(index + 1, "", displayName, true, true)
@@ -75,9 +75,9 @@ object ViewScoresEntryPreviewProvider {
 
     fun generateIncompleteRound() = listOf(36, 217, 12).let { hsg ->
         ViewScoresEntry(
-                info = FullArcherRoundInfo(
+                info = FullShootInfo(
                         shoot = DatabaseShoot(
-                                archerRoundId = 1,
+                                shootId = 1,
                                 dateShot = dates[0],
                                 archerId = 1,
 //                                roundId = 5

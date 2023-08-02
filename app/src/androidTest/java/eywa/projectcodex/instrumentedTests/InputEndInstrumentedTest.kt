@@ -101,7 +101,7 @@ class InputEndInstrumentedTest {
                 roundsInput.forEach { item -> db.roundDao().insert(item) }
                 arrowCountsInput.forEach { item -> db.roundArrowCountDao().insert(item) }
                 distancesInput.forEach { item -> db.roundDistanceDao().insert(item) }
-                shootData.forEach { item -> db.archerRoundDao().insert(item) }
+                shootData.forEach { item -> db.shootDao().insert(item) }
                 shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
         }
@@ -392,9 +392,9 @@ class InputEndInstrumentedTest {
                         RoundFace.HALF,
                         RoundFace.FITA_SIX,
                 ).forEachIndexed { index, face ->
-                    db.archerRoundDao().insert(
+                    db.shootDao().insert(
                             DatabaseShoot(
-                                    archerRoundId = 4 + index,
+                                    shootId = 4 + index,
                                     dateShot = TestUtils.generateDate(2021, 1 + index),
                                     archerId = 1,
                                     countsTowardsHandicap = true,
@@ -402,15 +402,15 @@ class InputEndInstrumentedTest {
                     )
                     db.shootDetailDao().insert(
                             DatabaseShootDetail(
-                                    archerRoundId = 4 + index,
+                                    shootId = 4 + index,
                                     face = face,
                             )
                     )
                 }
 
-                db.archerRoundDao().insert(
+                db.shootDao().insert(
                         DatabaseShoot(
-                                archerRoundId = 8,
+                                shootId = 8,
                                 dateShot = TestUtils.generateDate(2021, 5),
                                 archerId = 1,
                                 countsTowardsHandicap = true,
@@ -418,14 +418,14 @@ class InputEndInstrumentedTest {
                 )
                 db.shootRoundDao().insert(
                         DatabaseShootRound(
-                                archerRoundId = 8,
+                                shootId = 8,
                                 faces = listOf(RoundFace.WORCESTER_FIVE),
                                 roundId = 3,
                         )
                 )
-                db.archerRoundDao().insert(
+                db.shootDao().insert(
                         DatabaseShoot(
-                                archerRoundId = 9,
+                                shootId = 9,
                                 dateShot = TestUtils.generateDate(2021, 6),
                                 archerId = 1,
                                 countsTowardsHandicap = true,
@@ -433,7 +433,7 @@ class InputEndInstrumentedTest {
                 )
                 db.shootRoundDao().insert(
                         DatabaseShootRound(
-                                archerRoundId = 9,
+                                shootId = 9,
                                 roundId = 3,
                         )
                 )

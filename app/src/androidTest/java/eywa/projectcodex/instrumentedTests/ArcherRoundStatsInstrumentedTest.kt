@@ -76,20 +76,20 @@ class ArcherRoundStatsInstrumentedTest {
     )
     private val shootData = listOf(
             DatabaseShoot(
-                    archerRoundId = 1,
+                    shootId = 1,
                     dateShot = Date(2014, 6, 17, 15, 21, 37).asCalendar(),
 //                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
                     archerId = 1,
                     countsTowardsHandicap = true,
             ),
             DatabaseShoot(
-                    archerRoundId = 2,
+                    shootId = 2,
                     dateShot = TestUtils.generateDate(2013),
                     archerId = 1,
                     countsTowardsHandicap = true,
             ),
             DatabaseShoot(
-                    archerRoundId = 3,
+                    shootId = 3,
                     dateShot = TestUtils.generateDate(2012),
                     archerId = 1,
                     countsTowardsHandicap = true,
@@ -97,11 +97,11 @@ class ArcherRoundStatsInstrumentedTest {
     )
     private val shootRounds = listOf(
             DatabaseShootRound(
-                    archerRoundId = 2,
+                    shootId = 2,
                     roundId = 1,
             ),
             DatabaseShootRound(
-                    archerRoundId = 3,
+                    shootId = 3,
                     roundId = 2,
                     roundSubTypeId = 1,
                     faces = listOf(RoundFace.FULL, RoundFace.HALF),
@@ -109,7 +109,7 @@ class ArcherRoundStatsInstrumentedTest {
     )
     private val shootDetails = listOf(
             DatabaseShootDetail(
-                    archerRoundId = 1,
+                    shootId = 1,
                     face = RoundFace.HALF,
             ),
     )
@@ -134,7 +134,7 @@ class ArcherRoundStatsInstrumentedTest {
                 arrowCountsInput.forEach { db.roundArrowCountDao().insert(it) }
                 subTypesInput.forEach { db.roundSubTypeDao().insert(it) }
                 distancesInput.forEach { db.roundDistanceDao().insert(it) }
-                shootData.forEach { db.archerRoundDao().insert(it) }
+                shootData.forEach { db.shootDao().insert(it) }
                 arrows.forEach { db.arrowScoreDao().insert(it) }
                 shootRounds.forEach { db.shootRoundDao().insert(it) }
                 shootDetails.forEach { db.shootDetailDao().insert(it) }
@@ -151,8 +151,8 @@ class ArcherRoundStatsInstrumentedTest {
 
     @Test
     fun testAllStatsNoRound() {
-        val archerRoundId = shootData[ShootTypes.NO_ROUND.row].archerRoundId
-        check(shootData.find { it.archerRoundId == archerRoundId } != null) { "Invalid archer round ID" }
+        val archerRoundId = shootData[ShootTypes.NO_ROUND.row].shootId
+        check(shootData.find { it.shootId == archerRoundId } != null) { "Invalid archer round ID" }
 
         var arrowNumber = 1
         arrows = listOf(
@@ -187,9 +187,9 @@ class ArcherRoundStatsInstrumentedTest {
 
     @Test
     fun testHasRound() {
-        val archerRoundId = shootData[ShootTypes.ROUND.row].archerRoundId
-        val archerRound = shootData.find { it.archerRoundId == archerRoundId }!!
-        val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }!!
+        val archerRoundId = shootData[ShootTypes.ROUND.row].shootId
+        val archerRound = shootData.find { it.shootId == archerRoundId }!!
+        val shootRound = shootRounds.find { it.shootId == archerRound.shootId }!!
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
@@ -220,9 +220,9 @@ class ArcherRoundStatsInstrumentedTest {
     fun testOldHandicapSystem() {
         LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
 
-        val archerRoundId = shootData[ShootTypes.ROUND.row].archerRoundId
-        val archerRound = shootData.find { it.archerRoundId == archerRoundId }!!
-        val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }!!
+        val archerRoundId = shootData[ShootTypes.ROUND.row].shootId
+        val archerRound = shootData.find { it.shootId == archerRoundId }!!
+        val shootRound = shootRounds.find { it.shootId == archerRound.shootId }!!
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1

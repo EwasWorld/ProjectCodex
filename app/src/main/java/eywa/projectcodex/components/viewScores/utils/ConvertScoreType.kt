@@ -11,7 +11,7 @@ enum class ConvertScoreType(
 ) : HasDisplayTitle {
     XS_TO_TENS(
             displayTitle = R.string.view_scores__convert_xs_to_tens,
-            convert = { DatabaseArrowScore(it.archerRoundId, it.arrowNumber, it.score, false) }
+            convert = { DatabaseArrowScore(it.shootId, it.arrowNumber, it.score, false) }
     ),
     TO_FIVE_ZONE(
             displayTitle = R.string.view_scores__convert_to_five_zone,
@@ -21,7 +21,7 @@ enum class ConvertScoreType(
                     it.score % 2 == 0 -> -1
                     else -> 0
                 }
-                DatabaseArrowScore(it.archerRoundId, it.arrowNumber, it.score + scoreChange, false)
+                DatabaseArrowScore(it.shootId, it.arrowNumber, it.score + scoreChange, false)
             }
     ),
     ;

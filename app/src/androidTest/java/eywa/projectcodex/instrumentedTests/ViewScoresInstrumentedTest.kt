@@ -82,7 +82,7 @@ class ViewScoresInstrumentedTest {
                 roundSubTypes.forEach { db.roundSubTypeDao().insert(it) }
                 roundArrowCounts.forEach { db.roundArrowCountDao().insert(it) }
                 roundDistances.forEach { db.roundDistanceDao().insert(it) }
-                shootData.forEach { db.archerRoundDao().insert(it) }
+                shootData.forEach { db.shootDao().insert(it) }
                 arrows.flatten().forEach { db.arrowScoreDao().insert(it) }
                 shootRound.forEach { db.shootRoundDao().insert(it) }
             }
@@ -142,7 +142,7 @@ class ViewScoresInstrumentedTest {
                 DatabaseShootRound(4, roundId = 2, roundSubTypeId = 2),
         )
         arrows = shootData.map { archerRound ->
-            val archerRoundId = archerRound.archerRoundId
+            val archerRoundId = archerRound.shootId
             List(1) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowScore(archerRoundId, arrowNumber) }
         }
 
@@ -367,7 +367,7 @@ class ViewScoresInstrumentedTest {
         val size = 4
         shootData = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
-            val roundId = shootData[i].archerRoundId
+            val roundId = shootData[i].shootId
             TestUtils.generateArrowScores(roundId, 36, roundId)
         }
         populateDb()
@@ -430,7 +430,7 @@ class ViewScoresInstrumentedTest {
         val size = 4
         shootData = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
-            val roundId = shootData[i].archerRoundId
+            val roundId = shootData[i].shootId
             TestUtils.generateArrowScores(roundId, 36, roundId)
         }
         populateDb()

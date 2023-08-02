@@ -3,7 +3,7 @@ package eywa.projectcodex.database.shootData
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import eywa.projectcodex.database.arrows.DatabaseArrowCount
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -11,50 +11,50 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import java.util.*
 
-data class DatabaseFullArcherRoundInfo(
+data class DatabaseFullShootInfo(
         @Embedded val shoot: DatabaseShoot,
 
         @Relation(
-                parentColumn = "archerRoundId",
-                entityColumn = "archerRoundId",
+                parentColumn = "shootId",
+                entityColumn = "shootId",
         )
         val shootRound: DatabaseShootRound? = null,
 
         @Relation(
-                parentColumn = "archerRoundId",
-                entityColumn = "archerRoundId",
+                parentColumn = "shootId",
+                entityColumn = "shootId",
         )
         val shootDetail: DatabaseShootDetail? = null,
 
         @Relation(
-                parentColumn = "archerRoundId",
-                entityColumn = "archerRoundId",
+                parentColumn = "shootId",
+                entityColumn = "shootId",
         )
         val arrows: List<DatabaseArrowScore>? = null,
 
         @Relation(
-                parentColumn = "archerRoundId",
-                entityColumn = "archerRoundId",
+                parentColumn = "shootId",
+                entityColumn = "shootId",
         )
-        val arrowCount: DatabaseArrowCount? = null,
+        val arrowCount: DatabaseArrowCounter? = null,
 
         @Relation(
-                parentColumn = "archerRoundId",
+                parentColumn = "shootId",
                 entityColumn = "roundId",
                 associateBy = Junction(
                         value = DatabaseShootRound::class,
-                        parentColumn = "archerRoundId",
+                        parentColumn = "shootId",
                         entityColumn = "roundId",
                 ),
         )
         val round: Round? = null,
 
         @Relation(
-                parentColumn = "archerRoundId",
+                parentColumn = "shootId",
                 entityColumn = "roundId",
                 associateBy = Junction(
                         value = DatabaseShootRound::class,
-                        parentColumn = "archerRoundId",
+                        parentColumn = "shootId",
                         entityColumn = "roundId",
                 ),
         )
@@ -66,11 +66,11 @@ data class DatabaseFullArcherRoundInfo(
          * but we don't expect more than ~5 subtypes for any given round
          */
         @Relation(
-                parentColumn = "archerRoundId",
+                parentColumn = "shootId",
                 entityColumn = "roundId",
                 associateBy = Junction(
                         value = DatabaseShootRound::class,
-                        parentColumn = "archerRoundId",
+                        parentColumn = "shootId",
                         entityColumn = "roundId",
                 ),
         )
@@ -82,11 +82,11 @@ data class DatabaseFullArcherRoundInfo(
          * but we don't expect more than ~5 subtypes for any given round
          */
         @Relation(
-                parentColumn = "archerRoundId",
+                parentColumn = "shootId",
                 entityColumn = "roundId",
                 associateBy = Junction(
                         value = DatabaseShootRound::class,
-                        parentColumn = "archerRoundId",
+                        parentColumn = "shootId",
                         entityColumn = "roundId",
                 ),
         )
@@ -95,7 +95,7 @@ data class DatabaseFullArcherRoundInfo(
         val isPersonalBest: Boolean? = null,
 
         /**
-         * True if this is a PB that has been matched in another archerRound
+         * True if this is a PB that has been matched in another shoot
          * Only valid if [isPersonalBest] is true
          */
         val isTiedPersonalBest: Boolean? = null,

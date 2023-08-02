@@ -14,7 +14,7 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTas
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +36,7 @@ class NewScoreViewModel @Inject constructor(
     private val _state = MutableStateFlow(NewScoreState())
     val state = _state.asStateFlow()
 
-    private val archerRoundsRepo = db.archerRoundsRepo()
+    private val archerRoundsRepo = db.shootsRepo()
 
     private var editingRoundJob: Job? = null
 
@@ -67,12 +67,12 @@ class NewScoreViewModel @Inject constructor(
 
         editingRoundJob?.cancel()
         editingRoundJob = viewModelScope.launch {
-            archerRoundsRepo.getFullArcherRoundInfo(roundBeingEditedId)
+            archerRoundsRepo.getFullShootInfo(roundBeingEditedId)
                     .collect { info ->
                         _state.update {
                             if (info == null) return@update it.copy(roundNotFoundError = true)
                             it.copy(
-                                    roundBeingEdited = FullArcherRoundInfo(info, true),
+                                    roundBeingEdited = FullShootInfo(info, true),
                                     roundBeingEditedArrowsShot = info.arrows.orEmpty().count()
                             ).resetEditInfo()
                         }

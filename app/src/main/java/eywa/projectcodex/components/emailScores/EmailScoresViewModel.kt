@@ -15,11 +15,11 @@ import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.exceptions.UserException
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.ScorePadData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -39,7 +39,7 @@ class EmailScoresViewModel @Inject constructor(
         private val archerRoundIdsUseCase: ArcherRoundIdsUseCase,
         private val customLogger: CustomLogger,
 ) : ViewModel() {
-    private val repo = db.archerRoundsRepo()
+    private val repo = db.shootsRepo()
 
     private val _state = MutableStateFlow(EmailScoresState())
     val state = _state.asStateFlow()
@@ -48,8 +48,8 @@ class EmailScoresViewModel @Inject constructor(
         viewModelScope.launch {
             archerRoundIdsUseCase.getItems
                     .flatMapLatest {
-                        if (it == null) emptyFlow<List<DatabaseFullArcherRoundInfo>?>()
-                        else repo.getFullArcherRoundInfo(it)
+                        if (it == null) emptyFlow<List<DatabaseFullShootInfo>?>()
+                        else repo.getFullShootInfo(it)
                     }
                     .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { a, b -> a to b }
                     .collectLatest { (entries, use2023System) ->
@@ -59,7 +59,7 @@ class EmailScoresViewModel @Inject constructor(
                             }
                             else {
                                 it.copy(
-                                        rounds = entries.map { entry -> FullArcherRoundInfo(entry, use2023System) },
+                                        rounds = entries.map { entry -> FullShootInfo(entry, use2023System) },
                                         error = it.error
                                                 .takeIf { error -> error != EmailScoresError.NO_SELECTED_ENTRIES },
                                 )

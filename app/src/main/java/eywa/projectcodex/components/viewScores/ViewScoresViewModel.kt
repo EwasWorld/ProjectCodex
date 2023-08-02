@@ -13,10 +13,10 @@ import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScor
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
-import eywa.projectcodex.database.shootData.ArcherRoundsRepo
+import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -38,20 +38,20 @@ class ViewScoresViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private val arrowScoresRepo: ArrowScoresRepo = ArrowScoresRepo(db.arrowScoreDao())
-    private val archerRoundsRepo: ArcherRoundsRepo = db.archerRoundsRepo()
+    private val shootsRepo: ShootsRepo = db.shootsRepo()
 
     init {
         viewModelScope.launch {
             state.map { it.filters }
                     .distinctUntilChanged()
-                    .flatMapLatest { archerRoundsRepo.getFullArcherRoundInfo(it) }
+                    .flatMapLatest { shootsRepo.getFullShootInfo(it) }
                     .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
                     .collect { (flowData, use2023System) ->
                         _state.update {
                             val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
                             it.copy(
                                     data = flowData.map { roundInfo ->
-                                        val info = FullArcherRoundInfo(roundInfo, use2023System)
+                                        val info = FullShootInfo(roundInfo, use2023System)
                                         ViewScoresEntry(
                                                 info = info,
                                                 isSelected = previousSelectedEntries[info.id] ?: false,
@@ -106,7 +106,7 @@ class ViewScoresViewModel @Inject constructor(
                 _state.update { it.copy(deleteDialogOpen = false) }
 
                 if (id != null) {
-                    viewModelScope.launch { archerRoundsRepo.deleteRound(id) }
+                    viewModelScope.launch { shootsRepo.deleteRound(id) }
                 }
             }
             is AddFilter -> _state.update {

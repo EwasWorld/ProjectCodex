@@ -44,7 +44,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
      */
     constructor(arrowsList: List<DatabaseArrowScore>, arrowPlaceholder: String, arrowDeliminator: String) :
             this(arrowsList.size, arrowPlaceholder, arrowDeliminator) {
-        require(arrowsList.map { it.archerRoundId }.distinct().size == 1) { "Arrows must be from the same round" }
+        require(arrowsList.map { it.shootId }.distinct().size == 1) { "Arrows must be from the same round" }
         for (arrow in arrowsList) {
             addArrowToEnd(Arrow(arrow.score, arrow.isX))
         }
@@ -201,7 +201,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
             archerRoundId: Int?,
             firstArrowId: Int?
     ): Pair<UpdateType, List<DatabaseArrowScore>> {
-        val origArcherRoundIds = originalEnd?.map { it.archerRoundId }?.distinct()
+        val origArcherRoundIds = originalEnd?.map { it.shootId }?.distinct()
         val finalArcherRoundId = origArcherRoundIds?.get(0) ?: archerRoundId
         check(finalArcherRoundId != null) { "Must provide archerRoundId" }
 
@@ -229,7 +229,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
             CustomLogger.customLogger.i(LOG_TAG, "Updating end " + originalEnd.toString() + " " + toString())
             return UpdateType.UPDATE to originalEnd!!.mapIndexed { i, originalValue ->
                 DatabaseArrowScore(
-                        originalValue.archerRoundId,
+                        originalValue.shootId,
                         originalValue.arrowNumber,
                         arrows[i].score,
                         arrows[i].isX

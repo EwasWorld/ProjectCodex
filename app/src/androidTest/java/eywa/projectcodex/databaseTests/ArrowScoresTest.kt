@@ -7,7 +7,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
-import eywa.projectcodex.database.shootData.ArcherRoundDao
+import eywa.projectcodex.database.shootData.ShootDao
 import eywa.projectcodex.databaseTests.DatabaseTestUtils.brokenTransactionMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -26,16 +26,16 @@ class ArrowScoresTest {
 
     private lateinit var db: ScoresRoomDatabase
     private lateinit var arrowScoreDao: ArrowScoreDao
-    private lateinit var archerRoundDao: ArcherRoundDao
+    private lateinit var shootDao: ShootDao
 
     @Before
     fun createDb() {
         db = DatabaseTestUtils.createDatabase()
-        archerRoundDao = db.archerRoundDao()
+        shootDao = db.shootDao()
         arrowScoreDao = db.arrowScoreDao()
 
         runBlocking {
-            TestUtils.generateArcherRounds(2).forEach { archerRoundDao.insert(it) }
+            TestUtils.generateArcherRounds(2).forEach { shootDao.insert(it) }
         }
     }
 
@@ -60,8 +60,8 @@ class ArrowScoresTest {
         for (arrow in arrows1.plus(arrows2)) {
             arrowScoreDao.insert(arrow)
         }
-        var retrievedArrows1 = archerRoundDao.getFullArcherRoundInfo(1).map { it?.arrows }.first()!!
-        var retrievedArrows2 = archerRoundDao.getFullArcherRoundInfo(2).map { it?.arrows }.first()!!
+        var retrievedArrows1 = shootDao.getFullShootInfo(1).map { it?.arrows }.first()!!
+        var retrievedArrows2 = shootDao.getFullShootInfo(2).map { it?.arrows }.first()!!
 
         Assert.assertEquals(arrows1.toSet(), retrievedArrows1.toSet())
         Assert.assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
@@ -71,8 +71,8 @@ class ArrowScoresTest {
          */
         arrowScoreDao.deleteRoundsArrows(1)
 
-        retrievedArrows1 = archerRoundDao.getFullArcherRoundInfo(1).map { it?.arrows }.first()!!
-        retrievedArrows2 = archerRoundDao.getFullArcherRoundInfo(2).map { it?.arrows }.first()!!
+        retrievedArrows1 = shootDao.getFullShootInfo(1).map { it?.arrows }.first()!!
+        retrievedArrows2 = shootDao.getFullShootInfo(2).map { it?.arrows }.first()!!
         assert(retrievedArrows1.isEmpty())
         Assert.assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
     }
@@ -92,8 +92,8 @@ class ArrowScoresTest {
         val count = 6
         arrowScoreDao.deleteArrowsBetween(1, from, from + count)
 
-        val retrievedArrows1 = archerRoundDao.getFullArcherRoundInfo(1).map { it?.arrows }.first()!!
-        val retrievedArrows2 = archerRoundDao.getFullArcherRoundInfo(2).map { it?.arrows }.first()!!
+        val retrievedArrows1 = shootDao.getFullShootInfo(1).map { it?.arrows }.first()!!
+        val retrievedArrows2 = shootDao.getFullShootInfo(2).map { it?.arrows }.first()!!
         Assert.assertEquals(
                 arrows1.filter { it.arrowNumber < from || it.arrowNumber >= from + count }.toSet(),
                 retrievedArrows1.toSet()
@@ -123,7 +123,7 @@ class ArrowScoresTest {
          */
         val from = 7
         val count = 6
-        val originalArrows = archerRoundDao.getFullArcherRoundInfo(archerRoundId).map { it?.arrows }.first()!!
+        val originalArrows = shootDao.getFullShootInfo(archerRoundId).map { it?.arrows }.first()!!
         runBlocking {
             arrowScoresRepo.deleteEnd(originalArrows, from, count)
         }
@@ -136,7 +136,7 @@ class ArrowScoresTest {
             val testDataIndex = (if (arrowNumber < from) arrowNumber else arrowNumber + count) % TestUtils.ARROWS.size
             expectedArrows.add(TestUtils.ARROWS[testDataIndex].toArrowScore(archerRoundId, arrowNumber))
         }
-        val retrievedArrows = archerRoundDao.getFullArcherRoundInfo(archerRoundId).map { it?.arrows }.first()!!
+        val retrievedArrows = shootDao.getFullShootInfo(archerRoundId).map { it?.arrows }.first()!!
         Assert.assertEquals(expectedArrows.toSet(), retrievedArrows.toSet())
     }
 
@@ -156,7 +156,7 @@ class ArrowScoresTest {
         /*
          * Insert
          */
-        val originalArrows = archerRoundDao.getFullArcherRoundInfo(archerRoundId).map { it?.arrows }.first()!!
+        val originalArrows = shootDao.getFullShootInfo(archerRoundId).map { it?.arrows }.first()!!
         val at = 5
         var newArrowId = at
         val newArrows = (7 until 14).map {
@@ -175,7 +175,7 @@ class ArrowScoresTest {
             expectedArrows.add(DatabaseArrowScore(archerRoundId, newArrNum, arrow.score, arrow.isX))
         }
 
-        val retrievedArrows = archerRoundDao.getFullArcherRoundInfo(archerRoundId).map { it?.arrows }.first()!!
+        val retrievedArrows = shootDao.getFullShootInfo(archerRoundId).map { it?.arrows }.first()!!
         Assert.assertEquals(expectedArrows, retrievedArrows.toSet())
     }
 }

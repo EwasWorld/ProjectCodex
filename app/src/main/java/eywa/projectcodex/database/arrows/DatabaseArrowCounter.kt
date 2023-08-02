@@ -3,7 +3,7 @@ package eywa.projectcodex.database.arrows
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import eywa.projectcodex.database.arrows.DatabaseArrowCount.Companion.TABLE_NAME
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter.Companion.TABLE_NAME
 import eywa.projectcodex.database.shootData.DatabaseShoot
 
 @Entity(
@@ -11,14 +11,14 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
         foreignKeys = [
             ForeignKey(
                     entity = DatabaseShoot::class,
-                    parentColumns = ["archerRoundId"],
-                    childColumns = ["archerRoundId"],
+                    parentColumns = ["shootId"],
+                    childColumns = ["shootId"],
                     onDelete = ForeignKey.CASCADE,
             ),
         ]
 )
-data class DatabaseArrowCount(
-        @PrimaryKey val archerRoundId: Int,
+data class DatabaseArrowCounter(
+        @PrimaryKey val shootId: Int,
         val shotCount: Int,
 ) {
     init {
@@ -26,6 +26,6 @@ data class DatabaseArrowCount(
     }
 
     companion object {
-        const val TABLE_NAME = "arrow_counts"
+        const val TABLE_NAME = "arrow_counters"
     }
 }

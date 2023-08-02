@@ -5,9 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.arrows.ArrowCountDao
+import eywa.projectcodex.database.arrows.ArrowCounterDao
 import eywa.projectcodex.database.arrows.ArrowScoreDao
-import eywa.projectcodex.database.arrows.DatabaseArrowCount
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
@@ -31,26 +31,26 @@ class ArcherRoundsTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var db: ScoresRoomDatabase
-    private lateinit var archerRoundDao: ArcherRoundDao
+    private lateinit var shootDao: ShootDao
     private lateinit var shootDetailDao: ShootDetailDao
     private lateinit var shootRoundDao: ShootRoundDao
     private lateinit var roundDao: RoundDao
     private lateinit var roundSubTypeDao: RoundSubTypeDao
     private lateinit var roundArrowCountsDao: RoundArrowCountDao
     private lateinit var arrowScoreDao: ArrowScoreDao
-    private lateinit var arrowCountDao: ArrowCountDao
+    private lateinit var arrowCounterDao: ArrowCounterDao
 
     @Before
     fun createDb() {
         db = DatabaseTestUtils.createDatabase()
-        archerRoundDao = db.archerRoundDao()
+        shootDao = db.shootDao()
         roundDao = db.roundDao()
         roundSubTypeDao = db.roundSubTypeDao()
         roundArrowCountsDao = db.roundArrowCountDao()
         arrowScoreDao = db.arrowScoreDao()
         shootDetailDao = db.shootDetailDao()
         shootRoundDao = db.shootRoundDao()
-        arrowCountDao = db.arrowCountDao()
+        arrowCounterDao = db.arrowCounterDao()
     }
 
     @After
@@ -63,7 +63,7 @@ class ArcherRoundsTest {
      */
     @Test
     fun basicTest() = runTest(dispatchTimeoutMs = 2000) {
-        val retrievedArcherRounds = archerRoundDao.getAllFullArcherRoundInfo()
+        val retrievedArcherRounds = shootDao.getAllFullShootInfo()
 
         /*
          * Add and retrieve
@@ -76,7 +76,7 @@ class ArcherRoundsTest {
                 DatabaseShoot(5, TestUtils.generateDate(), 2, false),
                 DatabaseShoot(6, TestUtils.generateDate(), 1, false),
         ).map {
-            DatabaseFullArcherRoundInfo(
+            DatabaseFullShootInfo(
                     shoot = it,
                     arrows = listOf(),
                     roundArrowCounts = listOf(),
@@ -88,7 +88,7 @@ class ArcherRoundsTest {
         }
 
         for (archerRound in archerRounds) {
-            archerRoundDao.insert(archerRound.shoot.copy(archerRoundId = 0))
+            shootDao.insert(archerRound.shoot.copy(shootId = 0))
         }
         assertEquals(
                 archerRounds.toSet(),
@@ -98,8 +98,8 @@ class ArcherRoundsTest {
         /*
          * Delete
          */
-        archerRoundDao.deleteRound(1)
-        archerRoundDao.deleteRound(2)
+        shootDao.deleteRound(1)
+        shootDao.deleteRound(2)
         assertEquals(
                 archerRounds.subList(2, archerRounds.size).toSet(),
                 retrievedArcherRounds.first().toSet(),
@@ -134,7 +134,7 @@ class ArcherRoundsTest {
             roundDao.insert(round)
         }
         for (archerRound in shootData) {
-            archerRoundDao.insert(archerRound)
+            shootDao.insert(archerRound)
         }
         for (shootRound in shootRounds) {
             shootRoundDao.insert(shootRound)
@@ -144,8 +144,8 @@ class ArcherRoundsTest {
          * Check the correct round info is retrieved
          */
         for (archerRound in shootData) {
-            val retrievedRoundInfo = archerRoundDao.getFullArcherRoundInfo(archerRound.archerRoundId).first()
-            val expectedShootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }
+            val retrievedRoundInfo = shootDao.getFullShootInfo(archerRound.shootId).first()
+            val expectedShootRound = shootRounds.find { it.shootId == archerRound.shootId }
             assertEquals(expectedShootRound?.roundId, retrievedRoundInfo!!.round?.roundId)
             if (expectedShootRound?.roundId != null) {
                 assertEquals(rounds[expectedShootRound.roundId - 1], retrievedRoundInfo.round)
@@ -185,7 +185,7 @@ class ArcherRoundsTest {
             roundSubTypeDao.insert(roundSubType)
         }
         for (archerRound in shootData) {
-            archerRoundDao.insert(archerRound)
+            shootDao.insert(archerRound)
         }
         for (shootRound in shootRounds) {
             shootRoundDao.insert(shootRound)
@@ -194,10 +194,10 @@ class ArcherRoundsTest {
         /*
          * Check the correct round info is retrieved
          */
-        val retrievedRoundInfo = archerRoundDao.getAllFullArcherRoundInfo().first()
+        val retrievedRoundInfo = shootDao.getAllFullShootInfo().first()
         for (actual in retrievedRoundInfo) {
-            val expectedShootRound = shootRounds.find { it.archerRoundId == actual.shoot.archerRoundId }
-            val expected = shootData[actual.shoot.archerRoundId - 1]
+            val expectedShootRound = shootRounds.find { it.shootId == actual.shoot.shootId }
+            val expected = shootData[actual.shoot.shootId - 1]
             assertEquals(expected, actual.shoot)
 
             val expectedRoundName = rounds.find { it.roundId == expectedShootRound?.roundId }
@@ -270,7 +270,7 @@ class ArcherRoundsTest {
             roundArrowCountsDao.insert(roundArrowCount)
         }
         for (archerRound in shootData) {
-            archerRoundDao.insert(archerRound)
+            shootDao.insert(archerRound)
         }
         for (arrow in arrows) {
             arrowScoreDao.insert(arrow)
@@ -281,11 +281,11 @@ class ArcherRoundsTest {
 
         assertEquals(
                 setOf(2 to false, 3 to true, 4 to true),
-                ArcherRoundsRepo(archerRoundDao, shootDetailDao, shootRoundDao)
-                        .getFullArcherRoundInfo()
+                ShootsRepo(shootDao, shootDetailDao, shootRoundDao)
+                        .getFullShootInfo()
                         .first()
                         .filter { it.isPersonalBest ?: false }
-                        .map { it.shoot.archerRoundId to it.isTiedPersonalBest }
+                        .map { it.shoot.shootId to it.isTiedPersonalBest }
                         .toSet()
         )
     }
@@ -337,7 +337,7 @@ class ArcherRoundsTest {
             roundArrowCountsDao.insert(roundArrowCount)
         }
         for (archerRound in shootData) {
-            archerRoundDao.insert(archerRound)
+            shootDao.insert(archerRound)
         }
         for (arrow in arrows) {
             arrowScoreDao.insert(arrow)
@@ -346,39 +346,39 @@ class ArcherRoundsTest {
             shootRoundDao.insert(shootRound)
         }
 
-        suspend fun check(expectedIds: Set<Int>, filters: List<ArcherRoundsFilter>) {
+        suspend fun check(expectedIds: Set<Int>, filters: List<ShootFilter>) {
             assertEquals(
                     expectedIds,
-                    ArcherRoundsRepo(archerRoundDao, shootDetailDao, shootRoundDao)
-                            .getFullArcherRoundInfo(Filters(filters))
+                    ShootsRepo(shootDao, shootDetailDao, shootRoundDao)
+                            .getFullShootInfo(Filters(filters))
                             .first()
-                            .map { it.shoot.archerRoundId }
+                            .map { it.shoot.shootId }
                             .toSet()
             )
         }
 
         // PBs
-        check(setOf(2, 3, 4, 7), listOf(ArcherRoundsFilter.PersonalBests))
+        check(setOf(2, 3, 4, 7), listOf(ShootFilter.PersonalBests))
 
         // Round
-        check(setOf(1, 3, 4, 8), listOf(ArcherRoundsFilter.Round(1, null)))
-        check(setOf(1, 3, 4, 8), listOf(ArcherRoundsFilter.Round(1, 1)))
-        check(setOf(7), listOf(ArcherRoundsFilter.Round(1, 2)))
-        check(setOf(2, 5), listOf(ArcherRoundsFilter.Round(2, null)))
+        check(setOf(1, 3, 4, 8), listOf(ShootFilter.Round(1, null)))
+        check(setOf(1, 3, 4, 8), listOf(ShootFilter.Round(1, 1)))
+        check(setOf(7), listOf(ShootFilter.Round(1, 2)))
+        check(setOf(2, 5), listOf(ShootFilter.Round(2, null)))
 
         // Date
         fun getDate(year: Int) = Calendar.getInstance().apply { set(year, 1, 1) }
-        check((5..8).toSet(), listOf(ArcherRoundsFilter.DateRange(from = getDate(2015))))
-        check((1..4).toSet(), listOf(ArcherRoundsFilter.DateRange(to = getDate(2015))))
-        check((2..4).toSet(), listOf(ArcherRoundsFilter.DateRange(from = getDate(2012), to = getDate(2015))))
+        check((5..8).toSet(), listOf(ShootFilter.DateRange(from = getDate(2015))))
+        check((1..4).toSet(), listOf(ShootFilter.DateRange(to = getDate(2015))))
+        check((2..4).toSet(), listOf(ShootFilter.DateRange(from = getDate(2012), to = getDate(2015))))
 
         // All three
         check(
                 setOf(4),
                 listOf(
-                        ArcherRoundsFilter.DateRange(from = getDate(2014)),
-                        ArcherRoundsFilter.Round(1, null),
-                        ArcherRoundsFilter.PersonalBests
+                        ShootFilter.DateRange(from = getDate(2014)),
+                        ShootFilter.Round(1, null),
+                        ShootFilter.PersonalBests
                 ),
         )
     }
@@ -387,22 +387,22 @@ class ArcherRoundsTest {
     fun testGetJoinedArcherRoundIds() = runTest {
         val shootData = List(12) {
             DatabaseShoot(
-                    archerRoundId = 1 + it,
+                    shootId = 1 + it,
                     dateShot = TestUtils.generateDate(2020, 1 + it),
                     archerId = 1,
                     countsTowardsHandicap = true,
                     joinWithPrevious = (it + 1) in 3..5
             )
         }
-        shootData.forEach { archerRoundDao.insert(it) }
+        shootData.forEach { shootDao.insert(it) }
 
         shootData.forEach {
             assertEquals(
-                    if (it.archerRoundId in 2..5) (2..5).toList() else listOf(it.archerRoundId),
-                    archerRoundDao
-                            .getJoinedFullArcherRounds(it.archerRoundId)
+                    if (it.shootId in 2..5) (2..5).toList() else listOf(it.shootId),
+                    shootDao
+                            .getJoinedFullShoots(it.shootId)
                             .first()
-                            .map { dbFar -> dbFar.shoot.archerRoundId }
+                            .map { dbFar -> dbFar.shoot.shootId }
             )
         }
     }
@@ -411,23 +411,23 @@ class ArcherRoundsTest {
     fun testGetAllFullArcherRoundInfoWithFiltersAndJoinedRounds() = runTest {
         val shootData = List(12) {
             DatabaseShoot(
-                    archerRoundId = 1 + it,
+                    shootId = 1 + it,
                     dateShot = TestUtils.generateDate(2020, 1 + it),
                     archerId = 1,
                     countsTowardsHandicap = true,
                     joinWithPrevious = (it + 1) in 3..5
             )
         }
-        shootData.forEach { archerRoundDao.insert(it) }
+        shootData.forEach { shootDao.insert(it) }
 
         shootData.forEach {
-            val start = if (it.archerRoundId in 2..5) 2 else it.archerRoundId
+            val start = if (it.shootId in 2..5) 2 else it.shootId
             assertEquals(
                     (start..12).toList(),
-                    archerRoundDao
-                            .getAllFullArcherRoundInfo(fromDate = it.dateShot)
+                    shootDao
+                            .getAllFullShootInfo(fromDate = it.dateShot)
                             .first()
-                            .map { dbFar -> dbFar.shoot.archerRoundId }
+                            .map { dbFar -> dbFar.shoot.shootId }
             )
         }
     }
@@ -435,23 +435,23 @@ class ArcherRoundsTest {
     @Test
     fun testWithArrowCounts() = runTest {
         val shoot = DatabaseShoot(
-                archerRoundId = 1,
+                shootId = 1,
                 dateShot = TestUtils.generateDate(),
                 archerId = 1,
                 countsTowardsHandicap = true,
         )
-        archerRoundDao.insert(shoot)
-        val arrowCount = DatabaseArrowCount(
-                archerRoundId = 1,
+        shootDao.insert(shoot)
+        val arrowCount = DatabaseArrowCounter(
+                shootId = 1,
                 12,
         )
-        arrowCountDao.insert(arrowCount)
+        arrowCounterDao.insert(arrowCount)
 
 
         assertEquals(
                 arrowCount,
-                archerRoundDao
-                        .getFullArcherRoundInfo(1)
+                shootDao
+                        .getFullShootInfo(1)
                         .first()!!
                         .arrowCount
         )

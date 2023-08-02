@@ -9,12 +9,12 @@ import eywa.projectcodex.database.arrows.getGolds
 import eywa.projectcodex.database.arrows.getHits
 import eywa.projectcodex.database.arrows.getScore
 import eywa.projectcodex.database.rounds.*
-import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 
-data class FullArcherRoundInfo(
+data class FullShootInfo(
         val shoot: DatabaseShoot,
         val arrows: List<DatabaseArrowScore>?,
         val round: Round? = null,
@@ -27,7 +27,7 @@ data class FullArcherRoundInfo(
         val shootRound: DatabaseShootRound? = null,
         val shootDetail: DatabaseShootDetail? = null,
 ) {
-    constructor(full: DatabaseFullArcherRoundInfo, use2023HandicapSystem: Boolean) : this(
+    constructor(full: DatabaseFullShootInfo, use2023HandicapSystem: Boolean) : this(
             shoot = full.shoot,
             arrows = full.arrows,
             round = full.round,
@@ -42,7 +42,7 @@ data class FullArcherRoundInfo(
     )
 
     init {
-        require(arrows?.all { it.archerRoundId == shoot.archerRoundId } != false) { "Arrows mismatched id" }
+        require(arrows?.all { it.shootId == shoot.shootId } != false) { "Arrows mismatched id" }
         require(roundArrowCounts?.all { it.roundId == round?.roundId } != false) { "Arrow counts mismatched id" }
         require(
                 roundDistances?.all {
@@ -56,7 +56,7 @@ data class FullArcherRoundInfo(
 
     val distanceUnit by lazy { round?.getDistanceUnitRes() }
 
-    val id: Int by lazy { shoot.archerRoundId }
+    val id: Int by lazy { shoot.shootId }
 
     val hits by lazy { arrows?.getHits() ?: 0 }
 

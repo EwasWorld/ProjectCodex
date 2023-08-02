@@ -5,14 +5,14 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.shootData.DatabaseShoot
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.GoldsType
 
 /**
  * Stores all the information relating to an [DatabaseShoot] so that it can be displayed in a [ViewScoresEntryRow]
  */
 data class ViewScoresEntry(
-        val info: FullArcherRoundInfo,
+        val info: FullShootInfo,
         val isSelected: Boolean = false,
         val customLogger: CustomLogger,
 ) {
@@ -21,7 +21,7 @@ data class ViewScoresEntry(
         val data: List<ViewScoresEntry> = listOf()
     }
 
-    val id = info.shoot.archerRoundId
+    val id = info.shoot.shootId
 
     fun golds(type: GoldsType? = null) = info.golds(type)
 

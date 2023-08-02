@@ -11,18 +11,18 @@ import eywa.projectcodex.model.getArrowScoreString
 
 @Entity(
         tableName = TABLE_NAME,
-        primaryKeys = ["archerRoundId", "arrowNumber"],
+        primaryKeys = ["shootId", "arrowNumber"],
         foreignKeys = [
             ForeignKey(
                     entity = DatabaseShoot::class,
-                    parentColumns = ["archerRoundId"],
-                    childColumns = ["archerRoundId"],
+                    parentColumns = ["shootId"],
+                    childColumns = ["shootId"],
                     onDelete = ForeignKey.CASCADE,
             ),
         ]
 )
 data class DatabaseArrowScore(
-        val archerRoundId: Int,
+        val shootId: Int,
         val arrowNumber: Int,
         val score: Int,
         val isX: Boolean
@@ -35,7 +35,7 @@ data class DatabaseArrowScore(
         get() = score > 0
 
     override fun toString(): String {
-        return "$archerRoundId-$arrowNumber: " + getArrowScoreString(score, isX)
+        return "$shootId-$arrowNumber: " + getArrowScoreString(score, isX)
     }
 
     companion object {

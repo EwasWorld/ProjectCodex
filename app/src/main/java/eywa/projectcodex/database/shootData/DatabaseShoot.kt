@@ -24,7 +24,7 @@ import java.util.*
         ],
 )
 data class DatabaseShoot(
-        @PrimaryKey(autoGenerate = true) val archerRoundId: Int,
+        @PrimaryKey(autoGenerate = true) val shootId: Int,
         val dateShot: Calendar,
         val archerId: Int,
         val countsTowardsHandicap: Boolean = true,

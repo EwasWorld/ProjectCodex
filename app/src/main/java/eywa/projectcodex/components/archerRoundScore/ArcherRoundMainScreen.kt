@@ -81,7 +81,7 @@ private fun HandleEffects(
             if ((state as? Loaded)?.openEditScoreScreen == true) {
                 CodexNavRoute.NEW_SCORE.navigate(
                         navController,
-                        mapOf(NavArgument.ARCHER_ROUND_ID to state.fullArcherRoundInfo.id.toString()),
+                        mapOf(NavArgument.ARCHER_ROUND_ID to state.fullShootInfo.id.toString()),
                 )
                 listener(StatsIntent.EditHandled)
             }

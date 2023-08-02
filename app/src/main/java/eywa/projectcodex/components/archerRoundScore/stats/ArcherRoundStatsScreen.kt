@@ -80,17 +80,17 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                         ) {
                             DataRow(
                                     title = R.string.archer_round_stats__date,
-                                    text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.shoot.dateShot),
+                                    text = DateTimeFormat.LONG_DATE_TIME.format(state.fullShootInfo.shoot.dateShot),
                                     textModifier = Modifier.testTag(TestTag.DATE_TEXT),
                             )
                             DataRow(
                                     title = R.string.archer_round_stats__round,
-                                    text = state.fullArcherRoundInfo.displayName
+                                    text = state.fullShootInfo.displayName
                                             ?: stringResource(R.string.archer_round_stats__no_round),
                                     textModifier = Modifier.testTag(TestTag.ROUND_TEXT),
                             )
                             SelectFaceRow(
-                                    selectedFaces = state.fullArcherRoundInfo.faces,
+                                    selectedFaces = state.fullShootInfo.faces,
                                     helpListener = { listener(HelpShowcaseAction(it)) },
                                     onClick = null,
                             )
@@ -104,8 +104,8 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                     )
                 }
 
-                val hits = state.fullArcherRoundInfo.hits
-                val arrowsShot = state.fullArcherRoundInfo.arrowsShot
+                val hits = state.fullShootInfo.hits
+                val arrowsShot = state.fullShootInfo.arrowsShot
 
                 Section {
                     DataRow(
@@ -118,19 +118,19 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                     )
                     DataRow(
                             title = R.string.archer_round_stats__score,
-                            text = state.fullArcherRoundInfo.score.toString(),
+                            text = state.fullShootInfo.score.toString(),
                             textModifier = Modifier.testTag(TestTag.SCORE_TEXT),
                     )
                     DataRow(
                             title = R.string.archer_round_stats__golds,
-                            text = state.fullArcherRoundInfo.golds(state.goldsType).toString(),
+                            text = state.fullShootInfo.golds(state.goldsType).toString(),
                             textModifier = Modifier.testTag(TestTag.GOLDS_TEXT),
                     )
                 }
 
-                if (state.fullArcherRoundInfo.round != null) {
+                if (state.fullShootInfo.round != null) {
                     Section {
-                        state.fullArcherRoundInfo.remainingArrows!!.let { remaining ->
+                        state.fullShootInfo.remainingArrows!!.let { remaining ->
                             if (remaining == 0) {
                                 Text(
                                         text = stringResource(R.string.input_end__round_complete),
@@ -148,17 +148,17 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                                 )
                             }
                         }
-                        if (state.fullArcherRoundInfo.handicap != null) {
+                        if (state.fullShootInfo.handicap != null) {
                             DataRow(
                                     title = R.string.archer_round_stats__handicap,
-                                    text = state.fullArcherRoundInfo.handicap.toString(),
+                                    text = state.fullShootInfo.handicap.toString(),
                                     textModifier = Modifier.testTag(TestTag.HANDICAP_TEXT),
                             )
                         }
-                        if (state.fullArcherRoundInfo.predictedScore != null) {
+                        if (state.fullShootInfo.predictedScore != null) {
                             DataRow(
                                     title = R.string.archer_round_stats__predicted_score,
-                                    text = state.fullArcherRoundInfo.predictedScore.toString(),
+                                    text = state.fullShootInfo.predictedScore.toString(),
                                     textModifier = Modifier.testTag(TestTag.PREDICTED_SCORE_TEXT),
                             )
                         }
@@ -290,8 +290,8 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
             ScreenContent(
                     ArcherRoundStatePreviewHelper.WITH_SHOT_ARROWS.let { state ->
                         val faces = listOf(RoundFace.TRIPLE, RoundFace.FITA_SIX)
-                        val far = state.fullArcherRoundInfo
-                        state.copy(fullArcherRoundInfo = far.copy(shootRound = far.shootRound!!.copy(faces = faces)))
+                        val far = state.fullShootInfo
+                        state.copy(fullShootInfo = far.copy(shootRound = far.shootRound!!.copy(faces = faces)))
                     },
             ) {}
         }

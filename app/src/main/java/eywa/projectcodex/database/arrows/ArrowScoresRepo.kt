@@ -27,14 +27,13 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
      * will overwrite the arrows to be deleted. Then delete [numberToDelete] off the end (as they're now duplicated)
      * @throws IllegalArgumentException if allArrows is null or empty, or if [firstArrowToDelete] and [numberToDelete]
      * results in an out of range arrowNumber
-     * @throws IllegalStateException if this repo was created without an archerRoundId
      */
     @Transaction
     suspend fun deleteEnd(allArrowsInRound: List<DatabaseArrowScore>, firstArrowToDelete: Int, numberToDelete: Int) {
         require(numberToDelete > 0) { "numberToDelete must be > 0" }
         require(
-                allArrowsInRound.distinctBy { it.archerRoundId }.size == 1
-        ) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
+                allArrowsInRound.distinctBy { it.shootId }.size == 1
+        ) { "allArrowsInRound cannot contain arrows from multiple shoots" }
         require(
                 allArrowsInRound.any { it.arrowNumber == firstArrowToDelete }
         ) { "allArrowsInRound does not contain firstArrowToDelete" }
@@ -52,21 +51,21 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
 
         val deletedCount = numberToDelete.coerceAtMost(arrows.size)
         arrows.drop(deletedCount).takeIf { it.isNotEmpty() }
-                ?.map { DatabaseArrowScore(it.archerRoundId, it.arrowNumber - deletedCount, it.score, it.isX) }
+                ?.map { DatabaseArrowScore(it.shootId, it.arrowNumber - deletedCount, it.score, it.isX) }
                 ?.let { update(*it.toTypedArray()) }
 
         arrowScoreDao.deleteArrows(
-                allArrowsInRound[0].archerRoundId,
+                allArrowsInRound[0].shootId,
                 arrows.takeLast(deletedCount).map { it.arrowNumber },
         )
     }
 
     suspend fun insertEnd(allArrowsInRound: List<DatabaseArrowScore>, toInsert: List<DatabaseArrowScore>) {
         if (toInsert.isEmpty()) return
-        val distinctByArcherRoundIds = allArrowsInRound.distinctBy { it.archerRoundId }
-        require(distinctByArcherRoundIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple archerRounds" }
+        val distinctByShootIds = allArrowsInRound.distinctBy { it.shootId }
+        require(distinctByShootIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple shoots" }
         require(allArrowsInRound.isNotEmpty()) { "Must provide arrows to shift" }
-        val archerRoundId = distinctByArcherRoundIds[0].archerRoundId
+        val shootId = distinctByShootIds[0].shootId
 
         /*
          * Check arrow numbers
@@ -84,7 +83,7 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
         // Shift other arrowNumbers to make space for inserted ones
         val allArrowsReady =
                 toInsert.plus(allArrowsInRound.filter { it.arrowNumber >= minArrowNumber }.map {
-                    DatabaseArrowScore(archerRoundId, it.arrowNumber + toInsert.size, it.score, it.isX)
+                    DatabaseArrowScore(shootId, it.arrowNumber + toInsert.size, it.score, it.isX)
                 })
 
         val currentArrowNumbers = allArrowsInRound.map { it.arrowNumber }

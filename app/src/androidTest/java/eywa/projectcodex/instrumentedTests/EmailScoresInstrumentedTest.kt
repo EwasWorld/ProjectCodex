@@ -91,14 +91,14 @@ class EmailScoresInstrumentedTest {
             DatabaseShootRound(3, roundId = 2, roundSubTypeId = 1),
     )
     private val arrows = shootData.mapIndexed { i, archerRound ->
-        val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }
+        val shootRound = shootRounds.find { it.shootId == archerRound.shootId }
         val round = rounds.find { it.roundId == shootRound?.roundId }
         val arrowsInRound = arrowCounts.sumOf { if (it.roundId == round?.roundId) it.roundId else 0 }
         val desiredCount = if (arrowsInRound == 0) (arrowsPerArrowCount * 2 - i * 6) else (arrowsInRound + i * 6)
         val testDataSize = TestUtils.ARROWS.size
         List(desiredCount) {
             TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].toArrowScore(
-                    archerRound.archerRoundId,
+                    archerRound.shootId,
                     it
             )
         }
@@ -111,7 +111,7 @@ class EmailScoresInstrumentedTest {
                 arrowCounts.forEach { item -> db.roundArrowCountDao().insert(item) }
                 distances.forEach { item -> db.roundDistanceDao().insert(item) }
                 subTypes.forEach { item -> db.roundSubTypeDao().insert(item) }
-                shootData.forEach { item -> db.archerRoundDao().insert(item) }
+                shootData.forEach { item -> db.shootDao().insert(item) }
                 arrows.forEach { item -> db.arrowScoreDao().insert(item) }
                 shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }

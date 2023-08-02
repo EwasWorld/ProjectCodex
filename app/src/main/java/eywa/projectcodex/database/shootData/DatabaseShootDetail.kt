@@ -11,20 +11,20 @@ import eywa.projectcodex.database.shootData.DatabaseShootDetail.Companion.TABLE_
         foreignKeys = [
             ForeignKey(
                     entity = DatabaseShoot::class,
-                    parentColumns = ["archerRoundId"],
-                    childColumns = ["archerRoundId"],
+                    parentColumns = ["shootId"],
+                    childColumns = ["shootId"],
                     onDelete = ForeignKey.CASCADE,
             ),
         ]
 )
 data class DatabaseShootDetail(
-        @PrimaryKey val archerRoundId: Int,
+        @PrimaryKey val shootId: Int,
         val face: RoundFace? = null,
         val distance: Int? = null,
         val isDistanceInMeters: Boolean = true,
         val faceSizeInCm: Double? = null,
 ) {
     companion object {
-        const val TABLE_NAME = "shoot_detail"
+        const val TABLE_NAME = "shoot_details"
     }
 }

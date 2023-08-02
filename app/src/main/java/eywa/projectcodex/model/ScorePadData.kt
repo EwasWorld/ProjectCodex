@@ -13,7 +13,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
 
 class ScorePadData(
-        info: FullArcherRoundInfo,
+        info: FullShootInfo,
         endSize: Int,
         val goldsType: GoldsType,
 ) {
@@ -28,7 +28,7 @@ class ScorePadData(
      * Has rows for distance totals and a grand total in appropriate places
      */
     private fun generateData(
-            info: FullArcherRoundInfo,
+            info: FullShootInfo,
             endSize: Int,
             goldsType: GoldsType,
     ): List<ScorePadRow> {

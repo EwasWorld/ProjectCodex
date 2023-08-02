@@ -9,9 +9,9 @@ import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archer.ArcherDao
-import eywa.projectcodex.database.arrows.ArrowCountDao
+import eywa.projectcodex.database.arrows.ArrowCounterDao
 import eywa.projectcodex.database.arrows.ArrowScoreDao
-import eywa.projectcodex.database.arrows.DatabaseArrowCount
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.DatabaseBow
@@ -19,8 +19,8 @@ import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.database.shootData.*
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
-import eywa.projectcodex.database.views.ArcherRoundWithScore
 import eywa.projectcodex.database.views.PersonalBest
+import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.model.Arrow
 import kotlinx.coroutines.flow.first
 import java.sql.Date
@@ -31,10 +31,10 @@ import java.util.*
             DatabaseShoot::class, Archer::class, DatabaseArrowScore::class,
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class,
             DatabaseBow::class, DatabaseSightMark::class,
-            DatabaseShootRound::class, DatabaseShootDetail::class, DatabaseArrowCount::class,
+            DatabaseShootRound::class, DatabaseShootDetail::class, DatabaseArrowCounter::class,
         ],
         views = [
-            ArcherRoundWithScore::class, PersonalBest::class,
+            ShootWithScore::class, PersonalBest::class,
         ],
         version = 11,
         autoMigrations = [
@@ -50,7 +50,7 @@ import java.util.*
 abstract class ScoresRoomDatabase : RoomDatabase() {
 
     abstract fun archerDao(): ArcherDao
-    abstract fun archerRoundDao(): ArcherRoundDao
+    abstract fun shootDao(): ShootDao
     abstract fun arrowScoreDao(): ArrowScoreDao
     abstract fun roundDao(): RoundDao
     abstract fun roundArrowCountDao(): RoundArrowCountDao
@@ -60,15 +60,11 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun bowDao(): BowDao
     abstract fun shootDetailDao(): ShootDetailDao
     abstract fun shootRoundDao(): ShootRoundDao
-    abstract fun arrowCountDao(): ArrowCountDao
+    abstract fun arrowCounterDao(): ArrowCounterDao
 
-    fun roundsRepo() = RoundRepo(
-            roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao()
-    )
+    fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
 
-    fun archerRoundsRepo() = ArcherRoundsRepo(
-            archerRoundDao(), shootDetailDao(), shootRoundDao(),
-    )
+    fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao())
 
     suspend fun insertDefaults() {
         bowDao().insertDefaultBowIfNotExist()
@@ -77,7 +73,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     private suspend fun addFakeData() {
         check(BuildConfig.DEBUG) { "Should not be used in release builds" }
 
-        if (archerRoundDao().getAllFullArcherRoundInfo().first().isNotEmpty()) {
+        if (shootDao().getAllFullShootInfo().first().isNotEmpty()) {
             Log.i(LOG_TAG, "Skipped adding fake data")
             return
         }
@@ -125,10 +121,10 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
                 DatabaseShoot(4, Date.valueOf("2010-4-4").asCalendar(), 1),
                 DatabaseShoot(5, Date.valueOf("2009-5-5").asCalendar(), 1),
         )
-        shootData.forEach { archerRoundDao().insert(it) }
-        shootData.map { archerRound ->
-            val archerRoundId = archerRound.archerRoundId
-            List(1) { arrowNumber -> arrowTypes[archerRoundId].toArrowScore(archerRoundId, arrowNumber) }
+        shootData.forEach { shootDao().insert(it) }
+        shootData.map { shoot ->
+            val shootId = shoot.shootId
+            List(1) { arrowNumber -> arrowTypes[shootId].toArrowScore(shootId, arrowNumber) }
         }.flatten().forEach { arrowScoreDao().insert(it) }
 
         listOf(

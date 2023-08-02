@@ -11,6 +11,6 @@ interface ShootDetailDao {
     @Update
     suspend fun update(vararg shootDetails: DatabaseShootDetail)
 
-    @Query("DELETE FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
-    suspend fun delete(archerRoundId: Int)
+    @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId")
+    suspend fun delete(shootId: Int)
 }

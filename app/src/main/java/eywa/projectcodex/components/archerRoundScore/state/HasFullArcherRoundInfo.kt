@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore.state
 
-import eywa.projectcodex.model.FullArcherRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 
 interface HasFullArcherRoundInfo {
-    val fullArcherRoundInfo: FullArcherRoundInfo
+    val fullShootInfo: FullShootInfo
 }

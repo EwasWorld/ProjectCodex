@@ -26,7 +26,7 @@ class MockScoresRoomDatabase {
     val shootDetailDao: ShootDetailDao = mock {}
 
     val mock: ScoresRoomDatabase = mock {
-        on { archerRoundDao() } doReturn archerRoundDao.mock
+        on { shootDao() } doReturn archerRoundDao.mock
         on { arrowScoreDao() } doReturn arrowScoreDao
         on { roundDao() } doReturn roundDao.mock
         on { roundArrowCountDao() } doReturn roundArrowCountDao
@@ -34,19 +34,19 @@ class MockScoresRoomDatabase {
         on { roundDistanceDao() } doReturn roundDistanceDao
         on { shootRoundDao() } doReturn shootRoundDao
         on { shootDetailDao() } doReturn shootDetailDao
-        on { archerRoundsRepo() } doReturn ArcherRoundsRepo(archerRoundDao.mock, shootDetailDao, shootRoundDao)
+        on { shootsRepo() } doReturn ShootsRepo(archerRoundDao.mock, shootDetailDao, shootRoundDao)
     }
 
     class MockArcherRoundDao {
-        var fullArcherRounds: List<DatabaseFullArcherRoundInfo> = listOf()
-        var secondFullArcherRounds: List<DatabaseFullArcherRoundInfo>? = null
+        var fullArcherRounds: List<DatabaseFullShootInfo> = listOf()
+        var secondFullArcherRounds: List<DatabaseFullShootInfo>? = null
 
-        val mock: ArcherRoundDao = mock {
+        val mock: ShootDao = mock {
             on {
-                getAllFullArcherRoundInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
+                getAllFullShootInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
             } doReturn getArcherRounds()
-            on { getFullArcherRoundInfo(anyInt()) } doReturn getArcherRounds().map { it.firstOrNull() }
-            on { getFullArcherRoundInfo(anyList()) } doReturn getArcherRounds()
+            on { getFullShootInfo(anyInt()) } doReturn getArcherRounds().map { it.firstOrNull() }
+            on { getFullShootInfo(anyList()) } doReturn getArcherRounds()
         }
 
         private fun getArcherRounds() = flow {

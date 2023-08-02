@@ -17,8 +17,8 @@ interface ArrowScoreDao {
     @Query("DELETE FROM $TABLE_NAME")
     suspend fun deleteAll()
 
-    @Query("DELETE FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
-    suspend fun deleteRoundsArrows(archerRoundId: Int)
+    @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId")
+    suspend fun deleteRoundsArrows(shootId: Int)
 
     /**
      * @param fromArrowNumber inclusive
@@ -27,24 +27,24 @@ interface ArrowScoreDao {
     @Query(
             """
             DELETE FROM $TABLE_NAME 
-            WHERE archerRoundId = :archerRoundId 
+            WHERE shootId = :shootId 
                 AND arrowNumber >= :fromArrowNumber
                 AND arrowNumber < :toArrowNumber
             """
     )
-    suspend fun deleteArrowsBetween(archerRoundId: Int, fromArrowNumber: Int, toArrowNumber: Int)
+    suspend fun deleteArrowsBetween(shootId: Int, fromArrowNumber: Int, toArrowNumber: Int)
 
     @Query(
             """
             DELETE FROM $TABLE_NAME 
-            WHERE archerRoundId = :archerRoundId AND arrowNumber IN (:arrowNumbers)
+            WHERE shootId = :shootId AND arrowNumber IN (:arrowNumbers)
             """
     )
-    suspend fun deleteArrows(archerRoundId: Int, arrowNumbers: List<Int>)
+    suspend fun deleteArrows(shootId: Int, arrowNumbers: List<Int>)
 
     /**
      * Calls update then deleteArrowsBetween as a single transaction
-     * @param delArcherRoundId passed to deleteArrowsBetween
+     * @param delShootId passed to deleteArrowsBetween
      * @param delFromArrowNumber passed to deleteArrowsBetween
      * @param delToArrowNumber passed to deleteArrowsBetween
      * @param updateArrowScore passed to update
@@ -53,13 +53,13 @@ interface ArrowScoreDao {
      */
     @Transaction
     suspend fun deleteEndTransaction(
-            delArcherRoundId: Int,
+            delShootId: Int,
             delFromArrowNumber: Int,
             delToArrowNumber: Int,
             vararg updateArrowScore: DatabaseArrowScore
     ) {
         update(*updateArrowScore)
-        deleteArrowsBetween(delArcherRoundId, delFromArrowNumber, delToArrowNumber)
+        deleteArrowsBetween(delShootId, delFromArrowNumber, delToArrowNumber)
     }
 
     /**

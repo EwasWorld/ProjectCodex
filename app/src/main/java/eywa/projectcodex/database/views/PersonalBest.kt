@@ -8,7 +8,7 @@ import androidx.room.DatabaseView
                     roundId,
                     nonNullSubTypeId as roundSubTypeId,
                     MAX(score) as score
-                FROM ${ArcherRoundWithScore.TABLE_NAME}
+                FROM ${ShootWithScore.TABLE_NAME}
                 WHERE isComplete AND NOT roundId IS NULL
                 GROUP BY roundId, roundSubTypeId
                 """,

@@ -75,8 +75,8 @@ fun ArrowInputs(
         )
 
         ArrowButtonGroup(
-                round = state.fullArcherRoundInfo.round,
-                roundFace = state.fullArcherRoundInfo.currentFace,
+                round = state.fullShootInfo.round,
+                roundFace = state.fullShootInfo.currentFace,
                 onClick = { listener(ArrowInputted(it)) },
                 horizontalPadding = horizontalPadding,
                 modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_input_end__arrow_inputs_title)
@@ -184,7 +184,7 @@ fun ArrowInputs_Preview(
     CodexTheme {
         ArrowInputs(
                 state = object : ArrowInputsState {
-                    override val fullArcherRoundInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo()
+                    override val fullShootInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo()
                             .addRound(RoundPreviewHelper.outdoorImperialRoundData)
                     override val enteredArrows = ArcherRoundStatePreviewHelper.inputArrows
                     override val inputEndSize = 6

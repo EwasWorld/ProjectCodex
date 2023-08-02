@@ -2,28 +2,28 @@ package eywa.projectcodex.database.shootData
 
 import androidx.room.*
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
-import eywa.projectcodex.database.views.ArcherRoundWithScore
 import eywa.projectcodex.database.views.PersonalBest
+import eywa.projectcodex.database.views.ShootWithScore
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
-interface ArcherRoundDao {
+interface ShootDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(shoot: DatabaseShoot): Long
 
     @Update
     suspend fun update(vararg shootData: DatabaseShoot)
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId IN (:archerRoundIds)")
-    fun getFullArcherRoundInfo(archerRoundIds: List<Int>): Flow<List<DatabaseFullArcherRoundInfo>>
+    @Query("SELECT * FROM $TABLE_NAME WHERE shootId IN (:shootIds)")
+    fun getFullShootInfo(shootIds: List<Int>): Flow<List<DatabaseFullShootInfo>>
 
-    @Query("DELETE FROM $TABLE_NAME WHERE archerRoundId = :archerRoundId")
-    suspend fun deleteRound(archerRoundId: Int)
+    @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId")
+    suspend fun deleteRound(shootId: Int)
 
     @Transaction
-    @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId")
-    fun getFullArcherRoundInfo(archerRoundId: Int): Flow<DatabaseFullArcherRoundInfo?>
+    @Query("SELECT * FROM $TABLE_NAME WHERE shootId == :shootId")
+    fun getFullShootInfo(shootId: Int): Flow<DatabaseFullShootInfo?>
 
     @Query(
             """
@@ -35,7 +35,7 @@ interface ArcherRoundDao {
                             FROM $TABLE_NAME
                             WHERE (NOT joinWithPrevious)
                                     AND dateShot <= (
-                                        SELECT dateShot FROM $TABLE_NAME WHERE archerRoundId == :archerRoundId
+                                        SELECT dateShot FROM $TABLE_NAME WHERE shootId == :shootId
                                     ) 
                         ) as joinedDate
                 FROM $TABLE_NAME
@@ -58,23 +58,23 @@ interface ArcherRoundDao {
                 )
             """
     )
-    fun getJoinedFullArcherRounds(archerRoundId: Int): Flow<List<DatabaseFullArcherRoundInfo>>
+    fun getJoinedFullShoots(shootId: Int): Flow<List<DatabaseFullShootInfo>>
 
     @Transaction
     @Query(
             """
                 SELECT 
-                        archerRound.*, 
-                        (archerRound.isComplete = 1 AND archerRound.score = personalBest.score) as isPersonalBest
-                FROM ${ArcherRoundWithScore.TABLE_NAME} as archerRound
+                        shoot.*, 
+                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest
+                FROM ${ShootWithScore.TABLE_NAME} as shoot
                 LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
-                        ON archerRound.roundId = personalBest.roundId AND archerRound.nonNullSubTypeId = personalBest.roundSubTypeId
+                        ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
                 LEFT JOIN (
                     SELECT 
                             (ar.isComplete = 1 AND ar.score = pb.score) as ljIsPersonalBest,
                             ar.joinedDate,
                             COUNT(*) as count
-                    FROM ${ArcherRoundWithScore.TABLE_NAME} as ar 
+                    FROM ${ShootWithScore.TABLE_NAME} as ar 
                     LEFT JOIN ${PersonalBest.TABLE_NAME} as pb 
                             ON ar.roundId = pb.roundId AND ar.nonNullSubTypeId = pb.roundSubTypeId
                     WHERE (:fromDate IS NULL OR ar.dateShot >= :fromDate)
@@ -87,15 +87,15 @@ interface ArcherRoundDao {
                     )
                     AND (ljIsPersonalBest OR NOT :filterPersonalBest)
                     GROUP BY ar.joinedDate
-                ) as counts ON counts.joinedDate = archerRound.joinedDate
+                ) as counts ON counts.joinedDate = shoot.joinedDate
                 WHERE counts.count > 0
             """
     )
-    fun getAllFullArcherRoundInfo(
+    fun getAllFullShootInfo(
             filterPersonalBest: Boolean = false,
             fromDate: Calendar? = null,
             toDate: Calendar? = null,
             roundId: Int? = null,
             subTpeId: Int? = null,
-    ): Flow<List<DatabaseFullArcherRoundInfo>>
+    ): Flow<List<DatabaseFullShootInfo>>
 }

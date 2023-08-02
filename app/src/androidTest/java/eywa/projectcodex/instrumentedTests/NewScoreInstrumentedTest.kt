@@ -60,17 +60,17 @@ class NewScoreInstrumentedTest {
             true,
     )
     private val shootRoundInput = DatabaseShootRound(
-            archerRoundId = 1,
+            shootId = 1,
             roundId = 1,
             roundSubTypeId = 2,
     )
 
     private val distancesInput = TestUtils.ROUND_DISTANCES
 
-    private suspend fun getCurrentArcherRounds() = db.archerRoundDao().getAllFullArcherRoundInfo().first()
+    private suspend fun getCurrentArcherRounds() = db.shootDao().getAllFullShootInfo().first()
 
     private suspend fun getArcherRounds(archerRoundId: Int) =
-            db.archerRoundDao().getFullArcherRoundInfo(archerRoundId).first()
+            db.shootDao().getFullShootInfo(archerRoundId).first()
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
@@ -89,7 +89,7 @@ class NewScoreInstrumentedTest {
                 subtypesInput.forEach { db.roundSubTypeDao().insert(it) }
                 arrowCountsInput.forEach { db.roundArrowCountDao().insert(it) }
                 distancesInput.forEach { db.roundDistanceDao().insert(it) }
-                db.archerRoundDao().insert(shootInput)
+                db.shootDao().insert(shootInput)
                 db.shootRoundDao().insert(shootRoundInput)
             }
         }
@@ -119,7 +119,7 @@ class NewScoreInstrumentedTest {
         runBlocking { delay(1000) }
         val currentArcherRounds = getCurrentArcherRounds()
         assertEquals(2, currentArcherRounds.size)
-        assertEquals(2, currentArcherRounds[1].shoot.archerRoundId)
+        assertEquals(2, currentArcherRounds[1].shoot.shootId)
         assertEquals(null, currentArcherRounds[1].round?.roundId)
     }
 
@@ -131,7 +131,7 @@ class NewScoreInstrumentedTest {
     fun addAnotherRound() = runTest {
         setup()
         val ar = DatabaseShoot(2, TestUtils.generateDate(2020), 1, true)
-        db.archerRoundDao().insert(ar)
+        db.shootDao().insert(ar)
 
         db.arrowScoreDao().insert(
                 *List(2) { DatabaseArrowScore(it + 1, 1, 6 + it, false) }.toTypedArray()
@@ -154,10 +154,10 @@ class NewScoreInstrumentedTest {
 
         runBlocking { delay(1000) }
         val roundsAfterCreate = getCurrentArcherRounds()
-                .filterNot { it.shoot.archerRoundId == ar.archerRoundId }
+                .filterNot { it.shoot.shootId == ar.shootId }
         assertEquals(2, roundsAfterCreate.size)
         assertEquals(shootInput, roundsAfterCreate[0].shoot)
-        assert(roundsAfterCreate[1].shoot.archerRoundId > ar.archerRoundId)
+        assert(roundsAfterCreate[1].shoot.shootId > ar.shootId)
         assertEquals(null, roundsAfterCreate[1].shootRound?.roundId)
         assertEquals(null, roundsAfterCreate[1].shootRound?.roundSubTypeId)
     }
@@ -187,7 +187,7 @@ class NewScoreInstrumentedTest {
     @Test
     fun addRoundWithSubtype() = runTest {
         setup()
-        db.archerRoundDao().getAllFullArcherRoundInfo().takeWhile { it.isEmpty() }.collect()
+        db.shootDao().getAllFullShootInfo().takeWhile { it.isEmpty() }.collect()
 
         val roundsBeforeCreate = getCurrentArcherRounds()
         assertEquals(1, roundsBeforeCreate.size)
@@ -301,10 +301,10 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val updated = getArcherRounds(shootInput.archerRoundId)
+        val updated = getArcherRounds(shootInput.shootId)
         assertEquals(
                 DatabaseShoot(
-                        shootInput.archerRoundId,
+                        shootInput.shootId,
                         calendar,
                         shootInput.archerId,
                         shootInput.countsTowardsHandicap,
@@ -313,7 +313,7 @@ class NewScoreInstrumentedTest {
         )
         assertEquals(
                 DatabaseShootRound(
-                        archerRoundId = shootInput.archerRoundId,
+                        shootId = shootInput.shootId,
                         roundId = selectedRound.roundId,
                         roundSubTypeId = 1,
                 ),
@@ -343,11 +343,11 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val actual = getArcherRounds(shootInput.archerRoundId)!!
+        val actual = getArcherRounds(shootInput.shootId)!!
         val actualDateShot = actual.shoot.dateShot
         assertEquals(
                 DatabaseShoot(
-                        archerRoundId = shootInput.archerRoundId,
+                        shootId = shootInput.shootId,
                         dateShot = actualDateShot,
                         archerId = shootInput.archerId,
                         countsTowardsHandicap = shootInput.countsTowardsHandicap,
@@ -407,16 +407,16 @@ class NewScoreInstrumentedTest {
         setup()
         scenario.onActivity {
             runBlocking {
-                db.archerRoundDao().insert(
+                db.shootDao().insert(
                         DatabaseShoot(
-                                archerRoundId = 2,
+                                shootId = 2,
                                 dateShot = Date(2020, 5, 10, 17, 12, 13).asCalendar(),
 //            Calendar.Builder().setDate(2020, 5, 10).setTimeOfDay(17, 12, 13).build().time,
                                 archerId = 1,
                                 countsTowardsHandicap = true,
                         )
                 )
-                db.shootRoundDao().insert(DatabaseShootRound(archerRoundId = 2, roundId = 2))
+                db.shootRoundDao().insert(DatabaseShootRound(shootId = 2, roundId = 2))
             }
         }
 

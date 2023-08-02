@@ -74,7 +74,7 @@ class LargeScaleInstrumentedTest {
         val shoot = DatabaseShoot(1, TestUtils.generateDate(), 1, false)
         scenario.onActivity {
             runBlocking {
-                db.archerRoundDao().insert(shoot)
+                db.shootDao().insert(shoot)
                 for (arrow in arrows) {
                     db.arrowScoreDao().insert(arrow)
                 }

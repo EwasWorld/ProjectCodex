@@ -4,7 +4,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
-import eywa.projectcodex.database.shootData.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.ShootFilter
 
 sealed class ViewScoresIntent {
     data class EntryClicked(val archerRoundId: Int) : ViewScoresIntent()
@@ -22,7 +22,7 @@ sealed class ViewScoresIntent {
     object DeleteDialogOkClicked : ViewScoresIntent()
     object DeleteDialogCancelClicked : ViewScoresIntent()
 
-    data class AddFilter(val filter: ArcherRoundsFilter) : ViewScoresIntent()
+    data class AddFilter(val filter: ShootFilter) : ViewScoresIntent()
 
     object HandledNoRoundsDialogOkClicked : EffectComplete()
     object HandledEmailClicked : EffectComplete()
