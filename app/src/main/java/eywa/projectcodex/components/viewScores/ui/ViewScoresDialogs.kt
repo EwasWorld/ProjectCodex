@@ -30,7 +30,7 @@ fun ViewScoresEmptyListDialog(isShown: Boolean, listener: (ViewScoresIntent) -> 
 
 @Composable
 fun ViewScoresDeleteEntryDialog(isShown: Boolean, listener: (ViewScoresIntent) -> Unit, entry: ViewScoresEntry?) {
-    val message = entry?.info?.archerRound?.dateShot
+    val message = entry?.info?.shoot?.dateShot
             ?.let {
                 stringResource(
                         R.string.view_score__delete_score_dialog_body,

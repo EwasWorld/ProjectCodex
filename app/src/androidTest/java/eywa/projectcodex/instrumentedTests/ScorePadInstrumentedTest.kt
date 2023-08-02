@@ -11,11 +11,11 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.EditEndRobot
 import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
@@ -45,7 +45,7 @@ class ScorePadInstrumentedTest {
 
     private suspend fun addArcherRound(archerRoundId: Int = 1, roundId: Int? = null, year: Int = 2022) {
         db.archerRoundDao().insert(
-                ArcherRound(
+                DatabaseShoot(
                         archerRoundId = archerRoundId,
                         dateShot = TestUtils.generateDate(year),
                         archerId = 1,

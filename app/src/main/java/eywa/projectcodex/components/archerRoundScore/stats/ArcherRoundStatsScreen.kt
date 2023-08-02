@@ -80,7 +80,7 @@ class ArcherRoundStatsScreen : ArcherRoundSubScreen() {
                         ) {
                             DataRow(
                                     title = R.string.archer_round_stats__date,
-                                    text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.archerRound.dateShot),
+                                    text = DateTimeFormat.LONG_DATE_TIME.format(state.fullArcherRoundInfo.shoot.dateShot),
                                     textModifier = Modifier.testTag(TestTag.DATE_TEXT),
                             )
                             DataRow(

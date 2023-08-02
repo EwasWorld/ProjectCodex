@@ -10,11 +10,11 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.*
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.*
@@ -71,10 +71,10 @@ class LargeScaleInstrumentedTest {
 
     private fun addSimpleTestDataToDb() {
         val arrows = List(12) { i -> TestUtils.ARROWS[5].toArrowScore(1, i) }
-        val archerRound = ArcherRound(1, TestUtils.generateDate(), 1, false)
+        val shoot = DatabaseShoot(1, TestUtils.generateDate(), 1, false)
         scenario.onActivity {
             runBlocking {
-                db.archerRoundDao().insert(archerRound)
+                db.archerRoundDao().insert(shoot)
                 for (arrow in arrows) {
                     db.arrowScoreDao().insert(arrow)
                 }

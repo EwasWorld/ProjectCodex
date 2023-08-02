@@ -2,7 +2,7 @@ package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.Filters
-import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.ArcherRoundsFilter
 
 data class ViewScoresState(
         val isInMultiSelectMode: Boolean = false,

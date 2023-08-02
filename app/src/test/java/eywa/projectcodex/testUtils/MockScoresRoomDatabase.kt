@@ -1,9 +1,9 @@
 package eywa.projectcodex.testUtils
 
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.*
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.shootData.*
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow

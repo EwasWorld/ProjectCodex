@@ -1,4 +1,4 @@
-package eywa.projectcodex.database.archerRound
+package eywa.projectcodex.database.shootData
 
 import androidx.room.Embedded
 import androidx.room.Junction
@@ -12,7 +12,7 @@ import eywa.projectcodex.database.rounds.RoundSubType
 import java.util.*
 
 data class DatabaseFullArcherRoundInfo(
-        @Embedded val archerRound: ArcherRound,
+        @Embedded val shoot: DatabaseShoot,
 
         @Relation(
                 parentColumn = "archerRoundId",

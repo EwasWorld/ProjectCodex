@@ -11,13 +11,13 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
@@ -45,7 +45,7 @@ class ViewScoresInstrumentedTest {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
-    private var archerRounds: List<ArcherRound> = listOf()
+    private var shootData: List<DatabaseShoot> = listOf()
     private var rounds = listOf<Round>()
     private var roundSubTypes = listOf<RoundSubType>()
     private var roundArrowCounts = listOf<RoundArrowCount>()
@@ -56,7 +56,7 @@ class ViewScoresInstrumentedTest {
     @Before
     fun beforeEach() {
         hiltRule.inject()
-        archerRounds = listOf()
+        shootData = listOf()
         rounds = listOf()
         roundSubTypes = listOf()
         roundArrowCounts = listOf()
@@ -82,7 +82,7 @@ class ViewScoresInstrumentedTest {
                 roundSubTypes.forEach { db.roundSubTypeDao().insert(it) }
                 roundArrowCounts.forEach { db.roundArrowCountDao().insert(it) }
                 roundDistances.forEach { db.roundDistanceDao().insert(it) }
-                archerRounds.forEach { db.archerRoundDao().insert(it) }
+                shootData.forEach { db.archerRoundDao().insert(it) }
                 arrows.flatten().forEach { db.arrowScoreDao().insert(it) }
                 shootRound.forEach { db.shootRoundDao().insert(it) }
             }
@@ -129,19 +129,19 @@ class ViewScoresInstrumentedTest {
 //                )
 //                .build()
 //                .time
-        archerRounds = listOf(
-                ArcherRound(1, firstOfThisYear, 1),
-                ArcherRound(2, Date.valueOf("2012-2-2").asCalendar(), 1),
-                ArcherRound(3, Date.valueOf("2011-3-3").asCalendar(), 1),
-                ArcherRound(4, Date.valueOf("2010-4-4").asCalendar(), 1),
-                ArcherRound(5, Date.valueOf("2009-5-5").asCalendar(), 1),
+        shootData = listOf(
+                DatabaseShoot(1, firstOfThisYear, 1),
+                DatabaseShoot(2, Date.valueOf("2012-2-2").asCalendar(), 1),
+                DatabaseShoot(3, Date.valueOf("2011-3-3").asCalendar(), 1),
+                DatabaseShoot(4, Date.valueOf("2010-4-4").asCalendar(), 1),
+                DatabaseShoot(5, Date.valueOf("2009-5-5").asCalendar(), 1),
         )
         shootRound = listOf(
                 DatabaseShootRound(2, roundId = 1),
                 DatabaseShootRound(3, roundId = 2),
                 DatabaseShootRound(4, roundId = 2, roundSubTypeId = 2),
         )
-        arrows = archerRounds.map { archerRound ->
+        arrows = shootData.map { archerRound ->
             val archerRoundId = archerRound.archerRoundId
             List(1) { arrowNumber -> TestUtils.ARROWS[archerRoundId].toArrowScore(archerRoundId, arrowNumber) }
         }
@@ -203,11 +203,11 @@ class ViewScoresInstrumentedTest {
         roundSubTypes = TestUtils.ROUND_SUB_TYPES.filter { it.roundId == roundId }
         roundDistances = TestUtils.ROUND_DISTANCES.filter { it.roundId == roundId }
 
-        archerRounds = listOf(
+        shootData = listOf(
                 // No round
-                ArcherRound(1, Calendar.getInstance().apply { set(2020, 8, 28) }, 1),
+                DatabaseShoot(1, Calendar.getInstance().apply { set(2020, 8, 28) }, 1),
                 // Completed round
-                ArcherRound(2, TestUtils.generateDate(2019), 1),
+                DatabaseShoot(2, TestUtils.generateDate(2019), 1),
         )
         shootRound = listOf(DatabaseShootRound(2, roundId = 1))
         arrows = listOf(
@@ -274,9 +274,9 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testViewScoresEntry_Delete() {
-        archerRounds = listOf(
-                ArcherRound(1, TestUtils.generateDate(2020), 1),
-                ArcherRound(2, TestUtils.generateDate(2019), 1),
+        shootData = listOf(
+                DatabaseShoot(1, TestUtils.generateDate(2020), 1),
+                DatabaseShoot(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
                 List(36) { TestUtils.ARROWS[1].toArrowScore(1, it) },
@@ -308,9 +308,9 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testViewScoresEntry_Convert() {
-        archerRounds = listOf(
-                ArcherRound(1, TestUtils.generateDate(2020), 1),
-                ArcherRound(2, TestUtils.generateDate(2019), 1),
+        shootData = listOf(
+                DatabaseShoot(1, TestUtils.generateDate(2020), 1),
+                DatabaseShoot(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
                 TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowScore(1, i) },
@@ -365,9 +365,9 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testMultiSelect_Selections() {
         val size = 4
-        archerRounds = TestUtils.generateArcherRounds(size)
+        shootData = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
-            val roundId = archerRounds[i].archerRoundId
+            val roundId = shootData[i].archerRoundId
             TestUtils.generateArrowScores(roundId, 36, roundId)
         }
         populateDb()
@@ -428,9 +428,9 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testMultiSelect_Email() {
         val size = 4
-        archerRounds = TestUtils.generateArcherRounds(size)
+        shootData = TestUtils.generateArcherRounds(size)
         arrows = List(size) { i ->
-            val roundId = archerRounds[i].archerRoundId
+            val roundId = shootData[i].archerRoundId
             TestUtils.generateArrowScores(roundId, 36, roundId)
         }
         populateDb()
@@ -451,7 +451,7 @@ class ViewScoresInstrumentedTest {
 
                 clickMultiSelectEmail {
                     checkScoreText(
-                            archerRounds.withIndex().joinToString("\n\n") { (index, round) ->
+                            shootData.withIndex().joinToString("\n\n") { (index, round) ->
                                 val date = DateTimeFormat.SHORT_DATE.format(round.dateShot)
                                 "No Round - $date\nHits: 1, Score: ${index + 1}, Golds (Golds): 0"
                             }
@@ -463,7 +463,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withMultiselect() {
-        archerRounds = TestUtils.generateArcherRounds(20)
+        shootData = TestUtils.generateArcherRounds(20)
         populateDb()
 
         composeTestRule.mainMenuRobot {
@@ -477,7 +477,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withScroll() {
-        archerRounds = TestUtils.generateArcherRounds(20)
+        shootData = TestUtils.generateArcherRounds(20)
         populateDb()
 
         composeTestRule.mainMenuRobot {

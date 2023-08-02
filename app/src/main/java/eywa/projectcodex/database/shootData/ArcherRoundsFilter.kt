@@ -1,4 +1,4 @@
-package eywa.projectcodex.database.archerRound
+package eywa.projectcodex.database.shootData
 
 import java.util.*
 

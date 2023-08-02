@@ -4,12 +4,12 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullArcherRoundInfo
 import java.util.*
@@ -49,7 +49,7 @@ object ViewScoresEntryPreviewProvider {
         val hasRoundInfo = index % 5 != 1 && displayName != null
         ViewScoresEntry(
                 info = FullArcherRoundInfo(
-                        archerRound = ArcherRound(
+                        shoot = DatabaseShoot(
                                 archerRoundId = index + 1,
                                 dateShot = dates[index % dates.size],
                                 archerId = 1,
@@ -76,7 +76,7 @@ object ViewScoresEntryPreviewProvider {
     fun generateIncompleteRound() = listOf(36, 217, 12).let { hsg ->
         ViewScoresEntry(
                 info = FullArcherRoundInfo(
-                        archerRound = ArcherRound(
+                        shoot = DatabaseShoot(
                                 archerRoundId = 1,
                                 dateShot = dates[0],
                                 archerId = 1,

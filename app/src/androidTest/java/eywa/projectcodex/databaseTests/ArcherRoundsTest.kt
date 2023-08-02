@@ -5,7 +5,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.*
 import eywa.projectcodex.database.arrows.ArrowCountDao
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.arrows.DatabaseArrowCount
@@ -13,6 +12,7 @@ import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
 import eywa.projectcodex.database.rounds.RoundSubTypeDao
+import eywa.projectcodex.database.shootData.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -69,15 +69,15 @@ class ArcherRoundsTest {
          * Add and retrieve
          */
         val archerRounds = listOf(
-                ArcherRound(1, TestUtils.generateDate(), 1, false),
-                ArcherRound(2, TestUtils.generateDate(), 2, false),
-                ArcherRound(3, TestUtils.generateDate(), 1, false),
-                ArcherRound(4, TestUtils.generateDate(), 1, false),
-                ArcherRound(5, TestUtils.generateDate(), 2, false),
-                ArcherRound(6, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(2, TestUtils.generateDate(), 2, false),
+                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(5, TestUtils.generateDate(), 2, false),
+                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
         ).map {
             DatabaseFullArcherRoundInfo(
-                    archerRound = it,
+                    shoot = it,
                     arrows = listOf(),
                     roundArrowCounts = listOf(),
                     allRoundSubTypes = listOf(),
@@ -88,7 +88,7 @@ class ArcherRoundsTest {
         }
 
         for (archerRound in archerRounds) {
-            archerRoundDao.insert(archerRound.archerRound.copy(archerRoundId = 0))
+            archerRoundDao.insert(archerRound.shoot.copy(archerRoundId = 0))
         }
         assertEquals(
                 archerRounds.toSet(),
@@ -114,13 +114,13 @@ class ArcherRoundsTest {
         /*
          * Create data and populate tables
          */
-        val archerRounds = listOf(
-                ArcherRound(1, TestUtils.generateDate(), 1, false),
-                ArcherRound(2, TestUtils.generateDate(), 2, false),
-                ArcherRound(3, TestUtils.generateDate(), 1, false),
-                ArcherRound(4, TestUtils.generateDate(), 1, false),
-                ArcherRound(5, TestUtils.generateDate(), 2, false),
-                ArcherRound(6, TestUtils.generateDate(), 1, false),
+        val shootData = listOf(
+                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(2, TestUtils.generateDate(), 2, false),
+                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(5, TestUtils.generateDate(), 2, false),
+                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
         )
         val shootRounds = listOf(
                 DatabaseShootRound(1, roundId = 1),
@@ -133,7 +133,7 @@ class ArcherRoundsTest {
         for (round in rounds) {
             roundDao.insert(round)
         }
-        for (archerRound in archerRounds) {
+        for (archerRound in shootData) {
             archerRoundDao.insert(archerRound)
         }
         for (shootRound in shootRounds) {
@@ -143,7 +143,7 @@ class ArcherRoundsTest {
         /*
          * Check the correct round info is retrieved
          */
-        for (archerRound in archerRounds) {
+        for (archerRound in shootData) {
             val retrievedRoundInfo = archerRoundDao.getFullArcherRoundInfo(archerRound.archerRoundId).first()
             val expectedShootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }
             assertEquals(expectedShootRound?.roundId, retrievedRoundInfo!!.round?.roundId)
@@ -161,13 +161,13 @@ class ArcherRoundsTest {
         /*
          * Create data and populate tables
          */
-        val archerRounds = listOf(
-                ArcherRound(1, TestUtils.generateDate(), 1, false),
-                ArcherRound(2, TestUtils.generateDate(), 2, false),
-                ArcherRound(3, TestUtils.generateDate(), 1, false),
-                ArcherRound(4, TestUtils.generateDate(), 1, false),
-                ArcherRound(5, TestUtils.generateDate(), 2, false),
-                ArcherRound(6, TestUtils.generateDate(), 1, false),
+        val shootData = listOf(
+                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(2, TestUtils.generateDate(), 2, false),
+                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(5, TestUtils.generateDate(), 2, false),
+                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
         )
         val shootRounds = listOf(
                 DatabaseShootRound(1, roundId = 1, roundSubTypeId = 1),
@@ -184,7 +184,7 @@ class ArcherRoundsTest {
         for (roundSubType in roundSubTypes) {
             roundSubTypeDao.insert(roundSubType)
         }
-        for (archerRound in archerRounds) {
+        for (archerRound in shootData) {
             archerRoundDao.insert(archerRound)
         }
         for (shootRound in shootRounds) {
@@ -196,9 +196,9 @@ class ArcherRoundsTest {
          */
         val retrievedRoundInfo = archerRoundDao.getAllFullArcherRoundInfo().first()
         for (actual in retrievedRoundInfo) {
-            val expectedShootRound = shootRounds.find { it.archerRoundId == actual.archerRound.archerRoundId }
-            val expected = archerRounds[actual.archerRound.archerRoundId - 1]
-            assertEquals(expected, actual.archerRound)
+            val expectedShootRound = shootRounds.find { it.archerRoundId == actual.shoot.archerRoundId }
+            val expected = shootData[actual.shoot.archerRoundId - 1]
+            assertEquals(expected, actual.shoot)
 
             val expectedRoundName = rounds.find { it.roundId == expectedShootRound?.roundId }
             assert(expectedRoundName == actual.round)
@@ -209,7 +209,7 @@ class ArcherRoundsTest {
                     }?.name
             assertEquals(expectedRoundSubTypeName, actual.roundSubType?.name)
         }
-        assertEquals(archerRounds.size, retrievedRoundInfo.size)
+        assertEquals(shootData.size, retrievedRoundInfo.size)
     }
 
     /**
@@ -221,21 +221,21 @@ class ArcherRoundsTest {
      */
     @Test
     fun testPersonalBests() = runTest {
-        val archerRounds = listOf(
+        val shootData = listOf(
                 // Incomplete round (max score)
-                ArcherRound(1, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
                 // Different round type (max score)
-                ArcherRound(2, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(2, TestUtils.generateDate(), 1, false),
                 // Actual PB
-                ArcherRound(3, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
                 // Duplicate PB
-                ArcherRound(4, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
                 // Different round type (non-max score)
-                ArcherRound(5, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(5, TestUtils.generateDate(), 1, false),
                 // No round
-                ArcherRound(6, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
                 // Lower than PB
-                ArcherRound(7, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(7, TestUtils.generateDate(), 1, false),
         )
         val shootRounds = listOf(
                 DatabaseShootRound(1, roundId = 1, roundSubTypeId = 1),
@@ -269,7 +269,7 @@ class ArcherRoundsTest {
         for (roundArrowCount in arrowCounts) {
             roundArrowCountsDao.insert(roundArrowCount)
         }
-        for (archerRound in archerRounds) {
+        for (archerRound in shootData) {
             archerRoundDao.insert(archerRound)
         }
         for (arrow in arrows) {
@@ -285,22 +285,22 @@ class ArcherRoundsTest {
                         .getFullArcherRoundInfo()
                         .first()
                         .filter { it.isPersonalBest ?: false }
-                        .map { it.archerRound.archerRoundId to it.isTiedPersonalBest }
+                        .map { it.shoot.archerRoundId to it.isTiedPersonalBest }
                         .toSet()
         )
     }
 
     @Test
     fun testFilters() = runTest {
-        val archerRounds = listOf(
-                ArcherRound(1, TestUtils.generateDate(2011, 3), 1, false),
-                ArcherRound(2, TestUtils.generateDate(2012, 3), 1, false),
-                ArcherRound(3, TestUtils.generateDate(2013, 3), 1, false),
-                ArcherRound(4, TestUtils.generateDate(2014, 3), 1, false),
-                ArcherRound(5, TestUtils.generateDate(2015, 3), 1, false),
-                ArcherRound(6, TestUtils.generateDate(2016, 3), 1, false),
-                ArcherRound(7, TestUtils.generateDate(2017, 3), 1, false),
-                ArcherRound(8, TestUtils.generateDate(2017, 3), 1, false),
+        val shootData = listOf(
+                DatabaseShoot(1, TestUtils.generateDate(2011, 3), 1, false),
+                DatabaseShoot(2, TestUtils.generateDate(2012, 3), 1, false),
+                DatabaseShoot(3, TestUtils.generateDate(2013, 3), 1, false),
+                DatabaseShoot(4, TestUtils.generateDate(2014, 3), 1, false),
+                DatabaseShoot(5, TestUtils.generateDate(2015, 3), 1, false),
+                DatabaseShoot(6, TestUtils.generateDate(2016, 3), 1, false),
+                DatabaseShoot(7, TestUtils.generateDate(2017, 3), 1, false),
+                DatabaseShoot(8, TestUtils.generateDate(2017, 3), 1, false),
         )
         val shootRounds = listOf(
                 DatabaseShootRound(1, roundId = 1, roundSubTypeId = 1),
@@ -336,7 +336,7 @@ class ArcherRoundsTest {
         for (roundArrowCount in arrowCounts) {
             roundArrowCountsDao.insert(roundArrowCount)
         }
-        for (archerRound in archerRounds) {
+        for (archerRound in shootData) {
             archerRoundDao.insert(archerRound)
         }
         for (arrow in arrows) {
@@ -352,7 +352,7 @@ class ArcherRoundsTest {
                     ArcherRoundsRepo(archerRoundDao, shootDetailDao, shootRoundDao)
                             .getFullArcherRoundInfo(Filters(filters))
                             .first()
-                            .map { it.archerRound.archerRoundId }
+                            .map { it.shoot.archerRoundId }
                             .toSet()
             )
         }
@@ -385,8 +385,8 @@ class ArcherRoundsTest {
 
     @Test
     fun testGetJoinedArcherRoundIds() = runTest {
-        val archerRounds = List(12) {
-            ArcherRound(
+        val shootData = List(12) {
+            DatabaseShoot(
                     archerRoundId = 1 + it,
                     dateShot = TestUtils.generateDate(2020, 1 + it),
                     archerId = 1,
@@ -394,23 +394,23 @@ class ArcherRoundsTest {
                     joinWithPrevious = (it + 1) in 3..5
             )
         }
-        archerRounds.forEach { archerRoundDao.insert(it) }
+        shootData.forEach { archerRoundDao.insert(it) }
 
-        archerRounds.forEach {
+        shootData.forEach {
             assertEquals(
                     if (it.archerRoundId in 2..5) (2..5).toList() else listOf(it.archerRoundId),
                     archerRoundDao
                             .getJoinedFullArcherRounds(it.archerRoundId)
                             .first()
-                            .map { dbFar -> dbFar.archerRound.archerRoundId }
+                            .map { dbFar -> dbFar.shoot.archerRoundId }
             )
         }
     }
 
     @Test
     fun testGetAllFullArcherRoundInfoWithFiltersAndJoinedRounds() = runTest {
-        val archerRounds = List(12) {
-            ArcherRound(
+        val shootData = List(12) {
+            DatabaseShoot(
                     archerRoundId = 1 + it,
                     dateShot = TestUtils.generateDate(2020, 1 + it),
                     archerId = 1,
@@ -418,29 +418,29 @@ class ArcherRoundsTest {
                     joinWithPrevious = (it + 1) in 3..5
             )
         }
-        archerRounds.forEach { archerRoundDao.insert(it) }
+        shootData.forEach { archerRoundDao.insert(it) }
 
-        archerRounds.forEach {
+        shootData.forEach {
             val start = if (it.archerRoundId in 2..5) 2 else it.archerRoundId
             assertEquals(
                     (start..12).toList(),
                     archerRoundDao
                             .getAllFullArcherRoundInfo(fromDate = it.dateShot)
                             .first()
-                            .map { dbFar -> dbFar.archerRound.archerRoundId }
+                            .map { dbFar -> dbFar.shoot.archerRoundId }
             )
         }
     }
 
     @Test
     fun testWithArrowCounts() = runTest {
-        val archerRound = ArcherRound(
+        val shoot = DatabaseShoot(
                 archerRoundId = 1,
                 dateShot = TestUtils.generateDate(),
                 archerId = 1,
                 countsTowardsHandicap = true,
         )
-        archerRoundDao.insert(archerRound)
+        archerRoundDao.insert(shoot)
         val arrowCount = DatabaseArrowCount(
                 archerRoundId = 1,
                 12,

@@ -38,7 +38,7 @@ class FullArcherRoundInfoUnitTest {
     @Test
     fun testScoreSummary_HasRoundWithArrows() {
         val entry = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo(archerRound = ArcherRoundPreviewHelper.newArcherRound(1, date))
+                .newFullArcherRoundInfo(shoot = ArcherRoundPreviewHelper.newArcherRound(1, date))
                 .addRound(fullRoundInfo)
                 .addFullSetOfArrows()
 
@@ -51,7 +51,7 @@ class FullArcherRoundInfoUnitTest {
     @Test
     fun testScoreSummary_NoRoundWithArrows() {
         val entry = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo(archerRound = ArcherRoundPreviewHelper.newArcherRound(1, date))
+                .newFullArcherRoundInfo(shoot = ArcherRoundPreviewHelper.newArcherRound(1, date))
                 .addFullSetOfArrows()
 
         Assert.assertEquals(
@@ -63,7 +63,7 @@ class FullArcherRoundInfoUnitTest {
     @Test
     fun testScoreSummary_NoRoundNoArrows() {
         val entry = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo(archerRound = ArcherRoundPreviewHelper.newArcherRound(1, date))
+                .newFullArcherRoundInfo(shoot = ArcherRoundPreviewHelper.newArcherRound(1, date))
 
         Assert.assertEquals(
                 "No Round - 20/06/22\nNo arrows entered",

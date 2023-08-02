@@ -4,12 +4,12 @@ import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
-import eywa.projectcodex.database.archerRound.ArcherRound
+import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.model.FullArcherRoundInfo
 import eywa.projectcodex.model.GoldsType
 
 /**
- * Stores all the information relating to an [ArcherRound] so that it can be displayed in a [ViewScoresEntryRow]
+ * Stores all the information relating to an [DatabaseShoot] so that it can be displayed in a [ViewScoresEntryRow]
  */
 data class ViewScoresEntry(
         val info: FullArcherRoundInfo,
@@ -21,7 +21,7 @@ data class ViewScoresEntry(
         val data: List<ViewScoresEntry> = listOf()
     }
 
-    val id = info.archerRound.archerRoundId
+    val id = info.shoot.archerRoundId
 
     fun golds(type: GoldsType? = null) = info.golds(type)
 
@@ -37,7 +37,7 @@ data class ViewScoresEntry(
                 customLogger.e(
                         LOG_TAG,
                         "Failed to get handicap for round with id $id (date shot: %s), reason: "
-                                .format(DateTimeFormat.SHORT_DATE_TIME.format(info.archerRound.dateShot))
+                                .format(DateTimeFormat.SHORT_DATE_TIME.format(info.shoot.dateShot))
                                 + e.message
                 )
                 null

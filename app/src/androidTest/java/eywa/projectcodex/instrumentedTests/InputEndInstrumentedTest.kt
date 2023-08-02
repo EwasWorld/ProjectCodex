@@ -14,12 +14,12 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.WORCESTER_DEFAULT_ID
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseShootDetail
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootDetail
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -73,10 +73,10 @@ class InputEndInstrumentedTest {
             RoundDistance(2, 3, 1, 50),
             RoundDistance(3, 1, 1, 1),
     )
-    private val archerRounds = listOf(
-            ArcherRound(1, TestUtils.generateDate(2020), 1, true),
-            ArcherRound(2, TestUtils.generateDate(2019), 1, true),
-            ArcherRound(3, TestUtils.generateDate(2018), 1, true),
+    private val shootData = listOf(
+            DatabaseShoot(1, TestUtils.generateDate(2020), 1, true),
+            DatabaseShoot(2, TestUtils.generateDate(2019), 1, true),
+            DatabaseShoot(3, TestUtils.generateDate(2018), 1, true),
     )
     private val shootRounds = listOf(
             DatabaseShootRound(2, roundId = 1),
@@ -101,7 +101,7 @@ class InputEndInstrumentedTest {
                 roundsInput.forEach { item -> db.roundDao().insert(item) }
                 arrowCountsInput.forEach { item -> db.roundArrowCountDao().insert(item) }
                 distancesInput.forEach { item -> db.roundDistanceDao().insert(item) }
-                archerRounds.forEach { item -> db.archerRoundDao().insert(item) }
+                shootData.forEach { item -> db.archerRoundDao().insert(item) }
                 shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
         }
@@ -393,7 +393,7 @@ class InputEndInstrumentedTest {
                         RoundFace.FITA_SIX,
                 ).forEachIndexed { index, face ->
                     db.archerRoundDao().insert(
-                            ArcherRound(
+                            DatabaseShoot(
                                     archerRoundId = 4 + index,
                                     dateShot = TestUtils.generateDate(2021, 1 + index),
                                     archerId = 1,
@@ -409,7 +409,7 @@ class InputEndInstrumentedTest {
                 }
 
                 db.archerRoundDao().insert(
-                        ArcherRound(
+                        DatabaseShoot(
                                 archerRoundId = 8,
                                 dateShot = TestUtils.generateDate(2021, 5),
                                 archerId = 1,
@@ -424,7 +424,7 @@ class InputEndInstrumentedTest {
                         )
                 )
                 db.archerRoundDao().insert(
-                        ArcherRound(
+                        DatabaseShoot(
                                 archerRoundId = 9,
                                 dateShot = TestUtils.generateDate(2021, 6),
                                 archerId = 1,

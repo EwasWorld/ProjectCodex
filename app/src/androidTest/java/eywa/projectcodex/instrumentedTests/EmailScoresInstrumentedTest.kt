@@ -22,12 +22,12 @@ import eywa.projectcodex.components.emailScores.EmailScoresCheckbox
 import eywa.projectcodex.components.emailScores.EmailScoresTextField
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -79,18 +79,18 @@ class EmailScoresInstrumentedTest {
             RoundSubType(2, 1, "Sub Type 1"),
             RoundSubType(2, 2, "Sub Type 2")
     )
-    private val archerRounds = listOf(
-            ArcherRound(1, TestUtils.generateDate(2024), 1, true),
-            ArcherRound(2, TestUtils.generateDate(2023), 1, true),
-            ArcherRound(3, TestUtils.generateDate(2022), 1, true),
-            ArcherRound(4, TestUtils.generateDate(2021), 1, true),
-            ArcherRound(5, TestUtils.generateDate(2020), 1, true)
+    private val shootData = listOf(
+            DatabaseShoot(1, TestUtils.generateDate(2024), 1, true),
+            DatabaseShoot(2, TestUtils.generateDate(2023), 1, true),
+            DatabaseShoot(3, TestUtils.generateDate(2022), 1, true),
+            DatabaseShoot(4, TestUtils.generateDate(2021), 1, true),
+            DatabaseShoot(5, TestUtils.generateDate(2020), 1, true)
     )
     private val shootRounds = listOf(
             DatabaseShootRound(2, roundId = 1),
             DatabaseShootRound(3, roundId = 2, roundSubTypeId = 1),
     )
-    private val arrows = archerRounds.mapIndexed { i, archerRound ->
+    private val arrows = shootData.mapIndexed { i, archerRound ->
         val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }
         val round = rounds.find { it.roundId == shootRound?.roundId }
         val arrowsInRound = arrowCounts.sumOf { if (it.roundId == round?.roundId) it.roundId else 0 }
@@ -111,7 +111,7 @@ class EmailScoresInstrumentedTest {
                 arrowCounts.forEach { item -> db.roundArrowCountDao().insert(item) }
                 distances.forEach { item -> db.roundDistanceDao().insert(item) }
                 subTypes.forEach { item -> db.roundSubTypeDao().insert(item) }
-                archerRounds.forEach { item -> db.archerRoundDao().insert(item) }
+                shootData.forEach { item -> db.archerRoundDao().insert(item) }
                 arrows.forEach { item -> db.arrowScoreDao().insert(item) }
                 shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
@@ -163,7 +163,7 @@ class EmailScoresInstrumentedTest {
 
     @Test
     fun testEmailScoreWithAttachment() {
-        val roundDate = DateTimeFormat.SHORT_DATE.format(archerRounds[0].dateShot)
+        val roundDate = DateTimeFormat.SHORT_DATE.format(shootData[0].dateShot)
         val scoresString = "No Round - $roundDate\nHits: 22, Score: 130, Golds (Golds): 6"
         val expected = allOf(
                 hasAction(Intent.ACTION_SEND),

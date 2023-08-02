@@ -12,14 +12,14 @@ import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseShootDetail
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootDetail
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
@@ -74,21 +74,21 @@ class ArcherRoundStatsInstrumentedTest {
             RoundSubType(2, 1, "Sub Type 1"),
             RoundSubType(2, 2, "Sub Type 2")
     )
-    private val archerRounds = listOf(
-            ArcherRound(
+    private val shootData = listOf(
+            DatabaseShoot(
                     archerRoundId = 1,
                     dateShot = Date(2014, 6, 17, 15, 21, 37).asCalendar(),
 //                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
                     archerId = 1,
                     countsTowardsHandicap = true,
             ),
-            ArcherRound(
+            DatabaseShoot(
                     archerRoundId = 2,
                     dateShot = TestUtils.generateDate(2013),
                     archerId = 1,
                     countsTowardsHandicap = true,
             ),
-            ArcherRound(
+            DatabaseShoot(
                     archerRoundId = 3,
                     dateShot = TestUtils.generateDate(2012),
                     archerId = 1,
@@ -134,7 +134,7 @@ class ArcherRoundStatsInstrumentedTest {
                 arrowCountsInput.forEach { db.roundArrowCountDao().insert(it) }
                 subTypesInput.forEach { db.roundSubTypeDao().insert(it) }
                 distancesInput.forEach { db.roundDistanceDao().insert(it) }
-                archerRounds.forEach { db.archerRoundDao().insert(it) }
+                shootData.forEach { db.archerRoundDao().insert(it) }
                 arrows.forEach { db.arrowScoreDao().insert(it) }
                 shootRounds.forEach { db.shootRoundDao().insert(it) }
                 shootDetails.forEach { db.shootDetailDao().insert(it) }
@@ -151,8 +151,8 @@ class ArcherRoundStatsInstrumentedTest {
 
     @Test
     fun testAllStatsNoRound() {
-        val archerRoundId = archerRounds[ArcherRoundTypes.NO_ROUND.row].archerRoundId
-        check(archerRounds.find { it.archerRoundId == archerRoundId } != null) { "Invalid archer round ID" }
+        val archerRoundId = shootData[ShootTypes.NO_ROUND.row].archerRoundId
+        check(shootData.find { it.archerRoundId == archerRoundId } != null) { "Invalid archer round ID" }
 
         var arrowNumber = 1
         arrows = listOf(
@@ -167,7 +167,7 @@ class ArcherRoundStatsInstrumentedTest {
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                clickRow(ArcherRoundTypes.NO_ROUND.row) {
+                clickRow(ShootTypes.NO_ROUND.row) {
                     waitForLoad()
                     clickNavBarStats {
                         checkDate("17 Jul 14 15:21")
@@ -187,8 +187,8 @@ class ArcherRoundStatsInstrumentedTest {
 
     @Test
     fun testHasRound() {
-        val archerRoundId = archerRounds[ArcherRoundTypes.ROUND.row].archerRoundId
-        val archerRound = archerRounds.find { it.archerRoundId == archerRoundId }!!
+        val archerRoundId = shootData[ShootTypes.ROUND.row].archerRoundId
+        val archerRound = shootData.find { it.archerRoundId == archerRoundId }!!
         val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }!!
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
@@ -199,7 +199,7 @@ class ArcherRoundStatsInstrumentedTest {
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                clickRow(ArcherRoundTypes.ROUND.row) {
+                clickRow(ShootTypes.ROUND.row) {
                     waitForLoad()
                     clickNavBarStats {
                         checkRound(round.displayName)
@@ -220,8 +220,8 @@ class ArcherRoundStatsInstrumentedTest {
     fun testOldHandicapSystem() {
         LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
 
-        val archerRoundId = archerRounds[ArcherRoundTypes.ROUND.row].archerRoundId
-        val archerRound = archerRounds.find { it.archerRoundId == archerRoundId }!!
+        val archerRoundId = shootData[ShootTypes.ROUND.row].archerRoundId
+        val archerRound = shootData.find { it.archerRoundId == archerRoundId }!!
         val shootRound = shootRounds.find { it.archerRoundId == archerRound.archerRoundId }!!
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
@@ -232,7 +232,7 @@ class ArcherRoundStatsInstrumentedTest {
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                clickRow(ArcherRoundTypes.ROUND.row) {
+                clickRow(ShootTypes.ROUND.row) {
                     waitForLoad()
                     clickNavBarStats {
                         checkRound(round.displayName)
@@ -256,7 +256,7 @@ class ArcherRoundStatsInstrumentedTest {
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                longClickRow(ArcherRoundTypes.SUBTYPE.row)
+                longClickRow(ShootTypes.SUBTYPE.row)
                 clickContinueDropdownMenuItem {
                     waitForLoad()
                     clickNavBarStats {
@@ -270,7 +270,7 @@ class ArcherRoundStatsInstrumentedTest {
         }
     }
 
-    private enum class ArcherRoundTypes(val row: Int) {
+    private enum class ShootTypes(val row: Int) {
         NO_ROUND(0), ROUND(1), SUBTYPE(2)
     }
 }

@@ -24,7 +24,7 @@ data class ViewScoresEntryList(
         get() = entries.size
 
     val dateShot
-        get() = entries.first().info.archerRound.dateShot
+        get() = entries.first().info.shoot.dateShot
 
     /**
      * Note golds will use the [GoldsType] of the first [entries]

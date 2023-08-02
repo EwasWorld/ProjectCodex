@@ -1,11 +1,11 @@
-package eywa.projectcodex.database.archerRound
+package eywa.projectcodex.database.shootData
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.bow.DatabaseBow
+import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
 import java.util.*
 
 
@@ -23,7 +23,7 @@ import java.util.*
             ),
         ],
 )
-data class ArcherRound(
+data class DatabaseShoot(
         @PrimaryKey(autoGenerate = true) val archerRoundId: Int,
         val dateShot: Calendar,
         val archerId: Int,

@@ -1,7 +1,7 @@
-package eywa.projectcodex.database.archerRound
+package eywa.projectcodex.database.shootData
 
 import androidx.room.*
-import eywa.projectcodex.database.archerRound.ArcherRound.Companion.TABLE_NAME
+import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
 import eywa.projectcodex.database.views.ArcherRoundWithScore
 import eywa.projectcodex.database.views.PersonalBest
 import kotlinx.coroutines.flow.Flow
@@ -10,10 +10,10 @@ import java.util.*
 @Dao
 interface ArcherRoundDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(archerRound: ArcherRound): Long
+    suspend fun insert(shoot: DatabaseShoot): Long
 
     @Update
-    suspend fun update(vararg archerRounds: ArcherRound)
+    suspend fun update(vararg shootData: DatabaseShoot)
 
     @Query("SELECT * FROM $TABLE_NAME WHERE archerRoundId IN (:archerRoundIds)")
     fun getFullArcherRoundInfo(archerRoundIds: List<Int>): Flow<List<DatabaseFullArcherRoundInfo>>

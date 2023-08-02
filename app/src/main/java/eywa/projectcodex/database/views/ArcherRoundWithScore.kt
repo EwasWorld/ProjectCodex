@@ -2,10 +2,10 @@ package eywa.projectcodex.database.views
 
 import androidx.room.DatabaseView
 import androidx.room.Embedded
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import java.util.*
 
 @DatabaseView(
@@ -20,10 +20,10 @@ import java.util.*
                         -- Find the latest date earlier than or equal to this one that doesn't join with previous
                         -- This will be the first round (inclusive) in the sequence
                         SELECT MAX(dateShot)
-                        FROM ${ArcherRound.TABLE_NAME}
+                        FROM ${DatabaseShoot.TABLE_NAME}
                         WHERE dateShot <= archerRound.dateShot AND NOT joinWithPrevious
                     ) as joinedDate
-                FROM ${ArcherRound.TABLE_NAME} as archerRound
+                FROM ${DatabaseShoot.TABLE_NAME} as archerRound
                 LEFT JOIN ${DatabaseShootRound.TABLE_NAME} as shootRound 
                         ON shootRound.archerRoundId = archerRound.archerRoundId
                 LEFT JOIN (
@@ -40,7 +40,7 @@ import java.util.*
         viewName = ArcherRoundWithScore.TABLE_NAME,
 )
 data class ArcherRoundWithScore(
-        @Embedded val archerRound: ArcherRound,
+        @Embedded val shoot: DatabaseShoot,
         val score: Int,
         val roundId: Int?,
         val nonNullSubTypeId: Int,

@@ -41,7 +41,7 @@ import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ViewScoresShowcaseInfo
-import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.ArcherRoundsFilter
 
 private const val LOG_TAG = "ViewScores"
 

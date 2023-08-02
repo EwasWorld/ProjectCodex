@@ -4,10 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRoundDao
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.shootData.ArcherRoundDao
 import eywa.projectcodex.databaseTests.DatabaseTestUtils.brokenTransactionMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first

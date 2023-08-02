@@ -1,12 +1,12 @@
-package eywa.projectcodex.database.archerRound
+package eywa.projectcodex.database.shootData
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.database.archerRound.DatabaseShootRound.Companion.TABLE_NAME
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.shootData.DatabaseShootRound.Companion.TABLE_NAME
 
 @Entity(
         tableName = TABLE_NAME,
@@ -24,7 +24,7 @@ import eywa.projectcodex.database.rounds.RoundSubType
                     onDelete = ForeignKey.SET_NULL,
             ),
             ForeignKey(
-                    entity = ArcherRound::class,
+                    entity = DatabaseShoot::class,
                     parentColumns = ["archerRoundId"],
                     childColumns = ["archerRoundId"],
                     onDelete = ForeignKey.CASCADE,

@@ -16,10 +16,10 @@ import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarI
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 import eywa.projectcodex.database.Filters
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
-import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.shootData.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.FullArcherRoundInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
@@ -60,7 +60,7 @@ class ViewScoresViewModelUnitTest {
     fun testDataIsSetAndUpdatedCorrectly_WithSelectedItem() = runTest {
         fun create(id: Int, date: Long) =
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(id, date.asCalendar(), 1),
+                        shoot = DatabaseShoot(id, date.asCalendar(), 1),
                         arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
 
@@ -88,7 +88,7 @@ class ViewScoresViewModelUnitTest {
         advanceUntilIdle()
         assertEquals(
                 archerRoundsSecond.map {
-                    ViewScoresEntry(FullArcherRoundInfo(it, true), it.archerRound.archerRoundId == 1, customLogger)
+                    ViewScoresEntry(FullArcherRoundInfo(it, true), it.shoot.archerRoundId == 1, customLogger)
                 },
                 sut.state.value.data.sortedBy { it.id },
         )
@@ -98,7 +98,7 @@ class ViewScoresViewModelUnitTest {
     fun testDataIsSetAndUpdatedCorrectly_WithOldHandicapSystem() = runTest {
         fun create(id: Int, date: Long) =
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(id, date.asCalendar(), 1),
+                        shoot = DatabaseShoot(id, date.asCalendar(), 1),
                         arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
 

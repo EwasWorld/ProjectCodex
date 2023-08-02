@@ -3,11 +3,11 @@ package eywa.projectcodex.common
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.common.utils.asCalendar
-import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.model.Arrow
 import org.mockito.ArgumentCaptor
 import java.sql.Date
@@ -97,10 +97,10 @@ object TestUtils {
         return Date.valueOf("$year-$generatedMonth-$day").asCalendar()
     }
 
-    fun generateArcherRounds(roundsToGenerate: Int): List<ArcherRound> = List(roundsToGenerate) { generateDate() }
+    fun generateArcherRounds(roundsToGenerate: Int): List<DatabaseShoot> = List(roundsToGenerate) { generateDate() }
             .sortedDescending()
             .mapIndexed { index, date ->
-                ArcherRound(index + 1, date, 1, false)
+                DatabaseShoot(index + 1, date, 1, false)
             }
 
     fun generateArrows(numberToGenerate: Int, desiredTotal: Int? = null): List<Arrow> {

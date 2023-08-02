@@ -1,7 +1,7 @@
-package eywa.projectcodex.database.archerRound
+package eywa.projectcodex.database.shootData
 
 import androidx.room.*
-import eywa.projectcodex.database.archerRound.DatabaseShootRound.Companion.TABLE_NAME
+import eywa.projectcodex.database.shootData.DatabaseShootRound.Companion.TABLE_NAME
 
 @Dao
 interface ShootRoundDao {

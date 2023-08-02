@@ -112,7 +112,7 @@ class NewScoreViewModel @Inject constructor(
                     if (currentState.isEditing) {
                         archerRoundsRepo.update(
                                 original = currentState.roundBeingEdited!!,
-                                archerRound = currentState.asArcherRound(),
+                                shoot = currentState.asArcherRound(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
                         )
@@ -120,7 +120,7 @@ class NewScoreViewModel @Inject constructor(
                     }
                     else {
                         val newId = archerRoundsRepo.insert(
-                                archerRound = currentState.asArcherRound(),
+                                shoot = currentState.asArcherRound(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
                         )
@@ -151,7 +151,7 @@ class NewScoreViewModel @Inject constructor(
                 else roundBeingEdited.faces?.firstOrNull()?.let { listOf(it) }
 
         return copy(
-                dateShot = roundBeingEdited.archerRound.dateShot,
+                dateShot = roundBeingEdited.shoot.dateShot,
                 selectRoundDialogState = roundsState,
                 selectFaceDialogState = faceAction.handle(selectFaceDialogState)
                         .copy(selectedFaces = faces),

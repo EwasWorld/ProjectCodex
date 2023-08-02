@@ -1,7 +1,7 @@
 package eywa.projectcodex.database
 
-import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
-import eywa.projectcodex.database.archerRound.ArcherRoundsFilter.*
+import eywa.projectcodex.database.shootData.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.ArcherRoundsFilter.*
 import org.junit.Assert.*
 import org.junit.Test
 

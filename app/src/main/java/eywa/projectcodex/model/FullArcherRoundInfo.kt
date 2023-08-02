@@ -4,18 +4,18 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
-import eywa.projectcodex.database.archerRound.DatabaseShootDetail
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.arrows.getGolds
 import eywa.projectcodex.database.arrows.getHits
 import eywa.projectcodex.database.arrows.getScore
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootDetail
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 
 data class FullArcherRoundInfo(
-        val archerRound: ArcherRound,
+        val shoot: DatabaseShoot,
         val arrows: List<DatabaseArrowScore>?,
         val round: Round? = null,
         val roundArrowCounts: List<RoundArrowCount>? = null,
@@ -28,7 +28,7 @@ data class FullArcherRoundInfo(
         val shootDetail: DatabaseShootDetail? = null,
 ) {
     constructor(full: DatabaseFullArcherRoundInfo, use2023HandicapSystem: Boolean) : this(
-            archerRound = full.archerRound,
+            shoot = full.shoot,
             arrows = full.arrows,
             round = full.round,
             roundArrowCounts = full.roundArrowCounts,
@@ -42,7 +42,7 @@ data class FullArcherRoundInfo(
     )
 
     init {
-        require(arrows?.all { it.archerRoundId == archerRound.archerRoundId } != false) { "Arrows mismatched id" }
+        require(arrows?.all { it.archerRoundId == shoot.archerRoundId } != false) { "Arrows mismatched id" }
         require(roundArrowCounts?.all { it.roundId == round?.roundId } != false) { "Arrow counts mismatched id" }
         require(
                 roundDistances?.all {
@@ -56,7 +56,7 @@ data class FullArcherRoundInfo(
 
     val distanceUnit by lazy { round?.getDistanceUnitRes() }
 
-    val id: Int by lazy { archerRound.archerRoundId }
+    val id: Int by lazy { shoot.archerRoundId }
 
     val hits by lazy { arrows?.getHits() ?: 0 }
 
@@ -193,7 +193,7 @@ data class FullArcherRoundInfo(
                 resources.getString(
                         R.string.email_round_summary,
                         displayName ?: res,
-                        DateTimeFormat.SHORT_DATE.format(archerRound.dateShot),
+                        DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
                         hits,
                         score,
                         resources.getString(goldsType.longStringId),
@@ -204,7 +204,7 @@ data class FullArcherRoundInfo(
                 resources.getString(
                         R.string.email_round_summary_no_arrows,
                         displayName ?: resources.getString(R.string.create_round__no_round),
-                        DateTimeFormat.SHORT_DATE.format(archerRound.dateShot),
+                        DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
                 )
             }
 }

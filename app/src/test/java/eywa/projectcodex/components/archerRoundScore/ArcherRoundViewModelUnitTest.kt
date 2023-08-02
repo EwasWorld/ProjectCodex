@@ -8,13 +8,13 @@ import eywa.projectcodex.components.archerRoundScore.ArcherRoundError.NoArrowsCa
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.*
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
-import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullArcherRoundInfo
@@ -95,7 +95,7 @@ class ArcherRoundViewModelUnitTest {
     fun testInitialisation_ArcherRoundsAnd2023System() = runTest {
         fun create(arrowCount: Int) =
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(1, Calendar.getInstance(), 1),
+                        shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                 )
 
@@ -700,7 +700,7 @@ class ArcherRoundViewModelUnitTest {
     fun testNoArrowsDialogOkClicked() = runTest {
         db.archerRoundDao.fullArcherRounds = listOf(
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(1, Calendar.getInstance(), 1),
+                        shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = emptyList(),
                 )
         )
@@ -765,7 +765,7 @@ class ArcherRoundViewModelUnitTest {
 
     private fun createArcherRound_WithRound(arrowCount: Int = 36) =
             DatabaseFullArcherRoundInfo(
-                    archerRound = ArcherRound(1, Calendar.getInstance(), 1),
+                    shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                     shootRound = DatabaseShootRound(1, roundId = 1),
                     arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                     round = Round(1, "", "", true, true),
@@ -777,7 +777,7 @@ class ArcherRoundViewModelUnitTest {
     private fun setupSimpleDbData_NoRound() {
         db.archerRoundDao.fullArcherRounds = listOf(
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(1, Calendar.getInstance(), 1),
+                        shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = TestData.ARROWS.mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 1) },
                 )
         )

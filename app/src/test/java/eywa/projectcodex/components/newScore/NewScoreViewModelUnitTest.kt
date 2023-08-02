@@ -6,9 +6,9 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.database.archerRound.ArcherRound
-import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.shootData.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.model.FullArcherRoundInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockSavedStateHandle
@@ -99,7 +99,7 @@ class NewScoreViewModelUnitTest {
     fun testInitialisation_EditingExistingScore() = runTest {
         fun create(arrowCount: Int) =
                 DatabaseFullArcherRoundInfo(
-                        archerRound = ArcherRound(1, Calendar.getInstance(), 1),
+                        shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                 )
 
@@ -115,7 +115,7 @@ class NewScoreViewModelUnitTest {
                 NewScoreState(
                         roundBeingEdited = FullArcherRoundInfo(archerRoundInitial, true),
                         roundBeingEditedArrowsShot = archerRoundInitial.arrows.orEmpty().count(),
-                        dateShot = archerRoundInitial.archerRound.dateShot,
+                        dateShot = archerRoundInitial.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
                 ),
                 sut.state.value,
@@ -126,7 +126,7 @@ class NewScoreViewModelUnitTest {
                 NewScoreState(
                         roundBeingEdited = FullArcherRoundInfo(archerRoundSecond, true),
                         roundBeingEditedArrowsShot = archerRoundSecond.arrows.orEmpty().count(),
-                        dateShot = archerRoundSecond.archerRound.dateShot,
+                        dateShot = archerRoundSecond.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
                 ),
                 sut.state.value,

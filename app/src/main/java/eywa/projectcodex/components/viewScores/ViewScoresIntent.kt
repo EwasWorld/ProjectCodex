@@ -4,7 +4,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
-import eywa.projectcodex.database.archerRound.ArcherRoundsFilter
+import eywa.projectcodex.database.shootData.ArcherRoundsFilter
 
 sealed class ViewScoresIntent {
     data class EntryClicked(val archerRoundId: Int) : ViewScoresIntent()

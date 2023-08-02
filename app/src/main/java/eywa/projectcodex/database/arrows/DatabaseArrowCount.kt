@@ -3,14 +3,14 @@ package eywa.projectcodex.database.arrows
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrows.DatabaseArrowCount.Companion.TABLE_NAME
+import eywa.projectcodex.database.shootData.DatabaseShoot
 
 @Entity(
         tableName = TABLE_NAME,
         foreignKeys = [
             ForeignKey(
-                    entity = ArcherRound::class,
+                    entity = DatabaseShoot::class,
                     parentColumns = ["archerRoundId"],
                     childColumns = ["archerRoundId"],
                     onDelete = ForeignKey.CASCADE,

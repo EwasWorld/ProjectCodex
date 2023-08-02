@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore.Companion.TABLE_NAME
+import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.model.getArrowScoreString
 
@@ -14,7 +14,7 @@ import eywa.projectcodex.model.getArrowScoreString
         primaryKeys = ["archerRoundId", "arrowNumber"],
         foreignKeys = [
             ForeignKey(
-                    entity = ArcherRound::class,
+                    entity = DatabaseShoot::class,
                     parentColumns = ["archerRoundId"],
                     childColumns = ["archerRoundId"],
                     onDelete = ForeignKey.CASCADE,

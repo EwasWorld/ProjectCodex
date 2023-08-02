@@ -12,8 +12,8 @@ import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRoundsRepo
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
+import eywa.projectcodex.database.shootData.ArcherRoundsRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.FullArcherRoundInfo
@@ -57,7 +57,7 @@ class ViewScoresViewModel @Inject constructor(
                                                 isSelected = previousSelectedEntries[info.id] ?: false,
                                                 customLogger = customLogger,
                                         )
-                                    }.sortedByDescending { entry -> entry.info.archerRound.dateShot }
+                                    }.sortedByDescending { entry -> entry.info.shoot.dateShot }
                             )
                         }
                     }
