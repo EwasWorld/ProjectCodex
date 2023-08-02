@@ -5,7 +5,6 @@ import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
-import eywa.projectcodex.database.rounds.getDistances
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullArcherRoundInfo
 import java.util.*

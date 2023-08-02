@@ -10,6 +10,7 @@ import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.archerRound.DatabaseShootRound
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -764,7 +765,8 @@ class ArcherRoundViewModelUnitTest {
 
     private fun createArcherRound_WithRound(arrowCount: Int = 36) =
             DatabaseFullArcherRoundInfo(
-                    archerRound = ArcherRound(1, Calendar.getInstance(), 1, roundId = 1),
+                    archerRound = ArcherRound(1, Calendar.getInstance(), 1),
+                    shootRound = DatabaseShootRound(1, roundId = 1),
                     arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                     round = Round(1, "", "", true, true),
                     roundArrowCounts = listOf(RoundArrowCount(1, 1, 122.0, 36)),

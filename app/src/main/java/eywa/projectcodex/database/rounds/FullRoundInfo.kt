@@ -6,18 +6,6 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 
-fun FullRoundInfo.getDistanceUnitRes() = round.getDistanceUnitRes()
-
-@Composable
-fun FullRoundInfo.getDistanceUnit() = getDistanceUnitRes()?.let { stringResource(it) }
-
-fun FullRoundInfo.getDistances(subTypeId: Int?) =
-        when {
-            roundSubTypes == null || roundSubTypes.size <= 1 -> roundDistances
-            else -> roundDistances?.filter { it.subTypeId == (subTypeId ?: 1) }
-        }
-
-
 data class FullRoundInfo(
         @Embedded val round: Round,
 
@@ -29,4 +17,15 @@ data class FullRoundInfo(
 
         @Relation(parentColumn = "roundId", entityColumn = "roundId")
         val roundDistances: List<RoundDistance>? = null,
-)
+) {
+    fun getDistanceUnitRes() = round.getDistanceUnitRes()
+
+    @Composable
+    fun getDistanceUnit() = getDistanceUnitRes()?.let { stringResource(it) }
+
+    fun getDistances(subTypeId: Int?) =
+            when {
+                roundSubTypes == null || roundSubTypes.size <= 1 -> roundDistances
+                else -> roundDistances?.filter { it.subTypeId == (subTypeId ?: 1) }
+            }
+}

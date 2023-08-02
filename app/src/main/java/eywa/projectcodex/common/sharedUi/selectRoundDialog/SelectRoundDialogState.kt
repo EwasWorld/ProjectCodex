@@ -2,7 +2,6 @@ package eywa.projectcodex.common.sharedUi.selectRoundDialog
 
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.rounds.getDistances
 
 data class SelectRoundDialogState(
         val isRoundDialogOpen: Boolean = false,

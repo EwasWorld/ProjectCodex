@@ -9,6 +9,7 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTas
 import eywa.projectcodex.database.archerRound.ArcherRound
 import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.model.FullArcherRoundInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockSavedStateHandle
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -112,7 +113,7 @@ class NewScoreViewModelUnitTest {
         advanceTimeBy(1)
         Assert.assertEquals(
                 NewScoreState(
-                        roundBeingEdited = archerRoundInitial.archerRound,
+                        roundBeingEdited = FullArcherRoundInfo(archerRoundInitial, true),
                         roundBeingEditedArrowsShot = archerRoundInitial.arrows.orEmpty().count(),
                         dateShot = archerRoundInitial.archerRound.dateShot,
                         selectRoundDialogState = emptyRoundsData,
@@ -123,7 +124,7 @@ class NewScoreViewModelUnitTest {
         advanceUntilIdle()
         Assert.assertEquals(
                 NewScoreState(
-                        roundBeingEdited = archerRoundSecond.archerRound,
+                        roundBeingEdited = FullArcherRoundInfo(archerRoundSecond, true),
                         roundBeingEditedArrowsShot = archerRoundSecond.arrows.orEmpty().count(),
                         dateShot = archerRoundSecond.archerRound.dateShot,
                         selectRoundDialogState = emptyRoundsData,

@@ -13,7 +13,7 @@ class NewScoreStateUnitTest {
     fun testIsEditing() {
         assertEquals(
                 true,
-                NewScoreState(roundBeingEdited = ArcherRoundPreviewHelper.newArcherRound()).isEditing
+                NewScoreState(roundBeingEdited = ArcherRoundPreviewHelper.newFullArcherRoundInfo()).isEditing
         )
         assertEquals(
                 false,
