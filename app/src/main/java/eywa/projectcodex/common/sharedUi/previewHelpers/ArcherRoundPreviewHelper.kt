@@ -61,5 +61,7 @@ object ArcherRoundPreviewHelper {
             roundArrowCounts = roundArrowCounts,
             allRoundSubTypes = roundSubType?.let { listOf(it) },
             allRoundDistances = roundDistances,
+            shootRound = shootRound,
+            shootDetail = shootDetail,
     )
 }

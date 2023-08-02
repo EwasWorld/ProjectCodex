@@ -1,8 +1,7 @@
 package eywa.projectcodex.testUtils
 
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archerRound.ArcherRoundDao
-import eywa.projectcodex.database.archerRound.DatabaseFullArcherRoundInfo
+import eywa.projectcodex.database.archerRound.*
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
@@ -10,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyList
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
@@ -22,6 +22,8 @@ class MockScoresRoomDatabase {
     val roundArrowCountDao: RoundArrowCountDao = mock {}
     val roundSubTypeDao: RoundSubTypeDao = mock {}
     val roundDistanceDao: RoundDistanceDao = mock {}
+    val shootRoundDao: ShootRoundDao = mock {}
+    val shootDetailDao: ShootDetailDao = mock {}
 
     val mock: ScoresRoomDatabase = mock {
         on { archerRoundDao() } doReturn archerRoundDao.mock
@@ -30,6 +32,9 @@ class MockScoresRoomDatabase {
         on { roundArrowCountDao() } doReturn roundArrowCountDao
         on { roundSubTypeDao() } doReturn roundSubTypeDao
         on { roundDistanceDao() } doReturn roundDistanceDao
+        on { shootRoundDao() } doReturn shootRoundDao
+        on { shootDetailDao() } doReturn shootDetailDao
+        on { archerRoundsRepo() } doReturn ArcherRoundsRepo(archerRoundDao.mock, shootDetailDao, shootRoundDao)
     }
 
     class MockArcherRoundDao {
@@ -41,6 +46,7 @@ class MockScoresRoomDatabase {
                 getAllFullArcherRoundInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
             } doReturn getArcherRounds()
             on { getFullArcherRoundInfo(anyInt()) } doReturn getArcherRounds().map { it.firstOrNull() }
+            on { getFullArcherRoundInfo(anyList()) } doReturn getArcherRounds()
         }
 
         private fun getArcherRounds() = flow {

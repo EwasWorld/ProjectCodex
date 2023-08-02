@@ -133,7 +133,11 @@ data class DatabaseFullArcherRoundInfo(
         val joinedDate: Calendar? = null,
 ) {
     val roundSubType
-        get() = allRoundSubTypes?.find { it.subTypeId == shootRound!!.roundSubTypeId }
+        get() = allRoundSubTypes
+                ?.takeIf { it.isNotEmpty() }
+                ?.find { it.subTypeId == shootRound!!.roundSubTypeId }
     val roundDistances
-        get() = allRoundDistances?.filter { it.subTypeId == (shootRound!!.roundSubTypeId ?: 1) }
+        get() = allRoundDistances
+                ?.takeIf { it.isNotEmpty() }
+                ?.filter { it.subTypeId == (shootRound!!.roundSubTypeId ?: 1) }
 }
