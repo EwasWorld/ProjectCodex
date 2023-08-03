@@ -46,12 +46,12 @@ class ArcherRoundViewModelUnitTest {
     private fun getSut(
             startingScreen: ArcherRoundScreen = ArcherRoundScreen.INPUT_END,
             datastoreUse2023System: Boolean = true,
-            archerRoundId: Int? = 1,
+            shootId: Int? = 1,
     ): ArcherRoundViewModel {
         datastore.values = mapOf(DatastoreKey.Use2023HandicapSystem to datastoreUse2023System)
         val savedState = MockSavedStateHandle().apply {
             values["screen"] = startingScreen.toString()
-            archerRoundId?.let { values["archerRoundId"] = it }
+            shootId?.let { values["shootId"] = it }
         }.mock
         return ArcherRoundViewModel(db.mock, helpShowcase, datastore.mock, savedState)
     }
@@ -78,7 +78,7 @@ class ArcherRoundViewModelUnitTest {
 
     @Test
     fun testInitialisation_NoRoundSet() = runTest {
-        val sut = getSut(archerRoundId = null)
+        val sut = getSut(shootId = null)
 
         assertEquals(
                 ArcherRoundState.InvalidArcherRoundError(),
@@ -101,8 +101,8 @@ class ArcherRoundViewModelUnitTest {
 
         val archerRoundInitial = create(0)
         val archerRoundSecond = create(12)
-        db.archerRoundDao.fullArcherRounds = listOf(archerRoundInitial)
-        db.archerRoundDao.secondFullArcherRounds = listOf(archerRoundSecond)
+        db.shootDao.fullShoots = listOf(archerRoundInitial)
+        db.shootDao.secondFullShoots = listOf(archerRoundSecond)
         datastore.valuesDelayed = mapOf(DatastoreKey.Use2023HandicapSystem to false)
         val sut = getSut()
 
@@ -133,8 +133,8 @@ class ArcherRoundViewModelUnitTest {
     fun testInitialisation_RoundCompleted() = runTest {
         val archerRoundInitial = createArcherRound_WithRound(0)
         val archerRoundSecond = createArcherRound_WithRound()
-        db.archerRoundDao.fullArcherRounds = listOf(archerRoundInitial)
-        db.archerRoundDao.secondFullArcherRounds = listOf(archerRoundSecond)
+        db.shootDao.fullShoots = listOf(archerRoundInitial)
+        db.shootDao.secondFullShoots = listOf(archerRoundSecond)
         val sut = getSut()
 
         advanceTimeBy(1)
@@ -666,7 +666,7 @@ class ArcherRoundViewModelUnitTest {
 
     @Test
     fun testCannotInputEndDialog() = runTest {
-        db.archerRoundDao.fullArcherRounds = listOf(createArcherRound_WithRound())
+        db.shootDao.fullShoots = listOf(createArcherRound_WithRound())
         val sut = getSut(startingScreen = ArcherRoundScreen.SCORE_PAD)
         advanceUntilIdle()
         val state = sut.getLoadedStateValue()
@@ -682,7 +682,7 @@ class ArcherRoundViewModelUnitTest {
 
     @Test
     fun testRoundCompleteDialogOkClicked() = runTest {
-        db.archerRoundDao.fullArcherRounds = listOf(createArcherRound_WithRound())
+        db.shootDao.fullShoots = listOf(createArcherRound_WithRound())
         val sut = getSut()
         advanceUntilIdle()
         val state = sut.getLoadedStateValue()
@@ -698,7 +698,7 @@ class ArcherRoundViewModelUnitTest {
 
     @Test
     fun testNoArrowsDialogOkClicked() = runTest {
-        db.archerRoundDao.fullArcherRounds = listOf(
+        db.shootDao.fullShoots = listOf(
                 DatabaseFullShootInfo(
                         shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = emptyList(),
@@ -775,7 +775,7 @@ class ArcherRoundViewModelUnitTest {
             )
 
     private fun setupSimpleDbData_NoRound() {
-        db.archerRoundDao.fullArcherRounds = listOf(
+        db.shootDao.fullShoots = listOf(
                 DatabaseFullShootInfo(
                         shoot = DatabaseShoot(1, Calendar.getInstance(), 1),
                         arrows = TestData.ARROWS.mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 1) },

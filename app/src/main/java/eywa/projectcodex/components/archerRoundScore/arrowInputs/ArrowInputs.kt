@@ -23,9 +23,9 @@ import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent.*
@@ -184,7 +184,7 @@ fun ArrowInputs_Preview(
     CodexTheme {
         ArrowInputs(
                 state = object : ArrowInputsState {
-                    override val fullShootInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo()
+                    override val fullShootInfo = ShootPreviewHelper.newFullShootInfo()
                             .addRound(RoundPreviewHelper.outdoorImperialRoundData)
                     override val enteredArrows = ArcherRoundStatePreviewHelper.inputArrows
                     override val inputEndSize = 6

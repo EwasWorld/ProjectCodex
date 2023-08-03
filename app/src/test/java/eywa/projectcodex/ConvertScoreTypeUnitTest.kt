@@ -57,7 +57,7 @@ class ConvertScoreTypeUnitTest {
     }
 
     /**
-     * Calls [Arrow.toArrowScore] on every item in the list, setting archerRoundId to 1 and arrowNumber incrementally
+     * Calls [Arrow.toArrowScore] on every item in the list, setting shootId to 1 and arrowNumber incrementally
      * starting from 0
      */
     private fun List<Arrow>.toArrowScores(): List<DatabaseArrowScore> =

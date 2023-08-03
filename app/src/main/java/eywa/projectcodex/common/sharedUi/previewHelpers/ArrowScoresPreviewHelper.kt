@@ -20,29 +20,29 @@ object ArrowScoresPreviewHelper {
     )
 
     fun getArrows(
-            archerRoundId: Int = 1,
+            shootId: Int = 1,
             size: Int = 6,
             firstArrowNumber: Int = 1,
             score: Int,
             isX: Boolean,
-    ) = List(size) { DatabaseArrowScore(archerRoundId, firstArrowNumber + it, score, isX) }
+    ) = List(size) { DatabaseArrowScore(shootId, firstArrowNumber + it, score, isX) }
 
     fun getArrowsInOrder(
-            archerRoundId: Int = 1,
+            shootId: Int = 1,
             size: Int = 6,
             firstArrowNumber: Int = 1,
             ascending: Boolean = true,
     ) = List(size) {
         var index = it % ARROWS.size
         if (!ascending) index -= ARROWS.size - 1
-        ARROWS[index].toArrowScore(archerRoundId, firstArrowNumber + it)
+        ARROWS[index].toArrowScore(shootId, firstArrowNumber + it)
     }
 
     fun getArrowsInOrderFullSet(
-            archerRoundId: Int = 1,
+            shootId: Int = 1,
             firstArrowNumber: Int = 1,
             ascending: Boolean = true,
     ) = ARROWS
-            .mapIndexed { index, arrow -> arrow.toArrowScore(archerRoundId, index + firstArrowNumber) }
+            .mapIndexed { index, arrow -> arrow.toArrowScore(shootId, index + firstArrowNumber) }
             .let { if (ascending) it else it.reversed() }
 }

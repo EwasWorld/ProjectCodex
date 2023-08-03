@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.viewScores
 
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo

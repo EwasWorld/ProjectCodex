@@ -12,5 +12,5 @@ import javax.inject.Singleton
 class ActivityScopedModule {
     @Singleton
     @Provides
-    fun provideArcherRoundIdsRepo() = ArcherRoundIdsUseCase()
+    fun provideShootIdsRepo() = ShootIdsUseCase()
 }

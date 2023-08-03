@@ -83,7 +83,7 @@ private fun handleEffects(
                     navController,
                     mapOf(
                             NavArgument.SCREEN to ArcherRoundScreen.SCORE_PAD.name,
-                            NavArgument.ARCHER_ROUND_ID to state.lastClickedEntryId.toString(),
+                            NavArgument.SHOOT_ID to state.lastClickedEntryId.toString(),
                     ),
             )
         }
@@ -107,7 +107,7 @@ private fun handleEffects(
                     navController,
                     mapOf(
                             NavArgument.SCREEN to ArcherRoundScreen.INPUT_END.name,
-                            NavArgument.ARCHER_ROUND_ID to state.lastClickedEntryId.toString(),
+                            NavArgument.SHOOT_ID to state.lastClickedEntryId.toString(),
                     ),
             )
         }
@@ -124,7 +124,7 @@ private fun handleEffects(
         if (state.lastClickedEntryId != null) {
             CodexNavRoute.NEW_SCORE.navigate(
                     navController,
-                    mapOf(NavArgument.ARCHER_ROUND_ID to state.lastClickedEntryId.toString()),
+                    mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
             )
         }
         listener(HandledEditInfoOpened)

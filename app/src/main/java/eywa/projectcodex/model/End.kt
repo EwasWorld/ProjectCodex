@@ -40,11 +40,11 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
     var updateEndSizeListener: UpdateEndSizeListener? = null
 
     /**
-     * @param arrowsList must all belong to the same archerRound
+     * @param arrowsList must all belong to the same shoot
      */
     constructor(arrowsList: List<DatabaseArrowScore>, arrowPlaceholder: String, arrowDeliminator: String) :
             this(arrowsList.size, arrowPlaceholder, arrowDeliminator) {
-        require(arrowsList.map { it.shootId }.distinct().size == 1) { "Arrows must be from the same round" }
+        require(arrowsList.map { it.shootId }.distinct().size == 1) { "Arrows must be from the same shoot" }
         for (arrow in arrowsList) {
             addArrowToEnd(Arrow(arrow.score, arrow.isX))
         }
@@ -190,20 +190,19 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
      * Updates the archer-round ID and arrow IDs for all arrows in the end then adds them to the database and clears the
      * end
      *
-     * @param archerRoundId the archer-round ID to assign to each arrow. Not required if [originalEnd].size ==
-     * [endSize]
+     * @param shootId the shoot ID to assign to each arrow. Not required if [originalEnd].size == [endSize]
      * @param firstArrowId the arrow number to assign to the first arrow in the end, subsequent arrows increment on
      * this. Not required if [originalEnd].size == [endSize]
      * @throws UserException if the end is not full
-     * @throws IllegalStateException if [archerRoundId] or [firstArrowId] is invalid
+     * @throws IllegalStateException if [shootId] or [firstArrowId] is invalid
      */
     fun getDatabaseUpdates(
-            archerRoundId: Int?,
+            shootId: Int?,
             firstArrowId: Int?
     ): Pair<UpdateType, List<DatabaseArrowScore>> {
-        val origArcherRoundIds = originalEnd?.map { it.shootId }?.distinct()
-        val finalArcherRoundId = origArcherRoundIds?.get(0) ?: archerRoundId
-        check(finalArcherRoundId != null) { "Must provide archerRoundId" }
+        val originalShootIds = originalEnd?.map { it.shootId }?.distinct()
+        val finalShootId = originalShootIds?.get(0) ?: shootId
+        check(finalShootId != null) { "Must provide shootId" }
 
         // TODO Make sure these requirements are thoroughly unit tested
         if (arrows.size != endSize) throw UserException(
@@ -214,8 +213,8 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         }
         else {
             val originalEnd = originalEnd!!
-            check(origArcherRoundIds!!.size == 1) { "originalEnd contains arrow values from multiple rounds" }
-            check(archerRoundId == finalArcherRoundId) { "archerRoundId doesn't match those in the database" }
+            check(originalShootIds!!.size == 1) { "originalEnd contains arrow values from multiple rounds" }
+            check(shootId == finalShootId) { "shootId doesn't match those in the database" }
 
             check(originalEnd.size == arrows.size || firstArrowId != null) {
                 "Must provide firstArrowId or match the original end size"
@@ -242,13 +241,8 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         else {
             CustomLogger.customLogger.i(LOG_TAG, "Adding new end")
             var arrowID = firstArrowId!!
-            return UpdateType.NEW to arrows.map { it.toArrowScore(finalArcherRoundId, arrowID++) }
+            return UpdateType.NEW to arrows.map { it.toArrowScore(finalShootId, arrowID++) }
         }
-    }
-
-    fun toArrowScores(archerRoundId: Int, firstArrowId: Int): List<DatabaseArrowScore> {
-        var arrowNumber = firstArrowId
-        return arrows.map { DatabaseArrowScore(archerRoundId, arrowNumber++, it.score, it.isX) }
     }
 
     interface UpdateEndSizeListener {

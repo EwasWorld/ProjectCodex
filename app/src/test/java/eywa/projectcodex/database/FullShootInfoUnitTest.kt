@@ -2,10 +2,10 @@ package eywa.projectcodex.database
 
 import android.content.res.Resources
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addFullSetOfArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addFullSetOfArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -37,8 +37,8 @@ class FullShootInfoUnitTest {
 
     @Test
     fun testScoreSummary_HasRoundWithArrows() {
-        val entry = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo(shoot = ArcherRoundPreviewHelper.newArcherRound(1, date))
+        val entry = ShootPreviewHelper
+                .newFullShootInfo(shoot = ShootPreviewHelper.newShoot(1, date))
                 .addRound(fullRoundInfo)
                 .addFullSetOfArrows()
 
@@ -50,8 +50,8 @@ class FullShootInfoUnitTest {
 
     @Test
     fun testScoreSummary_NoRoundWithArrows() {
-        val entry = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo(shoot = ArcherRoundPreviewHelper.newArcherRound(1, date))
+        val entry = ShootPreviewHelper
+                .newFullShootInfo(shoot = ShootPreviewHelper.newShoot(1, date))
                 .addFullSetOfArrows()
 
         Assert.assertEquals(
@@ -62,8 +62,8 @@ class FullShootInfoUnitTest {
 
     @Test
     fun testScoreSummary_NoRoundNoArrows() {
-        val entry = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo(shoot = ArcherRoundPreviewHelper.newArcherRound(1, date))
+        val entry = ShootPreviewHelper
+                .newFullShootInfo(shoot = ShootPreviewHelper.newShoot(1, date))
 
         Assert.assertEquals(
                 "No Round - 20/06/22\nNo arrows entered",

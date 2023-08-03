@@ -1,9 +1,9 @@
 package eywa.projectcodex.components.archerRoundScore.state
 
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.GoldsType
 
@@ -17,7 +17,7 @@ object ArcherRoundStatePreviewHelper {
 
     val SIMPLE = ArcherRoundState.Loaded(
             currentScreen = ArcherRoundScreen.INPUT_END,
-            fullShootInfo = ArcherRoundPreviewHelper.newFullArcherRoundInfo(),
+            fullShootInfo = ShootPreviewHelper.newFullShootInfo(),
             goldsType = GoldsType.NINES,
             inputArrows = inputArrows,
     )

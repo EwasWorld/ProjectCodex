@@ -12,9 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * @see ArcherRoundScoreViewModel
- */
+
 @HiltViewModel
 class AboutViewModel @Inject constructor(
         val updateDefaultRoundsTask: UpdateDefaultRoundsTask,

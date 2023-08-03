@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class ArcherRoundIdsUseCase {
+class ShootIdsUseCase {
     private val items: MutableStateFlow<List<Int>?> = MutableStateFlow(null)
     val getItems = items.asStateFlow()
 

@@ -73,7 +73,7 @@ class InputEndInstrumentedTest {
             RoundDistance(2, 3, 1, 50),
             RoundDistance(3, 1, 1, 1),
     )
-    private val shootData = listOf(
+    private val shoots = listOf(
             DatabaseShoot(1, TestUtils.generateDate(2020), 1, true),
             DatabaseShoot(2, TestUtils.generateDate(2019), 1, true),
             DatabaseShoot(3, TestUtils.generateDate(2018), 1, true),
@@ -101,7 +101,7 @@ class InputEndInstrumentedTest {
                 roundsInput.forEach { item -> db.roundDao().insert(item) }
                 arrowCountsInput.forEach { item -> db.roundArrowCountDao().insert(item) }
                 distancesInput.forEach { item -> db.roundDistanceDao().insert(item) }
-                shootData.forEach { item -> db.shootDao().insert(item) }
+                shoots.forEach { item -> db.shootDao().insert(item) }
                 shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
         }

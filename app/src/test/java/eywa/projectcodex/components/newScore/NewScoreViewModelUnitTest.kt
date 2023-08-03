@@ -43,11 +43,11 @@ class NewScoreViewModelUnitTest {
 
     private suspend fun getSut(
             testScope: CoroutineScope,
-            archerRoundId: Int? = null,
+            shootId: Int? = null,
             updateDefaultRoundsStates: List<UpdateDefaultRoundsState>? = listOf(updateDefaultRoundsCompleteState),
     ): NewScoreViewModel {
         val savedStateHandle = MockSavedStateHandle().apply {
-            archerRoundId?.let { values["archerRoundId"] = it }
+            shootId?.let { values["shootId"] = it }
         }
 
         val updateDefaultRoundsTask: UpdateDefaultRoundsTask = mock {
@@ -71,8 +71,8 @@ class NewScoreViewModelUnitTest {
     }
 
     @Test
-    fun testInitialisation_ArcherRoundNotFound() = runTest {
-        val sut = getSut(testScope = this, archerRoundId = 1, updateDefaultRoundsStates = null)
+    fun testInitialisation_ShootNotFound() = runTest {
+        val sut = getSut(testScope = this, shootId = 1, updateDefaultRoundsStates = null)
 
         Assert.assertEquals(NewScoreState(), sut.state.value)
 
@@ -87,8 +87,8 @@ class NewScoreViewModelUnitTest {
     }
 
     @Test
-    fun testInitialisation_NoArcherRoundSet() = runTest {
-        val sut = getSut(testScope = this, archerRoundId = null, updateDefaultRoundsStates = null)
+    fun testInitialisation_NoShootSet() = runTest {
+        val sut = getSut(testScope = this, shootId = null, updateDefaultRoundsStates = null)
 
         Assert.assertEquals(NewScoreState(), sut.state.value)
         advanceUntilIdle()
@@ -103,19 +103,19 @@ class NewScoreViewModelUnitTest {
                         arrows = List(arrowCount) { DatabaseArrowScore(1, it + 1, 7, false) },
                 )
 
-        val archerRoundInitial = create(0)
-        val archerRoundSecond = create(12)
-        db.archerRoundDao.fullArcherRounds = listOf(archerRoundInitial)
-        db.archerRoundDao.secondFullArcherRounds = listOf(archerRoundSecond)
-        val sut = getSut(testScope = this, archerRoundId = 1, updateDefaultRoundsStates = null)
+        val shootInitial = create(0)
+        val shootSecond = create(12)
+        db.shootDao.fullShoots = listOf(shootInitial)
+        db.shootDao.secondFullShoots = listOf(shootSecond)
+        val sut = getSut(testScope = this, shootId = 1, updateDefaultRoundsStates = null)
 
         Assert.assertEquals(NewScoreState(), sut.state.value)
         advanceTimeBy(1)
         Assert.assertEquals(
                 NewScoreState(
-                        roundBeingEdited = FullShootInfo(archerRoundInitial, true),
-                        roundBeingEditedArrowsShot = archerRoundInitial.arrows.orEmpty().count(),
-                        dateShot = archerRoundInitial.shoot.dateShot,
+                        roundBeingEdited = FullShootInfo(shootInitial, true),
+                        roundBeingEditedArrowsShot = shootInitial.arrows.orEmpty().count(),
+                        dateShot = shootInitial.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
                 ),
                 sut.state.value,
@@ -124,9 +124,9 @@ class NewScoreViewModelUnitTest {
         advanceUntilIdle()
         Assert.assertEquals(
                 NewScoreState(
-                        roundBeingEdited = FullShootInfo(archerRoundSecond, true),
-                        roundBeingEditedArrowsShot = archerRoundSecond.arrows.orEmpty().count(),
-                        dateShot = archerRoundSecond.shoot.dateShot,
+                        roundBeingEdited = FullShootInfo(shootSecond, true),
+                        roundBeingEditedArrowsShot = shootSecond.arrows.orEmpty().count(),
+                        dateShot = shootSecond.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
                 ),
                 sut.state.value,

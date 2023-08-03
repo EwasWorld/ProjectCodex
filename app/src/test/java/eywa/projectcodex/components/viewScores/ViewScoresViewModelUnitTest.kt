@@ -1,13 +1,13 @@
 package eywa.projectcodex.components.viewScores
 
-import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
+import eywa.projectcodex.common.diActivityHelpers.ShootIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.asDatabaseFullArcherRoundInfo
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.completeRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.asDatabaseFullShootInfo
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.completeRound
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
@@ -45,11 +45,11 @@ class ViewScoresViewModelUnitTest {
     private val helpShowcase: HelpShowcaseUseCase = mock { }
     private val customLogger: CustomLogger = mock { }
     private val datastore = MockDatastore()
-    private val archerRoundIdsUseCase = ArcherRoundIdsUseCase()
+    private val shootIdsUseCase = ShootIdsUseCase()
 
     private fun getSut(datastoreUse2023System: Boolean = true): ViewScoresViewModel {
         datastore.values = mapOf(DatastoreKey.Use2023HandicapSystem to datastoreUse2023System)
-        return ViewScoresViewModel(db.mock, helpShowcase, customLogger, datastore.mock, archerRoundIdsUseCase)
+        return ViewScoresViewModel(db.mock, helpShowcase, customLogger, datastore.mock, shootIdsUseCase)
     }
 
     /**
@@ -64,10 +64,10 @@ class ViewScoresViewModelUnitTest {
                         arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
 
-        val archerRoundsInitial = listOf(create(1, 5), create(3, 3))
-        val archerRoundsSecond = listOf(create(1, 5), create(2, 3))
-        db.archerRoundDao.fullArcherRounds = archerRoundsInitial
-        db.archerRoundDao.secondFullArcherRounds = archerRoundsSecond
+        val shootsInitial = listOf(create(1, 5), create(3, 3))
+        val shootsSecond = listOf(create(1, 5), create(2, 3))
+        db.shootDao.fullShoots = shootsInitial
+        db.shootDao.secondFullShoots = shootsSecond
         val sut = getSut()
 
         assertEquals(
@@ -77,7 +77,7 @@ class ViewScoresViewModelUnitTest {
 
         advanceTimeBy(1)
         assertEquals(
-                archerRoundsInitial.map {
+                shootsInitial.map {
                     ViewScoresEntry(FullShootInfo(it, true), false, customLogger)
                 },
                 sut.state.value.data.sortedBy { it.id },
@@ -87,7 +87,7 @@ class ViewScoresViewModelUnitTest {
         sut.handle(EntryClicked(1))
         advanceUntilIdle()
         assertEquals(
-                archerRoundsSecond.map {
+                shootsSecond.map {
                     ViewScoresEntry(FullShootInfo(it, true), it.shoot.shootId == 1, customLogger)
                 },
                 sut.state.value.data.sortedBy { it.id },
@@ -102,10 +102,10 @@ class ViewScoresViewModelUnitTest {
                         arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
                 )
 
-        val archerRoundsInitial = listOf(create(1, 5), create(3, 3))
-        val archerRoundsSecond = listOf(create(1, 5), create(2, 3))
-        db.archerRoundDao.fullArcherRounds = archerRoundsInitial
-        db.archerRoundDao.secondFullArcherRounds = archerRoundsSecond
+        val shootsInitial = listOf(create(1, 5), create(3, 3))
+        val shootsSecond = listOf(create(1, 5), create(2, 3))
+        db.shootDao.fullShoots = shootsInitial
+        db.shootDao.secondFullShoots = shootsSecond
         val sut = getSut(datastoreUse2023System = false)
 
         assertEquals(
@@ -115,7 +115,7 @@ class ViewScoresViewModelUnitTest {
 
         advanceTimeBy(1)
         assertEquals(
-                archerRoundsInitial.map {
+                shootsInitial.map {
                     ViewScoresEntry(FullShootInfo(it, false), false, customLogger)
                 },
                 sut.state.value.data.sortedBy { it.id },
@@ -133,33 +133,33 @@ class ViewScoresViewModelUnitTest {
 
         assertEquals(Filters<ShootFilter>(), sut.state.value.filters)
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.archerRoundDao.mock).getAllFullShootInfo(false, null, null, null, null)
+        verify(db.shootDao.mock).getAllFullShootInfo(false, null, null, null, null)
 
         sut.handle(AddFilter(ShootFilter.PersonalBests))
         advanceUntilIdle()
 
         assertEquals(Filters<ShootFilter>(setOf(ShootFilter.PersonalBests)), sut.state.value.filters)
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.archerRoundDao.mock).getAllFullShootInfo(true, null, null, null, null)
+        verify(db.shootDao.mock).getAllFullShootInfo(true, null, null, null, null)
 
-        verify(db.archerRoundDao.mock, times(2))
+        verify(db.shootDao.mock, times(2))
                 .getAllFullShootInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
     }
 
     @Test
     fun testMultiSelectStatesAndTransitions() = runTest {
-        val archerRounds = listOf(
-                ArcherRoundPreviewHelper.newFullArcherRoundInfo(1),
-                ArcherRoundPreviewHelper.newFullArcherRoundInfo(2),
-                ArcherRoundPreviewHelper.newFullArcherRoundInfo(3),
+        val shoots = listOf(
+                ShootPreviewHelper.newFullShootInfo(1),
+                ShootPreviewHelper.newFullShootInfo(2),
+                ShootPreviewHelper.newFullShootInfo(3),
         )
-        db.archerRoundDao.fullArcherRounds = archerRounds.map { it.asDatabaseFullArcherRoundInfo() }
+        db.shootDao.fullShoots = shoots.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
         advanceUntilIdle()
 
         fun addSelected(isSelected: List<Boolean>): List<ViewScoresEntry> {
-            check(isSelected.size == archerRounds.size) { "Invalid size" }
-            return archerRounds.mapIndexed { index, far ->
+            check(isSelected.size == shoots.size) { "Invalid size" }
+            return shoots.mapIndexed { index, far ->
                 ViewScoresEntry(far, isSelected[index], customLogger)
             }
         }
@@ -262,13 +262,13 @@ class ViewScoresViewModelUnitTest {
             type: ConvertScoreType = ConvertScoreType.TO_FIVE_ZONE,
             testClose: Boolean = false,
     ) = runTest {
-        val archerRound = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo()
+        val shoot = ShootPreviewHelper
+                .newFullShootInfo()
                 .copy(arrows = originalArrows)
         var expectedState = ViewScoresState(
-                data = listOf(ViewScoresEntry(info = archerRound, isSelected = false, customLogger = customLogger))
+                data = listOf(ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger))
         )
-        db.archerRoundDao.fullArcherRounds = listOf(archerRound.asDatabaseFullArcherRoundInfo())
+        db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
         advanceUntilIdle()
 
@@ -310,17 +310,17 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testEntryClicked() = runTest {
-        val archerRound =
+        val shoot =
                 listOf(
-                        ArcherRoundPreviewHelper.newFullArcherRoundInfo(1),
-                        ArcherRoundPreviewHelper.newFullArcherRoundInfo(2)
+                        ShootPreviewHelper.newFullShootInfo(1),
+                        ShootPreviewHelper.newFullShootInfo(2)
                                 .addRound(RoundPreviewHelper.indoorMetricRoundData)
                                 .completeRound(5),
                 )
         var expectedState = ViewScoresState(
-                data = archerRound.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
+                data = shoot.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
         ).reorderDataById()
-        db.archerRoundDao.fullArcherRounds = archerRound.map { it.asDatabaseFullArcherRoundInfo() }
+        db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
         advanceUntilIdle()
         fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
@@ -349,17 +349,17 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_OpenDisplayClose() = runTest {
-        val archerRound =
+        val shoot =
                 listOf(
-                        ArcherRoundPreviewHelper.newFullArcherRoundInfo(1),
-                        ArcherRoundPreviewHelper.newFullArcherRoundInfo(2)
+                        ShootPreviewHelper.newFullShootInfo(1),
+                        ShootPreviewHelper.newFullShootInfo(2)
                                 .addRound(RoundPreviewHelper.indoorMetricRoundData)
                                 .completeRound(5),
                 )
         var expectedState = ViewScoresState(
-                data = archerRound.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
+                data = shoot.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
         ).reorderDataById()
-        db.archerRoundDao.fullArcherRounds = archerRound.map { it.asDatabaseFullArcherRoundInfo() }
+        db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
         advanceUntilIdle()
         fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
@@ -388,12 +388,12 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_Options() = runTest {
-        val archerRound = ArcherRoundPreviewHelper.newFullArcherRoundInfo()
+        val shoot = ShootPreviewHelper.newFullShootInfo()
                 .addRound(RoundPreviewHelper.indoorMetricRoundData)
         var expectedState = ViewScoresState(
-                data = listOf(ViewScoresEntry(info = archerRound, isSelected = false, customLogger = customLogger))
+                data = listOf(ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger))
         )
-        db.archerRoundDao.fullArcherRounds = listOf(archerRound.asDatabaseFullArcherRoundInfo())
+        db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
         fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
         advanceUntilIdle()
@@ -438,17 +438,17 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_Continue() = runTest {
-        val archerRound =
+        val shoot =
                 listOf(
-                        ArcherRoundPreviewHelper.newFullArcherRoundInfo(1),
-                        ArcherRoundPreviewHelper.newFullArcherRoundInfo(2)
+                        ShootPreviewHelper.newFullShootInfo(1),
+                        ShootPreviewHelper.newFullShootInfo(2)
                                 .addRound(RoundPreviewHelper.indoorMetricRoundData)
                                 .completeRound(5),
                 )
         var expectedState = ViewScoresState(
-                data = archerRound.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
+                data = shoot.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
         ).reorderDataById()
-        db.archerRoundDao.fullArcherRounds = archerRound.map { it.asDatabaseFullArcherRoundInfo() }
+        db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
         fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
         advanceUntilIdle()
@@ -483,12 +483,12 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_Delete() = runTest {
-        val archerRound = ArcherRoundPreviewHelper.newFullArcherRoundInfo()
+        val shoot = ShootPreviewHelper.newFullShootInfo()
                 .addRound(RoundPreviewHelper.indoorMetricRoundData)
         var expectedState = ViewScoresState(
-                data = listOf(ViewScoresEntry(info = archerRound, isSelected = false, customLogger = customLogger))
+                data = listOf(ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger))
         )
-        db.archerRoundDao.fullArcherRounds = listOf(archerRound.asDatabaseFullArcherRoundInfo())
+        db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
         fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
         advanceUntilIdle()
@@ -517,19 +517,19 @@ class ViewScoresViewModelUnitTest {
         checkState()
 
         advanceUntilIdle()
-        verify(db.archerRoundDao.mock, never()).deleteRound(any())
+        verify(db.shootDao.mock, never()).deleteRound(any())
 
         sut.handle(DeleteDialogOkClicked)
         expectedState = expectedState.copy(deleteDialogOpen = false)
         checkState()
 
         advanceUntilIdle()
-        verify(db.archerRoundDao.mock).deleteRound(1)
+        verify(db.shootDao.mock).deleteRound(1)
     }
 
     @Test
     fun testNoRoundsDialogOkClicked() = runTest {
-        db.archerRoundDao.fullArcherRounds = listOf()
+        db.shootDao.fullShoots = listOf()
         val sut = getSut()
         advanceUntilIdle()
         assertEquals(ViewScoresState(), sut.state.value.reorderDataById())

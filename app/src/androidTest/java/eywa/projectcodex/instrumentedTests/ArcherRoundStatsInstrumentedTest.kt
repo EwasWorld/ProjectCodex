@@ -74,7 +74,7 @@ class ArcherRoundStatsInstrumentedTest {
             RoundSubType(2, 1, "Sub Type 1"),
             RoundSubType(2, 2, "Sub Type 2")
     )
-    private val shootData = listOf(
+    private val shoots = listOf(
             DatabaseShoot(
                     shootId = 1,
                     dateShot = Date(2014, 6, 17, 15, 21, 37).asCalendar(),
@@ -134,7 +134,7 @@ class ArcherRoundStatsInstrumentedTest {
                 arrowCountsInput.forEach { db.roundArrowCountDao().insert(it) }
                 subTypesInput.forEach { db.roundSubTypeDao().insert(it) }
                 distancesInput.forEach { db.roundDistanceDao().insert(it) }
-                shootData.forEach { db.shootDao().insert(it) }
+                shoots.forEach { db.shootDao().insert(it) }
                 arrows.forEach { db.arrowScoreDao().insert(it) }
                 shootRounds.forEach { db.shootRoundDao().insert(it) }
                 shootDetails.forEach { db.shootDetailDao().insert(it) }
@@ -151,14 +151,14 @@ class ArcherRoundStatsInstrumentedTest {
 
     @Test
     fun testAllStatsNoRound() {
-        val archerRoundId = shootData[ShootTypes.NO_ROUND.row].shootId
-        check(shootData.find { it.shootId == archerRoundId } != null) { "Invalid archer round ID" }
+        val shootId = shoots[ShootTypes.NO_ROUND.row].shootId
+        check(shoots.find { it.shootId == shootId } != null) { "Invalid archer round ID" }
 
         var arrowNumber = 1
         arrows = listOf(
-                List(6) { TestUtils.ARROWS[10].toArrowScore(archerRoundId, arrowNumber++) },
-                List(38) { TestUtils.ARROWS[5].toArrowScore(archerRoundId, arrowNumber++) },
-                List(4) { TestUtils.ARROWS[0].toArrowScore(archerRoundId, arrowNumber++) }
+                List(6) { TestUtils.ARROWS[10].toArrowScore(shootId, arrowNumber++) },
+                List(38) { TestUtils.ARROWS[5].toArrowScore(shootId, arrowNumber++) },
+                List(4) { TestUtils.ARROWS[0].toArrowScore(shootId, arrowNumber++) }
         ).flatten()
 
         val expectedScore = 38 * 5 + 6 * 10
@@ -187,13 +187,13 @@ class ArcherRoundStatsInstrumentedTest {
 
     @Test
     fun testHasRound() {
-        val archerRoundId = shootData[ShootTypes.ROUND.row].shootId
-        val archerRound = shootData.find { it.shootId == archerRoundId }!!
-        val shootRound = shootRounds.find { it.shootId == archerRound.shootId }!!
+        val shootId = shoots[ShootTypes.ROUND.row].shootId
+        val shoot = shoots.find { it.shootId == shootId }!!
+        val shootRound = shootRounds.find { it.shootId == shoot.shootId }!!
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(archerRoundId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(shootId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -220,13 +220,13 @@ class ArcherRoundStatsInstrumentedTest {
     fun testOldHandicapSystem() {
         LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
 
-        val archerRoundId = shootData[ShootTypes.ROUND.row].shootId
-        val archerRound = shootData.find { it.shootId == archerRoundId }!!
-        val shootRound = shootRounds.find { it.shootId == archerRound.shootId }!!
+        val shootId = shoots[ShootTypes.ROUND.row].shootId
+        val shoot = shoots.find { it.shootId == shootId }!!
+        val shootRound = shootRounds.find { it.shootId == shoot.shootId }!!
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(archerRoundId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(shootId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {

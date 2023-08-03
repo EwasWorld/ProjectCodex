@@ -1,9 +1,9 @@
 package eywa.projectcodex.components.archerRoundScore
 
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.newFullArcherRoundInfo
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.newFullShootInfo
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
@@ -46,7 +46,7 @@ class ArcherRoundStateUnitTest {
                         .copy(
                                 scorePadSelectedEnd = 3,
                                 scorePadEndSizePartial = 3,
-                                fullShootInfo = newFullArcherRoundInfo()
+                                fullShootInfo = newFullShootInfo()
                                         .addIdenticalArrows(60, 7)
                                         .addRound(RoundPreviewHelper.indoorMetricRoundData),
                         ),
@@ -60,7 +60,7 @@ class ArcherRoundStateUnitTest {
                         .copy(
                                 scorePadSelectedEnd = 8,
                                 scorePadEndSizePartial = 5,
-                                fullShootInfo = newFullArcherRoundInfo()
+                                fullShootInfo = newFullShootInfo()
                                         .addIdenticalArrows(60, 7)
                                         .addRound(RoundPreviewHelper.outdoorImperialRoundData),
                         ),
@@ -73,7 +73,7 @@ class ArcherRoundStateUnitTest {
                         .copy(
                                 scorePadSelectedEnd = 13,
                                 scorePadEndSizePartial = 5,
-                                fullShootInfo = newFullArcherRoundInfo()
+                                fullShootInfo = newFullShootInfo()
                                         .addIdenticalArrows(60, 7)
                                         .addRound(RoundPreviewHelper.outdoorImperialRoundData),
                         ),

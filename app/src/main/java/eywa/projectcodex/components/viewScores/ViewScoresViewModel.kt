@@ -3,7 +3,7 @@ package eywa.projectcodex.components.viewScores
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
+import eywa.projectcodex.common.diActivityHelpers.ShootIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -22,9 +22,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * @see ArcherRoundScoreViewModel
- */
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ViewScoresViewModel @Inject constructor(
@@ -32,7 +30,7 @@ class ViewScoresViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
         private val customLogger: CustomLogger,
         private val datastore: CodexDatastore,
-        private val archerRoundIdsUseCase: ArcherRoundIdsUseCase,
+        private val shootIdsUseCase: ShootIdsUseCase,
 ) : ViewModel() {
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.asStateFlow()
@@ -73,27 +71,27 @@ class ViewScoresViewModel @Inject constructor(
             is EntryClicked -> {
                 _state.update {
                     if (it.isInMultiSelectMode) {
-                        it.selectItem(action.archerRoundId)
+                        it.selectItem(action.shootId)
                     }
                     else {
                         it.data
-                                .find { entry -> entry.id == action.archerRoundId }
+                                .find { entry -> entry.id == action.shootId }
                                 ?.getSingleClickAction()
                                 ?.handleClick
-                                ?.invoke(it.copy(lastClickedEntryId = action.archerRoundId), archerRoundIdsUseCase)
+                                ?.invoke(it.copy(lastClickedEntryId = action.shootId), shootIdsUseCase)
                                 ?: return@update it
                     }
                 }
             }
             is EntryLongClicked ->
                 _state.update {
-                    if (it.isInMultiSelectMode) it.selectItem(action.archerRoundId)
-                    else it.copy(lastClickedEntryId = action.archerRoundId, dropdownMenuOpen = true)
+                    if (it.isInMultiSelectMode) it.selectItem(action.shootId)
+                    else it.copy(lastClickedEntryId = action.shootId, dropdownMenuOpen = true)
                 }
             is DropdownMenuClicked ->
                 _state.update {
                     action.item
-                            .handleClick(it.copy(lastClickedEntryId = action.archerRoundId), archerRoundIdsUseCase)
+                            .handleClick(it.copy(lastClickedEntryId = action.shootId), shootIdsUseCase)
                             .copy(dropdownMenuOpen = false)
                 }
             DropdownMenuClosed -> _state.update { it.copy(dropdownMenuOpen = false) }
@@ -115,12 +113,12 @@ class ViewScoresViewModel @Inject constructor(
         }
     }
 
-    private fun ViewScoresState.selectItem(archerRoundId: Int): ViewScoresState {
+    private fun ViewScoresState.selectItem(shootId: Int): ViewScoresState {
         if (!isInMultiSelectMode) return this
 
         val entryIndex = _state.value
                 .data
-                .indexOfFirst { entry -> entry.id == archerRoundId }
+                .indexOfFirst { entry -> entry.id == shootId }
                 .takeIf { index -> index >= 0 }
                 ?: return this
 
@@ -157,7 +155,7 @@ class ViewScoresViewModel @Inject constructor(
             MultiSelectBarIntent.ClickOpen -> _state.update { it.copy(isInMultiSelectMode = true) }
             MultiSelectBarIntent.ClickClose ->
                 _state.update {
-                    archerRoundIdsUseCase.clear()
+                    shootIdsUseCase.clear()
                     it.copy(
                             isInMultiSelectMode = false,
                             data = it.data.map { entry -> entry.copy(isSelected = false) },
@@ -174,7 +172,7 @@ class ViewScoresViewModel @Inject constructor(
                     return@update it.copy(multiSelectEmailNoSelection = true)
                 }
 
-                archerRoundIdsUseCase.setItems(selectedItems.map { item -> item.id })
+                shootIdsUseCase.setItems(selectedItems.map { item -> item.id })
                 it.copy(multiSelectEmailClicked = true)
             }
         }

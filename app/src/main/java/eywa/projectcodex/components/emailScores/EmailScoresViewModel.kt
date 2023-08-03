@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eywa.projectcodex.R
-import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
+import eywa.projectcodex.common.diActivityHelpers.ShootIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -36,7 +36,7 @@ class EmailScoresViewModel @Inject constructor(
         private val datastore: CodexDatastore,
         private val helpShowcase: HelpShowcaseUseCase,
         db: ScoresRoomDatabase,
-        private val archerRoundIdsUseCase: ArcherRoundIdsUseCase,
+        private val shootIdsUseCase: ShootIdsUseCase,
         private val customLogger: CustomLogger,
 ) : ViewModel() {
     private val repo = db.shootsRepo()
@@ -46,7 +46,7 @@ class EmailScoresViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            archerRoundIdsUseCase.getItems
+            shootIdsUseCase.getItems
                     .flatMapLatest {
                         if (it == null) emptyFlow<List<DatabaseFullShootInfo>?>()
                         else repo.getFullShootInfo(it)
@@ -83,12 +83,12 @@ class EmailScoresViewModel @Inject constructor(
                 }
             DismissNoEntriesError -> {
                 if (state.value.error == EmailScoresError.NO_SELECTED_ENTRIES) {
-                    archerRoundIdsUseCase.clear()
+                    shootIdsUseCase.clear()
                     _state.update { it.copy(error = null, navigateUpTriggered = true) }
                 }
             }
             is IntentHandledSuccessfully -> {
-                archerRoundIdsUseCase.clear()
+                shootIdsUseCase.clear()
                 _state.update { it.copy(intentWithoutTextExtra = null) }
             }
             is OpenError ->

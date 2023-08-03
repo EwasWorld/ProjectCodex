@@ -16,7 +16,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 class MockScoresRoomDatabase {
-    val archerRoundDao = MockArcherRoundDao()
+    val shootDao = MockShootDao()
     val arrowScoreDao: ArrowScoreDao = mock {}
     val roundDao = MockRoundDao()
     val roundArrowCountDao: RoundArrowCountDao = mock {}
@@ -26,7 +26,7 @@ class MockScoresRoomDatabase {
     val shootDetailDao: ShootDetailDao = mock {}
 
     val mock: ScoresRoomDatabase = mock {
-        on { shootDao() } doReturn archerRoundDao.mock
+        on { shootDao() } doReturn shootDao.mock
         on { arrowScoreDao() } doReturn arrowScoreDao
         on { roundDao() } doReturn roundDao.mock
         on { roundArrowCountDao() } doReturn roundArrowCountDao
@@ -34,25 +34,25 @@ class MockScoresRoomDatabase {
         on { roundDistanceDao() } doReturn roundDistanceDao
         on { shootRoundDao() } doReturn shootRoundDao
         on { shootDetailDao() } doReturn shootDetailDao
-        on { shootsRepo() } doReturn ShootsRepo(archerRoundDao.mock, shootDetailDao, shootRoundDao)
+        on { shootsRepo() } doReturn ShootsRepo(shootDao.mock, shootDetailDao, shootRoundDao)
     }
 
-    class MockArcherRoundDao {
-        var fullArcherRounds: List<DatabaseFullShootInfo> = listOf()
-        var secondFullArcherRounds: List<DatabaseFullShootInfo>? = null
+    class MockShootDao {
+        var fullShoots: List<DatabaseFullShootInfo> = listOf()
+        var secondFullShoots: List<DatabaseFullShootInfo>? = null
 
         val mock: ShootDao = mock {
             on {
                 getAllFullShootInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
-            } doReturn getArcherRounds()
-            on { getFullShootInfo(anyInt()) } doReturn getArcherRounds().map { it.firstOrNull() }
-            on { getFullShootInfo(anyList()) } doReturn getArcherRounds()
+            } doReturn getShoots()
+            on { getFullShootInfo(anyInt()) } doReturn getShoots().map { it.firstOrNull() }
+            on { getFullShootInfo(anyList()) } doReturn getShoots()
         }
 
-        private fun getArcherRounds() = flow {
-            emit(fullArcherRounds)
+        private fun getShoots() = flow {
+            emit(fullShoots)
 
-            secondFullArcherRounds.takeIf { !it.isNullOrEmpty() }?.let {
+            secondFullShoots.takeIf { !it.isNullOrEmpty() }?.let {
                 delay(FLOW_EMIT_DELAY)
                 emit(it)
             }

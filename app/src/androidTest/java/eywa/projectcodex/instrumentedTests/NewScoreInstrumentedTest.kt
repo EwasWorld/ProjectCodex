@@ -67,10 +67,10 @@ class NewScoreInstrumentedTest {
 
     private val distancesInput = TestUtils.ROUND_DISTANCES
 
-    private suspend fun getCurrentArcherRounds() = db.shootDao().getAllFullShootInfo().first()
+    private suspend fun getCurrentShoots() = db.shootDao().getAllFullShootInfo().first()
 
-    private suspend fun getArcherRounds(archerRoundId: Int) =
-            db.shootDao().getFullShootInfo(archerRoundId).first()
+    private suspend fun getShoots(shootId: Int) =
+            db.shootDao().getFullShootInfo(shootId).first()
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
@@ -117,10 +117,10 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val currentArcherRounds = getCurrentArcherRounds()
-        assertEquals(2, currentArcherRounds.size)
-        assertEquals(2, currentArcherRounds[1].shoot.shootId)
-        assertEquals(null, currentArcherRounds[1].round?.roundId)
+        val currentShoots = getCurrentShoots()
+        assertEquals(2, currentShoots.size)
+        assertEquals(2, currentShoots[1].shoot.shootId)
+        assertEquals(null, currentShoots[1].round?.roundId)
     }
 
     /**
@@ -153,7 +153,7 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val roundsAfterCreate = getCurrentArcherRounds()
+        val roundsAfterCreate = getCurrentShoots()
                 .filterNot { it.shoot.shootId == ar.shootId }
         assertEquals(2, roundsAfterCreate.size)
         assertEquals(shootInput, roundsAfterCreate[0].shoot)
@@ -189,7 +189,7 @@ class NewScoreInstrumentedTest {
         setup()
         db.shootDao().getAllFullShootInfo().takeWhile { it.isEmpty() }.collect()
 
-        val roundsBeforeCreate = getCurrentArcherRounds()
+        val roundsBeforeCreate = getCurrentShoots()
         assertEquals(1, roundsBeforeCreate.size)
 
         val selectedRound = roundsInput[0]
@@ -207,7 +207,7 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val roundsAfterCreate = getCurrentArcherRounds()
+        val roundsAfterCreate = getCurrentShoots()
         assertEquals(2, roundsAfterCreate.size)
         assertEquals(shootInput, roundsAfterCreate[0].shoot)
         assertEquals(selectedRound.roundId, roundsAfterCreate[1].shootRound?.roundId)
@@ -236,7 +236,7 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val roundsAfterCreate = getCurrentArcherRounds().toMutableList()
+        val roundsAfterCreate = getCurrentShoots().toMutableList()
         for (round in roundsAfterCreate) {
             if (round.shootRound?.roundId == 1) continue
             assertEquals(2040, round.shoot.dateShot.get(Calendar.YEAR))
@@ -301,7 +301,7 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val updated = getArcherRounds(shootInput.shootId)
+        val updated = getShoots(shootInput.shootId)
         assertEquals(
                 DatabaseShoot(
                         shootInput.shootId,
@@ -343,7 +343,7 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val actual = getArcherRounds(shootInput.shootId)!!
+        val actual = getShoots(shootInput.shootId)!!
         val actualDateShot = actual.shoot.dateShot
         assertEquals(
                 DatabaseShoot(

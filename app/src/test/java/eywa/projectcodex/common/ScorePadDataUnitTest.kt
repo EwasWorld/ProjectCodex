@@ -2,12 +2,12 @@ package eywa.projectcodex.common
 
 import android.content.res.Resources
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addIdenticalArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowScoresPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
@@ -77,7 +77,7 @@ class ScorePadDataUnitTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testZeroEndSize() {
-        ScorePadData(ArcherRoundPreviewHelper.newFullArcherRoundInfo().addIdenticalArrows(5, 3), 0, GoldsType.NINES)
+        ScorePadData(ShootPreviewHelper.newFullShootInfo().addIdenticalArrows(5, 3), 0, GoldsType.NINES)
         Assert.fail("Created ScorePadData with 0 endSize")
     }
 
@@ -85,7 +85,7 @@ class ScorePadDataUnitTest {
     fun testGeneral_NoArrows() {
         assertEquals(
                 listOf<ScorePadRow>(),
-                ScorePadData(ArcherRoundPreviewHelper.newFullArcherRoundInfo(), 6, GoldsType.NINES).data
+                ScorePadData(ShootPreviewHelper.newFullShootInfo(), 6, GoldsType.NINES).data
         )
     }
 
@@ -104,7 +104,7 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadData(
-                ArcherRoundPreviewHelper.newFullArcherRoundInfo().addIdenticalArrows(totalArrows, arrowScore),
+                ShootPreviewHelper.newFullShootInfo().addIdenticalArrows(totalArrows, arrowScore),
                 endSize,
                 GoldsType.NINES,
         ).data
@@ -160,8 +160,8 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadData(
-                ArcherRoundPreviewHelper
-                        .newFullArcherRoundInfo()
+                ShootPreviewHelper
+                        .newFullShootInfo()
                         .addRound(RoundPreviewHelper.outdoorImperialRoundData)
                         .addIdenticalArrows(totalArrows, arrowScore),
                 endSize,
@@ -217,8 +217,8 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadData(
-                ArcherRoundPreviewHelper
-                        .newFullArcherRoundInfo()
+                ShootPreviewHelper
+                        .newFullShootInfo()
                         .addRound(RoundPreviewHelper.indoorMetricRoundData)
                         .addIdenticalArrows(totalArrows, arrowScore),
                 endSize,
@@ -233,8 +233,8 @@ class ScorePadDataUnitTest {
 
     @Test
     fun testAllTargetArrowScores() {
-        val info = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo()
+        val info = ShootPreviewHelper
+                .newFullShootInfo()
                 .let { info ->
                     info.copy(
                             arrows = List(11) { DatabaseArrowScore(info.id, it, it, false) }
@@ -295,8 +295,8 @@ class ScorePadDataUnitTest {
                 ),
         )
 
-        val info = ArcherRoundPreviewHelper
-                .newFullArcherRoundInfo()
+        val info = ShootPreviewHelper
+                .newFullShootInfo()
                 .let { info ->
                     info.copy(
                             arrows = List(11) { DatabaseArrowScore(info.id, it, it, false) }
@@ -440,7 +440,7 @@ class ScorePadDataUnitTest {
     fun testToCsv_NoRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(arrows),
+                info = ShootPreviewHelper.newFullShootInfo().addArrows(arrows),
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -464,7 +464,7 @@ class ScorePadDataUnitTest {
     fun testToCsv_WithRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -490,7 +490,7 @@ class ScorePadDataUnitTest {
     fun testToCsv_WithRoundNoDistanceTotals() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -514,7 +514,7 @@ class ScorePadDataUnitTest {
     fun testToString_NoRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addArrows(arrows),
+                info = ShootPreviewHelper.newFullShootInfo().addArrows(arrows),
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -541,7 +541,7 @@ class ScorePadDataUnitTest {
     fun testToString_WithRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -570,7 +570,7 @@ class ScorePadDataUnitTest {
     fun testToString_WithRoundNoDistanceTotals() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )

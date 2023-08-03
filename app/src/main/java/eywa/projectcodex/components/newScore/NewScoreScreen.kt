@@ -35,9 +35,9 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
@@ -73,7 +73,7 @@ private fun handleEffects(
                 navController,
                 mapOf(
                         NavArgument.SCREEN to ArcherRoundScreen.INPUT_END.name,
-                        NavArgument.ARCHER_ROUND_ID to state.navigateToInputEnd.toString(),
+                        NavArgument.SHOOT_ID to state.navigateToInputEnd.toString(),
                 ),
         ) {
             val currentRoute = navController.currentDestination?.route
@@ -338,7 +338,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // Editing
             NewScoreState(
                     selectRoundDialogState = SelectRoundDialogState(allRounds = roundsData),
-                    roundBeingEdited = ArcherRoundPreviewHelper.newFullArcherRoundInfo(),
+                    roundBeingEdited = ShootPreviewHelper.newFullShootInfo(),
             ),
 
             // DbInProgress
@@ -354,7 +354,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             selectedRoundId = round.round.roundId,
                             selectedSubTypeId = round.roundSubTypes.first().subTypeId,
                     ),
-                    roundBeingEdited = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(round),
+                    roundBeingEdited = ShootPreviewHelper.newFullShootInfo().addRound(round),
                     roundBeingEditedArrowsShot = 1000,
             ),
 

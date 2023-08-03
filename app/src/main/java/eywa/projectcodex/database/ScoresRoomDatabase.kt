@@ -114,15 +114,15 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
 
         val firstOfThisYear =
                 Date(Calendar.getInstance().get(Calendar.YEAR), Calendar.JANUARY, 1, 10, 0, 0).asCalendar()
-        val shootData = listOf(
+        val shoots = listOf(
                 DatabaseShoot(1, firstOfThisYear, 1),
                 DatabaseShoot(2, Date.valueOf("2012-2-2").asCalendar(), 1),
                 DatabaseShoot(3, Date.valueOf("2011-3-3").asCalendar(), 1),
                 DatabaseShoot(4, Date.valueOf("2010-4-4").asCalendar(), 1),
                 DatabaseShoot(5, Date.valueOf("2009-5-5").asCalendar(), 1),
         )
-        shootData.forEach { shootDao().insert(it) }
-        shootData.map { shoot ->
+        shoots.forEach { shootDao().insert(it) }
+        shoots.map { shoot ->
             val shootId = shoot.shootId
             List(1) { arrowNumber -> arrowTypes[shootId].toArrowScore(shootId, arrowNumber) }
         }.flatten().forEach { arrowScoreDao().insert(it) }

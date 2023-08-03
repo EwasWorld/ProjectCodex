@@ -97,7 +97,7 @@ object TestUtils {
         return Date.valueOf("$year-$generatedMonth-$day").asCalendar()
     }
 
-    fun generateArcherRounds(roundsToGenerate: Int): List<DatabaseShoot> = List(roundsToGenerate) { generateDate() }
+    fun generateShoots(roundsToGenerate: Int): List<DatabaseShoot> = List(roundsToGenerate) { generateDate() }
             .sortedDescending()
             .mapIndexed { index, date ->
                 DatabaseShoot(index + 1, date, 1, false)
@@ -120,10 +120,10 @@ object TestUtils {
         }
     }
 
-    fun generateArrowScores(archerRoundId: Int, numberToGenerate: Int, desiredTotal: Int? = null) =
+    fun generateArrowScores(shootId: Int, numberToGenerate: Int, desiredTotal: Int? = null) =
             generateArrows(numberToGenerate, desiredTotal)
                     .mapIndexed { arrowIndex, arrow ->
-                        arrow.toArrowScore(archerRoundId, arrowIndex + 1)
+                        arrow.toArrowScore(shootId, arrowIndex + 1)
 
                     }
 

@@ -37,10 +37,10 @@ import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
 import eywa.projectcodex.model.Arrow
 
@@ -339,12 +339,12 @@ fun EmailScoresScreen_Preview() {
         EmailScoresScreen(
                 state = EmailScoresState(
                         rounds = listOf(
-                                ArcherRoundPreviewHelper
-                                        .newFullArcherRoundInfo(1)
+                                ShootPreviewHelper
+                                        .newFullShootInfo(1)
                                         .addRound(RoundPreviewHelper.indoorMetricRoundData)
                                         .addArrows(List(36) { Arrow(7, false) }),
-                                ArcherRoundPreviewHelper
-                                        .newFullArcherRoundInfo(1)
+                                ShootPreviewHelper
+                                        .newFullShootInfo(1)
                                         .addRound(RoundPreviewHelper.outdoorImperialRoundData)
                                         .addArrows(List(12) { Arrow(4, false) }),
                         ),

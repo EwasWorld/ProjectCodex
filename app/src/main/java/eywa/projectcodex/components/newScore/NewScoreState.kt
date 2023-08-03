@@ -71,7 +71,7 @@ data class NewScoreState(
      * Edited rounds copy their old data, overwriting fields selected on the screen
      * New rounds defaults: [DatabaseShoot.shootId] is 0, [DatabaseShoot.archerId] is 1
      */
-    fun asArcherRound() = DatabaseShoot(
+    fun asShoot() = DatabaseShoot(
             shootId = roundBeingEdited?.shoot?.shootId ?: 0,
             // TODO Check date locales (I want to store in UTC)
             dateShot = dateShot,

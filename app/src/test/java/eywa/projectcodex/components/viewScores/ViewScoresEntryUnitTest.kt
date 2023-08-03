@@ -1,12 +1,12 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.logging.CustomLogger
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addFullSetOfArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.addRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper.completeRound
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowScoresPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addFullSetOfArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.completeRound
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -38,7 +38,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testGolds_Tens() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addFullSetOfArrows(),
                 customLogger = customLogger,
         )
         assertEquals("2", entry.hitsScoreGolds?.split("/")?.last())
@@ -47,7 +47,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testGolds_Nines() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addFullSetOfArrows(),
                 customLogger = customLogger,
         )
         assertEquals("3", entry.hitsScoreGolds?.split("/")?.last())
@@ -56,7 +56,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testGolds_Custom() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addFullSetOfArrows(),
                 customLogger = customLogger,
         )
         assertEquals(1, entry.golds(GoldsType.XS))
@@ -65,7 +65,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testScore() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addFullSetOfArrows(),
                 customLogger = customLogger,
         )
         assertEquals(
@@ -77,7 +77,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testHits() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addFullSetOfArrows(),
                 customLogger = customLogger,
         )
         assertEquals(
@@ -89,7 +89,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testHandicap() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addFullSetOfArrows(),
                 customLogger = customLogger,
         )
 
@@ -110,7 +110,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testRoundComplete() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo()
+                info = ShootPreviewHelper.newFullShootInfo()
                         .addRound(fullRoundInfo)
                         .completeRound(10, false),
                 customLogger = customLogger,
@@ -122,7 +122,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testRoundIncomplete() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addRound(fullRoundInfo).addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addFullSetOfArrows(),
                 customLogger = customLogger,
         )
 
@@ -132,7 +132,7 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testRoundComplete_NoRound() {
         val entry = ViewScoresEntry(
-                info = ArcherRoundPreviewHelper.newFullArcherRoundInfo().addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo().addFullSetOfArrows(),
                 customLogger = customLogger,
         )
 

@@ -93,12 +93,12 @@ object ViewScoresEntryPreviewProvider {
         )
     }
 
-    private fun generateArrows(archerRoundId: Int, hsg: List<Int>) =
-            generateArrows(archerRoundId, hsg[0], hsg[1], hsg[2])
+    private fun generateArrows(shootId: Int, hsg: List<Int>) =
+            generateArrows(shootId, hsg[0], hsg[1], hsg[2])
 
-    private fun generateArrows(archerRoundId: Int, hits: Int, score: Int, golds: Int): List<DatabaseArrowScore> {
+    private fun generateArrows(shootId: Int, hits: Int, score: Int, golds: Int): List<DatabaseArrowScore> {
         if (hits == 0 && score == 0 && golds == 0) {
-            return listOf(DatabaseArrowScore(archerRoundId, 1, 0, false))
+            return listOf(DatabaseArrowScore(shootId, 1, 0, false))
         }
 
         val nonGoldHits = hits - golds
@@ -116,7 +116,7 @@ object ViewScoresEntryPreviewProvider {
 
         return goldArrows.plus(hitArrows)
                 .mapIndexed { index, arrow ->
-                    arrow.toArrowScore(archerRoundId, index)
+                    arrow.toArrowScore(shootId, index)
                 }
     }
 

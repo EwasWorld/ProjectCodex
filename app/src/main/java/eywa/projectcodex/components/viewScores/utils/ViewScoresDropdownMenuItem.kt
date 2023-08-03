@@ -2,13 +2,13 @@ package eywa.projectcodex.components.viewScores.utils
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
-import eywa.projectcodex.common.diActivityHelpers.ArcherRoundIdsUseCase
+import eywa.projectcodex.common.diActivityHelpers.ShootIdsUseCase
 import eywa.projectcodex.components.viewScores.ViewScoresState
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 
 enum class ViewScoresDropdownMenuItem(
         @StringRes val title: Int,
-        val handleClick: ViewScoresState.(archerRoundIdsUseCase: ArcherRoundIdsUseCase) -> ViewScoresState,
+        val handleClick: ViewScoresState.(shootIdsUseCase: ShootIdsUseCase) -> ViewScoresState,
         /**
          * Only display this dropdown menu item if this returns true
          */

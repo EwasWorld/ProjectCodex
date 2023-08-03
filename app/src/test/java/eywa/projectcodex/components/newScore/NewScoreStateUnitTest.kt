@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.newScore
 
-import eywa.projectcodex.common.sharedUi.previewHelpers.ArcherRoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -13,7 +13,7 @@ class NewScoreStateUnitTest {
     fun testIsEditing() {
         assertEquals(
                 true,
-                NewScoreState(roundBeingEdited = ArcherRoundPreviewHelper.newFullArcherRoundInfo()).isEditing
+                NewScoreState(roundBeingEdited = ShootPreviewHelper.newFullShootInfo()).isEditing
         )
         assertEquals(
                 false,

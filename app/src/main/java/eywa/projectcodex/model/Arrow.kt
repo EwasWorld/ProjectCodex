@@ -55,8 +55,8 @@ data class Arrow(val score: Int, val isX: Boolean) {
         return getArrowScoreString(score, isX)
     }
 
-    fun toArrowScore(archerRoundId: Int, arrowNumber: Int): DatabaseArrowScore {
-        return DatabaseArrowScore(archerRoundId, arrowNumber, score, isX)
+    fun toArrowScore(shootId: Int, arrowNumber: Int): DatabaseArrowScore {
+        return DatabaseArrowScore(shootId, arrowNumber, score, isX)
     }
 
     fun asString() = arrowScoreAsString(score, isX)

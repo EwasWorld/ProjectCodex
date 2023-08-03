@@ -20,12 +20,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
-/**
- * @see ArcherRoundScoreViewModel
- */
+
 @HiltViewModel
 class NewScoreViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
@@ -36,13 +33,13 @@ class NewScoreViewModel @Inject constructor(
     private val _state = MutableStateFlow(NewScoreState())
     val state = _state.asStateFlow()
 
-    private val archerRoundsRepo = db.shootsRepo()
+    private val shootsRepo = db.shootsRepo()
 
     private var editingRoundJob: Job? = null
 
     init {
         initialiseRoundBeingEdited(
-                savedStateHandle.get<Int>(NavArgument.ARCHER_ROUND_ID.toArgName())
+                savedStateHandle.get<Int>(NavArgument.SHOOT_ID.toArgName())
                         ?.takeIf { it != DEFAULT_INT_NAV_ARG }
         )
 
@@ -67,7 +64,7 @@ class NewScoreViewModel @Inject constructor(
 
         editingRoundJob?.cancel()
         editingRoundJob = viewModelScope.launch {
-            archerRoundsRepo.getFullShootInfo(roundBeingEditedId)
+            shootsRepo.getFullShootInfo(roundBeingEditedId)
                     .collect { info ->
                         _state.update {
                             if (info == null) return@update it.copy(roundNotFoundError = true)
@@ -110,17 +107,17 @@ class NewScoreViewModel @Inject constructor(
                 val currentState = state.value
                 viewModelScope.launch {
                     if (currentState.isEditing) {
-                        archerRoundsRepo.update(
+                        shootsRepo.update(
                                 original = currentState.roundBeingEdited!!,
-                                shoot = currentState.asArcherRound(),
+                                shoot = currentState.asShoot(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
                         )
                         _state.update { it.copy(popBackstack = true) }
                     }
                     else {
-                        val newId = archerRoundsRepo.insert(
-                                shoot = currentState.asArcherRound(),
+                        val newId = shootsRepo.insert(
+                                shoot = currentState.asShoot(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
                         )

@@ -41,13 +41,13 @@ class ArcherRoundViewModel @Inject constructor(
     private val arrowScoresRepo = ArrowScoresRepo(db.arrowScoreDao())
 
     init {
-        val archerRoundId = savedStateHandle.get<Int>("archerRoundId")
-        if (archerRoundId == null) {
+        val shootId = savedStateHandle.get<Int>("shootId")
+        if (shootId == null) {
             _state.update { InvalidArcherRoundError() }
         }
         else {
             viewModelScope.launch {
-                db.shootsRepo().getFullShootInfo(archerRoundId)
+                db.shootsRepo().getFullShootInfo(shootId)
                         .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
                         .collect { (dbInfo, use2023System) ->
                             if (dbInfo == null) {

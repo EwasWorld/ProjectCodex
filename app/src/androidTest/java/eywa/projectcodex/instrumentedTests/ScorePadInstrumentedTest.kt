@@ -43,10 +43,10 @@ class ScorePadInstrumentedTest {
     private lateinit var resources: Resources
     private lateinit var db: ScoresRoomDatabase
 
-    private suspend fun addArcherRound(archerRoundId: Int = 1, roundId: Int? = null, year: Int = 2022) {
+    private suspend fun addShoot(shootId: Int = 1, roundId: Int? = null, year: Int = 2022) {
         db.shootDao().insert(
                 DatabaseShoot(
-                        shootId = archerRoundId,
+                        shootId = shootId,
                         dateShot = TestUtils.generateDate(year),
                         archerId = 1,
                 )
@@ -54,16 +54,16 @@ class ScorePadInstrumentedTest {
         roundId?.let {
             db.shootRoundDao().insert(
                     DatabaseShootRound(
-                            shootId = archerRoundId,
+                            shootId = shootId,
                             roundId = roundId,
                     )
             )
         }
     }
 
-    private suspend fun addArrows(indexes: List<Int>, archerRoundId: Int = 1) {
+    private suspend fun addArrows(indexes: List<Int>, shootId: Int = 1) {
         indexes
-                .mapIndexed { index, it -> TestUtils.ARROWS[it].toArrowScore(archerRoundId, index + 1) }
+                .mapIndexed { index, it -> TestUtils.ARROWS[it].toArrowScore(shootId, index + 1) }
                 .forEach { db.arrowScoreDao().insert(it) }
     }
 
@@ -96,7 +96,7 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            addArcherRound(archerRoundId = 1, roundId = null)
+            addShoot(shootId = 1, roundId = null)
             addArrows(arrows)
         }
 
@@ -171,11 +171,11 @@ class ScorePadInstrumentedTest {
             arrowCounts.forEach { db.roundArrowCountDao().insert(it) }
             roundDistances.forEach { db.roundDistanceDao().insert(it) }
 
-            addArcherRound(archerRoundId = 1, roundId = 1, year = 2022)
-            addArrows(indexes = arrows, archerRoundId = 1)
+            addShoot(shootId = 1, roundId = 1, year = 2022)
+            addArrows(indexes = arrows, shootId = 1)
 
-            addArcherRound(archerRoundId = 2, roundId = 2, year = 2021)
-            addArrows(indexes = arrows, archerRoundId = 2)
+            addShoot(shootId = 2, roundId = 2, year = 2021)
+            addArrows(indexes = arrows, shootId = 2)
         }
 
         composeTestRule.mainMenuRobot {
@@ -230,7 +230,7 @@ class ScorePadInstrumentedTest {
     @Test
     fun testEmptyTable() {
         setupActivity {
-            addArcherRound(archerRoundId = 1, roundId = null)
+            addShoot(shootId = 1, roundId = null)
         }
 
         composeTestRule.mainMenuRobot {
@@ -252,7 +252,7 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            addArcherRound(archerRoundId = 1, roundId = null)
+            addShoot(shootId = 1, roundId = null)
             addArrows(arrows)
         }
 
@@ -320,7 +320,7 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            addArcherRound(archerRoundId = 1, roundId = null)
+            addShoot(shootId = 1, roundId = null)
             addArrows(arrows)
         }
 
@@ -360,7 +360,7 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            addArcherRound(archerRoundId = 1, roundId = null)
+            addShoot(shootId = 1, roundId = null)
             addArrows(arrows)
         }
 
@@ -405,7 +405,7 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            addArcherRound(archerRoundId = 1, roundId = null)
+            addShoot(shootId = 1, roundId = null)
             addArrows(arrows)
         }
 
@@ -450,7 +450,7 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            addArcherRound(archerRoundId = 1, roundId = null)
+            addShoot(shootId = 1, roundId = null)
             addArrows(arrows)
         }
 

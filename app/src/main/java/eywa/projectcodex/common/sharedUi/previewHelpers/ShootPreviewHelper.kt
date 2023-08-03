@@ -9,8 +9,8 @@ import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import java.util.*
 
-object ArcherRoundPreviewHelper {
-    fun newArcherRound(
+object ShootPreviewHelper {
+    fun newShoot(
             id: Int = 1,
             date: Calendar = Calendar.getInstance(),
     ) = DatabaseShoot(
@@ -19,10 +19,10 @@ object ArcherRoundPreviewHelper {
             archerId = 1,
     )
 
-    fun newFullArcherRoundInfo(id: Int) =
-            FullShootInfo(shoot = newArcherRound(id = id), arrows = null, use2023HandicapSystem = true)
+    fun newFullShootInfo(id: Int) =
+            FullShootInfo(shoot = newShoot(id = id), arrows = null, use2023HandicapSystem = true)
 
-    fun newFullArcherRoundInfo(shoot: DatabaseShoot = newArcherRound()) =
+    fun newFullShootInfo(shoot: DatabaseShoot = newShoot()) =
             FullShootInfo(shoot = shoot, arrows = null, use2023HandicapSystem = true)
 
     fun FullShootInfo.addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) =
@@ -54,7 +54,7 @@ object ArcherRoundPreviewHelper {
                     }
             )
 
-    fun FullShootInfo.asDatabaseFullArcherRoundInfo() = DatabaseFullShootInfo(
+    fun FullShootInfo.asDatabaseFullShootInfo() = DatabaseFullShootInfo(
             shoot = shoot,
             arrows = arrows,
             round = round,

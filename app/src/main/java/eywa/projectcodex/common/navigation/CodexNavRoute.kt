@@ -30,7 +30,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
     },
     ARCHER_ROUND_SCORE {
         override val args: Map<NavArgument, Boolean>
-            get() = mapOf(NavArgument.ARCHER_ROUND_ID to true, NavArgument.SCREEN to true)
+            get() = mapOf(NavArgument.SHOOT_ID to true, NavArgument.SCREEN to true)
 
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.archer_round_title)
@@ -80,12 +80,12 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
     },
     NEW_SCORE {
         override val args: Map<NavArgument, Boolean>
-            get() = mapOf(NavArgument.ARCHER_ROUND_ID to false)
+            get() = mapOf(NavArgument.SHOOT_ID to false)
 
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String {
             val id = entry?.arguments
-                    ?.getInt(NavArgument.ARCHER_ROUND_ID.toArgName())
+                    ?.getInt(NavArgument.SHOOT_ID.toArgName())
                     ?.takeIf { it != DEFAULT_INT_NAV_ARG }
             return stringResource(
                     if (id == null) R.string.create_round__title

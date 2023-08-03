@@ -79,7 +79,7 @@ class EmailScoresInstrumentedTest {
             RoundSubType(2, 1, "Sub Type 1"),
             RoundSubType(2, 2, "Sub Type 2")
     )
-    private val shootData = listOf(
+    private val shoots = listOf(
             DatabaseShoot(1, TestUtils.generateDate(2024), 1, true),
             DatabaseShoot(2, TestUtils.generateDate(2023), 1, true),
             DatabaseShoot(3, TestUtils.generateDate(2022), 1, true),
@@ -90,15 +90,15 @@ class EmailScoresInstrumentedTest {
             DatabaseShootRound(2, roundId = 1),
             DatabaseShootRound(3, roundId = 2, roundSubTypeId = 1),
     )
-    private val arrows = shootData.mapIndexed { i, archerRound ->
-        val shootRound = shootRounds.find { it.shootId == archerRound.shootId }
+    private val arrows = shoots.mapIndexed { i, shoot ->
+        val shootRound = shootRounds.find { it.shootId == shoot.shootId }
         val round = rounds.find { it.roundId == shootRound?.roundId }
         val arrowsInRound = arrowCounts.sumOf { if (it.roundId == round?.roundId) it.roundId else 0 }
         val desiredCount = if (arrowsInRound == 0) (arrowsPerArrowCount * 2 - i * 6) else (arrowsInRound + i * 6)
         val testDataSize = TestUtils.ARROWS.size
         List(desiredCount) {
             TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].toArrowScore(
-                    archerRound.shootId,
+                    shoot.shootId,
                     it
             )
         }
@@ -111,7 +111,7 @@ class EmailScoresInstrumentedTest {
                 arrowCounts.forEach { item -> db.roundArrowCountDao().insert(item) }
                 distances.forEach { item -> db.roundDistanceDao().insert(item) }
                 subTypes.forEach { item -> db.roundSubTypeDao().insert(item) }
-                shootData.forEach { item -> db.shootDao().insert(item) }
+                shoots.forEach { item -> db.shootDao().insert(item) }
                 arrows.forEach { item -> db.arrowScoreDao().insert(item) }
                 shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
             }
@@ -163,7 +163,7 @@ class EmailScoresInstrumentedTest {
 
     @Test
     fun testEmailScoreWithAttachment() {
-        val roundDate = DateTimeFormat.SHORT_DATE.format(shootData[0].dateShot)
+        val roundDate = DateTimeFormat.SHORT_DATE.format(shoots[0].dateShot)
         val scoresString = "No Round - $roundDate\nHits: 22, Score: 130, Golds (Golds): 6"
         val expected = allOf(
                 hasAction(Intent.ACTION_SEND),

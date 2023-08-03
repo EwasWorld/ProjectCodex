@@ -22,7 +22,7 @@ import org.mockito.Mockito.*
 class EndUnitTest {
     private lateinit var end: End
     private val endSize = 6
-    val archerRoundId = 1
+    val shootId = 1
 
     @Before
     fun setup() {
@@ -208,10 +208,10 @@ class EndUnitTest {
         assertEquals(arrowScores.sum(), end.getScore())
 
         var arrowNumber = 1
-        val output = end.getDatabaseUpdates(archerRoundId, arrowNumber)
+        val output = end.getDatabaseUpdates(shootId, arrowNumber)
         assertEquals(UpdateType.NEW, output.first)
         for (arrow in output.second) {
-            assertEquals(archerRoundId, arrow.shootId)
+            assertEquals(shootId, arrow.shootId)
             assertEquals(arrowNumber, arrow.arrowNumber)
             assertEquals(arrowScores[arrowNumber - 1], arrow.score)
             // Only the last arrow, 6, should be an X
@@ -223,10 +223,10 @@ class EndUnitTest {
     @Test
     fun testAddArrowsToDatabaseEditEnd() {
         val oldArrows = listOf(
-                DatabaseArrowScore(archerRoundId, 4, 3, false),
-                DatabaseArrowScore(archerRoundId, 6, 6, false),
-                DatabaseArrowScore(archerRoundId, 7, 7, false),
-                DatabaseArrowScore(archerRoundId, 8, 10, true)
+                DatabaseArrowScore(shootId, 4, 3, false),
+                DatabaseArrowScore(shootId, 6, 6, false),
+                DatabaseArrowScore(shootId, 7, 7, false),
+                DatabaseArrowScore(shootId, 8, 10, true)
         )
         val arrowScores = listOf(1, 5, 6, 10)
         val end = End(oldArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
@@ -237,10 +237,10 @@ class EndUnitTest {
         assertEquals(arrowScores.sum(), end.getScore())
 
         val firstArrowNumber = 10
-        val output = end.getDatabaseUpdates(archerRoundId, firstArrowNumber)
+        val output = end.getDatabaseUpdates(shootId, firstArrowNumber)
         assertEquals(UpdateType.UPDATE, output.first)
         for (i in output.second.indices) {
-            assertEquals(archerRoundId, output.second[i].shootId)
+            assertEquals(shootId, output.second[i].shootId)
             assertEquals(
                     if (i < oldArrows.size) oldArrows[i].arrowNumber else i + firstArrowNumber - oldArrows.size,
                     output.second[i].arrowNumber
@@ -310,12 +310,12 @@ class EndUnitTest {
     @Test(expected = UserException::class)
     fun testReduceEndSizeEditEnd() {
         val oldArrows = listOf(
-                DatabaseArrowScore(archerRoundId, 1, 3, false),
-                DatabaseArrowScore(archerRoundId, 2, 3, false),
-                DatabaseArrowScore(archerRoundId, 3, 3, false),
-                DatabaseArrowScore(archerRoundId, 4, 6, false),
-                DatabaseArrowScore(archerRoundId, 5, 7, false),
-                DatabaseArrowScore(archerRoundId, 6, 10, true)
+                DatabaseArrowScore(shootId, 1, 3, false),
+                DatabaseArrowScore(shootId, 2, 3, false),
+                DatabaseArrowScore(shootId, 3, 3, false),
+                DatabaseArrowScore(shootId, 4, 6, false),
+                DatabaseArrowScore(shootId, 5, 7, false),
+                DatabaseArrowScore(shootId, 6, 10, true)
         )
         end = End(oldArrows, TestData.ARROW_PLACEHOLDER, TestData.ARROW_DELIMINATOR)
         val listener = mock(End.UpdateEndSizeListener::class.java)
