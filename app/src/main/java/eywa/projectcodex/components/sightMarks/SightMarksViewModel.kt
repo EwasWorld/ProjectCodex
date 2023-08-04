@@ -6,6 +6,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
+import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.LARGE_SCALE_AMOUNT
+import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.LARGE_SHIFT_AMOUNT
+import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.SMALL_SCALE_AMOUNT
+import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.SMALL_SHIFT_AMOUNT
 import eywa.projectcodex.components.sightMarks.SightMarksState.Loaded
 import eywa.projectcodex.components.sightMarks.SightMarksState.Loading
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
@@ -52,6 +56,7 @@ class SightMarksViewModel @Inject constructor(
                         val current = (state.value as Loaded)
                         bowRepo.updateDefaultBow(!current.isHighestNumberAtTheTop)
                     }
+                SightMarksMenuIntent.ShiftAndScale -> handle(ToggleShiftAndScale)
             }
             is SightMarkClicked -> _state.update { (it as Loaded).copy(openSightMarkDetail = action.item.id) }
             CreateSightMarkClicked -> _state.update { (it as Loaded).copy(createNewSightMark = true) }
@@ -60,6 +65,45 @@ class SightMarksViewModel @Inject constructor(
             OpenSightMarkHandled -> _state.update { (it as Loaded).copy(openSightMarkDetail = null) }
 
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.SIGHT_MARKS::class)
+            is Scale -> _state.update {
+                (it as? Loaded)?.scaleAmount ?: return@update it
+                var change = if (action.bigger) LARGE_SCALE_AMOUNT else SMALL_SCALE_AMOUNT
+                if (!action.increased) change *= -1
+
+                val newAmount = it.scaleAmount!! + change
+                if (newAmount <= 0) return@update it
+                it.copy(scaleAmount = newAmount)
+            }
+            is Shift -> _state.update {
+                (it as? Loaded)?.shiftAmount ?: return@update it
+                var change = if (action.bigger) LARGE_SHIFT_AMOUNT else SMALL_SHIFT_AMOUNT
+                if (!action.increased) change *= -1
+                it.copy(shiftAmount = it.shiftAmount!! + change)
+            }
+            ShiftAndScaleFlipClicked -> _state.update {
+                (it as? Loaded)?.scaleAmount ?: return@update it
+                it.copy(flipScale = !it.flipScale)
+            }
+            ToggleShiftAndScale -> _state.update {
+                if (it !is Loaded) return@update it
+                if (it.scaleAmount == null) {
+                    it.copy(scaleAmount = 1f, shiftAmount = 0f)
+                }
+                else {
+                    it.copy(scaleAmount = null, shiftAmount = null)
+                }
+            }
+            ShiftAndScaleSubmitClicked -> {
+                val currentState = (state.value as? Loaded) ?: return
+                currentState.shiftAmount ?: return
+                viewModelScope.launch {
+                    sightMarkRepo.update(
+                            *currentState.getShiftAndScaleState()
+                                    .sightMarks.map { it.asDatabaseSightMark() }
+                                    .toTypedArray()
+                    )
+                }
+            }
         }
     }
 }

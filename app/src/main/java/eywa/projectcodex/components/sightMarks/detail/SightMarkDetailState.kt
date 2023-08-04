@@ -21,6 +21,7 @@ data class SightMarkDetailState(
         val sightMarkIsDirty: Boolean = false,
         val distanceIsDirty: Boolean = false,
 
+        val updateDateSet: Boolean = true,
         val closeScreen: Boolean = false,
 ) {
     val distanceValidatorError = distanceValidators.getFirstError(distance, distanceIsDirty)
@@ -36,7 +37,8 @@ data class SightMarkDetailState(
             bowId = DEFAULT_BOW_ID,
             distance = parsedDistance!!,
             isMetric = isMetric,
-            dateSet = Calendar.getInstance(Locale.getDefault()),
+            dateSet = originalSightMark?.dateSet?.takeIf { !updateDateSet }
+                    ?: Calendar.getInstance(Locale.getDefault()),
             sightMark = parsedSightMark!!,
             isMarked = isMarked,
             isArchived = isArchived,

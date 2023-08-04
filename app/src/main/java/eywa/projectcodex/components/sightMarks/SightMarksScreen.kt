@@ -1,15 +1,17 @@
 package eywa.projectcodex.components.sightMarks
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +41,8 @@ import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuDialogItem
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
 import eywa.projectcodex.model.SightMark
 import java.util.*
+
+private val screenPadding = 15.dp
 
 @Composable
 fun SightMarksScreen(
@@ -82,57 +86,226 @@ fun SightMarksScreen(
             targetState = state,
             modifier = Modifier
                     .background(CodexTheme.colors.appBackground)
+                    .fillMaxSize()
                     .testTag(SightMarksTestTag.SCREEN.getTestTag())
     ) {
+        when {
+            it is SightMarksState.Loading -> LoadingScreen()
+            it !is SightMarksState.Loaded -> throw NotImplementedError()
+            it.sightMarks.isEmpty() -> EmptyScreen(listener)
+            it.isShiftAndScalePreview -> ScalingScreen(it, listener)
+            else -> MainScreen(it, listener)
+        }
+    }
+}
+
+@Composable
+private fun ScrollingColumn(content: @Composable ColumnScope.() -> Unit) =
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
+                content = content,
                 modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .horizontalScroll(rememberScrollState())
-                        .padding(15.dp)
+                        .padding(screenPadding)
+        )
+
+@Composable
+private fun CentredColumn(content: @Composable ColumnScope.() -> Unit) =
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
+                content = content,
+                modifier = Modifier
+                        .fillMaxSize()
+                        .padding(screenPadding)
+        )
+
+@Composable
+private fun ScalingScreen(
+        state: SightMarksState.Loaded,
+        listener: (SightMarksIntent) -> Unit
+) {
+    check(state.sightMarks.isNotEmpty()) { "Cannot be empty" }
+    Box {
+        ScrollingColumn {
+            SightMarksDiagram(
+                    state = state.getShiftAndScaleState(),
+                    onClick = { },
+                    modifier = Modifier.padding(bottom = 200.dp, top = 30.dp)
+            )
+        }
+        Text(
+                text = "Preview",
+                style = CodexTypography.LARGE.copy(color = CodexTheme.colors.onDialogBackground),
+                modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(screenPadding)
+                        .background(CodexTheme.colors.dialogBackground, shape = RoundedCornerShape(30))
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+        )
+        Surface(
+                color = CodexTheme.colors.dialogBackground,
+                shape = RoundedCornerShape(20),
+                modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(screenPadding)
         ) {
-            when (it) {
-                is SightMarksState.Loaded -> SightMarksScreen(it, listener)
-                is SightMarksState.Loading ->
-                    Text(
-                            text = stringResource(R.string.sight_marks__loading),
-                            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                            textAlign = TextAlign.Center,
-                    )
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(10.dp)
+            ) {
+                Text(
+                        text = "Flip",
+                        style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground),
+                        modifier = Modifier
+                                .padding(bottom = 5.dp)
+                                .clickable { listener(SightMarksIntent.ShiftAndScaleFlipClicked) }
+                )
+                Shifter(
+                        title = "Scale",
+                        negativeButtonsEnabled = state.canScaleLower,
+                        helpState = null,
+                        onClick = { isAdd, isBig -> listener(SightMarksIntent.Scale(isAdd, isBig)) },
+                )
+                Shifter(
+                        title = "Shift",
+                        helpState = null,
+                        onClick = { isAdd, isBig -> listener(SightMarksIntent.Shift(isAdd, isBig)) },
+                )
+                Text(
+                        text = "Complete",
+                        style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground),
+                        modifier = Modifier
+                                .padding(top = 5.dp)
+                                .clickable { listener(SightMarksIntent.ShiftAndScaleSubmitClicked) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun SightMarksScreen(
-        state: SightMarksState.Loaded,
-        listener: (SightMarksIntent) -> Unit
+private fun Shifter(
+        title: String,
+        negativeButtonsEnabled: Boolean = true,
+        helpState: HelpState?,
+        onClick: (isAdd: Boolean, isBig: Boolean) -> Unit,
 ) {
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.updateHelpDialogPosition(helpState)
+    ) {
+        IconButton(
+                enabled = negativeButtonsEnabled,
+                onClick = { onClick(false, true) }
+        ) {
+            Icon(
+                    imageVector = Icons.Default.Remove,
+                    contentDescription = "Hi",
+                    tint = CodexTheme.colors.onDialogBackground,
+            )
+        }
+        IconButton(
+                enabled = negativeButtonsEnabled,
+                onClick = { onClick(false, false) }
+        ) {
+            Icon(
+                    imageVector = Icons.Default.Remove,
+                    contentDescription = "Hi",
+                    tint = CodexTheme.colors.onDialogBackground,
+            )
+        }
+        Text(
+                text = title,
+                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground),
+        )
+        IconButton(
+                onClick = { onClick(true, false) }
+        ) {
+            Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Hi",
+                    tint = CodexTheme.colors.onDialogBackground,
+            )
+        }
+        IconButton(
+                onClick = { onClick(true, true) }
+        ) {
+            Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Hi",
+                    tint = CodexTheme.colors.onDialogBackground,
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyScreen(
+        listener: (SightMarksIntent) -> Unit,
+) = CentredColumn {
+    AddNewSightMarkButton(listener)
+    Text(
+            text = stringResource(R.string.sight_marks__diagram_placeholder),
+            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                    .padding(top = 10.dp)
+                    .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
+    )
+    listener(HelpShowcaseAction(Remove(stringResource(R.string.help_sight_marks__diagram_title))))
+}
+
+@Composable
+private fun LoadingScreen() =
+        CentredColumn {
+            Text(
+                    text = stringResource(R.string.sight_marks__loading),
+                    style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+                    textAlign = TextAlign.Center,
+            )
+        }
+
+@Composable
+private fun AddNewSightMarkButton(
+        listener: (SightMarksIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    CodexIconButton(
+            onClick = { listener(SightMarksIntent.CreateSightMarkClicked) },
+            icon = Icons.Default.Add,
+            contentDescription = stringResource(R.string.sight_marks__add_button),
+            captionBelow = stringResource(R.string.sight_marks__add_button),
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_sight_marks__add_title),
+                    helpBody = stringResource(R.string.help_sight_marks__add_body),
+            ),
+            modifier = Modifier
+                    .testTag(SightMarksTestTag.ADD_BUTTON.getTestTag())
+    )
+}
+
+@Composable
+private fun MainScreen(
+        state: SightMarksState.Loaded,
+        listener: (SightMarksIntent) -> Unit,
+) {
+    require(state.sightMarks.isNotEmpty()) { "Sight marks cannot be empty" }
+
     var isMenuShown by remember { mutableStateOf(false) }
     var isArchiveConfirmationShown by remember { mutableStateOf(false) }
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-    Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-    ) {
-        CodexIconButton(
-                onClick = { listener(SightMarksIntent.CreateSightMarkClicked) },
-                icon = Icons.Default.Add,
-                contentDescription = stringResource(R.string.sight_marks__add_button),
-                captionBelow = stringResource(R.string.sight_marks__add_button),
-                helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_sight_marks__add_title),
-                        helpBody = stringResource(R.string.help_sight_marks__add_body),
-                ),
-                modifier = Modifier
-                        .testTag(SightMarksTestTag.ADD_BUTTON.getTestTag())
-        )
-        if (state.sightMarks.isNotEmpty()) {
+    ScrollingColumn {
+        Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AddNewSightMarkButton(listener)
             CodexIconButton(
                     onClick = { isMenuShown = true },
                     icon = Icons.Default.MoreHoriz,
@@ -147,19 +320,6 @@ private fun SightMarksScreen(
                             .testTag(SightMarksTestTag.OPTIONS_BUTTON.getTestTag())
             )
         }
-    }
-    if (state.sightMarks.isEmpty()) {
-        Text(
-                text = stringResource(R.string.sight_marks__diagram_placeholder),
-                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                        .padding(top = 10.dp)
-                        .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
-        )
-        listener(HelpShowcaseAction(Remove(stringResource(R.string.help_sight_marks__diagram_title))))
-    }
-    else {
         HelpShowcaseItem(
                 helpTitle = stringResource(R.string.help_sight_marks__diagram_title),
                 helpBody = stringResource(R.string.help_sight_marks__diagram_body),
@@ -170,40 +330,40 @@ private fun SightMarksScreen(
                 state = state,
                 onClick = { listener(SightMarksIntent.SightMarkClicked(it)) }
         )
-    }
 
-    val menuItems = SightMarksMenuDialogItem.values().map { item ->
-        item.asCodexMenuItem(LocalContext.current.resources) {
-            if (it == SightMarksMenuIntent.ArchiveAll) {
-                isArchiveConfirmationShown = true
+        val menuItems = SightMarksMenuDialogItem.values().map { item ->
+            item.asCodexMenuItem(LocalContext.current.resources) {
+                if (it == SightMarksMenuIntent.ArchiveAll) {
+                    isArchiveConfirmationShown = true
+                }
+                else {
+                    listener(SightMarksIntent.MenuAction(it))
+                }
+                isMenuShown = false
             }
-            else {
-                listener(SightMarksIntent.MenuAction(it))
-            }
-            isMenuShown = false
         }
-    }
-    CodexMenuDialog(isMenuShown, menuItems) { isMenuShown = false }
+        CodexMenuDialog(isMenuShown, menuItems) { isMenuShown = false }
 
-    SimpleDialog(
-            isShown = isArchiveConfirmationShown,
-            onDismissListener = { isArchiveConfirmationShown = false },
-    ) {
-        SimpleDialogContent(
-                title = stringResource(R.string.sight_marks__archive_confirmation_title),
-                message = stringResource(R.string.sight_marks__archive_confirmation_body),
-                positiveButton = ButtonState(
-                        text = stringResource(R.string.sight_marks__archive_confirmation_button),
-                        onClick = {
-                            listener(SightMarksIntent.MenuAction(SightMarksMenuIntent.ArchiveAll))
-                            isArchiveConfirmationShown = false
-                        },
-                ),
-                negativeButton = ButtonState(
-                        text = stringResource(R.string.general_cancel),
-                        onClick = { isArchiveConfirmationShown = false },
-                ),
-        )
+        SimpleDialog(
+                isShown = isArchiveConfirmationShown,
+                onDismissListener = { isArchiveConfirmationShown = false },
+        ) {
+            SimpleDialogContent(
+                    title = stringResource(R.string.sight_marks__archive_confirmation_title),
+                    message = stringResource(R.string.sight_marks__archive_confirmation_body),
+                    positiveButton = ButtonState(
+                            text = stringResource(R.string.sight_marks__archive_confirmation_button),
+                            onClick = {
+                                listener(SightMarksIntent.MenuAction(SightMarksMenuIntent.ArchiveAll))
+                                isArchiveConfirmationShown = false
+                            },
+                    ),
+                    negativeButton = ButtonState(
+                            text = stringResource(R.string.general_cancel),
+                            onClick = { isArchiveConfirmationShown = false },
+                    ),
+            )
+        }
     }
 }
 
@@ -217,6 +377,7 @@ enum class SightMarksTestTag : CodexTestTag {
     OPTIONS_BUTTON,
     ARCHIVE_MENU_BUTTON,
     FLIP_DIAGRAM_MENU_BUTTON,
+    SHIFT_AND_SCALE_MENU_BUTTON,
     ;
 
     override val screenName: String
@@ -250,6 +411,25 @@ fun SightMarksScreen_Preview() {
 @Composable
 fun Empty_SightMarksScreen_Preview() {
     SightMarksScreen(SightMarksState.Loaded(sightMarks = emptyList())) {}
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun Scale_SightMarksScreen_Preview() {
+    SightMarksScreen(
+            SightMarksState.Loaded(
+                    sightMarks = listOf(
+                            SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
+                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f),
+                            SightMark(1, 50, false, Calendar.getInstance(), 2f),
+                    ),
+                    scaleAmount = 1.2f,
+                    shiftAmount = 0.5f,
+            ),
+    ) {}
 }
 
 @Preview(

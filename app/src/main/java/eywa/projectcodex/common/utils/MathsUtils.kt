@@ -1,5 +1,7 @@
 package eywa.projectcodex.common.utils
 
+import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 fun Collection<Int>.standardDeviationInt(isSample: Boolean = false) =
@@ -17,3 +19,8 @@ fun Collection<Float>.standardDeviation(isSample: Boolean = false): Float {
         sqrt(it.sum() / divider)
     }
 }
+
+fun Float.roundToDp(decimalPlaces: Int = 2) =
+        10f.pow(decimalPlaces).let { multiplier ->
+            (this * multiplier).roundToInt() / multiplier
+        }

@@ -14,6 +14,7 @@
     <string name="sight_marks__menu_title">Options</string>
     <string name="sight_marks__menu_flip_diagram">Flip diagram</string>
     <string name="sight_marks__menu_archive_all">Archive all sight marks</string>
+    <string name="sight_marks__menu_shift_and_scale">Shift or scale all sight marks</string>
     <string name="sight_marks__menu_swap_dataset">Swap dataset</string>
 
     <string name="sight_marks__archive_confirmation_title">Archive all</string>
@@ -43,6 +44,8 @@
     <string name="sight_marks__note_placeholder">Add a note</string>
     <string name="sight_marks__marked">Marked</string>
     <string name="sight_marks__archived">Archived</string>
+    <string name="sight_marks__update_date_set_true">Set to today</string>
+    <string name="sight_marks__update_date_set_false">Do not change</string>
 
     <string name="help_sight_marks__sight_title">Sight mark</string>
     <string name="help_sight_marks__sight_body">Your sight mark for the given distance</string>
@@ -56,6 +59,8 @@
     <string name="help_sight_marks__archived_body">An archived sight mark will be de-emphasised on the main sight marks screen. This could be used to indicate an old sight mark from before an equipment change</string>
     <string name="help_sight_marks__note_title">Note</string>
     <string name="help_sight_marks__note_body">Add a note - anything you want</string>
+    <string name="help_sight_marks__update_date_set_title">Set to today</string>
+    <string name="help_sight_marks__update_date_set_body">Upon saving, the last updated date will be set to today. Click to toggle off</string>
     <string name="help_sight_marks__delete_title">Delete</string>
     <string name="help_sight_marks__delete_body">Permanently deletes the sight mark</string>
     <string name="help_sight_marks__reset_title">Reset</string>
