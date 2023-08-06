@@ -20,7 +20,7 @@ sealed class SightMarksState {
 
     data class Loaded(
             val sightMarks: List<SightMark> = listOf(),
-            val isHighestNumberAtTheTop: Boolean = true,
+            val isHighestNumberAtTheTop: Boolean = false,
 
             val openSightMarkDetail: Int? = null,
             val createNewSightMark: Boolean = false,
@@ -49,17 +49,17 @@ sealed class SightMarksState {
                 copy(sightMarks = sightMarks.sortForDisplay(value), isHighestNumberAtTheTop = value)
 
         fun getShiftAndScaleState(): Loaded {
+            if (!isShiftAndScalePreview) return this
+
             val maxSightMark = sightMarks.maxOf { it.sightMark }
+            val minSightMark = sightMarks.minOf { it.sightMark }
             fun Float.shiftAndScale(): Float = this
-                    .let { if (flipScale) maxSightMark - it else it }
-                    .let { it * (scaleAmount ?: 1f) }
-                    .let { it + (shiftAmount ?: 0f) }
+                    .let { if (flipScale) maxSightMark - it + minSightMark else it }
+                    .let { it * (scaleAmount ?: ZERO_SCALE_VALUE) }
+                    .let { it + (shiftAmount ?: ZERO_SHIFT_VALUE) }
                     .roundToDp(2)
 
-            return Loaded(
-                    sightMarks = sightMarks.map { it.copy(sightMark = it.sightMark.shiftAndScale()) },
-                    isHighestNumberAtTheTop = isHighestNumberAtTheTop.let { if (flipScale) !it else it },
-            )
+            return Loaded(sightMarks = sightMarks.map { it.copy(sightMark = it.sightMark.shiftAndScale()) })
         }
     }
 
@@ -70,8 +70,18 @@ sealed class SightMarksState {
         const val LARGE_SCALE_AMOUNT = 1f
         const val SMALL_SCALE_AMOUNT = 0.1f
 
+        /**
+         * The scale value for which there is no scaling (1:1)
+         */
+        const val ZERO_SCALE_VALUE = 1f
+
         // TODO Change amount based on current scale
         const val LARGE_SHIFT_AMOUNT = 1f
         const val SMALL_SHIFT_AMOUNT = 0.1f
+
+        /**
+         * The shift value for which the sight marks are not shifted
+         */
+        const val ZERO_SHIFT_VALUE = 0f
     }
 }

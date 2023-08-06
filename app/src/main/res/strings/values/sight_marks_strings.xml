@@ -67,4 +67,17 @@
     <string name="help_sight_marks__reset_body">Clears any unsaved changes</string>
     <string name="help_sight_marks__save_title">Save</string>
     <string name="help_sight_marks__save_body">Saves the current data and updates the \'last updated\' date to today</string>
+
+
+    <!-- Details screen -->
+    <string name="sight_marks__preview_heading">Preview</string>
+    <string name="sight_marks__preview_flip">Flip</string>
+    <string name="sight_marks__preview_scale">Scale</string>
+    <string name="sight_marks__preview_shift">Shift</string>
+    <string name="sight_marks__preview_increase_description">Increase</string>
+    <string name="sight_marks__preview_big_increase_description">Large increase</string>
+    <string name="sight_marks__preview_decrease_description">Decrease</string>
+    <string name="sight_marks__preview_big_decrease_description">Large decrease</string>
+    <string name="sight_marks__preview_reset_description">Reset</string>
+
 </resources>
