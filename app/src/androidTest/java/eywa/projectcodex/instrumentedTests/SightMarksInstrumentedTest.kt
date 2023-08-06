@@ -137,6 +137,124 @@ class SightMarksInstrumentedTest {
         }
     }
 
+    @Test
+    fun testShiftAndScale() {
+        MainMenuRobot(composeTestRule).run {
+            clickSightMarks()
+
+        }.run {
+            checkEmptyMessage()
+
+            // Add new
+            clickAdd()
+
+        }.run {
+            setInfo(sightMarks[0])
+            clickSave()
+
+        }.run {
+            clickAdd()
+
+        }.run {
+            setInfo(sightMarks[1])
+            clickSave()
+
+        }.run {
+            checkSightMarkDisplayed(sightMarks[0], true)
+            checkSightMarkDisplayed(sightMarks[1])
+            shiftAndScale()
+
+        }.run {
+            checkSightMarkDisplayed(sightMarks[0], true)
+            checkSightMarkDisplayed(sightMarks[1])
+
+            /*
+             * Flip
+             */
+            clickFlip()
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.9f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 2.3f))
+
+            clickFlip()
+            checkSightMarkDisplayed(sightMarks[0], true)
+            checkSightMarkDisplayed(sightMarks[1])
+
+            /*
+             * Shift
+             */
+            clickShiftChange(isIncrease = true, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
+
+            clickShiftChange(isIncrease = true, isLarge = false)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.4f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 6f))
+
+            clickShiftChange(isIncrease = false, isLarge = false)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
+
+            clickShiftChange(isIncrease = false, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0], true)
+            checkSightMarkDisplayed(sightMarks[1])
+
+            /*
+             * Scale
+             */
+            clickScaleChange(isIncrease = true, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+
+            clickScaleChange(isIncrease = true, isLarge = false)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.83f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.29f))
+
+            clickScaleChange(isIncrease = false, isLarge = false)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+
+            clickScaleChange(isIncrease = false, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0], true)
+            checkSightMarkDisplayed(sightMarks[1])
+
+            /*
+             * Reset
+             */
+            clickScaleChange(isIncrease = true, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+
+            clickShiftChange(isIncrease = true, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
+
+            clickShiftReset()
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+
+            clickShiftChange(isIncrease = true, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
+
+            clickScaleReset()
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
+
+            /*
+             * Complete
+             */
+            clickScaleChange(isIncrease = true, isLarge = true)
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
+
+            clickComplete()
+        }.run {
+            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
+
+        }
+    }
+
     /**
      * Example of using the back button
      * TODO Update all robots to this pattern and swap large scale back test to this

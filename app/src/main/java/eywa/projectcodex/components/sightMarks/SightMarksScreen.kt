@@ -39,6 +39,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
+import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagram
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuDialogItem
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
@@ -94,7 +95,7 @@ fun SightMarksScreen(
             modifier = Modifier
                     .background(CodexTheme.colors.appBackground)
                     .fillMaxSize()
-                    .testTag(SightMarksTestTag.SCREEN.getTestTag())
+                    .testTag(SCREEN.getTestTag())
     ) {
         when {
             it is SightMarksState.Loading -> LoadingScreen()
@@ -173,25 +174,30 @@ private fun ScalingScreen(
                         modifier = Modifier
                                 .padding(bottom = 5.dp)
                                 .clickable { listener(ShiftAndScaleIntent.FlipClicked) }
+                                .testTag(SAS_FLIP_BUTTON.getTestTag())
                 )
                 Shifter(
                         title = stringResource(R.string.sight_marks__preview_shift),
                         helpState = null,
                         onClick = { isAdd, isBig -> listener(ShiftAndScaleIntent.Shift(isAdd, isBig)) },
-                        onResetClicked = { listener(ShiftAndScaleIntent.ShiftReset) }
+                        onResetClicked = { listener(ShiftAndScaleIntent.ShiftReset) },
+                        modifier = Modifier.testTag(SAS_SHIFT_BUTTONS.getTestTag())
                 )
                 Shifter(
                         title = stringResource(R.string.sight_marks__preview_scale),
                         negativeButtonsEnabled = state.canScaleLower,
                         helpState = null,
                         onClick = { isAdd, isBig -> listener(ShiftAndScaleIntent.Scale(isAdd, isBig)) },
-                        onResetClicked = { listener(ShiftAndScaleIntent.ScaleReset) }
+                        onResetClicked = { listener(ShiftAndScaleIntent.ScaleReset) },
+                        modifier = Modifier.testTag(SAS_SCALE_BUTTONS.getTestTag())
                 )
                 CodexButton(
                         text = stringResource(R.string.general_complete),
                         onClick = { listener(ShiftAndScaleIntent.SubmitClicked) },
                         buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
-                        modifier = Modifier.padding(vertical = 5.dp)
+                        modifier = Modifier
+                                .padding(vertical = 5.dp)
+                                .testTag(SAS_COMPLETE_BUTTON.getTestTag())
                 )
             }
         }
@@ -201,6 +207,7 @@ private fun ScalingScreen(
 @Composable
 private fun Shifter(
         title: String,
+        modifier: Modifier = Modifier,
         negativeButtonsEnabled: Boolean = true,
         helpState: HelpState?,
         onClick: (isAdd: Boolean, isBig: Boolean) -> Unit,
@@ -211,10 +218,12 @@ private fun Shifter(
             icon: ImageVector,
             isAdd: Boolean,
             isBig: Boolean,
+            testTag: SightMarksTestTag,
     ) {
         IconButton(
                 enabled = isAdd || negativeButtonsEnabled,
                 onClick = { onClick(isAdd, isBig) },
+                modifier = Modifier.testTag(testTag.getTestTag())
         ) {
             Icon(
                     imageVector = icon,
@@ -240,10 +249,20 @@ private fun Shifter(
 
     Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.updateHelpDialogPosition(helpState)
+            modifier = modifier.updateHelpDialogPosition(helpState)
     ) {
-        ChangeIcon(icon = Icons.Default.KeyboardDoubleArrowDown, isAdd = false, isBig = true)
-        ChangeIcon(icon = Icons.Default.KeyboardArrowDown, isAdd = false, isBig = false)
+        ChangeIcon(
+                icon = Icons.Default.KeyboardDoubleArrowDown,
+                isAdd = false,
+                isBig = true,
+                testTag = SAS_LARGE_DECREASE_BUTTON,
+        )
+        ChangeIcon(
+                icon = Icons.Default.KeyboardArrowDown,
+                isAdd = false,
+                isBig = false,
+                testTag = SAS_SMALL_DECREASE_BUTTON,
+        )
         Text(
                 text = title,
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
@@ -251,15 +270,28 @@ private fun Shifter(
                         .semantics { customActions = accessibilityActions }
                         .padding(horizontal = 15.dp)
         )
-        IconButton(onClick = onResetClicked) {
+        IconButton(
+                onClick = onResetClicked,
+                modifier = Modifier.testTag(SAS_RESET_BUTTON.getTestTag())
+        ) {
             Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null,
                     tint = CodexTheme.colors.onAppBackground,
             )
         }
-        ChangeIcon(icon = Icons.Default.KeyboardArrowUp, isAdd = true, isBig = false)
-        ChangeIcon(icon = Icons.Default.KeyboardDoubleArrowUp, isAdd = true, isBig = true)
+        ChangeIcon(
+                icon = Icons.Default.KeyboardArrowUp,
+                isAdd = true,
+                isBig = false,
+                testTag = SAS_SMALL_INCREASE_BUTTON,
+        )
+        ChangeIcon(
+                icon = Icons.Default.KeyboardDoubleArrowUp,
+                isAdd = true,
+                isBig = true,
+                testTag = SAS_LARGE_INCREASE_BUTTON,
+        )
     }
 }
 
@@ -274,7 +306,7 @@ private fun EmptyScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier
                     .padding(top = 10.dp)
-                    .testTag(SightMarksTestTag.NO_SIGHT_MARKS_TEXT.getTestTag())
+                    .testTag(NO_SIGHT_MARKS_TEXT.getTestTag())
     )
     listener(HelpShowcaseAction(Remove(stringResource(R.string.help_sight_marks__diagram_title))))
 }
@@ -305,7 +337,7 @@ private fun AddNewSightMarkButton(
                     helpBody = stringResource(R.string.help_sight_marks__add_body),
             ),
             modifier = Modifier
-                    .testTag(SightMarksTestTag.ADD_BUTTON.getTestTag())
+                    .testTag(ADD_BUTTON.getTestTag())
     )
 }
 
@@ -337,7 +369,7 @@ private fun MainScreen(
                             helpBody = stringResource(R.string.help_sight_marks__options_body),
                     ),
                     modifier = Modifier
-                            .testTag(SightMarksTestTag.OPTIONS_BUTTON.getTestTag())
+                            .testTag(OPTIONS_BUTTON.getTestTag())
             )
         }
         HelpShowcaseItem(
@@ -398,6 +430,16 @@ enum class SightMarksTestTag : CodexTestTag {
     ARCHIVE_MENU_BUTTON,
     FLIP_DIAGRAM_MENU_BUTTON,
     SHIFT_AND_SCALE_MENU_BUTTON,
+
+    SAS_FLIP_BUTTON,
+    SAS_SHIFT_BUTTONS,
+    SAS_SCALE_BUTTONS,
+    SAS_RESET_BUTTON,
+    SAS_SMALL_INCREASE_BUTTON,
+    SAS_LARGE_INCREASE_BUTTON,
+    SAS_SMALL_DECREASE_BUTTON,
+    SAS_LARGE_DECREASE_BUTTON,
+    SAS_COMPLETE_BUTTON,
     ;
 
     override val screenName: String

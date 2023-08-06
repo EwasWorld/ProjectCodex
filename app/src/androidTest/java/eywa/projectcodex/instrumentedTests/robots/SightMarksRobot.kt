@@ -1,13 +1,21 @@
 package eywa.projectcodex.instrumentedTests.robots
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasAnySibling
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
+import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher
 import eywa.projectcodex.model.SightMark
+
+internal fun SightMark.asText(isLeft: Boolean = true) =
+        listOf(
+                sightMark.toString(),
+                "-",
+                "$distance" + if (isMetric) "m" else "yd",
+        )
+                .let { if (isLeft) it.asReversed() else it }
+                .joinToString(" ")
+
 
 class SightMarksRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
@@ -24,27 +32,26 @@ class SightMarksRobot(
         return SightMarkDetailRobot(composeTestRule, null, this)
     }
 
-    private fun SightMark.asText(isLeft: Boolean = true) =
-            listOf(
-                    sightMark.toString(),
-                    "-",
-                    "$distance" + if (isMetric) "m" else "yd",
-            )
-                    .let { if (isLeft) it.asReversed() else it }
-                    .joinToString(" ")
-
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
-        checkElementIsDisplayed(SIGHT_MARK_TEXT, text, true)
-
-        composeTestRule.onNode(
-                hasTestTag(DIAGRAM_NOTE_ICON.getTestTag())
-                        .and(hasAnySibling(hasTestTag(SIGHT_MARK_TEXT.getTestTag()).and(hasText(text)))),
-                true,
-        ).let {
-            if (sightMark.note == null) it.assertDoesNotExist() else it.assertIsDisplayed()
-        }
+        perform(
+                action = CodexNodeAction.AssertIsDisplayed,
+                useUnmergedTree = true,
+                CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT),
+                CodexNodeMatcher.HasText(text),
+        )
+        perform(
+                action = if (sightMark.note == null) CodexNodeAction.AssertDoesNotExist else CodexNodeAction.AssertIsDisplayed,
+                useUnmergedTree = true,
+                CodexNodeMatcher.HasTestTag(DIAGRAM_NOTE_ICON),
+                CodexNodeMatcher.AnySibling(
+                        listOf(
+                                CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT),
+                                CodexNodeMatcher.HasText(text),
+                        )
+                ),
+        )
     }
 
     fun clickSightMark(sightMark: SightMark, isLeft: Boolean = false): SightMarkDetailRobot {
@@ -64,6 +71,12 @@ class SightMarksRobot(
     fun flipDiagram() {
         clickOptions()
         clickElement(FLIP_DIAGRAM_MENU_BUTTON)
+    }
+
+    fun shiftAndScale(): SightMarksShiftAndScaleRobot {
+        clickOptions()
+        clickElement(SHIFT_AND_SCALE_MENU_BUTTON)
+        return SightMarksShiftAndScaleRobot(composeTestRule, this, true)
     }
 
     fun archiveAll() {
