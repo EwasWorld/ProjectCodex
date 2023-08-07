@@ -69,11 +69,21 @@ class SightMarksViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.SIGHT_MARKS::class)
             StartShiftAndScale -> _state.update {
                 if (it !is Loaded) return@update it
-                it.copy(scaleAmount = ZERO_SCALE_VALUE, shiftAmount = ZERO_SHIFT_VALUE, flipScale = false)
+                it.copy(
+                        scaleAmount = ZERO_SCALE_VALUE,
+                        shiftAmount = ZERO_SHIFT_VALUE,
+                        flipScale = false,
+                        isConfirmShiftAndScaleDialogOpen = false,
+                )
             }
             EndShiftAndScale -> _state.update {
                 if (it !is Loaded) return@update it
-                it.copy(scaleAmount = null, shiftAmount = null, flipScale = false)
+                it.copy(
+                        scaleAmount = null,
+                        shiftAmount = null,
+                        flipScale = false,
+                        isConfirmShiftAndScaleDialogOpen = false,
+                )
             }
             is ShiftAndScaleIntent -> handleShiftAndScaleIntent(action)
         }
@@ -100,7 +110,15 @@ class SightMarksViewModel @Inject constructor(
                 (it as? Loaded)?.scaleAmount ?: return@update it
                 it.copy(flipScale = !it.flipScale)
             }
-            ShiftAndScaleIntent.SubmitClicked -> {
+            ShiftAndScaleIntent.SubmitClicked ->
+                _state.update { (it as? Loaded)?.copy(isConfirmShiftAndScaleDialogOpen = true) ?: it }
+            ShiftAndScaleIntent.CancelSubmitClicked ->
+                _state.update { (it as? Loaded)?.copy(isConfirmShiftAndScaleDialogOpen = false) ?: it }
+            ShiftAndScaleIntent.ScaleReset ->
+                _state.update { (it as? Loaded)?.copy(scaleAmount = ZERO_SCALE_VALUE) ?: it }
+            ShiftAndScaleIntent.ShiftReset ->
+                _state.update { (it as? Loaded)?.copy(shiftAmount = ZERO_SHIFT_VALUE) ?: it }
+            ShiftAndScaleIntent.ConfirmSubmitClicked -> {
                 val currentState = (state.value as? Loaded) ?: return
                 currentState.shiftAmount ?: return
                 viewModelScope.launch {
@@ -112,10 +130,6 @@ class SightMarksViewModel @Inject constructor(
                 }
                 handle(EndShiftAndScale)
             }
-            ShiftAndScaleIntent.ScaleReset ->
-                _state.update { (it as? Loaded)?.copy(scaleAmount = ZERO_SCALE_VALUE) ?: it }
-            ShiftAndScaleIntent.ShiftReset ->
-                _state.update { (it as? Loaded)?.copy(shiftAmount = ZERO_SHIFT_VALUE) ?: it }
         }
     }
 }

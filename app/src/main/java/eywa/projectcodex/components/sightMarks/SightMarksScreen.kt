@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -97,6 +98,7 @@ fun SightMarksScreen(
                     .fillMaxSize()
                     .testTag(SCREEN.getTestTag())
     ) {
+        listener(HelpShowcaseAction(HelpShowcaseIntent.Clear))
         when {
             it is SightMarksState.Loading -> LoadingScreen()
             it !is SightMarksState.Loaded -> throw NotImplementedError()
@@ -136,7 +138,15 @@ private fun ScalingScreen(
         state: SightMarksState.Loaded,
         listener: (SightMarksIntent) -> Unit
 ) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
     check(state.sightMarks.isNotEmpty()) { "Cannot be empty" }
+
+    HelpShowcaseItem(
+            helpTitle = stringResource(R.string.help_sight_marks__preview_screen_title),
+            helpBody = stringResource(R.string.help_sight_marks__preview_screen_body),
+            shape = HelpShowcaseShape.NO_SHAPE,
+    ).let { helpListener(Add(it)) }
+
     Box {
         ScrollingColumn {
             SightMarksDiagram(
@@ -175,18 +185,39 @@ private fun ScalingScreen(
                                 .padding(bottom = 5.dp)
                                 .clickable { listener(ShiftAndScaleIntent.FlipClicked) }
                                 .testTag(SAS_FLIP_BUTTON.getTestTag())
+                                .updateHelpDialogPosition(
+                                        HelpState(
+                                                helpListener = helpListener,
+                                                helpTitle = stringResource(R.string.help_sight_marks__preview_flip_title),
+                                                helpBody = stringResource(R.string.help_sight_marks__preview_flip_body),
+                                        ),
+                                )
                 )
                 Shifter(
                         title = stringResource(R.string.sight_marks__preview_shift),
-                        helpState = null,
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_sight_marks__preview_shift_title),
+                                helpBody = stringResource(R.string.help_sight_marks__preview_shift_body),
+                        ),
                         onClick = { isAdd, isBig -> listener(ShiftAndScaleIntent.Shift(isAdd, isBig)) },
                         onResetClicked = { listener(ShiftAndScaleIntent.ShiftReset) },
                         modifier = Modifier.testTag(SAS_SHIFT_BUTTONS.getTestTag())
                 )
                 Shifter(
                         title = stringResource(R.string.sight_marks__preview_scale),
-                        negativeButtonsEnabled = state.canScaleLower,
-                        helpState = null,
+                        enabled = { isAdd, isBig ->
+                            when {
+                                isAdd -> true
+                                isBig -> state.canLargeScaleLower
+                                else -> state.canSmallScaleLower
+                            }
+                        },
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_sight_marks__preview_scale_title),
+                                helpBody = stringResource(R.string.help_sight_marks__preview_scale_body),
+                        ),
                         onClick = { isAdd, isBig -> listener(ShiftAndScaleIntent.Scale(isAdd, isBig)) },
                         onResetClicked = { listener(ShiftAndScaleIntent.ScaleReset) },
                         modifier = Modifier.testTag(SAS_SCALE_BUTTONS.getTestTag())
@@ -195,6 +226,11 @@ private fun ScalingScreen(
                         text = stringResource(R.string.general_complete),
                         onClick = { listener(ShiftAndScaleIntent.SubmitClicked) },
                         buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_sight_marks__preview_complete_title),
+                                helpBody = stringResource(R.string.help_sight_marks__preview_complete_body),
+                        ),
                         modifier = Modifier
                                 .padding(vertical = 5.dp)
                                 .testTag(SAS_COMPLETE_BUTTON.getTestTag())
@@ -202,14 +238,32 @@ private fun ScalingScreen(
             }
         }
     }
+
+    SimpleDialog(
+            isShown = state.isConfirmShiftAndScaleDialogOpen,
+            onDismissListener = { listener(ShiftAndScaleIntent.CancelSubmitClicked) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.sight_marks__preview_confirm_dialog_title),
+                message = stringResource(R.string.sight_marks__preview_confirm_dialog_message),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_ok),
+                        onClick = { listener(ShiftAndScaleIntent.ConfirmSubmitClicked) },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { listener(ShiftAndScaleIntent.CancelSubmitClicked) },
+                ),
+        )
+    }
 }
 
 @Composable
 private fun Shifter(
         title: String,
         modifier: Modifier = Modifier,
-        negativeButtonsEnabled: Boolean = true,
         helpState: HelpState?,
+        enabled: (isAdd: Boolean, isBig: Boolean) -> Boolean = { _, _ -> true },
         onClick: (isAdd: Boolean, isBig: Boolean) -> Unit,
         onResetClicked: () -> Unit,
 ) {
@@ -220,15 +274,16 @@ private fun Shifter(
             isBig: Boolean,
             testTag: SightMarksTestTag,
     ) {
+        val isEnabled = enabled(isAdd, isBig)
         IconButton(
-                enabled = isAdd || negativeButtonsEnabled,
+                enabled = isEnabled,
                 onClick = { onClick(isAdd, isBig) },
                 modifier = Modifier.testTag(testTag.getTestTag())
         ) {
             Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = CodexTheme.colors.onAppBackground,
+                    tint = if (isEnabled) CodexTheme.colors.onAppBackground else CodexTheme.colors.disabledButton,
             )
         }
     }
@@ -238,8 +293,9 @@ private fun Shifter(
             Triple(R.string.sight_marks__preview_big_increase_description, true, true),
             Triple(R.string.sight_marks__preview_decrease_description, false, false),
             Triple(R.string.sight_marks__preview_big_decrease_description, false, true),
-    ).map { (stringId, isAdd, isBig) ->
-        CustomAccessibilityAction(stringResource(stringId)) { onClick(isAdd, isBig); true }
+    ).mapNotNull { (stringId, isAdd, isBig) ->
+        if (!enabled(isAdd, isBig)) null
+        else CustomAccessibilityAction(stringResource(stringId)) { onClick(isAdd, isBig); true }
     }.plus(
             CustomAccessibilityAction(
                     label = stringResource(R.string.sight_marks__preview_reset_description),
@@ -272,7 +328,9 @@ private fun Shifter(
         )
         IconButton(
                 onClick = onResetClicked,
-                modifier = Modifier.testTag(SAS_RESET_BUTTON.getTestTag())
+                modifier = Modifier
+                        .clearAndSetSemantics { }
+                        .testTag(SAS_RESET_BUTTON.getTestTag())
         ) {
             Icon(
                     imageVector = Icons.Default.Refresh,

@@ -19,6 +19,8 @@ sealed class SightMarksIntent {
         object ShiftReset : ShiftAndScaleIntent()
         object ScaleReset : ShiftAndScaleIntent()
         object SubmitClicked : ShiftAndScaleIntent()
+        object ConfirmSubmitClicked : ShiftAndScaleIntent()
+        object CancelSubmitClicked : ShiftAndScaleIntent()
     }
 
     object CreateSightMarkHandled : SightMarksIntent()

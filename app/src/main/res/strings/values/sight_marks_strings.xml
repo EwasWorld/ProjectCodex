@@ -79,5 +79,18 @@
     <string name="sight_marks__preview_decrease_description">Decrease</string>
     <string name="sight_marks__preview_big_decrease_description">Large decrease</string>
     <string name="sight_marks__preview_reset_description">Reset</string>
+    <string name="sight_marks__preview_confirm_dialog_title">Save changes</string>
+    <string name="sight_marks__preview_confirm_dialog_message">Are you sure you want to apply changes to all sight marks? WARNING: this is irreversible</string>
+
+    <string name="help_sight_marks__preview_screen_title">Shift and scale preview</string>
+    <string name="help_sight_marks__preview_screen_body">Diagram shows a preview of what the sight marks will look like after the transformation</string>
+    <string name="help_sight_marks__preview_flip_title">Flip</string>
+    <string name="help_sight_marks__preview_flip_body">Flips all values so that the highest values become the lowest values</string>
+    <string name="help_sight_marks__preview_shift_title">Shift</string>
+    <string name="help_sight_marks__preview_shift_body">Adds or subtracts a set amount to all sight marks</string>
+    <string name="help_sight_marks__preview_scale_title">Scale</string>
+    <string name="help_sight_marks__preview_scale_body">Multiplies all sight marks by a set amount. Increasing will cause the highest and lowest sight marks to be further apart</string>
+    <string name="help_sight_marks__preview_complete_title">Complete</string>
+    <string name="help_sight_marks__preview_complete_body">Apply all changes</string>
 
 </resources>
