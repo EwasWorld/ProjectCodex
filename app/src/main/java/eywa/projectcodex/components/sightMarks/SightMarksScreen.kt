@@ -42,6 +42,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagram
+import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuDialogItem
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
 import eywa.projectcodex.model.SightMark
@@ -57,10 +58,6 @@ fun SightMarksScreen(
     val state by viewModel.state.collectAsState()
     val listener = { it: SightMarksIntent -> viewModel.handle(it) }
     SightMarksScreen(state, listener)
-
-    BackHandler((state as? SightMarksState.Loaded)?.isShiftAndScalePreview == true) {
-        listener(EndShiftAndScale)
-    }
 
     LaunchedEffect(state) { handleEffects(state, navController, listener) }
 }
@@ -103,7 +100,7 @@ fun SightMarksScreen(
             it is SightMarksState.Loading -> LoadingScreen()
             it !is SightMarksState.Loaded -> throw NotImplementedError()
             it.sightMarks.isEmpty() -> EmptyScreen(listener)
-            it.isShiftAndScalePreview -> ScalingScreen(it, listener)
+            it.shiftAndScaleState != null -> ScalingScreen(it, listener)
             else -> MainScreen(it, listener)
         }
     }
@@ -140,6 +137,11 @@ private fun ScalingScreen(
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
     check(state.sightMarks.isNotEmpty()) { "Cannot be empty" }
+    check(state.shiftAndScaleState != null) { "Cannot be null" }
+
+    BackHandler {
+        listener(ShiftAndScaleIntent.EndShiftAndScale)
+    }
 
     HelpShowcaseItem(
             helpTitle = stringResource(R.string.help_sight_marks__preview_screen_title),
@@ -150,7 +152,7 @@ private fun ScalingScreen(
     Box {
         ScrollingColumn {
             SightMarksDiagram(
-                    state = state.getShiftAndScaleState(),
+                    state = state.getShiftedAndScaledSightMarksState(),
                     onClick = { },
                     modifier = Modifier.padding(bottom = 230.dp, top = 30.dp)
             )
@@ -209,8 +211,8 @@ private fun ScalingScreen(
                         enabled = { isAdd, isBig ->
                             when {
                                 isAdd -> true
-                                isBig -> state.canLargeScaleLower
-                                else -> state.canSmallScaleLower
+                                isBig -> state.shiftAndScaleState.canDoLargeScaleDecrease
+                                else -> state.shiftAndScaleState.canDoSmallScaleDecrease
                             }
                         },
                         helpState = HelpState(
@@ -240,7 +242,7 @@ private fun ScalingScreen(
     }
 
     SimpleDialog(
-            isShown = state.isConfirmShiftAndScaleDialogOpen,
+            isShown = state.shiftAndScaleState.isConfirmDialogOpen,
             onDismissListener = { listener(ShiftAndScaleIntent.CancelSubmitClicked) },
     ) {
         SimpleDialogContent(
@@ -248,7 +250,7 @@ private fun ScalingScreen(
                 message = stringResource(R.string.sight_marks__preview_confirm_dialog_message),
                 positiveButton = ButtonState(
                         text = stringResource(R.string.general_ok),
-                        onClick = { listener(ShiftAndScaleIntent.ConfirmSubmitClicked) },
+                        onClick = { listener(ConfirmShiftAndScaleClicked) },
                 ),
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
@@ -539,15 +541,19 @@ fun Empty_SightMarksScreen_Preview() {
 )
 @Composable
 fun Scale_SightMarksScreen_Preview() {
+    val sightMarks = listOf(
+            SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
+            SightMark(1, 20, true, Calendar.getInstance(), 3.2f),
+            SightMark(1, 50, false, Calendar.getInstance(), 2f),
+    )
     SightMarksScreen(
             SightMarksState.Loaded(
-                    sightMarks = listOf(
-                            SightMark(1, 10, true, Calendar.getInstance(), 3.25f),
-                            SightMark(1, 20, true, Calendar.getInstance(), 3.2f),
-                            SightMark(1, 50, false, Calendar.getInstance(), 2f),
+                    sightMarks = sightMarks,
+                    shiftAndScaleState = ShiftAndScaleState(
+                            diagramHelper = SightMarksDiagramHelper(sightMarks, false),
+                            currentScale = 1.2f,
+                            currentShift = 0.5f,
                     ),
-                    scaleAmount = 1.2f,
-                    shiftAmount = 0.5f,
             ),
     ) {}
 }

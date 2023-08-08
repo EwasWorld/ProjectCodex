@@ -7,12 +7,11 @@ class SightMarksDiagramHelper(
         sightMarks: List<SightMark>,
         val isHighestNumberAtTheTop: Boolean,
 ) {
-    private val highestSightMark = sightMarks.maxOf { it.sightMark }
-    private val lowestSightMark = sightMarks.minOf { it.sightMark }
-    private val majorTickDifferenceLog10 =
-            (if (highestSightMark == lowestSightMark) highestSightMark else (highestSightMark - lowestSightMark)).let { difference ->
-                floor(log10(abs(difference))).roundToInt()
-            }
+    val highestSightMark = sightMarks.maxOf { it.sightMark }
+    val lowestSightMark = sightMarks.minOf { it.sightMark }
+    val majorTickDifferenceLog10 =
+            (if (highestSightMark == lowestSightMark) highestSightMark else (highestSightMark - lowestSightMark))
+                    .let { difference -> floor(log10(abs(difference))).roundToInt() }
 
     val majorTickDifference = 10f.pow(majorTickDifferenceLog10).let { diff ->
         // Get the largest gap between two sight marks

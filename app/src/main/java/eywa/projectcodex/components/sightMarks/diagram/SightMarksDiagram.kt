@@ -57,7 +57,7 @@ fun SightMarksDiagram(
         onClick: (SightMark) -> Unit,
         modifier: Modifier = Modifier,
 ) {
-    val helper = SightMarksDiagramHelper(state.sightMarks, state.isHighestNumberAtTheTop)
+    val helper = state.diagramHelper
     val totalSightMarks = state.sightMarks.size
 
     @Composable

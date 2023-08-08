@@ -64,6 +64,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
 
     suspend fun insertDefaults() {
         bowDao().insertDefaultBowIfNotExist()
+        addFakeData()
     }
 
     private suspend fun addFakeData() {

@@ -6,12 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
-import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.LARGE_SCALE_AMOUNT
-import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.LARGE_SHIFT_AMOUNT
-import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.SMALL_SCALE_AMOUNT
-import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.SMALL_SHIFT_AMOUNT
-import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.ZERO_SCALE_VALUE
-import eywa.projectcodex.components.sightMarks.SightMarksState.Companion.ZERO_SHIFT_VALUE
 import eywa.projectcodex.components.sightMarks.SightMarksState.Loaded
 import eywa.projectcodex.components.sightMarks.SightMarksState.Loading
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
@@ -67,68 +61,23 @@ class SightMarksViewModel @Inject constructor(
             OpenSightMarkHandled -> _state.update { (it as Loaded).copy(openSightMarkDetail = null) }
 
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.SIGHT_MARKS::class)
-            StartShiftAndScale -> _state.update {
-                if (it !is Loaded) return@update it
-                it.copy(
-                        scaleAmount = ZERO_SCALE_VALUE,
-                        shiftAmount = ZERO_SHIFT_VALUE,
-                        flipScale = false,
-                        isConfirmShiftAndScaleDialogOpen = false,
-                )
-            }
-            EndShiftAndScale -> _state.update {
-                if (it !is Loaded) return@update it
-                it.copy(
-                        scaleAmount = null,
-                        shiftAmount = null,
-                        flipScale = false,
-                        isConfirmShiftAndScaleDialogOpen = false,
-                )
-            }
-            is ShiftAndScaleIntent -> handleShiftAndScaleIntent(action)
-        }
-    }
-
-    private fun handleShiftAndScaleIntent(action: ShiftAndScaleIntent) {
-        when (action) {
-            is ShiftAndScaleIntent.Scale -> _state.update {
-                (it as? Loaded)?.scaleAmount ?: return@update it
-                var change = if (action.bigger) LARGE_SCALE_AMOUNT else SMALL_SCALE_AMOUNT
-                if (!action.increased) change *= -1
-
-                val newAmount = it.scaleAmount!! + change
-                if (newAmount <= 0) return@update it
-                it.copy(scaleAmount = newAmount)
-            }
-            is ShiftAndScaleIntent.Shift -> _state.update {
-                (it as? Loaded)?.shiftAmount ?: return@update it
-                var change = if (action.bigger) LARGE_SHIFT_AMOUNT else SMALL_SHIFT_AMOUNT
-                if (!action.increased) change *= -1
-                it.copy(shiftAmount = it.shiftAmount!! + change)
-            }
-            ShiftAndScaleIntent.FlipClicked -> _state.update {
-                (it as? Loaded)?.scaleAmount ?: return@update it
-                it.copy(flipScale = !it.flipScale)
-            }
-            ShiftAndScaleIntent.SubmitClicked ->
-                _state.update { (it as? Loaded)?.copy(isConfirmShiftAndScaleDialogOpen = true) ?: it }
-            ShiftAndScaleIntent.CancelSubmitClicked ->
-                _state.update { (it as? Loaded)?.copy(isConfirmShiftAndScaleDialogOpen = false) ?: it }
-            ShiftAndScaleIntent.ScaleReset ->
-                _state.update { (it as? Loaded)?.copy(scaleAmount = ZERO_SCALE_VALUE) ?: it }
-            ShiftAndScaleIntent.ShiftReset ->
-                _state.update { (it as? Loaded)?.copy(shiftAmount = ZERO_SHIFT_VALUE) ?: it }
-            ShiftAndScaleIntent.ConfirmSubmitClicked -> {
+            StartShiftAndScale ->
+                _state.update { if (it !is Loaded) it else it.copy(shiftAndScaleState = it.newShiftAndScaleState) }
+            ConfirmShiftAndScaleClicked -> {
                 val currentState = (state.value as? Loaded) ?: return
-                currentState.shiftAmount ?: return
+                currentState.shiftAndScaleState ?: return
                 viewModelScope.launch {
                     sightMarkRepo.update(
-                            *currentState.getShiftAndScaleState()
+                            *currentState.getShiftedAndScaledSightMarksState()
                                     .sightMarks.map { it.asDatabaseSightMark() }
                                     .toTypedArray()
                     )
                 }
-                handle(EndShiftAndScale)
+                handle(ShiftAndScaleIntent.EndShiftAndScale)
+            }
+            is ShiftAndScaleIntent -> _state.update {
+                val shiftState = (it as? Loaded)?.shiftAndScaleState ?: return@update it
+                it.copy(shiftAndScaleState = shiftState.handle(action))
             }
         }
     }
