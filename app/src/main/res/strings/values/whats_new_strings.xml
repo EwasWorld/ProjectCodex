@@ -6,7 +6,8 @@
     <string name="help_whats_new__title">What\'s new</string>
     <string name="help_whats_new__body">Information about the latest app updates. Icon is a flag when there are new updates to see and a tick when all updates have been viewed.</string>
 
-    <string name="whats_new__2_3_0_important_update">Updates to the handicap calculations to exactly match AGB tables. Note this may have caused some of your handicaps to change slightly.</string>
-    <string name="whats_new__2_3_0_update">Added a faces selector to rounds screen for partial faces e.g. half or triple.</string>
-    <string name="whats_new__2_1_0_important_update">All handicaps now use the Archery GB 2023 handicap system by default. Go to settings to swap back to the old David Lane system.</string>
+    <string name="whats_new__2_3_0_important_update">- Updates to the handicap calculations to exactly match AGB tables. Note this may have caused some handicaps to change slightly.</string>
+    <string name="whats_new__2_3_0_update">- Added a faces selector to rounds screen for partial faces e.g. half or triple.\n- Added options to edit all sight marks at once.</string>
+    <string name="whats_new__2_1_0_important_update">- All handicaps now use the Archery GB 2023 handicap system by default.</string>
+    <string name="whats_new__2_1_0_update">- Go to settings to swap back to the old David Lane handicap system.</string>
 </resources>
