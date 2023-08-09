@@ -331,8 +331,8 @@ private fun Shifter(
         IconButton(
                 onClick = onResetClicked,
                 modifier = Modifier
-                        .clearAndSetSemantics { }
                         .testTag(SAS_RESET_BUTTON.getTestTag())
+                        .clearAndSetSemantics { }
         ) {
             Icon(
                     imageVector = Icons.Default.Refresh,

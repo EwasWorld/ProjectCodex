@@ -5,6 +5,7 @@ import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction
 import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeOptions
 import eywa.projectcodex.model.SightMark
 
 internal fun SightMark.asText(isLeft: Boolean = true) =
@@ -37,13 +38,13 @@ class SightMarksRobot(
 
         perform(
                 action = CodexNodeAction.AssertIsDisplayed,
-                useUnmergedTree = true,
+                options = listOf(CodexNodeOptions.UseUnmergedTree),
                 CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT),
                 CodexNodeMatcher.HasText(text),
         )
         perform(
                 action = if (sightMark.note == null) CodexNodeAction.AssertDoesNotExist else CodexNodeAction.AssertIsDisplayed,
-                useUnmergedTree = true,
+                options = listOf(CodexNodeOptions.UseUnmergedTree),
                 CodexNodeMatcher.HasTestTag(DIAGRAM_NOTE_ICON),
                 CodexNodeMatcher.AnySibling(
                         listOf(

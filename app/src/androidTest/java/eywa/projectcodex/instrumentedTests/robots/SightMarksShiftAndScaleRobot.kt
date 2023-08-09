@@ -5,6 +5,7 @@ import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction.*
 import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher.*
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeOptions
 import eywa.projectcodex.model.SightMark
 
 class SightMarksShiftAndScaleRobot(
@@ -17,13 +18,13 @@ class SightMarksShiftAndScaleRobot(
 
         perform(
                 action = AssertIsDisplayed,
-                useUnmergedTree = true,
+                options = listOf(CodexNodeOptions.UseUnmergedTree),
                 HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT),
                 HasText(text),
         )
         perform(
                 action = if (sightMark.note == null) AssertDoesNotExist else AssertIsDisplayed,
-                useUnmergedTree = true,
+                options = listOf(CodexNodeOptions.UseUnmergedTree),
                 HasTestTag(SightMarksTestTag.DIAGRAM_NOTE_ICON),
                 AnySibling(
                         listOf(
@@ -37,7 +38,6 @@ class SightMarksShiftAndScaleRobot(
     fun clickComplete(): SightMarksRobot {
         perform(
                 action = PerformClick,
-                useUnmergedTree = false,
                 HasTestTag(SightMarksTestTag.SAS_COMPLETE_BUTTON),
         )
         return popRobot()
@@ -46,7 +46,6 @@ class SightMarksShiftAndScaleRobot(
     fun clickFlip() {
         perform(
                 action = PerformClick,
-                useUnmergedTree = false,
                 HasTestTag(SightMarksTestTag.SAS_FLIP_BUTTON),
         )
     }
@@ -54,7 +53,6 @@ class SightMarksShiftAndScaleRobot(
     fun clickScaleReset() {
         perform(
                 action = PerformClick,
-                useUnmergedTree = false,
                 HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON),
                 AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS)),
         )
@@ -63,7 +61,6 @@ class SightMarksShiftAndScaleRobot(
     fun clickShiftReset() {
         perform(
                 action = PerformClick,
-                useUnmergedTree = false,
                 HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON),
                 AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS)),
         )
@@ -72,7 +69,6 @@ class SightMarksShiftAndScaleRobot(
     fun clickScaleChange(isIncrease: Boolean, isLarge: Boolean) {
         perform(
                 action = PerformClick,
-                useUnmergedTree = false,
                 HasTestTag(getShifterTestTag(isIncrease, isLarge)),
                 AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS)),
         )
@@ -81,7 +77,6 @@ class SightMarksShiftAndScaleRobot(
     fun clickShiftChange(isIncrease: Boolean, isLarge: Boolean) {
         perform(
                 action = PerformClick,
-                useUnmergedTree = false,
                 HasTestTag(getShifterTestTag(isIncrease, isLarge)),
                 AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS)),
         )

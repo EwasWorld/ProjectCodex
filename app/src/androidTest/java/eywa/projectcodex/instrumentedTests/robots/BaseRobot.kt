@@ -11,6 +11,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction
 import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeOptions
 import eywa.projectcodex.instrumentedTests.utils.getMatcher
 import java.util.*
 
@@ -52,13 +53,18 @@ abstract class BaseRobot(
 
     fun perform(
             action: CodexNodeAction,
-            useUnmergedTree: Boolean = false,
+            vararg matchers: CodexNodeMatcher,
+    ) = perform(action, emptyList(), *matchers)
+
+    fun perform(
+            action: CodexNodeAction,
+            options: List<CodexNodeOptions>,
             vararg matchers: CodexNodeMatcher,
     ) {
         action.perform(
                 composeTestRule.onNode(
                         matchers.toList().getMatcher(),
-                        useUnmergedTree,
+                        options.contains(CodexNodeOptions.UseUnmergedTree),
                 ),
         )
     }

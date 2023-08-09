@@ -5,6 +5,7 @@ import eywa.projectcodex.components.sightMarks.SightMarksIntent.ShiftAndScaleInt
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
 import kotlin.math.absoluteValue
 import kotlin.math.pow
+import kotlin.math.round
 
 data class ShiftAndScaleState(
         val diagramHelper: SightMarksDiagramHelper,
@@ -32,8 +33,8 @@ data class ShiftAndScaleState(
             .let { it * currentScale }
             .let { it + currentShift }
             .let { v ->
-                val dp = (diagramHelper.majorTickDifferenceLog10 - 2)
-                v.roundToDp(dp.takeIf { it < 0 }?.absoluteValue ?: 2)
+                val magnitude = (diagramHelper.majorTickDifferenceLog10 - 2)
+                if (magnitude >= 0) round(v) else v.roundToDp(magnitude.absoluteValue)
             }
 
     fun handle(action: SightMarksIntent.ShiftAndScaleIntent): ShiftAndScaleState? =

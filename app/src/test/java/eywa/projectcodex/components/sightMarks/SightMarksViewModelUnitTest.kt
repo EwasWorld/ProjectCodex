@@ -45,11 +45,11 @@ class SightMarksViewModelUnitTest {
         assertEquals(
                 expected.copy(
                         sightMarks = expected.sightMarks.sortedBy { it.id },
-                        shiftAndScaleState = expected.shiftAndScaleState?.copy(diagramHelper = expected.diagramHelper)
+                        shiftAndScaleState = expected.shiftAndScaleState?.copy(diagramHelper = expected.diagramHelper!!)
                 ),
                 actual.copy(
                         sightMarks = actual.sightMarks.sortedBy { it.id },
-                        shiftAndScaleState = actual.shiftAndScaleState?.copy(diagramHelper = expected.diagramHelper)
+                        shiftAndScaleState = actual.shiftAndScaleState?.copy(diagramHelper = expected.diagramHelper!!)
                 ),
         )
     }

@@ -11,6 +11,7 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.MainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
 import eywa.projectcodex.model.SightMark
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -139,25 +140,14 @@ class SightMarksInstrumentedTest {
 
     @Test
     fun testShiftAndScale() {
+        runBlocking {
+            sightMarks.forEach {
+                db.sightMarkDao().insert(it.asDatabaseSightMark())
+            }
+        }
+
         MainMenuRobot(composeTestRule).run {
             clickSightMarks()
-
-        }.run {
-            checkEmptyMessage()
-
-            // Add new
-            clickAdd()
-
-        }.run {
-            setInfo(sightMarks[0])
-            clickSave()
-
-        }.run {
-            clickAdd()
-
-        }.run {
-            setInfo(sightMarks[1])
-            clickSave()
 
         }.run {
             checkSightMarkDisplayed(sightMarks[0], true)
@@ -286,7 +276,7 @@ class SightMarksInstrumentedTest {
         private val sightMarks = listOf(
                 SightMark(
                         id = 1,
-                        bowId = -1,
+                        bowId = null,
                         distance = 50,
                         isMetric = false,
                         dateSet = Calendar.getInstance(),
@@ -297,7 +287,7 @@ class SightMarksInstrumentedTest {
                 ),
                 SightMark(
                         id = 2,
-                        bowId = -1,
+                        bowId = null,
                         distance = 60,
                         isMetric = true,
                         dateSet = Calendar.getInstance(),

@@ -57,7 +57,7 @@ fun SightMarksDiagram(
         onClick: (SightMark) -> Unit,
         modifier: Modifier = Modifier,
 ) {
-    val helper = state.diagramHelper
+    val helper = state.diagramHelper!!
     val totalSightMarks = state.sightMarks.size
 
     @Composable

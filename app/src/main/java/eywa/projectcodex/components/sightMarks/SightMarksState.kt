@@ -32,11 +32,12 @@ sealed class SightMarksState {
             require(sightMarks.isNotEmpty() || shiftAndScaleState == null)
         }
 
-        val diagramHelper
-            get() = SightMarksDiagramHelper(sightMarks, isHighestNumberAtTheTop)
+        val diagramHelper = sightMarks
+                .takeIf { it.isNotEmpty() }
+                ?.let { SightMarksDiagramHelper(it, isHighestNumberAtTheTop) }
 
         val newShiftAndScaleState
-            get() = ShiftAndScaleState(diagramHelper)
+            get() = ShiftAndScaleState(diagramHelper!!)
 
         override fun updateSightMarks(value: List<SightMark>) =
                 copy(sightMarks = value.sortForDisplay(isHighestNumberAtTheTop))
