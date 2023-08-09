@@ -1,14 +1,14 @@
 package eywa.projectcodex.testUtils
 
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.bow.DatabaseBow
-import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.shootData.*
 import eywa.projectcodex.database.sightMarks.SightMarkDao
 import eywa.projectcodex.model.SightMark
-import eywa.projectcodex.database.shootData.*
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -95,7 +95,13 @@ class MockScoresRoomDatabase {
         var isHighestAtTop = false
 
         val mock: BowDao = mock {
-            on { getDefaultBow() } doAnswer { flow { emit(DatabaseBow(DEFAULT_BOW_ID, isHighestAtTop)) } }
+            on { getDefaultBow() } doAnswer {
+                flow {
+                    emit(
+                            DatabaseBow(DEFAULT_BOW_ID, "Default", isSightMarkDiagramHighestAtTop = isHighestAtTop)
+                    )
+                }
+            }
         }
     }
 }
