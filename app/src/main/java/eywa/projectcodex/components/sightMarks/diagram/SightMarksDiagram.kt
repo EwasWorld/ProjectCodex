@@ -55,8 +55,9 @@ internal const val CHEVRON_WIDTH_MODIFIER = 2.3f
 fun SightMarksDiagram(
         state: SightMarksState.Loaded,
         onClick: (SightMark) -> Unit,
+        modifier: Modifier = Modifier,
 ) {
-    val helper = SightMarksDiagramHelper(state.sightMarks, state.isHighestNumberAtTheTop)
+    val helper = state.diagramHelper!!
     val totalSightMarks = state.sightMarks.size
 
     @Composable
@@ -97,7 +98,7 @@ fun SightMarksDiagram(
                     Divider(color = sightMark.getColour(), modifier = Modifier.width(3.dp))
                 }
             },
-            modifier = Modifier.semantics {
+            modifier = modifier.semantics {
                 collectionInfo = CollectionInfo(state.sightMarks.size, 1)
             }
     ) { measurables, constraints ->

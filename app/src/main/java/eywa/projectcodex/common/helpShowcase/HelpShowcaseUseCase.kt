@@ -31,7 +31,9 @@ fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, key: Re
 
 fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
         modifierIf(helpState != null) {
-            val title = helpState!!.helpShowcaseItem.helpTitle
+            helpState!!.add()
+
+            val title = helpState.helpShowcaseItem.helpTitle
             if (title.res != null) updateHelpDialogPosition(helpState.helpListener, title.res)
             else updateHelpDialogPosition(helpState.helpListener, title.actual!!)
         }
@@ -98,6 +100,7 @@ class HelpShowcaseUseCase {
             is HelpShowcaseIntent.Add ->
                 _state.update {
                     if (it.currentScreen != screen) return@update it
+                    if (it.helpInfoMap.containsKey(action.item.helpTitle)) return@update it
                     it.copy(helpInfoMap = it.helpInfoMap.plus(action.item.helpTitle to action.item))
                 }
             is HelpShowcaseIntent.AddDynamicInfo -> {

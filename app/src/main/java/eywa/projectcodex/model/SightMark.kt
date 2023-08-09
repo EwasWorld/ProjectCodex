@@ -27,4 +27,17 @@ data class SightMark(
             isArchived = dbSightMark.isArchived,
             useInPredictions = dbSightMark.useInPredictions,
     )
+
+    fun asDatabaseSightMark() = DatabaseSightMark(
+            id = id,
+            bowId = bowId,
+            distance = distance,
+            isMetric = isMetric,
+            dateSet = dateSet,
+            sightMark = sightMark,
+            note = note,
+            isMarked = isMarked,
+            isArchived = isArchived,
+            useInPredictions = useInPredictions,
+    )
 }

@@ -10,6 +10,19 @@ sealed class SightMarksIntent {
     data class SightMarkClicked(val item: SightMark) : SightMarksIntent()
     object CreateSightMarkClicked : SightMarksIntent()
 
+    object StartShiftAndScale : SightMarksIntent()
+    object ConfirmShiftAndScaleClicked : SightMarksIntent()
+    sealed class ShiftAndScaleIntent : SightMarksIntent() {
+        object EndShiftAndScale : ShiftAndScaleIntent()
+        object FlipClicked : ShiftAndScaleIntent()
+        data class Shift(val increased: Boolean, val bigger: Boolean) : ShiftAndScaleIntent()
+        data class Scale(val increased: Boolean, val bigger: Boolean) : ShiftAndScaleIntent()
+        object ShiftReset : ShiftAndScaleIntent()
+        object ScaleReset : ShiftAndScaleIntent()
+        object SubmitClicked : ShiftAndScaleIntent()
+        object CancelSubmitClicked : ShiftAndScaleIntent()
+    }
+
     object CreateSightMarkHandled : SightMarksIntent()
     object OpenSightMarkHandled : SightMarksIntent()
 }

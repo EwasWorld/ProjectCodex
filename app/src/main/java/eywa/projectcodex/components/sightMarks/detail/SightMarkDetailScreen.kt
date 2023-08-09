@@ -29,10 +29,12 @@ import com.google.accompanist.flowlayout.FlowRow
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
@@ -206,16 +208,40 @@ fun SightMarkDetail(
                 }
             }
 
-            state.originalSightMark?.dateSet?.let { dateSet ->
-                DataRow(
-                        title = stringResource(R.string.sight_marks__date_set),
-                        text = DateTimeFormat.SHORT_DATE.format(dateSet),
-                        helpState = HelpState(
-                                helpListener = helpListener,
-                                helpTitle = stringResource(R.string.help_sight_marks__date_title),
-                                helpBody = stringResource(R.string.help_sight_marks__date_body),
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                state.originalSightMark?.dateSet?.let { dateSet ->
+                    DataRow(
+                            title = stringResource(R.string.sight_marks__date_set),
+                            text = DateTimeFormat.SHORT_DATE.format(dateSet),
+                            helpState = HelpState(
+                                    helpListener = helpListener,
+                                    helpTitle = stringResource(R.string.help_sight_marks__date_title),
+                                    helpBody = stringResource(R.string.help_sight_marks__date_body),
+                            ),
+                            textModifier = Modifier
+                                    .clickable { listener(ToggleUpdateDateSet) }
+                                    .testTag(DATE.getTestTag())
+                    )
+                }
+                Text(
+                        text = stringResource(
+                                if (state.updateDateSet) R.string.sight_marks__update_date_set_true
+                                else R.string.sight_marks__update_date_set_false
                         ),
-                        textModifier = Modifier.testTag(DATE.getTestTag())
+                        style = CodexTypography.SMALL
+                                .copy(color = CodexTheme.colors.onAppBackground)
+                                .asClickableStyle(),
+                        modifier = Modifier
+                                .clickable { listener(ToggleUpdateDateSet) }
+                                .updateHelpDialogPosition(
+                                        HelpState(
+                                                helpListener,
+                                                stringResource(R.string.help_sight_marks__update_date_set_title),
+                                                stringResource(R.string.help_sight_marks__update_date_set_body),
+                                        )
+                                )
                 )
             }
             FlowRow(

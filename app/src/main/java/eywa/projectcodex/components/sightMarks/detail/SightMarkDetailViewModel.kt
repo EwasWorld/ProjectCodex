@@ -44,8 +44,11 @@ class SightMarkDetailViewModel @Inject constructor(
         else {
             collectSightMarkJob = viewModelScope.launch {
                 sightMarkRepo.getSightMark(editId).collectLatest { dbSightMark ->
-                    val sightMark = SightMark(dbSightMark)
-                    _state.update { SightMarkDetailState.fromOriginalSightMark(sightMark) }
+                    _state.update {
+                        (it ?: SightMarkDetailState())
+                                .copy(originalSightMark = SightMark(dbSightMark))
+                                .reset()
+                    }
                 }
             }
         }
@@ -71,10 +74,7 @@ class SightMarkDetailViewModel @Inject constructor(
                 _state.update { it?.copy(closeScreen = true) }
             }
             SightMarkDetailIntent.ResetClicked ->
-                _state.update {
-                    it?.originalSightMark?.let { original -> SightMarkDetailState.fromOriginalSightMark(original) }
-                            ?: return@update it
-                }
+                _state.update { it?.reset() }
             SightMarkDetailIntent.SaveClicked -> {
                 val currentState = state.value ?: return
                 collectSightMarkJob?.cancel()
@@ -90,6 +90,15 @@ class SightMarkDetailViewModel @Inject constructor(
             SightMarkDetailIntent.ToggleIsMetric -> _state.update { it?.copy(isMetric = !it.isMetric) }
             SightMarkDetailIntent.ToggleIsArchived -> _state.update { it?.copy(isArchived = !it.isArchived) }
             SightMarkDetailIntent.ToggleIsMarked -> _state.update { it?.copy(isMarked = !it.isMarked) }
+            SightMarkDetailIntent.ToggleUpdateDateSet -> _state.update { it?.copy(updateDateSet = !it.updateDateSet) }
         }
     }
+
+    private fun SightMarkDetailState.reset() =
+            originalSightMark
+                    ?.let {
+                        SightMarkDetailState.fromOriginalSightMark(originalSightMark)
+                                .copy(updateDateSet = updateDateSet)
+                    }
+                    ?: this
 }

@@ -12,6 +12,7 @@ sealed class SightMarkDetailIntent {
     object ToggleIsMetric : SightMarkDetailIntent()
     object ToggleIsMarked : SightMarkDetailIntent()
     object ToggleIsArchived : SightMarkDetailIntent()
+    object ToggleUpdateDateSet : SightMarkDetailIntent()
 
     object DeleteClicked : SightMarkDetailIntent()
     object ResetClicked : SightMarkDetailIntent()

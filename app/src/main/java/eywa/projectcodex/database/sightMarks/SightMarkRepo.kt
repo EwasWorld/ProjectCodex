@@ -7,5 +7,5 @@ class SightMarkRepo(private val sightMarkDao: SightMarkDao) {
     suspend fun insert(sightMark: DatabaseSightMark) = sightMarkDao.insert(sightMark)
     suspend fun archiveAll() = sightMarkDao.archiveAll()
     suspend fun delete(id: Int) = sightMarkDao.deleteRound(id)
-    suspend fun update(sightMark: DatabaseSightMark) = sightMarkDao.update(sightMark)
+    suspend fun update(vararg sightMarks: DatabaseSightMark) = sightMarkDao.update(*sightMarks)
 }

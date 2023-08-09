@@ -3,13 +3,16 @@ package eywa.projectcodex.instrumentedTests.robots
 import androidx.compose.ui.test.*
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
-import eywa.projectcodex.R
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.utils.CodexNodeOptions
+import eywa.projectcodex.instrumentedTests.utils.getMatcher
 import java.util.*
 
 abstract class BaseRobot(
@@ -46,6 +49,24 @@ abstract class BaseRobot(
     fun checkScreenIsShown(): Boolean {
         CustomConditionWaiter.waitForComposeCondition { checkElementIsDisplayed(screenTestTag) }
         return true
+    }
+
+    fun perform(
+            action: CodexNodeAction,
+            vararg matchers: CodexNodeMatcher,
+    ) = perform(action, emptyList(), *matchers)
+
+    fun perform(
+            action: CodexNodeAction,
+            options: List<CodexNodeOptions>,
+            vararg matchers: CodexNodeMatcher,
+    ) {
+        action.perform(
+                composeTestRule.onNode(
+                        matchers.toList().getMatcher(),
+                        options.contains(CodexNodeOptions.UseUnmergedTree),
+                ),
+        )
     }
 
     fun clickElement(

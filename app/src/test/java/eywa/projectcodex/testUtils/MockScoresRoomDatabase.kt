@@ -1,8 +1,13 @@
 package eywa.projectcodex.testUtils
 
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.bow.BowDao
+import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
+import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.sightMarks.SightMarkDao
+import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.database.shootData.*
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
 import kotlinx.coroutines.delay
@@ -10,10 +15,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyList
-import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 
 class MockScoresRoomDatabase {
     val shootDao = MockShootDao()
@@ -24,6 +26,8 @@ class MockScoresRoomDatabase {
     val roundDistanceDao: RoundDistanceDao = mock {}
     val shootRoundDao: ShootRoundDao = mock {}
     val shootDetailDao: ShootDetailDao = mock {}
+    val sightMarksDao = MockSightMarksDao()
+    val bowDao = MockBowDao()
 
     val mock: ScoresRoomDatabase = mock {
         on { shootDao() } doReturn shootDao.mock
@@ -35,6 +39,8 @@ class MockScoresRoomDatabase {
         on { shootRoundDao() } doReturn shootRoundDao
         on { shootDetailDao() } doReturn shootDetailDao
         on { shootsRepo() } doReturn ShootsRepo(shootDao.mock, shootDetailDao, shootRoundDao)
+        on { sightMarkDao() } doReturn sightMarksDao.mock
+        on { bowDao() } doReturn bowDao.mock
     }
 
     class MockShootDao {
@@ -74,6 +80,22 @@ class MockScoresRoomDatabase {
                 delay(FLOW_EMIT_DELAY)
                 emit(it)
             }
+        }
+    }
+
+    class MockSightMarksDao {
+        var sightMarks: List<SightMark> = listOf()
+
+        val mock: SightMarkDao = mock {
+            on { getAllSightMarks() } doAnswer { flow { emit(sightMarks.map { it.asDatabaseSightMark() }) } }
+        }
+    }
+
+    class MockBowDao {
+        var isHighestAtTop = false
+
+        val mock: BowDao = mock {
+            on { getDefaultBow() } doAnswer { flow { emit(DatabaseBow(DEFAULT_BOW_ID, isHighestAtTop)) } }
         }
     }
 }

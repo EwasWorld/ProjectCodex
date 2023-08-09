@@ -52,6 +52,7 @@ class SightMarksViewModel @Inject constructor(
                         val current = (state.value as Loaded)
                         bowRepo.updateDefaultBow(!current.isHighestNumberAtTheTop)
                     }
+                SightMarksMenuIntent.ShiftAndScale -> handle(StartShiftAndScale)
             }
             is SightMarkClicked -> _state.update { (it as Loaded).copy(openSightMarkDetail = action.item.id) }
             CreateSightMarkClicked -> _state.update { (it as Loaded).copy(createNewSightMark = true) }
@@ -60,6 +61,24 @@ class SightMarksViewModel @Inject constructor(
             OpenSightMarkHandled -> _state.update { (it as Loaded).copy(openSightMarkDetail = null) }
 
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.SIGHT_MARKS::class)
+            StartShiftAndScale ->
+                _state.update { if (it !is Loaded) it else it.copy(shiftAndScaleState = it.newShiftAndScaleState) }
+            ConfirmShiftAndScaleClicked -> {
+                val currentState = (state.value as? Loaded) ?: return
+                currentState.shiftAndScaleState ?: return
+                viewModelScope.launch {
+                    sightMarkRepo.update(
+                            *currentState.getShiftedAndScaledSightMarksState()
+                                    .sightMarks.map { it.asDatabaseSightMark() }
+                                    .toTypedArray()
+                    )
+                }
+                handle(ShiftAndScaleIntent.EndShiftAndScale)
+            }
+            is ShiftAndScaleIntent -> _state.update {
+                val shiftState = (it as? Loaded)?.shiftAndScaleState ?: return@update it
+                it.copy(shiftAndScaleState = shiftState.handle(action))
+            }
         }
     }
 }

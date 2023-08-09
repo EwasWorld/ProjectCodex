@@ -68,6 +68,7 @@
     <string name="general_ok">OK</string>
     <string name="general_back">Back</string>
     <string name="general_cancel">Cancel</string>
+    <string name="general_close">Close</string>
     <string name="general_cancelling">Cancelling</string>
     <string name="general_cancelled">Cancelled</string>
     <string name="general_complete">Complete</string>

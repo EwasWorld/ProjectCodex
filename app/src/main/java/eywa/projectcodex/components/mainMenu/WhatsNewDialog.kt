@@ -90,7 +90,7 @@ fun WhatsNewButtonAndDialog(
         SimpleDialogContent(
                 title = stringResource(R.string.whats_new__title),
                 negativeButton = ButtonState(
-                        text = stringResource(R.string.general_cancel),
+                        text = stringResource(R.string.general_close),
                         onClick = onDismiss,
                 ),
         ) {
@@ -178,7 +178,7 @@ private enum class WhatsNewInfo(
 ) {
     V2_3_0(
             appVersion = AppVersion("2.3.0"),
-            releaseDate = DateTimeFormat.SHORT_DATE.parse("29/07/23"),
+            releaseDate = DateTimeFormat.SHORT_DATE.parse("09/08/23"),
             importantUpdates = R.string.whats_new__2_3_0_important_update,
             updates = R.string.whats_new__2_3_0_update,
     ),
@@ -186,6 +186,7 @@ private enum class WhatsNewInfo(
             appVersion = AppVersion("2.1.0"),
             releaseDate = DateTimeFormat.SHORT_DATE.parse("21/03/23"),
             importantUpdates = R.string.whats_new__2_1_0_important_update,
+            updates = R.string.whats_new__2_1_0_update,
     ),
     ;
 
