@@ -16,6 +16,7 @@ interface CodexDatastore {
      * @see retrieve
      */
     fun get(keys: Collection<DatastoreKey<*>>): Flow<Map<DatastoreKey<*>, *>>
+    fun get(vararg keys: DatastoreKey<*>): Flow<Map<DatastoreKey<*>, *>> = get(keys.toList())
     suspend fun <T : Any> set(key: DatastoreKey<T>, value: T)
     suspend fun toggle(key: DatastoreKey<Boolean>)
 }

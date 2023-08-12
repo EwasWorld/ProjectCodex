@@ -42,16 +42,22 @@ import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
+import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
 
+    @Inject
+    lateinit var shootDetailsRepo: ShootDetailsRepo
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        shootDetailsRepo.connect(this)
         // TODO Don't re-run on activity recreate
         viewModel.updateDefaultRounds()
 

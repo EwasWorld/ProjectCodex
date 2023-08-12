@@ -7,13 +7,13 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.about.AboutScreen
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundMainScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.newScore.NewScoreScreen
 import eywa.projectcodex.components.settings.SettingsScreen
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
@@ -37,7 +37,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            ArcherRoundMainScreen(navController)
+            TODO()
         }
     },
     CLASSIFICATION_TABLES {
@@ -105,6 +105,80 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
         @Composable
         override fun Screen(navController: NavController) {
             SettingsScreen()
+        }
+    },
+    SHOOT_DETAILS_EDIT_END {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(NavArgument.SHOOT_ID to true)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.insert_end__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            TODO()
+        }
+    },
+    SHOOT_DETAILS_ADD_END {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(NavArgument.SHOOT_ID to true)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.input_end__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            TODO()
+        }
+    },
+    SHOOT_DETAILS_INSERT_END {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(NavArgument.SHOOT_ID to true)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.insert_end__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            TODO()
+        }
+    },
+    SHOOT_DETAILS_SCORE_PAD {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(NavArgument.SHOOT_ID to true)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.score_pad__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            ScorePadScreen(navController)
+        }
+    },
+    SHOOT_DETAILS_SETTINGS {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(NavArgument.SHOOT_ID to true)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.archer_round_settings__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            TODO()
+        }
+    },
+    SHOOT_DETAILS_STATS {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(NavArgument.SHOOT_ID to true)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.archer_round_stats__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            TODO()
         }
     },
     SIGHT_MARKS {

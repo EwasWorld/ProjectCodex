@@ -79,12 +79,9 @@ private fun handleEffects(
 
     if (state.openScorePadClicked) {
         if (state.lastClickedEntryId != null) {
-            CodexNavRoute.ARCHER_ROUND_SCORE.navigate(
+            CodexNavRoute.SHOOT_DETAILS_SCORE_PAD.navigate(
                     navController,
-                    mapOf(
-                            NavArgument.SCREEN to ArcherRoundScreen.SCORE_PAD.name,
-                            NavArgument.SHOOT_ID to state.lastClickedEntryId.toString(),
-                    ),
+                    mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
             )
         }
         listener(HandledScorePadOpened)

@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.sightMarks.SightMarkRepo
 import eywa.projectcodex.model.SightMark
@@ -36,8 +36,7 @@ class SightMarkDetailViewModel @Inject constructor(
     private var collectSightMarkJob: Job? = null
 
     init {
-        val editId =
-                savedStateHandle.get<Int>(NavArgument.SIGHT_MARK_ID.toArgName())?.takeIf { it != DEFAULT_INT_NAV_ARG }
+        val editId = savedStateHandle.get<Int>(NavArgument.SIGHT_MARK_ID)
         if (editId == null) {
             _state.update { SightMarkDetailState() }
         }

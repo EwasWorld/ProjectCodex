@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
@@ -38,10 +38,7 @@ class NewScoreViewModel @Inject constructor(
     private var editingRoundJob: Job? = null
 
     init {
-        initialiseRoundBeingEdited(
-                savedStateHandle.get<Int>(NavArgument.SHOOT_ID.toArgName())
-                        ?.takeIf { it != DEFAULT_INT_NAV_ARG }
-        )
+        initialiseRoundBeingEdited(savedStateHandle.get<Int>(NavArgument.SHOOT_ID))
 
         val roundRepo = RoundRepo(db)
         viewModelScope.launch {

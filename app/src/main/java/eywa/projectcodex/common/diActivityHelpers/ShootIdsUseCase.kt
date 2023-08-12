@@ -1,5 +1,10 @@
 package eywa.projectcodex.common.diActivityHelpers
 
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -15,4 +20,12 @@ class ShootIdsUseCase {
     fun clear() {
         items.update { null }
     }
+}
+
+@Module
+@InstallIn(ActivityRetainedComponent::class)
+class ActivityRetainedScopedModule {
+    @ActivityRetainedScoped
+    @Provides
+    fun provideShootIdsRepo() = ShootIdsUseCase()
 }

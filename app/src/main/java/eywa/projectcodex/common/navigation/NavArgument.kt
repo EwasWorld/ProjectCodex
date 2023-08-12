@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.navigation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 
@@ -14,6 +15,14 @@ fun String.toNavArgument() =
         catch (e: IllegalArgumentException) {
             null
         }
+
+fun <T> SavedStateHandle.get(argument: NavArgument): T? {
+    var value = get<T>(argument.toArgName())
+    if (value is Int) {
+        value = value.takeIf { it != DEFAULT_INT_NAV_ARG }
+    }
+    return value
+}
 
 enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     SHOOT_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),

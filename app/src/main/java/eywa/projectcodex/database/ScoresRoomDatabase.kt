@@ -127,7 +127,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
         shoots.forEach { shootDao().insert(it) }
         shoots.map { shoot ->
             val shootId = shoot.shootId
-            List(1) { arrowNumber -> arrowTypes[shootId].toArrowScore(shootId, arrowNumber) }
+            List(1) { arrowTypes[shootId].toArrowScore(shootId, it + 1) }
         }.flatten().forEach { arrowScoreDao().insert(it) }
 
         listOf(

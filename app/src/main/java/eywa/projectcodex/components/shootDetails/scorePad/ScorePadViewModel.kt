@@ -1,0 +1,86 @@
+package eywa.projectcodex.components.shootDetails.scorePad
+
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.navigation.get
+import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.NavBarClicked
+import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.SelectScorePadEnd
+import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
+import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
+import eywa.projectcodex.database.arrows.ArrowScoresRepo
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class ScorePadViewModel @Inject constructor(
+        private val repo: ShootDetailsRepo,
+        savedStateHandle: SavedStateHandle,
+        private val helpShowcase: HelpShowcaseUseCase,
+) : ViewModel() {
+    private val screen = CodexNavRoute.SHOOT_DETAILS_SCORE_PAD
+    private val extraState = MutableStateFlow(ScorePadExtras())
+
+    @Suppress("UNCHECKED_CAST")
+    val state = repo.getState(
+            savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
+            extraState,
+    ) { main, extra -> ScorePadState(main, extra) }
+            .stateIn(
+                    viewModelScope,
+                    SharingStarted.WhileSubscribed(),
+                    ShootDetailsResponse.Loading as ShootDetailsResponse<ScorePadState>,
+            )
+
+    fun handle(action: ScorePadIntent) {
+        when (action) {
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
+            is ShootDetailsAction -> repo.handle(action.action, screen)
+            NoArrowsDialogOkClicked -> repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_ADD_END), screen)
+
+            is RowClicked -> repo.handle(SelectScorePadEnd(action.endNumber), screen)
+            is RowLongClicked -> repo.handle(SelectScorePadEnd(action.endNumber), screen)
+            CloseDropdownMenu -> repo.handle(SelectScorePadEnd(null), screen)
+
+            EditEndClicked -> extraState.update { it.copy(editEndClicked = true) }
+            InsertEndClicked -> extraState.update { it.copy(insertEndClicked = true) }
+            EditEndHandled -> extraState.update { it.copy(editEndClicked = false) }
+            InsertEndHandled -> extraState.update { it.copy(insertEndClicked = false) }
+
+            DeleteEndClicked -> extraState.update { it.copy(deleteEndDialogIsShown = true) }
+            DeleteEndDialogCancelClicked -> {
+                repo.handle(SelectScorePadEnd(null), screen)
+                extraState.update { it.copy(deleteEndDialogIsShown = false) }
+            }
+            DeleteEndDialogOkClicked -> {
+                state.value.data?.let { currentState ->
+                    if (
+                        currentState.arrows == null
+                        || currentState.firstArrowNumberInSelectedEnd == null
+                        || currentState.selectedEndSize == null
+                    ) return@let
+
+                    viewModelScope.launch {
+                        currentState.let {
+                            ArrowScoresRepo(repo.db.arrowScoreDao()).deleteEnd(
+                                    it.arrows!!,
+                                    it.firstArrowNumberInSelectedEnd!!,
+                                    it.selectedEndSize!!,
+                            )
+                        }
+                    }
+                }
+                handle(DeleteEndDialogCancelClicked)
+            }
+        }
+    }
+}
