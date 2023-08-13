@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.archerRoundScore
 
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.GeneralTargetScoreButton
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.WorcesterTargetScoreButton
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.GeneralTargetScoreButton
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.WorcesterTargetScoreButton
 import eywa.projectcodex.database.RoundFace
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

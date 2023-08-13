@@ -7,11 +7,6 @@ sealed class ScorePadIntent {
     /**
      * @param endNumber 1-indexed
      */
-    data class RowLongClicked(val endNumber: Int) : ScorePadIntent()
-
-    /**
-     * @param endNumber 1-indexed
-     */
     data class RowClicked(val endNumber: Int) : ScorePadIntent()
     object CloseDropdownMenu : ScorePadIntent()
     object EditEndClicked : ScorePadIntent()

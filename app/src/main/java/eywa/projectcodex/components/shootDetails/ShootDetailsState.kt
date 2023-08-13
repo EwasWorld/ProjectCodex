@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.shootDetails
 
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.ScorePadData
 
@@ -28,6 +29,12 @@ data class ShootDetailsState(
          */
         val scorePadEndSize: Int = DEFAULT_END_SIZE,
         val scorePadSelectedEnd: Int? = null,
+
+        /*
+         * Add end state
+         */
+        val addEndArrows: List<Arrow> = emptyList(),
+        val addEndSize: Int = DEFAULT_END_SIZE,
 ) {
     val scorePadData = fullShootInfo?.let {
         ScorePadData(

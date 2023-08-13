@@ -3,7 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 import androidx.compose.ui.test.*
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 
 abstract class ArrowInputsRobot(

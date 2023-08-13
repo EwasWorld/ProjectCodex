@@ -2,8 +2,8 @@ package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundMainTestTag
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 

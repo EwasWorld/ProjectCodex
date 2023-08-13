@@ -7,14 +7,6 @@ import androidx.compose.material.icons.outlined.Settings
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.components.archerRoundScore.ArcherRoundSubScreen
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd.EditEndScreen
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.editEnd.EditEndState
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndScreen
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndState
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd.InsertEndScreen
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd.InsertEndState
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadState
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
 import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsState
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen.*
@@ -73,13 +65,12 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
             val subScreenInputArrows: List<Arrow> = listOf(),
             val displayRoundCompletedDialog: Boolean = false,
             val displayCannotInputEndDialog: Boolean = false,
-            override val displayDeleteEndConfirmationDialog: Boolean = false,
+            val displayDeleteEndConfirmationDialog: Boolean = false,
             override val useBetaFeatures: Boolean = DatastoreKey.UseBetaFeatures.defaultValue,
             val errors: Set<eywa.projectcodex.components.archerRoundScore.ArcherRoundError> = emptySet(),
             override val openEditScoreScreen: Boolean = false,
-    ) : ArcherRoundState(), InputEndState, ArcherRoundStatsState, ScorePadState, ArcherRoundSettingsState, EditEndState,
-            InsertEndState {
-        override val scorePadData by lazy {
+    ) : ArcherRoundState(), ArcherRoundStatsState, ArcherRoundSettingsState {
+        val scorePadData by lazy {
             ScorePadData(
                     info = fullShootInfo,
                     endSize = scorePadEndSize,
@@ -89,7 +80,7 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
 
         override val scorePadEndSize
             get() = scorePadEndSizePartial!!
-        override val inputEndSize: Int
+        val endSize: Int
             get() = currentScreenEndSize
 
         val showNavBar
@@ -143,14 +134,14 @@ sealed class ArcherRoundState : HasBetaFeaturesFlag {
                 if (!currentScreen.isMainScreen) copy(subScreenInputArrows = newInputArrows)
                 else copy(inputArrows = newInputArrows)
 
-        override val enteredArrows
+        val enteredArrows
             get() = currentScreenInputArrows
-        override val selectedEndNumber
+        val selectedEndNumber
             get() = scorePadSelectedEnd!!
 
-        override val isRoundFull
+        val isRoundFull
             get() = fullShootInfo.isRoundComplete
-        override val dropdownMenuOpenForEndNumber
+        val dropdownMenuOpenForEndNumber
             get() = scorePadSelectedEnd
     }
 }
@@ -162,18 +153,14 @@ enum class ArcherRoundScreen(val bottomNavItemInfo: ArcherRoundBottomNavItemInfo
                     selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
                     label = R.string.input_end__title,
             )
-    ) {
-        override fun getScreen() = InputEndScreen()
-    },
+    ),
     SCORE_PAD(
             ArcherRoundBottomNavItemInfo(
                     notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_outline),
                     selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_filled),
                     label = R.string.score_pad__title,
             )
-    ) {
-        override fun getScreen() = ScorePadScreen()
-    },
+    ),
     STATS(
             ArcherRoundBottomNavItemInfo(
                     notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
@@ -193,16 +180,12 @@ enum class ArcherRoundScreen(val bottomNavItemInfo: ArcherRoundBottomNavItemInfo
         override fun getScreen() = ArcherRoundSettingsScreen()
     },
 
-    EDIT_END {
-        override fun getScreen() = EditEndScreen()
-    },
-    INSERT_END {
-        override fun getScreen() = InsertEndScreen()
-    },
+    EDIT_END,
+    INSERT_END,
     ;
 
     val isMainScreen = bottomNavItemInfo != null
-    abstract fun getScreen(): ArcherRoundSubScreen
+    open fun getScreen(): ArcherRoundSubScreen? = null
 }
 
 data class ArcherRoundBottomNavItemInfo(

@@ -1,6 +1,0 @@
-package eywa.projectcodex.components.archerRoundScore.arrowInputs.insertEnd
-
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsState
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.HasSelectedEndNumber
-
-interface InsertEndState : ArrowInputsState, HasSelectedEndNumber

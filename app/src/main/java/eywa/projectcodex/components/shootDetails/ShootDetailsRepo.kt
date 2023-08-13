@@ -49,6 +49,7 @@ class ShootDetailsRepo(
                     if (it.navBarClickedItem != action.screen) it
                     else it.copy(navBarClickedItem = null)
                 }
+            is SetInputtedArrows -> state.update { it.copy(addEndArrows = action.arrows) }
         }
     }
 

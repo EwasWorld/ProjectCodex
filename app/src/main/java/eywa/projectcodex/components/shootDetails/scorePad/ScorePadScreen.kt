@@ -213,6 +213,7 @@ private fun ScorePadScreen(
                             DropdownMenu(
                                     isRoundFull = state.isRoundFull,
                                     expanded = state.dropdownMenuOpenForEndNumber != null
+                                            && state.isDropdownMenuOpen
                                             && columnHeader == ColumnHeader.ARROWS
                                             && (rowData as? ScorePadRow.End)?.endNumber == state.dropdownMenuOpenForEndNumber,
                                     listener = listener,
@@ -251,7 +252,7 @@ private fun Cell(
     else Modifier.pointerInput(rowData) {
         detectTapGestures(
                 onTap = { listener(RowClicked(rowData.endNumber)) },
-                onLongPress = { listener(RowLongClicked(rowData.endNumber)) },
+                onLongPress = { listener(RowClicked(rowData.endNumber)) },
         )
     }
 

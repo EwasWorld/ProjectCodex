@@ -34,7 +34,7 @@ class ScorePadViewModel @Inject constructor(
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,
-    ) { main, extra -> ScorePadState(main, extra) }
+    ) { main, extras -> ScorePadState(main, extras) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
@@ -47,16 +47,18 @@ class ScorePadViewModel @Inject constructor(
             is ShootDetailsAction -> repo.handle(action.action, screen)
             NoArrowsDialogOkClicked -> repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_ADD_END), screen)
 
-            is RowClicked -> repo.handle(SelectScorePadEnd(action.endNumber), screen)
-            is RowLongClicked -> repo.handle(SelectScorePadEnd(action.endNumber), screen)
+            is RowClicked -> {
+                repo.handle(SelectScorePadEnd(action.endNumber), screen)
+                extraState.update { it.copy(isDropdownMenuOpen = true) }
+            }
             CloseDropdownMenu -> repo.handle(SelectScorePadEnd(null), screen)
 
-            EditEndClicked -> extraState.update { it.copy(editEndClicked = true) }
-            InsertEndClicked -> extraState.update { it.copy(insertEndClicked = true) }
+            EditEndClicked -> extraState.update { it.copy(editEndClicked = true, isDropdownMenuOpen = false) }
+            InsertEndClicked -> extraState.update { it.copy(insertEndClicked = true, isDropdownMenuOpen = false) }
             EditEndHandled -> extraState.update { it.copy(editEndClicked = false) }
             InsertEndHandled -> extraState.update { it.copy(insertEndClicked = false) }
 
-            DeleteEndClicked -> extraState.update { it.copy(deleteEndDialogIsShown = true) }
+            DeleteEndClicked -> extraState.update { it.copy(deleteEndDialogIsShown = true, isDropdownMenuOpen = false) }
             DeleteEndDialogCancelClicked -> {
                 repo.handle(SelectScorePadEnd(null), screen)
                 extraState.update { it.copy(deleteEndDialogIsShown = false) }

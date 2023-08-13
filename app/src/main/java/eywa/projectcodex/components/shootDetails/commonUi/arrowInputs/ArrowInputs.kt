@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.arrowInputs
+package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -16,7 +16,7 @@ import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
@@ -27,10 +27,9 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.utils.get
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent.*
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.*
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 
 @Composable
 fun ArrowInputs(
@@ -39,10 +38,8 @@ fun ArrowInputs(
         verticalPadding: Dp = 0.dp,
         horizontalPadding: Dp = 0.dp,
         helpListener: (HelpShowcaseIntent) -> Unit,
-        listener: (ArcherRoundIntent.ArrowInputsIntent) -> Unit,
+        listener: (ArrowInputsIntent) -> Unit,
 ) {
-    HelpInfoItems(showResetButton, helpListener)
-
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(vertical = verticalPadding)
@@ -52,15 +49,20 @@ fun ArrowInputs(
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
                 modifier = Modifier
-                        .testTag(ArrowInputsTestTag.END_TOTAL_TEXT)
-                        .updateHelpDialogPosition(helpListener, R.string.help_input_end__end_inputs_total_title)
+                        .testTag(ArrowInputsTestTag.END_TOTAL_TEXT.getTestTag())
+                        .updateHelpDialogPosition(
+                                HelpState(
+                                        helpListener = helpListener,
+                                        helpTitle = stringResource(R.string.help_input_end__end_inputs_total_title),
+                                        helpBody = stringResource(R.string.help_input_end__end_inputs_total_body),
+                                )
+                        )
         )
-        @Suppress("SimplifiableCallChain")
         Text(
                 text = state.enteredArrows
                         .map { it.asString().get() }
                         .plus(
-                                List(state.inputEndSize - state.enteredArrows.size) {
+                                List(state.endSize - state.enteredArrows.size) {
                                     stringResource(R.string.end_to_string_arrow_placeholder)
                                 }
                         )
@@ -70,8 +72,14 @@ fun ArrowInputs(
                 color = CodexTheme.colors.onAppBackground,
                 modifier = Modifier
                         .padding(bottom = 15.dp)
-                        .testTag(ArrowInputsTestTag.END_ARROWS_TEXT)
-                        .updateHelpDialogPosition(helpListener, R.string.help_input_end__end_inputs_arrows_title)
+                        .testTag(ArrowInputsTestTag.END_ARROWS_TEXT.getTestTag())
+                        .updateHelpDialogPosition(
+                                HelpState(
+                                        helpListener = helpListener,
+                                        helpTitle = stringResource(R.string.help_input_end__end_inputs_arrows_title),
+                                        helpBody = stringResource(R.string.help_input_end__end_inputs_arrows_body),
+                                )
+                        )
         )
 
         ArrowButtonGroup(
@@ -79,7 +87,13 @@ fun ArrowInputs(
                 roundFace = state.fullShootInfo.currentFace,
                 onClick = { listener(ArrowInputted(it)) },
                 horizontalPadding = horizontalPadding,
-                modifier = Modifier.updateHelpDialogPosition(helpListener, R.string.help_input_end__arrow_inputs_title)
+                modifier = Modifier.updateHelpDialogPosition(
+                        HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_input_end__arrow_inputs_title),
+                                helpBody = stringResource(R.string.help_input_end__arrow_inputs_body),
+                        )
+                )
         )
 
         FlowRow(
@@ -91,8 +105,14 @@ fun ArrowInputs(
                         buttonStyle = CodexButtonDefaults.DefaultTextButton,
                         onClick = { listener(ResetArrowsInputted) },
                         modifier = Modifier
-                                .testTag(ArrowInputsTestTag.RESET_BUTTON)
-                                .updateHelpDialogPosition(helpListener, R.string.help_input_end__end_inputs_reset_title)
+                                .testTag(ArrowInputsTestTag.RESET_BUTTON.getTestTag())
+                                .updateHelpDialogPosition(
+                                        HelpState(
+                                                helpListener = helpListener,
+                                                helpTitle = stringResource(R.string.help_input_end__end_inputs_reset_title),
+                                                helpBody = stringResource(R.string.help_input_end__end_inputs_reset_body),
+                                        )
+                                )
                 )
             }
             CodexButton(
@@ -100,78 +120,31 @@ fun ArrowInputs(
                     buttonStyle = CodexButtonDefaults.DefaultTextButton,
                     onClick = { listener(ClearArrowsInputted) },
                     modifier = Modifier
-                            .testTag(ArrowInputsTestTag.CLEAR_BUTTON)
-                            .updateHelpDialogPosition(helpListener, R.string.help_input_end__end_inputs_clear_title)
+                            .testTag(ArrowInputsTestTag.CLEAR_BUTTON.getTestTag())
+                            .updateHelpDialogPosition(
+                                    HelpState(
+                                            helpListener = helpListener,
+                                            helpTitle = stringResource(R.string.help_input_end__end_inputs_clear_title),
+                                            helpBody = stringResource(R.string.help_input_end__end_inputs_clear_body),
+                                    )
+                            )
             )
             CodexButton(
                     text = stringResource(R.string.input_end__backspace),
                     buttonStyle = CodexButtonDefaults.DefaultTextButton,
                     onClick = { listener(BackspaceArrowsInputted) },
                     modifier = Modifier
-                            .testTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
-                            .updateHelpDialogPosition(helpListener, R.string.help_input_end__end_inputs_backspace_title)
+                            .testTag(ArrowInputsTestTag.BACKSPACE_BUTTON.getTestTag())
+                            .updateHelpDialogPosition(
+                                    HelpState(
+                                            helpListener = helpListener,
+                                            helpTitle = stringResource(R.string.help_input_end__end_inputs_backspace_title),
+                                            helpBody = stringResource(R.string.help_input_end__end_inputs_backspace_body),
+                                    )
+                            )
             )
         }
     }
-}
-
-@Composable
-private fun HelpInfoItems(
-        showResetButton: Boolean,
-        helpListener: (HelpShowcaseIntent) -> Unit,
-) {
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_input_end__end_inputs_total_title,
-                            helpBody = R.string.help_input_end__end_inputs_total_body,
-                    )
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_input_end__end_inputs_arrows_title,
-                            helpBody = R.string.help_input_end__end_inputs_arrows_body,
-                    )
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_input_end__arrow_inputs_title,
-                            helpBody = R.string.help_input_end__arrow_inputs_body,
-                    )
-            )
-    )
-
-    if (showResetButton) {
-        helpListener(
-                HelpShowcaseIntent.Add(
-                        HelpShowcaseItem(
-                                helpTitle = R.string.help_input_end__end_inputs_reset_title,
-                                helpBody = R.string.help_input_end__end_inputs_reset_body,
-                        )
-                )
-        )
-    }
-
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_input_end__end_inputs_clear_title,
-                            helpBody = R.string.help_input_end__end_inputs_clear_body,
-                    )
-            )
-    )
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = R.string.help_input_end__end_inputs_backspace_title,
-                            helpBody = R.string.help_input_end__end_inputs_backspace_body,
-                    )
-            )
-    )
 }
 
 @Preview(
@@ -187,7 +160,7 @@ fun ArrowInputs_Preview(
                     override val fullShootInfo = ShootPreviewHelper.newFullShootInfo()
                             .addRound(RoundPreviewHelper.outdoorImperialRoundData)
                     override val enteredArrows = ArcherRoundStatePreviewHelper.inputArrows
-                    override val inputEndSize = 6
+                    override val endSize = 6
                 },
                 showResetButton = true,
                 helpListener = {},

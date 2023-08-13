@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -34,9 +33,7 @@ fun <T> ShootDetailsMainScreen(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                     .fillMaxSize()
-                    // TODO_CURRENT Change colour back
-                    .background(Color.Red)
-//                    .background(CodexTheme.colors.appBackground)
+                    .background(CodexTheme.colors.appBackground)
     ) {
         when (state) {
             is ShootDetailsResponse.Loading -> CircularProgressIndicator(color = CodexTheme.colors.onAppBackground)
@@ -60,10 +57,13 @@ fun <T> HandleMainEffects(
             navController.popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
             listener(ShootDetailsIntent.ReturnToMenuHandled)
         }
-        navBarClickedItem?.navigate(
-                navController,
-                mapOf(NavArgument.SHOOT_ID to state.shootId.toString()),
-        )
+        if (navBarClickedItem != null) {
+            navBarClickedItem.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to state.shootId.toString()),
+            )
+            listener(ShootDetailsIntent.NavBarClickHandled(navBarClickedItem))
+        }
     }
 }
 

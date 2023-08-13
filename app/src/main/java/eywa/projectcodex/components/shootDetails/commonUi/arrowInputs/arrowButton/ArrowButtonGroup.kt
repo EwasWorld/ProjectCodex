@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton
+package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -20,7 +20,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.get
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.model.Arrow
@@ -194,7 +194,7 @@ private fun ArrowButton.Button(
             Text(
                     text = text.get(),
                     style = CodexTypography.NORMAL,
-                    modifier = Modifier.testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
+                    modifier = Modifier.testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON.getTestTag())
             )
         }
     }

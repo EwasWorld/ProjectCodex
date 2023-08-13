@@ -5,8 +5,8 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.ArrowInputsTestTag
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.inputEnd.InputEndScreen.TestTag
+import eywa.projectcodex.components.shootDetails.addEnd.InputEndScreen.TestTag
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 
 class InputEndRobot(

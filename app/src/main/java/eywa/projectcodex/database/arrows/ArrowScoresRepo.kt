@@ -72,7 +72,7 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
          */
         val minArrowNumber = toInsert.minOf { it.arrowNumber }
         require(minArrowNumber >= 1) { "Arrow numbers must be >= 1" }
-        require(minArrowNumber < allArrowsInRound.maxOf { it.arrowNumber }) {
+        require(minArrowNumber <= allArrowsInRound.maxOf { it.arrowNumber }) {
             "Insert must start within existing arrows indices"
         }
         require(

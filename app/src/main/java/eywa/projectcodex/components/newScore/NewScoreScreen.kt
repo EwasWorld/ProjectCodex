@@ -45,7 +45,6 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.UpdateCalendarInfo
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
-import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import java.util.*
 
@@ -69,12 +68,9 @@ private fun handleEffects(
         listener: (NewScoreIntent) -> Unit,
 ) {
     if (state.navigateToInputEnd != null) {
-        CodexNavRoute.ARCHER_ROUND_SCORE.navigate(
+        CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
                 navController,
-                mapOf(
-                        NavArgument.SCREEN to ArcherRoundScreen.INPUT_END.name,
-                        NavArgument.SHOOT_ID to state.navigateToInputEnd.toString(),
-                ),
+                mapOf(NavArgument.SHOOT_ID to state.navigateToInputEnd.toString()),
         ) {
             val currentRoute = navController.currentDestination?.route
             if (currentRoute != null) {

@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.*
-import eywa.projectcodex.components.archerRoundScore.arrowInputs.arrowButton.ArrowButtonGroup
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 

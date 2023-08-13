@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.arrowInputs
+package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -11,12 +11,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundIntent.ArrowInputsIntent
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.CancelClicked
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.SubmitClicked
 
 @Composable
 fun ArrowInputsScaffold(
@@ -52,7 +53,7 @@ fun ArrowInputsScaffold(
             style = CodexTypography.LARGE,
             color = CodexTheme.colors.onAppBackground,
             textAlign = TextAlign.Center,
-            modifier = Modifier.testTag(ArrowInputsTestTag.CONTENT_TEXT)
+            modifier = Modifier.testTag(ArrowInputsTestTag.CONTENT_TEXT.getTestTag())
     )
 }
 
@@ -102,37 +103,33 @@ fun ArrowInputsScaffold(
                 modifier = Modifier.padding(horizontal = 20.dp)
         ) {
             if (showCancelButton) {
-                helpListener(
-                        HelpShowcaseIntent.Add(
-                                HelpShowcaseItem(
-                                        helpTitle = cancelHelpInfoTitle!!,
-                                        helpBody = cancelHelpInfoBody!!,
-                                )
-                        )
-                )
                 CodexButton(
                         text = stringResource(R.string.general_cancel),
-                        onClick = { listener(ArrowInputsIntent.CancelClicked) },
+                        onClick = { listener(CancelClicked) },
                         modifier = Modifier
-                                .testTag(ArrowInputsTestTag.CANCEL_BUTTON)
-                                .updateHelpDialogPosition(helpListener, cancelHelpInfoTitle)
+                                .testTag(ArrowInputsTestTag.CANCEL_BUTTON.getTestTag())
+                                .updateHelpDialogPosition(
+                                        HelpState(
+                                                helpListener = helpListener,
+                                                helpTitle = cancelHelpInfoTitle!!,
+                                                helpBody = cancelHelpInfoBody!!,
+                                        )
+                                )
                 )
             }
 
-            helpListener(
-                    HelpShowcaseIntent.Add(
-                            HelpShowcaseItem(
-                                    helpTitle = submitHelpInfoTitle,
-                                    helpBody = submitHelpInfoBody,
-                            )
-                    )
-            )
             CodexButton(
                     text = submitButtonText,
-                    onClick = { listener(ArrowInputsIntent.SubmitClicked) },
+                    onClick = { listener(SubmitClicked) },
                     modifier = Modifier
-                            .testTag(ArrowInputsTestTag.SUBMIT_BUTTON)
-                            .updateHelpDialogPosition(helpListener, submitHelpInfoTitle)
+                            .testTag(ArrowInputsTestTag.SUBMIT_BUTTON.getTestTag())
+                            .updateHelpDialogPosition(
+                                    HelpState(
+                                            helpListener = helpListener,
+                                            helpTitle = submitHelpInfoTitle,
+                                            helpBody = submitHelpInfoBody,
+                                    )
+                            )
             )
         }
     }

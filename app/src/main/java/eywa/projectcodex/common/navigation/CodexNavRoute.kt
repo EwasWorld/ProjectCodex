@@ -13,6 +13,9 @@ import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.newScore.NewScoreScreen
 import eywa.projectcodex.components.settings.SettingsScreen
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
+import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
@@ -116,7 +119,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            TODO()
+            EditEndScreen(navController)
         }
     },
     SHOOT_DETAILS_ADD_END {
@@ -128,7 +131,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            TODO()
+            AddEndScreen(navController)
         }
     },
     SHOOT_DETAILS_INSERT_END {
@@ -140,7 +143,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            TODO()
+            InsertEndScreen(navController)
         }
     },
     SHOOT_DETAILS_SCORE_PAD {

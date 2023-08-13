@@ -32,7 +32,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundScreen
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.ViewScoresState
@@ -100,12 +99,9 @@ private fun handleEffects(
 
     if (state.openInputEndClicked) {
         if (state.lastClickedEntryId != null) {
-            CodexNavRoute.ARCHER_ROUND_SCORE.navigate(
+            CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
                     navController,
-                    mapOf(
-                            NavArgument.SCREEN to ArcherRoundScreen.INPUT_END.name,
-                            NavArgument.SHOOT_ID to state.lastClickedEntryId.toString(),
-                    ),
+                    mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
             )
         }
         listener(HandledInputEndOpened)

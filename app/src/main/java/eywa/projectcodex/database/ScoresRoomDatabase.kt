@@ -9,10 +9,7 @@ import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.database.archer.Archer
 import eywa.projectcodex.database.archer.ArcherDao
-import eywa.projectcodex.database.arrows.ArrowCounterDao
-import eywa.projectcodex.database.arrows.ArrowScoreDao
-import eywa.projectcodex.database.arrows.DatabaseArrowCounter
-import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.arrows.*
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.bow.DatabaseBow
@@ -64,8 +61,8 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun arrowCounterDao(): ArrowCounterDao
 
     fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
-
     fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao())
+    fun arrowScoresRepo() = ArrowScoresRepo(arrowScoreDao())
 
     suspend fun insertDefaults() {
         bowDao().insertDefaultBowIfNotExist()

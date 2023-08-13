@@ -129,14 +129,20 @@ private fun ArcherRoundMainScreen(
         listener: (ArcherRoundIntent) -> Unit,
 ) {
     Column {
-        state.currentScreen.getScreen().ComposeContent(
-                state = state,
-                listener = listener,
-                modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-        )
+        val screen = state.currentScreen.getScreen()
+        if (screen != null) {
+            screen.ComposeContent(
+                    state = state,
+                    listener = listener,
+                    modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+            )
+        }
+        else {
+            Text(text = "Content migrated")
+        }
         if (state.showNavBar) {
             ArcherRoundBottomNavBar(
                     currentScreen = state.currentScreen,

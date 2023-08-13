@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.arrowInputs
+package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs
 
 import eywa.projectcodex.components.archerRoundScore.state.HasEnteredArrows
 import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo

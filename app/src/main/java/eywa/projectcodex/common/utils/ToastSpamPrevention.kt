@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import eywa.projectcodex.common.logging.CustomLogger
 
+// TODO Queue messages instead of dumping them
 class ToastSpamPrevention private constructor() {
     companion object {
         private const val LOG_TAG = "ToastSpamPrevention"

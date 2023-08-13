@@ -18,6 +18,7 @@ class ScorePadState(
     val scorePadData = main.scorePadData!!
     val firstArrowNumberInSelectedEnd = main.firstArrowNumberInSelectedEnd
     val selectedEndSize = main.selectedEndSize
+    val isDropdownMenuOpen = extras.isDropdownMenuOpen
 }
 
 data class ScorePadExtras(
@@ -25,4 +26,5 @@ data class ScorePadExtras(
         val editEndClicked: Boolean = false,
         val insertEndClicked: Boolean = false,
         val inputEndClicked: Boolean = false,
+        val isDropdownMenuOpen: Boolean = false,
 )
