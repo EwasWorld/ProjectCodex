@@ -13,4 +13,6 @@ sealed class ShootDetailsIntent {
 
     data class SelectScorePadEnd(val endNumber: Int?) : ShootDetailsIntent()
     data class SetInputtedArrows(val arrows: List<Arrow>) : ShootDetailsIntent()
+    data class SetScorePadEndSize(val size: Int) : ShootDetailsIntent()
+    data class SetAddEndEndSize(val size: Int) : ShootDetailsIntent()
 }

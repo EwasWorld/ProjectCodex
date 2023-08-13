@@ -37,9 +37,6 @@ class EditEndViewModel @Inject constructor(
             )
 
     init {
-        /*
-         * Monitor for db changes
-         */
         viewModelScope.launch {
             state.map { it.data?.originalEnd }.distinctUntilChanged().collect {
                 handleArrowInputIntent(ArrowInputsIntent.ResetArrowsInputted)

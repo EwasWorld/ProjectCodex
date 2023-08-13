@@ -17,6 +17,7 @@ import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
+import eywa.projectcodex.components.shootDetails.stats.StatsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
@@ -29,18 +30,6 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
         @Composable
         override fun Screen(navController: NavController) {
             AboutScreen()
-        }
-    },
-    ARCHER_ROUND_SCORE {
-        override val args: Map<NavArgument, Boolean>
-            get() = mapOf(NavArgument.SHOOT_ID to true, NavArgument.SCREEN to true)
-
-        @Composable
-        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.archer_round_title)
-
-        @Composable
-        override fun Screen(navController: NavController) {
-            TODO()
         }
     },
     CLASSIFICATION_TABLES {
@@ -168,7 +157,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            TODO()
+            eywa.projectcodex.components.shootDetails.settings.SettingsScreen(navController)
         }
     },
     SHOOT_DETAILS_STATS {
@@ -181,7 +170,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            TODO()
+            StatsScreen(navController)
         }
     },
     SIGHT_MARKS {

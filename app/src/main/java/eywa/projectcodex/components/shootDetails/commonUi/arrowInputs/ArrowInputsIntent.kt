@@ -1,8 +1,7 @@
 package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundError
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundError.*
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError.*
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.model.Arrow
 
@@ -21,7 +20,7 @@ sealed class ArrowInputsIntent {
             enteredArrows: List<Arrow>,
             endSize: Int,
             dbArrows: List<DatabaseArrowScore>?,
-            setEnteredArrows: (List<Arrow>, ArcherRoundError?) -> Unit,
+            setEnteredArrows: (List<Arrow>, ArrowInputsError?) -> Unit,
             onCancel: () -> Unit = { throw NotImplementedError() },
             onSubmit: () -> Unit,
             helpListener: (HelpShowcaseIntent) -> Unit,

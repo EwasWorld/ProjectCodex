@@ -5,7 +5,7 @@ import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.ScorePadData
 
-private const val DEFAULT_END_SIZE = 6
+const val DEFAULT_END_SIZE = 6
 
 data class ShootDetailsState(
         val shootId: Int? = null,
@@ -27,8 +27,8 @@ data class ShootDetailsState(
         /*
          * Score pad state
          */
-        val scorePadEndSize: Int = DEFAULT_END_SIZE,
         val scorePadSelectedEnd: Int? = null,
+        val scorePadEndSize: Int = DEFAULT_END_SIZE,
 
         /*
          * Add end state

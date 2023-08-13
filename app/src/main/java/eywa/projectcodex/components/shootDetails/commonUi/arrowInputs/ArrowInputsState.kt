@@ -1,11 +1,10 @@
 package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs
 
-import eywa.projectcodex.components.archerRoundScore.state.HasEnteredArrows
-import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo
-import eywa.projectcodex.components.archerRoundScore.state.HasInputEndSize
+import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.FullShootInfo
 
-interface ArrowInputsState : HasFullArcherRoundInfo, HasInputEndSize, HasEnteredArrows
-
-interface HasSelectedEndNumber {
-    val selectedEndNumber: Int
+interface ArrowInputsState {
+    val enteredArrows: List<Arrow>
+    val fullShootInfo: FullShootInfo
+    val endSize: Int
 }

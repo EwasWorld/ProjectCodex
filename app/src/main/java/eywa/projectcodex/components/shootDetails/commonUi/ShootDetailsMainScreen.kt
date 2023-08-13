@@ -61,7 +61,12 @@ fun <T> HandleMainEffects(
             navBarClickedItem.navigate(
                     navController,
                     mapOf(NavArgument.SHOOT_ID to state.shootId.toString()),
-            )
+            ) {
+                val currentRoute = navController.currentDestination?.route
+                if (currentRoute != null) {
+                    popUpTo(currentRoute) { inclusive = true }
+                }
+            }
             listener(ShootDetailsIntent.NavBarClickHandled(navBarClickedItem))
         }
     }

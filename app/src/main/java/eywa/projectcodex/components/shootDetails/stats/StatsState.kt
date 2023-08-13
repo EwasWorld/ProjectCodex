@@ -1,17 +1,19 @@
-package eywa.projectcodex.components.archerRoundScore.stats
+package eywa.projectcodex.components.shootDetails.stats
 
-import eywa.projectcodex.components.archerRoundScore.state.HasBetaFeaturesFlag
-import eywa.projectcodex.components.archerRoundScore.state.HasFullArcherRoundInfo
-import eywa.projectcodex.components.archerRoundScore.state.HasScorePadEndSize
+import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.model.Handicap
 
-interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, HasBetaFeaturesFlag {
-    val goldsType: GoldsType
-    val openEditScoreScreen: Boolean
+class StatsState(
+        main: ShootDetailsState,
+        extras: StatsExtras,
+) {
+    val fullShootInfo = main.fullShootInfo!!
+    val endSize = main.scorePadEndSize
+    val useBetaFeatures = main.useBetaFeatures ?: false
+    val openEditScoreScreen = extras.openEditScoreScreen
 
     val extras: List<ExtraStats>?
         get() {
@@ -28,8 +30,8 @@ interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, Ha
                                 arrows = null,
                                 use2023Handicaps = info.use2023HandicapSystem,
                                 faces = info.getFaceForDistance(distance)?.let { listOf(it) },
-                )
-            }
+                        )
+                    }
 
             if (info.roundDistances == null || info.roundArrowCounts == null || info.arrows == null) return null
             // Suppressed because the compiler is wrong and requires !! for unknown reasons
@@ -44,10 +46,14 @@ interface ArcherRoundStatsState : HasFullArcherRoundInfo, HasScorePadEndSize, Ha
                                 distance,
                                 arrowCount,
                                 distArrows,
-                                scorePadEndSize,
+                                endSize,
                                 calculateHandicap,
                         )
                     }
-                    .plus(GrandTotalExtra(info.arrows, scorePadEndSize, info.handicapFloat))
+                    .plus(GrandTotalExtra(info.arrows, endSize, info.handicapFloat))
         }
 }
+
+data class StatsExtras(
+        val openEditScoreScreen: Boolean = false
+)

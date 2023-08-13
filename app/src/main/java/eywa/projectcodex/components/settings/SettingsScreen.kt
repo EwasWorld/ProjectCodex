@@ -28,7 +28,7 @@ import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.components.archerRoundScore.settings.ArcherRoundSettingsScreen
+import eywa.projectcodex.common.utils.CodexTestTag
 
 @Composable
 fun SettingsScreen(
@@ -54,7 +54,7 @@ fun SettingsScreen(
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
                         .padding(25.dp)
-                        .testTag(ArcherRoundSettingsScreen.TestTag.SCREEN)
+                        .testTag(SettingsTestTag.SCREEN.getTestTag())
         ) {
             DataRow(
                     title = stringResource(R.string.settings__handicap_system_title),
@@ -101,6 +101,16 @@ fun SettingsScreen(
             }
         }
     }
+}
+
+enum class SettingsTestTag : CodexTestTag {
+    SCREEN,
+    ;
+
+    override val screenName: String
+        get() = "SETTINGS"
+
+    override fun getElement(): String = name
 }
 
 @Preview(

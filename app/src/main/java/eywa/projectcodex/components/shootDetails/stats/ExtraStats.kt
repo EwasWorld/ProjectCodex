@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore.stats
+package eywa.projectcodex.components.shootDetails.stats
 
 import eywa.projectcodex.common.utils.standardDeviation
 import eywa.projectcodex.common.utils.standardDeviationInt

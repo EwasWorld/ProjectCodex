@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.shootDetails.editEnd
 
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundError
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsState
 import eywa.projectcodex.model.Arrow
 
@@ -28,6 +28,6 @@ class EditEndState(
 
 data class EditEndExtras(
         val enteredArrows: List<Arrow> = emptyList(),
-        val errors: Set<ArcherRoundError> = emptySet(),
+        val errors: Set<ArrowInputsError> = emptySet(),
         val closeScreen: Boolean = false,
 )

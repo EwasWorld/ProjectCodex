@@ -27,9 +27,9 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.utils.get
-import eywa.projectcodex.components.archerRoundScore.state.ArcherRoundStatePreviewHelper
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.*
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
+import eywa.projectcodex.model.Arrow
 
 @Composable
 fun ArrowInputs(
@@ -159,7 +159,12 @@ fun ArrowInputs_Preview(
                 state = object : ArrowInputsState {
                     override val fullShootInfo = ShootPreviewHelper.newFullShootInfo()
                             .addRound(RoundPreviewHelper.outdoorImperialRoundData)
-                    override val enteredArrows = ArcherRoundStatePreviewHelper.inputArrows
+                    override val enteredArrows = listOf(
+                            Arrow(10, true),
+                            Arrow(10, false),
+                            Arrow(3, false),
+                            Arrow(0, false),
+                    )
                     override val endSize = 6
                 },
                 showResetButton = true,

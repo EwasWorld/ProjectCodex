@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.shootDetails.addEnd
 
-import eywa.projectcodex.components.archerRoundScore.ArcherRoundError
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsState
 
 class AddEndState(
@@ -17,6 +17,6 @@ class AddEndState(
 }
 
 data class AddEndExtras(
-        val errors: Set<ArcherRoundError> = emptySet(),
+        val errors: Set<ArrowInputsError> = emptySet(),
         val roundCompleted: Boolean = false,
 )

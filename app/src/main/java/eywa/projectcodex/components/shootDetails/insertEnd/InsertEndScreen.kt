@@ -31,7 +31,7 @@ fun InsertEndScreen(
     val listener = { it: InsertEndIntent -> viewModel.handle(it) }
 
     ShootDetailsMainScreen(
-            currentScreen = CodexNavRoute.SHOOT_DETAILS_ADD_END,
+            currentScreen = CodexNavRoute.SHOOT_DETAILS_INSERT_END,
             state = state,
             listener = { listener(InsertEndIntent.ShootDetailsAction(it)) },
     ) { it, modifier -> InsertEndScreen(it, modifier, listener) }

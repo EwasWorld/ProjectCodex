@@ -32,7 +32,7 @@ fun EditEndScreen(
     val listener = { it: EditEndIntent -> viewModel.handle(it) }
 
     ShootDetailsMainScreen(
-            currentScreen = CodexNavRoute.SHOOT_DETAILS_ADD_END,
+            currentScreen = CodexNavRoute.SHOOT_DETAILS_EDIT_END,
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
     ) { it, modifier -> EditEndScreen(it, modifier, listener) }

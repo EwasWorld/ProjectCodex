@@ -3,8 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag
-import eywa.projectcodex.components.archerRoundScore.stats.ArcherRoundStatsScreen.TestTag
+import eywa.projectcodex.components.shootDetails.stats.ArcherRoundStatsScreen.TestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.subComponents.SelectFaceRobot
 
