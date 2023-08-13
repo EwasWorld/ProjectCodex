@@ -64,9 +64,9 @@ private fun handleEffects(
         context: Context,
         listener: (ViewScoresIntent) -> Unit,
 ) {
-    if (state.multiSelectEmailClicked) {
+    if (state.openEmailClicked) {
         CodexNavRoute.EMAIL_SCORE.navigate(navController)
-        listener(HandledEmailClicked)
+        listener(HandledEmailOpened)
     }
 
     if (state.multiSelectEmailNoSelection) {
@@ -109,12 +109,6 @@ private fun handleEffects(
             )
         }
         listener(HandledInputEndOpened)
-    }
-
-    if (state.openEmailClicked) {
-        // TODO_CURRENT Combine with other email open
-        CodexNavRoute.EMAIL_SCORE.navigate(navController)
-        listener(HandledEmailOpened)
     }
 
     if (state.openEditInfoClicked) {

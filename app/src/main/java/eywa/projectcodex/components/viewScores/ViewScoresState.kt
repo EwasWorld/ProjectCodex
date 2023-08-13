@@ -9,7 +9,6 @@ data class ViewScoresState(
         val data: List<ViewScoresEntry> = listOf(),
         val noRoundsDialogOkClicked: Boolean = false,
 
-        val multiSelectEmailClicked: Boolean = false,
         val multiSelectEmailNoSelection: Boolean = false,
 
         val lastClickedEntryId: Int? = null,

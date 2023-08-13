@@ -134,7 +134,6 @@ class ViewScoresViewModel @Inject constructor(
 
     private fun handleEffectComplete(action: EffectComplete) {
         when (action) {
-            HandledEmailClicked -> _state.update { it.copy(multiSelectEmailClicked = false) }
             HandledEmailNoSelection -> _state.update { it.copy(multiSelectEmailNoSelection = false) }
             HandledScorePadOpened -> _state.update { it.copy(openScorePadClicked = false) }
             HandledEditInfoOpened -> _state.update { it.copy(openEditInfoClicked = false) }
@@ -173,7 +172,7 @@ class ViewScoresViewModel @Inject constructor(
                 }
 
                 shootIdsUseCase.setItems(selectedItems.map { item -> item.id })
-                it.copy(multiSelectEmailClicked = true)
+                it.copy(openEmailClicked = true)
             }
         }
     }

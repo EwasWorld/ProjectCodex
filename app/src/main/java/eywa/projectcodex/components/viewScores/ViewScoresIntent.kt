@@ -25,7 +25,6 @@ sealed class ViewScoresIntent {
     data class AddFilter(val filter: ShootFilter) : ViewScoresIntent()
 
     object HandledNoRoundsDialogOkClicked : EffectComplete()
-    object HandledEmailClicked : EffectComplete()
     object HandledEmailNoSelection : EffectComplete()
     object HandledScorePadOpened : EffectComplete()
     object HandledInputEndOpened : EffectComplete()
