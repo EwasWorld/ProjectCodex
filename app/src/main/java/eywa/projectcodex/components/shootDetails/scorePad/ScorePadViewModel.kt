@@ -13,7 +13,6 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.SelectScoreP
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
-import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -73,7 +72,7 @@ class ScorePadViewModel @Inject constructor(
 
                     viewModelScope.launch {
                         currentState.let {
-                            ArrowScoresRepo(repo.db.arrowScoreDao()).deleteEnd(
+                            repo.db.arrowScoresRepo().deleteEnd(
                                     it.arrows!!,
                                     it.firstArrowNumberInSelectedEnd!!,
                                     it.selectedEndSize!!,

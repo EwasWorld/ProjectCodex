@@ -30,7 +30,7 @@ object LocalDatastoreModule {
 
 class FakeDatastore : CodexDatastore {
     private var values = MutableStateFlow(
-            mapOf<DatastoreKey<out Any>, Any>(DatastoreKey.DisplayHandicapNotice to false)
+            mapOf<DatastoreKey<out Any>, Any>(DatastoreKey.WhatsNewLastOpenedAppVersion to "100.0.0")
     )
 
     @Suppress("UNCHECKED_CAST")

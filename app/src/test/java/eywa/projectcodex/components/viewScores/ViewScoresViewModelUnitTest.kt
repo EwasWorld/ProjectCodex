@@ -212,11 +212,11 @@ class ViewScoresViewModelUnitTest {
 
         // Email
         sut.handle(MultiSelectAction(MultiSelectBarIntent.ClickEmail))
-        expectedState = expectedState.copy(multiSelectEmailClicked = true)
+        expectedState = expectedState.copy(openEmailClicked = true)
         checkState()
 
-        sut.handle(HandledEmailClicked)
-        expectedState = expectedState.copy(multiSelectEmailClicked = false)
+        sut.handle(HandledEmailOpened)
+        expectedState = expectedState.copy(openEmailClicked = false)
         checkState()
 
         // Turn off

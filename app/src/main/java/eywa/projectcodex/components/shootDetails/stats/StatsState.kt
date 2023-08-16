@@ -15,42 +15,40 @@ class StatsState(
     val useBetaFeatures = main.useBetaFeatures ?: false
     val openEditScoreScreen = extras.openEditScoreScreen
 
+    private val calculateHandicapFn =
+            { arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance ->
+                if (fullShootInfo.handicap == null) null
+                else Handicap.getHandicapForRound(
+                        round = fullShootInfo.round!!,
+                        roundArrowCounts = listOf(arrowCount.copy(arrowCount = arrows.count())),
+                        roundDistances = listOf(distance),
+                        score = arrows.sumOf { it.score },
+                        innerTenArcher = fullShootInfo.isInnerTenArcher,
+                        arrows = null,
+                        use2023Handicaps = fullShootInfo.use2023HandicapSystem,
+                        faces = fullShootInfo.getFaceForDistance(distance)?.let { listOf(it) },
+                )
+            }
+
     val extras: List<ExtraStats>?
         get() {
-            val info = fullShootInfo
-            val calculateHandicap =
-                    { arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance ->
-                        if (info.handicap == null) null
-                        else Handicap.getHandicapForRound(
-                                round = info.round!!,
-                                roundArrowCounts = listOf(arrowCount.copy(arrowCount = arrows.count())),
-                                roundDistances = listOf(distance),
-                                score = arrows.sumOf { it.score },
-                                innerTenArcher = info.isInnerTenArcher,
-                                arrows = null,
-                                use2023Handicaps = info.use2023HandicapSystem,
-                                faces = info.getFaceForDistance(distance)?.let { listOf(it) },
-                        )
-                    }
+            val distances = fullShootInfo.roundDistances ?: return null
+            val arrowCounts = fullShootInfo.roundArrowCounts ?: return null
+            var arrows = fullShootInfo.arrows ?: return null
+            check(distances.size == arrowCounts.size)
 
-            if (info.roundDistances == null || info.roundArrowCounts == null || info.arrows == null) return null
-            // Suppressed because the compiler is wrong and requires !! for unknown reasons
-            @Suppress("UNNECESSARY_NOT_NULL_ASSERTION") var tempArrows = info.arrows!!
-            return info.roundDistances.sortedBy { it.distanceNumber }
-                    .zip(info.roundArrowCounts.sortedBy { it.distanceNumber })
-                    .mapNotNull { (distance, arrowCount) ->
-                        val distArrows = tempArrows.take(arrowCount.arrowCount)
-                        tempArrows = tempArrows.drop(arrowCount.arrowCount)
-                        if (distArrows.isEmpty()) return@mapNotNull null
-                        DistanceExtra(
-                                distance,
-                                arrowCount,
-                                distArrows,
-                                endSize,
-                                calculateHandicap,
-                        )
-                    }
-                    .plus(GrandTotalExtra(info.arrows, endSize, info.handicapFloat))
+            val extrasList = mutableListOf<ExtraStats>()
+            for (index in distances.indices) {
+                val arrowCount = arrowCounts[index]
+                val distArrows = arrows.take(arrowCount.arrowCount)
+                        .takeIf { it.isNotEmpty() }
+                        ?: break
+                arrows = arrows.drop(arrowCount.arrowCount)
+                extrasList.add(DistanceExtra(distances[index], arrowCount, distArrows, endSize, calculateHandicapFn))
+            }
+            extrasList.add(GrandTotalExtra(fullShootInfo.arrows, endSize, fullShootInfo.handicapFloat))
+
+            return extrasList
         }
 }
 

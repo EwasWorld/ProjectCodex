@@ -1,9 +1,5 @@
 package eywa.projectcodex.components.shootDetails
 
-import androidx.activity.ComponentActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,11 +12,11 @@ import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
 import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
+import eywa.projectcodex.datastore.get
 import eywa.projectcodex.datastore.retrieve
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Singleton
 
 /**
@@ -55,51 +51,47 @@ class ShootDetailsRepo(
         }
     }
 
-    fun connect(activity: ComponentActivity) {
-        activity.lifecycleScope.launch {
-            activity.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                datastore.get(
-                        Use2023HandicapSystem,
-                        UseBetaFeatures,
-                ).collectLatest { result ->
-                    state.update {
-                        it.copy(
-                                useBetaFeatures = result.retrieve(UseBetaFeatures),
-                                use2023System = result.retrieve(Use2023HandicapSystem),
-                        )
-                    }
+    fun connect(launch: (block: suspend () -> Unit) -> Unit) {
+        launch {
+            datastore.get(
+                    Use2023HandicapSystem,
+                    UseBetaFeatures,
+            ).collectLatest { result ->
+                state.update {
+                    it.copy(
+                            useBetaFeatures = result.retrieve(UseBetaFeatures),
+                            use2023System = result.retrieve(Use2023HandicapSystem),
+                    )
                 }
             }
         }
-        activity.lifecycleScope.launch {
-            activity.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                state
-                        .map { it.shootId }
-                        .distinctUntilChanged()
-                        .flatMapLatest { shootId ->
-                            if (shootId == null) {
-                                return@flatMapLatest flow<Pair<Int?, DatabaseFullShootInfo?>> { emit(null to null) }
-                            }
-                            db.shootsRepo().getFullShootInfo(shootId).map { shootId to it }
+        launch {
+            state
+                    .map { it.shootId }
+                    .distinctUntilChanged()
+                    .flatMapLatest { shootId ->
+                        if (shootId == null) {
+                            return@flatMapLatest flow<Pair<Int?, DatabaseFullShootInfo?>> { emit(null to null) }
                         }
-                        .collectLatest { (shootId, dbInfo) ->
-                            if (shootId == null) return@collectLatest
-                            if (dbInfo == null) {
-                                state.update {
-                                    if (shootId != it.shootId) it
-                                    else ShootDetailsState(shootId = shootId, isError = true).preserveDatastoreInfo(it)
-                                }
-                                return@collectLatest
-                            }
-
+                        db.shootsRepo().getFullShootInfo(shootId).map { shootId to it }
+                    }
+                    .collectLatest { (shootId, dbInfo) ->
+                        if (shootId == null) return@collectLatest
+                        if (dbInfo == null) {
                             state.update {
-                                if (it.shootId != shootId) return@update it
-                                val system = it.use2023System ?: Use2023HandicapSystem.defaultValue
-                                val info = FullShootInfo(dbInfo, system)
-                                it.copy(fullShootInfo = info)
+                                if (shootId != it.shootId) it
+                                else ShootDetailsState(shootId = shootId, isError = true).preserveDatastoreInfo(it)
                             }
+                            return@collectLatest
                         }
-            }
+
+                        state.update {
+                            if (it.shootId != shootId) return@update it
+                            val system = it.use2023System ?: Use2023HandicapSystem.defaultValue
+                            val info = FullShootInfo(dbInfo, system)
+                            it.copy(fullShootInfo = info)
+                        }
+                    }
         }
     }
 
@@ -138,7 +130,7 @@ class ShootDetailsRepo(
     ) =
             when {
                 shootId == null || state.isError -> ShootDetailsResponse.Error(state.mainMenuClicked)
-                shootId != state.shootId || state.fullShootInfo == null ->
+                shootId != state.shootId || state.fullShootInfo == null || state.fullShootInfo.id != shootId ->
                     @Suppress("UNCHECKED_CAST")
                     ShootDetailsResponse.Loading as ShootDetailsResponse<T>
                 else -> ShootDetailsResponse.Loaded(converter(state, extra), state.shootId, state.navBarClickedItem)

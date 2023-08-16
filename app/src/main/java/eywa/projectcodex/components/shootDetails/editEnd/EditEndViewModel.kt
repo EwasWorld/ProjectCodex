@@ -59,7 +59,7 @@ class EditEndViewModel @Inject constructor(
         action.handle(
                 enteredArrows = currentState.enteredArrows,
                 endSize = currentState.endSize,
-                dbArrows = currentState.originalEnd,
+                dbArrows = currentState.originalEnd!!,
                 setEnteredArrows = { arrows, error ->
                     extraState.update {
                         it.copy(

@@ -58,7 +58,7 @@ class MockScoresRoomDatabase {
         private fun getShoots() = flow {
             emit(fullShoots)
 
-            secondFullShoots.takeIf { !it.isNullOrEmpty() }?.let {
+            secondFullShoots.takeIf { it != null }?.let {
                 delay(FLOW_EMIT_DELAY)
                 emit(it)
             }
@@ -76,7 +76,7 @@ class MockScoresRoomDatabase {
         private fun getRoundsInfo() = flow {
             emit(fullRoundsInfo)
 
-            secondFullRoundsInfo.takeIf { !it.isNullOrEmpty() }?.let {
+            secondFullRoundsInfo.takeIf { it != null }?.let {
                 delay(FLOW_EMIT_DELAY)
                 emit(it)
             }

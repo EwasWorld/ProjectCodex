@@ -2,6 +2,8 @@ package eywa.projectcodex.datastore
 
 import kotlinx.coroutines.flow.Flow
 
+fun CodexDatastore.get(vararg keys: DatastoreKey<*>): Flow<Map<DatastoreKey<*>, *>> = get(keys.toList())
+
 /**
  * Helper function for getting the value of a specific [key] out of the map returned by [CodexDatastore.get]
  */
@@ -16,7 +18,6 @@ interface CodexDatastore {
      * @see retrieve
      */
     fun get(keys: Collection<DatastoreKey<*>>): Flow<Map<DatastoreKey<*>, *>>
-    fun get(vararg keys: DatastoreKey<*>): Flow<Map<DatastoreKey<*>, *>> = get(keys.toList())
     suspend fun <T : Any> set(key: DatastoreKey<T>, value: T)
     suspend fun toggle(key: DatastoreKey<Boolean>)
 }

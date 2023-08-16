@@ -27,6 +27,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -57,7 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        shootDetailsRepo.connect(this)
+        shootDetailsRepo.connect { lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.RESUMED) { it() } } }
         // TODO Don't re-run on activity recreate
         viewModel.updateDefaultRounds()
 

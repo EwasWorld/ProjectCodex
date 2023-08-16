@@ -53,11 +53,13 @@ data class ShootDetailsState(
                     .sortedBy { it.endNumber }
             if (all.isEmpty()) return null
 
-            val end = scorePadSelectedEnd - 1
-            return all.take(end)
+            val endIndex = scorePadSelectedEnd - 1
+            if (endIndex !in all.indices) return null
+
+            return all.take(endIndex)
                     .sumOf { it.arrowScores.size }
                     // +1 because arrowNumbers are 1-indexed
-                    .plus(1) to all[end].arrowScores.size
+                    .plus(1) to all[endIndex].arrowScores.size
         }
 
     val firstArrowNumberInSelectedEnd

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.archerRoundScore
+package eywa.projectcodex.components.shootDetails.common.arrowInputs
 
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.GeneralTargetScoreButton
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.WorcesterTargetScoreButton

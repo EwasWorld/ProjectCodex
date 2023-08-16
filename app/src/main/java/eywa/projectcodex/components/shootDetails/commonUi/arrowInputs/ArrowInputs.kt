@@ -24,11 +24,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.*
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.model.Arrow
 
 @Composable
@@ -83,8 +82,8 @@ fun ArrowInputs(
         )
 
         ArrowButtonGroup(
-                round = state.fullShootInfo.round,
-                roundFace = state.fullShootInfo.currentFace,
+                round = state.round,
+                roundFace = state.face,
                 onClick = { listener(ArrowInputted(it)) },
                 horizontalPadding = horizontalPadding,
                 modifier = Modifier.updateHelpDialogPosition(
@@ -157,8 +156,8 @@ fun ArrowInputs_Preview(
     CodexTheme {
         ArrowInputs(
                 state = object : ArrowInputsState {
-                    override val fullShootInfo = ShootPreviewHelper.newFullShootInfo()
-                            .addRound(RoundPreviewHelper.outdoorImperialRoundData)
+                    override val round = RoundPreviewHelper.outdoorImperialRoundData.round
+                    override val face = RoundFace.FULL
                     override val enteredArrows = listOf(
                             Arrow(10, true),
                             Arrow(10, false),
