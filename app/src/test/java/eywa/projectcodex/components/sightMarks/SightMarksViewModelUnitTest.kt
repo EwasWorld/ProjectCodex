@@ -5,7 +5,6 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
-import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.testUtils.MainCoroutineRule
@@ -28,7 +27,7 @@ class SightMarksViewModelUnitTest {
     private val db = MockScoresRoomDatabase()
     private val helpShowcase: HelpShowcaseUseCase = mock { }
 
-    private var data = ScoresRoomDatabase.fakeSightMarkData.map { SightMark(it) }
+    private var data = SightMarksPreviewHelper.sightMarks.map { SightMark(it) }
 
     private fun getSut(
             sightMarks: List<SightMark> = data

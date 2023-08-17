@@ -13,7 +13,9 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Optional
 import javax.inject.Singleton
+import kotlin.jvm.optionals.getOrNull
 
 
 @Module
@@ -22,7 +24,7 @@ class LocalDatabaseModule {
     companion object {
         var scoresRoomDatabase: ScoresRoomDatabase? = null
 
-        fun createScoresRoomDatabase(context: Context) {
+        fun createScoresRoomDatabase(context: Context, addFakeData: suspend () -> Unit) {
             scoresRoomDatabase = Room
                     .inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java)
                     .allowMainThreadQueries()
@@ -32,6 +34,7 @@ class LocalDatabaseModule {
                                     super.onOpen(db)
                                     CoroutineScope(Dispatchers.IO).launch {
                                         scoresRoomDatabase!!.insertDefaults()
+                                        addFakeData()
                                     }
                                 }
                             }
@@ -48,10 +51,11 @@ class LocalDatabaseModule {
     @Singleton
     @Provides
     fun providesRoomDatabase(
-            @ApplicationContext context: Context
+            @ApplicationContext context: Context,
+            @FakeDataAnnotation fakeData: Optional<FakeData>,
     ): ScoresRoomDatabase {
         if (scoresRoomDatabase == null) {
-            createScoresRoomDatabase(context)
+            createScoresRoomDatabase(context) { fakeData.getOrNull()?.addFakeData(scoresRoomDatabase!!) }
         }
         return scoresRoomDatabase!!
     }

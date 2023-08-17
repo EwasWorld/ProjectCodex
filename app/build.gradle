@@ -252,4 +252,6 @@ allprojects {
     configurations.all {
         resolutionStrategy.force 'org.objenesis:objenesis:2.6' // Source: https://stackoverflow.com/a/64181442
     }
+    // Created an extra folder so that it can be prevented from syncing with Dropbox
+    buildDir = "$projectDir/build/build"
 }
