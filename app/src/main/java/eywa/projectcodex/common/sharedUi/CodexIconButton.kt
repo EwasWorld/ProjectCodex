@@ -49,7 +49,11 @@ fun CodexIconButton(
         helpState: HelpState? = null,
         onClick: () -> Unit,
 ) {
-    val color = if (enabled) CodexTheme.colors.iconButtonOnPrimary else CodexTheme.colors.disabledButton
+    val color = when {
+        icon.tint != null -> icon.tint!!
+        enabled -> CodexTheme.colors.iconButtonOnPrimary
+        else -> CodexTheme.colors.disabledButton
+    }
     val actualIcon = icon.copyIcon(
             contentDescription = icon.contentDescription.takeIf { captionBelow.isNullOrBlank() },
             tint = color,

@@ -11,7 +11,7 @@ import org.junit.runners.Parameterized
 class NumberValidatorPositiveUnitTests(private val param: ValidatorTest<Any>) {
     @Test
     fun test() {
-        assertEquals(param.isValid, NumberValidator.POSITIVE.isValid(param.testString))
+        assertEquals(param.isValid, NumberValidator.IsPositive.isValid(param.testString, 5))
     }
 
     companion object {

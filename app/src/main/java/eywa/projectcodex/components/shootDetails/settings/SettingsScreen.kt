@@ -10,14 +10,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.sharedUi.NumberSetting
+import eywa.projectcodex.common.sharedUi.LabelledNumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -65,27 +67,31 @@ private fun SettingsScreen(
                         .padding(25.dp)
                         .testTag(SCREEN.getTestTag())
         ) {
-            NumberSetting(
+            LabelledNumberSetting(
                     clazz = Int::class,
-                    title = R.string.archer_round_settings__input_end_size,
+                    title = stringResource(R.string.archer_round_settings__input_end_size),
                     currentValue = state.addEndSizePartial,
                     placeholder = 6,
                     testTag = ADD_END_SIZE.getTestTag(),
                     onValueChanged = { listener(AddEndSizeChanged(it)) },
-                    helpListener = helpListener,
-                    helpTitle = R.string.help_archer_round_settings__input_end_size_title,
-                    helpBody = R.string.help_archer_round_settings__input_end_size_body,
+                    helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_archer_round_settings__input_end_size_title),
+                        helpBody = stringResource(R.string.help_archer_round_settings__input_end_size_body),
+                    ),
             )
-            NumberSetting(
+            LabelledNumberSetting(
                     clazz = Int::class,
-                    title = R.string.archer_round_settings__score_pad_end_size,
+                    title = stringResource(R.string.archer_round_settings__score_pad_end_size),
                     currentValue = state.scorePadEndSizePartial,
                     placeholder = 6,
                     testTag = SCORE_PAD_END_SIZE.getTestTag(),
                     onValueChanged = { listener(ScorePadEndSizeChanged(it)) },
-                    helpListener = helpListener,
-                    helpTitle = R.string.help_archer_round_settings__score_pad_size_title,
-                    helpBody = R.string.help_archer_round_settings__score_pad_size_body,
+                    helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_archer_round_settings__score_pad_size_title),
+                        helpBody = stringResource(R.string.help_archer_round_settings__score_pad_size_body),
+                    ),
             )
             // TODO Change golds type
         }

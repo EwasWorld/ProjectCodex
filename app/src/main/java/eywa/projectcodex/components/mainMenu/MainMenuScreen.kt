@@ -93,6 +93,16 @@ private fun MainMenuScreen(
                 modifier = Modifier.testTag(MainMenuTestTag.VIEW_SCORE_BUTTON.getTestTag())
         )
         CodexButton(
+                text = stringResource(id = R.string.main_menu__archer_info),
+                onClick = { listener(Navigate(CodexNavRoute.ARCHER_HANDICAPS)) },
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_main_menu__archer_info_title),
+                        helpBody = stringResource(R.string.help_main_menu__archer_info_body),
+                ),
+                modifier = Modifier.testTag(MainMenuTestTag.ARCHER_INFO_BUTTON.getTestTag())
+        )
+        CodexButton(
                 text = stringResource(id = R.string.main_menu__handicap_tables),
                 onClick = { listener(Navigate(CodexNavRoute.HANDICAP_TABLES)) },
                 helpState = HelpState(
@@ -191,6 +201,7 @@ enum class MainMenuTestTag : CodexTestTag {
     SIGHT_MARKS_BUTTON,
     SETTINGS_BUTTON,
     ABOUT_BUTTON,
+    ARCHER_INFO_BUTTON,
     ;
 
     override val screenName: String

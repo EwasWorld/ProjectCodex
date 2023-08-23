@@ -89,6 +89,7 @@
     <string name="err__invalid_int_digit">Invalid number format. Must be an integer</string>
     <string name="err__invalid_float_digit">Invalid number format. Must be a decimal or integer</string>
     <string name="err__negative_is_invalid">Number must be positive</string>
+    <string name="err__out_of_range">Number must be between %1$s and %2$s (inclusive)</string>
     <string name="err__required_field">Required</string>
 
     <!-- TODO Remove after compose-based nav -->

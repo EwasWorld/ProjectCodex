@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
@@ -294,9 +292,11 @@ private fun SendButton(
             helpBody = stringResource(R.string.help_email_scores__send_body),
     )
     sendHelpState.add()
-    FloatingActionButton(
-            backgroundColor = CodexTheme.colors.floatingActions,
-            contentColor = CodexTheme.colors.onFloatingActions,
+    CodexFloatingActionButton(
+            icon = CodexIconInfo.VectorIcon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = stringResource(R.string.email_scores__send)
+            ),
             onClick = {
                 listener(
                         SubmitClicked(
@@ -309,12 +309,7 @@ private fun SendButton(
                     .padding(15.dp)
                     .updateHelpDialogPosition(sendHelpState)
                     .testTag(EmailScoresTestTag.SEND_BUTTON)
-    ) {
-        Icon(
-                Icons.Default.Send,
-                contentDescription = stringResource(R.string.email_scores__send)
-        )
-    }
+    )
 }
 
 object EmailScoresTestTag {

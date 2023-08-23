@@ -80,6 +80,7 @@ fun DataRow(
 ) = DataRow(
         title = title,
         helpState = helpState,
+        style = style,
         modifier = modifier.clearAndSetSemantics {
             contentDescription = "$text $title"
             onClick?.let { onClick(onClickLabel) { onClick(); true } }
@@ -104,6 +105,7 @@ fun DataRow(
         helpState: HelpState?,
         modifier: Modifier = Modifier,
         titleModifier: Modifier = Modifier,
+        style: TextStyle = LocalTextStyle.current,
         content: @Composable () -> Unit,
 ) {
     helpState?.add()
@@ -115,6 +117,7 @@ fun DataRow(
     ) {
         Text(
                 text = title,
+                style = style,
                 modifier = titleModifier
         )
         content()

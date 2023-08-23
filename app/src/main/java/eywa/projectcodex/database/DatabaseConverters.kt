@@ -2,6 +2,7 @@ package eywa.projectcodex.database
 
 import androidx.room.TypeConverter
 import eywa.projectcodex.common.utils.asCalendar
+import eywa.projectcodex.database.archer.HandicapType
 import java.util.*
 
 class DatabaseConverters {
@@ -35,4 +36,10 @@ class DatabaseConverters {
 
     @TypeConverter
     fun intToRoundFace(value: Int) = RoundFace.fromDbData(value)
+
+    @TypeConverter
+    fun handicapTypeToInt(value: HandicapType) = value.toDbData()
+
+    @TypeConverter
+    fun intToHandicapType(value: Int) = HandicapType.fromDbData(value)
 }

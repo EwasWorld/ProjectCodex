@@ -1,12 +1,10 @@
 package eywa.projectcodex.database
 
-import android.util.Log
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import eywa.projectcodex.database.archer.Archer
-import eywa.projectcodex.database.archer.ArcherDao
+import eywa.projectcodex.database.archer.*
 import eywa.projectcodex.database.arrows.*
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.DatabaseBow
@@ -16,17 +14,14 @@ import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
-import eywa.projectcodex.model.Arrow
-import kotlinx.coroutines.flow.first
-import java.sql.Date
-import java.util.*
 
 @Database(
         entities = [
-            DatabaseShoot::class, Archer::class, DatabaseArrowScore::class,
+            DatabaseShoot::class, DatabaseArcher::class, DatabaseArrowScore::class,
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class,
             DatabaseBow::class, DatabaseSightMark::class,
             DatabaseShootRound::class, DatabaseShootDetail::class, DatabaseArrowCounter::class,
+            DatabaseArcherHandicap::class,
         ],
         views = [
             ShootWithScore::class, PersonalBest::class,
@@ -45,6 +40,7 @@ import java.util.*
 abstract class ScoresRoomDatabase : RoomDatabase() {
 
     abstract fun archerDao(): ArcherDao
+    abstract fun archerHandicapDao(): ArcherHandicapDao
     abstract fun shootDao(): ShootDao
     abstract fun arrowScoreDao(): ArrowScoreDao
     abstract fun roundDao(): RoundDao
@@ -60,9 +56,11 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
     fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao())
     fun arrowScoresRepo() = ArrowScoresRepo(arrowScoreDao())
+    fun archerRepo() = ArcherRepo(archerDao(), archerHandicapDao())
 
     suspend fun insertDefaults() {
         bowDao().insertDefaultBowIfNotExist()
+        archerDao().insertDefaultArcherIfNotExist()
     }
 
     companion object {

@@ -6,6 +6,7 @@
     <string name="main_menu__handicap_tables">Handicap tables</string>
     <string name="main_menu__classification_tables">Classifications</string>
     <string name="main_menu__sight_marks">Sight marks</string>
+    <string name="main_menu__archer_info">Archer info</string>
     <string name="main_menu__settings">Settings</string>
     <string name="main_menu__about">App information</string>
 
@@ -23,6 +24,8 @@
     <string name="help_main_menu__classification_tables_body">Look up ArcheryGB classification scores for each round</string>
     <string name="help_main_menu__sight_marks_title">Sight marks</string>
     <string name="help_main_menu__sight_marks_body">Record and edit sight marks for each distance</string>
+    <string name="help_main_menu__archer_info_title">Archer info</string>
+    <string name="help_main_menu__archer_info_body">Record and edit information about the current archer like handicap</string>
     <string name="help_main_menu__settings_title">Settings</string>
     <string name="help_main_menu__settings_body">View and update app settings</string>
     <string name="help_main_menu__about_title">App information</string>

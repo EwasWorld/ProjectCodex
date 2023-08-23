@@ -7,6 +7,7 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.about.AboutScreen
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
@@ -30,6 +31,16 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
         @Composable
         override fun Screen(navController: NavController) {
             AboutScreen()
+        }
+    },
+    ARCHER_HANDICAPS {
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.archer_handicaps__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            ArcherHandicapsScreen()
         }
     },
     CLASSIFICATION_TABLES {

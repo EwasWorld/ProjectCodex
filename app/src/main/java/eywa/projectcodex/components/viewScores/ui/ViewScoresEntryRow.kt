@@ -148,9 +148,7 @@ private fun DateAndFirstNameColumn(
     ) {
         Text(
                 text = DateTimeFormat.SHORT_DATE_TIME.format(entries.dateShot),
-                style = CodexTypography.SMALL.copy(
-                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
-                ),
+                style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemLight),
         )
         DisplayName(
                 nameInfo = entries.firstDisplayName,

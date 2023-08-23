@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.common.utils.asCalendar
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -32,6 +33,7 @@ class FakeDataImpl : FakeData {
         }
         Log.i(ScoresRoomDatabase.LOG_TAG, "Adding fake data")
 
+        ArcherHandicapsPreviewHelper.handicaps.forEach { db.archerHandicapDao().insert(it) }
         SightMarksPreviewHelper.sightMarks.forEach { db.sightMarkDao().insert(it) }
 
         val arrowTypes = listOf(

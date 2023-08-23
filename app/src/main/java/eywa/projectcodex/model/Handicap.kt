@@ -1,12 +1,25 @@
 package eywa.projectcodex.model
 
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
 import kotlin.math.*
 
 fun Double.roundHandicap() = ceil(this).roundToInt()
 
 object Handicap {
+    fun getAllowanceForRound(
+            round: FullRoundInfo,
+            subType: Int?,
+            handicap: Double,
+            innerTenArcher: Boolean = false,
+            use2023Handicaps: Boolean = false,
+            faces: List<RoundFace>? = null,
+    ) = getScoreForRound(round, subType, handicap, innerTenArcher, null, use2023Handicaps, faces)
+            ?.let { score -> 1440 - score }
+
     fun getHandicapForRound(
             round: FullRoundInfo,
             subType: Int?,

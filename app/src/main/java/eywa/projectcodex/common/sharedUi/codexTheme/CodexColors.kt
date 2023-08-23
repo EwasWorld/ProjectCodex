@@ -39,6 +39,7 @@ data class CodexThemeColors(
         val listAccentRowItemOnAppBackground: Color = Color(0xFFC4FFF6),
         val listItemOnAppBackgroundBorder: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onListItemAppOnBackground: Color = Color.Black,
+        val onListItemLight: Color = onListItemAppOnBackground.copy(alpha = 0.55f),
 
         val surfaceOnBackground: Color = CodexColors.COLOR_EXTRA_LIGHT_ACCENT,
         val onSurfaceOnBackground: Color = Color.Black,
@@ -72,6 +73,7 @@ data class CodexThemeColors(
         val onFloatingActions: Color = Color.White,
         val textButtonOnPrimary: Color = Color.Black,
         val iconButtonOnPrimary: Color = Color.White,
+        val iconButtonOnListItem: Color = CodexColors.COLOR_PRIMARY_DARK,
 
         // Chips
         val chipOnPrimarySelected: Color = CodexColors.COLOR_PRIMARY_LIGHT,

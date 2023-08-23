@@ -26,7 +26,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
-import eywa.projectcodex.common.sharedUi.NumberSetting
+import eywa.projectcodex.common.sharedUi.LabelledNumberSetting
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
@@ -100,7 +100,7 @@ fun HandicapTablesScreen(
         }
 
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
-            NumberSetting(
+            LabelledNumberSetting(
                     clazz = Int::class,
                     title = stringResource(
                             if (state.inputHandicap) R.string.handicap_tables__handicap_field

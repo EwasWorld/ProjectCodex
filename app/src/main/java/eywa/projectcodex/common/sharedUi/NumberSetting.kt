@@ -1,6 +1,8 @@
 package eywa.projectcodex.common.sharedUi
 
+import android.content.res.Resources
 import androidx.annotation.StringRes
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -8,9 +10,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -21,10 +26,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 import kotlin.reflect.KClass
 
 /**
@@ -34,19 +39,21 @@ import kotlin.reflect.KClass
  */
 class NumberValidatorGroup<I : Number>(
         private val typeValidator: TypeValidator<I>,
-        private vararg val validators: NumberValidator,
+        private vararg val validators: NumberValidator<in I>,
 ) {
     /**
      * @return null if there are no validation errors.
-     * Otherwise returns the [NumberValidator.errorMessageId] of the first violation.
+     * Otherwise returns the [NumberValidator.toErrorString] of the first violation.
      */
-    fun getFirstError(value: String?, isDirty: Boolean = true, isRequired: Boolean = true) =
-            when {
-                isRequired && isDirty && value.isNullOrBlank() -> R.string.err__required_field
-                value.isNullOrBlank() -> null
-                !typeValidator.isValid(value) -> typeValidator.regexFailedErrorMessageId
-                else -> validators.firstOrNull { !it.isValid(value) }?.errorMessageId
-            }
+    fun getFirstError(value: String?, isDirty: Boolean = true, isRequired: Boolean = true): DisplayableError? {
+        if (isRequired && isDirty && value.isNullOrBlank()) return StringResError(R.string.err__required_field)
+        if (value.isNullOrBlank()) return null
+
+        val parsed = typeValidator.transform(value)
+                ?: return StringResError(typeValidator.regexFailedErrorMessageId)
+
+        return validators.firstOrNull { !it.isValid(value, parsed) }
+    }
 
     fun parse(value: String) = if (getFirstError(value) != null) null else typeValidator.transform(value)
 }
@@ -56,12 +63,10 @@ class NumberValidatorGroup<I : Number>(
  * Provide a transformation function to convert from [String] to the given type.
  */
 sealed class TypeValidator<I : Number>(
-        private val regex: Regex,
         private val partialRegex: Regex,
         val regexFailedErrorMessageId: Int,
 ) {
     object FloatValidator : TypeValidator<Float>(
-            regex = Regex("-?([0-9]+\\.?[0-9]*|\\.[0-9]+)"),
             partialRegex = Regex("-?[0-9]*\\.?[0-9]*"),
             regexFailedErrorMessageId = R.string.err__invalid_float_digit,
     ) {
@@ -69,7 +74,6 @@ sealed class TypeValidator<I : Number>(
     }
 
     object IntValidator : TypeValidator<Int>(
-            regex = Regex("-?[0-9]+"),
             partialRegex = Regex("-?[0-9]*"),
             regexFailedErrorMessageId = R.string.err__invalid_int_digit,
     ) {
@@ -78,17 +82,35 @@ sealed class TypeValidator<I : Number>(
 
     abstract fun transform(value: String): I?
 
-    fun isValid(value: String): Boolean = regex.matchEntire(value) != null
+    fun isValid(value: String): Boolean = transform(value) != null
     fun isPartiallyValid(value: String): Boolean = partialRegex.matchEntire(value) != null
 }
 
-enum class NumberValidator(@StringRes val errorMessageId: Int) {
-    POSITIVE(R.string.err__negative_is_invalid) {
-        override fun isValid(value: String): Boolean = Regex("-.*").matchEntire(value) == null
-    },
-    ;
+interface DisplayableError {
+    fun toErrorString(resources: Resources): String
+}
 
-    abstract fun isValid(value: String): Boolean
+data class StringResError(@StringRes val id: Int) : DisplayableError {
+    override fun toErrorString(resources: Resources): String = resources.getString(id)
+}
+
+sealed class NumberValidator<T : Number> : DisplayableError {
+    object IsPositive : NumberValidator<Number>() {
+        override fun isValid(value: String, parsed: Number): Boolean =
+                Regex("-.*").matchEntire(value) == null
+
+        override fun toErrorString(resources: Resources): String =
+                resources.getString(R.string.err__negative_is_invalid)
+    }
+
+    data class InRange<T>(val range: ClosedRange<T>) : NumberValidator<T>() where T : Number, T : Comparable<T> {
+        override fun isValid(value: String, parsed: T): Boolean = parsed in range
+
+        override fun toErrorString(resources: Resources): String =
+                resources.getString(R.string.err__out_of_range, range.start, range.endInclusive)
+    }
+
+    abstract fun isValid(value: String, parsed: T): Boolean
 }
 
 // TODO_CURRENT Do not delete whole thing if not matching
@@ -135,44 +157,89 @@ private sealed class NumberSettingHelper<I> {
     }
 }
 
-@Deprecated("Old")
 @Composable
-fun <I : Any> NumberSetting(
-        clazz: KClass<I>,
-        @StringRes title: Int,
-        currentValue: I?,
-        isError: Boolean = false,
+fun LabelledNumberSetting(
+        title: String,
+        currentValue: String?,
         testTag: String,
-        helpListener: ((HelpShowcaseIntent) -> Unit)? = null,
-        @StringRes helpTitle: Int? = null,
-        @StringRes helpBody: Int? = null,
-        placeholder: I,
-        onValueChanged: (I?) -> Unit,
+        placeholder: String,
         modifier: Modifier = Modifier,
+        errorMessage: DisplayableError? = null,
+        helpState: HelpState? = null,
+        onValueChanged: (String?) -> Unit,
+) = LabelledNumberSetting(
+        clazz = String::class,
+        title = title,
+        currentValue = currentValue,
+        testTag = testTag,
+        placeholder = placeholder,
+        modifier = modifier,
+        errorMessage = errorMessage?.toErrorString(LocalContext.current.resources),
+        helpState = helpState,
+        onValueChanged = onValueChanged,
+)
+
+@Composable
+fun <I : Any> LabelledNumberSetting(
+        clazz: KClass<I>,
+        title: String,
+        currentValue: I?,
+        testTag: String,
+        placeholder: I,
+        modifier: Modifier = Modifier,
+        errorMessage: String? = null,
+        helpState: HelpState? = null,
+        onValueChanged: (I?) -> Unit,
+) {
+    DataRow(
+            title = title,
+            helpState = helpState,
+            titleModifier = Modifier.clearAndSetSemantics { },
+            modifier = modifier,
+    ) {
+        NumberSetting(
+                clazz = clazz,
+                contentDescription = title,
+                currentValue = currentValue,
+                errorMessage = errorMessage,
+                testTag = testTag,
+                placeholder = placeholder,
+                onValueChanged = onValueChanged,
+        )
+    }
+}
+
+@Composable
+fun NumberSetting(
+        contentDescription: String,
+        currentValue: String?,
+        testTag: String,
+        placeholder: String,
+        modifier: Modifier = Modifier,
+        errorMessage: DisplayableError? = null,
+        onValueChanged: (String?) -> Unit,
 ) = NumberSetting(
-        clazz,
-        stringResource(title),
-        currentValue,
-        if (isError) "" else null,
-        testTag,
-        helpListener?.let { HelpState(helpListener, stringResource(helpTitle!!), stringResource(helpBody!!)) },
-        placeholder,
-        onValueChanged,
-        modifier,
+        clazz = String::class,
+        contentDescription = contentDescription,
+        currentValue = currentValue,
+        testTag = testTag,
+        placeholder = placeholder,
+        modifier = modifier,
+        errorMessage = errorMessage?.toErrorString(LocalContext.current.resources),
+        onValueChanged = onValueChanged,
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun <I : Any> NumberSetting(
         clazz: KClass<I>,
-        title: String,
+        contentDescription: String,
         currentValue: I?,
-        errorMessage: String? = null,
         testTag: String,
-        helpState: HelpState? = null,
         placeholder: I,
-        onValueChanged: (I?) -> Unit,
         modifier: Modifier = Modifier,
+        errorMessage: String? = null,
+        onValueChanged: (I?) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val helper = NumberSettingHelper.getHelper(clazz)!!
@@ -182,45 +249,63 @@ fun <I : Any> NumberSetting(
         it.takeIf { it.isNotBlank() } ?: stringResource(R.string.general_error)
     }
 
-    DataRow(
-            title = title,
-            helpState = helpState,
-            titleModifier = Modifier.clearAndSetSemantics { },
+    Surface(
+            color = CodexTheme.colors.surfaceOnBackground,
+            shape = RoundedCornerShape(5.dp),
             modifier = modifier,
     ) {
-        Surface(
-                color = CodexTheme.colors.surfaceOnBackground,
-                shape = RoundedCornerShape(5.dp),
-        ) {
-            CodexTextField(
-                    state = CodexTextFieldState(
-                            text = displayValue,
-                            onValueChange = { onValueChanged(helper.fromString(it)) },
-                            testTag = "",
-                    ),
-                    isError = error != null,
-                    placeholderText = placeholder.toString(),
-                    textStyle = CodexTypography.NORMAL.copy(
-                            color = CodexTheme.colors.onSurfaceOnBackground,
-                            textAlign = TextAlign.Center
-                    ),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                            onDone = { keyboardController?.hide() },
-                    ),
-                    modifier = Modifier
-                            .testTag(testTag)
-                            .widthIn(min = 40.dp)
-                            .width(IntrinsicSize.Min)
-                            .semantics {
-                                contentDescription = title
-                                editableText = AnnotatedString(displayValue)
-                                error?.let { error(it) }
-                            }
-            )
-        }
+        CodexTextField(
+                state = CodexTextFieldState(
+                        text = displayValue,
+                        onValueChange = { onValueChanged(helper.fromString(it)) },
+                        testTag = "",
+                ),
+                isError = error != null,
+                placeholderText = placeholder.toString(),
+                textStyle = CodexTypography.NORMAL.copy(
+                        color = CodexTheme.colors.onSurfaceOnBackground,
+                        textAlign = TextAlign.Center
+                ),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                        onDone = { keyboardController?.hide() },
+                ),
+                modifier = Modifier
+                        .testTag(testTag)
+                        .widthIn(min = 40.dp)
+                        .width(IntrinsicSize.Min)
+                        .semantics {
+                            this.contentDescription = contentDescription
+                            editableText = AnnotatedString(displayValue)
+                            error?.let { error(it) }
+                        }
+        )
+    }
+}
+
+@Composable
+fun NumberSettingErrorText(
+        errorText: DisplayableError?,
+        testTag: CodexTestTag,
+        modifier: Modifier = Modifier,
+        textAlign: TextAlign? = null,
+) {
+    AnimatedVisibility(
+            visible = errorText != null,
+            enter = fadeIn() + expandIn(expandFrom = Alignment.TopCenter),
+            exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.TopCenter),
+    ) {
+        Text(
+                text = errorText?.toErrorString(LocalContext.current.resources) ?: "",
+                style = CodexTypography.SMALL,
+                color = CodexTheme.colors.errorOnAppBackground,
+                textAlign = textAlign,
+                modifier = modifier
+                        .testTag(testTag.getTestTag())
+                        .clearAndSetSemantics { }
+        )
     }
 }

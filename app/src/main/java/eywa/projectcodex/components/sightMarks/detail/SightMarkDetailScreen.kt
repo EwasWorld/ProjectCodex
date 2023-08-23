@@ -37,6 +37,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsTestTag
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
@@ -132,11 +133,10 @@ fun SightMarkDetail(
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                NumberSetting(
-                        clazz = String::class,
+                LabelledNumberSetting(
                         title = stringResource(R.string.sight_marks__sight),
                         currentValue = state.sightMark,
-                        errorMessage = state.sightMarkValidatorError?.let { stringResource(it) },
+                        errorMessage = state.sightMarkValidatorError,
                         placeholder = "2.3",
                         testTag = SIGHT.getTestTag(),
                         onValueChanged = { listener(SightMarkUpdated(it ?: "")) },
@@ -146,16 +146,10 @@ fun SightMarkDetail(
                                 helpBody = stringResource(R.string.help_sight_marks__sight_body),
                         ),
                 )
-                if (state.sightMarkValidatorError != null) {
-                    Text(
-                            text = stringResource(state.sightMarkValidatorError),
-                            style = CodexTypography.SMALL,
-                            color = CodexTheme.colors.errorOnAppBackground,
-                            modifier = Modifier
-                                    .testTag(SIGHT_ERROR_TEXT.getTestTag())
-                                    .clearAndSetSemantics { }
-                    )
-                }
+                NumberSettingErrorText(
+                        errorText = state.sightMarkValidatorError,
+                        testTag = SIGHT_ERROR_TEXT,
+                )
             }
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -165,11 +159,10 @@ fun SightMarkDetail(
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     // TODO help bubble should wrap units too, maybe even error?
-                    NumberSetting(
-                            clazz = String::class,
+                    LabelledNumberSetting(
                             title = stringResource(R.string.sight_marks__distance),
                             currentValue = state.distance,
-                            errorMessage = state.distanceValidatorError?.let { stringResource(it) },
+                            errorMessage = state.distanceValidatorError,
                             placeholder = "50",
                             testTag = DISTANCE.getTestTag(),
                             onValueChanged = { listener(DistanceUpdated(it ?: "")) },
@@ -196,16 +189,10 @@ fun SightMarkDetail(
                                     }
                     )
                 }
-                if (state.distanceValidatorError != null) {
-                    Text(
-                            text = stringResource(state.distanceValidatorError),
-                            style = CodexTypography.SMALL,
-                            color = CodexTheme.colors.errorOnAppBackground,
-                            modifier = Modifier
-                                    .testTag(DISTANCE_ERROR_TEXT.getTestTag())
-                                    .clearAndSetSemantics { }
-                    )
-                }
+                NumberSettingErrorText(
+                        errorText = state.distanceValidatorError,
+                        testTag = DISTANCE_ERROR_TEXT,
+                )
             }
 
             Column(

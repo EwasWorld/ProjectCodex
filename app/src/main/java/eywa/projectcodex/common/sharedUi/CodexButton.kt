@@ -126,4 +126,8 @@ sealed class CodexButtonDefaults : CodexButtonStyle() {
     object DefaultOutlinedButton : OutlinedButton() {
         override fun getTextColor(themeColors: CodexThemeColors) = themeColors.filledButton
     }
+
+    object OutlinedButtonOnAppBackground : OutlinedButton() {
+        override fun getTextColor(themeColors: CodexThemeColors) = themeColors.onAppBackground
+    }
 }

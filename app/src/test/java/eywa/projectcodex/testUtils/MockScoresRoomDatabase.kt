@@ -1,6 +1,8 @@
 package eywa.projectcodex.testUtils
 
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.archer.ArcherRepo
+import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
@@ -28,6 +30,7 @@ class MockScoresRoomDatabase {
     val shootDetailDao: ShootDetailDao = mock {}
     val sightMarksDao = MockSightMarksDao()
     val bowDao = MockBowDao()
+    val archerRepo = MockArcherRepo()
 
     val mock: ScoresRoomDatabase = mock {
         on { shootDao() } doReturn shootDao.mock
@@ -41,6 +44,7 @@ class MockScoresRoomDatabase {
         on { shootsRepo() } doReturn ShootsRepo(shootDao.mock, shootDetailDao, shootRoundDao)
         on { sightMarkDao() } doReturn sightMarksDao.mock
         on { bowDao() } doReturn bowDao.mock
+        on { archerRepo() } doReturn archerRepo.mock
     }
 
     class MockShootDao {
@@ -102,6 +106,14 @@ class MockScoresRoomDatabase {
                     )
                 }
             }
+        }
+    }
+
+    class MockArcherRepo {
+        var handicaps = emptyList<DatabaseArcherHandicap>()
+
+        val mock = mock<ArcherRepo> {
+            on { latestHandicapsForDefaultArcher } doAnswer { flow { emit(handicaps) } }
         }
     }
 }

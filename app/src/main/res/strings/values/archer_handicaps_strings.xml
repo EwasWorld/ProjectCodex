@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="archer_handicaps__title">Handicaps</string>
+
+    <string name="archer_handicaps__type_indoor">Indoor</string>
+    <string name="archer_handicaps__type_outdoor">Outdoor</string>
+    <string name="archer_handicaps__type_indoor_tournament">Indoor Tournament</string>
+    <string name="archer_handicaps__type_outdoor_tournament">Outdoor Tournament</string>
+
+    <string name="archer_handicaps__menu_edit">Edit</string>
+    <string name="archer_handicaps__menu_history">History</string>
+
+    <string name="archer_handicaps__edit_dialog_title">Update handicap</string>
+
+    <string name="archer_handicaps__handicap_header">Handicap:</string>
+    <string name="archer_handicaps__handicap_type">Type:</string>
+    <string name="archer_handicaps__add_submit">Add</string>
+    <string name="archer_handicaps__select_handicap_type_dialog_title">Select type</string>
+
+    <string name="archer_handicaps__add_duplicate_message">Note: detected existing handicap for selected type\nThe existing entry will be updated</string>
+</resources>
