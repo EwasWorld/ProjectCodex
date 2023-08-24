@@ -1,10 +1,9 @@
 package eywa.projectcodex.components.archerHandicaps
 
-import eywa.projectcodex.common.sharedUi.NumberValidator
-import eywa.projectcodex.common.sharedUi.NumberValidatorGroup
-import eywa.projectcodex.common.sharedUi.TypeValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
+import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailState
 import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.archer.HandicapType

@@ -86,10 +86,12 @@
     <string name="err__internal_error">Internal error occurred</string>
     <string name="err__try_again_error">Unexpected error occurred, please try again</string>
 
-    <string name="err__invalid_int_digit">Invalid number format. Must be an integer</string>
-    <string name="err__invalid_float_digit">Invalid number format. Must be a decimal or integer</string>
-    <string name="err__negative_is_invalid">Number must be positive</string>
-    <string name="err__out_of_range">Number must be between %1$s and %2$s (inclusive)</string>
+    <string name="err__invalid_int_digit">Invalid format. Must be an integer</string>
+    <string name="err__invalid_float_digit">Invalid format. Must be a decimal or integer</string>
+    <string name="err__negative_is_invalid">Must be positive</string>
+    <string name="err__out_of_range">Must be between %1$s and %2$s (inclusive)</string>
+    <string name="err__invalid_must_be_at_least">Must be at least %s</string>
+    <string name="err__invalid_must_be_at_most">Must be at most %s</string>
     <string name="err__required_field">Required</string>
 
     <!-- TODO Remove after compose-based nav -->

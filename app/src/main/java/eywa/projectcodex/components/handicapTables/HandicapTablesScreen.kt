@@ -26,7 +26,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
-import eywa.projectcodex.common.sharedUi.LabelledNumberSetting
+import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
+import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
@@ -81,17 +82,11 @@ fun HandicapTablesScreen(
             )
             DataRow(
                     title = stringResource(R.string.handicap_tables__input),
-                    text = stringResource(
-                            if (state.inputHandicap) R.string.handicap_tables__handicap_field
-                            else R.string.handicap_tables__score_field
-                    ),
+                    text = stringResource(state.inputType.labelId),
                     helpState = HelpState(
                             helpListener = helpListener,
                             helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
-                            helpBody = stringResource(
-                                    if (state.inputHandicap) R.string.help_handicap_tables__input_type_body_handicap
-                                    else R.string.help_handicap_tables__input_type_body_score
-                            ),
+                            helpBody = stringResource(state.inputType.typeHelpId),
                     ),
                     onClick = { listener(ToggleInput) },
                     accessibilityRole = Role.Switch,
@@ -100,22 +95,15 @@ fun HandicapTablesScreen(
         }
 
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
-            LabelledNumberSetting(
-                    clazz = Int::class,
-                    title = stringResource(
-                            if (state.inputHandicap) R.string.handicap_tables__handicap_field
-                            else R.string.handicap_tables__score_field
-                    ),
-                    currentValue = state.input,
-                    placeholder = 50,
+            CodexLabelledNumberField(
+                    title = stringResource(state.inputType.labelId),
+                    currentValue = state.inputFull.text,
+                    placeholder = "50",
                     testTag = "",
                     helpState = HelpState(
                             helpListener = helpListener,
                             helpTitle = stringResource(R.string.help_handicap_tables__input_title),
-                            helpBody = stringResource(
-                                    if (state.inputHandicap) R.string.help_handicap_tables__input_body_handicap
-                                    else R.string.help_handicap_tables__input_body_score
-                            ),
+                            helpBody = stringResource(state.inputType.inputHelpId),
                     ),
                     onValueChanged = { listener(InputChanged(it)) },
             )
@@ -252,8 +240,8 @@ enum class HandicapTablesTestTag : CodexTestTag {
 fun PreviewMainMenuScreen() {
     HandicapTablesScreen(
             HandicapTablesState(
-                    input = 31,
-                    inputHandicap = true,
+                    input = PartialNumberFieldState().onValueChanged("31"),
+                    inputType = InputType.HANDICAP,
                     use2023System = false,
                     selectRoundDialogState = SelectRoundDialogState(
                             selectedRoundId = RoundPreviewHelper.indoorMetricRoundData.round.roundId,

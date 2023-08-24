@@ -1,8 +1,6 @@
 package eywa.projectcodex.components.shootDetails.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,7 +17,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.sharedUi.LabelledNumberSetting
+import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -61,17 +60,16 @@ private fun SettingsScreen(
 
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         Column(
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = modifier
                         .padding(25.dp)
                         .testTag(SCREEN.getTestTag())
         ) {
-            LabelledNumberSetting(
-                    clazz = Int::class,
+            CodexLabelledNumberField(
                     title = stringResource(R.string.archer_round_settings__input_end_size),
-                    currentValue = state.addEndSizePartial,
-                    placeholder = 6,
+                    currentValue = state.addEndSizePartial.text,
+                    placeholder = "6",
                     testTag = ADD_END_SIZE.getTestTag(),
                     onValueChanged = { listener(AddEndSizeChanged(it)) },
                     helpState = HelpState(
@@ -80,11 +78,15 @@ private fun SettingsScreen(
                         helpBody = stringResource(R.string.help_archer_round_settings__input_end_size_body),
                     ),
             )
-            LabelledNumberSetting(
-                    clazz = Int::class,
+            CodexNumberFieldErrorText(
+                    errorText = state.addEndSizePartial.error,
+                    testTag = ADD_END_SIZE_ERROR_TEXT,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            CodexLabelledNumberField(
                     title = stringResource(R.string.archer_round_settings__score_pad_end_size),
-                    currentValue = state.scorePadEndSizePartial,
-                    placeholder = 6,
+                    currentValue = state.scorePadEndSizePartial.text,
+                    placeholder = "6",
                     testTag = SCORE_PAD_END_SIZE.getTestTag(),
                     onValueChanged = { listener(ScorePadEndSizeChanged(it)) },
                     helpState = HelpState(
@@ -92,6 +94,10 @@ private fun SettingsScreen(
                         helpTitle = stringResource(R.string.help_archer_round_settings__score_pad_size_title),
                         helpBody = stringResource(R.string.help_archer_round_settings__score_pad_size_body),
                     ),
+            )
+            CodexNumberFieldErrorText(
+                    errorText = state.scorePadEndSizePartial.error,
+                    testTag = SCORE_PAD_END_SIZE_ERROR_TEXT,
             )
             // TODO Change golds type
         }
@@ -101,7 +107,9 @@ private fun SettingsScreen(
 enum class SettingsTestTag : CodexTestTag {
     SCREEN,
     SCORE_PAD_END_SIZE,
+    SCORE_PAD_END_SIZE_ERROR_TEXT,
     ADD_END_SIZE,
+    ADD_END_SIZE_ERROR_TEXT,
     ;
 
     override val screenName: String
@@ -120,10 +128,33 @@ fun SettingsScreen_Preview() {
         SettingsScreen(
                 SettingsState(
                         main = ShootDetailsStatePreviewHelper.SIMPLE,
-                        extras = SettingsExtras(
-                                addEndSizePartial = 3,
-                                scorePadEndSizePartial = 6,
-                        )
+                        extras = SettingsExtras().let {
+                            it.copy(
+                                    addEndSizePartial = it.addEndSizePartial.onValueChanged("3"),
+                                    scorePadEndSizePartial = it.scorePadEndSizePartial.onValueChanged("3"),
+                            )
+                        }
+                )
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun Error_SettingsScreen_Preview() {
+    CodexTheme {
+        SettingsScreen(
+                SettingsState(
+                        main = ShootDetailsStatePreviewHelper.SIMPLE,
+                        extras = SettingsExtras().let {
+                            it.copy(
+                                    addEndSizePartial = it.addEndSizePartial.onValueChanged("-1"),
+                                    scorePadEndSizePartial = it.scorePadEndSizePartial.onValueChanged("-1"),
+                            )
+                        }
                 )
         ) {}
     }

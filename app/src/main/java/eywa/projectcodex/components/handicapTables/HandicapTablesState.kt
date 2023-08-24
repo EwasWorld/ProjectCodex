@@ -1,11 +1,17 @@
 package eywa.projectcodex.components.handicapTables
 
+import androidx.annotation.StringRes
+import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
+import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
+import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
 
 data class HandicapTablesState(
-        val input: Int? = null,
-        val inputHandicap: Boolean = true,
+        val input: PartialNumberFieldState = PartialNumberFieldState(),
+        val inputType: InputType = InputType.HANDICAP,
         val use2023System: Boolean = false,
         val handicaps: List<HandicapScore> = emptyList(),
         val highlightedHandicap: HandicapScore? = null,
@@ -14,6 +20,32 @@ data class HandicapTablesState(
                 round = selectRoundDialogState.selectedRound?.round,
                 distances = selectRoundDialogState.roundSubTypeDistances?.map { it.distance },
         ),
-)
+) {
+    val inputFull
+        get() = input.asNumberFieldState(
+                NumberValidatorGroup(TypeValidator.IntValidator, *inputType.validators.toTypedArray()),
+        )
+}
 
+// TODO Inline class?
 data class HandicapScore(val handicap: Int, val score: Int)
+
+enum class InputType(
+        @StringRes val labelId: Int,
+        @StringRes val typeHelpId: Int,
+        @StringRes val inputHelpId: Int,
+        val validators: List<NumberValidator<in Int>>,
+) {
+    HANDICAP(
+            R.string.handicap_tables__handicap_field,
+            R.string.help_handicap_tables__input_type_body_handicap,
+            R.string.help_handicap_tables__input_body_handicap,
+            listOf(NumberValidator.InRange(0..150)),
+    ),
+    SCORE(
+            R.string.handicap_tables__score_field,
+            R.string.help_handicap_tables__input_type_body_score,
+            R.string.help_handicap_tables__input_body_score,
+            listOf(NumberValidator.AtLeast(1)),
+    ),
+}

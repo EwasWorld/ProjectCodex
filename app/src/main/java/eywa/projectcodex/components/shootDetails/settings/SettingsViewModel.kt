@@ -43,11 +43,13 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             state.collect {
                 val data = it.data ?: return@collect
-                if (data.scorePadEndSizePartial != null && data.scorePadEndSize != data.scorePadEndSizePartial) {
-                    handle(ScorePadEndSizeChanged(data.scorePadEndSize))
+                if (data.scorePadEndSizePartial.parsed != null
+                    && data.scorePadEndSize != data.scorePadEndSizePartial.parsed
+                ) {
+                    handle(ScorePadEndSizeChanged(data.scorePadEndSize.toString()))
                 }
-                if (data.addEndSizePartial != null && data.addEndSize != data.addEndSizePartial) {
-                    handle(AddEndSizeChanged(data.addEndSize))
+                if (data.addEndSizePartial.parsed != null && data.addEndSize != data.addEndSizePartial.parsed) {
+                    handle(AddEndSizeChanged(data.addEndSize.toString()))
                 }
             }
         }
@@ -58,16 +60,20 @@ class SettingsViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
             is ShootDetailsAction -> repo.handle(action.action, screen)
             is AddEndSizeChanged -> {
-                if (action.endSize != null) {
-                    repo.handle(ShootDetailsIntent.SetAddEndEndSize(action.endSize), screen)
+                val currentState = state.value.data?.addEndSizePartial ?: return
+                val new = currentState.onValueChanged(action.endSize)
+                if (new.parsed != null) {
+                    repo.handle(ShootDetailsIntent.SetAddEndEndSize(new.parsed), screen)
                 }
-                extraState.update { it.copy(addEndSizePartial = action.endSize) }
+                extraState.update { it.copy(addEndSizePartial = new) }
             }
             is ScorePadEndSizeChanged -> {
-                if (action.endSize != null) {
-                    repo.handle(ShootDetailsIntent.SetScorePadEndSize(action.endSize), screen)
+                val currentState = state.value.data?.scorePadEndSizePartial ?: return
+                val new = currentState.onValueChanged(action.endSize)
+                if (new.parsed != null) {
+                    repo.handle(ShootDetailsIntent.SetScorePadEndSize(new.parsed), screen)
                 }
-                extraState.update { it.copy(scorePadEndSizePartial = action.endSize) }
+                extraState.update { it.copy(scorePadEndSizePartial = new) }
             }
         }
     }

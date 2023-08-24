@@ -40,6 +40,9 @@ import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.*
@@ -125,7 +128,7 @@ private fun AddHandicapRow(
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp)
                     ) {
-                        LabelledNumberSetting(
+                        CodexLabelledNumberField(
                                 title = stringResource(R.string.archer_handicaps__handicap_header),
                                 currentValue = state.addHandicap,
                                 testTag = ArcherHandicapsTestTag.ADD_HANDICAP_VALUE.getTestTag(),
@@ -134,7 +137,7 @@ private fun AddHandicapRow(
                                 onValueChanged = { listener(AddHandicapTextUpdated(it)) },
                                 helpState = null,
                         )
-                        NumberSettingErrorText(
+                        CodexNumberFieldErrorText(
                                 errorText = state.handicapValidatorError,
                                 testTag = ArcherHandicapsTestTag.ADD_HANDICAP_ERROR_TEXT,
                                 modifier = Modifier.padding(top = 3.dp)
@@ -268,7 +271,7 @@ private fun HandicapRowDropdownMenu(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center,
                         ) {
-                            NumberSetting(
+                            CodexNumberField(
                                     contentDescription = stringResource(R.string.archer_handicaps__handicap_header),
                                     currentValue = state.addHandicap,
                                     testTag = ArcherHandicapsTestTag.EDIT_HANDICAP_VALUE.getTestTag(),
@@ -281,7 +284,7 @@ private fun HandicapRowDropdownMenu(
                         }
                     }
                 }
-                NumberSettingErrorText(
+                CodexNumberFieldErrorText(
                         errorText = state.handicapValidatorError,
                         testTag = ArcherHandicapsTestTag.EDIT_HANDICAP_ERROR_TEXT,
                         textAlign = TextAlign.Center,

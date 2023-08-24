@@ -1,7 +1,7 @@
 package eywa.projectcodex.common
 
-import eywa.projectcodex.common.sharedUi.NumberValidator
-import eywa.projectcodex.common.sharedUi.TypeValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

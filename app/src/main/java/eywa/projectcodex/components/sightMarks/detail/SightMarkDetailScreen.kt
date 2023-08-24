@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
@@ -35,9 +34,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsTestTag
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
@@ -133,7 +133,7 @@ fun SightMarkDetail(
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                LabelledNumberSetting(
+                CodexLabelledNumberField(
                         title = stringResource(R.string.sight_marks__sight),
                         currentValue = state.sightMark,
                         errorMessage = state.sightMarkValidatorError,
@@ -146,7 +146,7 @@ fun SightMarkDetail(
                                 helpBody = stringResource(R.string.help_sight_marks__sight_body),
                         ),
                 )
-                NumberSettingErrorText(
+                CodexNumberFieldErrorText(
                         errorText = state.sightMarkValidatorError,
                         testTag = SIGHT_ERROR_TEXT,
                 )
@@ -159,7 +159,7 @@ fun SightMarkDetail(
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     // TODO help bubble should wrap units too, maybe even error?
-                    LabelledNumberSetting(
+                    CodexLabelledNumberField(
                             title = stringResource(R.string.sight_marks__distance),
                             currentValue = state.distance,
                             errorMessage = state.distanceValidatorError,
@@ -189,7 +189,7 @@ fun SightMarkDetail(
                                     }
                     )
                 }
-                NumberSettingErrorText(
+                CodexNumberFieldErrorText(
                         errorText = state.distanceValidatorError,
                         testTag = DISTANCE_ERROR_TEXT,
                 )

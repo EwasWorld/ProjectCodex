@@ -1,8 +1,8 @@
 package eywa.projectcodex.components.sightMarks.detail
 
-import eywa.projectcodex.common.sharedUi.NumberValidator
-import eywa.projectcodex.common.sharedUi.NumberValidatorGroup
-import eywa.projectcodex.common.sharedUi.TypeValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
+import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.model.SightMark
