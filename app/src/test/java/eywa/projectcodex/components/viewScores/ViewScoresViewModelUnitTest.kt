@@ -460,11 +460,11 @@ class ViewScoresViewModelUnitTest {
         checkState()
 
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE, 1))
-        expectedState = expectedState.copy(openInputEndClicked = true, dropdownMenuOpen = false)
+        expectedState = expectedState.copy(openAddEndClicked = true, dropdownMenuOpen = false)
         checkState()
 
-        sut.handle(HandledInputEndOpened)
-        expectedState = expectedState.copy(openInputEndClicked = false)
+        sut.handle(HandledAddEndOpened)
+        expectedState = expectedState.copy(openAddEndClicked = false)
         checkState()
 
         // Continue completed round
@@ -473,11 +473,11 @@ class ViewScoresViewModelUnitTest {
         checkState()
 
         sut.handle(DropdownMenuClicked(ViewScoresDropdownMenuItem.CONTINUE, 2))
-        expectedState = expectedState.copy(openInputEndOnCompletedRound = true, dropdownMenuOpen = false)
+        expectedState = expectedState.copy(openAddEndOnCompletedRound = true, dropdownMenuOpen = false)
         checkState()
 
-        sut.handle(HandledInputEndOnCompletedRound)
-        expectedState = expectedState.copy(openInputEndOnCompletedRound = false)
+        sut.handle(HandledAddEndOnCompletedRound)
+        expectedState = expectedState.copy(openAddEndOnCompletedRound = false)
         checkState()
     }
 

@@ -37,7 +37,7 @@ import kotlin.math.roundToInt
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ArcherRoundStatsInstrumentedTest {
+class ShootDetailsStatsInstrumentedTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 

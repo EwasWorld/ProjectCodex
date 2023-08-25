@@ -67,10 +67,10 @@ private fun handleEffects(
         state: NewScoreState,
         listener: (NewScoreIntent) -> Unit,
 ) {
-    if (state.navigateToInputEnd != null) {
+    if (state.navigateToAddEnd != null) {
         CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
                 navController,
-                mapOf(NavArgument.SHOOT_ID to state.navigateToInputEnd.toString()),
+                mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
         ) {
             val currentRoute = navController.currentDestination?.route
             if (currentRoute != null) {

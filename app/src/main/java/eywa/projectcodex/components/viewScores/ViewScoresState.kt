@@ -20,8 +20,8 @@ data class ViewScoresState(
         val convertScoreDialogOpen: Boolean = false,
         val deleteDialogOpen: Boolean = false,
 
-        val openInputEndOnCompletedRound: Boolean = false,
-        val openInputEndClicked: Boolean = false,
+        val openAddEndOnCompletedRound: Boolean = false,
+        val openAddEndClicked: Boolean = false,
         val openScorePadClicked: Boolean = false,
         val openEmailClicked: Boolean = false,
         val openEditInfoClicked: Boolean = false,

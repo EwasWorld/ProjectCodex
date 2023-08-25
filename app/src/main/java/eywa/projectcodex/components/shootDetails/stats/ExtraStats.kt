@@ -1,7 +1,6 @@
 package eywa.projectcodex.components.shootDetails.stats
 
 import eywa.projectcodex.common.utils.standardDeviation
-import eywa.projectcodex.common.utils.standardDeviationFromInts
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -26,7 +25,7 @@ open class ExtraStats(
                 .map { end -> end.sumOf { it }.toFloat() }
                 .standardDeviation()
         averageArrow = scores.sum().toFloat() / arrows.count().toFloat()
-        arrowStdDev = scores.standardDeviationFromInts()
+        arrowStdDev = scores.standardDeviation()
     }
 
     override fun equals(other: Any?): Boolean {

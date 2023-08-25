@@ -61,6 +61,5 @@ data class ScorePadExtras(
         val deleteEndDialogIsShown: Boolean = false,
         val editEndClicked: Boolean = false,
         val insertEndClicked: Boolean = false,
-        val inputEndClicked: Boolean = false,
         val isDropdownMenuOpen: Boolean = false,
 )

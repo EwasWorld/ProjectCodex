@@ -13,8 +13,8 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
-import eywa.projectcodex.instrumentedTests.robots.subComponents.SelectFaceRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
 import java.util.*
 
 class NewScoreRobot(
@@ -80,9 +80,9 @@ class NewScoreRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
-    fun clickSubmitNewScore(block: InputEndRobot.() -> Unit = {}) {
+    fun clickSubmitNewScore(block: AddEndRobot.() -> Unit = {}) {
         clickElement(NewScoreTestTag.SUBMIT_BUTTON)
-        InputEndRobot(composeTestRule).apply { block() }
+        AddEndRobot(composeTestRule).apply { block() }
     }
 
     fun clickSubmitEditScore() {

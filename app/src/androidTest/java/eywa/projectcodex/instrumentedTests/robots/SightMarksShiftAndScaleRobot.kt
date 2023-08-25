@@ -3,9 +3,8 @@ package eywa.projectcodex.instrumentedTests.robots
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction.*
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher.*
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeOptions
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction.*
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.*
 import eywa.projectcodex.model.SightMark
 
 class SightMarksShiftAndScaleRobot(
@@ -16,70 +15,71 @@ class SightMarksShiftAndScaleRobot(
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
-        perform(
-                action = AssertIsDisplayed,
-                options = listOf(CodexNodeOptions.UseUnmergedTree),
-                HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT),
-                HasText(text),
-        )
-        perform(
-                action = if (sightMark.note == null) AssertDoesNotExist else AssertIsDisplayed,
-                options = listOf(CodexNodeOptions.UseUnmergedTree),
-                HasTestTag(SightMarksTestTag.DIAGRAM_NOTE_ICON),
-                AnySibling(
-                        listOf(
-                                HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT),
-                                HasText(text),
-                        )
-                ),
-        )
+        perform {
+            useUnmergedTree = true
+            +HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT)
+            +HasText(text)
+            +AssertIsDisplayed
+        }
+
+        perform {
+            useUnmergedTree = true
+            +HasTestTag(SightMarksTestTag.DIAGRAM_NOTE_ICON)
+            +HasAnySibling(
+                    listOf(
+                            HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT),
+                            HasText(text),
+                    )
+            )
+            +if (sightMark.note == null) AssertDoesNotExist else AssertIsDisplayed
+        }
     }
 
     fun clickComplete(): SightMarksRobot {
-        perform(
-                action = PerformClick,
-                HasTestTag(SightMarksTestTag.SAS_COMPLETE_BUTTON),
-        )
+        perform {
+            +HasTestTag(SightMarksTestTag.SAS_COMPLETE_BUTTON)
+            +PerformClick
+        }
         return popRobot()
     }
 
     fun clickFlip() {
-        perform(
-                action = PerformClick,
-                HasTestTag(SightMarksTestTag.SAS_FLIP_BUTTON),
-        )
+        perform {
+            +HasTestTag(SightMarksTestTag.SAS_FLIP_BUTTON)
+            +PerformClick
+        }
     }
 
     fun clickScaleReset() {
-        perform(
-                action = PerformClick,
-                HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON),
-                AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS)),
-        )
+        perform {
+            +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
+            +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS))
+            +PerformClick
+        }
     }
 
     fun clickShiftReset() {
-        perform(
-                action = PerformClick,
-                HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON),
-                AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS)),
-        )
+        perform {
+            +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
+            +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS))
+            +PerformClick
+        }
     }
 
     fun clickScaleChange(isIncrease: Boolean, isLarge: Boolean) {
-        perform(
-                action = PerformClick,
-                HasTestTag(getShifterTestTag(isIncrease, isLarge)),
-                AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS)),
-        )
+        perform {
+            +HasTestTag(getShifterTestTag(isIncrease, isLarge))
+            +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS))
+            +PerformClick
+        }
     }
 
     fun clickShiftChange(isIncrease: Boolean, isLarge: Boolean) {
-        perform(
-                action = PerformClick,
-                HasTestTag(getShifterTestTag(isIncrease, isLarge)),
-                AnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS)),
-        )
+        perform {
+            +HasTestTag(getShifterTestTag(isIncrease, isLarge))
+            +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS))
+            +PerformClick
+        }
     }
 
     private fun getShifterTestTag(isIncrease: Boolean, isLarge: Boolean) = when {

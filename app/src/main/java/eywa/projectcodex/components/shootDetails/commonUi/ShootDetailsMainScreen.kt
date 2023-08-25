@@ -87,7 +87,7 @@ private fun <T> ShootDetailsMainScreen(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
         )
-        if (ShootDetailsBottomItem.isItem(currentScreen)) {
+        if (ShootDetailsBottomNavBarItem.isItem(currentScreen)) {
             ShootDetailsBottomNavBar(
                     currentScreen = currentScreen,
                     listener = { listener(ShootDetailsIntent.NavBarClicked(it)) },

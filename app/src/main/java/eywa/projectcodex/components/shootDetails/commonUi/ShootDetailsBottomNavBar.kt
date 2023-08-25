@@ -28,7 +28,7 @@ fun ShootDetailsBottomNavBar(
             contentColor = CodexTheme.colors.onBottomNavBar,
             modifier = modifier
     ) {
-        ShootDetailsBottomItem.values().forEach {
+        ShootDetailsBottomNavBarItem.values().forEach {
             CodexBottomNavItem(
                     icon = it.notSelectedIcon,
                     selectedIcon = it.selectedIcon ?: it.notSelectedIcon,
@@ -42,13 +42,13 @@ fun ShootDetailsBottomNavBar(
     }
 }
 
-internal enum class ShootDetailsBottomItem(
+enum class ShootDetailsBottomNavBarItem(
         val navRoute: CodexNavRoute,
         val notSelectedIcon: CodexIconInfo,
         val selectedIcon: CodexIconInfo? = null,
         @StringRes val label: Int,
 ) : CodexTestTag {
-    INPUT_END(
+    ADD_END(
             navRoute = CodexNavRoute.SHOOT_DETAILS_ADD_END,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
@@ -88,7 +88,7 @@ internal enum class ShootDetailsBottomItem(
 
 @Preview
 @Composable
-fun ArcherRoundBottomNavBar_Preview() {
+fun ShootDetailsBottomNavBar_Preview() {
     CodexTheme {
         ShootDetailsBottomNavBar(currentScreen = CodexNavRoute.SHOOT_DETAILS_SCORE_PAD, listener = {})
     }

@@ -1,22 +1,23 @@
-package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
+package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
-import androidx.compose.ui.test.*
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.transpose
-import eywa.projectcodex.components.archerRoundScore.scorePad.ScorePadScreen.TestTag
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
 class ScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArcherRoundRobot(composeTestRule, TestTag.SCREEN) {
+) : ShootDetailsRobot(composeTestRule, ScorePadTestTag.SCREEN) {
     fun waitForLoad() {
-        CustomConditionWaiter.waitForComposeCondition {
-            composeTestRule
-                    .onAllNodesWithTag(TestTag.CELL)
-                    .onFirst()
-                    .assertIsDisplayed()
+        perform {
+            allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
+            +CodexNodeGroupToOne.First
+            +CodexNodeAction.AssertIsDisplayed
         }
     }
 
@@ -24,40 +25,39 @@ class ScorePadRobot(
      * Checks all cells including headers
      */
     fun checkScorePadData(list: List<ExpectedRowData>) {
-        val allCells = list.map { it.asList() }.transpose().flatten()
-        val nodes = composeTestRule.onAllNodesWithTag(TestTag.CELL)
-
-        allCells.forEachIndexed { index, text ->
-            CustomConditionWaiter.waitForComposeCondition {
-                nodes[index].assertTextEquals(text)
-            }
+        val allCells = list.map { it.asList() }.transpose().flatten().map { CodexNodeAction.AssertTextEquals(it) }
+        perform {
+            allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
+            +CodexNodeGroupAction.ForEach(allCells)
+            +CodexNodeGroupAction.AssertCount(allCells.size)
         }
-        nodes.assertCountEquals(allCells.size)
     }
 
     fun clickOkOnNoDataDialog() {
         clickDialogOk("No arrows entered")
-        InputEndRobot(composeTestRule).apply { checkEndTotal(0) }
+        AddEndRobot(composeTestRule).apply { checkEndTotal(0) }
     }
 
     /**
      * @param rowIndex does not include the header row
      */
     fun clickRow(rowIndex: Int) {
-        composeTestRule
-                .onAllNodesWithTag(TestTag.CELL, useUnmergedTree = true)[rowIndex]
-                .performScrollTo()
-                .performClick()
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
+            +CodexNodeGroupToOne.Index(rowIndex)
+            +CodexNodeAction.PerformScrollTo
+            +CodexNodeAction.PerformClick
+        }
     }
 
     private fun clickDropdownMenuItem(menuItem: String) {
-        composeTestRule
-                .onNode(
-                        matcher = hasTestTag(TestTag.DROPDOWN_MENU_ITEM)
-                                .and(hasAnyDescendant(hasText(menuItem))),
-                        useUnmergedTree = true
-                )
-                .performClick()
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
+            +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
+            +CodexNodeAction.PerformClick
+        }
     }
 
     fun clickEditDropdownMenuItem(block: EditEndRobot.() -> Unit) {

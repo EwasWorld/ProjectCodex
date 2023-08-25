@@ -118,11 +118,11 @@ class NewScoreViewModel @Inject constructor(
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
                         )
-                        _state.update { it.copy(navigateToInputEnd = newId.toInt()) }
+                        _state.update { it.copy(navigateToAddEnd = newId.toInt()) }
                     }
                 }
             }
-            HandleNavigate -> _state.update { it.copy(navigateToInputEnd = null) }
+            HandleNavigate -> _state.update { it.copy(navigateToAddEnd = null) }
             HandlePopBackstack -> _state.update { it.copy(popBackstack = false) }
         }
     }

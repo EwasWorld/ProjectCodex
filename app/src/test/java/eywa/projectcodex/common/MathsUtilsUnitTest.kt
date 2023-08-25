@@ -1,7 +1,7 @@
 package eywa.projectcodex.common
 
 import eywa.projectcodex.common.utils.roundToDp
-import eywa.projectcodex.common.utils.standardDeviationFromInts
+import eywa.projectcodex.common.utils.standardDeviation
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -10,8 +10,8 @@ class MathsUtilsUnitTest {
     fun testStandardDeviation() {
         val items = listOf(10, 12, 23, 23, 16, 23, 21, 16)
 
-        assertEquals(4.89898f, items.standardDeviationFromInts(), 0.00005f)
-        assertEquals(5.23722f, items.standardDeviationFromInts(true), 0.00005f)
+        assertEquals(4.89898f, items.standardDeviation(), 0.00005f)
+        assertEquals(5.23722f, items.standardDeviation(true), 0.00005f)
     }
 
     @Test

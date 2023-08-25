@@ -138,9 +138,9 @@ class ViewScoresViewModel @Inject constructor(
             HandledScorePadOpened -> _state.update { it.copy(openScorePadClicked = false) }
             HandledEditInfoOpened -> _state.update { it.copy(openEditInfoClicked = false) }
             HandledEmailOpened -> _state.update { it.copy(openEmailClicked = false) }
-            HandledInputEndOnCompletedRound ->
-                _state.update { it.copy(openInputEndOnCompletedRound = false) }
-            HandledInputEndOpened -> _state.update { it.copy(openInputEndClicked = false) }
+            HandledAddEndOnCompletedRound ->
+                _state.update { it.copy(openAddEndOnCompletedRound = false) }
+            HandledAddEndOpened -> _state.update { it.copy(openAddEndClicked = false) }
             HandledNoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = false) }
         }
     }

@@ -17,8 +17,8 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
-import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.EditEndRobot
-import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.EditEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot.ExpectedRowData
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After

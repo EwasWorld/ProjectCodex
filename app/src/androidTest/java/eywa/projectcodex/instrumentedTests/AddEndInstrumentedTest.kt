@@ -37,7 +37,7 @@ import org.junit.runner.RunWith
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class InputEndInstrumentedTest {
+class AddEndInstrumentedTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -346,7 +346,7 @@ class InputEndInstrumentedTest {
                     completeEnd("1")
                     clickRoundCompleteOk { }
 
-                    clickNavBarInputEndWhileRoundComplete()
+                    clickNavBarAddEndWhileRoundComplete()
                 }
             }
         }
@@ -364,8 +364,8 @@ class InputEndInstrumentedTest {
                 clickContinueDropdownMenuItem {
                     checkInputtedArrows()
                     clickNavBarSettings {
-                        setInputEndSize(5)
-                        clickNavBarInputEnd { }
+                        setAddEndSize(5)
+                        clickNavBarAddEnd { }
                     }
 
                     checkInputtedArrows(5)

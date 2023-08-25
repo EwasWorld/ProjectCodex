@@ -1,4 +1,4 @@
-package eywa.projectcodex.instrumentedTests
+package eywa.projectcodex.instrumentedTests.utils
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule

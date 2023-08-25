@@ -3,6 +3,7 @@ package eywa.projectcodex.components.shootDetails.addEnd
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsState
+import kotlin.math.min
 
 class AddEndState(
         main: ShootDetailsState,
@@ -12,7 +13,10 @@ class AddEndState(
     val fullShootInfo = main.fullShootInfo!!
     override val round = main.fullShootInfo!!.round
     override val face = main.fullShootInfo!!.currentFace
-    override val endSize = main.addEndSize
+    override val endSize = min(
+            main.addEndSize,
+            main.fullShootInfo!!.remainingArrowsAtDistances?.first()?.first ?: main.addEndSize,
+    )
     val errors = extras.errors
     val roundCompleted = extras.roundCompleted
     val isRoundFull = main.fullShootInfo!!.isRoundComplete

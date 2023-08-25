@@ -39,6 +39,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -162,7 +163,7 @@ private fun ScorePadScreen(
             modifier = modifier
                     .horizontalScroll(rememberScrollState())
                     .padding(5.dp)
-                    .testTag(TestTag.SCREEN)
+                    .testTag(ScorePadTestTag.SCREEN.getTestTag())
     ) {
         if (!state.scorePadData.isNullOrEmpty()) {
             Column(
@@ -270,7 +271,7 @@ private fun Cell(
                     .then(backgroundModifier)
                     .padding(vertical = 5.dp, horizontal = 10.dp)
                     .then(clickModifier)
-                    .testTag(TestTag.CELL)
+                    .testTag(ScorePadTestTag.CELL.getTestTag())
     )
 }
 
@@ -289,7 +290,7 @@ private fun DropdownMenu(
 
             DropdownMenuItem(
                     onClick = { listener(item.action) },
-                    modifier = Modifier.testTag(TestTag.DROPDOWN_MENU_ITEM)
+                    modifier = Modifier.testTag(ScorePadTestTag.DROPDOWN_MENU_ITEM.getTestTag())
             ) {
                 Text(
                         text = stringResource(id = item.title),
@@ -306,11 +307,16 @@ private enum class DropdownMenuItem(@StringRes val title: Int, val action: Score
     DELETE_END(R.string.score_pad_menu__delete, DeleteEndClicked),
 }
 
-object TestTag {
-    private const val PREFIX = "SCORE_PAD_"
-    const val SCREEN = "${PREFIX}SCREEN"
-    const val CELL = "${PREFIX}CELL"
-    const val DROPDOWN_MENU_ITEM = "${PREFIX}DROPDOWN_MENU_ITEM"
+enum class ScorePadTestTag : CodexTestTag {
+    SCREEN,
+    CELL,
+    DROPDOWN_MENU_ITEM,
+    ;
+
+    override val screenName: String
+        get() = "SHOOT_DETAILS_SCORE_PAD"
+
+    override fun getElement(): String = name
 }
 
 @Preview(

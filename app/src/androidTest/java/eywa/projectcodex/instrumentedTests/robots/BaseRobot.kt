@@ -9,10 +9,7 @@ import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeOptions
-import eywa.projectcodex.instrumentedTests.utils.getMatcher
+import eywa.projectcodex.instrumentedTests.dsl.*
 import java.util.*
 
 abstract class BaseRobot(
@@ -51,22 +48,8 @@ abstract class BaseRobot(
         return true
     }
 
-    fun perform(
-            action: CodexNodeAction,
-            vararg matchers: CodexNodeMatcher,
-    ) = perform(action, emptyList(), *matchers)
-
-    fun perform(
-            action: CodexNodeAction,
-            options: List<CodexNodeOptions>,
-            vararg matchers: CodexNodeMatcher,
-    ) {
-        action.perform(
-                composeTestRule.onNode(
-                        matchers.toList().getMatcher(),
-                        options.contains(CodexNodeOptions.UseUnmergedTree),
-                ),
-        )
+    fun perform(config: InstrumentedTestActionDsl.() -> Unit) {
+        InstrumentedTestActionDsl().apply(config).run(composeTestRule)
     }
 
     fun clickElement(

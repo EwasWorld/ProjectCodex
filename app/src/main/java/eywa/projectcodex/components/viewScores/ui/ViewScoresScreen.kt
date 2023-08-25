@@ -86,7 +86,7 @@ private fun handleEffects(
         listener(HandledScorePadOpened)
     }
 
-    if (state.openInputEndOnCompletedRound) {
+    if (state.openAddEndOnCompletedRound) {
         if (state.lastClickedEntryId != null) {
             CustomLogger.customLogger.w(LOG_TAG, "Tried to continue completed round")
             ToastSpamPrevention.displayToast(
@@ -94,17 +94,17 @@ private fun handleEffects(
                     context.resources.getString(R.string.err_view_score__round_already_complete)
             )
         }
-        listener(HandledInputEndOnCompletedRound)
+        listener(HandledAddEndOnCompletedRound)
     }
 
-    if (state.openInputEndClicked) {
+    if (state.openAddEndClicked) {
         if (state.lastClickedEntryId != null) {
             CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
                     navController,
                     mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
             )
         }
-        listener(HandledInputEndOpened)
+        listener(HandledAddEndOpened)
     }
 
     if (state.openEditInfoClicked) {

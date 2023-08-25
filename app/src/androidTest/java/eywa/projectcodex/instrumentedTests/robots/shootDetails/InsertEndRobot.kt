@@ -1,12 +1,13 @@
-package eywa.projectcodex.instrumentedTests.robots.archerRoundScore
+package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 
 class InsertEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
-) : ArrowInputsRobot(composeTestRule, ArrowInputsTestTag.INSERT_SCREEN) {
+) : ArrowInputsRobot(composeTestRule, InsertEndTestTag.SCREEN) {
     fun clickCancel() = clickArrowInputsCancel()
 
     fun clickComplete() = clickArrowInputsSubmit()

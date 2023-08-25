@@ -46,7 +46,7 @@ data class NewScoreState(
         /*
          * Effects
          */
-        val navigateToInputEnd: Int? = null,
+        val navigateToAddEnd: Int? = null,
         val popBackstack: Boolean = false,
         val roundNotFoundError: Boolean = false,
 ) {

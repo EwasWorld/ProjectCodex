@@ -1,4 +1,4 @@
-package eywa.projectcodex.instrumentedTests.utils
+package eywa.projectcodex.instrumentedTests.dsl
 
 import androidx.compose.ui.test.*
 import eywa.projectcodex.common.utils.CodexTestTag
@@ -16,16 +16,22 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher = hasTestTag(testTag.getTestTag())
     }
 
-    data class AnyAncestor(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
+    data class HasAnyAncestor(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
         constructor(matcher: CodexNodeMatcher) : this(listOf(matcher))
 
         override fun getMatcher(): SemanticsMatcher = hasAnyAncestor(matchers.getMatcher())
     }
 
-    data class AnySibling(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
+    data class HasAnySibling(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
         constructor(matcher: CodexNodeMatcher) : this(listOf(matcher))
 
         override fun getMatcher(): SemanticsMatcher = hasAnySibling(matchers.getMatcher())
+    }
+
+    data class HasAnyDescendant(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
+        constructor(matcher: CodexNodeMatcher) : this(listOf(matcher))
+
+        override fun getMatcher(): SemanticsMatcher = hasAnyDescendant(matchers.getMatcher())
     }
 
     abstract fun getMatcher(): SemanticsMatcher

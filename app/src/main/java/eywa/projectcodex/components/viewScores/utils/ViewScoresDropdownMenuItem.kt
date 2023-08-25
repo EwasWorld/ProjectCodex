@@ -22,10 +22,10 @@ enum class ViewScoresDropdownMenuItem(
             title = R.string.view_scores_menu__continue,
             handleClick = {
                 if (data.find { it.id == lastClickedEntryId }?.isRoundComplete() == true) {
-                    copy(openInputEndOnCompletedRound = true)
+                    copy(openAddEndOnCompletedRound = true)
                 }
                 else {
-                    copy(openInputEndClicked = true)
+                    copy(openAddEndClicked = true)
                 }
             },
             shouldShow = { entry -> !entry.isRoundComplete() }

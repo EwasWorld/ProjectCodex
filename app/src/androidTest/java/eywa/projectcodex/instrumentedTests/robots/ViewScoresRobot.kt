@@ -7,8 +7,8 @@ import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
-import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.InputEndRobot
-import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -82,9 +82,9 @@ class ViewScoresRobot(
         NewScoreRobot(composeTestRule).apply { block() }
     }
 
-    fun clickContinueDropdownMenuItem(block: InputEndRobot.() -> Unit = {}) {
+    fun clickContinueDropdownMenuItem(block: AddEndRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.CONTINUE_MENU_ITEM)
-        InputEndRobot(composeTestRule).apply { block() }
+        AddEndRobot(composeTestRule).apply { block() }
     }
 
     fun clickScorePadDropdownMenuItem(block: ScorePadRobot.() -> Unit = {}) {

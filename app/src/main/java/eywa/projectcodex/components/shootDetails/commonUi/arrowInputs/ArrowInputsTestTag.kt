@@ -16,10 +16,6 @@ enum class ArrowInputsTestTag : CodexTestTag {
     END_TOTAL_TEXT,
 
     CONTENT_TEXT,
-
-    INPUT_SCREEN,
-    INSERT_SCREEN,
-    EDIT_SCREEN,
     ;
 
     override val screenName: String

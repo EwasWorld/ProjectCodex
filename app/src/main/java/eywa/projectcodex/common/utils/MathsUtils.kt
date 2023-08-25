@@ -4,7 +4,8 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-fun Collection<Int>.standardDeviationFromInts(isSample: Boolean = false) =
+@JvmName("standardDeviationFromInts")
+fun Collection<Int>.standardDeviation(isSample: Boolean = false) =
         map { it.toFloat() }.standardDeviation(isSample)
 
 fun Collection<Float>.standardDeviation(isSample: Boolean = false): Float {

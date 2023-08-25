@@ -3,9 +3,8 @@ package eywa.projectcodex.instrumentedTests.robots
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeAction
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.utils.CodexNodeOptions
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.model.SightMark
 
 internal fun SightMark.asText(isLeft: Boolean = true) =
@@ -36,23 +35,23 @@ class SightMarksRobot(
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
-        perform(
-                action = CodexNodeAction.AssertIsDisplayed,
-                options = listOf(CodexNodeOptions.UseUnmergedTree),
-                CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT),
-                CodexNodeMatcher.HasText(text),
-        )
-        perform(
-                action = if (sightMark.note == null) CodexNodeAction.AssertDoesNotExist else CodexNodeAction.AssertIsDisplayed,
-                options = listOf(CodexNodeOptions.UseUnmergedTree),
-                CodexNodeMatcher.HasTestTag(DIAGRAM_NOTE_ICON),
-                CodexNodeMatcher.AnySibling(
-                        listOf(
-                                CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT),
-                                CodexNodeMatcher.HasText(text),
-                        )
-                ),
-        )
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT)
+            +CodexNodeMatcher.HasText(text)
+            +CodexNodeAction.AssertIsDisplayed
+        }
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(DIAGRAM_NOTE_ICON)
+            +CodexNodeMatcher.HasAnySibling(
+                    listOf(
+                            CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT),
+                            CodexNodeMatcher.HasText(text),
+                    )
+            )
+            +if (sightMark.note == null) CodexNodeAction.AssertDoesNotExist else CodexNodeAction.AssertIsDisplayed
+        }
     }
 
     fun clickSightMark(sightMark: SightMark, isLeft: Boolean = false): SightMarkDetailRobot {

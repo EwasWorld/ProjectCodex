@@ -1,12 +1,9 @@
-package eywa.projectcodex.instrumentedTests.robots.subComponents
+package eywa.projectcodex.instrumentedTests.robots.common
 
 import androidx.compose.ui.test.*
-import androidx.test.espresso.Espresso.pressBack
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.*
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 

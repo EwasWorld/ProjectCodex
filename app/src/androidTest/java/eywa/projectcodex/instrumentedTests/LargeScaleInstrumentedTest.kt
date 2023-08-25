@@ -18,8 +18,8 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.*
-import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.*
-import eywa.projectcodex.instrumentedTests.robots.archerRoundScore.ScorePadRobot.ExpectedRowData
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.*
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot.ExpectedRowData
 import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -127,7 +127,7 @@ class LargeScaleInstrumentedTest {
                         checkScore(0)
                     }
 
-                    clickNavBarInputEnd {
+                    clickNavBarAddEnd {
                         logMessage(this::class, "Score A - enter 3 ends")
                         checkIndicatorTable(0, 0)
                         completeEnd("1")
@@ -308,7 +308,7 @@ class LargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round add end - 1")
-                    clickNavBarInputEnd {
+                    clickNavBarAddEnd {
                         checkIndicatorTable(48, 18)
                         completeEnd("1")
                         checkIndicatorTable(54, 24)
@@ -368,7 +368,7 @@ class LargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round add end - 2")
-                    clickNavBarInputEnd {
+                    clickNavBarAddEnd {
                         checkIndicatorTable(42, 18)
                         completeEnd("8")
                         checkIndicatorTable(90, 24)
@@ -426,7 +426,7 @@ class LargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - Complete round")
-                    clickNavBarInputEnd {
+                    clickNavBarAddEnd {
                         repeat(3) {
                             completeEnd("X")
                         }
@@ -481,7 +481,7 @@ class LargeScaleInstrumentedTest {
     fun testHelpDialogs() {
         touchEveryScreen { fragmentClass ->
             val noHelpInfo = listOf(
-                    ArcherRoundStatsRobot::class,
+                    ShootDetailsStatsRobot::class,
                     AboutRobot::class,
                     ViewScoresRobot::class,
             )
@@ -535,7 +535,7 @@ class LargeScaleInstrumentedTest {
 
                 logMessage(this::class, "Navigating to: Input end")
                 clickSubmitNewScore {
-                    performAction(InputEndRobot::class)
+                    performAction(AddEndRobot::class)
 
                     logMessage(this::class, "Navigating to: Score pad")
                     completeEnd("2")
@@ -561,12 +561,12 @@ class LargeScaleInstrumentedTest {
                     }
 
                     clickNavBarStats {
-                        performAction(ArcherRoundStatsRobot::class)
+                        performAction(ShootDetailsStatsRobot::class)
                     }
 
                     logMessage(this::class, "Navigating to: Score settings")
                     clickNavBarSettings {
-                        performAction(ArcherRoundSettingsRobot::class)
+                        performAction(ShootDetailsSettingsRobot::class)
                     }
 
                     logMessage(this::class, "Navigating to: View rounds")
@@ -723,7 +723,7 @@ class LargeScaleInstrumentedTest {
                     clickNavBarStats()
                     repeat(6) {
                         clickNavBarScorePad()
-                        clickNavBarInputEnd()
+                        clickNavBarAddEnd()
                     }
                     logMessage(this::class, " -> press back")
                     pressBack()
@@ -912,7 +912,7 @@ class LargeScaleInstrumentedTest {
                     clickNavBarStats()
                     repeat(6) {
                         clickNavBarScorePad()
-                        clickNavBarInputEnd()
+                        clickNavBarAddEnd()
                     }
                     logMessage(this::class, " -> press home")
                     clickHomeIcon()
