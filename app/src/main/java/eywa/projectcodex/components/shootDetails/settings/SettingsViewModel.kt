@@ -11,6 +11,7 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
+import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.settings.SettingsIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,7 +43,7 @@ class SettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             state.collect {
-                val data = it.data ?: return@collect
+                val data = it.getData() ?: return@collect
                 if (data.scorePadEndSizePartial.parsed != null
                     && data.scorePadEndSize != data.scorePadEndSizePartial.parsed
                 ) {
@@ -60,7 +61,7 @@ class SettingsViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
             is ShootDetailsAction -> repo.handle(action.action, screen)
             is AddEndSizeChanged -> {
-                val currentState = state.value.data?.addEndSizePartial ?: return
+                val currentState = state.value.getData()?.addEndSizePartial ?: return
                 val new = currentState.onValueChanged(action.endSize)
                 if (new.parsed != null) {
                     repo.handle(ShootDetailsIntent.SetAddEndEndSize(new.parsed), screen)
@@ -68,7 +69,7 @@ class SettingsViewModel @Inject constructor(
                 extraState.update { it.copy(addEndSizePartial = new) }
             }
             is ScorePadEndSizeChanged -> {
-                val currentState = state.value.data?.scorePadEndSizePartial ?: return
+                val currentState = state.value.getData()?.scorePadEndSizePartial ?: return
                 val new = currentState.onValueChanged(action.endSize)
                 if (new.parsed != null) {
                     repo.handle(ShootDetailsIntent.SetScorePadEndSize(new.parsed), screen)

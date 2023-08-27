@@ -40,6 +40,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
+import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.*
 import eywa.projectcodex.database.RoundFace
@@ -77,7 +78,7 @@ fun HandleEffects(
         state: ShootDetailsResponse<StatsState>,
         listener: (StatsIntent) -> Unit,
 ) {
-    val loadedState = state.data ?: return
+    val loadedState = state.getData() ?: return
 
     LaunchedEffect(loadedState.openEditScoreScreen) {
         if (loadedState.openEditScoreScreen) {

@@ -48,8 +48,8 @@ abstract class BaseRobot(
         return true
     }
 
-    fun perform(config: InstrumentedTestActionDsl.() -> Unit) {
-        InstrumentedTestActionDsl().apply(config).run(composeTestRule)
+    fun perform(config: TestActionDsl.() -> Unit) {
+        TestActionDsl().apply(config).run(composeTestRule)
     }
 
     fun clickElement(
@@ -124,7 +124,7 @@ abstract class BaseRobot(
     fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) =
             checkElementDoesNotExist(testTag.getTestTag(), useUnmergedTree)
 
-    fun checkElementDoesNotExist(testTag: String, useUnmergedTree: Boolean = false) {
+    private fun checkElementDoesNotExist(testTag: String, useUnmergedTree: Boolean = false) {
         composeTestRule.onNodeWithTag(testTag, useUnmergedTree).assertDoesNotExist()
     }
 

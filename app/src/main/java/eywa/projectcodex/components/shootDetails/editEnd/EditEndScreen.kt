@@ -22,6 +22,7 @@ import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsScaffold
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.*
+import eywa.projectcodex.components.shootDetails.getData
 
 @Composable
 fun EditEndScreen(
@@ -51,7 +52,7 @@ fun HandleEffects(
         state: ShootDetailsResponse<EditEndState>,
         listener: (EditEndIntent) -> Unit,
 ) {
-    val loadedState = state.data ?: return
+    val loadedState = state.getData() ?: return
     val context = LocalContext.current
 
     LaunchedEffect(loadedState) {

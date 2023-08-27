@@ -11,6 +11,7 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
+import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,7 +51,7 @@ class InsertEndViewModel @Inject constructor(
     }
 
     private fun handleArrowInputIntent(action: ArrowInputsIntent) {
-        val currentState = state.value.data ?: return
+        val currentState = state.value.getData() ?: return
         action.handle(
                 enteredArrows = currentState.enteredArrows,
                 endSize = currentState.endSize,

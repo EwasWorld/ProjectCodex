@@ -2,6 +2,9 @@ package eywa.projectcodex.instrumentedTests.dsl
 
 import androidx.compose.ui.test.*
 
+/**
+ * Actions which can be performed on a [SemanticsNodeInteraction]
+ */
 sealed class CodexNodeAction {
     object PerformClick : CodexNodeAction() {
         override fun perform(node: SemanticsNodeInteraction) {

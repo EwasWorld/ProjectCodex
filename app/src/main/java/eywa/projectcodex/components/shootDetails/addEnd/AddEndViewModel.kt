@@ -14,6 +14,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.*
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
+import eywa.projectcodex.components.shootDetails.getData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -48,7 +49,7 @@ class AddEndViewModel @Inject constructor(
         viewModelScope.launch {
             var previousIsComplete: Boolean? = null
             state.collect { response ->
-                val data = response.data
+                val data = response.getData()
                 if (data == null || data.fullShootInfo.arrows.isNullOrEmpty()) {
                     previousIsComplete = null
                     return@collect
@@ -78,7 +79,7 @@ class AddEndViewModel @Inject constructor(
     }
 
     private fun handleArrowInputIntent(action: ArrowInputsIntent) {
-        val currentState = state.value.data ?: return
+        val currentState = state.value.getData() ?: return
         action.handle(
                 enteredArrows = currentState.enteredArrows,
                 endSize = currentState.endSize,

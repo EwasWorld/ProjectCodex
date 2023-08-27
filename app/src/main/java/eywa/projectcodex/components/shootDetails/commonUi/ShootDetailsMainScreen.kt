@@ -23,7 +23,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 
 @Composable
-fun <T> ShootDetailsMainScreen(
+fun <T: Any> ShootDetailsMainScreen(
         currentScreen: CodexNavRoute,
         state: ShootDetailsResponse<T>,
         listener: (ShootDetailsIntent) -> Unit,
@@ -44,7 +44,7 @@ fun <T> ShootDetailsMainScreen(
 }
 
 @Composable
-fun <T> HandleMainEffects(
+fun <T: Any> HandleMainEffects(
         navController: NavController,
         state: ShootDetailsResponse<T>,
         listener: (ShootDetailsIntent) -> Unit,

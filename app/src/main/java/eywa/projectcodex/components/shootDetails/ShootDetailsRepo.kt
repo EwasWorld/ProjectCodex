@@ -95,7 +95,7 @@ class ShootDetailsRepo(
         }
     }
 
-    fun <T> getState(
+    fun <T : Any> getState(
             shootId: Int?,
             converter: (ShootDetailsState) -> T,
     ): Flow<ShootDetailsResponse<T>> {
@@ -103,7 +103,7 @@ class ShootDetailsRepo(
         return state.map { combineStates(shootId, it, null) { s, _ -> converter(s) } }
     }
 
-    fun <T, E> getState(
+    fun <T : Any, E> getState(
             shootId: Int?,
             extraFlow: StateFlow<E>,
             converter: (ShootDetailsState, E) -> T,
@@ -122,17 +122,16 @@ class ShootDetailsRepo(
         }
     }
 
-    private fun <T, E> combineStates(
+    private fun <T : Any, E> combineStates(
             shootId: Int?,
             state: ShootDetailsState,
             extra: E?,
             converter: (ShootDetailsState, E?) -> T
-    ) =
+    ): ShootDetailsResponse<T> =
             when {
                 shootId == null || state.isError -> ShootDetailsResponse.Error(state.mainMenuClicked)
                 shootId != state.shootId || state.fullShootInfo == null || state.fullShootInfo.id != shootId ->
-                    @Suppress("UNCHECKED_CAST")
-                    ShootDetailsResponse.Loading as ShootDetailsResponse<T>
+                    ShootDetailsResponse.Loading
                 else -> ShootDetailsResponse.Loaded(converter(state, extra), state.shootId, state.navBarClickedItem)
             }
 

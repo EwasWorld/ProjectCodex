@@ -12,6 +12,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.NavBarClicke
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.SelectScorePadEnd
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
+import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -63,7 +64,7 @@ class ScorePadViewModel @Inject constructor(
                 extraState.update { it.copy(deleteEndDialogIsShown = false) }
             }
             DeleteEndDialogOkClicked -> {
-                state.value.data?.let { currentState ->
+                state.value.getData()?.let { currentState ->
                     if (
                         currentState.arrows == null
                         || currentState.firstArrowNumberInSelectedEnd == null

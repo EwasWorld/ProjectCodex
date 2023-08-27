@@ -4,6 +4,9 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.onFirst
 
+/**
+ * Ways to turn a [SemanticsNodeInteractionCollection] into a single [SemanticsNodeInteraction]
+ */
 sealed class CodexNodeGroupToOne {
     object First : CodexNodeGroupToOne() {
         override fun toOne(group: SemanticsNodeInteractionCollection) = group.onFirst()

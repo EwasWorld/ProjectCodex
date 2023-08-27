@@ -45,6 +45,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
+import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
 import eywa.projectcodex.model.ScorePadData.ColumnHeader
 import eywa.projectcodex.model.ScorePadData.ScorePadRow
@@ -86,7 +87,7 @@ fun HandleEffects(
         state: ShootDetailsResponse<ScorePadState>,
         listener: (ScorePadIntent) -> Unit,
 ) {
-    val loadedState = state.data ?: return
+    val loadedState = state.getData() ?: return
     LaunchedEffect(loadedState.insertEndClicked, loadedState.editEndClicked) {
         if (loadedState.insertEndClicked) {
             CodexNavRoute.SHOOT_DETAILS_INSERT_END.navigate(
