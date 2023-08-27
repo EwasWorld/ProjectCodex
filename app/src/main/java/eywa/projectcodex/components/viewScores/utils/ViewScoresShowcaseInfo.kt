@@ -6,7 +6,6 @@ import eywa.projectcodex.common.helpShowcase.DynamicHelpShowcaseInfo
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.utils.ResOrActual
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
@@ -31,16 +30,16 @@ class ViewScoresShowcaseInfo(
      * This info is specific to the row type.
      * Indexes match that in [entryClasses]
      */
-    val specificEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) { HelpShowcaseUseCase() }
+    val specificEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) { HelpShowcaseUseCase(type) }
 
     /**
      * The help info of the entries currently being displayed.
      * This info is generic and common to all rows.
      * Indexes match that in [entryClasses]
      */
-    val genericEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) { HelpShowcaseUseCase() }
+    val genericEntryHelpInfo: List<HelpShowcaseUseCase> = List(entryClasses.size) { HelpShowcaseUseCase(type) }
 
-    private var currentShowcase: Map<ResOrActual<String>, HelpShowcaseItem>? = null
+    private var currentShowcase: Map<String, HelpShowcaseItem>? = null
 
     override fun start(): Collection<HelpShowcaseItem> {
         // Wait for any scrolling to complete
@@ -69,5 +68,5 @@ class ViewScoresShowcaseInfo(
         currentShowcase = null
     }
 
-    override fun getInfoShowcases(key: ResOrActual<String>): HelpShowcaseItem? = currentShowcase!![key]
+    override fun getInfoShowcases(key: String): HelpShowcaseItem? = currentShowcase!![key]
 }

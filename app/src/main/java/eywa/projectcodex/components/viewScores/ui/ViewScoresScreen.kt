@@ -172,7 +172,10 @@ fun ViewScoresScreen(
                         dropdownMenuItems = entry.getDropdownMenuItems(),
                         dropdownExpanded = state.dropdownMenuOpen && entry.id == state.lastClickedEntryId,
                         listener = listener,
-                        genericHelpInfo = viewScoresShowcaseInfo.genericEntryHelpInfo[entryIndex],
+                        helpListener = {
+                            viewScoresShowcaseInfo.genericEntryHelpInfo[entryIndex]
+                                    .handle(it, CodexNavRoute.VIEW_SCORES::class)
+                        },
                         semanticsContentDescription = viewScoresEntryRowAccessibilityString(
                                 LocalContext.current, entry
                         )

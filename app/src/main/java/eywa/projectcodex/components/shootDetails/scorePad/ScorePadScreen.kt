@@ -27,10 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseShape
-import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
@@ -188,13 +185,12 @@ private fun ScorePadScreen(
         }
 
         COLUMN_HEADER_ORDER.forEach { columnHeader ->
-            helpListener(
-                    HelpShowcaseIntent.Add(
-                            HelpShowcaseItem(
-                                    helpTitle = columnHeader.getHelpTitle(),
-                                    helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
-                            )
-                    )
+            val helpState = HelpState(
+                    helpListener = helpListener,
+                    helpShowcaseItem = HelpShowcaseItem(
+                            helpTitle = columnHeader.getHelpTitle(),
+                            helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
+                    ),
             )
 
             Column(
@@ -205,7 +201,7 @@ private fun ScorePadScreen(
                         columnType = columnHeader,
                         goldsType = state.scorePadData.goldsType,
                         listener = listener,
-                        modifier = Modifier.updateHelpDialogPosition(helpListener, columnHeader.getHelpTitle())
+                        modifier = Modifier.updateHelpDialogPosition(helpState)
                 )
 
                 state.scorePadData.data.forEach { rowData ->

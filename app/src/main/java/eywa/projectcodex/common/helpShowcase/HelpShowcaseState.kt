@@ -1,7 +1,6 @@
 package eywa.projectcodex.common.helpShowcase
 
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.core.mainActivity.MainActivity
 import kotlin.reflect.KClass
 
@@ -20,10 +19,10 @@ internal data class HelpShowcaseInternalState(
          * fading out. This means that the last call of [HelpShowcaseIntent.Add] is not guaranteed to be the new screen
          */
         val currentScreen: KClass<out ActionBarHelp> = CodexNavRoute.MAIN_MENU::class,
-        val helpInfoMap: Map<ResOrActual<String>, HelpShowcaseItem> = emptyMap(),
+        val helpInfoMap: Map<String, HelpShowcaseItem> = emptyMap(),
         val dynamicHelpShowcaseInfo: DynamicHelpShowcaseInfo? = null,
 
-        val currentShowcase: List<ResOrActual<String>>? = null,
+        val currentShowcase: List<String>? = null,
         val currentlyDisplayedIndex: Int? = null,
 
         val startedButNoItems: Boolean = false,

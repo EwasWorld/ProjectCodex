@@ -1,55 +1,36 @@
 package eywa.projectcodex.common.helpShowcase
 
-import androidx.annotation.StringRes
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.UpdateCoordinates
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
-import eywa.projectcodex.common.utils.ResOrActual
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlin.reflect.KClass
 
-@Deprecated("Use string", ReplaceWith(""))
-fun Modifier.updateHelpDialogPosition(helpListener: (HelpShowcaseIntent) -> Unit, @StringRes key: Int) =
-        onGloballyPositioned { helpListener(HelpShowcaseIntent.UpdateCoordinates(key, it)) }
-
-fun Modifier.updateHelpDialogPosition(helpListener: (HelpShowcaseIntent) -> Unit, key: String) =
-        onGloballyPositioned { helpListener(HelpShowcaseIntent.UpdateCoordinates(key, it)) }
-
-@Deprecated("Use string", ReplaceWith(""))
-fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, @StringRes key: Int) =
-        onGloballyPositioned { helpItemsMap.updateItem(key, it) }
-
-fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, key: String) =
-        onGloballyPositioned { helpItemsMap.updateItem(key, it) }
-
-fun Modifier.updateHelpDialogPosition(helpItemsMap: HelpShowcaseUseCase, key: ResOrActual<String>) =
-        onGloballyPositioned { helpItemsMap.updateItem(key, it) }
-
 fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
         modifierIf(helpState != null) {
-            helpState!!.add()
-
-            when (val title = helpState.helpShowcaseItem.helpTitle) {
-                is ResOrActual.StringResource -> updateHelpDialogPosition(helpState.helpListener, title.resId)
-                is ResOrActual.Actual<String> -> updateHelpDialogPosition(helpState.helpListener, title.actual)
+            // Null pointer causing a crash, not sure how when modifierIf mean this is skipped when null
+            if (helpState != null) {
+                helpState.add()
+                onGloballyPositioned {
+                    helpState.helpListener(UpdateCoordinates(helpState.helpShowcaseItem.helpTitle, it))
+                }
+            }
+            else {
+                Modifier
             }
         }
 
-class HelpShowcaseUseCase {
-    private val _state = MutableStateFlow(HelpShowcaseInternalState())
+class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute.MAIN_MENU::class) {
+    private val _state = MutableStateFlow(HelpShowcaseInternalState(currentScreen = startScreen))
     val state = _state.map { it.asExternalState() }.distinctUntilChanged()
 
-    internal fun updateItem(@StringRes key: Int, layoutCoordinates: LayoutCoordinates) =
-            updateItem(ResOrActual.StringResource(key), layoutCoordinates)
-
-    internal fun updateItem(key: String, layoutCoordinates: LayoutCoordinates) =
-            updateItem(ResOrActual.Actual(key), layoutCoordinates)
-
-    internal fun updateItem(key: ResOrActual<String>, layoutCoordinates: LayoutCoordinates) {
+    internal fun updateItem(key: String, layoutCoordinates: LayoutCoordinates) {
         _state.update {
             val item = it.helpInfoMap[key]?.copy(layoutCoordinates = layoutCoordinates)
                     ?: return@update it
@@ -113,7 +94,7 @@ class HelpShowcaseUseCase {
             }
             HelpShowcaseIntent.Clear -> _state.update { it.copy(helpInfoMap = emptyMap()) }
             is HelpShowcaseIntent.Remove -> _state.update { it.copy(helpInfoMap = it.helpInfoMap.minus(action.key)) }
-            is HelpShowcaseIntent.UpdateCoordinates -> updateItem(action.key, action.layoutCoordinates)
+            is UpdateCoordinates -> updateItem(action.key, action.layoutCoordinates)
             is HelpShowcaseIntent.SetScreen -> _state.update {
                 require(screen == null || action.screen == screen) { "Incorrect screen" }
                 if (it.currentScreen == screen) return@update it
@@ -123,9 +104,9 @@ class HelpShowcaseUseCase {
     }
 
     companion object {
-        fun combineContent(showcases: List<HelpShowcaseUseCase>): Map<ResOrActual<String>, HelpShowcaseItem> {
+        fun combineContent(showcases: List<HelpShowcaseUseCase>): Map<String, HelpShowcaseItem> {
             val allStates = showcases.map { it._state.value }
-            val screens = allStates.mapNotNull { it.currentScreen }.distinct()
+            val screens = allStates.map { it.currentScreen }.distinct()
             require(screens.size <= 1) { "Must all be the same screen" }
             return allStates.flatMap { s -> s.helpInfoMap.map { it.key to it.value } }.toMap()
         }

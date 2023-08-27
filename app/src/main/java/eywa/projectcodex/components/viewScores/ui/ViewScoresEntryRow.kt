@@ -25,10 +25,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
-import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -74,6 +71,8 @@ internal fun ViewScoresEntryRow(
         modifier: Modifier = Modifier,
         showPbs: Boolean,
 ) {
+    val helpListener = { it: HelpShowcaseIntent -> helpInfo.handle(it, CodexNavRoute.VIEW_SCORES::class) }
+
     Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -96,9 +95,9 @@ internal fun ViewScoresEntryRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
-            DateAndFirstNameColumn(entries, helpInfo, Modifier.weight(1f))
-            HsgColumn(entries, helpInfo)
-            HandicapColumn(entries, helpInfo)
+            DateAndFirstNameColumn(entries, helpListener, Modifier.weight(1f))
+            HsgColumn(entries, helpListener)
+            HandicapColumn(entries, helpListener)
         }
         if (entries.secondDisplayName != null || entries.totalUndisplayedNamesCount != null) {
             Row(
@@ -128,19 +127,18 @@ internal fun ViewScoresEntryRow(
 @Composable
 private fun DateAndFirstNameColumn(
         entries: ViewScoresEntryList,
-        helpInfo: HelpShowcaseUseCase,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         modifier: Modifier = Modifier,
 ) {
-    helpInfo.handle(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_view_score__round_title),
-                            helpBody = stringResource(R.string.help_view_score__round_body),
-                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
-                    )
-            ),
-            CodexNavRoute.VIEW_SCORES::class,
+    val helpState = HelpState(
+            helpListener = helpListener,
+            helpShowcaseItem = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_view_score__round_title),
+                    helpBody = stringResource(R.string.help_view_score__round_body),
+                    priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
+            )
     )
+
     Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = columnVerticalArrangement,
@@ -152,8 +150,7 @@ private fun DateAndFirstNameColumn(
         )
         DisplayName(
                 nameInfo = entries.firstDisplayName,
-                modifier = Modifier
-                        .updateHelpDialogPosition(helpInfo, stringResource(R.string.help_view_score__round_title))
+                modifier = Modifier.updateHelpDialogPosition(helpState)
         )
     }
 }
@@ -195,18 +192,17 @@ private fun getDisplayName(
 @Composable
 private fun HsgColumn(
         entries: ViewScoresEntryList,
-        helpInfo: HelpShowcaseUseCase,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    helpInfo.handle(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_view_score__hsg_title),
-                            helpBody = stringResource(R.string.help_view_score__hsg_body),
-                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
-                    )
-            ),
-            CodexNavRoute.VIEW_SCORES::class,
+    val helpState = HelpState(
+            helpListener = helpListener,
+            helpShowcaseItem = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_view_score__hsg_title),
+                    helpBody = stringResource(R.string.help_view_score__hsg_body),
+                    priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
+            )
     )
+
     Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = columnVerticalArrangement,
@@ -220,8 +216,7 @@ private fun HsgColumn(
         Text(
                 text = entries.hitsScoreGolds ?: stringResource(R.string.view_score__hsg_placeholder),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                modifier = Modifier
-                        .updateHelpDialogPosition(helpInfo, stringResource(R.string.help_view_score__hsg_title))
+                modifier = Modifier.updateHelpDialogPosition(helpState)
         )
     }
 }
@@ -229,21 +224,20 @@ private fun HsgColumn(
 @Composable
 private fun HandicapColumn(
         entries: ViewScoresEntryList,
-        helpInfo: HelpShowcaseUseCase,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    helpInfo.handle(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_view_score__handicap_title),
-                            helpBody = stringResource(
-                                    if (entries.use2023System) R.string.help_view_score__handicap_2023_body
-                                    else R.string.help_view_score__handicap_old_body
-                            ),
-                            priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal
-                    )
-            ),
-            CodexNavRoute.VIEW_SCORES::class,
+    val helpState = HelpState(
+            helpListener = helpListener,
+            helpShowcaseItem = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_view_score__handicap_title),
+                    helpBody = stringResource(
+                            if (entries.use2023System) R.string.help_view_score__handicap_2023_body
+                            else R.string.help_view_score__handicap_old_body
+                    ),
+                    priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
+            )
     )
+
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = columnVerticalArrangement,
@@ -261,11 +255,7 @@ private fun HandicapColumn(
                     text = entries.handicap?.toString()
                             ?: stringResource(R.string.view_score__handicap_placeholder),
                     style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                    modifier = Modifier
-                            .updateHelpDialogPosition(
-                                    helpInfo,
-                                    stringResource(R.string.help_view_score__handicap_title)
-                            )
+                    modifier = Modifier.updateHelpDialogPosition(helpState)
             )
             // Force width to always accommodate "00" - this will forces columns into alignment
             Text(

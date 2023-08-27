@@ -20,9 +20,8 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
@@ -37,7 +36,7 @@ import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 fun ViewScoresListItem(
         entry: ViewScoresEntry,
         entryIndex: Int,
-        genericHelpInfo: HelpShowcaseUseCase,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         isInMultiSelectMode: Boolean,
         dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
         dropdownExpanded: Boolean,
@@ -48,21 +47,19 @@ fun ViewScoresListItem(
     val context = LocalContext.current
     fun stringStringResource(@StringRes resId: Int) = context.resources.getString(resId)
 
-    genericHelpInfo.handle(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_view_score__row_title),
-                            helpBody = stringResource(R.string.help_view_score__row_body),
-                            priority = ViewScoreHelpPriority.GENERIC_ROW_ACTIONS.ordinal
-                    )
+    val helpState = HelpState(
+            helpListener = helpListener,
+            helpShowcaseItem = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_view_score__row_title),
+                    helpBody = stringResource(R.string.help_view_score__row_body),
+                    priority = ViewScoreHelpPriority.GENERIC_ROW_ACTIONS.ordinal
             ),
-            CodexNavRoute.VIEW_SCORES::class,
     )
 
     Box(
             modifier = Modifier
                     .testTag(ViewScoresTestTag.LIST_ITEM.getTestTag())
-                    .updateHelpDialogPosition(genericHelpInfo, stringResource(R.string.help_view_score__row_title))
+                    .updateHelpDialogPosition(helpState)
                     .pointerInput(entryIndex, isInMultiSelectMode) {
                         detectTapGestures(
                                 onTap = { listener(ViewScoresIntent.EntryClicked(entry.id)) },

@@ -1,6 +1,5 @@
 package eywa.projectcodex.common.helpShowcase
 
-import eywa.projectcodex.common.utils.ResOrActual
 import kotlin.reflect.KClass
 
 interface DynamicHelpShowcaseInfo {
@@ -21,5 +20,5 @@ interface DynamicHelpShowcaseInfo {
      */
     fun end()
 
-    fun getInfoShowcases(key: ResOrActual<String>): HelpShowcaseItem?
+    fun getInfoShowcases(key: String): HelpShowcaseItem?
 }

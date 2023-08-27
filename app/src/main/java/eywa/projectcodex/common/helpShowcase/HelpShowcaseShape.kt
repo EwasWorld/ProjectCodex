@@ -23,8 +23,8 @@ enum class HelpShowcaseShape {
             if (item.layoutCoordinates == null || !item.layoutCoordinates.isAttached) return null
 
             return HelpShowcaseOvalState.from(
-                    title = item.helpTitle.get(),
-                    message = item.helpBody.get(),
+                    title = item.helpTitle,
+                    message = item.helpBody,
                     hasNextItem = hasNextItem,
                     viewInfo = item.layoutCoordinates,
                     screenHeight = screenHeight,
@@ -48,8 +48,8 @@ enum class HelpShowcaseShape {
                 screenWidth: Float
         ): HelpShowcaseState {
             return HelpShowcaseNoShapeState(
-                    title = item.helpTitle.get(),
-                    message = item.helpBody.get(),
+                    title = item.helpTitle,
+                    message = item.helpBody,
                     hasNextItem = hasNextItem,
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,

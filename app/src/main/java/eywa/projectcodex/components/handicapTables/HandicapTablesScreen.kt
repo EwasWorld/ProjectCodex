@@ -26,10 +26,10 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
-import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
-import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
+import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
@@ -149,14 +149,13 @@ private fun Table(
         highlighted: HandicapScore?,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    helpListener(
-            HelpShowcaseIntent.Add(
-                    HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_handicap_tables__table_title),
-                            helpBody = stringResource(R.string.help_handicap_tables__table_body),
-                            priority = DEFAULT_HELP_PRIORITY + 1,
-                    ),
-            )
+    val helpState = HelpState(
+            helpListener = helpListener,
+            helpShowcaseItem = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_handicap_tables__table_title),
+                    helpBody = stringResource(R.string.help_handicap_tables__table_body),
+                    priority = DEFAULT_HELP_PRIORITY + 1,
+            ),
     )
 
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
@@ -191,10 +190,7 @@ private fun Table(
                                             predicate = it == highlighted,
                                             modifier = Modifier
                                                     .background(CodexTheme.colors.appBackground)
-                                                    .updateHelpDialogPosition(
-                                                            helpListener,
-                                                            stringResource(R.string.help_handicap_tables__table_title),
-                                                    )
+                                                    .updateHelpDialogPosition(helpState)
                                     )
                                     .fillMaxWidth(0.6f)
                     ) {
@@ -214,11 +210,7 @@ private fun Table(
             else {
                 Text(
                         text = stringResource(R.string.handicap_tables__no_tables),
-                        modifier = Modifier
-                                .updateHelpDialogPosition(
-                                        helpListener,
-                                        stringResource(R.string.help_handicap_tables__table_title),
-                                )
+                        modifier = Modifier.updateHelpDialogPosition(helpState)
                 )
             }
         }
