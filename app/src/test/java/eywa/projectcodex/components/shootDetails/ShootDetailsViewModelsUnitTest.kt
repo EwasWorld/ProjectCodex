@@ -85,7 +85,7 @@ class ShootDetailsViewModelsUnitTest {
         jobs.forEach { it.cancel() }
     }
 
-    private fun <S> TestScope.collectState(
+    private fun <S : Any> TestScope.collectState(
             flow: StateFlow<ShootDetailsResponse<S>>,
             states: MutableList<ShootDetailsResponse<S>>,
     ) {
@@ -113,7 +113,7 @@ class ShootDetailsViewModelsUnitTest {
         advanceUntilIdle()
         assertEquals(
                 initialState,
-                states.last().data,
+                states.last().getData(),
         )
 
         states.clear()
@@ -155,7 +155,7 @@ class ShootDetailsViewModelsUnitTest {
 
         assertEquals(
                 initialState,
-                states.last().data,
+                states.last().getData(),
         )
 
         states.clear()
@@ -172,7 +172,7 @@ class ShootDetailsViewModelsUnitTest {
                         main = shootDetailsState,
                         extras = EditEndExtras(enteredArrows = arrows, closeScreen = true),
                 ),
-                states.single().data,
+                states.single().getData(),
         )
 
         teardown()
@@ -200,7 +200,7 @@ class ShootDetailsViewModelsUnitTest {
 
         assertEquals(
                 initialState,
-                states.last().data,
+                states.last().getData(),
         )
 
         states.clear()
@@ -216,7 +216,7 @@ class ShootDetailsViewModelsUnitTest {
                         main = shootDetailsState,
                         extras = InsertEndExtras(enteredArrows = arrows, closeScreen = true),
                 ),
-                states.single().data,
+                states.single().getData(),
         )
 
         teardown()
@@ -231,14 +231,14 @@ class ShootDetailsViewModelsUnitTest {
 
         val repoMock = setupRepo<ScorePadState, ScorePadExtras>()
         val sut = ScorePadViewModel(repoMock, savedStateHandle.mock, helpShowcase)
-        sut.handle(ScorePadIntent.DeleteEndClicked)
+        sut.handle(ScorePadIntent.DeleteEndClicked(1))
         val states = mutableListOf<ShootDetailsResponse<ScorePadState>>()
         collectState(sut.state, states)
 
         advanceUntilIdle()
         assertEquals(
                 initialState,
-                states.single().data,
+                states.single().getData(),
         )
 
         states.clear()
@@ -254,7 +254,7 @@ class ShootDetailsViewModelsUnitTest {
                 .handle(ShootDetailsIntent.SelectScorePadEnd(null), CodexNavRoute.SHOOT_DETAILS_SCORE_PAD)
         assertEquals(
                 ScorePadState(main = shootDetailsState, extras = ScorePadExtras()),
-                states.single().data,
+                states.single().getData(),
         )
 
         teardown()

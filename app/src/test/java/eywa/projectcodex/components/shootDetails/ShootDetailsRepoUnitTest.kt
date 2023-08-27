@@ -150,7 +150,7 @@ class ShootDetailsRepoUnitTest {
         val sut = getSut()
         var latestState: ShootDetailsState? = null
         collectLatestState(sut) {
-            latestState = it.data
+            latestState = it.getData()
         }
         advanceUntilIdle()
         assertEquals(initialState, latestState)
@@ -223,7 +223,7 @@ class ShootDetailsRepoUnitTest {
         val sut = getSut()
         var latestState: ShootDetailsState? = null
         collectLatestState(sut) {
-            latestState = it.data
+            latestState = it.getData()
         }
         advanceUntilIdle()
         assertEquals(initialState, latestState)
@@ -240,7 +240,7 @@ class ShootDetailsRepoUnitTest {
         val sut = getSut()
         var latestState: ShootDetailsState? = null
         collectLatestState(sut) {
-            latestState = it.data
+            latestState = it.getData()
         }
         advanceUntilIdle()
         assertEquals(initialState, latestState)
@@ -257,7 +257,7 @@ class ShootDetailsRepoUnitTest {
         val sut = getSut()
         var latestState: ShootDetailsState? = null
         collectLatestState(sut) {
-            latestState = it.data
+            latestState = it.getData()
         }
         advanceUntilIdle()
         assertEquals(initialState, latestState)
@@ -274,7 +274,7 @@ class ShootDetailsRepoUnitTest {
         val sut = getSut()
         var latestState: ShootDetailsState? = null
         collectLatestState(sut) {
-            latestState = it.data
+            latestState = it.getData()
         }
         advanceUntilIdle()
         assertEquals(initialState, latestState)

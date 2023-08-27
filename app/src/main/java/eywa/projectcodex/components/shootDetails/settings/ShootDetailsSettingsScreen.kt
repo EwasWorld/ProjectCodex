@@ -17,31 +17,31 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
-import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
-import eywa.projectcodex.components.shootDetails.settings.SettingsIntent.*
 import eywa.projectcodex.components.shootDetails.settings.SettingsTestTag.*
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.*
 
 @Composable
-fun SettingsScreen(
+fun ShootDetailsSettingsScreen(
         navController: NavController,
-        viewModel: SettingsViewModel = hiltViewModel(),
+        viewModel: ShootDetailsSettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    val listener = { it: SettingsIntent -> viewModel.handle(it) }
+    val listener = { it: ShootDetailsSettingsIntent -> viewModel.handle(it) }
 
     ShootDetailsMainScreen(
             currentScreen = CodexNavRoute.SHOOT_DETAILS_SETTINGS,
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
-    ) { it, modifier -> SettingsScreen(it, modifier, listener) }
+    ) { it, modifier -> ShootDetailsSettingsScreen(it, modifier, listener) }
 
     HandleMainEffects(
             navController = navController,
@@ -51,10 +51,10 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsScreen(
-        state: SettingsState,
+private fun ShootDetailsSettingsScreen(
+        state: ShootDetailsSettingsState,
         modifier: Modifier = Modifier,
-        listener: (SettingsIntent) -> Unit,
+        listener: (ShootDetailsSettingsIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
@@ -125,10 +125,10 @@ enum class SettingsTestTag : CodexTestTag {
 @Composable
 fun SettingsScreen_Preview() {
     CodexTheme {
-        SettingsScreen(
-                SettingsState(
+        ShootDetailsSettingsScreen(
+                ShootDetailsSettingsState(
                         main = ShootDetailsStatePreviewHelper.SIMPLE,
-                        extras = SettingsExtras().let {
+                        extras = ShootDetailsSettingsExtras().let {
                             it.copy(
                                     addEndSizePartial = it.addEndSizePartial.onValueChanged("3"),
                                     scorePadEndSizePartial = it.scorePadEndSizePartial.onValueChanged("3"),
@@ -146,10 +146,10 @@ fun SettingsScreen_Preview() {
 @Composable
 fun Error_SettingsScreen_Preview() {
     CodexTheme {
-        SettingsScreen(
-                SettingsState(
+        ShootDetailsSettingsScreen(
+                ShootDetailsSettingsState(
                         main = ShootDetailsStatePreviewHelper.SIMPLE,
-                        extras = SettingsExtras().let {
+                        extras = ShootDetailsSettingsExtras().let {
                             it.copy(
                                     addEndSizePartial = it.addEndSizePartial.onValueChanged("-1"),
                                     scorePadEndSizePartial = it.scorePadEndSizePartial.onValueChanged("-1"),

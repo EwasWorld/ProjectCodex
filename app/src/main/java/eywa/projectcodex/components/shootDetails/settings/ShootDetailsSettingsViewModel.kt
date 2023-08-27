@@ -12,7 +12,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.settings.SettingsIntent.*
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -21,23 +21,23 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
+class ShootDetailsSettingsViewModel @Inject constructor(
         private val repo: ShootDetailsRepo,
         savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val screen = CodexNavRoute.SHOOT_DETAILS_SETTINGS
-    private val extraState = MutableStateFlow(SettingsExtras())
+    private val extraState = MutableStateFlow(ShootDetailsSettingsExtras())
 
     @Suppress("UNCHECKED_CAST")
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,
-    ) { main, extras -> SettingsState(main, extras) }
+    ) { main, extras -> ShootDetailsSettingsState(main, extras) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
-                    ShootDetailsResponse.Loading as ShootDetailsResponse<SettingsState>,
+                    ShootDetailsResponse.Loading as ShootDetailsResponse<ShootDetailsSettingsState>,
             )
 
     init {
@@ -56,7 +56,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun handle(action: SettingsIntent) {
+    fun handle(action: ShootDetailsSettingsIntent) {
         when (action) {
             is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
             is ShootDetailsAction -> repo.handle(action.action, screen)

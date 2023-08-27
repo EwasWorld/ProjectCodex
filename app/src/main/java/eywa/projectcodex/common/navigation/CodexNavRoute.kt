@@ -18,6 +18,7 @@ import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsScreen
 import eywa.projectcodex.components.shootDetails.stats.StatsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
@@ -168,7 +169,7 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
 
         @Composable
         override fun Screen(navController: NavController) {
-            eywa.projectcodex.components.shootDetails.settings.SettingsScreen(navController)
+            ShootDetailsSettingsScreen(navController)
         }
     },
     SHOOT_DETAILS_STATS {

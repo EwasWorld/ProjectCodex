@@ -7,9 +7,9 @@ import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.components.shootDetails.DEFAULT_END_SIZE
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 
-class SettingsState(
+class ShootDetailsSettingsState(
         main: ShootDetailsState,
-        extras: SettingsExtras,
+        extras: ShootDetailsSettingsExtras,
 ) {
     val addEndSize = main.addEndSize
     val scorePadEndSize = main.scorePadEndSize
@@ -17,7 +17,7 @@ class SettingsState(
     val scorePadEndSizePartial = extras.scorePadEndSizePartial
 }
 
-data class SettingsExtras(
+data class ShootDetailsSettingsExtras(
         val addEndSizePartial: NumberFieldState<Int> =
                 NumberFieldState(
                         DEFAULT_END_SIZE.toString(),

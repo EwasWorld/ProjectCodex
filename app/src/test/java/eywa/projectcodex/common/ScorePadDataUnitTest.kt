@@ -63,13 +63,20 @@ class ScorePadDataUnitTest {
                     R.string.units_yards_short -> YARDS_UNIT
                     R.string.score_pad__surplus_total -> SURPLUS_TOTAL
                     R.string.score_pad__grand_total -> GRAND_TOTAL
+                    R.string.score_pad__distance_total -> DISTANCE_TOTAL_STRING
                     else -> throw IllegalStateException()
                 }
             }
             on { getString(anyInt(), anyVararg()) } doAnswer {
-                when (it.arguments[0]) {
-                    R.string.score_pad__distance_total -> DISTANCE_TOTAL_STRING
-                    else -> throw IllegalStateException()
+                val res = it.arguments[0] as Int
+                if (it.arguments.size == 1) {
+                    resources.getString(res)
+                }
+                else {
+                    when (res) {
+                        R.string.score_pad__distance_total -> DISTANCE_TOTAL_STRING
+                        else -> throw IllegalStateException()
+                    }
                 }
             }
         }
