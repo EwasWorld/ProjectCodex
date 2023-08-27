@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.database.arrows.*
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -211,6 +210,7 @@ class ScorePadData(
         internal open val runningTotal: Int? = null
 
         abstract fun getRowHeader(): ResOrActual<String>
+//        abstract fun getRowHeaderAccessibilityText(): ResOrActual<String>
         protected abstract fun getArrowsString(resources: Resources): String
 
         fun getContent(columnHeader: ColumnHeader, resources: Resources) = when (columnHeader) {
@@ -250,7 +250,7 @@ class ScorePadData(
             override fun getArrowsString(resources: Resources): String = arrowScores
                     .joinToString(resources.getString(R.string.end_to_string_arrow_deliminator)) { it.get(resources) }
 
-            override fun getRowHeader() = ResOrActual.fromActual(endNumber.toString())
+            override fun getRowHeader() = ResOrActual.Actual(endNumber.toString())
         }
 
         data class DistanceTotal(
@@ -273,7 +273,7 @@ class ScorePadData(
                     resources.getString(distanceUnit),
             )
 
-            override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
+            override fun getRowHeader() = ResOrActual.StringResource(R.string.score_pad__distance_total_row_header)
         }
 
         data class SurplusTotal(
@@ -287,7 +287,7 @@ class ScorePadData(
             override fun getArrowsString(resources: Resources): String =
                     resources.getString(R.string.score_pad__surplus_total)
 
-            override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header)
+            override fun getRowHeader() = ResOrActual.StringResource(R.string.score_pad__distance_total_row_header)
         }
 
         data class GrandTotal(
@@ -301,7 +301,7 @@ class ScorePadData(
             override fun getArrowsString(resources: Resources): String =
                     resources.getString(R.string.score_pad__grand_total)
 
-            override fun getRowHeader() = ResOrActual.fromRes<String>(R.string.score_pad__grand_total_row_header)
+            override fun getRowHeader() = ResOrActual.StringResource(R.string.score_pad__grand_total_row_header)
         }
     }
 

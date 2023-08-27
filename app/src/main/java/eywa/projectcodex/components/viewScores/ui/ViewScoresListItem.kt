@@ -46,7 +46,7 @@ fun ViewScoresListItem(
         content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
-    fun stringFromRes(@StringRes resId: Int) = context.resources.getString(resId)
+    fun stringStringResource(@StringRes resId: Int) = context.resources.getString(resId)
 
     genericHelpInfo.handle(
             HelpShowcaseIntent.Add(
@@ -76,7 +76,7 @@ fun ViewScoresListItem(
                         }
 
                         onClick(
-                                label = stringFromRes(
+                                label = stringStringResource(
                                         when {
                                             !isInMultiSelectMode -> entry.getSingleClickAction().title
                                             entry.isSelected -> R.string.view_scores__deselect_entry
@@ -87,7 +87,7 @@ fun ViewScoresListItem(
                         )
 
                         customActions = dropdownMenuItems?.map {
-                            CustomAccessibilityAction(stringFromRes(it.title)) {
+                            CustomAccessibilityAction(stringStringResource(it.title)) {
                                 listener(ViewScoresIntent.DropdownMenuClicked(it, entry.id))
                                 true
                             }

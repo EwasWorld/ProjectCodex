@@ -33,9 +33,10 @@ fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
         modifierIf(helpState != null) {
             helpState!!.add()
 
-            val title = helpState.helpShowcaseItem.helpTitle
-            if (title.res != null) updateHelpDialogPosition(helpState.helpListener, title.res)
-            else updateHelpDialogPosition(helpState.helpListener, title.actual!!)
+            when (val title = helpState.helpShowcaseItem.helpTitle) {
+                is ResOrActual.StringResource -> updateHelpDialogPosition(helpState.helpListener, title.resId)
+                is ResOrActual.Actual<String> -> updateHelpDialogPosition(helpState.helpListener, title.actual)
+            }
         }
 
 class HelpShowcaseUseCase {
@@ -43,10 +44,10 @@ class HelpShowcaseUseCase {
     val state = _state.map { it.asExternalState() }.distinctUntilChanged()
 
     internal fun updateItem(@StringRes key: Int, layoutCoordinates: LayoutCoordinates) =
-            updateItem(ResOrActual.fromRes(key), layoutCoordinates)
+            updateItem(ResOrActual.StringResource(key), layoutCoordinates)
 
     internal fun updateItem(key: String, layoutCoordinates: LayoutCoordinates) =
-            updateItem(ResOrActual.fromActual(key), layoutCoordinates)
+            updateItem(ResOrActual.Actual(key), layoutCoordinates)
 
     internal fun updateItem(key: ResOrActual<String>, layoutCoordinates: LayoutCoordinates) {
         _state.update {

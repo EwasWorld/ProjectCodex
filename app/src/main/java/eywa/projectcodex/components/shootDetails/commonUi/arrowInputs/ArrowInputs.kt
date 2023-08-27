@@ -24,7 +24,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.*
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.database.RoundFace

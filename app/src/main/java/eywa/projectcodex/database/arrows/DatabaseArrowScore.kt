@@ -50,7 +50,7 @@ fun Iterable<DatabaseArrowScore>.getGolds(goldsType: GoldsType) = count { goldsT
 fun DatabaseArrowScore.asString() = arrowScoreAsString(score, isX)
 
 fun arrowScoreAsString(score: Int, isX: Boolean) = when {
-    score == 0 -> ResOrActual.fromRes(R.string.arrow_value_m)
-    isX -> ResOrActual.fromRes(R.string.arrow_value_x)
-    else -> ResOrActual.fromActual(score.toString())
+    score == 0 -> ResOrActual.StringResource(R.string.arrow_value_m)
+    isX -> ResOrActual.StringResource(R.string.arrow_value_x)
+    else -> ResOrActual.Actual(score.toString())
 }

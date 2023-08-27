@@ -1,35 +1,24 @@
 package eywa.projectcodex.common.utils
 
 import android.content.res.Resources
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
-class ResOrActual<T> private constructor(val res: Int?, val actual: T?) {
-    init {
-        require(((res == null) xor (actual == null))) { "Must define exactly one" }
+sealed class ResOrActual<T> {
+    data class Actual<T>(val actual: T): ResOrActual<T>() {
+        @Composable
+        override fun get(): T = actual
+        override fun get(resources: Resources): T = actual
+    }
+
+    data class StringResource(@StringRes val resId: Int, val args: List<String> = emptyList()): ResOrActual<String>() {
+        @Composable
+        override fun get(): String = stringResource(resId, *args.toTypedArray())
+        override fun get(resources: Resources): String = resources.getString(resId, *args.toTypedArray())
     }
 
     @Composable
-    internal fun getComposable(getFromRes: @Composable (Int) -> T) = actual ?: getFromRes(res!!)
-    internal fun get(getFromRes: (Int) -> T) = actual ?: getFromRes(res!!)
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is ResOrActual<*>) return false
-        return res == other.res && actual == other.actual
-    }
-
-    override fun hashCode(): Int {
-        var result = res ?: 0
-        result = 31 * result + (actual?.hashCode() ?: 0)
-        return result
-    }
-
-    companion object {
-        fun <T> fromRes(res: Int) = ResOrActual<T>(res = res, actual = null)
-        fun <T> fromActual(actual: T) = ResOrActual(res = null, actual = actual)
-    }
+    abstract fun get(): T
+    abstract fun get(resources: Resources): T
 }
-
-@Composable
-fun ResOrActual<String>.get() = getComposable(getFromRes = { stringResource(it) })
-fun ResOrActual<String>.get(resources: Resources) = get(getFromRes = { resources.getString(it) })

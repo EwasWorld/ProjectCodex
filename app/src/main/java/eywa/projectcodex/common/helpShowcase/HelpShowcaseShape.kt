@@ -5,7 +5,6 @@ import androidx.compose.ui.platform.LocalDensity
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcaseNoShapeState
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcaseOvalState
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcaseState
-import eywa.projectcodex.common.utils.get
 
 /**
  * The shape the showcase will use to highlight the given view

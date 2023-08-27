@@ -24,8 +24,8 @@ data class HelpShowcaseItem(
             shape: HelpShowcaseShape = HelpShowcaseShape.OVAL,
             priority: Int? = DEFAULT_HELP_PRIORITY,
     ) : this(
-            ResOrActual.fromRes(helpTitle),
-            ResOrActual.fromRes(helpBody),
+            ResOrActual.StringResource(helpTitle),
+            ResOrActual.StringResource(helpBody),
             shapePadding,
             priority,
             shape,
@@ -38,8 +38,8 @@ data class HelpShowcaseItem(
             shape: HelpShowcaseShape = HelpShowcaseShape.OVAL,
             priority: Int? = DEFAULT_HELP_PRIORITY,
     ) : this(
-            ResOrActual.fromActual(helpTitle),
-            ResOrActual.fromActual(helpBody),
+            ResOrActual.Actual(helpTitle),
+            ResOrActual.Actual(helpBody),
             shapePadding,
             priority,
             shape,

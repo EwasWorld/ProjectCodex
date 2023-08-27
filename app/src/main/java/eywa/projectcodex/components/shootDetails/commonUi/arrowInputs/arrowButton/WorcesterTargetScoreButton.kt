@@ -14,33 +14,33 @@ enum class WorcesterTargetScoreButton(
         override val shouldShow: (RoundFace) -> Boolean = { true },
 ) : ArrowButton {
     M(
-            text = ResOrActual.fromRes(R.string.arrow_value_m),
+            text = ResOrActual.StringResource(R.string.arrow_value_m),
             arrow = Arrow(0, false),
     ) {
         @Composable override fun getBackgroundColour(): Color = CodexTheme.colors.targetFaceGreen
         @Composable override fun getContentColour(): Color = CodexTheme.colors.onTargetFaceGreen
     },
     ONE(
-            text = ResOrActual.fromActual("1"),
+            text = ResOrActual.Actual("1"),
             arrow = Arrow(1, false),
             shouldShow = { it == RoundFace.FULL },
     ),
     TWO(
-            text = ResOrActual.fromActual("2"),
+            text = ResOrActual.Actual("2"),
             arrow = Arrow(2, false),
             shouldShow = { it == RoundFace.FULL },
     ),
     THREE(
-            text = ResOrActual.fromActual("3"),
+            text = ResOrActual.Actual("3"),
             arrow = Arrow(3, false),
             shouldShow = { it == RoundFace.FULL },
     ),
     FOUR(
-            text = ResOrActual.fromActual("4"),
+            text = ResOrActual.Actual("4"),
             arrow = Arrow(4, false),
     ),
     FIVE(
-            text = ResOrActual.fromActual("5"),
+            text = ResOrActual.Actual("5"),
             arrow = Arrow(5, false),
     ) {
         @Composable override fun getBackgroundColour(): Color = CodexTheme.colors.targetFaceWhite

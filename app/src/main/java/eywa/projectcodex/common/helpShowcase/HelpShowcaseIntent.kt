@@ -12,8 +12,8 @@ sealed class HelpShowcaseIntent {
     data class Remove(
             val key: ResOrActual<String>
     ) : HelpShowcaseIntent() {
-        constructor(@StringRes key: Int) : this(ResOrActual.fromRes(key))
-        constructor(key: String) : this(ResOrActual.fromActual(key))
+        constructor(@StringRes key: Int) : this(ResOrActual.StringResource(key))
+        constructor(key: String) : this(ResOrActual.Actual(key))
     }
 
     data class UpdateCoordinates(
@@ -21,10 +21,10 @@ sealed class HelpShowcaseIntent {
             val layoutCoordinates: LayoutCoordinates,
     ) : HelpShowcaseIntent() {
         constructor(@StringRes key: Int, layoutCoordinates: LayoutCoordinates)
-                : this(ResOrActual.fromRes(key), layoutCoordinates)
+                : this(ResOrActual.StringResource(key), layoutCoordinates)
 
         constructor(key: String, layoutCoordinates: LayoutCoordinates)
-                : this(ResOrActual.fromActual(key), layoutCoordinates)
+                : this(ResOrActual.Actual(key), layoutCoordinates)
     }
 
     object Clear : HelpShowcaseIntent()

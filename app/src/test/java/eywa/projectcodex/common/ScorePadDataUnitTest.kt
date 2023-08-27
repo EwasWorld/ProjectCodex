@@ -329,19 +329,19 @@ class ScorePadDataUnitTest {
                 runningTotal = 65,
         )
 
-        assertEquals(ResOrActual.fromActual("1"), end.getRowHeader())
-        assertEquals(ResOrActual.fromActual("2"), end.copy(endNumber = 2).getRowHeader())
+        assertEquals(ResOrActual.Actual("1"), end.getRowHeader())
+        assertEquals(ResOrActual.Actual("2"), end.copy(endNumber = 2).getRowHeader())
 
         assertEquals(
-                ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header),
+                ResOrActual.StringResource(R.string.score_pad__distance_total_row_header),
                 DistanceTotal(1, 1, 1, 1, 1).getRowHeader()
         )
         assertEquals(
-                ResOrActual.fromRes<String>(R.string.score_pad__distance_total_row_header),
+                ResOrActual.StringResource(R.string.score_pad__distance_total_row_header),
                 SurplusTotal(1, 1, 1).getRowHeader()
         )
         assertEquals(
-                ResOrActual.fromRes<String>(R.string.score_pad__grand_total_row_header),
+                ResOrActual.StringResource(R.string.score_pad__grand_total_row_header),
                 GrandTotal(1, 1, 1).getRowHeader()
         )
     }
@@ -606,7 +606,7 @@ class ScorePadDataUnitTest {
         var expected = List(fullEnds) { endIndex ->
             End(
                     endNumber = firstEndNumber + endIndex,
-                    arrowScores = List(endSize) { ResOrActual.fromActual(arrowScore.toString()) },
+                    arrowScores = List(endSize) { ResOrActual.Actual(arrowScore.toString()) },
                     hits = endSize,
                     score = endSize * arrowScore,
                     golds = 0,
@@ -617,7 +617,7 @@ class ScorePadDataUnitTest {
             expected = expected.plus(
                     End(
                             endNumber = firstEndNumber + fullEnds,
-                            arrowScores = List(lastEndSize) { ResOrActual.fromActual(arrowScore.toString()) },
+                            arrowScores = List(lastEndSize) { ResOrActual.Actual(arrowScore.toString()) },
                             hits = lastEndSize,
                             score = lastEndSize * arrowScore,
                             golds = 0,
@@ -679,18 +679,18 @@ class ScorePadDataUnitTest {
         private const val GRAND_TOTAL = "GRAND_TOTAL"
 
         private val ALL_ARROW_VALUE_RES_OR_ACTUAL = listOf(
-                ResOrActual.fromRes(R.string.arrow_value_m),
-                ResOrActual.fromActual("1"),
-                ResOrActual.fromActual("2"),
-                ResOrActual.fromActual("3"),
-                ResOrActual.fromActual("4"),
-                ResOrActual.fromActual("5"),
-                ResOrActual.fromActual("6"),
-                ResOrActual.fromActual("7"),
-                ResOrActual.fromActual("8"),
-                ResOrActual.fromActual("9"),
-                ResOrActual.fromActual("10"),
-                ResOrActual.fromRes(R.string.arrow_value_x),
+                ResOrActual.StringResource(R.string.arrow_value_m),
+                ResOrActual.Actual("1"),
+                ResOrActual.Actual("2"),
+                ResOrActual.Actual("3"),
+                ResOrActual.Actual("4"),
+                ResOrActual.Actual("5"),
+                ResOrActual.Actual("6"),
+                ResOrActual.Actual("7"),
+                ResOrActual.Actual("8"),
+                ResOrActual.Actual("9"),
+                ResOrActual.Actual("10"),
+                ResOrActual.StringResource(R.string.arrow_value_x),
         )
     }
 }

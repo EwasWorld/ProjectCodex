@@ -19,6 +19,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,7 +41,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.common.utils.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
@@ -159,6 +159,7 @@ private fun ScorePadScreen(
 
 
     // TODO Make the row and column headers stick
+//    if (!state.scorePadData.isNullOrEmpty()) return
     Row(
             verticalAlignment = Alignment.Top,
             modifier = modifier
