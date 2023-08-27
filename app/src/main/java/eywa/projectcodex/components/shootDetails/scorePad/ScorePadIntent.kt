@@ -9,11 +9,11 @@ sealed class ScorePadIntent {
      */
     data class RowClicked(val endNumber: Int) : ScorePadIntent()
     object CloseDropdownMenu : ScorePadIntent()
-    object EditEndClicked : ScorePadIntent()
+    data class EditEndClicked(val endNumber: Int) : ScorePadIntent()
     object EditEndHandled : ScorePadIntent()
-    object InsertEndClicked : ScorePadIntent()
+    data class InsertEndClicked(val endNumber: Int) : ScorePadIntent()
     object InsertEndHandled : ScorePadIntent()
-    object DeleteEndClicked : ScorePadIntent()
+    data class DeleteEndClicked(val endNumber: Int) : ScorePadIntent()
 
     object DeleteEndDialogOkClicked : ScorePadIntent()
     object DeleteEndDialogCancelClicked : ScorePadIntent()

@@ -53,12 +53,21 @@ class ScorePadViewModel @Inject constructor(
             }
             CloseDropdownMenu -> repo.handle(SelectScorePadEnd(null), screen)
 
-            EditEndClicked -> extraState.update { it.copy(editEndClicked = true, isDropdownMenuOpen = false) }
-            InsertEndClicked -> extraState.update { it.copy(insertEndClicked = true, isDropdownMenuOpen = false) }
+            is EditEndClicked -> {
+                repo.handle(SelectScorePadEnd(action.endNumber), screen)
+                extraState.update { it.copy(editEndClicked = true, isDropdownMenuOpen = false) }
+            }
+            is InsertEndClicked -> {
+                repo.handle(SelectScorePadEnd(action.endNumber), screen)
+                extraState.update { it.copy(insertEndClicked = true, isDropdownMenuOpen = false) }
+            }
             EditEndHandled -> extraState.update { it.copy(editEndClicked = false) }
             InsertEndHandled -> extraState.update { it.copy(insertEndClicked = false) }
 
-            DeleteEndClicked -> extraState.update { it.copy(deleteEndDialogIsShown = true, isDropdownMenuOpen = false) }
+            is DeleteEndClicked -> {
+                repo.handle(SelectScorePadEnd(action.endNumber), screen)
+                extraState.update { it.copy(deleteEndDialogIsShown = true, isDropdownMenuOpen = false) }
+            }
             DeleteEndDialogCancelClicked -> {
                 repo.handle(SelectScorePadEnd(null), screen)
                 extraState.update { it.copy(deleteEndDialogIsShown = false) }

@@ -1,15 +1,18 @@
 package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -172,7 +175,6 @@ private fun RowSection(content: @Composable RowScope.() -> Unit) {
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ArrowButton.Button(
         roundFace: RoundFace?,
@@ -180,20 +182,27 @@ private fun ArrowButton.Button(
 ) {
     if (roundFace != null && !shouldShow(roundFace)) return
 
+    val contentDescription = contentDescription()
     Surface(
-            onClick = { onClick(arrow) },
             color = getBackgroundColour(),
             contentColor = getContentColour(),
             modifier = Modifier.size(50.dp)
     ) {
         Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                        .fillMaxSize()
+                        .clickable { onClick(arrow) }
+                        .semantics {
+                            this.contentDescription = contentDescription
+                        }
         ) {
             Text(
                     text = text.get(),
                     style = CodexTypography.NORMAL,
-                    modifier = Modifier.testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON.getTestTag())
+                    modifier = Modifier
+                            .testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON.getTestTag())
+                            .clearAndSetSemantics { }
             )
         }
     }

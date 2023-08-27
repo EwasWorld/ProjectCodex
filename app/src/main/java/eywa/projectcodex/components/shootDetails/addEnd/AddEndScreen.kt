@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -137,6 +140,7 @@ private fun ScoreIndicator(
         totalScore: Int,
         arrowsShot: Int,
 ) {
+    val resources = LocalContext.current.resources
     Row {
         Column(
                 modifier = Modifier.width(IntrinsicSize.Max)
@@ -144,11 +148,19 @@ private fun ScoreIndicator(
             ScoreIndicatorCell(
                     text = stringResource(R.string.input_end__archer_score_header),
                     isHeader = true,
+                    modifier = Modifier.clearAndSetSemantics { }
             )
             ScoreIndicatorCell(
                     text = totalScore.toString(),
                     isHeader = false,
-                    modifier = Modifier.testTag(AddEndTestTag.ROUND_SCORE.getTestTag())
+                    modifier = Modifier
+                            .testTag(AddEndTestTag.ROUND_SCORE.getTestTag())
+                            .semantics {
+                                contentDescription = resources.getString(
+                                        R.string.input_end__archer_score_accessibility_text,
+                                        totalScore.toString(),
+                                )
+                            }
             )
         }
         Column(
@@ -157,11 +169,19 @@ private fun ScoreIndicator(
             ScoreIndicatorCell(
                     text = stringResource(R.string.input_end__archer_arrows_count_header),
                     isHeader = true,
+                    modifier = Modifier.clearAndSetSemantics { }
             )
             ScoreIndicatorCell(
                     text = arrowsShot.toString(),
                     isHeader = false,
-                    modifier = Modifier.testTag(AddEndTestTag.ROUND_ARROWS.getTestTag())
+                    modifier = Modifier
+                            .testTag(AddEndTestTag.ROUND_ARROWS.getTestTag())
+                            .semantics {
+                                contentDescription = resources.getString(
+                                        R.string.input_end__archer_arrow_count_accessibility_text,
+                                        arrowsShot.toString(),
+                                )
+                            }
             )
         }
     }

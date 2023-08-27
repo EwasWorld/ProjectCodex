@@ -6,8 +6,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -28,6 +31,7 @@ import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInput
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.endAsAccessibilityString
 
 @Composable
 fun ArrowInputs(
@@ -38,12 +42,16 @@ fun ArrowInputs(
         helpListener: (HelpShowcaseIntent) -> Unit,
         listener: (ArrowInputsIntent) -> Unit,
 ) {
+    val resources = LocalContext.current.resources
+    val endTotal = state.enteredArrows.sumOf { it.score }.toString()
+    val enteredArrowStrings = state.enteredArrows.map { it.asString().get() }
+
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(vertical = verticalPadding)
     ) {
         Text(
-                text = state.enteredArrows.sumOf { it.score }.toString(),
+                text = endTotal,
                 style = CodexTypography.X_LARGE,
                 color = CodexTheme.colors.onAppBackground,
                 modifier = Modifier
@@ -55,10 +63,13 @@ fun ArrowInputs(
                                         helpBody = stringResource(R.string.help_input_end__end_inputs_total_body),
                                 )
                         )
+                        .semantics {
+                            contentDescription =
+                                    resources.getString(R.string.input_end__end_total_accessibility, endTotal)
+                        }
         )
         Text(
-                text = state.enteredArrows
-                        .map { it.asString().get() }
+                text = enteredArrowStrings
                         .plus(
                                 List(state.endSize - state.enteredArrows.size) {
                                     stringResource(R.string.end_to_string_arrow_placeholder)
@@ -78,6 +89,12 @@ fun ArrowInputs(
                                         helpBody = stringResource(R.string.help_input_end__end_inputs_arrows_body),
                                 )
                         )
+                        .semantics {
+                            contentDescription = resources.getString(
+                                    R.string.input_end__end_arrows_accessibility,
+                                    enteredArrowStrings.endAsAccessibilityString(),
+                            )
+                        }
         )
 
         ArrowButtonGroup(

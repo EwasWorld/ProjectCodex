@@ -323,8 +323,7 @@ class ScorePadData(
             override fun getCellAccessibilityText(cellContent: Any, goldsTypeLongString: String): ResOrActual<String> {
                 @Suppress("UNCHECKED_CAST")
                 return (cellContent as? List<String>)
-                        ?.chunked(3)
-                        ?.joinToString(". ") { it.joinToString(" ") }
+                        ?.endAsAccessibilityString()
                         ?.let {
                             ResOrActual.StringResource(
                                     resId = R.string.score_pad__arrow_string_accessibility,

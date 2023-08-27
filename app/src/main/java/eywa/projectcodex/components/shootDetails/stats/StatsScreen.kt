@@ -118,12 +118,12 @@ private fun StatsScreen(
                             modifier = Modifier.padding(horizontal = 25.dp, vertical = 20.dp)
                     ) {
                         DataRow(
-                                title = R.string.archer_round_stats__date,
+                                title = stringResource(R.string.archer_round_stats__date),
                                 text = DateTimeFormat.LONG_DATE_TIME.format(state.fullShootInfo.shoot.dateShot),
                                 textModifier = Modifier.testTag(DATE_TEXT.getTestTag()),
                         )
                         DataRow(
-                                title = R.string.archer_round_stats__round,
+                                title = stringResource(R.string.archer_round_stats__round),
                                 text = state.fullShootInfo.displayName
                                         ?: stringResource(R.string.archer_round_stats__no_round),
                                 textModifier = Modifier.testTag(ROUND_TEXT.getTestTag()),
@@ -148,7 +148,7 @@ private fun StatsScreen(
 
             Section {
                 DataRow(
-                        title = R.string.archer_round_stats__hits,
+                        title = stringResource(R.string.archer_round_stats__hits),
                         text = (
                                 if (hits == arrowsShot) hits.toString()
                                 else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot)
@@ -156,12 +156,12 @@ private fun StatsScreen(
                         textModifier = Modifier.testTag(HITS_TEXT.getTestTag()),
                 )
                 DataRow(
-                        title = R.string.archer_round_stats__score,
+                        title = stringResource(R.string.archer_round_stats__score),
                         text = state.fullShootInfo.score.toString(),
                         textModifier = Modifier.testTag(SCORE_TEXT.getTestTag()),
                 )
                 DataRow(
-                        title = R.string.archer_round_stats__golds,
+                        title = stringResource(state.fullShootInfo.goldsType.longStringId) + ":",
                         text = state.fullShootInfo.golds().toString(),
                         textModifier = Modifier.testTag(GOLDS_TEXT.getTestTag()),
                 )
@@ -181,7 +181,7 @@ private fun StatsScreen(
                             val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
                             else R.string.archer_round_stats__surplus_arrows
                             DataRow(
-                                    title = heading,
+                                    title = stringResource(heading),
                                     text = abs(remaining).toString(),
                                     textModifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag()),
                             )
@@ -189,14 +189,14 @@ private fun StatsScreen(
                     }
                     if (state.fullShootInfo.handicap != null) {
                         DataRow(
-                                title = R.string.archer_round_stats__handicap,
+                                title = stringResource(R.string.archer_round_stats__handicap),
                                 text = state.fullShootInfo.handicap.toString(),
                                 textModifier = Modifier.testTag(HANDICAP_TEXT.getTestTag()),
                         )
                     }
                     if (state.fullShootInfo.predictedScore != null) {
                         DataRow(
-                                title = R.string.archer_round_stats__predicted_score,
+                                title = stringResource(R.string.archer_round_stats__predicted_score),
                                 text = state.fullShootInfo.predictedScore.toString(),
                                 textModifier = Modifier.testTag(PREDICTED_SCORE_TEXT.getTestTag()),
                         )

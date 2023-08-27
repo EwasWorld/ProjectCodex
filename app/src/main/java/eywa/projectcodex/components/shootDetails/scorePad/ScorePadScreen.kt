@@ -209,6 +209,7 @@ private fun ScorePadScreen(
                 )
 
                 state.scorePadData.data.forEach { rowData ->
+                    val endNumber = (rowData as? ScorePadRow.End)?.endNumber
                     Box {
                         Cell(
                                 rowData = rowData,
@@ -218,10 +219,11 @@ private fun ScorePadScreen(
                         )
                         DropdownMenu(
                                 isRoundFull = state.isRoundFull,
+                                endNumber = endNumber ?: -1,
                                 expanded = state.dropdownMenuOpenForEndNumber != null
                                         && state.isDropdownMenuOpen
                                         && columnHeader == ColumnHeader.ARROWS
-                                        && (rowData as? ScorePadRow.End)?.endNumber == state.dropdownMenuOpenForEndNumber,
+                                        && endNumber == state.dropdownMenuOpenForEndNumber,
                                 listener = listener,
                         )
                     }
@@ -281,9 +283,12 @@ private fun Cell(
     }?.get()
 
     val customActions =
-            DropdownMenuItem.values().map {
-                CustomAccessibilityAction(stringResource(it.title)) { listener(it.action); true }
-            }.takeIf { rowData != null }
+            if (rowData is ScorePadRow.End) {
+                DropdownMenuItem.values().map {
+                    CustomAccessibilityAction(stringResource(it.title)) { listener(it.action(rowData.endNumber)); true }
+                }
+            }
+            else null
     val semanticsModifier =
             if (contentDescription == null) Modifier.clearAndSetSemantics {
                 if (customActions != null) this.customActions = customActions
@@ -314,6 +319,7 @@ private fun Cell(
 private fun DropdownMenu(
         isRoundFull: Boolean,
         expanded: Boolean,
+        endNumber: Int,
         listener: (ScorePadIntent) -> Unit
 ) {
     DropdownMenu(
@@ -324,7 +330,10 @@ private fun DropdownMenu(
             if (isRoundFull && item == DropdownMenuItem.INSERT_END) return@forEach
 
             DropdownMenuItem(
-                    onClick = { listener(item.action) },
+                    onClick = {
+                        check(endNumber > 1) { "Invalid end number" }
+                        listener(item.action(endNumber))
+                    },
                     modifier = Modifier.testTag(ScorePadTestTag.DROPDOWN_MENU_ITEM.getTestTag())
             ) {
                 Text(
@@ -336,10 +345,10 @@ private fun DropdownMenu(
     }
 }
 
-private enum class DropdownMenuItem(@StringRes val title: Int, val action: ScorePadIntent) {
-    EDIT_END(R.string.score_pad_menu__edit, EditEndClicked),
-    INSERT_END(R.string.score_pad_menu__insert, InsertEndClicked),
-    DELETE_END(R.string.score_pad_menu__delete, DeleteEndClicked),
+private enum class DropdownMenuItem(@StringRes val title: Int, val action: (endNumber: Int) -> ScorePadIntent) {
+    EDIT_END(R.string.score_pad_menu__edit, { EditEndClicked(it) }),
+    INSERT_END(R.string.score_pad_menu__insert, { InsertEndClicked(it) }),
+    DELETE_END(R.string.score_pad_menu__delete, { DeleteEndClicked(it) }),
 }
 
 enum class ScorePadTestTag : CodexTestTag {

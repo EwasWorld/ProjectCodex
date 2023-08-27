@@ -3,11 +3,14 @@
     <string name="input_end__title">Input End</string>
     <string name="input_end__change_end_size_dialog_title">Change end size</string>
 
+    <string name="input_end__arrow_button_accessibility">%s arrow input</string>
     <string name="input_end__clear">Clear</string>
     <string name="input_end__backspace">Backspace</string>
     <string name="input_end__next_end">Next end</string>
 
     <!-- Extra info -->
+    <string name="input_end__end_total_accessibility">%s end total</string>
+    <string name="input_end__end_arrows_accessibility">%s arrows entered for end</string>
     <string name="input_end__round_indicator_label">Remaining Arrows in Round:</string>
     <string name="input_end__round_indicator_at">%1$d at %2$d%3$s</string> <!-- "60 at 100yd" i.e. 60 arrows remaining to be shot at 100 yards -->
     <string name="input_end__round_complete">Round Complete</string>
@@ -15,7 +18,9 @@
     <string name="input_end__cannot_open_input_end_body">Cannot add more arrows to a completed round</string>
     <string name="input_end__archer_name_header">Archer</string>
     <string name="input_end__archer_score_header">Score</string>
+    <string name="input_end__archer_score_accessibility_text">%s score</string>
     <string name="input_end__archer_arrows_count_header">Arrows</string>
+    <string name="input_end__archer_arrow_count_accessibility_text">%s arrows shot</string>
     <string name="input_end__go_to_summary">Go to summary</string>
 
     <!-- Edit end -->

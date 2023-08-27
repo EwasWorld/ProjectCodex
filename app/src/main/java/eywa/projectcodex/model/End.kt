@@ -7,6 +7,8 @@ import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.exceptions.UserException
 import kotlin.math.min
 
+fun List<String>.endAsAccessibilityString() = chunked(3).joinToString(". ") { it.joinToString(" ") }
+
 class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val arrowDeliminator: String) {
     companion object {
         private const val LOG_TAG = "End"
