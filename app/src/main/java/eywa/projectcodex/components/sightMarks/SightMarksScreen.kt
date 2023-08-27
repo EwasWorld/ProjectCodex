@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -37,6 +38,7 @@ import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexThemeColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
@@ -154,7 +156,7 @@ private fun ScalingScreen(
             SightMarksDiagram(
                     state = state.getShiftedAndScaledSightMarksState(),
                     onClick = { },
-                    modifier = Modifier.padding(bottom = 230.dp, top = 30.dp)
+                    modifier = Modifier.padding(bottom = 190.dp, top = 30.dp)
             )
         }
         Text(
@@ -173,28 +175,13 @@ private fun ScalingScreen(
                 shape = RoundedCornerShape(20),
                 modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(screenPadding)
                         .horizontalScroll(rememberScrollState())
+                        .padding(screenPadding)
         ) {
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(10.dp)
             ) {
-                Text(
-                        text = stringResource(R.string.sight_marks__preview_flip),
-                        style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                        modifier = Modifier
-                                .padding(bottom = 5.dp)
-                                .clickable { listener(ShiftAndScaleIntent.FlipClicked) }
-                                .testTag(SAS_FLIP_BUTTON.getTestTag())
-                                .updateHelpDialogPosition(
-                                        HelpState(
-                                                helpListener = helpListener,
-                                                helpTitle = stringResource(R.string.help_sight_marks__preview_flip_title),
-                                                helpBody = stringResource(R.string.help_sight_marks__preview_flip_body),
-                                        ),
-                                )
-                )
                 Shifter(
                         title = stringResource(R.string.sight_marks__preview_shift),
                         helpState = HelpState(
@@ -224,19 +211,41 @@ private fun ScalingScreen(
                         onResetClicked = { listener(ShiftAndScaleIntent.ScaleReset) },
                         modifier = Modifier.testTag(SAS_SCALE_BUTTONS.getTestTag())
                 )
-                CodexButton(
-                        text = stringResource(R.string.general_complete),
-                        onClick = { listener(ShiftAndScaleIntent.SubmitClicked) },
-                        buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
-                        helpState = HelpState(
-                                helpListener = helpListener,
-                                helpTitle = stringResource(R.string.help_sight_marks__preview_complete_title),
-                                helpBody = stringResource(R.string.help_sight_marks__preview_complete_body),
-                        ),
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(25.dp),
                         modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(vertical = 5.dp)
-                                .testTag(SAS_COMPLETE_BUTTON.getTestTag())
-                )
+                ) {
+                    CodexButton(
+                            text = stringResource(R.string.sight_marks__preview_flip),
+                            buttonStyle = object : OutlinedButton() {
+                                override fun getTextColor(themeColors: CodexThemeColors): Color =
+                                        themeColors.onAppBackground
+                            },
+                            onClick = { listener(ShiftAndScaleIntent.FlipClicked) },
+                            helpState = HelpState(
+                                    helpListener = helpListener,
+                                    helpTitle = stringResource(R.string.help_sight_marks__preview_flip_title),
+                                    helpBody = stringResource(R.string.help_sight_marks__preview_flip_body),
+                            ),
+                            modifier = Modifier
+                                    .testTag(SAS_FLIP_BUTTON.getTestTag())
+                    )
+                    CodexButton(
+                            text = stringResource(R.string.general_complete),
+                            onClick = { listener(ShiftAndScaleIntent.SubmitClicked) },
+                            buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
+                            helpState = HelpState(
+                                    helpListener = helpListener,
+                                    helpTitle = stringResource(R.string.help_sight_marks__preview_complete_title),
+                                    helpBody = stringResource(R.string.help_sight_marks__preview_complete_body),
+                            ),
+                            modifier = Modifier
+                                    .testTag(SAS_COMPLETE_BUTTON.getTestTag())
+                    )
+                }
             }
         }
     }

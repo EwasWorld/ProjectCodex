@@ -46,12 +46,18 @@ sealed class SightMarksState {
                 copy(sightMarks = sightMarks.sortForDisplay(value), isHighestNumberAtTheTop = value)
 
         fun getShiftedAndScaledSightMarksState(): Loaded =
-                if (shiftAndScaleState == null) this
-                else Loaded(
-                        sightMarks = sightMarks.map {
-                            it.copy(sightMark = shiftAndScaleState.shiftAndScale(it.sightMark))
-                        }
-                )
+                shiftAndScaleState?.let {
+                    var isHighestAtTop = isHighestNumberAtTheTop
+                    if (shiftAndScaleState.flipScale) {
+                        isHighestAtTop = !isHighestAtTop
+                    }
+                    Loaded(
+                            sightMarks = sightMarks.map {
+                                it.copy(sightMark = shiftAndScaleState.shiftAndScale(it.sightMark))
+                            },
+                            isHighestNumberAtTheTop = isHighestAtTop,
+                    )
+                } ?: this
     }
 
     abstract fun updateSightMarks(value: List<SightMark>): Loaded
