@@ -210,7 +210,7 @@ class ScorePadData(
         internal open val runningTotal: Int? = null
 
         abstract fun getRowHeader(): ResOrActual<String>
-//        abstract fun getRowHeaderAccessibilityText(): ResOrActual<String>
+        open fun getRowHeaderAccessibilityText(): ResOrActual<String>? = null
         protected abstract fun getArrowsString(resources: Resources): String
 
         fun getContent(columnHeader: ColumnHeader, resources: Resources) = when (columnHeader) {
@@ -249,6 +249,11 @@ class ScorePadData(
 
             override fun getArrowsString(resources: Resources): String = arrowScores
                     .joinToString(resources.getString(R.string.end_to_string_arrow_deliminator)) { it.get(resources) }
+
+            override fun getRowHeaderAccessibilityText() = ResOrActual.StringResource(
+                    resId = R.string.score_pad__end_row_header_accessibility,
+                    args = listOf(endNumber)
+            )
 
             override fun getRowHeader() = ResOrActual.Actual(endNumber.toString())
         }
@@ -314,28 +319,62 @@ class ScorePadData(
                 headingId = R.string.score_pad__end_string_header,
                 helpTitleId = R.string.help_score_pad__arrow_column_title,
                 helpBodyId = R.string.help_score_pad__arrow_column_body,
-        ),
+        ) {
+            override fun getCellAccessibilityText(cellContent: Any, goldsTypeLongString: String): ResOrActual<String> {
+                @Suppress("UNCHECKED_CAST")
+                return (cellContent as? List<String>)
+                        ?.chunked(3)
+                        ?.joinToString(". ") { it.joinToString(" ") }
+                        ?.let {
+                            ResOrActual.StringResource(
+                                    resId = R.string.score_pad__arrow_string_accessibility,
+                                    args = listOf(it),
+                            )
+                        }
+                        ?: ResOrActual.Actual(cellContent as String)
+            }
+        },
         HITS(
                 headingId = R.string.table_hits_header,
                 helpTitleId = R.string.help_score_pad__hits_column_title,
                 helpBodyId = R.string.help_score_pad__hits_column_body,
-        ),
+        ) {
+            override fun getCellAccessibilityText(cellContent: Any, goldsTypeLongString: String): ResOrActual<String> =
+                    ResOrActual.StringResource(
+                            resId = R.string.score_pad__hits_accessibility,
+                            args = listOf(cellContent as String),
+                    )
+        },
         SCORE(
                 headingId = R.string.table_score_header,
                 helpTitleId = R.string.help_score_pad__score_column_title,
                 helpBodyId = R.string.help_score_pad__score_column_body,
-        ),
+        ) {
+            override fun getCellAccessibilityText(cellContent: Any, goldsTypeLongString: String): ResOrActual<String> =
+                    ResOrActual.StringResource(
+                            resId = R.string.score_pad__score_accessibility,
+                            args = listOf(cellContent as String),
+                    )
+        },
         GOLDS(
                 headingId = null,
                 helpTitleId = R.string.help_score_pad__golds_column_title,
                 helpBodyId = R.string.help_score_pad__golds_column_body,
-
-                ),
+        ) {
+            override fun getCellAccessibilityText(cellContent: Any, goldsTypeLongString: String): ResOrActual<String> =
+                    ResOrActual.Actual(cellContent as String + goldsTypeLongString)
+        },
         RUNNING_TOTAL(
                 headingId = R.string.score_pad__running_total_header,
                 helpTitleId = R.string.help_score_pad__running_column_title,
                 helpBodyId = R.string.help_score_pad__running_column_body,
-        ),
+        ) {
+            override fun getCellAccessibilityText(cellContent: Any, goldsTypeLongString: String): ResOrActual<String> =
+                    ResOrActual.StringResource(
+                            resId = R.string.score_pad__running_total_accessibility,
+                            args = listOf(cellContent as String),
+                    )
+        },
         ;
 
         fun getShortResourceId(goldsType: GoldsType) = if (this == GOLDS) goldsType.shortStringId else headingId!!
@@ -347,6 +386,11 @@ class ScorePadData(
         fun getHelpBody(goldsType: GoldsType) =
                 if (this == GOLDS) stringResource(helpBodyId, stringResource(goldsType.helpString))
                 else stringResource(helpBodyId)
+
+        abstract fun getCellAccessibilityText(
+                cellContent: Any,
+                goldsTypeLongString: String,
+        ): ResOrActual<String>
     }
 
     data class ScorePadDetailsString(val headerRow: String?, val details: String)

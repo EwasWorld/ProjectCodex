@@ -12,7 +12,7 @@ sealed class ResOrActual<T> {
         override fun get(resources: Resources): T = actual
     }
 
-    data class StringResource(@StringRes val resId: Int, val args: List<String> = emptyList()): ResOrActual<String>() {
+    data class StringResource(@StringRes val resId: Int, val args: List<Any> = emptyList()): ResOrActual<String>() {
         @Composable
         override fun get(): String = stringResource(resId, *args.toTypedArray())
         override fun get(resources: Resources): String = resources.getString(resId, *args.toTypedArray())

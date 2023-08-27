@@ -19,7 +19,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +40,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addFullSetOfArrows
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -47,6 +48,7 @@ import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
+import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.model.ScorePadData.ColumnHeader
 import eywa.projectcodex.model.ScorePadData.ScorePadRow
 
@@ -159,7 +161,7 @@ private fun ScorePadScreen(
 
 
     // TODO Make the row and column headers stick
-//    if (!state.scorePadData.isNullOrEmpty()) return
+    if (state.scorePadData.isNullOrEmpty()) return
     Row(
             verticalAlignment = Alignment.Top,
             modifier = modifier
@@ -167,61 +169,61 @@ private fun ScorePadScreen(
                     .padding(5.dp)
                     .testTag(ScorePadTestTag.SCREEN.getTestTag())
     ) {
-        if (!state.scorePadData.isNullOrEmpty()) {
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.width(IntrinsicSize.Max)
+        ) {
+            // Placeholder for the first row which is the column header for other columns
+            Cell(
+                    text = "",
+                    listener = listener,
+            )
+            state.scorePadData.data.forEach { rowData ->
+                Cell(
+                        rowData = rowData,
+                        goldsType = state.scorePadData.goldsType,
+                        listener = listener,
+                )
+            }
+        }
+
+        COLUMN_HEADER_ORDER.forEach { columnHeader ->
+            helpListener(
+                    HelpShowcaseIntent.Add(
+                            HelpShowcaseItem(
+                                    helpTitle = columnHeader.getHelpTitle(),
+                                    helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
+                            )
+                    )
+            )
+
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.width(IntrinsicSize.Max)
             ) {
-                // Placeholder for the first row which is the column header for other columns
                 Cell(
-                        text = "",
+                        columnType = columnHeader,
+                        goldsType = state.scorePadData.goldsType,
                         listener = listener,
+                        modifier = Modifier.updateHelpDialogPosition(helpListener, columnHeader.getHelpTitle())
                 )
+
                 state.scorePadData.data.forEach { rowData ->
-                    Cell(
-                            rowData = rowData,
-                            listener = listener,
-                    )
-                }
-            }
-
-            COLUMN_HEADER_ORDER.forEach { columnHeader ->
-                helpListener(
-                        HelpShowcaseIntent.Add(
-                                HelpShowcaseItem(
-                                        helpTitle = columnHeader.getHelpTitle(),
-                                        helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
-                                )
+                    Box {
+                        Cell(
+                                rowData = rowData,
+                                columnType = columnHeader,
+                                goldsType = state.scorePadData.goldsType,
+                                listener = listener,
                         )
-                )
-
-                Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.width(IntrinsicSize.Max)
-                ) {
-                    Cell(
-                            text = stringResource(columnHeader.getShortResourceId(state.scorePadData.goldsType)),
-                            columnType = columnHeader,
-                            listener = listener,
-                            modifier = Modifier.updateHelpDialogPosition(helpListener, columnHeader.getHelpTitle())
-                    )
-
-                    state.scorePadData.data.forEach { rowData ->
-                        Box {
-                            Cell(
-                                    rowData = rowData,
-                                    columnType = columnHeader,
-                                    listener = listener,
-                            )
-                            DropdownMenu(
-                                    isRoundFull = state.isRoundFull,
-                                    expanded = state.dropdownMenuOpenForEndNumber != null
-                                            && state.isDropdownMenuOpen
-                                            && columnHeader == ColumnHeader.ARROWS
-                                            && (rowData as? ScorePadRow.End)?.endNumber == state.dropdownMenuOpenForEndNumber,
-                                    listener = listener,
-                            )
-                        }
+                        DropdownMenu(
+                                isRoundFull = state.isRoundFull,
+                                expanded = state.dropdownMenuOpenForEndNumber != null
+                                        && state.isDropdownMenuOpen
+                                        && columnHeader == ColumnHeader.ARROWS
+                                        && (rowData as? ScorePadRow.End)?.endNumber == state.dropdownMenuOpenForEndNumber,
+                                listener = listener,
+                        )
                     }
                 }
             }
@@ -230,7 +232,9 @@ private fun ScorePadScreen(
 }
 
 /**
- * @param columnType null for the row headers column
+ * @param text override the default text for [columnType] or [rowData] (required if neither is provided)
+ * @param rowData null for the column headers
+ * @param columnType null for the row headers
  */
 @Composable
 private fun Cell(
@@ -238,10 +242,11 @@ private fun Cell(
         text: String? = null,
         rowData: ScorePadRow? = null,
         columnType: ColumnHeader? = null,
+        goldsType: GoldsType = GoldsType.defaultGoldsType,
         listener: (ScorePadIntent) -> Unit,
 ) {
     val isTotalRow = rowData != null && rowData !is ScorePadRow.End
-    val isHeaderOrTotal = isTotalRow || rowData == null || columnType == null
+    val isHeader = rowData == null || columnType == null
 
     val backgroundColour = when {
         isTotalRow -> CodexTheme.colors.listAccentRowItemOnAppBackground
@@ -259,13 +264,40 @@ private fun Cell(
         )
     }
 
+    val goldsTypeString = stringResource(goldsType.longStringId)
+    val finalText = when {
+        text != null -> text
+        rowData == null -> stringResource(columnType!!.getShortResourceId(goldsType))
+        columnType != null -> columnType.let { rowData.getContent(it, LocalContext.current.resources) }
+        else -> rowData.getRowHeader().get()
+    }
+    val contentDescription = when {
+        isHeader && rowData is ScorePadRow.End -> rowData.getRowHeaderAccessibilityText()
+        isHeader -> null
+        columnType == ColumnHeader.RUNNING_TOTAL && rowData !is ScorePadRow.End -> null
+        columnType == ColumnHeader.ARROWS && rowData is ScorePadRow.End ->
+            columnType.getCellAccessibilityText(rowData.arrowScores.map { it.get() }, goldsTypeString)
+        else -> columnType!!.getCellAccessibilityText(finalText, goldsTypeString)
+    }?.get()
+
+    val customActions =
+            DropdownMenuItem.values().map {
+                CustomAccessibilityAction(stringResource(it.title)) { listener(it.action); true }
+            }.takeIf { rowData != null }
+    val semanticsModifier =
+            if (contentDescription == null) Modifier.clearAndSetSemantics {
+                if (customActions != null) this.customActions = customActions
+            }
+            else Modifier.semantics {
+                this.contentDescription = contentDescription
+                if (customActions != null) this.customActions = customActions
+            }
+
     Text(
-            text = text
-                    ?: columnType?.let { rowData!!.getContent(it, LocalContext.current.resources) }
-                    ?: rowData!!.getRowHeader().get(),
+            text = finalText,
             style = CodexTypography.NORMAL,
             textAlign = TextAlign.Center,
-            fontWeight = if (isHeaderOrTotal) FontWeight.Bold else FontWeight.Normal,
+            fontWeight = if (isTotalRow || isHeader) FontWeight.Bold else FontWeight.Normal,
             color = CodexTheme.colors.onListItemAppOnBackground,
             modifier = modifier
                     .fillMaxWidth()
@@ -274,6 +306,7 @@ private fun Cell(
                     .padding(vertical = 5.dp, horizontal = 10.dp)
                     .then(clickModifier)
                     .testTag(ScorePadTestTag.CELL.getTestTag())
+                    .then(semanticsModifier)
     )
 }
 
@@ -327,7 +360,9 @@ enum class ScorePadTestTag : CodexTestTag {
 )
 @Composable
 fun ScorePadScreen_Preview() {
-    val data = ShootPreviewHelper.newFullShootInfo()
+    val data = ShootPreviewHelper
+            .newFullShootInfo()
+            .addFullSetOfArrows()
     CodexTheme {
         ScorePadScreen(
                 ScorePadState(
