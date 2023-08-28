@@ -35,11 +35,11 @@ fun RowScope.CodexBottomNavItem(
                             badge = {
                                 Badge(content = badgeContent.takeIf { it.isNotBlank() }?.let { { Text(badgeContent) } })
                             },
-                            content = { displayIcon.ClavaIcon() },
+                            content = { displayIcon.CodexIcon() },
                     )
                 }
                 else {
-                    displayIcon.ClavaIcon()
+                    displayIcon.CodexIcon()
                 }
             },
             label = {

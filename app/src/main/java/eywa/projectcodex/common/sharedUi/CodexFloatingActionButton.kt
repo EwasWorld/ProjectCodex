@@ -14,6 +14,6 @@ fun CodexFloatingActionButton(
         backgroundColor = CodexTheme.colors.floatingActions,
         contentColor = CodexTheme.colors.onFloatingActions,
         onClick = onClick,
-        content = { icon.ClavaIcon() },
+        content = { icon.CodexIcon() },
         modifier = modifier
 )

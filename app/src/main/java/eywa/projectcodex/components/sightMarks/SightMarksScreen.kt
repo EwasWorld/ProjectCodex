@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -38,7 +37,6 @@ import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexThemeColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
@@ -220,10 +218,7 @@ private fun ScalingScreen(
                 ) {
                     CodexButton(
                             text = stringResource(R.string.sight_marks__preview_flip),
-                            buttonStyle = object : OutlinedButton() {
-                                override fun getTextColor(themeColors: CodexThemeColors): Color =
-                                        themeColors.onAppBackground
-                            },
+                            buttonStyle = CodexButtonDefaults.OutlinedButtonOnAppBackground,
                             onClick = { listener(ShiftAndScaleIntent.FlipClicked) },
                             helpState = HelpState(
                                     helpListener = helpListener,

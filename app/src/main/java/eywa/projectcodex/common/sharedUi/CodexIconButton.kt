@@ -73,7 +73,7 @@ fun CodexIconButton(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            actualIcon.ClavaIcon(
+            actualIcon.CodexIcon(
                     modifier = Modifier.scale(1.2f),
             )
             if (!captionBelow.isNullOrBlank()) {

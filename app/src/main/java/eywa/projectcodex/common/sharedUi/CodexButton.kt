@@ -53,7 +53,7 @@ fun CodexButton(
         )
         trailingIconInfo
                 ?.copyIcon(tint = trailingIconInfo.tint ?: textColor)
-                ?.ClavaIcon(
+                ?.CodexIcon(
                         modifier = Modifier.padding(start = buttonStyle.trailingIconStartPadding)
                 )
     }

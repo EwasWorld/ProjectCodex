@@ -41,7 +41,7 @@ sealed class CodexIconInfo {
     abstract fun asPainter(): Painter
 
     @Composable
-    fun ClavaIcon(
+    fun CodexIcon(
             modifier: Modifier = Modifier
     ) {
         Icon(
