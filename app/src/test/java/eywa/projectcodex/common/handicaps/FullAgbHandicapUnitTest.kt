@@ -1,7 +1,7 @@
 package eywa.projectcodex.common.handicaps
 
 import android.content.res.Resources
-import eywa.projectcodex.common.utils.transpose
+import eywa.projectcodex.common.utils.ListUtils.transpose
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.UpdateType

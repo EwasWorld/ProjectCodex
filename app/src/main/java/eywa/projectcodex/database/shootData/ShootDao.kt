@@ -65,7 +65,8 @@ interface ShootDao {
             """
                 SELECT 
                         shoot.*, 
-                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest
+                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
+                        (personalBest.isTiedPb) as isTiedPersonalBest
                 FROM ${ShootWithScore.TABLE_NAME} as shoot
                 LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
                         ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId

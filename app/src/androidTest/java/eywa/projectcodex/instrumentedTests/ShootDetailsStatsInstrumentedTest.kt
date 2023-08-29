@@ -156,9 +156,9 @@ class ShootDetailsStatsInstrumentedTest {
 
         var arrowNumber = 1
         arrows = listOf(
-                List(6) { TestUtils.ARROWS[10].toArrowScore(shootId, arrowNumber++) },
-                List(38) { TestUtils.ARROWS[5].toArrowScore(shootId, arrowNumber++) },
-                List(4) { TestUtils.ARROWS[0].toArrowScore(shootId, arrowNumber++) }
+                List(6) { TestUtils.ARROWS[10].asArrowScore(shootId, arrowNumber++) },
+                List(38) { TestUtils.ARROWS[5].asArrowScore(shootId, arrowNumber++) },
+                List(4) { TestUtils.ARROWS[0].asArrowScore(shootId, arrowNumber++) }
         ).flatten()
 
         val expectedScore = 38 * 5 + 6 * 10
@@ -193,7 +193,7 @@ class ShootDetailsStatsInstrumentedTest {
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(shootId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].asArrowScore(shootId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -226,7 +226,7 @@ class ShootDetailsStatsInstrumentedTest {
         val round = roundsInput.find { it.roundId == shootRound.roundId }!!
 
         var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].toArrowScore(shootId, arrowNumber++) }
+        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].asArrowScore(shootId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {

@@ -97,7 +97,7 @@ class EmailScoresInstrumentedTest {
         val desiredCount = if (arrowsInRound == 0) (arrowsPerArrowCount * 2 - i * 6) else (arrowsInRound + i * 6)
         val testDataSize = TestUtils.ARROWS.size
         List(desiredCount) {
-            TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].toArrowScore(
+            TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].asArrowScore(
                     shoot.shootId,
                     it
             )

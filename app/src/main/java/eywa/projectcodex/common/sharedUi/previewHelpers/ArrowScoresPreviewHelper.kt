@@ -35,7 +35,7 @@ object ArrowScoresPreviewHelper {
     ) = List(size) {
         var index = it % ARROWS.size
         if (!ascending) index -= ARROWS.size - 1
-        ARROWS[index].toArrowScore(shootId, firstArrowNumber + it)
+        ARROWS[index].asArrowScore(shootId, firstArrowNumber + it)
     }
 
     fun getArrowsInOrderFullSet(
@@ -43,6 +43,6 @@ object ArrowScoresPreviewHelper {
             firstArrowNumber: Int = 1,
             ascending: Boolean = true,
     ) = ARROWS
-            .mapIndexed { index, arrow -> arrow.toArrowScore(shootId, index + firstArrowNumber) }
+            .mapIndexed { index, arrow -> arrow.asArrowScore(shootId, index + firstArrowNumber) }
             .let { if (ascending) it else it.reversed() }
 }

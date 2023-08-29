@@ -122,7 +122,7 @@ class ShootDetailsViewModelsUnitTest {
 
         verify(mockArrowScoresRepo).insert(
                 *arrows
-                        .mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 37) }
+                        .mapIndexed { index, arrow -> arrow.asArrowScore(1, index + 37) }
                         .toTypedArray(),
         )
         verify(repoMock)
@@ -164,7 +164,7 @@ class ShootDetailsViewModelsUnitTest {
 
         verify(mockArrowScoresRepo).update(
                 *arrows
-                        .mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 7) }
+                        .mapIndexed { index, arrow -> arrow.asArrowScore(1, index + 7) }
                         .toTypedArray(),
         )
         assertEquals(
@@ -209,7 +209,7 @@ class ShootDetailsViewModelsUnitTest {
 
         verify(mockArrowScoresRepo).insertEnd(
                 initialState.fullShootInfo.arrows!!,
-                arrows.mapIndexed { index, arrow -> arrow.toArrowScore(1, index + 7) },
+                arrows.mapIndexed { index, arrow -> arrow.asArrowScore(1, index + 7) },
         )
         assertEquals(
                 InsertEndState(

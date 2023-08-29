@@ -12,7 +12,7 @@ class ConvertScoreTypeUnitTest {
     fun testConvertXsToTens() {
         Assert.assertEquals(
                 // Only the X will become a 10
-                listOf(TestData.ARROWS[10].toArrowScore(1, 11)),
+                listOf(TestData.ARROWS[10].asArrowScore(1, 11)),
                 ConvertScoreType.XS_TO_TENS.convertScore(TestData.ARROWS.toList().toArrowScores())
         )
     }
@@ -20,12 +20,12 @@ class ConvertScoreTypeUnitTest {
     @Test
     fun testConvertToFiveZoneScore() {
         val expectedArrows = listOf(
-                TestData.ARROWS[1].toArrowScore(1, 2), // Was 2
-                TestData.ARROWS[3].toArrowScore(1, 4), // Was 4
-                TestData.ARROWS[5].toArrowScore(1, 6), // Was 6
-                TestData.ARROWS[7].toArrowScore(1, 8), // Was 8
-                TestData.ARROWS[9].toArrowScore(1, 10), // Was 10
-                TestData.ARROWS[9].toArrowScore(1, 11), // Was X
+                TestData.ARROWS[1].asArrowScore(1, 2), // Was 2
+                TestData.ARROWS[3].asArrowScore(1, 4), // Was 4
+                TestData.ARROWS[5].asArrowScore(1, 6), // Was 6
+                TestData.ARROWS[7].asArrowScore(1, 8), // Was 8
+                TestData.ARROWS[9].asArrowScore(1, 10), // Was 10
+                TestData.ARROWS[9].asArrowScore(1, 11), // Was X
         )
 
         Assert.assertEquals(
@@ -57,9 +57,9 @@ class ConvertScoreTypeUnitTest {
     }
 
     /**
-     * Calls [Arrow.toArrowScore] on every item in the list, setting shootId to 1 and arrowNumber incrementally
+     * Calls [Arrow.asArrowScore] on every item in the list, setting shootId to 1 and arrowNumber incrementally
      * starting from 0
      */
     private fun List<Arrow>.toArrowScores(): List<DatabaseArrowScore> =
-            this.mapIndexed { i, arrow -> arrow.toArrowScore(1, i) }
+            this.mapIndexed { i, arrow -> arrow.asArrowScore(1, i) }
 }

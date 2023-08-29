@@ -5,14 +5,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import eywa.projectcodex.common.testDatabaseName
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 
 object DatabaseTestUtils {
-    /**
-     * Breaks in some kind of 'get thread for transaction' type message. Probably something to do with tests running
-     * queries in the main thread?
-     */
-    const val brokenTransactionMessage = "Transactions can't be tested right now for some reason"
-
     fun createDatabase(): ScoresRoomDatabase {
         val context = ApplicationProvider.getApplicationContext<Context>()
         context.deleteDatabase(testDatabaseName)
@@ -20,5 +16,25 @@ object DatabaseTestUtils {
                 .inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java)
                 .allowMainThreadQueries()
                 .build()
+    }
+
+    suspend fun ScoresRoomDatabase.add(shootInfo: FullShootInfo) {
+        shootDao().insert(shootInfo.shoot)
+        if (shootInfo.arrows != null) {
+            arrowScoreDao().insert(*shootInfo.arrows!!.toTypedArray())
+        }
+        if (shootInfo.shootRound != null) {
+            shootRoundDao().insert(shootInfo.shootRound!!)
+        }
+        if (shootInfo.shootDetail != null) {
+            shootDetailDao().insert(shootInfo.shootDetail!!)
+        }
+    }
+
+    suspend fun ScoresRoomDatabase.add(roundInfo: FullRoundInfo) {
+        roundDao().insert(roundInfo.round)
+        roundInfo.roundSubTypes?.forEach { roundSubTypeDao().insert(it) }
+        roundInfo.roundArrowCounts?.forEach { roundArrowCountDao().insert(it) }
+        roundInfo.roundDistances?.forEach { roundDistanceDao().insert(it) }
     }
 }

@@ -14,6 +14,7 @@ import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
+import eywa.projectcodex.database.views.TestViewDao
 
 @Database(
         entities = [
@@ -52,6 +53,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun shootDetailDao(): ShootDetailDao
     abstract fun shootRoundDao(): ShootRoundDao
     abstract fun arrowCounterDao(): ArrowCounterDao
+    abstract fun testViewDao(): TestViewDao
 
     fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
     fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao())

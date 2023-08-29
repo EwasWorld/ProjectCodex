@@ -2,7 +2,7 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.common.utils.transpose
+import eywa.projectcodex.common.utils.ListUtils.transpose
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction

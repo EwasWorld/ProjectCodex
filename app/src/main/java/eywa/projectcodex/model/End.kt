@@ -243,7 +243,7 @@ class End(arrowsPerEnd: Int, private val arrowPlaceholder: String, private val a
         else {
             CustomLogger.customLogger.i(LOG_TAG, "Adding new end")
             var arrowID = firstArrowId!!
-            return UpdateType.NEW to arrows.map { it.toArrowScore(finalShootId, arrowID++) }
+            return UpdateType.NEW to arrows.map { it.asArrowScore(finalShootId, arrowID++) }
         }
     }
 

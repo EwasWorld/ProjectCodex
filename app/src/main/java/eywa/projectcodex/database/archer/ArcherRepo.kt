@@ -8,6 +8,10 @@ class ArcherRepo(
 ) {
     val allArchers = archerDao.getAllArchers()
     val defaultArcher = archerDao.getDefaultArcher()
+
+    /**
+     * @see ArcherHandicapDao.getLatestHandicapsForDefaultArcher
+     */
     val latestHandicapsForDefaultArcher = archerHandicapDao.getLatestHandicapsForDefaultArcher()
 
     suspend fun insert(archer: DatabaseArcher) {

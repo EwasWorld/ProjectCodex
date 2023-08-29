@@ -17,9 +17,9 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.EditEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot.ExpectedRowData
-import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -63,7 +63,7 @@ class ScorePadInstrumentedTest {
 
     private suspend fun addArrows(indexes: List<Int>, shootId: Int = 1) {
         indexes
-                .mapIndexed { index, it -> TestUtils.ARROWS[it].toArrowScore(shootId, index + 1) }
+                .mapIndexed { index, it -> TestUtils.ARROWS[it].asArrowScore(shootId, index + 1) }
                 .forEach { db.arrowScoreDao().insert(it) }
     }
 

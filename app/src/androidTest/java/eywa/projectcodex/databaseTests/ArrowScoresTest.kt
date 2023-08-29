@@ -3,18 +3,19 @@ package eywa.projectcodex.databaseTests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.utils.ListUtils.plusAtIndex
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.arrows.ArrowScoreDao
-import eywa.projectcodex.database.arrows.ArrowScoresRepo
-import eywa.projectcodex.database.arrows.DatabaseArrowScore
-import eywa.projectcodex.database.shootData.ShootDao
-import eywa.projectcodex.databaseTests.DatabaseTestUtils.brokenTransactionMessage
+import eywa.projectcodex.model.Arrow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.*
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
@@ -25,17 +26,16 @@ class ArrowScoresTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var db: ScoresRoomDatabase
-    private lateinit var arrowScoreDao: ArrowScoreDao
-    private lateinit var shootDao: ShootDao
+
+    private val arrowSet = (TestUtils.ARROWS + TestUtils.ARROWS)
+    private fun List<Arrow>.asArrowScores(firstArrowIndex: Int = 1) =
+            mapIndexed { index, arrow -> arrow.asArrowScore(1, index + firstArrowIndex) }
 
     @Before
     fun createDb() {
         db = DatabaseTestUtils.createDatabase()
-        shootDao = db.shootDao()
-        arrowScoreDao = db.arrowScoreDao()
-
         runBlocking {
-            TestUtils.generateShoots(2).forEach { shootDao.insert(it) }
+            db.shootDao().insert(ShootPreviewHelper.newShoot())
         }
     }
 
@@ -45,137 +45,92 @@ class ArrowScoresTest {
         db.close()
     }
 
-    /**
-     * Check getArrowsForRound returns only that round's arrows
-     * Check inserted values are the same as retrieved
-     */
     @Test
-    fun basicTest() = runTest {
-        val arrows1 = TestUtils.generateArrowScores(1, 6)
-        val arrows2 = TestUtils.generateArrowScores(2, 12)
+    fun testDeleteEnd_beginning() = runTest {
+        val arrowScoresRepo = db.arrowScoresRepo()
+        arrowScoresRepo.insert(*arrowSet.asArrowScores().toTypedArray())
 
-        /*
-         * Add and retrieve
-         */
-        for (arrow in arrows1.plus(arrows2)) {
-            arrowScoreDao.insert(arrow)
-        }
-        var retrievedArrows1 = shootDao.getFullShootInfo(1).map { it?.arrows }.first()!!
-        var retrievedArrows2 = shootDao.getFullShootInfo(2).map { it?.arrows }.first()!!
-
-        Assert.assertEquals(arrows1.toSet(), retrievedArrows1.toSet())
-        Assert.assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
-
-        /*
-         * Delete
-         */
-        arrowScoreDao.deleteRoundsArrows(1)
-
-        retrievedArrows1 = shootDao.getFullShootInfo(1).map { it?.arrows }.first()!!
-        retrievedArrows2 = shootDao.getFullShootInfo(2).map { it?.arrows }.first()!!
-        assert(retrievedArrows1.isEmpty())
-        Assert.assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
-    }
-
-    @Test
-    fun deleteSpecificArrowNumbersTest() = runTest {
-        val arrows1 = TestUtils.generateArrowScores(1, 18)
-        val arrows2 = TestUtils.generateArrowScores(2, 18)
-        for (arrow in arrows1.plus(arrows2)) {
-            arrowScoreDao.insert(arrow)
-        }
-
-        /*
-         * Delete
-         */
-        val from = 7
-        val count = 6
-        arrowScoreDao.deleteArrowsBetween(1, from, from + count)
-
-        val retrievedArrows1 = shootDao.getFullShootInfo(1).map { it?.arrows }.first()!!
-        val retrievedArrows2 = shootDao.getFullShootInfo(2).map { it?.arrows }.first()!!
-        Assert.assertEquals(
-                arrows1.filter { it.arrowNumber < from || it.arrowNumber >= from + count }.toSet(),
-                retrievedArrows1.toSet()
+        arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 1, 3)
+        assertEquals(
+                arrowSet.drop(3).asArrowScores().toSet(),
+                db.arrowScoreDao().getAllArrows().first().toSet(),
         )
-        Assert.assertEquals(arrows2.toSet(), retrievedArrows2.toSet())
     }
 
-    /**
-     * For no apparent reason, I can't run this test on its own when its called `deleteEndRepoTest` -Ewa Oct 2020
-     */
-    @Ignore(brokenTransactionMessage)
     @Test
-    fun deleteEndRepoTst() = runTest {
-        val shootId = 1
-        val arrowScoresRepo = ArrowScoresRepo(arrowScoreDao)
+    fun testDeleteEnd_middle() = runTest {
+        val arrowScoresRepo = db.arrowScoresRepo()
+        arrowScoresRepo.insert(*arrowSet.asArrowScores().toTypedArray())
 
-        for (arrowNumber in 1..24) {
-            runBlocking {
-                arrowScoreDao.insert(
-                        TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowScore(shootId, arrowNumber)
-                )
-            }
-        }
-
-        /*
-         * Delete
-         */
-        val from = 7
-        val count = 6
-        val originalArrows = shootDao.getFullShootInfo(shootId).map { it?.arrows }.first()!!
-        runBlocking {
-            arrowScoresRepo.deleteEnd(originalArrows, from, count)
-        }
-
-        /*
-         * Check
-         */
-        val expectedArrows = mutableListOf<DatabaseArrowScore>()
-        for (arrowNumber in 1..(24 - count)) {
-            val testDataIndex = (if (arrowNumber < from) arrowNumber else arrowNumber + count) % TestUtils.ARROWS.size
-            expectedArrows.add(TestUtils.ARROWS[testDataIndex].toArrowScore(shootId, arrowNumber))
-        }
-        val retrievedArrows = shootDao.getFullShootInfo(shootId).map { it?.arrows }.first()!!
-        Assert.assertEquals(expectedArrows.toSet(), retrievedArrows.toSet())
+        arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 7, 3)
+        assertEquals(
+                arrowSet.filterIndexed { index, _ -> index !in listOf(6, 7, 8) }.asArrowScores().toSet(),
+                db.arrowScoreDao().getAllArrows().first().toSet(),
+        )
     }
 
-    // TODO Unignore
-    @Ignore(brokenTransactionMessage)
     @Test
-    fun insertEndRepoTest() = runTest {
-        val shootId = 1
-        val arrowScoresRepo = ArrowScoresRepo(arrowScoreDao)
+    fun testDeleteEnd_end() = runTest {
+        val arrowScoresRepo = db.arrowScoresRepo()
+        arrowScoresRepo.insert(*arrowSet.asArrowScores().toTypedArray())
 
-        for (arrowNumber in 1..24) {
-            arrowScoreDao.insert(
-                    TestUtils.ARROWS[arrowNumber % TestUtils.ARROWS.size].toArrowScore(shootId, arrowNumber)
-            )
-        }
+        arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 22, 3)
+        assertEquals(
+                arrowSet.dropLast(3).asArrowScores().toSet(),
+                db.arrowScoreDao().getAllArrows().first().toSet(),
+        )
+    }
 
-        /*
-         * Insert
-         */
-        val originalArrows = shootDao.getFullShootInfo(shootId).map { it?.arrows }.first()!!
-        val at = 5
-        var newArrowId = at
-        val newArrows = (7 until 14).map {
-            TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowScore(
-                    shootId, newArrowId++
-            )
-        }
-        arrowScoresRepo.insertEnd(originalArrows, newArrows)
+    @Test
+    fun testDeleteEnd_deleteTooMany() = runTest {
+        val arrowScoresRepo = db.arrowScoresRepo()
+        arrowScoresRepo.insert(*arrowSet.asArrowScores().toTypedArray())
 
-        /*
-         * Check
-         */
-        val expectedArrows = newArrows.toMutableSet()
-        for (arrow in originalArrows) {
-            val newArrNum = if (arrow.arrowNumber < at) arrow.arrowNumber else arrow.arrowNumber + newArrows.size
-            expectedArrows.add(DatabaseArrowScore(shootId, newArrNum, arrow.score, arrow.isX))
-        }
+        arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 22, 6)
+        assertEquals(
+                arrowSet.dropLast(3).asArrowScores().toSet(),
+                db.arrowScoreDao().getAllArrows().first().toSet(),
+        )
+    }
 
-        val retrievedArrows = shootDao.getFullShootInfo(shootId).map { it?.arrows }.first()!!
-        Assert.assertEquals(expectedArrows, retrievedArrows.toSet())
+    @Test
+    fun insertEndRepoTest_beginning() = runTest {
+        val arrowScoresRepo = db.arrowScoresRepo()
+        arrowScoresRepo.insert(*arrowSet.asArrowScores().toTypedArray())
+
+        arrowScoresRepo.insertEnd(
+                arrowSet.asArrowScores(),
+                TestUtils.ARROWS.asArrowScores(),
+        )
+        assertEquals(
+                (TestUtils.ARROWS + arrowSet).asArrowScores().toSet(),
+                db.arrowScoreDao().getAllArrows().first().toSet(),
+        )
+    }
+
+    @Test
+    fun insertEndRepoTest_middle() = runTest {
+        val arrowScoresRepo = db.arrowScoresRepo()
+        arrowScoresRepo.insert(*arrowSet.asArrowScores().toTypedArray())
+
+        arrowScoresRepo.insertEnd(
+                arrowSet.asArrowScores(),
+                TestUtils.ARROWS.asArrowScores(7),
+        )
+        assertEquals(
+                arrowSet.plusAtIndex(TestUtils.ARROWS, 6).asArrowScores().toSet(),
+                db.arrowScoreDao().getAllArrows().first().toSet(),
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun insertEndRepoTest_end() = runTest {
+        val arrowScoresRepo = db.arrowScoresRepo()
+        arrowScoresRepo.insert(*arrowSet.asArrowScores().toTypedArray())
+
+        arrowScoresRepo.insertEnd(
+                arrowSet.asArrowScores(),
+                TestUtils.ARROWS.asArrowScores(25),
+        )
     }
 }

@@ -116,7 +116,7 @@ object ViewScoresEntryPreviewProvider {
 
         return goldArrows.plus(hitArrows)
                 .mapIndexed { index, arrow ->
-                    arrow.toArrowScore(shootId, index)
+                    arrow.asArrowScore(shootId, index)
                 }
     }
 

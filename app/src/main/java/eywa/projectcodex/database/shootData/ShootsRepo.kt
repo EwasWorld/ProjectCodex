@@ -4,7 +4,6 @@ import androidx.room.Transaction
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class ShootsRepo(
         private val shootDao: ShootDao,
@@ -24,17 +23,7 @@ class ShootsRepo(
                 toDate = datesFilter?.to,
                 roundId = roundsFilter?.roundId,
                 subTpeId = roundsFilter?.nonNullSubtypeId,
-        ).map { rounds ->
-            val pbs = rounds
-                    .filter { it.isPersonalBest ?: false }
-                    .groupBy { it.shootRound!!.roundId to (it.shootRound.roundSubTypeId ?: 1) }
-                    .mapValues { it.value.size > 1 }
-
-            rounds.map {
-                val pbCount = pbs[it.shootRound?.roundId to (it.shootRound?.roundSubTypeId ?: 1)] ?: false
-                it.copy(isTiedPersonalBest = pbCount)
-            }
-        }
+        )
     }
 
     fun getFullShootInfo(shootIds: List<Int>) = shootDao.getFullShootInfo(shootIds)

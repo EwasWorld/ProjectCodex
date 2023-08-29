@@ -11,7 +11,9 @@ interface ArcherHandicapDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(archerHandicap: DatabaseArcherHandicap)
 
-    // TODO_CURRENT test
+    /**
+     * @return the latest entry for each [DatabaseArcherHandicap.handicapType]
+     */
     @Query(
             """
                 SELECT *, MAX(dateSet)

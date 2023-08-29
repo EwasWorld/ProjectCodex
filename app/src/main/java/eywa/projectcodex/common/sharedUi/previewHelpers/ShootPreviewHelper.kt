@@ -32,7 +32,7 @@ object ShootPreviewHelper {
             copy(arrows = ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId))
 
     fun FullShootInfo.addArrows(arrows: List<Arrow>) =
-            copy(arrows = arrows.mapIndexed { i, arrow -> arrow.toArrowScore(shoot.shootId, i + 1) })
+            copy(arrows = arrows.mapIndexed { i, arrow -> arrow.asArrowScore(shoot.shootId, i + 1) })
 
     fun FullShootInfo.addRound(fullRoundInfo: FullRoundInfo) =
             copy(
@@ -53,6 +53,21 @@ object ShootPreviewHelper {
                         DatabaseArrowScore(shoot.shootId, it, arrowScore, isX)
                     }
             )
+
+    fun FullShootInfo.joinToPrevious() = copy(shoot = shoot.copy(joinWithPrevious = true))
+
+    fun FullShootInfo.setDate(date: Calendar) = copy(shoot = shoot.copy(dateShot = date))
+
+    fun FullShootInfo.completeRound(finalScore: Int): FullShootInfo {
+        val arrowCount = roundArrowCounts!!.sumOf { it.arrowCount }
+        val tens = finalScore.floorDiv(10)
+
+        val newArrows = List(tens) { Arrow(10) } +
+                Arrow(finalScore % 10) +
+                List(arrowCount - tens - 1) { Arrow(0) }
+
+        return copy(arrows = newArrows.mapIndexed { index, arrow -> arrow.asArrowScore(shoot.shootId, index) })
+    }
 
     fun FullShootInfo.asDatabaseFullShootInfo() = DatabaseFullShootInfo(
             shoot = shoot,

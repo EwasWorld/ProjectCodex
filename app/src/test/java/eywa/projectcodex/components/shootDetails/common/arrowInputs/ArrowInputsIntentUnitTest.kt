@@ -33,17 +33,17 @@ class ArrowInputsIntentUnitTest {
         ArrowInputsIntent.ResetArrowsInputted.checkHandle(
                 expectedCalls = listOf(Call.SetArrows(arrows, null)),
                 enteredArrows = emptyList(),
-                dbArrows = arrows.mapIndexed { index, arrow -> arrow.toArrowScore(1, index) }
+                dbArrows = arrows.mapIndexed { index, arrow -> arrow.asArrowScore(1, index) }
         )
         ArrowInputsIntent.ResetArrowsInputted.checkHandle(
                 expectedCalls = listOf(Call.SetArrows(arrows, null)),
                 enteredArrows = arrows,
-                dbArrows = arrows.mapIndexed { index, arrow -> arrow.toArrowScore(1, index) }
+                dbArrows = arrows.mapIndexed { index, arrow -> arrow.asArrowScore(1, index) }
         )
         ArrowInputsIntent.ResetArrowsInputted.checkHandle(
                 expectedCalls = listOf(Call.SetArrows(arrows, null)),
                 enteredArrows = List(6) { Arrow(9) },
-                dbArrows = arrows.mapIndexed { index, arrow -> arrow.toArrowScore(1, index) }
+                dbArrows = arrows.mapIndexed { index, arrow -> arrow.asArrowScore(1, index) }
         )
     }
 

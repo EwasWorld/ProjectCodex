@@ -143,7 +143,7 @@ class ViewScoresInstrumentedTest {
         )
         arrows = shoots.map { shoot ->
             val shootId = shoot.shootId
-            List(1) { arrowNumber -> TestUtils.ARROWS[shootId].toArrowScore(shootId, arrowNumber) }
+            List(1) { arrowNumber -> TestUtils.ARROWS[shootId].asArrowScore(shootId, arrowNumber) }
         }
 
         populateDb()
@@ -211,10 +211,10 @@ class ViewScoresInstrumentedTest {
         )
         shootRound = listOf(DatabaseShootRound(2, roundId = 1))
         arrows = listOf(
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowScore(1, i) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(1, i) },
                 // Add the correct number of arrows to complete the round
                 List(roundArrowCounts.sumOf { it.arrowCount }) {
-                    TestUtils.ARROWS[it % TestUtils.ARROWS.size].toArrowScore(2, it)
+                    TestUtils.ARROWS[it % TestUtils.ARROWS.size].asArrowScore(2, it)
                 },
         )
         populateDb()
@@ -279,8 +279,8 @@ class ViewScoresInstrumentedTest {
                 DatabaseShoot(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
-                List(36) { TestUtils.ARROWS[1].toArrowScore(1, it) },
-                List(36) { TestUtils.ARROWS[10].toArrowScore(2, it) },
+                List(36) { TestUtils.ARROWS[1].asArrowScore(1, it) },
+                List(36) { TestUtils.ARROWS[10].asArrowScore(2, it) },
         )
         populateDb()
 
@@ -313,8 +313,8 @@ class ViewScoresInstrumentedTest {
                 DatabaseShoot(2, TestUtils.generateDate(2019), 1),
         )
         arrows = listOf(
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowScore(1, i) },
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.toArrowScore(2, i) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(1, i) },
+                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(2, i) },
         )
         populateDb()
 

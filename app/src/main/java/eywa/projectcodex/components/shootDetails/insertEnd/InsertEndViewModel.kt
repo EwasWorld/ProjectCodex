@@ -68,7 +68,7 @@ class InsertEndViewModel @Inject constructor(
                 onSubmit = {
                     var arrowNumber = currentState.firstArrowNumber
                     val arrows = currentState.enteredArrows.map {
-                        it.toArrowScore(currentState.fullShootInfo.id, arrowNumber++)
+                        it.asArrowScore(currentState.fullShootInfo.id, arrowNumber++)
                     }
                     check(arrows.size == currentState.endSize) { "Incorrect number of arrows inputted" }
 

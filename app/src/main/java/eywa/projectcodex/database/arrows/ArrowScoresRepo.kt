@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.arrows
 
 import androidx.room.Transaction
+import eywa.projectcodex.database.shootData.DatabaseShoot
 
 /**
  * A Repository manages queries and allows you to use multiple backends. In the most common example, the Repository
@@ -23,19 +24,26 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
     }
 
     /**
-     * Update [firstArrowToDelete] to end's arrow values to be that of [firstArrowToDelete] - [numberToDelete]. This
-     * will overwrite the arrows to be deleted. Then delete [numberToDelete] off the end (as they're now duplicated)
-     * @throws IllegalArgumentException if allArrows is null or empty, or if [firstArrowToDelete] and [numberToDelete]
-     * results in an out of range arrowNumber
+     * Deletes [numberToDelete] arrows from a round starting with [firstArrowNumberToDelete].
+     * Shifts remaining high arrow numbers so that arrow numbers are always consecutive
+     *
+     * @param allArrowsInRound all arrows for a single [DatabaseShoot]. Cannot be empty
+     * @param firstArrowNumberToDelete the first arrow to delete (arrow numbers are 1-indexed).
+     * Must be in [allArrowsInRound]
+     * @param numberToDelete must be > 0
      */
     @Transaction
-    suspend fun deleteEnd(allArrowsInRound: List<DatabaseArrowScore>, firstArrowToDelete: Int, numberToDelete: Int) {
+    suspend fun deleteEnd(
+            allArrowsInRound: List<DatabaseArrowScore>,
+            firstArrowNumberToDelete: Int,
+            numberToDelete: Int,
+    ) {
         require(numberToDelete > 0) { "numberToDelete must be > 0" }
         require(
                 allArrowsInRound.distinctBy { it.shootId }.size == 1
         ) { "allArrowsInRound cannot contain arrows from multiple shoots" }
         require(
-                allArrowsInRound.any { it.arrowNumber == firstArrowToDelete }
+                allArrowsInRound.any { it.arrowNumber == firstArrowNumberToDelete }
         ) { "allArrowsInRound does not contain firstArrowToDelete" }
 
         /*
@@ -47,7 +55,7 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
         // Arrows before [firstArrowToDelete] should remain unchanged
         val arrows = allArrowsInRound
                 .sortedBy { it.arrowNumber }
-                .dropWhile { it.arrowNumber < firstArrowToDelete }
+                .dropWhile { it.arrowNumber < firstArrowNumberToDelete }
 
         val deletedCount = numberToDelete.coerceAtMost(arrows.size)
         arrows.drop(deletedCount).takeIf { it.isNotEmpty() }
@@ -60,36 +68,53 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
         )
     }
 
-    suspend fun insertEnd(allArrowsInRound: List<DatabaseArrowScore>, toInsert: List<DatabaseArrowScore>) {
+    /**
+     * Inserts an end of arrows into a [DatabaseShoot]
+     *
+     * @param allArrowsInRound all arrows for a single [DatabaseShoot]. Cannot be empty.
+     * [DatabaseArrowScore.shootId]s must match those in [toInsert]
+     * @param toInsert arrows to insert. [DatabaseArrowScore.arrowNumber]s must be consecutive and all > 0.
+     * [DatabaseArrowScore.shootId]s must match those in [allArrowsInRound]
+     */
+    @Transaction
+    suspend fun insertEnd(
+            allArrowsInRound: List<DatabaseArrowScore>,
+            toInsert: List<DatabaseArrowScore>,
+    ) {
         if (toInsert.isEmpty()) return
-        val distinctByShootIds = allArrowsInRound.distinctBy { it.shootId }
-        require(distinctByShootIds.size == 1) { "allArrowsInRound cannot contain arrows from multiple shoots" }
-        require(allArrowsInRound.isNotEmpty()) { "Must provide arrows to shift" }
-        val shootId = distinctByShootIds[0].shootId
 
         /*
-         * Check arrow numbers
+         * Check allArrowsInRound
+         */
+        require(allArrowsInRound.isNotEmpty()) { "Must provide arrows to shift" }
+        require(
+                allArrowsInRound.distinctBy { it.shootId }.size == 1
+        ) { "allArrowsInRound cannot contain arrows from multiple shoots" }
+
+        /*
+         * Check toInsert
          */
         val minArrowNumber = toInsert.minOf { it.arrowNumber }
-        require(minArrowNumber >= 1) { "Arrow numbers must be >= 1" }
-        require(minArrowNumber <= allArrowsInRound.maxOf { it.arrowNumber }) {
-            "Insert must start within existing arrows indices"
-        }
+        require(minArrowNumber > 0) { "Arrow numbers must be > 0" }
+        require(
+                minArrowNumber <= allArrowsInRound.maxOf { it.arrowNumber }
+        ) { "Insert must start within existing arrows indices" }
         require(
                 (minArrowNumber until minArrowNumber + toInsert.size).toSet()
                         == toInsert.map { it.arrowNumber }.toSet()
         ) { "Arrow numbers for the arrows to insert must be consecutive" }
 
-        // Shift other arrowNumbers to make space for inserted ones
-        val allArrowsReady =
-                toInsert.plus(allArrowsInRound.filter { it.arrowNumber >= minArrowNumber }.map {
-                    DatabaseArrowScore(shootId, it.arrowNumber + toInsert.size, it.score, it.isX)
-                })
-
+        /*
+         * Execute
+         */
+        // Shift current arrowNumbers to make space for inserted ones
+        val shiftedCurrentArrows = allArrowsInRound
+                .filter { it.arrowNumber >= minArrowNumber }
+                .map { it.copy(arrowNumber = it.arrowNumber + toInsert.size) }
         val currentArrowNumbers = allArrowsInRound.map { it.arrowNumber }
-        val updateArrows = allArrowsReady.filter { currentArrowNumbers.contains(it.arrowNumber) }
-        val insertArrows = allArrowsReady.filter { !currentArrowNumbers.contains(it.arrowNumber) }
-
-        arrowScoreDao.updateAndInsert(updateArrows, insertArrows)
+        val (updateArrows, insertArrows) = (toInsert + shiftedCurrentArrows)
+                .partition { currentArrowNumbers.contains(it.arrowNumber) }
+        update(*updateArrows.toTypedArray())
+        insert(*insertArrows.toTypedArray())
     }
 }

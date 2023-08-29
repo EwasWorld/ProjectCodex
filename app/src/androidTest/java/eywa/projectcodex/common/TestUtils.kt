@@ -123,7 +123,7 @@ object TestUtils {
     fun generateArrowScores(shootId: Int, numberToGenerate: Int, desiredTotal: Int? = null) =
             generateArrows(numberToGenerate, desiredTotal)
                     .mapIndexed { arrowIndex, arrow ->
-                        arrow.toArrowScore(shootId, arrowIndex + 1)
+                        arrow.asArrowScore(shootId, arrowIndex + 1)
 
                     }
 
