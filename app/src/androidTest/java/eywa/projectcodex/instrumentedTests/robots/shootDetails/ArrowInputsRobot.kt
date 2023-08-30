@@ -24,7 +24,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
-            +CodexNodeMatcher.HasText(text)
+            +CodexNodeMatcher.HasContentDescription("$text arrow input")
             +CodexNodeAction.PerformClick
         }
     }

@@ -361,7 +361,7 @@ class ScorePadData(
                 helpBodyId = R.string.help_score_pad__golds_column_body,
         ) {
             override fun getCellAccessibilityText(cellContent: Any, goldsTypeLongString: String): ResOrActual<String> =
-                    ResOrActual.Actual(cellContent as String + goldsTypeLongString)
+                    ResOrActual.Actual(cellContent as String + " " + goldsTypeLongString)
         },
         RUNNING_TOTAL(
                 headingId = R.string.score_pad__running_total_header,

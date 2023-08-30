@@ -160,7 +160,7 @@ class LargeScaleInstrumentedTest {
                         )
 
                         logMessage(this::class, "Score A - Score pad insert end - 1")
-                        clickRow(2)
+                        clickEnd(2)
                         clickInsertDropdownMenuItem {
                             checkInsertEndBefore(2)
                             completeEnd("4")
@@ -180,7 +180,7 @@ class LargeScaleInstrumentedTest {
                         )
 
                         logMessage(this::class, "Score A - Score pad edit end - 1")
-                        clickRow(3)
+                        clickEnd(3)
                         clickEditDropdownMenuItem {
                             checkEditEnd(3)
                             checkInputtedArrows(List(6) { 2 })
@@ -204,7 +204,7 @@ class LargeScaleInstrumentedTest {
                         )
 
                         logMessage(this::class, "Score A - Score pad delete end - 1")
-                        clickRow(2)
+                        clickEnd(2)
                         clickDeleteDropdownMenuItem(true, 2)
 
                         checkScorePadData(
@@ -219,7 +219,7 @@ class LargeScaleInstrumentedTest {
                         )
 
                         logMessage(this::class, "Score A - Score pad insert end - 2")
-                        clickRow(2)
+                        clickEnd(2)
                         clickInsertDropdownMenuItem {
                             checkInsertEndBefore(2)
                             completeEnd("6")
@@ -239,7 +239,7 @@ class LargeScaleInstrumentedTest {
                         )
 
                         logMessage(this::class, "Score A - Score pad edit end - 2")
-                        clickRow(2)
+                        clickEnd(2)
                         clickEditDropdownMenuItem {
                             checkEditEnd(2)
                             checkInputtedArrows(List(6) { 6 })
@@ -265,7 +265,7 @@ class LargeScaleInstrumentedTest {
                         clickHelpShowcaseClose()
 
                         logMessage(this::class, "Score A - Score pad delete end - 2")
-                        clickRow(2)
+                        clickEnd(2)
                         clickDeleteDropdownMenuItem(true, 2)
 
                         checkScorePadData(
@@ -329,7 +329,7 @@ class LargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round edit end - 1")
-                    clickRow(1)
+                    clickEnd(1)
                     clickEditDropdownMenuItem {
                         checkEditEnd(1)
 
@@ -353,7 +353,7 @@ class LargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round delete end - 1")
-                    clickRow(3)
+                    clickEnd(3)
                     clickDeleteDropdownMenuItem(true, 3)
 
                     checkScorePadData(
@@ -389,7 +389,7 @@ class LargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round edit end - 2")
-                    clickRow(5)
+                    clickEnd(4)
                     clickEditDropdownMenuItem {
                         checkEditEnd(4)
                         checkInputtedArrows(List(6) { 8 })
@@ -411,7 +411,7 @@ class LargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round delete end - 2")
-                    clickRow(5)
+                    clickEnd(4)
                     clickDeleteDropdownMenuItem(true, 4)
 
                     checkScorePadData(
@@ -543,7 +543,7 @@ class LargeScaleInstrumentedTest {
                         performAction(ScorePadRobot::class)
 
                         logMessage(this::class, "Navigating to: Edit end")
-                        clickRow(1)
+                        clickEnd(1)
                         clickEditDropdownMenuItem {
                             performAction(EditEndRobot::class)
 
@@ -551,7 +551,7 @@ class LargeScaleInstrumentedTest {
                             clickCancel()
                         }
 
-                        clickRow(1)
+                        clickEnd(1)
                         clickInsertDropdownMenuItem {
                             performAction(InsertEndRobot::class)
 
@@ -739,7 +739,7 @@ class LargeScaleInstrumentedTest {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
                     waitForLoad()
-                    clickRow(1)
+                    clickEnd(1)
                     clickInsertDropdownMenuItem {
                         logMessage(this::class, " -> press back")
                         pressBack()
@@ -757,7 +757,7 @@ class LargeScaleInstrumentedTest {
             clickViewScores {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
-                    clickRow(1)
+                    clickEnd(1)
                     clickEditDropdownMenuItem {
                         logMessage(this::class, " -> press back")
                         pressBack()
@@ -925,7 +925,7 @@ class LargeScaleInstrumentedTest {
             clickViewScores {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
-                    clickRow(1)
+                    clickEnd(1)
                     clickInsertDropdownMenuItem {
                         logMessage(this::class, " -> press home")
                         clickHomeIcon()
@@ -939,7 +939,7 @@ class LargeScaleInstrumentedTest {
             clickViewScores {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
-                    clickRow(1)
+                    clickEnd(1)
                     clickEditDropdownMenuItem {
                         logMessage(this::class, " -> press home")
                         clickHomeIcon()

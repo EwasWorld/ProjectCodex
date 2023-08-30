@@ -13,6 +13,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
 import eywa.projectcodex.database.rounds.RoundSubTypeDao
 import eywa.projectcodex.database.shootData.*
+import eywa.projectcodex.databaseTests.DatabaseTestUtils.add
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -128,11 +129,9 @@ class ShootsTest {
                 DatabaseShootRound(4, roundId = 1),
                 DatabaseShootRound(5, roundId = 2),
         )
-        val rounds = TestUtils.ROUNDS.take(3)
+        val rounds = TestUtils.ROUNDS
 
-        for (round in rounds) {
-            roundDao.insert(round)
-        }
+        rounds.forEach { db.add(it) }
         for (shoot in shoots) {
             shootDao.insert(shoot)
         }
@@ -148,7 +147,7 @@ class ShootsTest {
             val expectedShootRound = shootRounds.find { it.shootId == shoot.shootId }
             assertEquals(expectedShootRound?.roundId, retrievedRoundInfo!!.round?.roundId)
             if (expectedShootRound?.roundId != null) {
-                assertEquals(rounds[expectedShootRound.roundId - 1], retrievedRoundInfo.round)
+                assertEquals(rounds[expectedShootRound.roundId - 1].round, retrievedRoundInfo.round)
             }
         }
     }
@@ -175,15 +174,9 @@ class ShootsTest {
                 DatabaseShootRound(4, roundId = 1, roundSubTypeId = 1),
                 DatabaseShootRound(5, roundId = 2),
         )
-        val rounds = TestUtils.ROUNDS.take(3)
-        val roundSubTypes = TestUtils.ROUND_SUB_TYPES
+        val rounds = TestUtils.ROUNDS
 
-        for (round in rounds) {
-            roundDao.insert(round)
-        }
-        for (roundSubType in roundSubTypes) {
-            roundSubTypeDao.insert(roundSubType)
-        }
+        rounds.forEach { db.add(it) }
         for (shoot in shoots) {
             shootDao.insert(shoot)
         }
@@ -200,14 +193,12 @@ class ShootsTest {
             val expected = shoots[actual.shoot.shootId - 1]
             assertEquals(expected, actual.shoot)
 
-            val expectedRoundName = rounds.find { it.roundId == expectedShootRound?.roundId }
-            assert(expectedRoundName == actual.round)
+            val expectedFullRound = expectedShootRound?.roundId?.let { rounds[it - 1] }
+            assert(expectedFullRound?.round == actual.round)
 
-            val expectedRoundSubTypeName =
-                    roundSubTypes.find {
-                        it.roundId == expectedShootRound?.roundId && it.subTypeId == expectedShootRound.roundSubTypeId
-                    }?.name
-            assertEquals(expectedRoundSubTypeName, actual.roundSubType?.name)
+            val expectedRoundSubType =
+                    expectedFullRound?.roundSubTypes?.find { it.subTypeId == expectedShootRound.roundSubTypeId }
+            assertEquals(expectedRoundSubType?.name, actual.roundSubType?.name)
         }
         assertEquals(shoots.size, retrievedRoundInfo.size)
     }
@@ -245,11 +236,10 @@ class ShootsTest {
                 DatabaseShootRound(5, roundId = 2),
                 DatabaseShootRound(7, roundId = 1),
         )
-        val rounds = TestUtils.ROUNDS.take(3)
-        val arrowCounts = TestUtils.ROUND_ARROW_COUNTS
+        val rounds = TestUtils.ROUNDS
 
-        val roundOneArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 1 }.sumOf { it.arrowCount }
-        val roundTwoArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 2 }.sumOf { it.arrowCount }
+        val roundOneArrowCount = rounds[0].roundArrowCounts!!.sumOf { it.arrowCount }
+        val roundTwoArrowCount = rounds[1].roundArrowCounts!!.sumOf { it.arrowCount }
         val arrows = listOf(
                 List(roundOneArrowCount - 3) { DatabaseArrowScore(1, it, 10, false) },
                 List(roundTwoArrowCount) { DatabaseArrowScore(2, it, 10, false) },
@@ -260,15 +250,7 @@ class ShootsTest {
                 List(roundOneArrowCount) { DatabaseArrowScore(7, it, 1, false) },
         ).flatten()
 
-        for (round in rounds) {
-            roundDao.insert(round)
-        }
-        for (roundSubType in TestUtils.ROUND_SUB_TYPES) {
-            roundSubTypeDao.insert(roundSubType)
-        }
-        for (roundArrowCount in arrowCounts) {
-            roundArrowCountsDao.insert(roundArrowCount)
-        }
+        rounds.forEach { db.add(it) }
         for (shoot in shoots) {
             shootDao.insert(shoot)
         }
@@ -311,11 +293,10 @@ class ShootsTest {
                 DatabaseShootRound(7, roundId = 1, roundSubTypeId = 2),
                 DatabaseShootRound(8, roundId = 1),
         )
-        val rounds = TestUtils.ROUNDS.take(3)
-        val arrowCounts = TestUtils.ROUND_ARROW_COUNTS
+        val rounds = TestUtils.ROUNDS
 
-        val roundOneArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 1 }.sumOf { it.arrowCount }
-        val roundTwoArrowCount = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == 2 }.sumOf { it.arrowCount }
+        val roundOneArrowCount = rounds[0].roundArrowCounts!!.sumOf { it.arrowCount }
+        val roundTwoArrowCount = rounds[1].roundArrowCounts!!.sumOf { it.arrowCount }
         val arrows = listOf(
                 List(roundOneArrowCount - 3) { DatabaseArrowScore(1, it, 10, false) },
                 List(roundTwoArrowCount) { DatabaseArrowScore(2, it, 10, false) },
@@ -327,15 +308,7 @@ class ShootsTest {
                 List(roundOneArrowCount) { DatabaseArrowScore(8, it, 1, false) },
         ).flatten()
 
-        for (round in rounds) {
-            roundDao.insert(round)
-        }
-        for (roundSubType in TestUtils.ROUND_SUB_TYPES) {
-            roundSubTypeDao.insert(roundSubType)
-        }
-        for (roundArrowCount in arrowCounts) {
-            roundArrowCountsDao.insert(roundArrowCount)
-        }
+        rounds.forEach { db.add(it) }
         for (shoot in shoots) {
             shootDao.insert(shoot)
         }

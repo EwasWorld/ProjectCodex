@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests.dsl
 
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.onFirst
 
 /**
@@ -14,6 +15,11 @@ sealed class CodexNodeGroupToOne {
 
     data class Index(val index: Int) : CodexNodeGroupToOne() {
         override fun toOne(group: SemanticsNodeInteractionCollection) = group[index]
+    }
+
+    data class HasContentDescription(val text: String) : CodexNodeGroupToOne() {
+        override fun toOne(group: SemanticsNodeInteractionCollection) =
+                group.filterToOne(CodexNodeMatcher.HasContentDescription(text).getMatcher())
     }
 
     abstract fun toOne(group: SemanticsNodeInteractionCollection): SemanticsNodeInteraction

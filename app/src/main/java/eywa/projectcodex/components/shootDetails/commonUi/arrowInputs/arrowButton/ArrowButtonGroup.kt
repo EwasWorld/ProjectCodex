@@ -196,12 +196,12 @@ private fun ArrowButton.Button(
                         .semantics {
                             this.contentDescription = contentDescription
                         }
+                        .testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON.getTestTag())
         ) {
             Text(
                     text = text.get(),
                     style = CodexTypography.NORMAL,
                     modifier = Modifier
-                            .testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON.getTestTag())
                             .clearAndSetSemantics { }
             )
         }

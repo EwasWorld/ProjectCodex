@@ -272,7 +272,7 @@ class ScorePadInstrumentedTest {
                             )
                     )
 
-                    clickRow(2)
+                    clickEnd(2)
                     clickEditDropdownMenuItem {
                         clickClear()
                         repeat(3) {
@@ -330,7 +330,7 @@ class ScorePadInstrumentedTest {
                 clickRow(0) {
                     waitForLoad()
 
-                    clickRow(1)
+                    clickEnd(1)
                     clickEditDropdownMenuItem {
                         checkEditEnd(1)
                         checkInputtedArrows(listOf("m", "1", "2", "3", "4", "5"))
@@ -380,7 +380,7 @@ class ScorePadInstrumentedTest {
                             )
                     )
 
-                    clickRow(2)
+                    clickEnd(2)
                     clickDeleteDropdownMenuItem(true, 2)
 
                     checkScorePadData(
@@ -425,7 +425,7 @@ class ScorePadInstrumentedTest {
                             )
                     )
 
-                    clickRow(3)
+                    clickEnd(3)
                     clickDeleteDropdownMenuItem(true, 3)
 
                     checkScorePadData(
@@ -470,7 +470,7 @@ class ScorePadInstrumentedTest {
                             )
                     )
 
-                    clickRow(2)
+                    clickEnd(2)
                     clickInsertDropdownMenuItem {
                         checkInsertEndBefore(2)
 

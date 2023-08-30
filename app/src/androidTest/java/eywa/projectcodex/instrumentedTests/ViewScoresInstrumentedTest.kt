@@ -12,12 +12,10 @@ import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
-import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.database.rounds.RoundArrowCount
-import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.databaseTests.DatabaseTestUtils.add
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
@@ -46,10 +44,7 @@ class ViewScoresInstrumentedTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
     private var shoots: List<DatabaseShoot> = listOf()
-    private var rounds = listOf<Round>()
-    private var roundSubTypes = listOf<RoundSubType>()
-    private var roundArrowCounts = listOf<RoundArrowCount>()
-    private var roundDistances = listOf<RoundDistance>()
+    private var rounds = listOf<FullRoundInfo>()
     private var arrows: List<List<DatabaseArrowScore>> = listOf()
     private var shootRound: List<DatabaseShootRound> = listOf()
 
@@ -58,9 +53,6 @@ class ViewScoresInstrumentedTest {
         hiltRule.inject()
         shoots = listOf()
         rounds = listOf()
-        roundSubTypes = listOf()
-        roundArrowCounts = listOf()
-        roundDistances = listOf()
         arrows = listOf()
 
         scenario = composeTestRule.activityRule.scenario
@@ -78,10 +70,7 @@ class ViewScoresInstrumentedTest {
     private fun populateDb() {
         scenario.onActivity {
             runBlocking {
-                rounds.forEach { db.roundDao().insert(it) }
-                roundSubTypes.forEach { db.roundSubTypeDao().insert(it) }
-                roundArrowCounts.forEach { db.roundArrowCountDao().insert(it) }
-                roundDistances.forEach { db.roundDistanceDao().insert(it) }
+                rounds.forEach { db.add(it) }
                 shoots.forEach { db.shootDao().insert(it) }
                 arrows.flatten().forEach { db.arrowScoreDao().insert(it) }
                 shootRound.forEach { db.shootRoundDao().insert(it) }
@@ -101,21 +90,30 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testViewScoresEntry_Values() {
         rounds = listOf(
-                Round(1, "metricround", "Metric Round", true, true),
-                Round(2, "imperialround", "Imperial Round", true, true),
-        )
-        roundSubTypes = listOf(
-                RoundSubType(2, 1, "Sub Type 1"),
-                RoundSubType(2, 2, "Sub Type 2")
-        )
-        roundArrowCounts = listOf(
-                RoundArrowCount(1, 1, 122.0, 48),
-                RoundArrowCount(2, 1, 122.0, 36)
-        )
-        roundDistances = listOf(
-                RoundDistance(1, 1, 1, 70),
-                RoundDistance(2, 1, 1, 60),
-                RoundDistance(2, 1, 2, 50)
+                FullRoundInfo(
+                        round = Round(1, "metricround", "Metric Round", true, true),
+                        roundSubTypes = listOf(),
+                        roundArrowCounts = listOf(
+                                RoundArrowCount(1, 1, 122.0, 48),
+                        ),
+                        roundDistances = listOf(
+                                RoundDistance(1, 1, 1, 70),
+                        ),
+                ),
+                FullRoundInfo(
+                        round = Round(2, "imperialround", "Imperial Round", true, true),
+                        roundSubTypes = listOf(
+                                RoundSubType(2, 1, "Sub Type 1"),
+                                RoundSubType(2, 2, "Sub Type 2"),
+                        ),
+                        roundArrowCounts = listOf(
+                                RoundArrowCount(2, 1, 122.0, 36),
+                        ),
+                        roundDistances = listOf(
+                                RoundDistance(2, 1, 1, 60),
+                                RoundDistance(2, 1, 2, 50),
+                        ),
+                ),
         )
 
         val firstOfThisYear =
@@ -197,11 +195,7 @@ class ViewScoresInstrumentedTest {
      */
     @Test
     fun testViewScoresEntry_NonDestructiveActions() {
-        val roundId = 1
-        rounds = TestUtils.ROUNDS.filter { it.roundId == roundId }
-        roundArrowCounts = TestUtils.ROUND_ARROW_COUNTS.filter { it.roundId == roundId }
-        roundSubTypes = TestUtils.ROUND_SUB_TYPES.filter { it.roundId == roundId }
-        roundDistances = TestUtils.ROUND_DISTANCES.filter { it.roundId == roundId }
+        rounds = TestUtils.ROUNDS.take(1)
 
         shoots = listOf(
                 // No round
@@ -213,7 +207,7 @@ class ViewScoresInstrumentedTest {
         arrows = listOf(
                 TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(1, i) },
                 // Add the correct number of arrows to complete the round
-                List(roundArrowCounts.sumOf { it.arrowCount }) {
+                List(rounds.first().roundArrowCounts!!.sumOf { it.arrowCount }) {
                     TestUtils.ARROWS[it % TestUtils.ARROWS.size].asArrowScore(2, it)
                 },
         )

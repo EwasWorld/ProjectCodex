@@ -9,13 +9,19 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.databaseTests.DatabaseTestUtils.add
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,23 +55,12 @@ class NewScoreInstrumentedTest {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
-    private var roundsInput = TestUtils.ROUNDS.take(3)
-    private val subtypesInput = TestUtils.ROUND_SUB_TYPES
-    private val arrowCountsInput = TestUtils.ROUND_ARROW_COUNTS
-    private val shootInput = DatabaseShoot(
-            1,
-            Date(2019, 5, 10, 17, 12, 13).asCalendar(),
-//            Calendar.Builder().setDate(2019, 5, 10).setTimeOfDay(17, 12, 13).build().time,
-            1,
-            true,
-    )
-    private val shootRoundInput = DatabaseShootRound(
-            shootId = 1,
-            roundId = 1,
-            roundSubTypeId = 2,
-    )
-
-    private val distancesInput = TestUtils.ROUND_DISTANCES
+    private var roundsInput = TestUtils.ROUNDS
+    private var shootInput = ShootPreviewHelperDsl.create {
+        shoot = shoot.copy(dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("10/6/19 17:12"))
+        round = roundsInput[0]
+        roundSubTypeId = 2
+    }
 
     private suspend fun getCurrentShoots() = db.shootDao().getAllFullShootInfo().first()
 
@@ -85,12 +80,8 @@ class NewScoreInstrumentedTest {
              * Fill default rounds
              */
             runBlocking {
-                roundsInput.forEach { db.roundDao().insert(it.copy(isMetric = true)) }
-                subtypesInput.forEach { db.roundSubTypeDao().insert(it) }
-                arrowCountsInput.forEach { db.roundArrowCountDao().insert(it) }
-                distancesInput.forEach { db.roundDistanceDao().insert(it) }
-                db.shootDao().insert(shootInput)
-                db.shootRoundDao().insert(shootRoundInput)
+                roundsInput.forEach { db.add(it.copy(round = it.round.copy(isMetric = true))) }
+                db.add(shootInput)
             }
         }
 
@@ -107,7 +98,7 @@ class NewScoreInstrumentedTest {
      * Test id is correct
      */
     @Test
-    fun addRoundNoType() = runTest {
+    fun testAddRoundNoType() = runTest {
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -128,7 +119,7 @@ class NewScoreInstrumentedTest {
      * Test id is correct
      */
     @Test
-    fun addAnotherRound() = runTest {
+    fun testAddAnotherRound() = runTest {
         setup()
         val ar = DatabaseShoot(2, TestUtils.generateDate(2020), 1, true)
         db.shootDao().insert(ar)
@@ -140,8 +131,8 @@ class NewScoreInstrumentedTest {
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForRowCount(2)
-                waitForHsg(0, "1/6/0")
-                waitForHsg(1, "1/7/0")
+                waitForHsg(0, "1/7/0")
+                waitForHsg(1, "1/6/0")
                 pressBack()
             }
 
@@ -156,7 +147,7 @@ class NewScoreInstrumentedTest {
         val roundsAfterCreate = getCurrentShoots()
                 .filterNot { it.shoot.shootId == ar.shootId }
         assertEquals(2, roundsAfterCreate.size)
-        assertEquals(shootInput, roundsAfterCreate[0].shoot)
+        assertEquals(shootInput.shoot, roundsAfterCreate[0].shoot)
         assert(roundsAfterCreate[1].shoot.shootId > ar.shootId)
         assertEquals(null, roundsAfterCreate[1].shootRound?.roundId)
         assertEquals(null, roundsAfterCreate[1].shootRound?.roundSubTypeId)
@@ -164,7 +155,17 @@ class NewScoreInstrumentedTest {
 
     @Test
     fun testNoRoundButton() = runTest {
-        roundsInput = List(20) { Round(it + 1, "$it", "$it", false, false) }
+        roundsInput = List(20) {
+            FullRoundInfo(
+                    round = Round(it + 1, "$it", "$it", false, false),
+                    roundArrowCounts = listOf(RoundArrowCount(it + 1, 1, 1.0, 1)),
+                    roundDistances = listOf(RoundDistance(it + 1, 1, 1, 1)),
+            )
+        }
+        shootInput = ShootPreviewHelperDsl.create {
+            shoot = shoot.copy(dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("10/6/19 17:12"))
+            round = roundsInput[0]
+        }
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -185,7 +186,7 @@ class NewScoreInstrumentedTest {
      * Test round and subtype id are correct
      */
     @Test
-    fun addRoundWithSubtype() = runTest {
+    fun testAddRoundWithSubtype() = runTest {
         setup()
         db.shootDao().getAllFullShootInfo().takeWhile { it.isEmpty() }.collect()
 
@@ -193,11 +194,11 @@ class NewScoreInstrumentedTest {
         assertEquals(1, roundsBeforeCreate.size)
 
         val selectedRound = roundsInput[0]
-        val selectedSubtype = subtypesInput.filter { it.roundId == selectedRound.roundId }[1]
+        val selectedSubtype = selectedRound.roundSubTypes!![1]
         composeTestRule.mainMenuRobot {
             clickNewScore {
                 clickSelectedRound()
-                clickRoundDialogRound(selectedRound.displayName)
+                clickRoundDialogRound(selectedRound.round.displayName)
 
                 clickSelectedSubtype()
                 clickSubtypeDialogSubtype(selectedSubtype.name!!)
@@ -209,8 +210,8 @@ class NewScoreInstrumentedTest {
         runBlocking { delay(1000) }
         val roundsAfterCreate = getCurrentShoots()
         assertEquals(2, roundsAfterCreate.size)
-        assertEquals(shootInput, roundsAfterCreate[0].shoot)
-        assertEquals(selectedRound.roundId, roundsAfterCreate[1].shootRound?.roundId)
+        assertEquals(shootInput.shoot, roundsAfterCreate[0].shoot)
+        assertEquals(selectedRound.round.roundId, roundsAfterCreate[1].shootRound?.roundId)
         assertEquals(selectedSubtype.subTypeId, roundsAfterCreate[1].shootRound?.roundSubTypeId)
     }
 
@@ -261,7 +262,7 @@ class NewScoreInstrumentedTest {
                     checkTime("17:12")
                     checkDate("10 Jun 19")
 
-                    checkSelectedRound(roundsInput.find { it.roundId == shootRoundInput.roundId }!!.displayName)
+                    checkSelectedRound(shootInput.round!!.displayName)
 
                     /*
                      * Change some stuff
@@ -272,7 +273,7 @@ class NewScoreInstrumentedTest {
                     checkDate("30 Oct 40")
 
                     clickSelectedRound()
-                    clickRoundDialogRound(selectedRound.displayName)
+                    clickRoundDialogRound(selectedRound.round.displayName)
 
                     /*
                      * Reset
@@ -290,7 +291,7 @@ class NewScoreInstrumentedTest {
                     checkDate("30 Oct 40")
 
                     clickSelectedRound()
-                    clickRoundDialogRound(selectedRound.displayName)
+                    clickRoundDialogRound(selectedRound.round.displayName)
 
                     /*
                      * Save
@@ -301,20 +302,20 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val updated = getShoots(shootInput.shootId)
+        val updated = getShoots(shootInput.shoot.shootId)
         assertEquals(
                 DatabaseShoot(
-                        shootInput.shootId,
+                        shootInput.shoot.shootId,
                         calendar,
-                        shootInput.archerId,
-                        shootInput.countsTowardsHandicap,
+                        shootInput.shoot.archerId,
+                        shootInput.shoot.countsTowardsHandicap,
                 ),
                 updated!!.shoot.copy(dateShot = calendar)
         )
         assertEquals(
                 DatabaseShootRound(
-                        shootId = shootInput.shootId,
-                        roundId = selectedRound.roundId,
+                        shootId = shootInput.shoot.shootId,
+                        roundId = selectedRound.round.roundId,
                         roundSubTypeId = 1,
                 ),
                 updated.shootRound,
@@ -343,14 +344,14 @@ class NewScoreInstrumentedTest {
         }
 
         runBlocking { delay(1000) }
-        val actual = getShoots(shootInput.shootId)!!
+        val actual = getShoots(shootInput.shoot.shootId)!!
         val actualDateShot = actual.shoot.dateShot
         assertEquals(
                 DatabaseShoot(
-                        shootId = shootInput.shootId,
+                        shootId = shootInput.shoot.shootId,
                         dateShot = actualDateShot,
-                        archerId = shootInput.archerId,
-                        countsTowardsHandicap = shootInput.countsTowardsHandicap,
+                        archerId = shootInput.shoot.archerId,
+                        countsTowardsHandicap = shootInput.shoot.countsTowardsHandicap,
                 ),
                 actual.shoot,
         )
@@ -358,11 +359,11 @@ class NewScoreInstrumentedTest {
                 null,
                 actual.shootRound,
         )
-        assertEquals(shootInput.dateShot.get(Calendar.YEAR), actualDateShot.get(Calendar.YEAR))
-        assertEquals(shootInput.dateShot.get(Calendar.MONTH), actualDateShot.get(Calendar.MONTH))
-        assertEquals(shootInput.dateShot.get(Calendar.DATE), actualDateShot.get(Calendar.DATE))
-        assertEquals(shootInput.dateShot.get(Calendar.HOUR_OF_DAY), actualDateShot.get(Calendar.HOUR_OF_DAY))
-        assertEquals(shootInput.dateShot.get(Calendar.MINUTE), actualDateShot.get(Calendar.MINUTE))
+        assertEquals(shootInput.shoot.dateShot.get(Calendar.YEAR), actualDateShot.get(Calendar.YEAR))
+        assertEquals(shootInput.shoot.dateShot.get(Calendar.MONTH), actualDateShot.get(Calendar.MONTH))
+        assertEquals(shootInput.shoot.dateShot.get(Calendar.DATE), actualDateShot.get(Calendar.DATE))
+        assertEquals(shootInput.shoot.dateShot.get(Calendar.HOUR_OF_DAY), actualDateShot.get(Calendar.HOUR_OF_DAY))
+        assertEquals(shootInput.shoot.dateShot.get(Calendar.MINUTE), actualDateShot.get(Calendar.MINUTE))
     }
 
     @Test

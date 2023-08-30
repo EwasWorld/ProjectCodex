@@ -158,7 +158,13 @@ private fun ScorePadScreen(
 
 
     // TODO Make the row and column headers stick
-    if (state.scorePadData.isNullOrEmpty()) return
+    if (state.scorePadData.isNullOrEmpty()) {
+        Box(
+                modifier = modifier.testTag(ScorePadTestTag.SCREEN.getTestTag())
+        )
+        return
+    }
+
     Row(
             verticalAlignment = Alignment.Top,
             modifier = modifier
@@ -306,8 +312,8 @@ private fun Cell(
                     .then(backgroundModifier)
                     .padding(vertical = 5.dp, horizontal = 10.dp)
                     .then(clickModifier)
-                    .testTag(ScorePadTestTag.CELL.getTestTag())
                     .then(semanticsModifier)
+                    .testTag(ScorePadTestTag.CELL.getTestTag())
     )
 }
 
@@ -327,7 +333,7 @@ private fun DropdownMenu(
 
             DropdownMenuItem(
                     onClick = {
-                        check(endNumber > 1) { "Invalid end number" }
+                        check(endNumber > 0) { "Invalid end number" }
                         listener(item.action(endNumber))
                     },
                     modifier = Modifier.testTag(ScorePadTestTag.DROPDOWN_MENU_ITEM.getTestTag())

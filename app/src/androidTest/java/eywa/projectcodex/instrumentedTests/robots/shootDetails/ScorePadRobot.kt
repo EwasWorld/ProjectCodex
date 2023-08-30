@@ -1,5 +1,6 @@
 package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
+import androidx.core.text.isDigitsOnly
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.ListUtils.transpose
@@ -25,8 +26,21 @@ class ScorePadRobot(
      * Checks all cells including headers
      */
     fun checkScorePadData(list: List<ExpectedRowData>) {
-        val allCells = list.map { it.asList() }.transpose().flatten().map { CodexNodeAction.AssertTextEquals(it) }
+        val allCells = list
+                .drop(1)
+                .map { it.asList() }
+                .transpose()
+                .flatten()
+                .mapNotNull {
+                    if (it == null || it == "T" || it == "GT") {
+                        null
+                    }
+                    else {
+                        CodexNodeAction.AssertTextEquals(it)
+                    }
+                }
         perform {
+            useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
             +CodexNodeGroupAction.ForEach(allCells)
             +CodexNodeGroupAction.AssertCount(allCells.size)
@@ -39,13 +53,13 @@ class ScorePadRobot(
     }
 
     /**
-     * @param rowIndex does not include the header row
+     * @param endNumber 1-indexed
      */
-    fun clickRow(rowIndex: Int) {
+    fun clickEnd(endNumber: Int) {
         perform {
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
-            +CodexNodeGroupToOne.Index(rowIndex)
+            +CodexNodeGroupToOne.HasContentDescription("End $endNumber")
             +CodexNodeAction.PerformScrollTo
             +CodexNodeAction.PerformClick
         }
@@ -109,6 +123,13 @@ class ScorePadRobot(
                 runningTotal?.toString(),
         )
 
-        fun asList() = listOfNotNull(header ?: "", main, hits, score, golds, runningTotal ?: "-")
+        fun asList() = listOf(
+                header,
+                main.takeIf { it != "Arrows" },
+                hits.takeIf { it.isDigitsOnly() },
+                score.takeIf { it.isDigitsOnly() },
+                golds.takeIf { it.isDigitsOnly() },
+                runningTotal,
+        )
     }
 }

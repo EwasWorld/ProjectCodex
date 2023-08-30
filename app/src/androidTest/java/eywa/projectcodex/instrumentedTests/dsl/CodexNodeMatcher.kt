@@ -12,6 +12,10 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher = hasText(text)
     }
 
+    data class HasContentDescription(val text: String) : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = hasContentDescription(text)
+    }
+
     data class HasTestTag(val testTag: CodexTestTag) : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = hasTestTag(testTag.getTestTag())
     }
