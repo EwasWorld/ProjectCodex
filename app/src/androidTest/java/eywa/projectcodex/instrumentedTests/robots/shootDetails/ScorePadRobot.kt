@@ -26,20 +26,20 @@ class ScorePadRobot(
      * Checks all cells including headers
      */
     fun checkScorePadData(list: List<ExpectedRowData>) {
-        val allCells = list
-                .drop(1)
-                .map { it.asList() }
-                .transpose()
-                .flatten()
-                .mapNotNull {
-                    if (it == null || it == "T" || it == "GT") {
-                        null
-                    }
-                    else {
-                        CodexNodeAction.AssertTextEquals(it)
-                    }
-                }
         perform {
+            val allCells = list
+                    .drop(1)
+                    .map { it.asList() }
+                    .transpose()
+                    .flatten()
+                    .mapNotNull {
+                        if (it == null || it == "T" || it == "GT") {
+                            null
+                        }
+                        else {
+                            CodexNodeAction.AssertTextEquals(it).waitFor()
+                        }
+                    }
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
             +CodexNodeGroupAction.ForEach(allCells)

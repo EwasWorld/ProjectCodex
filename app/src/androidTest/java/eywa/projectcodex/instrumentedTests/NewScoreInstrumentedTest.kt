@@ -23,6 +23,7 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.databaseTests.DatabaseTestUtils.add
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
+import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -80,7 +81,7 @@ class NewScoreInstrumentedTest {
              * Fill default rounds
              */
             runBlocking {
-                roundsInput.forEach { db.add(it.copy(round = it.round.copy(isMetric = true))) }
+                roundsInput.forEach { db.add(it) }
                 db.add(shootInput)
             }
         }
@@ -417,7 +418,6 @@ class NewScoreInstrumentedTest {
                                 countsTowardsHandicap = true,
                         )
                 )
-                db.shootRoundDao().insert(DatabaseShootRound(shootId = 2, roundId = 2))
             }
         }
 
@@ -433,6 +433,44 @@ class NewScoreInstrumentedTest {
                     facesRobot.clickSingleOption("Half")
                     facesRobot.checkFaces("Half")
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testSelectRoundDialog() {
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSelectedRound()
+                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                checkNoFiltersAreOn()
+
+                clickFilter(NewScoreRobot.Filter.METRIC)
+                checkSelectRoundDialogOptions(listOf("WA 1440", "WA 25"))
+                checkSelectRoundDialogOptionsNotExist(listOf("St. George", "Portsmouth"))
+                clickFilter(NewScoreRobot.Filter.IMPERIAL)
+                checkSelectRoundDialogOptions(listOf("St. George", "Portsmouth"))
+                checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "WA 25"))
+                clickFilter(NewScoreRobot.Filter.IMPERIAL, false)
+                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                checkNoFiltersAreOn()
+
+                clickFilter(NewScoreRobot.Filter.INDOOR)
+                checkSelectRoundDialogOptions(listOf("Portsmouth", "WA 25"))
+                checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George"))
+                clickFilter(NewScoreRobot.Filter.OUTDOOR)
+                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George"))
+                checkSelectRoundDialogOptionsNotExist(listOf("Portsmouth", "WA 25"))
+                clickFilter(NewScoreRobot.Filter.OUTDOOR, false)
+                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                checkNoFiltersAreOn()
+
+                clickFilter(NewScoreRobot.Filter.INDOOR)
+                clickFilter(NewScoreRobot.Filter.METRIC)
+                checkSelectRoundDialogOptions(listOf("WA 25"))
+                checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George", "Portsmouth"))
             }
         }
     }

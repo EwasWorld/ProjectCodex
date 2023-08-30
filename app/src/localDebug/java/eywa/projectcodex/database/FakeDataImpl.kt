@@ -53,7 +53,7 @@ class FakeDataImpl : FakeData {
 
         listOf(
                 Round(101, "metricround", "Metric Round", true, true),
-                Round(102, "imperialround", "Imperial Round", true, true),
+                Round(102, "imperialround", "Imperial Round", true, false),
         ).forEach { db.roundDao().insert(it) }
         listOf(
                 RoundSubType(102, 1, "Sub Type 1"),
@@ -81,7 +81,7 @@ class FakeDataImpl : FakeData {
         shoots.forEach { db.shootDao().insert(it) }
         shoots.map { shoot ->
             val shootId = shoot.shootId
-            List(12) { arrowTypes[shootId].toArrowScore(shootId, it + 1) }
+            List(12) { arrowTypes[shootId].asArrowScore(shootId, it + 1) }
         }.flatten().forEach { db.arrowScoreDao().insert(it) }
 
         listOf(

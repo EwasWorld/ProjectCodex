@@ -34,7 +34,7 @@ object TestUtils {
 
     val ROUNDS = listOf(
             FullRoundInfo(
-                    round = Round(1, "wa 1440", "WA 1440", true, false, false, null, null),
+                    round = Round(1, "wa 1440", "WA 1440", true, true, false, null, null),
                     roundArrowCounts = listOf(
                             RoundArrowCount(1, 1, 122.0, 48),
                             RoundArrowCount(1, 2, 122.0, 36),
@@ -58,7 +58,7 @@ object TestUtils {
                     ),
             ),
             FullRoundInfo(
-                    round = Round(2, "st george", "St. George", true, true, false, null, null),
+                    round = Round(2, "st george", "St. George", true, false, false, null, null),
                     roundArrowCounts = listOf(
                             RoundArrowCount(2, 1, 922.0, 60),
                             RoundArrowCount(2, 2, 922.0, 48),
@@ -72,7 +72,7 @@ object TestUtils {
                     ),
             ),
             FullRoundInfo(
-                    round = Round(3, "national", "National", false, false, false, null, null),
+                    round = Round(3, "portsmouth", "Portsmouth", false, false, false, null, null),
                     roundArrowCounts = listOf(
                             RoundArrowCount(3, 1, 822.0, 70),
                             RoundArrowCount(3, 2, 822.0, 60),
@@ -87,6 +87,15 @@ object TestUtils {
                             RoundDistance(3, 2, 1, 30),
                             RoundDistance(3, 1, 2, 20),
                             RoundDistance(3, 2, 2, 10),
+                    ),
+            ),
+            FullRoundInfo(
+                    round = Round(4, "wa25", "WA 25", false, true, false, null, null),
+                    roundArrowCounts = listOf(
+                            RoundArrowCount(4, 1, 60.0, 60),
+                    ),
+                    roundDistances = listOf(
+                            RoundDistance(4, 1, 1, 25),
                     ),
             ),
     )

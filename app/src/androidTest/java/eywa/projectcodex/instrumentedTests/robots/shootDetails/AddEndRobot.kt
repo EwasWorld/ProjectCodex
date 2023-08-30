@@ -12,19 +12,17 @@ class AddEndRobot(
 ) : ArrowInputsRobot(composeTestRule, AddEndTestTag.SCREEN) {
     fun waitForLoad() {
         perform {
-            waitForDisplay = true
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
-            +CodexNodeAction.AssertIsDisplayed
+            +CodexNodeAction.AssertIsDisplayed.waitFor()
         }
     }
 
     fun waitForRemainingArrows() {
         perform {
-            waitForDisplay = true
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
-            +CodexNodeAction.AssertIsDisplayed
+            +CodexNodeAction.AssertIsDisplayed.waitFor()
         }
     }
 

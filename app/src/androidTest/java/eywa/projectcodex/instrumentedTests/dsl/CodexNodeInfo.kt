@@ -3,7 +3,7 @@ package eywa.projectcodex.instrumentedTests.dsl
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.performScrollToIndex
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.core.mainActivity.MainActivity
 
@@ -23,6 +23,7 @@ internal sealed class CodexNodeInfo {
             val actions: List<CodexNodeAction> = emptyList(),
     ) : CodexNodeInfo() {
         private var node: SemanticsNodeInteraction? = null
+        private var parentNode: SemanticsNodeInteraction? = null
 
         override fun plus(other: CodexNodeAction): CodexNodeInfo = copy(actions = actions + other)
         override fun plus(other: CodexNodeMatcher): CodexNodeInfo = copy(matchers = matchers + other)
@@ -35,13 +36,27 @@ internal sealed class CodexNodeInfo {
             node = composeTestRule.onNode(matcher = matchers.getMatcher(), useUnmergedTree = useUnmergedTree)
         }
 
-        override fun assertIsDisplayed() {
-            node!!.assertIsDisplayed()
-        }
-
         override fun performActions() {
             check(actions.isNotEmpty()) { "No actions" }
             actions.forEach { it.perform(node!!) }
+        }
+
+        override fun createScrollableParentNode(
+                composeTestRule: ComposeTestRule<MainActivity>,
+                useUnmergedTree: Boolean
+        ) {
+            check(matchers.isNotEmpty()) { "No matchers" }
+
+            val parentMatchers = listOf(
+                    CodexNodeMatcher.HasAnyDescendant(matchers),
+                    CodexNodeMatcher.HasScrollToIndexAction,
+            )
+            parentNode =
+                    composeTestRule.onNode(matcher = parentMatchers.getMatcher(), useUnmergedTree = useUnmergedTree)
+        }
+
+        override fun scrollToIndexInParent(index: Int) {
+            parentNode!!.performScrollToIndex(index)
         }
     }
 
@@ -51,6 +66,7 @@ internal sealed class CodexNodeInfo {
             val actions: List<CodexNodeAction> = emptyList(),
     ) : CodexNodeInfo() {
         private var node: SemanticsNodeInteraction? = null
+        private var parentNode: SemanticsNodeInteraction? = null
 
         override fun plus(other: CodexNodeAction): CodexNodeInfo = copy(actions = actions + other)
 
@@ -64,13 +80,27 @@ internal sealed class CodexNodeInfo {
             )
         }
 
-        override fun assertIsDisplayed() {
-            node!!.assertIsDisplayed()
-        }
-
         override fun performActions() {
             check(actions.isNotEmpty()) { "No actions" }
             actions.forEach { it.perform(node!!) }
+        }
+
+        override fun createScrollableParentNode(
+                composeTestRule: ComposeTestRule<MainActivity>,
+                useUnmergedTree: Boolean
+        ) {
+            check(matchers.isNotEmpty()) { "No matchers" }
+
+            val parentMatchers = listOf(
+                    CodexNodeMatcher.HasAnyDescendant(matchers),
+                    CodexNodeMatcher.HasScrollToIndexAction,
+            )
+            parentNode =
+                    composeTestRule.onNode(matcher = parentMatchers.getMatcher(), useUnmergedTree = useUnmergedTree)
+        }
+
+        override fun scrollToIndexInParent(index: Int) {
+            parentNode!!.performScrollToIndex(index)
         }
     }
 
@@ -79,6 +109,7 @@ internal sealed class CodexNodeInfo {
             val actions: List<CodexNodeGroupAction> = emptyList(),
     ) : CodexNodeInfo() {
         private var node: SemanticsNodeInteractionCollection? = null
+        private var parentNode: SemanticsNodeInteraction? = null
 
         override fun plus(other: CodexNodeGroupAction): CodexNodeInfo = copy(actions = actions + other)
 
@@ -95,13 +126,27 @@ internal sealed class CodexNodeInfo {
             node = composeTestRule.onAllNodes(matcher = matchers.getMatcher(), useUnmergedTree = useUnmergedTree)
         }
 
-        override fun assertIsDisplayed() {
-            node!!.onFirst().assertIsDisplayed()
-        }
-
         override fun performActions() {
             check(actions.isNotEmpty()) { "No actions" }
             actions.forEach { it.perform(node!!) }
+        }
+
+        override fun createScrollableParentNode(
+                composeTestRule: ComposeTestRule<MainActivity>,
+                useUnmergedTree: Boolean
+        ) {
+            check(matchers.isNotEmpty()) { "No matchers" }
+
+            val parentMatchers = listOf(
+                    CodexNodeMatcher.HasAnyDescendant(matchers),
+                    CodexNodeMatcher.HasScrollToIndexAction,
+            )
+            parentNode =
+                    composeTestRule.onNode(matcher = parentMatchers.getMatcher(), useUnmergedTree = useUnmergedTree)
+        }
+
+        override fun scrollToIndexInParent(index: Int) {
+            parentNode!!.performScrollToIndex(index)
         }
     }
 
@@ -113,9 +158,11 @@ internal sealed class CodexNodeInfo {
     open fun createNode(composeTestRule: ComposeTestRule<MainActivity>, useUnmergedTree: Boolean): Unit =
             throw NotImplementedError()
 
-    /**
-     * Checks that at least one node (or the only node) is displayed
-     */
-    open fun assertIsDisplayed(): Unit = throw NotImplementedError()
+    open fun createScrollableParentNode(
+            composeTestRule: ComposeTestRule<MainActivity>,
+            useUnmergedTree: Boolean,
+    ): Unit = throw NotImplementedError()
+
+    open fun scrollToIndexInParent(index: Int): Unit = throw NotImplementedError()
     open fun performActions(): Unit = throw NotImplementedError()
 }

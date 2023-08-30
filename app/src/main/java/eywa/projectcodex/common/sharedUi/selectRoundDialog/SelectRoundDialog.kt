@@ -29,7 +29,10 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.Sorting
 import eywa.projectcodex.components.newScore.NewScoreTestTag
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.RoundSubType
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
@@ -48,7 +51,7 @@ fun SelectRoundRows(
         displayedSubtype = state.selectedSubType?.name,
         isSelectRoundDialogOpen = state.isRoundDialogOpen,
         isSelectSubtypeDialogOpen = state.isSubtypeDialogOpen,
-        rounds = state.allRounds?.map { it.round } ?: emptyList(),
+        rounds = state.filteredRounds,
         filters = state.filters,
         subTypes = state.selectedRound?.roundSubTypes ?: emptyList(),
         arrowCounts = state.selectedRound?.roundArrowCounts,

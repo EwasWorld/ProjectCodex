@@ -44,11 +44,10 @@ abstract class ArrowInputsRobot(
 
     fun checkInputtedArrows(expectedArrows: List<String>, endSize: Int = 6) {
         perform {
-            waitForDisplay = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.END_ARROWS_TEXT)
             +CodexNodeAction.AssertTextEquals(
                     expectedArrows.plus(List(endSize - expectedArrows.size) { "." }).joinToString("-")
-            )
+            ).waitFor()
         }
     }
 

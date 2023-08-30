@@ -1,7 +1,6 @@
 package eywa.projectcodex.instrumentedTests.dsl
 
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 
@@ -13,11 +12,7 @@ import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 class TestActionDsl {
     private var info: CodexNodeInfo = CodexNodeInfo.Empty
     var useUnmergedTree = false
-
-    /**
-     * @see CodexNodeInfo.assertIsDisplayed
-     */
-    var waitForDisplay = false
+    var scrollToParentIndex: Int? = null
 
     operator fun CodexNodeAction.unaryPlus() {
         info += this
@@ -41,12 +36,12 @@ class TestActionDsl {
     }
 
     fun run(composeTestRule: ComposeTestRule<MainActivity>) {
-        info.createNode(composeTestRule, useUnmergedTree)
-        if (waitForDisplay) {
-            CustomConditionWaiter.waitForComposeCondition {
-                info.assertIsDisplayed()
-            }
+        scrollToParentIndex?.let {
+            info.createScrollableParentNode(composeTestRule, useUnmergedTree)
+            info.scrollToIndexInParent(it)
         }
+
+        info.createNode(composeTestRule, useUnmergedTree)
         info.performActions()
     }
 }

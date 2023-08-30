@@ -19,6 +19,9 @@ data class SelectRoundDialogState(
         ) { "Not enough subtypes for a dialog" }
     }
 
+    val filteredRounds
+        get() = filters.filter(allRounds.orEmpty().map { it.round })
+
     val selectedRound
         get() = allRounds?.find { it.round.roundId == selectedRoundId }
 

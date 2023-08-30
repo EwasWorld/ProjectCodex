@@ -38,5 +38,23 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher = hasAnyDescendant(matchers.getMatcher())
     }
 
+    data class HasAnyChild(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
+        constructor(matcher: CodexNodeMatcher) : this(listOf(matcher))
+
+        override fun getMatcher(): SemanticsMatcher = hasAnyChild(matchers.getMatcher())
+    }
+
+    object HasClickAction : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = hasClickAction()
+    }
+
+    object HasScrollToIndexAction : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = hasScrollToIndexAction()
+    }
+
+    object HasScrollAction : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = hasScrollAction()
+    }
+
     abstract fun getMatcher(): SemanticsMatcher
 }

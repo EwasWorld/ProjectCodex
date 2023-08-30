@@ -2,7 +2,6 @@ package eywa.projectcodex.instrumentedTests.dsl
 
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertCountEquals
-import eywa.projectcodex.common.CustomConditionWaiter
 
 /**
  * Actions which can be performed on a [SemanticsNodeInteractionCollection]
@@ -10,20 +9,10 @@ import eywa.projectcodex.common.CustomConditionWaiter
 sealed class CodexNodeGroupAction {
     data class ForEach(
             val actions: List<CodexNodeAction>,
-            val waitFor: Boolean = true,
     ) : CodexNodeGroupAction() {
         override fun perform(nodes: SemanticsNodeInteractionCollection) {
-            val wrapper = if (!waitFor) {
-                { it: () -> Unit -> it() }
-            }
-            else {
-                { it: () -> Unit -> CustomConditionWaiter.waitForComposeCondition { it() } }
-            }
-
             actions.forEachIndexed { index, action ->
-                wrapper {
-                    action.perform(nodes[index])
-                }
+                action.perform(nodes[index])
             }
         }
     }
