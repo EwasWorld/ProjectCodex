@@ -392,16 +392,17 @@ private fun AddNewSightMarkButton(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
     CodexIconButton(
             onClick = { listener(CreateSightMarkClicked) },
-            icon = Icons.Default.Add,
-            contentDescription = stringResource(R.string.sight_marks__add_button),
+            icon = CodexIconInfo.VectorIcon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.sight_marks__add_button),
+            ),
             captionBelow = stringResource(R.string.sight_marks__add_button),
             helpState = HelpState(
                     helpListener = helpListener,
                     helpTitle = stringResource(R.string.help_sight_marks__add_title),
                     helpBody = stringResource(R.string.help_sight_marks__add_body),
             ),
-            modifier = Modifier
-                    .testTag(ADD_BUTTON.getTestTag())
+            modifier = Modifier.testTag(ADD_BUTTON.getTestTag())
     )
 }
 
@@ -424,16 +425,17 @@ private fun MainScreen(
             AddNewSightMarkButton(listener)
             CodexIconButton(
                     onClick = { isMenuShown = true },
-                    icon = Icons.Default.MoreHoriz,
-                    contentDescription = stringResource(R.string.sight_marks__options_button),
+                    icon = CodexIconInfo.VectorIcon(
+                            imageVector = Icons.Default.MoreHoriz,
+                            contentDescription = stringResource(R.string.sight_marks__options_button),
+                    ),
                     captionBelow = stringResource(R.string.sight_marks__options_button),
                     helpState = HelpState(
                             helpListener = helpListener,
                             helpTitle = stringResource(R.string.help_sight_marks__options_title),
                             helpBody = stringResource(R.string.help_sight_marks__options_body),
                     ),
-                    modifier = Modifier
-                            .testTag(OPTIONS_BUTTON.getTestTag())
+                    modifier = Modifier.testTag(OPTIONS_BUTTON.getTestTag())
             )
         }
         HelpShowcaseItem(

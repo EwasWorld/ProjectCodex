@@ -43,8 +43,8 @@ class StatsViewModel @Inject constructor(
             is ShootDetailsAction -> repo.handle(action.action, screen)
             EditShootClicked -> extraState.update { it.copy(openEditShootScreen = true) }
             EditShootHandled -> extraState.update { it.copy(openEditShootScreen = false) }
-            EditHandicapClicked -> extraState.update { it.copy(openEditHandicapScreen = true) }
-            EditHandicapHandled -> extraState.update { it.copy(openEditHandicapScreen = false) }
+            EditArcherInfoClicked -> extraState.update { it.copy(openEditArcherInfoScreen = true) }
+            EditArcherInfoHandled -> extraState.update { it.copy(openEditArcherInfoScreen = false) }
             PastRoundRecordsClicked -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = true) }
             PastRoundRecordsDismissed -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = false) }
         }

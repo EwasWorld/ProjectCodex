@@ -84,7 +84,7 @@ fun HandleEffects(
 ) {
     val loadedState = state.getData() ?: return
 
-    LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditHandicapScreen) {
+    LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditArcherInfoScreen) {
         if (loadedState.openEditShootScreen) {
             CodexNavRoute.NEW_SCORE.navigate(
                     navController,
@@ -92,9 +92,9 @@ fun HandleEffects(
             )
             listener(EditShootHandled)
         }
-        if (loadedState.openEditHandicapScreen) {
-            CodexNavRoute.ARCHER_HANDICAPS.navigate(navController)
-            listener(EditHandicapHandled)
+        if (loadedState.openEditArcherInfoScreen) {
+            CodexNavRoute.ARCHER_INFO.navigate(navController)
+            listener(EditArcherInfoHandled)
         }
     }
 }
@@ -150,8 +150,10 @@ private fun EditBox(
             }
         }
         CodexIconButton(
-                icon = Icons.Default.Edit,
-                contentDescription = editContentDescription,
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = editContentDescription,
+                ),
                 onClick = editListener,
                 modifier = Modifier.padding(horizontal = 0.dp, vertical = 0.dp)
         )
@@ -281,7 +283,7 @@ private fun AllowanceSection(
     Section {
         EditBox(
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_edit),
-                editListener = { listener(EditHandicapClicked) }
+                editListener = { listener(EditArcherInfoClicked) }
         ) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_handicap),

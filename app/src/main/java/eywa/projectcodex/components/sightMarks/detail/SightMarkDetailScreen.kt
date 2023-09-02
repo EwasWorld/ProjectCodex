@@ -287,8 +287,10 @@ fun SightMarkDetail(
             ) {
                 if (state.originalSightMark != null) {
                     CodexIconButton(
-                            icon = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.general_delete),
+                            icon = CodexIconInfo.VectorIcon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.general_delete),
+                            ),
                             captionBelow = stringResource(R.string.general_delete),
                             onClick = { isDeleteConfirmationShown = true },
                             helpState = HelpState(
@@ -299,8 +301,10 @@ fun SightMarkDetail(
                             modifier = Modifier.testTag(DELETE_BUTTON.getTestTag())
                     )
                     CodexIconButton(
-                            icon = Icons.Default.Refresh,
-                            contentDescription = stringResource(R.string.general__reset_edits),
+                            icon = CodexIconInfo.VectorIcon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = stringResource(R.string.general__reset_edits),
+                            ),
                             captionBelow = stringResource(R.string.general__reset_edits),
                             onClick = { listener(ResetClicked) },
                             helpState = HelpState(
@@ -312,8 +316,10 @@ fun SightMarkDetail(
                     )
                 }
                 CodexIconButton(
-                        icon = Icons.Default.Check,
-                        contentDescription = stringResource(R.string.general_save),
+                        icon = CodexIconInfo.VectorIcon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = stringResource(R.string.general_save),
+                        ),
                         captionBelow = stringResource(R.string.general_save),
                         onClick = { listener(SaveClicked) },
                         enabled = state.isFormValid,

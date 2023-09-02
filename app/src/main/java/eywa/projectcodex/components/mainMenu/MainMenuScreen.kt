@@ -4,15 +4,13 @@ import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -23,9 +21,9 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
-import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexThemeColors
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.mainMenu.MainMenuIntent.*
 import kotlin.system.exitProcess
@@ -36,7 +34,7 @@ fun MainMenuScreen(
         viewModel: MainMenuViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    MainMenuScreen(state = state, listener = { viewModel.handle(it) })
+    MainMenuScreen(options = viewModel.options, state = state, listener = { viewModel.handle(it) })
 
     BackHandler(!state.isHelpShowcaseInProgress && !state.isExitDialogOpen) {
         viewModel.handle(OpenExitDialog)
@@ -55,9 +53,9 @@ fun MainMenuScreen(
     }
 }
 
-// TODO Fix button focus order - currently app starts focussed on the help icon in the action bar
 @Composable
 private fun MainMenuScreen(
+        options: Set<MainMenuOption>,
         state: MainMenuState,
         listener: (MainMenuIntent) -> Unit,
 ) {
@@ -71,97 +69,51 @@ private fun MainMenuScreen(
                     .background(CodexTheme.colors.appBackground)
                     .testTag(MainMenuTestTag.SCREEN.getTestTag())
     ) {
+        val (iconButtons, defaultButtons) = options.partition { it.buttonTitle == null }
 
-        CodexButton(
-                text = stringResource(id = R.string.main_menu__new_score),
-                onClick = { listener(Navigate(CodexNavRoute.NEW_SCORE)) },
-                helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_main_menu__new_score_title),
-                        helpBody = stringResource(R.string.help_main_menu__new_score_body),
-                ),
-                modifier = Modifier.testTag(MainMenuTestTag.NEW_SCORE_BUTTON.getTestTag())
-        )
-        CodexButton(
-                text = stringResource(id = R.string.main_menu__view_scores),
-                onClick = { listener(Navigate(CodexNavRoute.VIEW_SCORES)) },
-                helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_main_menu__view_scores_title),
-                        helpBody = stringResource(R.string.help_main_menu__view_scores_body),
-                ),
-                modifier = Modifier.testTag(MainMenuTestTag.VIEW_SCORE_BUTTON.getTestTag())
-        )
-        CodexButton(
-                text = stringResource(id = R.string.main_menu__archer_info),
-                onClick = { listener(Navigate(CodexNavRoute.ARCHER_HANDICAPS)) },
-                helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_main_menu__archer_info_title),
-                        helpBody = stringResource(R.string.help_main_menu__archer_info_body),
-                ),
-                modifier = Modifier.testTag(MainMenuTestTag.ARCHER_INFO_BUTTON.getTestTag())
-        )
-        CodexButton(
-                text = stringResource(id = R.string.main_menu__handicap_tables),
-                onClick = { listener(Navigate(CodexNavRoute.HANDICAP_TABLES)) },
-                helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_main_menu__handicap_tables_title),
-                        helpBody = stringResource(R.string.help_main_menu__handicap_tables_body),
-                ),
-                modifier = Modifier.testTag(MainMenuTestTag.HANDICAP_TABLES_BUTTON.getTestTag())
-        )
-        if (state.useBetaFeatures) {
-            CodexButton(
-                    text = stringResource(id = R.string.main_menu__classification_tables),
-                    onClick = { listener(Navigate(CodexNavRoute.CLASSIFICATION_TABLES)) },
-                    helpState = HelpState(
-                            helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_main_menu__classification_tables_title),
-                            helpBody = stringResource(R.string.help_main_menu__classification_tables_body),
-                    ),
-                    modifier = Modifier.testTag(MainMenuTestTag.CLASSIFICATION_TABLES_BUTTON.getTestTag())
-            )
-        }
-        CodexButton(
-                text = stringResource(id = R.string.main_menu__sight_marks),
-                onClick = { listener(Navigate(CodexNavRoute.SIGHT_MARKS)) },
-                helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_main_menu__sight_marks_title),
-                        helpBody = stringResource(R.string.help_main_menu__sight_marks_body),
-                ),
-                modifier = Modifier.testTag(MainMenuTestTag.SIGHT_MARKS_BUTTON.getTestTag())
-        )
+        defaultButtons
+                .sortedBy { it.order }
+                .forEach {
+                    if (it.shouldShow(state)) {
+                        val style = object : CodexButtonDefaults.DefaultButton() {
+                            override fun getBackgroundColor(themeColors: CodexThemeColors): Color =
+                                    if (it is MainMenuDefaultOptions) super.getBackgroundColor(themeColors)
+                                    else Color.Magenta
+                        }
+
+                        CodexButton(
+                                text = it.buttonTitle!!.get(),
+                                onClick = { listener(Navigate(it.navRoute)) },
+                                buttonStyle = style,
+                                helpState = HelpState(
+                                        helpListener = helpListener,
+                                        helpTitle = it.helpTitle.get(),
+                                        helpBody = it.helpBody.get(),
+                                ),
+                                modifier = Modifier.testTag(it.testTag.getTestTag())
+                        )
+                    }
+                }
 
         Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 10.dp)
         ) {
-            CodexIconButton(
-                    onClick = { listener(Navigate(CodexNavRoute.SETTINGS)) },
-                    icon = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.main_menu__settings),
-                    helpState = HelpState(
-                            helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_main_menu__settings_title),
-                            helpBody = stringResource(R.string.help_main_menu__settings_body),
-                    ),
-                    modifier = Modifier.testTag(MainMenuTestTag.SETTINGS_BUTTON.getTestTag())
-            )
-            CodexIconButton(
-                    onClick = { listener(Navigate(CodexNavRoute.ABOUT)) },
-                    icon = Icons.Outlined.Info,
-                    contentDescription = stringResource(R.string.main_menu__about),
-                    helpState = HelpState(
-                            helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_main_menu__about_title),
-                            helpBody = stringResource(R.string.help_main_menu__about_body),
-                    ),
-                    modifier = Modifier.testTag(MainMenuTestTag.ABOUT_BUTTON.getTestTag())
-            )
+            iconButtons
+                    .sortedBy { it.order }
+                    .forEach {
+                        CodexIconButton(
+                                onClick = { listener(Navigate(it.navRoute)) },
+                                icon = it.icon!!,
+                                helpState = HelpState(
+                                        helpListener = helpListener,
+                                        helpTitle = it.helpTitle.get(),
+                                        helpBody = it.helpBody.get(),
+                                ),
+                                modifier = Modifier.testTag(it.testTag.getTestTag())
+                        )
+                    }
         }
 
         WhatsNewButtonAndDialog(
@@ -214,6 +166,7 @@ enum class MainMenuTestTag : CodexTestTag {
 @Composable
 fun PreviewMainMenuScreen() {
     MainMenuScreen(
+            options = MainMenuDefaultOptions.values().toSet(),
             state = MainMenuState(),
             listener = {},
     )

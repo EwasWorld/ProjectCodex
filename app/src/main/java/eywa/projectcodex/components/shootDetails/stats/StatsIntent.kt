@@ -6,8 +6,8 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 sealed class StatsIntent {
     object EditShootClicked : StatsIntent()
     object EditShootHandled : StatsIntent()
-    object EditHandicapClicked : StatsIntent()
-    object EditHandicapHandled : StatsIntent()
+    object EditArcherInfoClicked : StatsIntent()
+    object EditArcherInfoHandled : StatsIntent()
     object PastRoundRecordsClicked : StatsIntent()
     object PastRoundRecordsDismissed : StatsIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : StatsIntent()

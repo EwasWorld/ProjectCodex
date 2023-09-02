@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
-import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.hiltModules.LocalNavRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -34,7 +34,7 @@ class ArcherHandicapsViewModel @Inject constructor(
 
     fun handle(action: ArcherHandicapsIntent) {
         when (action) {
-            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.ARCHER_HANDICAPS::class)
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, LocalNavRoute.ARCHER_HANDICAPS::class)
             is RowClicked ->
                 _state.update {
                     if (it.archerHandicaps.none { item -> item.archerHandicapId == action.item.archerHandicapId }) {

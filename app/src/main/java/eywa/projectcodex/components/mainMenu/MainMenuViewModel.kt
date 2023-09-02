@@ -17,11 +17,14 @@ import javax.inject.Inject
 class MainMenuViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
         private val datastore: CodexDatastore,
+        val options: Set<@JvmSuppressWildcards MainMenuOption>,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainMenuState())
     val state = _state.asStateFlow()
 
     init {
+        check(options.distinctBy { it.order }.size == options.size) { "Ambiguous order" }
+
         viewModelScope.launch {
             datastore.get(
                     listOf(DisplayHandicapNotice, UseBetaFeatures, WhatsNewLastOpenedAppVersion)

@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,24 +19,6 @@ import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-
-@Composable
-fun CodexIconButton(
-        icon: ImageVector,
-        modifier: Modifier = Modifier,
-        contentDescription: String? = null,
-        captionBelow: String? = null,
-        enabled: Boolean = true,
-        helpState: HelpState? = null,
-        onClick: () -> Unit,
-) = CodexIconButton(
-        icon = CodexIconInfo.VectorIcon(icon, contentDescription),
-        modifier = modifier,
-        captionBelow = captionBelow,
-        enabled = enabled,
-        helpState = helpState,
-        onClick = onClick,
-)
 
 @Composable
 fun CodexIconButton(
@@ -94,8 +75,10 @@ fun CodexIconButton(
 @Composable
 fun CodexIconButton_Preview() {
     CodexIconButton(
-            icon = Icons.Default.Delete,
-            contentDescription = "",
+            icon = CodexIconInfo.VectorIcon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "",
+            ),
             captionBelow = "Delete",
             onClick = {},
     )

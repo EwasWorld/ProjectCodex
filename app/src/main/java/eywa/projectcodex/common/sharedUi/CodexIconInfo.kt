@@ -11,28 +11,53 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
+import eywa.projectcodex.common.utils.ResOrActual
 
 sealed class CodexIconInfo {
-    abstract val contentDescription: String?
+    abstract val contentDescription: ResOrActual<String>?
     abstract val tint: Color?
     abstract val modifier: Modifier
 
     data class VectorIcon(
             val imageVector: ImageVector,
-            override val contentDescription: String? = null,
+            override val contentDescription: ResOrActual<String>? = null,
             override val tint: Color? = null,
             override val modifier: Modifier = Modifier,
     ) : CodexIconInfo() {
+        constructor(
+                imageVector: ImageVector,
+                contentDescription: String,
+                tint: Color? = null,
+                modifier: Modifier = Modifier,
+        ) : this(
+                imageVector = imageVector,
+                contentDescription = ResOrActual.Actual(contentDescription),
+                tint = tint,
+                modifier = modifier,
+        )
+
         @Composable
         override fun asPainter() = rememberVectorPainter(imageVector)
     }
 
     data class PainterIcon(
             @DrawableRes val drawable: Int,
-            override val contentDescription: String? = null,
+            override val contentDescription: ResOrActual<String>? = null,
             override val tint: Color? = null,
             override val modifier: Modifier = Modifier,
     ) : CodexIconInfo() {
+        constructor(
+                @DrawableRes drawable: Int,
+                contentDescription: String,
+                tint: Color? = null,
+                modifier: Modifier = Modifier,
+        ) : this(
+                drawable = drawable,
+                contentDescription = ResOrActual.Actual(contentDescription),
+                tint = tint,
+                modifier = modifier,
+        )
+
         @Composable
         override fun asPainter() = painterResource(drawable)
     }
@@ -46,14 +71,24 @@ sealed class CodexIconInfo {
     ) {
         Icon(
                 painter = asPainter(),
-                contentDescription = contentDescription,
+                contentDescription = contentDescription?.get(),
                 tint = tint ?: LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
                 modifier = modifier.then(this.modifier)
         )
     }
 
     fun copyIcon(
-            contentDescription: String? = this.contentDescription,
+            contentDescription: String,
+            tint: Color? = this.tint,
+            modifier: Modifier = this.modifier,
+    ) = copyIcon(
+            contentDescription = ResOrActual.Actual(contentDescription),
+            tint = tint,
+            modifier = modifier,
+    )
+
+    fun copyIcon(
+            contentDescription: ResOrActual<String>? = this.contentDescription,
             tint: Color? = this.tint,
             modifier: Modifier = this.modifier,
     ) = when (this) {

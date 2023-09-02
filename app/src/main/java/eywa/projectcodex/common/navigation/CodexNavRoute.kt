@@ -11,7 +11,6 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
 import eywa.projectcodex.components.about.AboutScreen
-import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
@@ -40,14 +39,14 @@ enum class CodexNavRoute : NavRoute {
             AboutScreen()
         }
     },
-    ARCHER_HANDICAPS {
+    ARCHER_INFO {
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-                stringResource(R.string.archer_handicaps__title)
+                stringResource(R.string.archer_info__title)
 
         @Composable
         override fun Screen(navController: NavController) {
-            ArcherHandicapsScreen()
+            TODO()
         }
     },
     CLASSIFICATION_TABLES {
@@ -238,5 +237,5 @@ class CodexNavRouteModule {
     @Singleton
     @Provides
     @ElementsIntoSet
-    fun providesNavRoute(): Set<NavRoute> = CodexNavRoute.values().toSet()
+    fun providesCodexNavRoutes(): Set<NavRoute> = CodexNavRoute.values().toSet()
 }

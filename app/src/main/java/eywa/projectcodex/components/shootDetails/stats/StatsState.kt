@@ -15,7 +15,7 @@ class StatsState(
     val endSize = main.scorePadEndSize
     val useBetaFeatures = main.useBetaFeatures ?: false
     val openEditShootScreen = extras.openEditShootScreen
-    val openEditHandicapScreen = extras.openEditHandicapScreen
+    val openEditArcherInfoScreen = extras.openEditArcherInfoScreen
     val archerHandicaps = main.archerHandicaps
     val pastRoundRecords = main.pastRoundRecords?.let { pastRecords ->
         if (main.roundPb != null && pastRecords.none { it.shootId == main.roundPb.shootId }) {
@@ -94,6 +94,6 @@ class StatsState(
 
 data class StatsExtras(
         val openEditShootScreen: Boolean = false,
-        val openEditHandicapScreen: Boolean = false,
+        val openEditArcherInfoScreen: Boolean = false,
         val isPastRoundRecordsDialogOpen: Boolean = false,
 )

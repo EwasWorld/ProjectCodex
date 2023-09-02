@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,18 +41,13 @@ internal fun MultiSelectBar(
     @Composable
     fun MultiSelectIconButton(
             onClick: () -> Unit,
-            imageVector: ImageVector,
-            contentDescription: String?,
+            icon: CodexIconInfo,
             @StringRes helpTitle: Int,
             @StringRes helpBody: Int,
             modifier: Modifier = Modifier,
     ) {
         CodexIconButton(
-                icon = CodexIconInfo.VectorIcon(
-                        imageVector = imageVector,
-                        tint = CodexTheme.colors.onFloatingActions,
-                        contentDescription = contentDescription,
-                ),
+                icon = icon.copyIcon(tint = CodexTheme.colors.onFloatingActions),
                 helpState = HelpState(
                         helpShowcaseListener,
                         HelpShowcaseItem(
@@ -75,8 +69,10 @@ internal fun MultiSelectBar(
         if (!isInMultiSelectMode) {
             MultiSelectIconButton(
                     onClick = { listener(MultiSelectBarIntent.ClickOpen) },
-                    imageVector = Icons.Default.SelectAll,
-                    contentDescription = stringResource(R.string.view_scores__multi_select_start),
+                    icon = CodexIconInfo.VectorIcon(
+                            imageVector = Icons.Default.SelectAll,
+                            contentDescription = stringResource(R.string.view_scores__multi_select_start),
+                    ),
                     helpTitle = R.string.help_view_score__start_multi_select_title,
                     helpBody = R.string.help_view_score__start_multi_select_body,
                     modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_START.getTestTag()),
@@ -96,14 +92,16 @@ internal fun MultiSelectBar(
                 )
                 MultiSelectIconButton(
                         onClick = { listener(MultiSelectBarIntent.ClickAllOrNone) },
-                        imageVector = Icons.Default.SelectAll,
-                        contentDescription = stringResource(
-                                id = if (isEveryItemSelected) {
-                                    R.string.view_scores__multi_deselect_all
-                                }
-                                else {
-                                    R.string.view_scores__multi_select_all
-                                }
+                        icon = CodexIconInfo.VectorIcon(
+                                imageVector = Icons.Default.SelectAll,
+                                contentDescription = stringResource(
+                                        id = if (isEveryItemSelected) {
+                                            R.string.view_scores__multi_deselect_all
+                                        }
+                                        else {
+                                            R.string.view_scores__multi_select_all
+                                        }
+                                ),
                         ),
                         helpTitle = R.string.help_view_score__select_all_or_none_title,
                         helpBody = R.string.help_view_score__select_all_or_none_body,
@@ -111,16 +109,20 @@ internal fun MultiSelectBar(
                 )
                 MultiSelectIconButton(
                         onClick = { listener(MultiSelectBarIntent.ClickEmail) },
-                        imageVector = Icons.Outlined.Email,
-                        contentDescription = stringResource(R.string.view_scores__multi_select_email),
+                        icon = CodexIconInfo.VectorIcon(
+                                imageVector = Icons.Outlined.Email,
+                                contentDescription = stringResource(R.string.view_scores__multi_select_email),
+                        ),
                         helpTitle = R.string.help_view_score__action_multi_select_title,
                         helpBody = R.string.help_view_score__action_multi_select_body,
                         modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_EMAIL.getTestTag()),
                 )
                 MultiSelectIconButton(
                         onClick = { listener(MultiSelectBarIntent.ClickClose) },
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.view_scores__multi_select_cancel),
+                        icon = CodexIconInfo.VectorIcon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(R.string.view_scores__multi_select_cancel),
+                        ),
                         helpTitle = R.string.help_view_score__cancel_multi_select_title,
                         helpBody = R.string.help_view_score__cancel_multi_select_body,
                         modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_CANCEL.getTestTag()),
