@@ -1,10 +1,7 @@
 package eywa.projectcodex.components.shootDetails.stats
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
@@ -17,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,22 +26,28 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.sharedUi.CodexIconButton
-import eywa.projectcodex.common.sharedUi.DataRow
+import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
+import eywa.projectcodex.components.shootDetails.ShootDetailsState
+import eywa.projectcodex.components.shootDetails.ShootRecord
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
-import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.*
 import eywa.projectcodex.database.RoundFace
+import java.util.*
 import kotlin.math.abs
 
 @Composable
@@ -80,13 +84,17 @@ fun HandleEffects(
 ) {
     val loadedState = state.getData() ?: return
 
-    LaunchedEffect(loadedState.openEditScoreScreen) {
-        if (loadedState.openEditScoreScreen) {
+    LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditHandicapScreen) {
+        if (loadedState.openEditShootScreen) {
             CodexNavRoute.NEW_SCORE.navigate(
                     navController,
                     mapOf(NavArgument.SHOOT_ID to loadedState.fullShootInfo.id.toString()),
             )
-            listener(EditHandled)
+            listener(EditShootHandled)
+        }
+        if (loadedState.openEditHandicapScreen) {
+            CodexNavRoute.ARCHER_HANDICAPS.navigate(navController)
+            listener(EditHandicapHandled)
         }
     }
 }
@@ -105,144 +113,313 @@ private fun StatsScreen(
                         .padding(25.dp)
                         .testTag(SCREEN.getTestTag())
         ) {
-            Box(
-                    contentAlignment = Alignment.BottomEnd,
-            ) {
-                Surface(
-                        shape = RoundedCornerShape(20),
-                        border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
-                        color = CodexTheme.colors.appBackground,
-                        modifier = Modifier.padding(5.dp)
-                ) {
-                    Section(
-                            modifier = Modifier.padding(horizontal = 25.dp, vertical = 20.dp)
-                    ) {
-                        DataRow(
-                                title = stringResource(R.string.archer_round_stats__date),
-                                text = DateTimeFormat.LONG_DATE_TIME.format(state.fullShootInfo.shoot.dateShot),
-                                textModifier = Modifier.testTag(DATE_TEXT.getTestTag()),
-                        )
-                        DataRow(
-                                title = stringResource(R.string.archer_round_stats__round),
-                                text = state.fullShootInfo.displayName
-                                        ?: stringResource(R.string.archer_round_stats__no_round),
-                                textModifier = Modifier.testTag(ROUND_TEXT.getTestTag()),
-                        )
-                        SelectFaceRow(
-                                selectedFaces = state.fullShootInfo.faces,
-                                helpListener = { listener(HelpShowcaseAction(it)) },
-                                onClick = null,
-                        )
-                    }
-                }
-                CodexIconButton(
-                        icon = Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.archer_round_stats__edit_content_description),
-                        onClick = { listener(EditClicked) },
-                        modifier = Modifier.padding(horizontal = 0.dp, vertical = 0.dp)
-                )
-            }
+            NewScoreSection(state, listener)
+            HsgSection(state)
 
-            val hits = state.fullShootInfo.hits
-            val arrowsShot = state.fullShootInfo.arrowsShot
+            RoundStatsSection(state)
+            AllowanceSection(state, listener)
 
-            Section {
-                DataRow(
-                        title = stringResource(R.string.archer_round_stats__hits),
-                        text = (
-                                if (hits == arrowsShot) hits.toString()
-                                else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot)
-                                ),
-                        textModifier = Modifier.testTag(HITS_TEXT.getTestTag()),
-                )
-                DataRow(
-                        title = stringResource(R.string.archer_round_stats__score),
-                        text = state.fullShootInfo.score.toString(),
-                        textModifier = Modifier.testTag(SCORE_TEXT.getTestTag()),
-                )
-                DataRow(
-                        title = stringResource(state.fullShootInfo.goldsType.longStringId) + ":",
-                        text = state.fullShootInfo.golds().toString(),
-                        textModifier = Modifier.testTag(GOLDS_TEXT.getTestTag()),
-                )
-            }
-
-            if (state.fullShootInfo.round != null) {
-                Section {
-                    state.fullShootInfo.remainingArrows!!.let { remaining ->
-                        if (remaining == 0) {
-                            Text(
-                                    text = stringResource(R.string.input_end__round_complete),
-                                    style = style(),
-                                    modifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag()),
-                            )
-                        }
-                        else {
-                            val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
-                            else R.string.archer_round_stats__surplus_arrows
-                            DataRow(
-                                    title = stringResource(heading),
-                                    text = abs(remaining).toString(),
-                                    textModifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag()),
-                            )
-                        }
-                    }
-                    if (state.fullShootInfo.handicap != null) {
-                        DataRow(
-                                title = stringResource(R.string.archer_round_stats__handicap),
-                                text = state.fullShootInfo.handicap.toString(),
-                                textModifier = Modifier.testTag(HANDICAP_TEXT.getTestTag()),
-                        )
-                    }
-                    if (state.fullShootInfo.predictedScore != null) {
-                        DataRow(
-                                title = stringResource(R.string.archer_round_stats__predicted_score),
-                                text = state.fullShootInfo.predictedScore.toString(),
-                                textModifier = Modifier.testTag(PREDICTED_SCORE_TEXT.getTestTag()),
-                        )
-                    }
-                }
-            }
+            PastRecordsSection(state, listener)
 
             if (state.useBetaFeatures) {
-                state.extras?.let { extras ->
-                    Spacer(modifier = Modifier)
+                NumberBreakdownSection(state)
+            }
+        }
+    }
+}
 
-                    Text(
-                            text = "Beta Feature:",
-                            fontWeight = FontWeight.Bold,
-                            style = CodexTypography.LARGE,
-                            color = CodexTheme.colors.onAppBackground,
-                    )
-                    Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.horizontalScroll(rememberScrollState())
-                    ) {
-                        DataColumn(
-                                "dist",
-                                extras.map {
-                                    when (it) {
-                                        is DistanceExtra -> it.distance.distance.toString()
-                                        is GrandTotalExtra -> "Total"
-                                        else -> throw NotImplementedError()
-                                    }
-                                },
-                        )
-                        DoubleDataColumn("HC", extras.map { it.handicap })
-                        FloatDataColumn("avgEnd", extras.map { it.averageEnd })
-                        FloatDataColumn("endStD", extras.map { it.endStDev }, 2)
-                        FloatDataColumn("avgArr", extras.map { it.averageArrow })
-                        FloatDataColumn("arrStD", extras.map { it.arrowStdDev }, 2)
+@Composable
+private fun EditBox(
+        editContentDescription: String,
+        editListener: () -> Unit,
+        content: @Composable () -> Unit,
+) {
+    Box(
+            contentAlignment = Alignment.BottomEnd,
+    ) {
+        Surface(
+                shape = RoundedCornerShape(20),
+                border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+                color = CodexTheme.colors.appBackground,
+                modifier = Modifier.padding(5.dp)
+        ) {
+            Section(
+                    modifier = Modifier.padding(horizontal = 35.dp, vertical = 20.dp)
+            ) {
+                content()
+            }
+        }
+        CodexIconButton(
+                icon = Icons.Default.Edit,
+                contentDescription = editContentDescription,
+                onClick = editListener,
+                modifier = Modifier.padding(horizontal = 0.dp, vertical = 0.dp)
+        )
+    }
+}
+
+@Composable
+private fun NewScoreSection(
+        state: StatsState,
+        listener: (StatsIntent) -> Unit,
+) {
+    EditBox(
+            editContentDescription = stringResource(R.string.archer_round_stats__edit_shoot_content_description),
+            editListener = { listener(EditShootClicked) }
+    ) {
+        DataRow(
+                title = stringResource(R.string.archer_round_stats__date),
+                text = DateTimeFormat.LONG_DATE_TIME.format(state.fullShootInfo.shoot.dateShot),
+                textModifier = Modifier.testTag(DATE_TEXT.getTestTag()),
+        )
+        DataRow(
+                title = stringResource(R.string.archer_round_stats__round),
+                text = state.fullShootInfo.displayName
+                        ?: stringResource(R.string.archer_round_stats__no_round),
+                textModifier = Modifier.testTag(ROUND_TEXT.getTestTag()),
+        )
+        SelectFaceRow(
+                selectedFaces = state.fullShootInfo.faces,
+                helpListener = { listener(HelpShowcaseAction(it)) },
+                onClick = null,
+        )
+    }
+}
+
+@Composable
+private fun HsgSection(
+        state: StatsState,
+) {
+    val hits = state.fullShootInfo.hits
+    val arrowsShot = state.fullShootInfo.arrowsShot
+
+    Section {
+        DataRow(
+                title = stringResource(R.string.archer_round_stats__hits),
+                text = (
+                        if (hits == arrowsShot) hits.toString()
+                        else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot)
+                        ),
+                textModifier = Modifier.testTag(HITS_TEXT.getTestTag()),
+        )
+        DataRow(
+                title = stringResource(R.string.archer_round_stats__score),
+                text = state.fullShootInfo.score.toString(),
+                textModifier = Modifier.testTag(SCORE_TEXT.getTestTag()),
+        )
+        DataRow(
+                title = stringResource(state.fullShootInfo.goldsType.longStringId) + ":",
+                text = state.fullShootInfo.golds().toString(),
+                textModifier = Modifier.testTag(GOLDS_TEXT.getTestTag()),
+        )
+    }
+}
+
+@Composable
+private fun RoundStatsSection(
+        state: StatsState,
+) {
+    if (state.fullShootInfo.round == null) return
+
+    val remaining = state.fullShootInfo.remainingArrows!!
+    Section {
+        if (remaining == 0) {
+            Text(
+                    text = stringResource(R.string.input_end__round_complete),
+                    style = style(),
+                    modifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag())
+            )
+        }
+        else {
+            val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
+            else R.string.archer_round_stats__surplus_arrows
+            DataRow(
+                    title = stringResource(heading),
+                    text = abs(remaining).toString(),
+                    textModifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag()),
+            )
+        }
+        if (state.fullShootInfo.isPersonalBest) {
+            val pbStringId =
+                    if (state.fullShootInfo.isTiedPersonalBest) R.string.archer_round_stats__is_tied_pb
+                    else R.string.archer_round_stats__is_pb
+            Text(
+                    text = stringResource(pbStringId),
+                    style = style(),
+                    color = CodexTheme.colors.onPersonalBestTag,
+                    modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .background(color = CodexTheme.colors.personalBestTag, shape = RoundedCornerShape(100))
+                            .padding(horizontal = 10.dp)
+                            .testTag(PB_TEXT.getTestTag())
+            )
+        }
+        if (state.fullShootInfo.handicap != null) {
+            DataRow(
+                    title = stringResource(R.string.archer_round_stats__handicap),
+                    text = state.fullShootInfo.handicap.toString(),
+                    textModifier = Modifier.testTag(HANDICAP_TEXT.getTestTag()),
+            )
+        }
+        if (state.fullShootInfo.predictedScore != null) {
+            DataRow(
+                    title = stringResource(R.string.archer_round_stats__predicted_score),
+                    text = state.fullShootInfo.predictedScore.toString(),
+                    textModifier = Modifier.testTag(PREDICTED_SCORE_TEXT.getTestTag()),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AllowanceSection(
+        state: StatsState,
+        listener: (StatsIntent) -> Unit,
+) {
+    if (state.fullShootInfo.round == null || state.allowance == null) return
+
+    Section {
+        EditBox(
+                editContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_edit),
+                editListener = { listener(EditHandicapClicked) }
+        ) {
+            DataRow(
+                    title = stringResource(R.string.archer_round_stats__archer_handicap),
+                    text = state.archerHandicap.toString(),
+                    textModifier = Modifier.testTag(ARCHER_HANDICAP_TEXT.getTestTag()),
+            )
+            DataRow(
+                    title = stringResource(R.string.archer_round_stats__allowance),
+                    text = state.allowance.toString(),
+                    textModifier = Modifier.testTag(ALLOWANCE_TEXT.getTestTag()),
+            )
+            if (state.adjustedFinalScore != null) {
+                DataRow(
+                        title = stringResource(R.string.archer_round_stats__adjusted_score),
+                        text = (state.adjustedFinalScore).toString(),
+                        textModifier = Modifier.testTag(ADJUSTED_SCORE_TEXT.getTestTag()),
+                )
+            }
+            else if (state.predictedAdjustedScore != null) {
+                DataRow(
+                        title = stringResource(R.string.archer_round_stats__predicted_adjusted_score),
+                        text = state.predictedAdjustedScore.toString(),
+                        textModifier = Modifier.testTag(ADJUSTED_SCORE_TEXT.getTestTag()),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PastRecordsSection(
+        state: StatsState,
+        listener: (StatsIntent) -> Unit,
+) {
+    if (state.pastRoundRecords.isNullOrEmpty()) return
+
+    Section {
+        Text(
+                text = stringResource(R.string.archer_round_stats__past_records),
+                style = style().asClickableStyle(),
+                modifier = Modifier
+                        .clickable { listener(PastRoundRecordsClicked) }
+                        .testTag(PAST_RECORDS_LINK_TEXT.getTestTag())
+        )
+    }
+
+    SimpleDialog(
+            isShown = state.isPastRoundRecordsDialogOpen,
+            onDismissListener = { listener(PastRoundRecordsDismissed) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.archer_round_stats__past_records),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_close),
+                        onClick = { listener(PastRoundRecordsDismissed) },
+                ),
+        ) {
+            val records = state.pastRoundRecords.sortedByDescending { it.score }
+            val pbScore = records.first().score
+            val joinChar = stringResource(R.string.archer_round_stats__past_record_item_delim)
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+            ) {
+                records.forEach { shootRecord ->
+                    val text = listOfNotNull(
+                            DateTimeFormat.SHORT_DATE.format(shootRecord.dateShot),
+                            shootRecord.score.toString(),
+                    ).joinToString(" $joinChar ")
+                    val background = when {
+                        shootRecord.score == pbScore -> CodexTheme.colors.personalBestTag
+                        shootRecord.shootId == state.fullShootInfo.id -> CodexTheme.colors.chipOnDialogSelected
+                        else -> null
                     }
 
                     Text(
-                            "HC: handicap, avgEnd: average end score, endStD: end standard deviation," +
-                                    " avgArr: average arrow score, arrStD: arrow standard deviation"
+                            text = text,
+                            style = style().copy(color = CodexTheme.colors.onDialogBackground),
+                            modifier = Modifier
+                                    .testTag(PAST_RECORDS_DIALOG_ITEM.getTestTag())
+                                    .modifierIf(
+                                            predicate = background != null,
+                                            modifier = Modifier
+                                                    .background(
+                                                            color = background ?: Color.Transparent,
+                                                            shape = RoundedCornerShape(100),
+                                                    )
+                                                    .padding(horizontal = 10.dp)
+                                    )
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NumberBreakdownSection(
+        state: StatsState,
+) {
+    state.extras?.let { extras ->
+        Spacer(modifier = Modifier)
+
+        Text(
+                text = "Beta Feature:",
+                fontWeight = FontWeight.Bold,
+                style = CodexTypography.LARGE,
+                color = CodexTheme.colors.onAppBackground,
+        )
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.horizontalScroll(rememberScrollState())
+        ) {
+            DataColumn(
+                    "dist",
+                    extras.map {
+                        when (it) {
+                            is DistanceExtra -> it.distance.distance.toString()
+                            is GrandTotalExtra -> "Total"
+                            else -> throw NotImplementedError()
+                        }
+                    },
+            )
+            DoubleDataColumn("HC", extras.map { it.handicap })
+            FloatDataColumn("avgEnd", extras.map { it.averageEnd })
+            FloatDataColumn("endStD", extras.map { it.endStDev }, 2)
+            FloatDataColumn("avgArr", extras.map { it.averageArrow })
+            FloatDataColumn("arrStD", extras.map { it.arrowStdDev }, 2)
+        }
+
+        Text(
+                "HC: handicap, avgEnd: average end score, endStD: end standard deviation," +
+                        " avgArr: average arrow score, arrStD: arrow standard deviation"
+        )
     }
 }
 
@@ -300,8 +477,14 @@ enum class StatsTestTag : CodexTestTag {
     SCORE_TEXT,
     GOLDS_TEXT,
     REMAINING_ARROWS_TEXT,
+    PAST_RECORDS_LINK_TEXT,
+    PAST_RECORDS_DIALOG_ITEM,
+    PB_TEXT,
     HANDICAP_TEXT,
     PREDICTED_SCORE_TEXT,
+    ARCHER_HANDICAP_TEXT,
+    ALLOWANCE_TEXT,
+    ADJUSTED_SCORE_TEXT,
     ;
 
     override val screenName: String
@@ -319,7 +502,11 @@ fun NoRound_StatsScreen_Preview() {
     CodexTheme {
         StatsScreen(
                 StatsState(
-                        main = ShootDetailsStatePreviewHelper.SIMPLE,
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    addFullSetOfArrows()
+                                }
+                        ),
                         extras = StatsExtras(),
                 )
         ) {}
@@ -331,16 +518,69 @@ fun NoRound_StatsScreen_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun Round_StatsScreen_Preview() {
+fun RoundIncomplete_StatsScreen_Preview() {
     CodexTheme {
         StatsScreen(
                 StatsState(
-                        main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS.let { state ->
-                            val faces = listOf(RoundFace.TRIPLE, RoundFace.FITA_SIX)
-                            val far = state.fullShootInfo!!
-                            state.copy(fullShootInfo = far.copy(shootRound = far.shootRound!!.copy(faces = faces)))
-                        },
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    round = RoundPreviewHelper.outdoorImperialRoundData
+                                    addIdenticalArrows(20, 7)
+                                    faces = listOf(RoundFace.TRIPLE, RoundFace.FITA_SIX)
+                                },
+                                archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
+                        ),
                         extras = StatsExtras(),
+                )
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun RoundComplete_StatsScreen_Preview() {
+    CodexTheme {
+        StatsScreen(
+                StatsState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    round = RoundPreviewHelper.outdoorImperialRoundData
+                                    completeRound(arrowScore = 7, isX = false)
+                                    isPersonalBest = true
+                                },
+                                archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
+                        ),
+                        extras = StatsExtras(),
+                )
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun PastRecords_StatsScreen_Preview() {
+    CodexTheme {
+        StatsScreen(
+                StatsState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    round = RoundPreviewHelper.outdoorImperialRoundData
+                                    completeRound(arrowScore = 7, isX = false)
+                                },
+                                archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
+                                roundPb = ShootRecord(3, Calendar.getInstance(), 500),
+                                pastRoundRecords = listOf(
+                                        ShootRecord(2, Calendar.getInstance(), 400),
+                                        ShootRecord(1, Calendar.getInstance(), 700),
+                                ),
+                        ),
+                        extras = StatsExtras(isPastRoundRecordsDialogOpen = true),
                 )
         ) {}
     }

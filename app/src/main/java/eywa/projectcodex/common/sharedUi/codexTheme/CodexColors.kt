@@ -108,6 +108,9 @@ data class CodexThemeColors(
         val sightMarksIndicator: Color = CodexColors.COLOR_PRIMARY_DARK,
         val sightMarksMarkedBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
         val sightMarksDisabledIndicator: Color = Color(0xFF7364C5),
+
+        val personalBestTag: Color = CodexColors.TARGET_FACE_GOLD,
+        val onPersonalBestTag: Color = Color.Black,
 )
 
 object CodexColors {

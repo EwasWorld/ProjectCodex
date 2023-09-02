@@ -18,9 +18,9 @@ interface ArcherHandicapDao {
             """
                 SELECT *, MAX(dateSet)
                 FROM ${DatabaseArcherHandicap.TABLE_NAME} 
-                WHERE archerId = $DEFAULT_ARCHER_ID
+                WHERE archerId = :archerId
                 GROUP BY handicapType
             """
     )
-    fun getLatestHandicapsForDefaultArcher(): Flow<List<DatabaseArcherHandicap>>
+    fun getLatestHandicaps(archerId: Int): Flow<List<DatabaseArcherHandicap>>
 }

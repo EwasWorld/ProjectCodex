@@ -11,6 +11,14 @@ class ShootsRepo(
         private val shootRoundDao: ShootRoundDao,
 ) {
     @Transaction
+    fun getMostRecentShootsForRound(count: Int, roundId: Int, subTypeId: Int = 1) =
+            shootDao.getMostRecentShootsForRound(count, roundId, subTypeId)
+
+    @Transaction
+    fun getRoundPb(roundId: Int, subTypeId: Int = 1) =
+            shootDao.getRoundPb(roundId, subTypeId)
+
+    @Transaction
     fun getFullShootInfo(
             filters: Filters<ShootFilter> = Filters(),
     ): Flow<List<DatabaseFullShootInfo>> {

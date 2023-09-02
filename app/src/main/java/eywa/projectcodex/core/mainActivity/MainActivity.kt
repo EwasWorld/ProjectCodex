@@ -40,6 +40,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
 import eywa.projectcodex.common.navigation.CodexNavHost
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -56,6 +57,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var shootDetailsRepo: ShootDetailsRepo
+
+    @Inject
+    lateinit var navRoutes: Set<@JvmSuppressWildcards NavRoute>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +96,7 @@ class MainActivity : ComponentActivity() {
                             topBar = { TopBar(navController) }
                     ) { padding ->
                         CodexNavHost(
+                                navRoutes = navRoutes,
                                 navHostController = navController,
                                 modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
                         )

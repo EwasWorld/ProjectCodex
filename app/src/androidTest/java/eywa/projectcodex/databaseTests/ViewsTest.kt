@@ -13,7 +13,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.setDa
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
-import eywa.projectcodex.databaseTests.DatabaseTestUtils.add
+import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle

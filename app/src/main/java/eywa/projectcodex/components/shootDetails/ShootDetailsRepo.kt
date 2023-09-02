@@ -8,6 +8,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
@@ -17,6 +18,7 @@ import eywa.projectcodex.datastore.retrieve
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import java.util.*
 import javax.inject.Singleton
 
 /**
@@ -52,6 +54,20 @@ class ShootDetailsRepo(
     }
 
     fun connect(launch: (block: suspend () -> Unit) -> Unit) {
+        launch {
+            state
+                    .map { it.fullShootInfo?.shoot?.archerId }
+                    .distinctUntilChanged()
+                    .flatMapLatest { archerId ->
+                        if (archerId == null) {
+                            return@flatMapLatest flow<List<DatabaseArcherHandicap>?> { emit(null) }
+                        }
+                        db.archerRepo().getLatestHandicaps(archerId)
+                    }
+                    .collectLatest { handicaps ->
+                        state.update { it.copy(archerHandicaps = handicaps) }
+                    }
+        }
         launch {
             datastore.get(
                     Use2023HandicapSystem,
@@ -93,7 +109,26 @@ class ShootDetailsRepo(
                         }
                     }
         }
+        launch {
+            state
+                    .map { it.fullShootInfo?.shootRound?.let { sr -> sr.roundId to sr.roundSubTypeId } }
+                    .distinctUntilChanged()
+                    .flatMapLatest {
+                        if (it == null) {
+                            return@flatMapLatest flow { emit(ShootRecords()) }
+                        }
+                        val (roundId, subTypeId) = it
+                        db.shootsRepo().getMostRecentShootsForRound(5, roundId, subTypeId ?: 1)
+                                .combine(
+                                        flow = db.shootsRepo().getRoundPb(roundId, subTypeId ?: 1),
+                                        transform = { a, b -> ShootRecords(a to b) }
+                                )
+                    }.collect { records ->
+                        state.update { it.copy(roundPb = records.pb, pastRoundRecords = records.latestRecords) }
+                    }
+        }
     }
+
 
     fun <T : Any> getState(
             shootId: Int?,
@@ -137,6 +172,35 @@ class ShootDetailsRepo(
 
     private fun ShootDetailsState.preserveDatastoreInfo(oldState: ShootDetailsState) =
             copy(useBetaFeatures = oldState.useBetaFeatures, use2023System = oldState.use2023System)
+}
+
+@JvmInline
+value class ShootRecords(
+        val data: Pair<List<DatabaseFullShootInfo>, DatabaseFullShootInfo?> = emptyList<DatabaseFullShootInfo>() to null
+) {
+    val latestRecords
+        get() = data.first.map { it.asShootRecord() }
+    val pb
+        get() = data.second?.asShootRecord()
+
+    private fun DatabaseFullShootInfo.asShootRecord(): ShootRecord {
+        val shootInfo = FullShootInfo(this, true)
+        return ShootRecord(shootInfo.shoot.shootId, shootInfo.shoot.dateShot, shootInfo.score)
+    }
+}
+
+@JvmInline
+value class ShootRecord(val data: Triple<Int, Calendar, Int>) {
+    constructor(first: Int, second: Calendar, third: Int) : this(Triple(first, second, third))
+
+    val shootId
+        get() = data.first
+
+    val dateShot
+        get() = data.second
+
+    val score
+        get() = data.third
 }
 
 @Module

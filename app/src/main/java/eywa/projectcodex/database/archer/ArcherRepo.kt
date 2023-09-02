@@ -10,9 +10,11 @@ class ArcherRepo(
     val defaultArcher = archerDao.getDefaultArcher()
 
     /**
-     * @see ArcherHandicapDao.getLatestHandicapsForDefaultArcher
+     * @see ArcherHandicapDao.getLatestHandicaps
      */
-    val latestHandicapsForDefaultArcher = archerHandicapDao.getLatestHandicapsForDefaultArcher()
+    val latestHandicapsForDefaultArcher = getLatestHandicaps(DEFAULT_ARCHER_ID)
+
+    fun getLatestHandicaps(archerId: Int) = archerHandicapDao.getLatestHandicaps(archerId)
 
     suspend fun insert(archer: DatabaseArcher) {
         archerDao.insert(archer)

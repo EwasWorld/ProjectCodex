@@ -3,8 +3,9 @@ package eywa.projectcodex.common.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.*
 import androidx.navigation.compose.composable
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 
-interface NavRoute {
+interface NavRoute : ActionBarHelp {
     val routeBase: String
     val args: Map<NavArgument, Boolean>
 

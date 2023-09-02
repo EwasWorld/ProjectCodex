@@ -12,10 +12,19 @@
     <string name="archer_round_stats__total_arrows">Total arrows shot:</string>
     <string name="archer_round_stats__remaining_arrows">Remaining arrows:</string>
     <string name="archer_round_stats__surplus_arrows">Surplus arrows:</string>
-    <string name="archer_round_stats__handicap">Handicap:</string>
+    <string name="archer_round_stats__handicap">Round handicap:</string>
     <string name="archer_round_stats__predicted_score">Predicted score:</string>
+    <string name="archer_round_stats__archer_handicap">Archer handicap:</string>
+    <string name="archer_round_stats__archer_handicap_edit">Edit archer handicap</string>
+    <string name="archer_round_stats__allowance">Allowance:</string>
+    <string name="archer_round_stats__predicted_adjusted_score">Predicted adjusted score:</string>
+    <string name="archer_round_stats__adjusted_score">Adjusted score:</string>
+    <string name="archer_round_stats__is_pb">Personal best!</string>
+    <string name="archer_round_stats__is_tied_pb">Tied personal best</string>
+    <string name="archer_round_stats__past_records">Round scores history</string>
+    <string name="archer_round_stats__past_record_item_delim">-</string>
     <string name="archer_round_stats__no_arrows_dialog_title">No arrows entered</string>
     <string name="archer_round_stats__no_arrows_dialog_button">Go to input end</string>
     <string name="archer_round_stats__no_round">N/A</string>
-    <string name="archer_round_stats__edit_content_description">Edit round information</string>
+    <string name="archer_round_stats__edit_shoot_content_description">Edit round information</string>
 </resources>

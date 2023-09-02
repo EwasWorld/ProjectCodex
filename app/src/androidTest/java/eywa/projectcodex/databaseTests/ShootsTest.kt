@@ -13,7 +13,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
 import eywa.projectcodex.database.rounds.RoundSubTypeDao
 import eywa.projectcodex.database.shootData.*
-import eywa.projectcodex.databaseTests.DatabaseTestUtils.add
+import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

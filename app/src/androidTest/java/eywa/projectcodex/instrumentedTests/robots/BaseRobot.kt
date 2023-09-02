@@ -12,6 +12,10 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.*
 import java.util.*
 
+@DslMarker
+annotation class RobotDslMarker
+
+@RobotDslMarker
 abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
         private val screenTestTag: String,

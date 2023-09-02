@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.shootDetails
 
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.ScorePadData
@@ -16,6 +17,9 @@ data class ShootDetailsState(
         val useBetaFeatures: Boolean? = null,
         val use2023System: Boolean? = null,
         val fullShootInfo: FullShootInfo? = null,
+        val archerHandicaps: List<DatabaseArcherHandicap>? = null,
+        val roundPb: ShootRecord? = null,
+        val pastRoundRecords: List<ShootRecord>? = null,
 
         /*
          * Whole-screen state

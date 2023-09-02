@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
 import java.util.*
@@ -19,7 +20,13 @@ import java.util.*
                     entity = DatabaseBow::class,
                     parentColumns = ["id"],
                     childColumns = ["bowId"],
-                    onDelete = ForeignKey.CASCADE,
+                    onDelete = ForeignKey.SET_NULL,
+            ),
+            ForeignKey(
+                    entity = DatabaseArcher::class,
+                    parentColumns = ["archerId"],
+                    childColumns = ["archerId"],
+                    onDelete = ForeignKey.SET_NULL,
             ),
         ],
 )

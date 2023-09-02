@@ -4,8 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.components.about.AboutScreen
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
@@ -23,8 +27,10 @@ import eywa.projectcodex.components.shootDetails.stats.StatsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
 import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
+import javax.inject.Singleton
 
-enum class CodexNavRoute : NavRoute, ActionBarHelp {
+
+enum class CodexNavRoute : NavRoute {
     ABOUT {
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.about__title)
@@ -224,4 +230,13 @@ enum class CodexNavRoute : NavRoute, ActionBarHelp {
     companion object {
         val reverseMap = values().associateBy { it.routeBase }
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+class CodexNavRouteModule {
+    @Singleton
+    @Provides
+    @ElementsIntoSet
+    fun providesNavRoute(): Set<NavRoute> = CodexNavRoute.values().toSet()
 }

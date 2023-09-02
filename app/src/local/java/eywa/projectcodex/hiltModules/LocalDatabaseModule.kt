@@ -10,10 +10,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Optional
+import java.util.*
 import javax.inject.Singleton
 import kotlin.jvm.optionals.getOrNull
 
@@ -45,6 +47,20 @@ class LocalDatabaseModule {
         fun teardown() {
             scoresRoomDatabase?.clearAllTables()
             scoresRoomDatabase = null
+        }
+
+        suspend fun ScoresRoomDatabase.add(shootInfo: FullShootInfo) {
+            shootDao().insert(shootInfo.shoot)
+            shootInfo.arrows?.let { arrowScoreDao().insert(*it.toTypedArray()) }
+            shootInfo.shootRound?.let { shootRoundDao().insert(it) }
+            shootInfo.shootDetail?.let { shootDetailDao().insert(it) }
+        }
+
+        suspend fun ScoresRoomDatabase.add(roundInfo: FullRoundInfo) {
+            roundDao().insert(roundInfo.round)
+            roundInfo.roundSubTypes?.forEach { roundSubTypeDao().insert(it) }
+            roundInfo.roundArrowCounts?.forEach { roundArrowCountDao().insert(it) }
+            roundInfo.roundDistances?.forEach { roundDistanceDao().insert(it) }
         }
     }
 

@@ -7,10 +7,10 @@ import androidx.navigation.compose.NavHost
 
 @Composable
 fun CodexNavHost(
+        navRoutes: Set<NavRoute>,
         navHostController: NavHostController,
         modifier: Modifier = Modifier,
 ) {
-    val navRoutes = CodexNavRoute.values()
     val duplicateRoutes = navRoutes
             .groupBy { it.routeBase.lowercase() }
             .filter { (_, v) -> v.size > 1 }

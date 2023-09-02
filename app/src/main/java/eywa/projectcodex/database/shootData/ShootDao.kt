@@ -22,8 +22,54 @@ interface ShootDao {
     suspend fun deleteRound(shootId: Int)
 
     @Transaction
-    @Query("SELECT * FROM $TABLE_NAME WHERE shootId == :shootId")
+    @Query(
+            """
+                SELECT 
+                        shoot.*,
+                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
+                        (personalBest.isTiedPb) as isTiedPersonalBest
+                FROM ${ShootWithScore.TABLE_NAME} as shoot
+                LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
+                        ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
+                WHERE shoot.shootId == :shootId
+            """
+    )
     fun getFullShootInfo(shootId: Int): Flow<DatabaseFullShootInfo?>
+
+    @Transaction
+    @Query(
+            """
+                SELECT *
+                FROM ${ShootWithScore.TABLE_NAME}
+                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND isComplete
+                ORDER BY score DESC, dateShot
+                LIMIT :count
+            """
+    )
+    fun getMostRecentShootsForRound(
+            count: Int,
+            roundId: Int,
+            subTypeId: Int,
+    ): Flow<List<DatabaseFullShootInfo>>
+
+    @Transaction
+    @Query(
+            """
+                SELECT *
+                FROM ${ShootWithScore.TABLE_NAME}
+                WHERE roundId = :roundId
+                    AND nonNullSubTypeId = :subTypeId
+                    AND score = (
+                        SELECT score
+                        FROM ${PersonalBest.TABLE_NAME}
+                        WHERE roundId = :roundId AND roundSubTypeId = :subTypeId
+                    )
+            """
+    )
+    fun getRoundPb(
+            roundId: Int,
+            subTypeId: Int,
+    ): Flow<DatabaseFullShootInfo?>
 
     @Query(
             """

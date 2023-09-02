@@ -52,6 +52,17 @@ data class FullShootInfo(
         require(shootRound == null || shootDetail == null) { "Cannot have a round and detail" }
     }
 
+    val fullRoundInfo by lazy {
+        round?.let { _ ->
+            FullRoundInfo(
+                    round = round,
+                    roundSubTypes = roundSubType?.let { listOf(it) },
+                    roundArrowCounts = roundArrowCounts,
+                    roundDistances = roundDistances,
+            )
+        }
+    }
+
     val displayName by lazy { roundSubType?.name ?: round?.displayName }
 
     val distanceUnit by lazy { round?.getDistanceUnitRes() }
@@ -142,17 +153,14 @@ data class FullShootInfo(
 
     val handicapFloat by lazy {
         if (
-            round == null
-            || roundArrowCounts.isNullOrEmpty()
-            || roundDistances.isNullOrEmpty()
+            fullRoundInfo == null
             || arrows.isNullOrEmpty()
             || hasSurplusArrows
         ) return@lazy null
 
         Handicap.getHandicapForRound(
-                round = round,
-                roundArrowCounts = roundArrowCounts,
-                roundDistances = roundDistances,
+                round = fullRoundInfo!!,
+                subType = null,
                 score = score,
                 innerTenArcher = isInnerTenArcher,
                 arrows = arrowsShot,
@@ -166,12 +174,11 @@ data class FullShootInfo(
     val predictedScore by lazy {
         if (handicapFloat == null) return@lazy null
         // No need to predict a score if round is already completed
-        if (remainingArrows!! == 0) return@lazy null
+        if (remainingArrows!! <= 0) return@lazy null
 
         Handicap.getScoreForRound(
-                round = round!!,
-                roundArrowCounts = roundArrowCounts!!,
-                roundDistances = roundDistances!!,
+                round = fullRoundInfo!!,
+                subType = null,
                 handicap = handicapFloat!!,
                 innerTenArcher = isInnerTenArcher,
                 arrows = null,

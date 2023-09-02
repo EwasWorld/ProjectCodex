@@ -11,6 +11,10 @@ import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import java.util.*
 
+@DslMarker
+annotation class ShootDslMarker
+
+@ShootDslMarker
 class ShootPreviewHelperDsl {
     var shoot = DatabaseShoot(shootId = 1, dateShot = Calendar.getInstance(), archerId = 1)
     var round: FullRoundInfo? = null

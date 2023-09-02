@@ -4,11 +4,15 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 
+@DslMarker
+annotation class TestActionDslMarker
+
 /**
  * Dsl for creating Espresso matchers with actions
  *
  * @see BaseRobot.perform
  */
+@TestActionDslMarker
 class TestActionDsl {
     private var info: CodexNodeInfo = CodexNodeInfo.Empty
     var useUnmergedTree = false

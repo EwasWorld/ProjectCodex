@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.shootDetails.stats
 
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
+import eywa.projectcodex.database.archer.HandicapType
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -13,7 +14,46 @@ class StatsState(
     val fullShootInfo = main.fullShootInfo!!
     val endSize = main.scorePadEndSize
     val useBetaFeatures = main.useBetaFeatures ?: false
-    val openEditScoreScreen = extras.openEditScoreScreen
+    val openEditShootScreen = extras.openEditShootScreen
+    val openEditHandicapScreen = extras.openEditHandicapScreen
+    val archerHandicaps = main.archerHandicaps
+    val pastRoundRecords = main.pastRoundRecords?.let { pastRecords ->
+        if (main.roundPb != null && pastRecords.none { it.shootId == main.roundPb.shootId }) {
+            pastRecords.plus(main.roundPb)
+        }
+        else {
+            pastRecords
+        }
+    }
+    val isPastRoundRecordsDialogOpen = extras.isPastRoundRecordsDialogOpen
+
+    val archerHandicap
+        get() = when {
+            archerHandicaps.isNullOrEmpty() -> null
+            fullShootInfo.round == null -> null
+            fullShootInfo.round.isOutdoor -> archerHandicaps.find { it.handicapType == HandicapType.OUTDOOR }
+            else -> archerHandicaps.find { it.handicapType == HandicapType.INDOOR }
+        }?.handicap
+
+    val allowance: Int?
+        get() {
+            val handicap = archerHandicap ?: return null
+            val roundInfo = fullShootInfo.fullRoundInfo ?: return null
+            return Handicap.getAllowanceForRound(
+                    round = roundInfo,
+                    subType = null,
+                    handicap = handicap.toDouble(),
+                    innerTenArcher = false,
+                    use2023Handicaps = fullShootInfo.use2023HandicapSystem,
+                    faces = fullShootInfo.faces,
+            )
+        }
+
+    val predictedAdjustedScore
+        get() = allowance?.let { fullShootInfo.predictedScore?.plus(it) }
+
+    val adjustedFinalScore
+        get() = if (fullShootInfo.isRoundComplete) allowance?.let { it + fullShootInfo.score } else null
 
     private val calculateHandicapFn =
             { arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance ->
@@ -53,5 +93,7 @@ class StatsState(
 }
 
 data class StatsExtras(
-        val openEditScoreScreen: Boolean = false
+        val openEditShootScreen: Boolean = false,
+        val openEditHandicapScreen: Boolean = false,
+        val isPastRoundRecordsDialogOpen: Boolean = false,
 )

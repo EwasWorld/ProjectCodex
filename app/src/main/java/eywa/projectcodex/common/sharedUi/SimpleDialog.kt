@@ -90,10 +90,10 @@ fun SimpleDialogContent(
 @Composable
 fun SimpleDialogContent(
         title: String,
+        modifier: Modifier = Modifier,
         message: String? = null,
         positiveButton: ButtonState? = null,
         negativeButton: ButtonState? = null,
-        modifier: Modifier = Modifier,
         content: (@Composable () -> Unit)? = null
 ) {
     Surface(

@@ -80,7 +80,7 @@ internal fun ViewScoresEntryRow(
     ) {
         if (!entries.allPbTypes.isNullOrEmpty() && showPbs) {
             Surface(
-                    color = CodexTheme.colors.targetFaceGold,
+                    color = CodexTheme.colors.personalBestTag,
                     shape = RoundedCornerShape(100),
             ) {
                 Text(

@@ -41,8 +41,12 @@ class StatsViewModel @Inject constructor(
         when (action) {
             is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
             is ShootDetailsAction -> repo.handle(action.action, screen)
-            EditClicked -> extraState.update { it.copy(openEditScoreScreen = true) }
-            EditHandled -> extraState.update { it.copy(openEditScoreScreen = false) }
+            EditShootClicked -> extraState.update { it.copy(openEditShootScreen = true) }
+            EditShootHandled -> extraState.update { it.copy(openEditShootScreen = false) }
+            EditHandicapClicked -> extraState.update { it.copy(openEditHandicapScreen = true) }
+            EditHandicapHandled -> extraState.update { it.copy(openEditHandicapScreen = false) }
+            PastRoundRecordsClicked -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = true) }
+            PastRoundRecordsDismissed -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = false) }
         }
     }
 }

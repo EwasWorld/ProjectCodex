@@ -17,9 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -45,6 +43,7 @@ import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.*
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.archer.HandicapType
@@ -406,7 +405,7 @@ enum class ArcherHandicapsTestTag : CodexTestTag {
 )
 @Composable
 fun ArcherHandicapsScreen_Preview() {
-    ArcherHandicapsPreviewHelper.Display(
+    PreviewScreen(
             ArcherHandicapsState(
                     archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
                     menuShownForId = 2,
@@ -420,7 +419,7 @@ fun ArcherHandicapsScreen_Preview() {
 )
 @Composable
 fun AddOpen_ArcherHandicapsScreen_Preview() {
-    ArcherHandicapsPreviewHelper.Display(
+    PreviewScreen(
             ArcherHandicapsState(
                     archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
                     menuShownForId = 2,
@@ -437,7 +436,7 @@ fun AddOpen_ArcherHandicapsScreen_Preview() {
 )
 @Composable
 fun Errors_ArcherHandicapsScreen_Preview() {
-    ArcherHandicapsPreviewHelper.Display(
+    PreviewScreen(
             ArcherHandicapsState(
                     archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
                     menuShownForId = 2,
@@ -446,4 +445,22 @@ fun Errors_ArcherHandicapsScreen_Preview() {
                     addHandicap = "200",
             )
     )
+}
+
+@Composable
+private fun PreviewScreen(initialState: ArcherHandicapsState) {
+    var state by remember { mutableStateOf(initialState) }
+    val context = LocalContext.current
+
+    CodexTheme {
+        ArcherHandicapsScreen(state) { action ->
+            when (action) {
+                is RowClicked ->
+                    state = state.copy(
+                            menuShownForId = action.item.archerHandicapId.takeIf { state.menuShownForId != it }
+                    )
+                else -> ToastSpamPrevention.displayToast(context, action::class.simpleName.toString())
+            }
+        }
+    }
 }
