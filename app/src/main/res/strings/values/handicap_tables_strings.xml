@@ -5,6 +5,7 @@
     <string name="handicap_tables__input">Search by:</string>
     <string name="handicap_tables__handicap_field">Handicap</string>
     <string name="handicap_tables__score_field">Score</string>
+    <string name="handicap_tables__allowance_field">Allowance</string>
     <string name="handicap_tables__handicap_system_title">Handicap system:</string>
     <string name="handicap_tables__handicap_system_david_lane">David Lane</string>
     <string name="handicap_tables__handicap_system_agb_2023">2023 ArcheryGB</string>

@@ -1,11 +1,11 @@
 package eywa.projectcodex.components.handicapTables
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.sharedUi.CodexGrid
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -136,9 +137,27 @@ fun HandicapTablesScreen(
         Surface(
                 shape = RoundedCornerShape(10),
                 color = CodexTheme.colors.listItemOnAppBackground,
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(20.dp)
         ) {
-            Table(state.handicaps, state.highlightedHandicap, helpListener)
+            val helpState = HelpState(
+                    helpListener = helpListener,
+                    helpShowcaseItem = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_handicap_tables__table_title),
+                            helpBody = stringResource(R.string.help_handicap_tables__table_body),
+                            priority = DEFAULT_HELP_PRIORITY + 1,
+                    ),
+            )
+            if (state.handicaps.isEmpty()) {
+                Text(
+                        text = stringResource(R.string.handicap_tables__no_tables),
+                        modifier = Modifier.updateHelpDialogPosition(helpState)
+                )
+            }
+            else {
+                Table(state.handicaps, state.highlightedHandicap, helpState)
+            }
         }
     }
 }
@@ -147,71 +166,51 @@ fun HandicapTablesScreen(
 private fun Table(
         handicaps: List<HandicapScore>,
         highlighted: HandicapScore?,
-        helpListener: (HelpShowcaseIntent) -> Unit,
+        helpState: HelpState,
 ) {
-    val helpState = HelpState(
-            helpListener = helpListener,
-            helpShowcaseItem = HelpShowcaseItem(
-                    helpTitle = stringResource(R.string.help_handicap_tables__table_title),
-                    helpBody = stringResource(R.string.help_handicap_tables__table_body),
-                    priority = DEFAULT_HELP_PRIORITY + 1,
-            ),
-    )
-
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
-        Column(
-                verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
-                modifier = Modifier.padding(10.dp)
+        CodexGrid(
+                columns = 3,
+                alignment = Alignment.Center,
+                modifier = Modifier
+                        .updateHelpDialogPosition(helpState)
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
         ) {
-            if (handicaps.isNotEmpty()) {
-                Row(
-                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                        modifier = Modifier.fillMaxWidth(0.6f)
-                ) {
+            listOf(
+                    R.string.handicap_tables__handicap_field,
+                    R.string.handicap_tables__score_field,
+                    R.string.handicap_tables__allowance_field,
+            ).forEach {
+                item {
                     Text(
-                            text = stringResource(R.string.handicap_tables__handicap_field),
+                            text = stringResource(it),
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                            text = stringResource(R.string.handicap_tables__score_field),
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
                     )
                 }
+            }
 
-                handicaps.forEach {
-                    Row(
-                            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                            modifier = Modifier
-                                    .modifierIf(
-                                            predicate = it == highlighted,
-                                            modifier = Modifier
-                                                    .background(CodexTheme.colors.appBackground)
-                                                    .updateHelpDialogPosition(helpState)
-                                    )
-                                    .fillMaxWidth(0.6f)
-                    ) {
+            handicaps.forEach {
+                val isHighlighted = it == highlighted
+
+                listOf(
+                        it.handicap,
+                        it.score,
+                        it.allowance,
+                ).forEach {
+                    item(fillBox = isHighlighted) {
                         Text(
-                                text = it.handicap.toString(),
+                                text = it.toString(),
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                                text = it.score.toString(),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                        .modifierIf(
+                                                predicate = isHighlighted,
+                                                modifier = Modifier.background(CodexTheme.colors.appBackground)
+                                        )
+                                        .padding(3.dp)
                         )
                     }
                 }
-            }
-            else {
-                Text(
-                        text = stringResource(R.string.handicap_tables__no_tables),
-                        modifier = Modifier.updateHelpDialogPosition(helpState)
-                )
             }
         }
     }

@@ -27,8 +27,17 @@ data class HandicapTablesState(
         )
 }
 
-// TODO Inline class?
-data class HandicapScore(val handicap: Int, val score: Int)
+@JvmInline
+value class HandicapScore private constructor(val data: Pair<Int, Int>) {
+    constructor(handicap: Int, score: Int) : this(handicap to score)
+
+    val handicap
+        get() = data.first
+    val score
+        get() = data.second
+    val allowance
+        get() = 1440 - score
+}
 
 enum class InputType(
         @StringRes val labelId: Int,

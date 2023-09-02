@@ -49,7 +49,7 @@ class HandicapTablesViewModel @Inject constructor(
         )
             return copy(handicaps = emptyList(), highlightedHandicap = null)
 
-        fun getScore(handicap: Int) = HandicapScore(
+        fun getHandicapScore(handicap: Int) = HandicapScore(
                 handicap,
                 Handicap.getScoreForRound(
                         round = round,
@@ -63,10 +63,10 @@ class HandicapTablesViewModel @Inject constructor(
         )
 
         val initial = if (inputType == InputType.HANDICAP) {
-            getScore(inputParsed)
+            getHandicapScore(inputParsed)
         }
         else {
-            getScore(
+            getHandicapScore(
                     Handicap.getHandicapForRound(
                             round = round.round,
                             roundArrowCounts = round.roundArrowCounts,
@@ -85,10 +85,10 @@ class HandicapTablesViewModel @Inject constructor(
         val list = mutableListOf(initial)
         repeat(surrounding) { index ->
             (initial.handicap - index - 1).let {
-                if (it >= 0) list.add(getScore(it))
+                if (it >= 0) list.add(getHandicapScore(it))
             }
             (initial.handicap + index + 1).let {
-                if (it <= 150) list.add(getScore(it))
+                if (it <= 150) list.add(getHandicapScore(it))
             }
         }
 
