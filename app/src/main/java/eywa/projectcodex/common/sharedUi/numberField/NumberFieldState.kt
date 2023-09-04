@@ -1,8 +1,8 @@
 package eywa.projectcodex.common.sharedUi.numberField
 
-class NumberFieldState<I : Number> internal constructor(
+data class NumberFieldState<I : Number> internal constructor(
         val text: String,
-        isDirty: Boolean,
+        val isDirty: Boolean,
         private val validators: NumberValidatorGroup<I>,
 ) {
     constructor(text: String = "", validators: NumberValidatorGroup<I>) : this(text, false, validators)
@@ -14,7 +14,7 @@ class NumberFieldState<I : Number> internal constructor(
 }
 
 
-class PartialNumberFieldState private constructor(
+data class PartialNumberFieldState private constructor(
         private val text: String,
         private val isDirty: Boolean,
 ) {

@@ -4,10 +4,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseState
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.components.mainMenu.AppVersion
-import eywa.projectcodex.components.mainMenu.MainMenuIntent
-import eywa.projectcodex.components.mainMenu.MainMenuState
-import eywa.projectcodex.components.mainMenu.MainMenuViewModel
+import eywa.projectcodex.components.mainMenu.*
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
@@ -37,7 +34,7 @@ class MainMenuViewModelUnitTest {
         helpShowcase = mock {
             on { state } doReturn flow { emit(HelpShowcaseState(isInProgress = helpShowcaseInProgress)) }
         }
-        return MainMenuViewModel(helpShowcase, datastore.mock)
+        return MainMenuViewModel(helpShowcase, datastore.mock, MainMenuDefaultOptions.values().toSet())
     }
 
     @Test

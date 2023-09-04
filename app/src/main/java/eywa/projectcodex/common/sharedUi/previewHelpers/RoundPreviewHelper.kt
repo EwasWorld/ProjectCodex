@@ -141,4 +141,84 @@ object RoundPreviewHelper {
                     ),
             ),
     )
+
+        val yorkRoundData = FullRoundInfo(
+                round = Round(
+                        roundId = 4,
+                        name = "york",
+                        displayName = "York",
+                        isOutdoor = true,
+                        isMetric = false,
+                ),
+                roundSubTypes = listOf(
+                        RoundSubType(
+                                roundId = 4,
+                                subTypeId = 1,
+                                name = "York",
+                        ),
+                        RoundSubType(
+                                roundId = 4,
+                                subTypeId = 2,
+                                name = "Hereford",
+                        ),
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 4,
+                                distanceNumber = 1,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 72,
+                        ),
+                        RoundArrowCount(
+                                roundId = 4,
+                                distanceNumber = 2,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 48,
+                        ),
+                        RoundArrowCount(
+                                roundId = 4,
+                                distanceNumber = 3,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 24,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 4,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 100,
+                        ),
+                        RoundDistance(
+                                roundId = 4,
+                                distanceNumber = 2,
+                                subTypeId = 1,
+                                distance = 80,
+                        ),
+                        RoundDistance(
+                                roundId = 4,
+                                distanceNumber = 3,
+                                subTypeId = 1,
+                                distance = 60,
+                        ),
+                        RoundDistance(
+                                roundId = 4,
+                                distanceNumber = 1,
+                                subTypeId = 2,
+                                distance = 80,
+                        ),
+                        RoundDistance(
+                                roundId = 4,
+                                distanceNumber = 2,
+                                subTypeId = 2,
+                                distance = 60,
+                        ),
+                        RoundDistance(
+                                roundId = 4,
+                                distanceNumber = 3,
+                                subTypeId = 2,
+                                distance = 50,
+                        ),
+                ),
+        )
 }

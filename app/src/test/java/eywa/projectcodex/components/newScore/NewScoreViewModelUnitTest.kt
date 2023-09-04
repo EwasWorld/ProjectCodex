@@ -169,8 +169,8 @@ class NewScoreViewModelUnitTest {
                 RoundPreviewHelper.indoorMetricRoundData,
                 RoundPreviewHelper.outdoorImperialRoundData,
         )
-        db.roundDao.fullRoundsInfo = data
-        db.roundDao.secondFullRoundsInfo = data.take(1)
+        db.rounds.fullRoundsInfo = data
+        db.rounds.secondFullRoundsInfo = data.take(1)
         val sut = getSut(testScope = this, updateDefaultRoundsStates = null)
 
         Assert.assertEquals(NewScoreState(), sut.state.value)

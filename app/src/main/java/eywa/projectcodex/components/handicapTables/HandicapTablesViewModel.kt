@@ -38,63 +38,6 @@ class HandicapTablesViewModel @Inject constructor(
         }
     }
 
-    private fun HandicapTablesState.addHandicaps(): HandicapTablesState {
-        val round = selectRoundDialogState.selectedRound
-        val inputParsed = inputFull.parsed
-        if (
-            inputParsed == null
-            || round == null
-            || round.roundArrowCounts.isNullOrEmpty()
-            || selectRoundDialogState.roundSubTypeDistances.isNullOrEmpty()
-        )
-            return copy(handicaps = emptyList(), highlightedHandicap = null)
-
-        fun getHandicapScore(handicap: Int) = HandicapScore(
-                handicap,
-                Handicap.getScoreForRound(
-                        round = round,
-                        subType = selectRoundDialogState.selectedSubTypeId,
-                        handicap = handicap.toDouble(),
-                        innerTenArcher = false,
-                        arrows = null,
-                        use2023Handicaps = use2023System,
-                        faces = selectFaceDialogState.selectedFaces,
-                )!!,
-        )
-
-        val initial = if (inputType == InputType.HANDICAP) {
-            getHandicapScore(inputParsed)
-        }
-        else {
-            getHandicapScore(
-                    Handicap.getHandicapForRound(
-                            round = round.round,
-                            roundArrowCounts = round.roundArrowCounts,
-                            roundDistances = selectRoundDialogState.roundSubTypeDistances!!,
-                            score = inputParsed,
-                            innerTenArcher = false,
-                            arrows = null,
-                            use2023Handicaps = use2023System,
-                            faces = selectFaceDialogState.selectedFaces,
-                    ).roundHandicap(),
-            )
-        }
-
-        // TODO Ignore same score handicaps
-        val surrounding = 5
-        val list = mutableListOf(initial)
-        repeat(surrounding) { index ->
-            (initial.handicap - index - 1).let {
-                if (it >= 0) list.add(getHandicapScore(it))
-            }
-            (initial.handicap + index + 1).let {
-                if (it <= 150) list.add(getHandicapScore(it))
-            }
-        }
-
-        return copy(handicaps = list.sortedBy { it.handicap }, highlightedHandicap = initial)
-    }
-
     fun handle(action: HandicapTablesIntent) {
         when (action) {
             is InputChanged -> _state.update { it.copy(input = it.input.onValueChanged(action.newSize)).addHandicaps() }
@@ -122,4 +65,84 @@ class HandicapTablesViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
         }
     }
+
+    private fun HandicapTablesState.addHandicaps(): HandicapTablesState {
+        val round = selectRoundDialogState.selectedRound
+        val inputParsed = inputFull.parsed
+        if (
+            inputParsed == null
+            || round == null
+            || round.roundArrowCounts.isNullOrEmpty()
+            || selectRoundDialogState.roundSubTypeDistances.isNullOrEmpty()
+        ) {
+            return copy(handicaps = emptyList(), highlightedHandicap = null)
+        }
+
+        val initial = if (inputType == InputType.HANDICAP) {
+            getHandicapScore(inputParsed)
+        }
+        else {
+            getHandicapScore(
+                    Handicap.getHandicapForRound(
+                            round = round.round,
+                            roundArrowCounts = round.roundArrowCounts,
+                            roundDistances = selectRoundDialogState.roundSubTypeDistances!!,
+                            score = inputParsed,
+                            innerTenArcher = false,
+                            arrows = null,
+                            use2023Handicaps = use2023System,
+                            faces = selectFaceDialogState.selectedFaces,
+                    ).roundHandicap(),
+            )
+        }
+
+        // 5 better
+        val handicaps = mutableListOf(initial)
+        var toAdd = 5
+        var previous = initial
+        var checkHandicap = initial.handicap
+        while (toAdd != 0 && checkHandicap > Handicap.MIN_HANDICAP) {
+            checkHandicap--
+            val newEntry = getHandicapScore(checkHandicap)
+            if (newEntry.score != previous.score || checkHandicap == Handicap.MIN_HANDICAP) {
+                handicaps.add(newEntry)
+                toAdd--
+            }
+            previous = newEntry
+        }
+
+        // 5 worse
+        toAdd = 5
+        previous = initial
+        checkHandicap = initial.handicap
+        val maxHandicap = Handicap.maxHandicap(use2023System)
+        while (toAdd != 0 && checkHandicap < maxHandicap) {
+            checkHandicap++
+            val newEntry = getHandicapScore(checkHandicap)
+            if (newEntry.score != previous.score || checkHandicap == maxHandicap) {
+                handicaps.add(newEntry)
+                toAdd--
+            }
+            else {
+                handicaps.remove(previous)
+            }
+            previous = newEntry
+        }
+
+        handicaps.sortBy { it.handicap }
+        return copy(handicaps = handicaps, highlightedHandicap = handicaps.first { it.handicap >= initial.handicap })
+    }
+
+    private fun HandicapTablesState.getHandicapScore(handicap: Int) = HandicapScore(
+            handicap,
+            Handicap.getScoreForRound(
+                    round = selectRoundDialogState.selectedRound!!,
+                    subType = selectRoundDialogState.selectedSubTypeId,
+                    handicap = handicap.toDouble(),
+                    innerTenArcher = false,
+                    arrows = null,
+                    use2023Handicaps = use2023System,
+                    faces = selectFaceDialogState.selectedFaces,
+            )!!,
+    )
 }

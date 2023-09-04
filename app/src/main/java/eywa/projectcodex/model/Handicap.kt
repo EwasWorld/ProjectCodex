@@ -10,6 +10,19 @@ import kotlin.math.*
 fun Double.roundHandicap() = ceil(this).roundToInt()
 
 object Handicap {
+
+    /**
+     * The best a handicap can be (lowest number)
+     */
+    const val MIN_HANDICAP = 0
+
+    /**
+     * The worst a handicap can be (highest number)
+     */
+    fun maxHandicap(use2023Handicaps: Boolean) = if (use2023Handicaps) 150 else 100
+
+    fun fullRoundScoreToAllowance(score: Int) = 1440 - score
+
     fun getAllowanceForRound(
             round: FullRoundInfo,
             subType: Int?,
@@ -18,7 +31,7 @@ object Handicap {
             use2023Handicaps: Boolean = false,
             faces: List<RoundFace>? = null,
     ) = getScoreForRound(round, subType, handicap, innerTenArcher, null, use2023Handicaps, faces)
-            ?.let { score -> 1440 - score }
+            ?.let { fullRoundScoreToAllowance(it) }
 
     fun getHandicapForRound(
             round: FullRoundInfo,
@@ -51,7 +64,7 @@ object Handicap {
      * @param innerTenArcher whether or not the shooter uses inner ten scoring (unused if the round doesn't use inner
      * ten scoring)
      * @param arrows get the handicap only for the first this many arrows (if null then for a full round)
-     * @return handicap 0-150
+     * @return handicap between [MIN_HANDICAP] and [maxHandicap]
      */
     fun getHandicapForRound(
             round: Round,
@@ -82,8 +95,8 @@ object Handicap {
 
         val accuracy = -2
 
-        var low = calculate(0.0) // best possible handicap
-        var high = calculate(if (use2023Handicaps) 150.0 else 100.0) // worst possible handicap
+        var low = calculate(MIN_HANDICAP.toDouble())
+        var high = calculate(maxHandicap(use2023Handicaps).toDouble())
 
         if (low.score < score) return low.handicap
         if (high.score >= score) return high.handicap

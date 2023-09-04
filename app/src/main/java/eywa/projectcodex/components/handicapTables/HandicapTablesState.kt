@@ -8,11 +8,13 @@ import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
+import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.model.Handicap
 
 data class HandicapTablesState(
         val input: PartialNumberFieldState = PartialNumberFieldState(),
         val inputType: InputType = InputType.HANDICAP,
-        val use2023System: Boolean = false,
+        val use2023System: Boolean = DatastoreKey.Use2023HandicapSystem.defaultValue,
         val handicaps: List<HandicapScore> = emptyList(),
         val highlightedHandicap: HandicapScore? = null,
         val selectRoundDialogState: SelectRoundDialogState = SelectRoundDialogState(),
@@ -23,7 +25,7 @@ data class HandicapTablesState(
 ) {
     val inputFull
         get() = input.asNumberFieldState(
-                NumberValidatorGroup(TypeValidator.IntValidator, *inputType.validators.toTypedArray()),
+                NumberValidatorGroup(TypeValidator.IntValidator, *inputType.validators(use2023System).toTypedArray()),
         )
 }
 
@@ -36,25 +38,25 @@ value class HandicapScore private constructor(val data: Pair<Int, Int>) {
     val score
         get() = data.second
     val allowance
-        get() = 1440 - score
+        get() = Handicap.fullRoundScoreToAllowance(score)
 }
 
 enum class InputType(
         @StringRes val labelId: Int,
         @StringRes val typeHelpId: Int,
         @StringRes val inputHelpId: Int,
-        val validators: List<NumberValidator<in Int>>,
+        val validators: (use2023System: Boolean) -> List<NumberValidator<in Int>>,
 ) {
     HANDICAP(
             R.string.handicap_tables__handicap_field,
             R.string.help_handicap_tables__input_type_body_handicap,
             R.string.help_handicap_tables__input_body_handicap,
-            listOf(NumberValidator.InRange(0..150)),
+            { listOf(NumberValidator.InRange(Handicap.MIN_HANDICAP..Handicap.maxHandicap(it))) },
     ),
     SCORE(
             R.string.handicap_tables__score_field,
             R.string.help_handicap_tables__input_type_body_score,
             R.string.help_handicap_tables__input_body_score,
-            listOf(NumberValidator.AtLeast(1)),
+            { listOf(NumberValidator.AtLeast(1)) },
     ),
 }

@@ -7,6 +7,7 @@ import eywa.projectcodex.common.utils.classificationTables.model.ClassificationB
 import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.archer.HandicapType
+import eywa.projectcodex.model.Handicap
 import java.util.*
 
 data class ArcherHandicapsState(
@@ -48,6 +49,10 @@ data class ArcherHandicapsState(
         )
 
     companion object {
-        val handicapValidators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(0..150))
+        val handicapValidators = NumberValidatorGroup(
+                TypeValidator.IntValidator,
+                // TODO Use 2023 system param
+                NumberValidator.InRange(Handicap.MIN_HANDICAP..Handicap.maxHandicap(true))
+        )
     }
 }

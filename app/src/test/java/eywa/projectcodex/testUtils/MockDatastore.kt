@@ -10,7 +10,7 @@ import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 
 /**
- * In the main package so it can be used in unit tests and instrumented tests. Maybe there's a better spot for it?
+ * Returns the set value or the default value when an item is requested
  */
 @VisibleForTesting(otherwise = VisibleForTesting.NONE)
 class MockDatastore {

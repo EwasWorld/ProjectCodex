@@ -22,7 +22,6 @@ import org.mockito.kotlin.*
 class MockScoresRoomDatabase {
     val shootDao = MockShootDao()
     val arrowScoreDao: ArrowScoreDao = mock {}
-    val roundDao = MockRoundDao()
     val roundArrowCountDao: RoundArrowCountDao = mock {}
     val roundSubTypeDao: RoundSubTypeDao = mock {}
     val roundDistanceDao: RoundDistanceDao = mock {}
@@ -30,12 +29,14 @@ class MockScoresRoomDatabase {
     val shootDetailDao: ShootDetailDao = mock {}
     val sightMarksDao = MockSightMarksDao()
     val bowDao = MockBowDao()
+
+    val rounds = MockRounds()
     val archerRepo = MockArcherRepo()
 
     val mock: ScoresRoomDatabase = mock {
         on { shootDao() } doReturn shootDao.mock
         on { arrowScoreDao() } doReturn arrowScoreDao
-        on { roundDao() } doReturn roundDao.mock
+        on { roundDao() } doReturn rounds.mock
         on { roundArrowCountDao() } doReturn roundArrowCountDao
         on { roundSubTypeDao() } doReturn roundSubTypeDao
         on { roundDistanceDao() } doReturn roundDistanceDao
@@ -45,6 +46,7 @@ class MockScoresRoomDatabase {
         on { sightMarkDao() } doReturn sightMarksDao.mock
         on { bowDao() } doReturn bowDao.mock
         on { archerRepo() } doReturn archerRepo.mock
+        on { roundsRepo() } doReturn rounds.mockRepo
     }
 
     class MockShootDao {
@@ -69,12 +71,16 @@ class MockScoresRoomDatabase {
         }
     }
 
-    class MockRoundDao {
+    class MockRounds {
         var fullRoundsInfo: List<FullRoundInfo> = listOf()
         var secondFullRoundsInfo: List<FullRoundInfo>? = null
 
         val mock: RoundDao = mock {
             on { getAllRoundsFullInfo() } doReturn getRoundsInfo()
+        }
+
+        val mockRepo: RoundRepo = mock {
+            on { fullRoundsInfo(any()) } doReturn getRoundsInfo()
         }
 
         private fun getRoundsInfo() = flow {
