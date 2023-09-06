@@ -1,0 +1,42 @@
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+//java {
+//    sourceCompatibility = JavaVersion.VERSION_11
+//    targetCompatibility = JavaVersion.VERSION_11
+//}
+
+test {
+    useJUnitPlatform()
+}
+jar {
+    manifest {
+        attributes('Lint-Registry': 'eywa.projectcodex.lintrules.IssueRegistry')
+    }
+}
+
+dependencies {
+    // Create custom linting rules
+//    def lint_version = ext.
+//    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compileOnly "com.android.tools.lint:lint-api:$lint_version"
+    compileOnly "com.android.tools.lint:lint-checks:$lint_version"
+    testImplementation "com.android.tools.lint:lint-tests:$lint_version"
+
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.20"
+
+    def junitJupiter = "5.5.0"
+    def junitVintage = "5.5.0"
+    def jUnit = "4.12"
+    testImplementation "junit:junit:$jUnit"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiter"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiter"
+
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

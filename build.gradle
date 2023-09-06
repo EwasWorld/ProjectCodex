@@ -4,21 +4,24 @@ buildscript {
     ext {
         compose_ui_version = '1.4.3'
         kotlin_version = '1.8.10'
+        // Remember to upgrade lint_version when this is upgraded
+        agp_version = '7.3.0'
+        // Should be agp_version +23
+        lint_version = '30.3.0'
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        def nav_version = "2.3.5"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
     repositories {
         mavenCentral()
     }
 }
 plugins {
-    id 'com.android.application' version '7.3.0' apply false
-    id 'com.android.library' version '7.3.0' apply false
-    id 'org.jetbrains.kotlin.android' version '1.8.10' apply false
+    id 'com.android.application' version "$agp_version" apply false
+    id 'com.android.library' version "$agp_version" apply false
+    id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
     id 'com.google.dagger.hilt.android' version "2.44" apply false
+    id 'org.jetbrains.kotlin.jvm' version '1.7.10' apply false
 }
 
 task clean(type: Delete) {

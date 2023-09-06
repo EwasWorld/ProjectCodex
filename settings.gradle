@@ -17,5 +17,6 @@ dependencyResolutionManagement {
     }
 }
 
-include ':app'
 rootProject.name = 'ProjectCodex'
+include ':app'
+include ':lintrules'
