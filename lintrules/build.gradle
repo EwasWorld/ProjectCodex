@@ -19,11 +19,11 @@ jar {
 
 dependencies {
     // Create custom linting rules
-//    def lint_version = ext.
-//    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compileOnly "com.android.tools.lint:lint-api:$lint_version"
     compileOnly "com.android.tools.lint:lint-checks:$lint_version"
+    testImplementation "com.android.tools.lint:lint-checks:$lint_version"
     testImplementation "com.android.tools.lint:lint-tests:$lint_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.20"
 
@@ -37,6 +37,11 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+allprojects {
+    // Created an extra folder so that it can be prevented from syncing with Dropbox
+    buildDir = "$projectDir/build/build"
 }
