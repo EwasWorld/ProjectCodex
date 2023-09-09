@@ -15,12 +15,26 @@ interface ShootDao {
     @Update
     suspend fun update(vararg shootData: DatabaseShoot)
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE shootId IN (:shootIds)")
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
+    @Query(
+            """
+                SELECT 
+                        shoot.*,
+                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
+                        (personalBest.isTiedPb) as isTiedPersonalBest
+                FROM ${ShootWithScore.TABLE_NAME} as shoot
+                LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
+                        ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
+                WHERE shootId IN (:shootIds)
+            """
+    )
     fun getFullShootInfo(shootIds: List<Int>): Flow<List<DatabaseFullShootInfo>>
 
     @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId")
     suspend fun deleteRound(shootId: Int)
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
             """
@@ -36,6 +50,7 @@ interface ShootDao {
     )
     fun getFullShootInfo(shootId: Int): Flow<DatabaseFullShootInfo?>
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
             """
@@ -52,6 +67,7 @@ interface ShootDao {
             subTypeId: Int,
     ): Flow<List<DatabaseFullShootInfo>>
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
             """
@@ -71,6 +87,8 @@ interface ShootDao {
             subTypeId: Int,
     ): Flow<DatabaseFullShootInfo?>
 
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
     @Query(
             """
                 SELECT *,
@@ -106,6 +124,7 @@ interface ShootDao {
     )
     fun getJoinedFullShoots(shootId: Int): Flow<List<DatabaseFullShootInfo>>
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
             """

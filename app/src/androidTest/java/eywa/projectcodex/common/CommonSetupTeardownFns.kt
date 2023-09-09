@@ -1,7 +1,5 @@
 package eywa.projectcodex.common
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -38,19 +36,6 @@ class CommonSetupTeardownFns {
              *      else the UI can react to the empty database and fail
              */
             scenario.moveToState(Lifecycle.State.DESTROYED)
-            LocalDatabaseModule.teardown()
-            LocalDatastoreModule.teardown()
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        fun teardownScenario(scenario: FragmentScenario<*>) {
-            val fragmentScenario = scenario as FragmentScenario<Fragment>
-
-            /*
-             * Destroy the fragment before clearing the database
-             *      else the UI can react to the empty database and fail
-             */
-            fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
             LocalDatabaseModule.teardown()
             LocalDatastoreModule.teardown()
         }

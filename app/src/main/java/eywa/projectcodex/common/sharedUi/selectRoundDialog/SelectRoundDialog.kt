@@ -290,6 +290,7 @@ fun SelectSubtypeDialog(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun <T : NamedItem> ItemSelector(
         displayItems: Iterable<T>,
@@ -309,7 +310,7 @@ private fun <T : NamedItem> ItemSelector(
                             .fillMaxWidth()
                             .padding(10.dp)
             ) {
-                WrappingRow(
+                FlowRow(
                         verticalAlignment = Alignment.Bottom,
                         modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
                 ) {

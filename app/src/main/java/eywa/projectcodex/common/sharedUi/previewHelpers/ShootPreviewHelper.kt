@@ -9,7 +9,7 @@ import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
-import java.util.*
+import java.util.Calendar
 
 @DslMarker
 annotation class ShootDslMarker
@@ -108,7 +108,7 @@ class ShootPreviewHelperDsl {
 
 object ShootPreviewHelper {
     fun newShoot(id: Int = 1, date: Calendar = Calendar.getInstance()) =
-            DatabaseShoot(shootId = id, dateShot = date, archerId = 1)
+            DatabaseShoot(shootId = id, dateShot = date)
 
     fun newFullShootInfo(id: Int) =
             FullShootInfo(shoot = newShoot(id = id), arrows = null, use2023HandicapSystem = true)

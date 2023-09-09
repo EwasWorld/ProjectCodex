@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.archer
 
 import androidx.annotation.StringRes
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -8,7 +9,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap.Companion.TABLE_NAME
 import eywa.projectcodex.database.shootData.DatabaseShoot
-import java.util.*
+import java.util.Calendar
 
 @Entity(
         tableName = TABLE_NAME,
@@ -29,7 +30,7 @@ import java.util.*
 )
 data class DatabaseArcherHandicap(
         @PrimaryKey(autoGenerate = true) val archerHandicapId: Int,
-        val archerId: Int,
+        @ColumnInfo(index = true) val archerId: Int,
         val bowStyle: ClassificationBow,
         val handicapType: HandicapType,
         val handicap: Int,
@@ -37,7 +38,7 @@ data class DatabaseArcherHandicap(
         /**
          * The id of the [DatabaseShoot] that caused the handicap to update (if any)
          */
-        val shootId: Int? = null,
+        @ColumnInfo(index = true) val shootId: Int? = null,
 ) {
     companion object {
         const val TABLE_NAME = "archer_handicaps"

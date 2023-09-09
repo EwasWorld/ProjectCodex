@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,9 +21,11 @@ interface ArcherDao {
     )
     suspend fun insertDefaultArcherIfNotExist()
 
+    @Transaction
     @Query("SELECT * FROM ${DatabaseArcher.TABLE_NAME} WHERE archerId = $DEFAULT_ARCHER_ID")
     fun getDefaultArcher(): Flow<DatabaseFullArcher?>
 
+    @Transaction
     @Query("SELECT * FROM ${DatabaseArcher.TABLE_NAME}")
     fun getAllArchers(): Flow<List<DatabaseFullArcher>>
 }

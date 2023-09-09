@@ -1,5 +1,6 @@
 package eywa.projectcodex.database.shootData
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -33,8 +34,8 @@ import eywa.projectcodex.database.shootData.DatabaseShootRound.Companion.TABLE_N
 )
 data class DatabaseShootRound(
         @PrimaryKey val shootId: Int,
-        val roundId: Int,
-        val roundSubTypeId: Int? = null,
+        @ColumnInfo(index = true) val roundId: Int,
+        @ColumnInfo(index = true) val roundSubTypeId: Int? = null,
         val faces: List<RoundFace>? = null,
         val sightersCount: Int = 0,
 ) {

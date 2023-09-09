@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
-import java.util.*
+import java.util.Calendar
 
 
 /**
@@ -33,7 +33,7 @@ import java.util.*
 data class DatabaseShoot(
         @PrimaryKey(autoGenerate = true) val shootId: Int,
         val dateShot: Calendar,
-        val archerId: Int,
+        @ColumnInfo(index = true) val archerId: Int? = null,
         val countsTowardsHandicap: Boolean = true,
         @ColumnInfo(index = true) val bowId: Int? = null,
         val goalScore: Int? = null,

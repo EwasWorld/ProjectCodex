@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,6 +15,7 @@ interface ArcherHandicapDao {
     /**
      * @return the latest entry for each [DatabaseArcherHandicap.handicapType]
      */
+    @RewriteQueriesToDropUnusedColumns
     @Query(
             """
                 SELECT *, MAX(dateSet)

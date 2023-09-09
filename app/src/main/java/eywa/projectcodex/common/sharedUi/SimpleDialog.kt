@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.sharedUi
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -71,7 +72,7 @@ fun SimpleDialogContent(
         @StringRes message: Int,
         positiveButton: ButtonState,
         negativeButton: ButtonState? = null,
-        modifier: Modifier = Modifier,
+        @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
         content: (@Composable () -> Unit)? = null
 ) {
     SimpleDialogContent(

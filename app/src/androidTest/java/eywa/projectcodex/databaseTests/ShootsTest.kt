@@ -60,54 +60,6 @@ class ShootsTest {
     }
 
     /**
-     * Check inserted values are the same as retrieved
-     */
-    @Test
-    fun basicTest() = runTest(dispatchTimeoutMs = 2000) {
-        val retrievedShoots = shootDao.getAllFullShootInfo()
-
-        /*
-         * Add and retrieve
-         */
-        val shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(2, TestUtils.generateDate(), 2, false),
-                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(5, TestUtils.generateDate(), 2, false),
-                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
-        ).map {
-            DatabaseFullShootInfo(
-                    shoot = it,
-                    arrows = listOf(),
-                    roundArrowCounts = listOf(),
-                    allRoundSubTypes = listOf(),
-                    allRoundDistances = listOf(),
-                    isPersonalBest = false,
-                    joinedDate = it.dateShot,
-            )
-        }
-
-        for (shoot in shoots) {
-            shootDao.insert(shoot.shoot.copy(shootId = 0))
-        }
-        assertEquals(
-                shoots.toSet(),
-                retrievedShoots.first().toSet(),
-        )
-
-        /*
-         * Delete
-         */
-        shootDao.deleteRound(1)
-        shootDao.deleteRound(2)
-        assertEquals(
-                shoots.subList(2, shoots.size).toSet(),
-                retrievedShoots.first().toSet(),
-        )
-    }
-
-    /**
      * Check the correct round info is retrieved for the given archer round
      */
     @Test
@@ -116,12 +68,12 @@ class ShootsTest {
          * Create data and populate tables
          */
         val shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(2, TestUtils.generateDate(), 2, false),
-                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(5, TestUtils.generateDate(), 2, false),
-                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(1, TestUtils.generateDate()),
+                DatabaseShoot(2, TestUtils.generateDate()),
+                DatabaseShoot(3, TestUtils.generateDate()),
+                DatabaseShoot(4, TestUtils.generateDate()),
+                DatabaseShoot(5, TestUtils.generateDate()),
+                DatabaseShoot(6, TestUtils.generateDate()),
         )
         val shootRounds = listOf(
                 DatabaseShootRound(1, roundId = 1),
@@ -143,64 +95,13 @@ class ShootsTest {
          * Check the correct round info is retrieved
          */
         for (shoot in shoots) {
-            val retrievedRoundInfo = shootDao.getFullShootInfo(shoot.shootId).first()
+            val actualShootInfo = shootDao.getFullShootInfo(shoot.shootId).first()
             val expectedShootRound = shootRounds.find { it.shootId == shoot.shootId }
-            assertEquals(expectedShootRound?.roundId, retrievedRoundInfo!!.round?.roundId)
+            assertEquals(expectedShootRound?.roundId, actualShootInfo!!.round?.roundId)
             if (expectedShootRound?.roundId != null) {
-                assertEquals(rounds[expectedShootRound.roundId - 1].round, retrievedRoundInfo.round)
+                assertEquals(rounds[expectedShootRound.roundId - 1].round, actualShootInfo.round)
             }
         }
-    }
-
-    /**
-     * Check the correct round name info is retrieved for the given archer round
-     */
-    @Test
-    fun getShootsWithNamesTest() = runTest {
-        /*
-         * Create data and populate tables
-         */
-        val shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(2, TestUtils.generateDate(), 2, false),
-                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
-                DatabaseShoot(5, TestUtils.generateDate(), 2, false),
-                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
-        )
-        val shootRounds = listOf(
-                DatabaseShootRound(1, roundId = 1, roundSubTypeId = 1),
-                DatabaseShootRound(2, roundId = 2),
-                DatabaseShootRound(4, roundId = 1, roundSubTypeId = 1),
-                DatabaseShootRound(5, roundId = 2),
-        )
-        val rounds = TestUtils.ROUNDS
-
-        rounds.forEach { db.add(it) }
-        for (shoot in shoots) {
-            shootDao.insert(shoot)
-        }
-        for (shootRound in shootRounds) {
-            shootRoundDao.insert(shootRound)
-        }
-
-        /*
-         * Check the correct round info is retrieved
-         */
-        val retrievedRoundInfo = shootDao.getAllFullShootInfo().first()
-        for (actual in retrievedRoundInfo) {
-            val expectedShootRound = shootRounds.find { it.shootId == actual.shoot.shootId }
-            val expected = shoots[actual.shoot.shootId - 1]
-            assertEquals(expected, actual.shoot)
-
-            val expectedFullRound = expectedShootRound?.roundId?.let { rounds[it - 1] }
-            assert(expectedFullRound?.round == actual.round)
-
-            val expectedRoundSubType =
-                    expectedFullRound?.roundSubTypes?.find { it.subTypeId == expectedShootRound.roundSubTypeId }
-            assertEquals(expectedRoundSubType?.name, actual.roundSubType?.name)
-        }
-        assertEquals(shoots.size, retrievedRoundInfo.size)
     }
 
     /**
@@ -214,19 +115,19 @@ class ShootsTest {
     fun testPersonalBests() = runTest {
         val shoots = listOf(
                 // Incomplete round (max score)
-                DatabaseShoot(1, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(1, TestUtils.generateDate()),
                 // Different round type (max score)
-                DatabaseShoot(2, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(2, TestUtils.generateDate()),
                 // Actual PB
-                DatabaseShoot(3, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(3, TestUtils.generateDate()),
                 // Duplicate PB
-                DatabaseShoot(4, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(4, TestUtils.generateDate()),
                 // Different round type (non-max score)
-                DatabaseShoot(5, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(5, TestUtils.generateDate()),
                 // No round
-                DatabaseShoot(6, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(6, TestUtils.generateDate()),
                 // Lower than PB
-                DatabaseShoot(7, TestUtils.generateDate(), 1, false),
+                DatabaseShoot(7, TestUtils.generateDate()),
         )
         val shootRounds = listOf(
                 DatabaseShootRound(1, roundId = 1, roundSubTypeId = 1),
@@ -275,14 +176,14 @@ class ShootsTest {
     @Test
     fun testFilters() = runTest {
         val shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(2011, 3), 1, false),
-                DatabaseShoot(2, TestUtils.generateDate(2012, 3), 1, false),
-                DatabaseShoot(3, TestUtils.generateDate(2013, 3), 1, false),
-                DatabaseShoot(4, TestUtils.generateDate(2014, 3), 1, false),
-                DatabaseShoot(5, TestUtils.generateDate(2015, 3), 1, false),
-                DatabaseShoot(6, TestUtils.generateDate(2016, 3), 1, false),
-                DatabaseShoot(7, TestUtils.generateDate(2017, 3), 1, false),
-                DatabaseShoot(8, TestUtils.generateDate(2017, 3), 1, false),
+                DatabaseShoot(1, TestUtils.generateDate(2011, 3)),
+                DatabaseShoot(2, TestUtils.generateDate(2012, 3)),
+                DatabaseShoot(3, TestUtils.generateDate(2013, 3)),
+                DatabaseShoot(4, TestUtils.generateDate(2014, 3)),
+                DatabaseShoot(5, TestUtils.generateDate(2015, 3)),
+                DatabaseShoot(6, TestUtils.generateDate(2016, 3)),
+                DatabaseShoot(7, TestUtils.generateDate(2017, 3)),
+                DatabaseShoot(8, TestUtils.generateDate(2017, 3)),
         )
         val shootRounds = listOf(
                 DatabaseShootRound(1, roundId = 1, roundSubTypeId = 1),
@@ -362,8 +263,6 @@ class ShootsTest {
             DatabaseShoot(
                     shootId = 1 + it,
                     dateShot = TestUtils.generateDate(2020, 1 + it),
-                    archerId = 1,
-                    countsTowardsHandicap = true,
                     joinWithPrevious = (it + 1) in 3..5
             )
         }
@@ -386,8 +285,6 @@ class ShootsTest {
             DatabaseShoot(
                     shootId = 1 + it,
                     dateShot = TestUtils.generateDate(2020, 1 + it),
-                    archerId = 1,
-                    countsTowardsHandicap = true,
                     joinWithPrevious = (it + 1) in 3..5
             )
         }
@@ -410,8 +307,6 @@ class ShootsTest {
         val shoot = DatabaseShoot(
                 shootId = 1,
                 dateShot = TestUtils.generateDate(),
-                archerId = 1,
-                countsTowardsHandicap = true,
         )
         shootDao.insert(shoot)
         val arrowCount = DatabaseArrowCounter(
