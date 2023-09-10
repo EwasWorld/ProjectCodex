@@ -16,9 +16,12 @@ import org.jetbrains.uast.util.isMethodCall
 /**
  * Google sample: https://github.com/googlesamples/android-custom-lint-rules
  * Create rules tutorial: https://proandroiddev.com/implementing-your-first-android-lint-rule-6e572383b292
+ * Video: https://www.youtube.com/watch?v=jCmJWOkjbM0
  *
  * Rules docs: https://googlesamples.github.io/android-custom-lint-rules/index.html
  * Api docs: https://googlesamples.github.io/android-custom-lint-rules/api-guide.html
+ *
+ * Built-in lint checks source https://android.googlesource.com/platform/tools/base/+/refs/heads/studio-master-dev/lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks
  */
 class DataClassCopyCallWithPrivateConstructor : Detector(), SourceCodeScanner {
 
