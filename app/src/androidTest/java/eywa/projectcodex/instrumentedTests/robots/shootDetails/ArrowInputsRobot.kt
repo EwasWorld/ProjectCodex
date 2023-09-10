@@ -4,7 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
 abstract class ArrowInputsRobot(
@@ -16,7 +16,7 @@ abstract class ArrowInputsRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasText(text)
-            +CodexNodeAction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist
         }
     }
 
@@ -25,7 +25,7 @@ abstract class ArrowInputsRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasContentDescription("$text arrow input")
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
     }
 
@@ -45,7 +45,7 @@ abstract class ArrowInputsRobot(
     fun checkInputtedArrows(expectedArrows: List<String>, endSize: Int = 6) {
         perform {
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.END_ARROWS_TEXT)
-            +CodexNodeAction.AssertTextEquals(
+            +CodexNodeInteraction.AssertTextEquals(
                     expectedArrows.plus(List(endSize - expectedArrows.size) { "." }).joinToString("-")
             ).waitFor()
         }
@@ -54,7 +54,7 @@ abstract class ArrowInputsRobot(
     fun checkEndTotal(total: Int) {
         perform {
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.END_TOTAL_TEXT)
-            +CodexNodeAction.AssertTextEquals(total.toString())
+            +CodexNodeInteraction.AssertTextEquals(total.toString())
         }
     }
 
@@ -62,7 +62,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
     }
 
@@ -70,7 +70,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
     }
 
@@ -78,7 +78,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.SUBMIT_BUTTON)
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
     }
 
@@ -86,7 +86,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CANCEL_BUTTON)
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
     }
 

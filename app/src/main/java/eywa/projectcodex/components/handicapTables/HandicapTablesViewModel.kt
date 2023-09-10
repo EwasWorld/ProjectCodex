@@ -6,13 +6,24 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectFaceDialogAction
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectRoundDialogAction
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleHandicapSystem
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleInput
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.model.roundHandicap
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -52,16 +63,19 @@ class HandicapTablesViewModel @Inject constructor(
                     ).addHandicaps()
                 }
             }
+
             is SelectFaceDialogAction ->
                 _state.update {
                     it.copy(selectFaceDialogState = action.action.handle(it.selectFaceDialogState)).addHandicaps()
                 }
+
             ToggleHandicapSystem -> _state.update { it.copy(use2023System = !it.use2023System).addHandicaps() }
             ToggleInput ->
                 _state.update {
                     val newType = if (it.inputType == InputType.HANDICAP) InputType.SCORE else InputType.HANDICAP
                     it.copy(inputType = newType).addHandicaps()
                 }
+
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
         }
     }
@@ -78,60 +92,62 @@ class HandicapTablesViewModel @Inject constructor(
             return copy(handicaps = emptyList(), highlightedHandicap = null)
         }
 
-        val initial = if (inputType == InputType.HANDICAP) {
-            getHandicapScore(inputParsed)
-        }
-        else {
-            getHandicapScore(
-                    Handicap.getHandicapForRound(
-                            round = round.round,
-                            roundArrowCounts = round.roundArrowCounts,
-                            roundDistances = selectRoundDialogState.roundSubTypeDistances!!,
-                            score = inputParsed,
-                            innerTenArcher = false,
-                            arrows = null,
-                            use2023Handicaps = use2023System,
-                            faces = selectFaceDialogState.selectedFaces,
-                    ).roundHandicap(),
-            )
-        }
+        val initial =
+                if (inputType == InputType.HANDICAP) getHandicapScore(inputParsed)
+                else getHandicapScore(getHandicapForScore(inputParsed))
 
-        // 5 better
-        val handicaps = mutableListOf(initial)
-        var toAdd = 5
+        /*
+         * Add up to the next 5 handicaps better than [initial]
+         */
+        val handicaps = mutableListOf<HandicapScore>()
         var previous = initial
         var checkHandicap = initial.handicap
-        while (toAdd != 0 && checkHandicap > Handicap.MIN_HANDICAP) {
+        while (handicaps.size < 5 && checkHandicap > Handicap.MIN_HANDICAP) {
             checkHandicap--
             val newEntry = getHandicapScore(checkHandicap)
+
+            // Ignore duplicate scores, as we're checking better handicaps with each loop, we can just ignore duplicates
+            // This will leave us with the worse handicap for each score and eliminate duplicate scores
             if (newEntry.score != previous.score || checkHandicap == Handicap.MIN_HANDICAP) {
                 handicaps.add(newEntry)
-                toAdd--
             }
             previous = newEntry
         }
 
-        // 5 worse
-        toAdd = 5
-        previous = initial
-        checkHandicap = initial.handicap
+        /*
+         * Add up to the next 6 handicaps at or worse than [initial]
+         * (1 more to include [initial])
+         */
         val maxHandicap = Handicap.maxHandicap(use2023System)
-        while (toAdd != 0 && checkHandicap < maxHandicap) {
-            checkHandicap++
-            val newEntry = getHandicapScore(checkHandicap)
-            if (newEntry.score != previous.score || checkHandicap == maxHandicap) {
-                handicaps.add(newEntry)
-                toAdd--
-            }
-            else {
-                handicaps.remove(previous)
-            }
-            previous = newEntry
+        checkHandicap = initial.handicap
+        for (i in 0..5) {
+            val handicapScore = getHandicapScore(checkHandicap)
+
+            // Ensure we have the worst handicap for the found score
+            val newItem = HandicapScore(getHandicapForScore(handicapScore.score), handicapScore.score)
+            handicaps.add(newItem)
+
+            checkHandicap = newItem.handicap + 1
+            if (checkHandicap > maxHandicap) break
         }
 
         handicaps.sortBy { it.handicap }
-        return copy(handicaps = handicaps, highlightedHandicap = handicaps.first { it.handicap >= initial.handicap })
+        return copy(
+                handicaps = handicaps,
+                highlightedHandicap = handicaps.first { it.handicap >= initial.handicap },
+        )
     }
+
+    private fun HandicapTablesState.getHandicapForScore(score: Int) =
+            Handicap.getHandicapForRound(
+                    round = selectRoundDialogState.selectedRound!!,
+                    subType = selectRoundDialogState.selectedSubTypeId,
+                    score = score,
+                    innerTenArcher = false,
+                    arrows = null,
+                    use2023Handicaps = use2023System,
+                    faces = selectFaceDialogState.selectedFaces,
+            )!!.roundHandicap()
 
     private fun HandicapTablesState.getHandicapScore(handicap: Int) = HandicapScore(
             handicap,

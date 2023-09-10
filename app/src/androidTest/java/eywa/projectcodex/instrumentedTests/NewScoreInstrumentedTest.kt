@@ -21,9 +21,9 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
-import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
-import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
+import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
+import eywa.projectcodex.instrumentedTests.robots.common.SelectRoundRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -122,7 +122,7 @@ class NewScoreInstrumentedTest {
     @Test
     fun testAddAnotherRound() = runTest {
         setup()
-        val ar = DatabaseShoot(2, TestUtils.generateDate(2020), 1, true)
+        val ar = DatabaseShoot(2, TestUtils.generateDate(2020))
         db.shootDao().insert(ar)
 
         db.arrowScoreDao().insert(
@@ -171,13 +171,15 @@ class NewScoreInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                clickSelectedRound()
-                clickRoundDialogRound("1")
-                checkSelectedRound("1")
+                with(roundsRobot) {
+                    clickSelectedRound()
+                    clickRoundDialogRound("1")
+                    checkSelectedRound("1")
 
-                clickSelectedRound()
-                clickRoundDialogNoRound()
-                checkSelectedRound("No Round")
+                    clickSelectedRound()
+                    clickRoundDialogNoRound()
+                    checkSelectedRound("No Round")
+                }
             }
         }
     }
@@ -198,11 +200,13 @@ class NewScoreInstrumentedTest {
         val selectedSubtype = selectedRound.roundSubTypes!![1]
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                clickSelectedRound()
-                clickRoundDialogRound(selectedRound.round.displayName)
+                with(roundsRobot) {
+                    clickSelectedRound()
+                    clickRoundDialogRound(selectedRound.round.displayName)
 
-                clickSelectedSubtype()
-                clickSubtypeDialogSubtype(selectedSubtype.name!!)
+                    clickSelectedSubtype()
+                    clickSubtypeDialogSubtype(selectedSubtype.name!!)
+                }
 
                 clickSubmitNewScore()
             }
@@ -263,7 +267,7 @@ class NewScoreInstrumentedTest {
                     checkTime("17:12")
                     checkDate("10 Jun 19")
 
-                    checkSelectedRound(shootInput.round!!.displayName)
+                    roundsRobot.checkSelectedRound(shootInput.round!!.displayName)
 
                     /*
                      * Change some stuff
@@ -273,8 +277,8 @@ class NewScoreInstrumentedTest {
                     checkTime("13:15")
                     checkDate("30 Oct 40")
 
-                    clickSelectedRound()
-                    clickRoundDialogRound(selectedRound.round.displayName)
+                    roundsRobot.clickSelectedRound()
+                    roundsRobot.clickRoundDialogRound(selectedRound.round.displayName)
 
                     /*
                      * Reset
@@ -291,8 +295,8 @@ class NewScoreInstrumentedTest {
                     checkTime("13:15")
                     checkDate("30 Oct 40")
 
-                    clickSelectedRound()
-                    clickRoundDialogRound(selectedRound.round.displayName)
+                    roundsRobot.clickSelectedRound()
+                    roundsRobot.clickRoundDialogRound(selectedRound.round.displayName)
 
                     /*
                      * Save
@@ -337,8 +341,8 @@ class NewScoreInstrumentedTest {
             clickViewScores {
                 longClickRow(0)
                 clickEditDropdownMenuItem {
-                    clickSelectedRound()
-                    clickRoundDialogNoRound()
+                    roundsRobot.clickSelectedRound()
+                    roundsRobot.clickRoundDialogNoRound()
                     clickSubmitEditScore()
                 }
             }
@@ -375,30 +379,32 @@ class NewScoreInstrumentedTest {
             clickViewScores {
                 longClickRow(0)
                 clickEditDropdownMenuItem {
-                    facesRobot.checkFaces("Full")
+                    with(facesRobot) {
+                        checkFaces("Full")
 
-                    facesRobot.openDialog()
-                    facesRobot.checkSwitchToMultiButtonIsShown()
-                    facesRobot.checkSwitchToSingleButtonNotShown()
-                    facesRobot.clickSingleOption("Half")
-                    facesRobot.checkFaces("Half")
+                        openDialog()
+                        checkSwitchToMultiButtonIsShown()
+                        checkSwitchToSingleButtonNotShown()
+                        clickSingleOption("Half")
+                        checkFaces("Half")
 
-                    facesRobot.openDialog()
-                    facesRobot.clickSwitchToMulti()
-                    facesRobot.checkSwitchToSingleButtonIsShown()
-                    facesRobot.checkSwitchToMultiButtonNotShown()
-                    facesRobot.checkMultiOptions(listOf("80m: Half", "70m: Half", "60m: Half"))
-                    facesRobot.clickMultiOption(0, "Full")
-                    facesRobot.checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Half"))
-                    facesRobot.clickMultiOption(2, "Triple")
-                    facesRobot.checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Triple"))
-                    facesRobot.clickConfirm()
-                    facesRobot.checkFaces("Full, Half, Triple")
+                        openDialog()
+                        clickSwitchToMulti()
+                        checkSwitchToSingleButtonIsShown()
+                        checkSwitchToMultiButtonNotShown()
+                        checkMultiOptions(listOf("80m: Half", "70m: Half", "60m: Half"))
+                        clickMultiOption(0, "Full")
+                        checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Half"))
+                        clickMultiOption(2, "Triple")
+                        checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Triple"))
+                        clickConfirm()
+                        checkFaces("Full, Half, Triple")
 
-                    facesRobot.openDialog(false)
-                    facesRobot.clickSwitchToSingle()
-                    facesRobot.clickSingleOption("6-ring")
-                    facesRobot.checkFaces("6-ring")
+                        openDialog(false)
+                        clickSwitchToSingle()
+                        clickSingleOption("6-ring")
+                        checkFaces("6-ring")
+                    }
                 }
             }
         }
@@ -414,8 +420,6 @@ class NewScoreInstrumentedTest {
                                 shootId = 2,
                                 dateShot = Date(2020, 5, 10, 17, 12, 13).asCalendar(),
 //            Calendar.Builder().setDate(2020, 5, 10).setTimeOfDay(17, 12, 13).build().time,
-                                archerId = 1,
-                                countsTowardsHandicap = true,
                         )
                 )
             }
@@ -425,13 +429,15 @@ class NewScoreInstrumentedTest {
             clickViewScores {
                 longClickRow(0)
                 clickEditDropdownMenuItem {
-                    facesRobot.checkFaces("Full")
+                    with(facesRobot) {
+                        checkFaces("Full")
 
-                    facesRobot.openDialog()
-                    facesRobot.checkSwitchToMultiButtonNotShown()
-                    facesRobot.checkSwitchToSingleButtonNotShown()
-                    facesRobot.clickSingleOption("Half")
-                    facesRobot.checkFaces("Half")
+                        openDialog()
+                        checkSwitchToMultiButtonNotShown()
+                        checkSwitchToSingleButtonNotShown()
+                        clickSingleOption("Half")
+                        checkFaces("Half")
+                    }
                 }
             }
         }
@@ -443,34 +449,36 @@ class NewScoreInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                clickSelectedRound()
-                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
-                checkNoFiltersAreOn()
+                with(roundsRobot) {
+                    clickSelectedRound()
+                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                    checkNoFiltersAreOn()
 
-                clickFilter(NewScoreRobot.Filter.METRIC)
-                checkSelectRoundDialogOptions(listOf("WA 1440", "WA 25"))
-                checkSelectRoundDialogOptionsNotExist(listOf("St. George", "Portsmouth"))
-                clickFilter(NewScoreRobot.Filter.IMPERIAL)
-                checkSelectRoundDialogOptions(listOf("St. George", "Portsmouth"))
-                checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "WA 25"))
-                clickFilter(NewScoreRobot.Filter.IMPERIAL, false)
-                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
-                checkNoFiltersAreOn()
+                    clickFilter(SelectRoundRobot.Filter.METRIC)
+                    checkSelectRoundDialogOptions(listOf("WA 1440", "WA 25"))
+                    checkSelectRoundDialogOptionsNotExist(listOf("St. George", "Portsmouth"))
+                    clickFilter(SelectRoundRobot.Filter.IMPERIAL)
+                    checkSelectRoundDialogOptions(listOf("St. George", "Portsmouth"))
+                    checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "WA 25"))
+                    clickFilter(SelectRoundRobot.Filter.IMPERIAL, false)
+                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                    checkNoFiltersAreOn()
 
-                clickFilter(NewScoreRobot.Filter.INDOOR)
-                checkSelectRoundDialogOptions(listOf("Portsmouth", "WA 25"))
-                checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George"))
-                clickFilter(NewScoreRobot.Filter.OUTDOOR)
-                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George"))
-                checkSelectRoundDialogOptionsNotExist(listOf("Portsmouth", "WA 25"))
-                clickFilter(NewScoreRobot.Filter.OUTDOOR, false)
-                checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
-                checkNoFiltersAreOn()
+                    clickFilter(SelectRoundRobot.Filter.INDOOR)
+                    checkSelectRoundDialogOptions(listOf("Portsmouth", "WA 25"))
+                    checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George"))
+                    clickFilter(SelectRoundRobot.Filter.OUTDOOR)
+                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George"))
+                    checkSelectRoundDialogOptionsNotExist(listOf("Portsmouth", "WA 25"))
+                    clickFilter(SelectRoundRobot.Filter.OUTDOOR, false)
+                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                    checkNoFiltersAreOn()
 
-                clickFilter(NewScoreRobot.Filter.INDOOR)
-                clickFilter(NewScoreRobot.Filter.METRIC)
-                checkSelectRoundDialogOptions(listOf("WA 25"))
-                checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George", "Portsmouth"))
+                    clickFilter(SelectRoundRobot.Filter.INDOOR)
+                    clickFilter(SelectRoundRobot.Filter.METRIC)
+                    checkSelectRoundDialogOptions(listOf("WA 25"))
+                    checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George", "Portsmouth"))
+                }
             }
         }
     }

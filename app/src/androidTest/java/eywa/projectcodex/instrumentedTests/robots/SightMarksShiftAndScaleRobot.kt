@@ -1,10 +1,16 @@
 package eywa.projectcodex.instrumentedTests.robots
 
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction.*
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.*
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction.AssertDoesNotExist
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction.AssertIsDisplayed
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction.PerformClick
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasAnyAncestor
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasAnySibling
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasTestTag
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasText
 import eywa.projectcodex.model.SightMark
 
 class SightMarksShiftAndScaleRobot(
@@ -67,25 +73,24 @@ class SightMarksShiftAndScaleRobot(
     }
 
     fun clickScaleChange(isIncrease: Boolean, isLarge: Boolean) {
-        perform {
-            +HasTestTag(getShifterTestTag(isIncrease, isLarge))
-            +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS))
-            +PerformClick
-        }
+        clickShifterButton(isIncrease, isLarge, SightMarksTestTag.SAS_SCALE_BUTTONS)
     }
 
     fun clickShiftChange(isIncrease: Boolean, isLarge: Boolean) {
-        perform {
-            +HasTestTag(getShifterTestTag(isIncrease, isLarge))
-            +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS))
-            +PerformClick
-        }
+        clickShifterButton(isIncrease, isLarge, SightMarksTestTag.SAS_SHIFT_BUTTONS)
     }
 
-    private fun getShifterTestTag(isIncrease: Boolean, isLarge: Boolean) = when {
-        isIncrease && isLarge -> SightMarksTestTag.SAS_LARGE_INCREASE_BUTTON
-        isIncrease -> SightMarksTestTag.SAS_SMALL_INCREASE_BUTTON
-        isLarge -> SightMarksTestTag.SAS_LARGE_DECREASE_BUTTON
-        else -> SightMarksTestTag.SAS_SMALL_DECREASE_BUTTON
+    private fun clickShifterButton(isIncrease: Boolean, isLarge: Boolean, groupTestTag: CodexTestTag) {
+        val buttonTag = when {
+            isIncrease && isLarge -> SightMarksTestTag.SAS_LARGE_INCREASE_BUTTON
+            isIncrease -> SightMarksTestTag.SAS_SMALL_INCREASE_BUTTON
+            isLarge -> SightMarksTestTag.SAS_LARGE_DECREASE_BUTTON
+            else -> SightMarksTestTag.SAS_SMALL_DECREASE_BUTTON
+        }
+        perform {
+            +HasTestTag(buttonTag)
+            +HasAnyAncestor(HasTestTag(groupTestTag))
+            +PerformClick
+        }
     }
 }

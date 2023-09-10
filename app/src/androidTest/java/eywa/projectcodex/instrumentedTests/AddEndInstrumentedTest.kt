@@ -20,6 +20,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -84,7 +85,7 @@ class AddEndInstrumentedTest {
             ),
     )
 
-    private val shoots = listOf(
+    private val shoots = listOf<FullShootInfo>(
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
             },

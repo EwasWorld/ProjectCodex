@@ -3,12 +3,16 @@ package eywa.projectcodex.common
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import eywa.projectcodex.common.utils.asCalendar
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.model.Arrow
 import org.mockito.ArgumentCaptor
 import java.sql.Date
-import java.util.*
+import java.util.Calendar
 import kotlin.random.Random
 
 typealias ComposeTestRule<T> = AndroidComposeTestRule<ActivityScenarioRule<T>, T>
@@ -118,7 +122,7 @@ object TestUtils {
     fun generateShoots(roundsToGenerate: Int): List<DatabaseShoot> = List(roundsToGenerate) { generateDate() }
             .sortedDescending()
             .mapIndexed { index, date ->
-                DatabaseShoot(index + 1, date, 1, false)
+                DatabaseShoot(index + 1, date)
             }
 
     fun generateArrows(numberToGenerate: Int, desiredTotal: Int? = null): List<Arrow> {

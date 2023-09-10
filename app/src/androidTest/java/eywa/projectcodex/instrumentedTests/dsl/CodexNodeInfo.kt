@@ -14,18 +14,18 @@ import eywa.projectcodex.core.mainActivity.MainActivity
  */
 internal sealed class CodexNodeInfo {
     object Empty : CodexNodeInfo() {
-        override fun plus(other: CodexNodeAction): CodexNodeInfo = Single() + other
+        override fun plus(other: CodexNodeInteraction): CodexNodeInfo = Single() + other
         override fun plus(other: CodexNodeMatcher): CodexNodeInfo = Single() + other
     }
 
     data class Single(
             val matchers: List<CodexNodeMatcher> = emptyList(),
-            val actions: List<CodexNodeAction> = emptyList(),
+            val actions: List<CodexNodeInteraction> = emptyList(),
     ) : CodexNodeInfo() {
         private var node: SemanticsNodeInteraction? = null
         private var parentNode: SemanticsNodeInteraction? = null
 
-        override fun plus(other: CodexNodeAction): CodexNodeInfo = copy(actions = actions + other)
+        override fun plus(other: CodexNodeInteraction): CodexNodeInfo = copy(actions = actions + other)
         override fun plus(other: CodexNodeMatcher): CodexNodeInfo = copy(matchers = matchers + other)
 
         override fun createNode(
@@ -63,12 +63,12 @@ internal sealed class CodexNodeInfo {
     data class GroupToSingle(
             val matchers: List<CodexNodeMatcher>,
             val groupToOne: CodexNodeGroupToOne,
-            val actions: List<CodexNodeAction> = emptyList(),
+            val actions: List<CodexNodeInteraction> = emptyList(),
     ) : CodexNodeInfo() {
         private var node: SemanticsNodeInteraction? = null
         private var parentNode: SemanticsNodeInteraction? = null
 
-        override fun plus(other: CodexNodeAction): CodexNodeInfo = copy(actions = actions + other)
+        override fun plus(other: CodexNodeInteraction): CodexNodeInfo = copy(actions = actions + other)
 
         override fun createNode(
                 composeTestRule: ComposeTestRule<MainActivity>,
@@ -106,12 +106,12 @@ internal sealed class CodexNodeInfo {
 
     data class Group(
             val matchers: List<CodexNodeMatcher>,
-            val actions: List<CodexNodeGroupAction> = emptyList(),
+            val actions: List<CodexNodeGroupInteraction> = emptyList(),
     ) : CodexNodeInfo() {
         private var node: SemanticsNodeInteractionCollection? = null
         private var parentNode: SemanticsNodeInteraction? = null
 
-        override fun plus(other: CodexNodeGroupAction): CodexNodeInfo = copy(actions = actions + other)
+        override fun plus(other: CodexNodeGroupInteraction): CodexNodeInfo = copy(actions = actions + other)
 
         override fun plus(other: CodexNodeGroupToOne): CodexNodeInfo {
             check(actions.isEmpty()) { "Group actions have already been added, can't transform to single node" }
@@ -150,9 +150,9 @@ internal sealed class CodexNodeInfo {
         }
     }
 
-    open operator fun plus(other: CodexNodeAction): CodexNodeInfo = throw NotImplementedError()
+    open operator fun plus(other: CodexNodeInteraction): CodexNodeInfo = throw NotImplementedError()
     open operator fun plus(other: CodexNodeMatcher): CodexNodeInfo = throw NotImplementedError()
-    open operator fun plus(other: CodexNodeGroupAction): CodexNodeInfo = throw NotImplementedError()
+    open operator fun plus(other: CodexNodeGroupInteraction): CodexNodeInfo = throw NotImplementedError()
     open operator fun plus(other: CodexNodeGroupToOne): CodexNodeInfo = throw NotImplementedError()
 
     open fun createNode(composeTestRule: ComposeTestRule<MainActivity>, useUnmergedTree: Boolean): Unit =

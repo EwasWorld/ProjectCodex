@@ -1,21 +1,26 @@
 package eywa.projectcodex.instrumentedTests.robots.common
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasParent
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.performClick
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.*
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.MULTI_DROPDOWN_OPTION
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.MULTI_OPTION
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.ROW_TEXT
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.SINGLE_OPTION
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.SWITCH_TO_MULTI_BUTTON
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.SWITCH_TO_SINGLE_BUTTON
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 
 class SelectFaceRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
-        screenTestTag: String,
+        screenTestTag: CodexTestTag,
 ) : BaseRobot(composeTestRule, screenTestTag) {
-    constructor(
-            composeTestRule: ComposeTestRule<MainActivity>,
-            screenTestTag: CodexTestTag,
-    ) : this(composeTestRule, screenTestTag.getTestTag())
-
     fun checkFaces(expectedFacesString: String) =
             checkElementText(ROW_TEXT, expectedFacesString, useUnmergedTree = true)
 

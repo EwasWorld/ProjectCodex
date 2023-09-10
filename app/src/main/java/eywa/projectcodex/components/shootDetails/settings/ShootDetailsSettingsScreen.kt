@@ -1,6 +1,10 @@
 package eywa.projectcodex.components.shootDetails.settings
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,8 +30,15 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
-import eywa.projectcodex.components.shootDetails.settings.SettingsTestTag.*
-import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.*
+import eywa.projectcodex.components.shootDetails.settings.SettingsTestTag.ADD_END_SIZE
+import eywa.projectcodex.components.shootDetails.settings.SettingsTestTag.ADD_END_SIZE_ERROR_TEXT
+import eywa.projectcodex.components.shootDetails.settings.SettingsTestTag.SCORE_PAD_END_SIZE
+import eywa.projectcodex.components.shootDetails.settings.SettingsTestTag.SCORE_PAD_END_SIZE_ERROR_TEXT
+import eywa.projectcodex.components.shootDetails.settings.SettingsTestTag.SCREEN
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.AddEndSizeChanged
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.ScorePadEndSizeChanged
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.ShootDetailsAction
 
 @Composable
 fun ShootDetailsSettingsScreen(
@@ -70,12 +81,12 @@ private fun ShootDetailsSettingsScreen(
                     title = stringResource(R.string.archer_round_settings__input_end_size),
                     currentValue = state.addEndSizePartial.text,
                     placeholder = "6",
-                    testTag = ADD_END_SIZE.getTestTag(),
+                    testTag = ADD_END_SIZE,
                     onValueChanged = { listener(AddEndSizeChanged(it)) },
                     helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_archer_round_settings__input_end_size_title),
-                        helpBody = stringResource(R.string.help_archer_round_settings__input_end_size_body),
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_archer_round_settings__input_end_size_title),
+                            helpBody = stringResource(R.string.help_archer_round_settings__input_end_size_body),
                     ),
             )
             CodexNumberFieldErrorText(
@@ -87,12 +98,12 @@ private fun ShootDetailsSettingsScreen(
                     title = stringResource(R.string.archer_round_settings__score_pad_end_size),
                     currentValue = state.scorePadEndSizePartial.text,
                     placeholder = "6",
-                    testTag = SCORE_PAD_END_SIZE.getTestTag(),
+                    testTag = SCORE_PAD_END_SIZE,
                     onValueChanged = { listener(ScorePadEndSizeChanged(it)) },
                     helpState = HelpState(
-                        helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_archer_round_settings__score_pad_size_title),
-                        helpBody = stringResource(R.string.help_archer_round_settings__score_pad_size_body),
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_archer_round_settings__score_pad_size_title),
+                            helpBody = stringResource(R.string.help_archer_round_settings__score_pad_size_body),
                     ),
             )
             CodexNumberFieldErrorText(

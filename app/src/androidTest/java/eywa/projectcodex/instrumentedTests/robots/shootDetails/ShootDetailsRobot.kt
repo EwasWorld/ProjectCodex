@@ -4,9 +4,9 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsBottomNavBarItem
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.robots.BaseRobot
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 
 abstract class ShootDetailsRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
@@ -19,7 +19,7 @@ abstract class ShootDetailsRobot(
     fun clickNavBarAddEndWhileRoundComplete() {
         perform {
             +CodexNodeMatcher.HasTestTag(ShootDetailsBottomNavBarItem.ADD_END)
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
         clickCannotInputMoreEndsOk()
     }
@@ -39,7 +39,7 @@ abstract class ShootDetailsRobot(
 
         perform {
             +CodexNodeMatcher.HasTestTag(screen)
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
         R::class.constructors.first().call(composeTestRule).apply { block() }
     }

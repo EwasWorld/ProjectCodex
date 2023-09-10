@@ -18,7 +18,7 @@ class TestActionDsl {
     var useUnmergedTree = false
     var scrollToParentIndex: Int? = null
 
-    operator fun CodexNodeAction.unaryPlus() {
+    operator fun CodexNodeInteraction.unaryPlus() {
         info += this
     }
 
@@ -30,7 +30,7 @@ class TestActionDsl {
         info += this
     }
 
-    operator fun CodexNodeGroupAction.unaryPlus() {
+    operator fun CodexNodeGroupInteraction.unaryPlus() {
         info += this
     }
 

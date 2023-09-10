@@ -3,7 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
 
@@ -16,7 +16,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.DATE_TEXT)
-            +CodexNodeAction.AssertTextEquals(text)
+            +CodexNodeInteraction.AssertTextEquals(text)
         }
     }
 
@@ -24,7 +24,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.ROUND_TEXT)
-            +CodexNodeAction.AssertTextEquals(text)
+            +CodexNodeInteraction.AssertTextEquals(text)
         }
     }
 
@@ -32,7 +32,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.ROUND_TEXT)
-            +CodexNodeAction.AssertTextEquals("N/A")
+            +CodexNodeInteraction.AssertTextEquals("N/A")
         }
     }
 
@@ -40,7 +40,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_TEXT)
-            +CodexNodeAction.AssertTextEquals(text)
+            +CodexNodeInteraction.AssertTextEquals(text)
         }
     }
 
@@ -48,7 +48,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.SCORE_TEXT)
-            +CodexNodeAction.AssertTextEquals(text.toString())
+            +CodexNodeInteraction.AssertTextEquals(text.toString())
         }
     }
 
@@ -56,7 +56,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.GOLDS_TEXT)
-            +CodexNodeAction.AssertTextEquals(text.toString())
+            +CodexNodeInteraction.AssertTextEquals(text.toString())
         }
     }
 
@@ -64,7 +64,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.REMAINING_ARROWS_TEXT)
-            +CodexNodeAction.AssertTextEquals(text.toString())
+            +CodexNodeInteraction.AssertTextEquals(text.toString())
         }
     }
 
@@ -72,7 +72,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.REMAINING_ARROWS_TEXT)
-            +CodexNodeAction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist
         }
     }
 
@@ -80,7 +80,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
-            +CodexNodeAction.AssertTextEquals(text.toString())
+            +CodexNodeInteraction.AssertTextEquals(text.toString())
         }
     }
 
@@ -88,7 +88,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
-            +CodexNodeAction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist
         }
     }
 
@@ -96,7 +96,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.PREDICTED_SCORE_TEXT)
-            +CodexNodeAction.AssertTextEquals(text.toString())
+            +CodexNodeInteraction.AssertTextEquals(text.toString())
         }
     }
 
@@ -104,7 +104,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.PREDICTED_SCORE_TEXT)
-            +CodexNodeAction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist
         }
     }
 }

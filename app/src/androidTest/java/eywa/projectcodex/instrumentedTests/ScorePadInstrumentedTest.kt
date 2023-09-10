@@ -48,7 +48,6 @@ class ScorePadInstrumentedTest {
                 DatabaseShoot(
                         shootId = shootId,
                         dateShot = TestUtils.generateDate(year),
-                        archerId = 1,
                 )
         )
         roundId?.let {

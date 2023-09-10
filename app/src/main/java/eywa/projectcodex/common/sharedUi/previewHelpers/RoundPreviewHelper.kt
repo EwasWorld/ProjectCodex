@@ -1,6 +1,10 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.RoundSubType
 
 object RoundPreviewHelper {
     val outdoorImperialRoundData = FullRoundInfo(
@@ -218,6 +222,31 @@ object RoundPreviewHelper {
                                 distanceNumber = 3,
                                 subTypeId = 2,
                                 distance = 50,
+                        ),
+                ),
+        )
+        val wa25RoundData = FullRoundInfo(
+                round = Round(
+                        roundId = 5,
+                        name = "wa25",
+                        displayName = "WA 25",
+                        isOutdoor = false,
+                        isMetric = true,
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 5,
+                                distanceNumber = 1,
+                                faceSizeInCm = 60.0,
+                                arrowCount = 60,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 5,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 25,
                         ),
                 ),
         )

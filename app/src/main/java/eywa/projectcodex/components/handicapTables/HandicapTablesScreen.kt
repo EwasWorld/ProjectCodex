@@ -1,11 +1,15 @@
 package eywa.projectcodex.components.handicapTables
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -23,7 +27,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.DEFAULT_HELP_PRIORITY
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexGrid
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
@@ -36,7 +44,12 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectFaceDialogAction
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectRoundDialogAction
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleHandicapSystem
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleInput
 
 @Composable
 fun HandicapTablesScreen(
@@ -65,94 +78,124 @@ fun HandicapTablesScreen(
                     .testTag(HandicapTablesTestTag.SCREEN.getTestTag())
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
-            DataRow(
-                    title = stringResource(R.string.handicap_tables__handicap_system_title),
-                    text = stringResource(
-                            if (state.use2023System) R.string.handicap_tables__handicap_system_agb_2023
-                            else R.string.handicap_tables__handicap_system_david_lane
-                    ),
-                    helpState = HelpState(
-                            helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_handicap_tables__2023_system_title),
-                            helpBody = stringResource(R.string.help_handicap_tables__2023_system_body),
-                    ),
-                    onClick = { listener(ToggleHandicapSystem) },
-                    accessibilityRole = Role.Switch,
-                    style = CodexTypography.NORMAL,
-                    modifier = Modifier.padding(bottom = 2.dp)
-            )
-            DataRow(
-                    title = stringResource(R.string.handicap_tables__input),
-                    text = stringResource(state.inputType.labelId),
-                    helpState = HelpState(
-                            helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
-                            helpBody = stringResource(state.inputType.typeHelpId),
-                    ),
-                    onClick = { listener(ToggleInput) },
-                    accessibilityRole = Role.Switch,
-                    style = CodexTypography.NORMAL,
-            )
+            Selections(state, listener)
+            RoundSelector(state, listener)
+            HandicapDisplay(state, listener)
         }
+    }
+}
 
-        ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
-            CodexLabelledNumberField(
-                    title = stringResource(state.inputType.labelId),
-                    currentValue = state.inputFull.text,
-                    placeholder = "50",
-                    testTag = "",
-                    helpState = HelpState(
-                            helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_handicap_tables__input_title),
-                            helpBody = stringResource(state.inputType.inputHelpId),
-                    ),
-                    onValueChanged = { listener(InputChanged(it)) },
-            )
+@Composable
+fun Selections(
+        state: HandicapTablesState,
+        listener: (HandicapTablesIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-            Surface(
-                    shape = RoundedCornerShape(20),
-                    border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
-                    color = CodexTheme.colors.appBackground,
-                    modifier = Modifier.padding(horizontal = 20.dp)
-            ) {
-                Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
-                ) {
-                    SelectRoundRows(
-                            state = state.selectRoundDialogState,
-                            helpListener = helpListener,
-                            listener = { listener(SelectRoundDialogAction(it)) },
-                    )
-                    SelectRoundFaceDialog(
-                            state = state.selectFaceDialogState,
-                            helpListener = helpListener,
-                            listener = { listener(SelectFaceDialogAction(it)) },
-                    )
-                }
-            }
-        }
-
-        Surface(
-                shape = RoundedCornerShape(10),
-                color = CodexTheme.colors.listItemOnAppBackground,
-                modifier = Modifier
-                        .horizontalScroll(rememberScrollState())
-                        .padding(20.dp)
-        ) {
-            val helpState = HelpState(
+    DataRow(
+            title = stringResource(R.string.handicap_tables__handicap_system_title),
+            text = stringResource(
+                    if (state.use2023System) R.string.handicap_tables__handicap_system_agb_2023
+                    else R.string.handicap_tables__handicap_system_david_lane
+            ),
+            helpState = HelpState(
                     helpListener = helpListener,
-                    helpShowcaseItem = HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_handicap_tables__table_title),
-                            helpBody = stringResource(R.string.help_handicap_tables__table_body),
-                            priority = DEFAULT_HELP_PRIORITY + 1,
-                    ),
+                    helpTitle = stringResource(R.string.help_handicap_tables__2023_system_title),
+                    helpBody = stringResource(R.string.help_handicap_tables__2023_system_body),
+            ),
+            onClick = { listener(ToggleHandicapSystem) },
+            accessibilityRole = Role.Switch,
+            modifier = Modifier
+                    .padding(bottom = 2.dp)
+                    .testTag(HandicapTablesTestTag.SYSTEM_SELECTOR.getTestTag())
+    )
+
+    DataRow(
+            title = stringResource(R.string.handicap_tables__input),
+            text = stringResource(state.inputType.labelId),
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
+                    helpBody = stringResource(state.inputType.typeHelpId),
+            ),
+            onClick = { listener(ToggleInput) },
+            accessibilityRole = Role.Switch,
+            modifier = Modifier.testTag(HandicapTablesTestTag.INPUT_SELECTOR.getTestTag())
+    )
+
+    CodexLabelledNumberField(
+            title = stringResource(state.inputType.labelId),
+            currentValue = state.inputFull.text,
+            placeholder = "50",
+            testTag = HandicapTablesTestTag.INPUT_TEXT,
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_handicap_tables__input_title),
+                    helpBody = stringResource(state.inputType.inputHelpId),
+            ),
+            onValueChanged = { listener(InputChanged(it)) },
+    )
+}
+
+@Composable
+fun RoundSelector(
+        state: HandicapTablesState,
+        listener: (HandicapTablesIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    Surface(
+            shape = RoundedCornerShape(20),
+            border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+            color = CodexTheme.colors.appBackground,
+            modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+        ) {
+            SelectRoundRows(
+                    state = state.selectRoundDialogState,
+                    helpListener = helpListener,
+                    listener = { listener(SelectRoundDialogAction(it)) },
             )
+            SelectRoundFaceDialog(
+                    state = state.selectFaceDialogState,
+                    helpListener = helpListener,
+                    listener = { listener(SelectFaceDialogAction(it)) },
+            )
+        }
+    }
+}
+
+@Composable
+fun HandicapDisplay(
+        state: HandicapTablesState,
+        listener: (HandicapTablesIntent) -> Unit,
+) {
+    Surface(
+            shape = RoundedCornerShape(10),
+            color = CodexTheme.colors.listItemOnAppBackground,
+            modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(20.dp)
+    ) {
+        val helpState = HelpState(
+                helpListener = { listener(HelpShowcaseAction(it)) },
+                helpShowcaseItem = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_handicap_tables__table_title),
+                        helpBody = stringResource(R.string.help_handicap_tables__table_body),
+                        priority = DEFAULT_HELP_PRIORITY + 1,
+                ),
+        )
+        ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
             if (state.handicaps.isEmpty()) {
                 Text(
                         text = stringResource(R.string.handicap_tables__no_tables),
-                        modifier = Modifier.updateHelpDialogPosition(helpState)
+                        modifier = Modifier
+                                .updateHelpDialogPosition(helpState)
+                                .testTag(HandicapTablesTestTag.TABLE_EMPTY_TEXT.getTestTag())
                 )
             }
             else {
@@ -168,48 +211,47 @@ private fun Table(
         highlighted: HandicapScore?,
         helpState: HelpState,
 ) {
-    ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
-        CodexGrid(
-                columns = 3,
-                alignment = Alignment.Center,
-                modifier = Modifier
-                        .updateHelpDialogPosition(helpState)
-                        .padding(horizontal = 10.dp, vertical = 8.dp)
-        ) {
-            listOf(
-                    R.string.handicap_tables__handicap_field,
-                    R.string.handicap_tables__score_field,
-                    R.string.handicap_tables__allowance_field,
-            ).forEach {
-                item {
-                    Text(
-                            text = stringResource(it),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
-                    )
-                }
+    CodexGrid(
+            columns = 3,
+            alignment = Alignment.Center,
+            modifier = Modifier
+                    .updateHelpDialogPosition(helpState)
+                    .padding(horizontal = 10.dp, vertical = 8.dp)
+    ) {
+        listOf(
+                R.string.handicap_tables__handicap_field,
+                R.string.handicap_tables__score_field,
+                R.string.handicap_tables__allowance_field,
+        ).forEach {
+            item {
+                Text(
+                        text = stringResource(it),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                )
             }
+        }
 
-            handicaps.forEach {
-                val isHighlighted = it == highlighted
+        handicaps.forEach {
+            val isHighlighted = it == highlighted
 
-                listOf(
-                        it.handicap,
-                        it.score,
-                        it.allowance,
-                ).forEach {
-                    item(fillBox = isHighlighted) {
-                        Text(
-                                text = it.toString(),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                        .modifierIf(
-                                                predicate = isHighlighted,
-                                                modifier = Modifier.background(CodexTheme.colors.appBackground)
-                                        )
-                                        .padding(3.dp)
-                        )
-                    }
+            listOf(
+                    it.handicap to HandicapTablesTestTag.TABLE_HANDICAP,
+                    it.score to HandicapTablesTestTag.TABLE_SCORE,
+                    it.allowance to HandicapTablesTestTag.TABLE_ALLOWANCE,
+            ).forEach { (it, testTag) ->
+                item(fillBox = isHighlighted) {
+                    Text(
+                            text = it.toString(),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                    .modifierIf(
+                                            predicate = isHighlighted,
+                                            modifier = Modifier.background(CodexTheme.colors.appBackground)
+                                    )
+                                    .padding(3.dp)
+                                    .testTag(testTag.getTestTag())
+                    )
                 }
             }
         }
@@ -218,6 +260,13 @@ private fun Table(
 
 enum class HandicapTablesTestTag : CodexTestTag {
     SCREEN,
+    SYSTEM_SELECTOR,
+    INPUT_SELECTOR,
+    INPUT_TEXT,
+    TABLE_EMPTY_TEXT,
+    TABLE_HANDICAP,
+    TABLE_SCORE,
+    TABLE_ALLOWANCE,
     ;
 
     override val screenName: String

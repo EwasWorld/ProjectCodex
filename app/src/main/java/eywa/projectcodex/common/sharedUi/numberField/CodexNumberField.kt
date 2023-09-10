@@ -34,7 +34,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 fun CodexLabelledNumberField(
         title: String,
         currentValue: String?,
-        testTag: String,
+        testTag: CodexTestTag,
         placeholder: String,
         modifier: Modifier = Modifier,
         errorMessage: DisplayableError? = null,
@@ -63,7 +63,7 @@ fun CodexLabelledNumberField(
 fun CodexNumberField(
         contentDescription: String,
         currentValue: String?,
-        testTag: String,
+        testTag: CodexTestTag,
         placeholder: String,
         modifier: Modifier = Modifier,
         errorMessage: DisplayableError? = null,
@@ -98,7 +98,7 @@ fun CodexNumberField(
                         onDone = { keyboardController?.hide() },
                 ),
                 modifier = Modifier
-                        .testTag(testTag)
+                        .testTag(testTag.getTestTag())
                         .widthIn(min = 40.dp)
                         .width(IntrinsicSize.Min)
                         .semantics {

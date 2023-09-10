@@ -4,7 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
 class EditEndRobot(
@@ -17,7 +17,7 @@ class EditEndRobot(
     fun checkEditEnd(endNumber: Int) {
         perform {
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CONTENT_TEXT)
-            +CodexNodeAction.AssertTextEquals("Editing end $endNumber")
+            +CodexNodeInteraction.AssertTextEquals("Editing end $endNumber")
         }
     }
 }

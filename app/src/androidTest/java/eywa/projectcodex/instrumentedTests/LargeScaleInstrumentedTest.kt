@@ -7,7 +7,11 @@ import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import eywa.projectcodex.common.*
+import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.common.CustomConditionWaiter
+import eywa.projectcodex.common.OrientationChangeAction
+import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.logMessage
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
@@ -17,9 +21,23 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
-import eywa.projectcodex.instrumentedTests.robots.*
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.*
+import eywa.projectcodex.instrumentedTests.robots.AboutRobot
+import eywa.projectcodex.instrumentedTests.robots.BaseRobot
+import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
+import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
+import eywa.projectcodex.instrumentedTests.robots.MainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
+import eywa.projectcodex.instrumentedTests.robots.SightMarkDetailRobot
+import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
+import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.EditEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.InsertEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot.ExpectedRowData
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsSettingsRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -27,7 +45,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
-import java.util.*
+import java.util.Calendar
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
@@ -71,7 +89,7 @@ class LargeScaleInstrumentedTest {
 
     private fun addSimpleTestDataToDb() {
         val arrows = List(12) { i -> TestUtils.ARROWS[5].asArrowScore(1, i) }
-        val shoot = DatabaseShoot(1, TestUtils.generateDate(), 1, false)
+        val shoot = DatabaseShoot(1, TestUtils.generateDate())
         scenario.onActivity {
             runBlocking {
                 db.shootDao().insert(shoot)
@@ -113,8 +131,8 @@ class LargeScaleInstrumentedTest {
 
             logMessage(this::class, "Start score A - default date, with round")
             clickNewScore {
-                clickSelectedRound()
-                clickRoundDialogRound("Round Name 1")
+                roundsRobot.clickSelectedRound()
+                roundsRobot.clickRoundDialogRound("Round Name 1")
                 clickSubmitNewScore {
                     logMessage(this::class, "Score A - open score pad - no arrows entered")
                     clickNavBarScorePad {

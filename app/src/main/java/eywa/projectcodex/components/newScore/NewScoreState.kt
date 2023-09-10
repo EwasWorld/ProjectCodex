@@ -75,7 +75,7 @@ data class NewScoreState(
             shootId = roundBeingEdited?.shoot?.shootId ?: 0,
             // TODO Check date locales (I want to store in UTC)
             dateShot = dateShot,
-            archerId = roundBeingEdited?.shoot?.archerId ?: 1,
+            archerId = roundBeingEdited?.shoot?.archerId,
     )
 
     fun asShootRound() =

@@ -79,20 +79,14 @@ class ShootDetailsStatsInstrumentedTest {
                     shootId = 1,
                     dateShot = Date(2014, 6, 17, 15, 21, 37).asCalendar(),
 //                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
-                    archerId = 1,
-                    countsTowardsHandicap = true,
             ),
             DatabaseShoot(
                     shootId = 2,
                     dateShot = TestUtils.generateDate(2013),
-                    archerId = 1,
-                    countsTowardsHandicap = true,
             ),
             DatabaseShoot(
                     shootId = 3,
                     dateShot = TestUtils.generateDate(2012),
-                    archerId = 1,
-                    countsTowardsHandicap = true,
             )
     )
     private val shootRounds = listOf(

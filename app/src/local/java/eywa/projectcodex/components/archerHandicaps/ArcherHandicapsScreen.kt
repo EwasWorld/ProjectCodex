@@ -130,7 +130,7 @@ private fun AddHandicapRow(
                         CodexLabelledNumberField(
                                 title = stringResource(R.string.archer_handicaps__handicap_header),
                                 currentValue = state.addHandicap,
-                                testTag = ArcherHandicapsTestTag.ADD_HANDICAP_VALUE.getTestTag(),
+                                testTag = ArcherHandicapsTestTag.ADD_HANDICAP_VALUE,
                                 placeholder = "75",
                                 errorMessage = state.handicapValidatorError,
                                 onValueChanged = { listener(AddHandicapTextUpdated(it)) },
@@ -273,7 +273,7 @@ private fun HandicapRowDropdownMenu(
                             CodexNumberField(
                                     contentDescription = stringResource(R.string.archer_handicaps__handicap_header),
                                     currentValue = state.addHandicap,
-                                    testTag = ArcherHandicapsTestTag.EDIT_HANDICAP_VALUE.getTestTag(),
+                                    testTag = ArcherHandicapsTestTag.EDIT_HANDICAP_VALUE,
                                     placeholder = "75",
                                     errorMessage = state.handicapValidatorError,
                                     onValueChanged = { listener(AddHandicapTextUpdated(it)) },

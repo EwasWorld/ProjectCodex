@@ -32,8 +32,8 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.allOf
+import org.hamcrest.CoreMatchers.`is`
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -59,13 +59,13 @@ class EmailScoresInstrumentedTest {
     private val arrowsPerArrowCount = 12
     private val rounds = listOf(
             Round(1, "round1", "Round1", true, false),
-            Round(2, "round2", "Round2", true, false)
+            Round(2, "round2", "Round2", true, false),
     )
     private val arrowCounts = listOf(
             RoundArrowCount(1, 1, 122.0, arrowsPerArrowCount),
             RoundArrowCount(1, 2, 122.0, arrowsPerArrowCount),
             RoundArrowCount(2, 1, 122.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 2, 122.0, arrowsPerArrowCount)
+            RoundArrowCount(2, 2, 122.0, arrowsPerArrowCount),
     )
     private val distances = listOf(
             RoundDistance(1, 1, 1, 60),
@@ -73,18 +73,18 @@ class EmailScoresInstrumentedTest {
             RoundDistance(2, 1, 1, 60),
             RoundDistance(2, 2, 1, 50),
             RoundDistance(2, 1, 2, 30),
-            RoundDistance(2, 2, 2, 20)
+            RoundDistance(2, 2, 2, 20),
     )
     private val subTypes = listOf(
             RoundSubType(2, 1, "Sub Type 1"),
             RoundSubType(2, 2, "Sub Type 2")
     )
     private val shoots = listOf(
-            DatabaseShoot(1, TestUtils.generateDate(2024), 1, true),
-            DatabaseShoot(2, TestUtils.generateDate(2023), 1, true),
-            DatabaseShoot(3, TestUtils.generateDate(2022), 1, true),
-            DatabaseShoot(4, TestUtils.generateDate(2021), 1, true),
-            DatabaseShoot(5, TestUtils.generateDate(2020), 1, true)
+            DatabaseShoot(1, TestUtils.generateDate(2024)),
+            DatabaseShoot(2, TestUtils.generateDate(2023)),
+            DatabaseShoot(3, TestUtils.generateDate(2022)),
+            DatabaseShoot(4, TestUtils.generateDate(2021)),
+            DatabaseShoot(5, TestUtils.generateDate(2020)),
     )
     private val shootRounds = listOf(
             DatabaseShootRound(2, roundId = 1),

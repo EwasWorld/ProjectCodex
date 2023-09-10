@@ -5,10 +5,11 @@ import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectRoundDialogAction
+import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 import eywa.projectcodex.components.handicapTables.HandicapTablesState
 import eywa.projectcodex.components.handicapTables.HandicapTablesViewModel
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -30,11 +31,13 @@ class HandicapTablesViewModelUnitTest {
     private val db = MockScoresRoomDatabase()
     private val datastore = MockDatastore()
     private val helpShowcase = mock<HelpShowcaseUseCase> { }
+
     private val initialRounds = listOf(
             RoundPreviewHelper.indoorMetricRoundData,
             RoundPreviewHelper.outdoorImperialRoundData,
             RoundPreviewHelper.singleSubtypeRoundData,
             RoundPreviewHelper.yorkRoundData,
+            RoundPreviewHelper.wa25RoundData,
     )
 
     private fun getSut(): HandicapTablesViewModel {
@@ -112,6 +115,29 @@ class HandicapTablesViewModelUnitTest {
         assertEquals(
                 150,
                 sut.state.value.highlightedHandicap!!.handicap,
+        )
+    }
+
+    @Test
+    fun extraTest() = runTest {
+        val sut = setUpGetHandicapsTest(120)
+
+        sut.handle(SelectRoundDialogAction(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog))
+        sut.handle(SelectRoundDialogAction(SelectRoundDialogIntent.RoundIntent.RoundSelected(RoundPreviewHelper.wa25RoundData.round)))
+        sut.handle(SelectFaceDialogAction(SelectRoundFaceDialogIntent.Open))
+        sut.handle(SelectFaceDialogAction(SelectRoundFaceDialogIntent.SingleFaceClicked(RoundFace.TRIPLE)))
+
+        assertEquals(
+                listOf(RoundFace.TRIPLE),
+                sut.state.value.selectFaceDialogState.selectedFaces,
+        )
+        assertEquals(
+                RoundPreviewHelper.wa25RoundData.round.roundId,
+                sut.state.value.selectRoundDialogState.selectedRoundId,
+        )
+        assertEquals(
+                listOf(114, 115, 116, 117, 119, 120, 122, 124, 126, 129, 132),
+                sut.state.value.handicaps.map { it.handicap },
         )
     }
 }

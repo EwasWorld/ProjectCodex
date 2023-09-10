@@ -4,7 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
 class AddEndRobot(
@@ -14,7 +14,7 @@ class AddEndRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
-            +CodexNodeAction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
         }
     }
 
@@ -22,35 +22,35 @@ class AddEndRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
-            +CodexNodeAction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
         }
     }
 
     fun checkIndicatorTable(score: Int, arrowCount: Int) {
         perform {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.ROUND_SCORE)
-            +CodexNodeAction.AssertTextEquals(score.toString())
+            +CodexNodeInteraction.AssertTextEquals(score.toString())
         }
         perform {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.ROUND_ARROWS)
-            +CodexNodeAction.AssertTextEquals(arrowCount.toString())
+            +CodexNodeInteraction.AssertTextEquals(arrowCount.toString())
         }
     }
 
     fun checkRemainingArrows(currentDistance: String, laterDistances: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
-            +CodexNodeAction.AssertTextEquals(currentDistance)
+            +CodexNodeInteraction.AssertTextEquals(currentDistance)
         }
 
         perform {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_LATER)
 
             if (laterDistances.isNotBlank()) {
-                +CodexNodeAction.AssertTextEquals(laterDistances)
+                +CodexNodeInteraction.AssertTextEquals(laterDistances)
             }
             else {
-                +CodexNodeAction.AssertDoesNotExist
+                +CodexNodeInteraction.AssertDoesNotExist
             }
         }
     }

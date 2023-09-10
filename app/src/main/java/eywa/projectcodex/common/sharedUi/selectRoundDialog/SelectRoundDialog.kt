@@ -28,7 +28,6 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.SubTypeIntent.*
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.Sorting
-import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -104,7 +103,7 @@ fun SelectRoundRows(
                         helpTitle = stringResource(R.string.help_create_round__round_title),
                         helpBody = stringResource(R.string.help_create_round__round_body),
                 ),
-                modifier = Modifier.testTag(NewScoreTestTag.SELECTED_ROUND.getTestTag()),
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
                 onClick = { listener(OpenRoundDialog) },
         )
         if (displayedSubtype != null) {
@@ -116,7 +115,7 @@ fun SelectRoundRows(
                             helpTitle = stringResource(R.string.help_create_round__sub_round_title),
                             helpBody = stringResource(R.string.help_create_round__sub_round_body),
                     ),
-                    modifier = Modifier.testTag(NewScoreTestTag.SELECTED_SUBTYPE.getTestTag()),
+                    modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW.getTestTag()),
                     onClick = { listener(OpenSubTypeDialog) },
             )
         }
@@ -332,6 +331,8 @@ enum class SelectRoundDialogTestTag : CodexTestTag {
     SUBTYPE_DIALOG,
     ROUND_DIALOG_ITEM,
     FILTER,
+    SELECTED_ROUND_ROW,
+    SELECTED_SUBTYPE_ROW,
     ;
 
     override val screenName: String

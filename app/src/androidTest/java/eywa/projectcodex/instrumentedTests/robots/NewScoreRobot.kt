@@ -2,27 +2,28 @@ package eywa.projectcodex.instrumentedTests.robots
 
 import android.widget.DatePicker
 import android.widget.TimePicker
-import androidx.compose.ui.test.*
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import com.azimolabs.conditionwatcher.Instruction
-import eywa.projectcodex.common.*
-import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
+import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.common.CustomConditionWaiter
+import eywa.projectcodex.common.onViewWithClassName
+import eywa.projectcodex.common.setDatePickerValue
+import eywa.projectcodex.common.setTimePickerValue
 import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
+import eywa.projectcodex.instrumentedTests.robots.common.SelectRoundRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
-import java.util.*
+import java.util.Calendar
 
 class NewScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, NewScoreTestTag.SCREEN) {
     val facesRobot = SelectFaceRobot(composeTestRule, NewScoreTestTag.SCREEN)
+    val roundsRobot = SelectRoundRobot(composeTestRule, NewScoreTestTag.SCREEN)
 
     init {
         waitForDatabaseUpdate()
@@ -97,124 +98,5 @@ class NewScoreRobot(
 
     fun clickCancel() {
         clickElement(NewScoreTestTag.CANCEL_BUTTON)
-    }
-
-    fun clickSelectedRound() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(NewScoreTestTag.SELECTED_ROUND))
-            +CodexNodeMatcher.HasClickAction
-            +CodexNodeAction.PerformClick
-        }
-        perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG)
-            +CodexNodeAction.AssertIsDisplayed.waitFor()
-        }
-    }
-
-    fun checkSelectRoundDialogOptions(displayNames: List<String>) {
-        displayNames.forEach { displayName ->
-            perform {
-                useUnmergedTree = true
-                displayName
-                        .split(" ")
-                        .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
-                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
-                +CodexNodeAction.AssertIsDisplayed.waitFor()
-            }
-        }
-    }
-
-    fun checkSelectRoundDialogOptionsNotExist(displayNames: List<String>) {
-        displayNames.forEach { displayName ->
-            perform {
-                useUnmergedTree = true
-                displayName
-                        .split(" ")
-                        .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
-                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
-                +CodexNodeAction.AssertDoesNotExist.waitFor()
-            }
-        }
-    }
-
-    fun checkNoFiltersAreOn() {
-        Filter.values().forEach {
-            perform {
-                useUnmergedTree = true
-                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
-                +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it.label))
-                scrollToParentIndex = it.index
-                +CodexNodeAction.AssertIsNotSelected
-            }
-        }
-    }
-
-    fun clickFilter(filter: Filter, isNowOn: Boolean = true) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
-            +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
-            scrollToParentIndex = filter.index
-            +CodexNodeAction.PerformClick
-        }
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
-            +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
-            +(if (isNowOn) CodexNodeAction.AssertIsSelected else CodexNodeAction.AssertIsNotSelected).waitFor()
-        }
-    }
-
-    fun clickRoundDialogRound(displayName: String) {
-        perform {
-            useUnmergedTree = true
-            displayName
-                    .split(" ")
-                    .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
-            +CodexNodeAction.PerformClick
-        }
-    }
-
-    fun clickRoundDialogNoRound() {
-        clickElement(SimpleDialogTestTag.POSITIVE_BUTTON)
-    }
-
-    fun checkSelectedRound(displayName: String) {
-        composeTestRule.onNode(
-                hasTestTag(NewScoreTestTag.SELECTED_ROUND.getTestTag()).and(hasAnyChild(hasText(displayName))),
-                useUnmergedTree = true,
-        ).assertIsDisplayed()
-    }
-
-    fun checkSelectedSubtype(displayName: String) {
-        checkElementText(NewScoreTestTag.SELECTED_SUBTYPE, displayName)
-    }
-
-    fun clickSelectedSubtype() {
-        composeTestRule.onNode(
-                hasParent(hasTestTag(NewScoreTestTag.SELECTED_SUBTYPE.getTestTag())).and(hasClickAction()),
-                useUnmergedTree = true,
-        ).performClick()
-        CustomConditionWaiter.waitForComposeCondition {
-            composeTestRule.onNodeWithTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG.getTestTag()).assertIsDisplayed()
-        }
-    }
-
-    fun clickSubtypeDialogSubtype(displayName: String, index: Int = 0) {
-        composeTestRule.onAllNodes(
-                displayName.split(" ").map { hasAnyChild(hasText(it)) }.fold(
-                        hasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
-                ) { a, b -> a.and(b) },
-                true,
-        )[index].performClick()
-    }
-
-    enum class Filter(val label: String, val index: Int) {
-        METRIC("Metric", 1),
-        IMPERIAL("Imperial", 2),
-        INDOOR("Indoor", 3),
-        OUTDOOR("Outdoor", 4),
     }
 }

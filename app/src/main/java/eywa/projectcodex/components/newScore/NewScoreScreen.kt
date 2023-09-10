@@ -281,8 +281,6 @@ enum class NewScoreTestTag : CodexTestTag {
     SUBMIT_BUTTON,
     CANCEL_BUTTON,
     RESET_BUTTON,
-    SELECTED_ROUND,
-    SELECTED_SUBTYPE,
     DATE_BUTTON,
     TIME_BUTTON,
     ;

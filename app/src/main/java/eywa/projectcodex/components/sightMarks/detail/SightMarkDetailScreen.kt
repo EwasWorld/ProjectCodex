@@ -2,7 +2,13 @@ package eywa.projectcodex.components.sightMarks.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
@@ -11,7 +17,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -29,7 +41,17 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CODEX_CHIP_SPACING
+import eywa.projectcodex.common.sharedUi.CodexChip
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
+import eywa.projectcodex.common.sharedUi.CodexTextField
+import eywa.projectcodex.common.sharedUi.CodexTextFieldRoundedSurface
+import eywa.projectcodex.common.sharedUi.CodexTextFieldState
+import eywa.projectcodex.common.sharedUi.DataRow
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -38,11 +60,34 @@ import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.CloseHandled
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.DeleteClicked
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.DistanceUpdated
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.HelpShowcaseAction
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.NoteUpdated
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ResetClicked
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.SaveClicked
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.SightMarkUpdated
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleIsArchived
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleIsMarked
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleIsMetric
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleUpdateDateSet
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.ARCHIVED
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DATE
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DELETE_BUTTON
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE_ERROR_TEXT
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE_UNIT
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.MARKED
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.NOTE
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.RESET_BUTTON
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SAVE_BUTTON
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SCREEN
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT_ERROR_TEXT
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.model.SightMark
-import java.util.*
+import java.util.Calendar
 
 @Composable
 fun SightMarkDetailScreen(
@@ -138,7 +183,7 @@ fun SightMarkDetail(
                         currentValue = state.sightMark,
                         errorMessage = state.sightMarkValidatorError,
                         placeholder = "2.3",
-                        testTag = SIGHT.getTestTag(),
+                        testTag = SIGHT,
                         onValueChanged = { listener(SightMarkUpdated(it ?: "")) },
                         helpState = HelpState(
                                 helpListener = helpListener,
@@ -164,7 +209,7 @@ fun SightMarkDetail(
                             currentValue = state.distance,
                             errorMessage = state.distanceValidatorError,
                             placeholder = "50",
-                            testTag = DISTANCE.getTestTag(),
+                            testTag = DISTANCE,
                             onValueChanged = { listener(DistanceUpdated(it ?: "")) },
                             helpState = HelpState(
                                     helpListener = helpListener,

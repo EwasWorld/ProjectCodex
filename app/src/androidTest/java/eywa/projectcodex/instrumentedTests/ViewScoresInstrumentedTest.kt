@@ -12,12 +12,16 @@ import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
-import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
@@ -128,11 +132,11 @@ class ViewScoresInstrumentedTest {
 //                .build()
 //                .time
         shoots = listOf(
-                DatabaseShoot(1, firstOfThisYear, 1),
-                DatabaseShoot(2, Date.valueOf("2012-2-2").asCalendar(), 1),
-                DatabaseShoot(3, Date.valueOf("2011-3-3").asCalendar(), 1),
-                DatabaseShoot(4, Date.valueOf("2010-4-4").asCalendar(), 1),
-                DatabaseShoot(5, Date.valueOf("2009-5-5").asCalendar(), 1),
+                DatabaseShoot(1, firstOfThisYear),
+                DatabaseShoot(2, Date.valueOf("2012-2-2").asCalendar()),
+                DatabaseShoot(3, Date.valueOf("2011-3-3").asCalendar()),
+                DatabaseShoot(4, Date.valueOf("2010-4-4").asCalendar()),
+                DatabaseShoot(5, Date.valueOf("2009-5-5").asCalendar()),
         )
         shootRound = listOf(
                 DatabaseShootRound(2, roundId = 1),
@@ -199,9 +203,9 @@ class ViewScoresInstrumentedTest {
 
         shoots = listOf(
                 // No round
-                DatabaseShoot(1, Calendar.getInstance().apply { set(2020, 8, 28) }, 1),
+                DatabaseShoot(1, Calendar.getInstance().apply { set(2020, 8, 28) }),
                 // Completed round
-                DatabaseShoot(2, TestUtils.generateDate(2019), 1),
+                DatabaseShoot(2, TestUtils.generateDate(2019)),
         )
         shootRound = listOf(DatabaseShootRound(2, roundId = 1))
         arrows = listOf(
@@ -259,7 +263,7 @@ class ViewScoresInstrumentedTest {
                 // Long click - edit
                 longClickRow(rowId)
                 clickEditDropdownMenuItem {
-                    checkSelectedRound("No Round")
+                    roundsRobot.checkSelectedRound("No Round")
                     pressBack()
                 }
             }
@@ -269,8 +273,8 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testViewScoresEntry_Delete() {
         shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(2020), 1),
-                DatabaseShoot(2, TestUtils.generateDate(2019), 1),
+                DatabaseShoot(1, TestUtils.generateDate(2020)),
+                DatabaseShoot(2, TestUtils.generateDate(2019)),
         )
         arrows = listOf(
                 List(36) { TestUtils.ARROWS[1].asArrowScore(1, it) },
@@ -303,8 +307,8 @@ class ViewScoresInstrumentedTest {
     @Test
     fun testViewScoresEntry_Convert() {
         shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(2020), 1),
-                DatabaseShoot(2, TestUtils.generateDate(2019), 1),
+                DatabaseShoot(1, TestUtils.generateDate(2020)),
+                DatabaseShoot(2, TestUtils.generateDate(2019)),
         )
         arrows = listOf(
                 TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(1, i) },

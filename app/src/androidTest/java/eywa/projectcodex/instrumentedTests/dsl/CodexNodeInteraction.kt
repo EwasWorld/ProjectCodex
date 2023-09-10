@@ -1,6 +1,14 @@
 package eywa.projectcodex.instrumentedTests.dsl
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import eywa.projectcodex.common.CustomConditionWaiter
 
 
@@ -11,10 +19,10 @@ fun waitForWrapper(waitFor: Boolean, block: () -> Unit) =
 /**
  * Actions which can be performed on a [SemanticsNodeInteraction]
  */
-sealed class CodexNodeAction {
+sealed class CodexNodeInteraction {
     private var waitFor: Boolean = false
 
-    object PerformClick : CodexNodeAction() {
+    object PerformClick : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.performClick()
         }
@@ -24,43 +32,43 @@ sealed class CodexNodeAction {
      * Note: LazyRow/Column cannot use this.
      * Instead, should use [TestActionDsl.scrollToParentIndex]
      */
-    object PerformScrollTo : CodexNodeAction() {
+    object PerformScrollTo : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.performScrollTo()
         }
     }
 
-    object AssertIsDisplayed : CodexNodeAction() {
+    object AssertIsDisplayed : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertIsDisplayed()
         }
     }
 
-    object AssertDoesNotExist : CodexNodeAction() {
+    object AssertDoesNotExist : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertDoesNotExist()
         }
     }
 
-    data class AssertTextEquals(val text: String) : CodexNodeAction() {
+    data class AssertTextEquals(val text: String) : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertTextEquals(text)
         }
     }
 
-    object AssertIsSelected : CodexNodeAction() {
+    object AssertIsSelected : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertIsSelected()
         }
     }
 
-    object AssertIsNotSelected : CodexNodeAction() {
+    object AssertIsNotSelected : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertIsNotSelected()
         }
     }
 
-    data class SetText(val text: String, val append: Boolean = false) : CodexNodeAction() {
+    data class SetText(val text: String, val append: Boolean = false) : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             if (!append) node.performTextClearance()
             node.performTextInput(text)
@@ -72,7 +80,7 @@ sealed class CodexNodeAction {
         waitForWrapper(waitFor) { performInternal(node) }
     }
 
-    fun waitFor(): CodexNodeAction {
+    fun waitFor(): CodexNodeInteraction {
         waitFor = true
         return this
     }

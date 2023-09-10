@@ -6,9 +6,9 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.ListUtils.transpose
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeAction
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupAction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
 class ScorePadRobot(
@@ -18,7 +18,7 @@ class ScorePadRobot(
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
             +CodexNodeGroupToOne.First
-            +CodexNodeAction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed
         }
     }
 
@@ -37,13 +37,13 @@ class ScorePadRobot(
                             null
                         }
                         else {
-                            CodexNodeAction.AssertTextEquals(it).waitFor()
+                            CodexNodeInteraction.AssertTextEquals(it).waitFor()
                         }
                     }
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
-            +CodexNodeGroupAction.ForEach(allCells)
-            +CodexNodeGroupAction.AssertCount(allCells.size)
+            +CodexNodeGroupInteraction.ForEach(allCells)
+            +CodexNodeGroupInteraction.AssertCount(allCells.size)
         }
     }
 
@@ -60,8 +60,8 @@ class ScorePadRobot(
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
             +CodexNodeGroupToOne.HasContentDescription("End $endNumber")
-            +CodexNodeAction.PerformScrollTo
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformScrollTo
+            +CodexNodeInteraction.PerformClick
         }
     }
 
@@ -70,7 +70,7 @@ class ScorePadRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
             +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
-            +CodexNodeAction.PerformClick
+            +CodexNodeInteraction.PerformClick
         }
     }
 

@@ -1,6 +1,21 @@
 package eywa.projectcodex.instrumentedTests.robots
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertAll
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
 import eywa.projectcodex.common.ComposeTestRule
@@ -9,13 +24,15 @@ import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.*
-import java.util.*
+import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
+import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
+import java.util.Stack
 
 @DslMarker
 annotation class RobotDslMarker
 
 @RobotDslMarker
+@TestActionDslMarker
 abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
         private val screenTestTag: String,
