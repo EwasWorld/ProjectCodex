@@ -1,12 +1,28 @@
 package eywa.projectcodex.instrumentedTests.robots
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelectable
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performTouchInput
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
-import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
+import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
 
@@ -36,7 +52,7 @@ class ViewScoresRobot(
     }
 
     fun scrollToRow(rowIndex: Int) {
-        scrollTo(ViewScoresTestTag.LAZY_COLUMN, rowIndex)
+        composeTestRule.onNodeWithTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag()).performScrollToIndex(rowIndex)
     }
 
     private fun performOnRowItem(rowIndex: Int, action: SemanticsNodeInteraction.() -> Unit) {
@@ -105,12 +121,7 @@ class ViewScoresRobot(
     }
 
     fun chooseConvertDialogOption(convertType: String) {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for convert dialog to display") {
-            composeTestRule.onNode(
-                    hasTestTag(SimpleDialogTestTag.TITLE)
-                            .and(hasText(CONVERT_SCORE_DIALOG_TITLE))
-            ).assertIsDisplayed()
-        }
+        checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
         composeTestRule
                 .onAllNodesWithTag(RadioButtonDialogTestTag.RADIO_BUTTON)
                 .filterToOne(hasText(convertType))
@@ -118,51 +129,19 @@ class ViewScoresRobot(
     }
 
     fun clickConvertDialogOk() {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for convert dialog to display") {
-            composeTestRule.onNode(
-                    hasTestTag(SimpleDialogTestTag.TITLE)
-                            .and(hasText(CONVERT_SCORE_DIALOG_TITLE))
-            ).assertIsDisplayed()
-        }
-        composeTestRule
-                .onNodeWithTag(SimpleDialogTestTag.POSITIVE_BUTTON)
-                .performClick()
+        clickDialogOk(CONVERT_SCORE_DIALOG_TITLE)
     }
 
     fun clickConvertDialogCancel() {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for convert dialog to display") {
-            composeTestRule.onNode(
-                    hasTestTag(SimpleDialogTestTag.TITLE)
-                            .and(hasText(CONVERT_SCORE_DIALOG_TITLE))
-            ).assertIsDisplayed()
-        }
-        composeTestRule
-                .onNodeWithTag(SimpleDialogTestTag.NEGATIVE_BUTTON)
-                .performClick()
+        clickDialogCancel(CONVERT_SCORE_DIALOG_TITLE)
     }
 
     fun clickDeleteDialogOk() {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for delete dialog to display") {
-            composeTestRule.onNode(
-                    hasTestTag(SimpleDialogTestTag.TITLE)
-                            .and(hasText(DELETE_ENTRY_DIALOG_TITLE))
-            ).assertIsDisplayed()
-        }
-        composeTestRule
-                .onNodeWithTag(SimpleDialogTestTag.POSITIVE_BUTTON)
-                .performClick()
+        clickDialogOk(DELETE_ENTRY_DIALOG_TITLE)
     }
 
     fun clickDeleteDialogCancel() {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for delete dialog to display") {
-            composeTestRule.onNode(
-                    hasTestTag(SimpleDialogTestTag.TITLE)
-                            .and(hasText(DELETE_ENTRY_DIALOG_TITLE))
-            ).assertIsDisplayed()
-        }
-        composeTestRule
-                .onNodeWithTag(SimpleDialogTestTag.NEGATIVE_BUTTON)
-                .performClick()
+        clickDialogCancel(DELETE_ENTRY_DIALOG_TITLE)
     }
 
     private fun waitForTextInRow(rowIndex: Int, text: String) {

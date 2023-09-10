@@ -19,6 +19,7 @@ import androidx.compose.ui.window.Dialog
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 
 data class ButtonState(
         val text: String,
@@ -109,13 +110,13 @@ fun SimpleDialogContent(
             Text(
                     text = title,
                     style = CodexTypography.DIALOG_TITLE.copy(color = CodexTheme.colors.onDialogBackground),
-                    modifier = Modifier.testTag(SimpleDialogTestTag.TITLE),
+                    modifier = Modifier.testTag(SimpleDialogTestTag.TITLE.getTestTag()),
             )
             message?.let {
                 Text(
                         text = message,
                         style = CodexTypography.DIALOG_TEXT.copy(color = CodexTheme.colors.onDialogBackground),
-                        modifier = Modifier.testTag(SimpleDialogTestTag.MESSAGE),
+                        modifier = Modifier.testTag(SimpleDialogTestTag.MESSAGE.getTestTag()),
                 )
             }
 
@@ -138,7 +139,7 @@ fun SimpleDialogContent(
                             text = negativeButton.text,
                             buttonStyle = CodexButtonDefaults.DialogNegativeButton,
                             onClick = negativeButton.onClick,
-                            modifier = Modifier.testTag(SimpleDialogTestTag.NEGATIVE_BUTTON),
+                            modifier = Modifier.testTag(SimpleDialogTestTag.NEGATIVE_BUTTON.getTestTag()),
                     )
                 }
                 positiveButton?.let {
@@ -146,7 +147,7 @@ fun SimpleDialogContent(
                             text = positiveButton.text,
                             buttonStyle = CodexButtonDefaults.DialogPositiveButton,
                             onClick = positiveButton.onClick,
-                            modifier = Modifier.testTag(SimpleDialogTestTag.POSITIVE_BUTTON),
+                            modifier = Modifier.testTag(SimpleDialogTestTag.POSITIVE_BUTTON.getTestTag()),
                     )
                 }
             }
@@ -154,11 +155,17 @@ fun SimpleDialogContent(
     }
 }
 
-object SimpleDialogTestTag {
-    const val TITLE = "SIMPLE_ALERT_DIALOG_TITLE"
-    const val MESSAGE = "SIMPLE_ALERT_DIALOG_MESSAGE"
-    const val POSITIVE_BUTTON = "SIMPLE_ALERT_DIALOG_POSITIVE_BUTTON"
-    const val NEGATIVE_BUTTON = "SIMPLE_ALERT_DIALOG_NEGATIVE_BUTTON"
+enum class SimpleDialogTestTag : CodexTestTag {
+    TITLE,
+    MESSAGE,
+    POSITIVE_BUTTON,
+    NEGATIVE_BUTTON,
+    ;
+
+    override val screenName: String
+        get() = "SIMPLE_ALERT_DIALOG"
+
+    override fun getElement(): String = name
 }
 
 @Composable

@@ -13,7 +13,6 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
@@ -24,6 +23,8 @@ import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
 import java.util.Stack
@@ -157,9 +158,6 @@ abstract class BaseRobot(
         if (isChecked) node.assertIsSelected() else node.assertIsNotSelected()
     }
 
-    fun scrollTo(testTag: CodexTestTag, rowIndex: Int) =
-            composeTestRule.onNodeWithTag(testTag.getTestTag()).performScrollToIndex(rowIndex)
-
     fun setText(testTag: CodexTestTag, text: String) = setText(testTag.getTestTag(), text)
 
     fun setText(testTag: String, text: String, append: Boolean = false) {
@@ -183,19 +181,22 @@ abstract class BaseRobot(
     }
 
     fun checkDialogIsDisplayed(titleText: String) {
-        CustomConditionWaiter.waitForComposeCondition("Waiting for $titleText dialog to display") {
-            composeTestRule
-                    .onNode(hasTestTag(SimpleDialogTestTag.TITLE).and(hasText(titleText)))
-                    .assertIsDisplayed()
+        perform {
+            +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.TITLE)
+            +CodexNodeMatcher.HasText(titleText)
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
         }
     }
 
     fun clickDialogOk(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.POSITIVE_BUTTON)
     fun clickDialogCancel(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.NEGATIVE_BUTTON)
 
-    private fun clickDialog(titleText: String, buttonTag: String) {
+    private fun clickDialog(titleText: String, buttonTag: CodexTestTag) {
         checkDialogIsDisplayed(titleText)
-        composeTestRule.onNodeWithTag(buttonTag).performClick()
+        perform {
+            +CodexNodeMatcher.HasTestTag(buttonTag)
+            +CodexNodeInteraction.PerformClick
+        }
     }
 
     fun clickHomeIcon(): MainMenuRobot {
