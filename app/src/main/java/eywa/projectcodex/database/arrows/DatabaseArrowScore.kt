@@ -25,7 +25,7 @@ data class DatabaseArrowScore(
         val shootId: Int,
         val arrowNumber: Int,
         val score: Int,
-        val isX: Boolean
+        val isX: Boolean = false,
 ) {
     init {
         require(!isX || score == 10) { "For isX to be true, score must be 10" }

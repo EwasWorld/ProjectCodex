@@ -1,6 +1,7 @@
 package eywa.projectcodex.instrumentedTests.dsl
 
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -53,6 +54,12 @@ sealed class CodexNodeInteraction {
     data class AssertTextEquals(val text: String) : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertTextEquals(text)
+        }
+    }
+
+    data class AssertContentDescriptionEquals(val text: String) : CodexNodeInteraction() {
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            node.assertContentDescriptionEquals(text)
         }
     }
 

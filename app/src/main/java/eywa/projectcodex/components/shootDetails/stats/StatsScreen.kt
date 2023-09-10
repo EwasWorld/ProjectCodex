@@ -1,7 +1,19 @@
 package eywa.projectcodex.components.shootDetails.stats
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
@@ -17,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,8 +40,13 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
+import eywa.projectcodex.common.sharedUi.DataRow
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -44,10 +63,31 @@ import eywa.projectcodex.components.shootDetails.ShootRecord
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.*
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoHandled
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootHandled
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsDismissed
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.ShootDetailsAction
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ADJUSTED_SCORE_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ALLOWANCE_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ARCHER_HANDICAP_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.DATE_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.GOLDS_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.HANDICAP_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.HITS_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_DIALOG_ITEM
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_LINK_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PB_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PREDICTED_SCORE_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.REMAINING_ARROWS_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ROUND_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCORE_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCREEN
 import eywa.projectcodex.database.RoundFace
-import java.util.*
+import java.util.Calendar
 import kotlin.math.abs
 
 @Composable
@@ -343,7 +383,8 @@ private fun PastRecordsSection(
         ) {
             val records = state.pastRoundRecords.sortedByDescending { it.score }
             val pbScore = records.first().score
-            val joinChar = stringResource(R.string.archer_round_stats__past_record_item_delim)
+            val isTied = records.getOrNull(1)?.score?.let { it == pbScore } ?: false
+            val delim = stringResource(R.string.archer_round_stats__past_record_item_delim).let { " $it " }
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -352,18 +393,34 @@ private fun PastRecordsSection(
                             .padding(top = 20.dp)
             ) {
                 records.forEach { shootRecord ->
+                    val isPb = shootRecord.score == pbScore
+                    val isCurrentShoot = shootRecord.shootId == state.fullShootInfo.id
+
                     val text = listOfNotNull(
                             DateTimeFormat.SHORT_DATE.format(shootRecord.dateShot),
                             shootRecord.score.toString(),
-                    ).joinToString(" $joinChar ")
+                    )
+
                     val background = when {
-                        shootRecord.score == pbScore -> CodexTheme.colors.personalBestTag
-                        shootRecord.shootId == state.fullShootInfo.id -> CodexTheme.colors.chipOnDialogSelected
+                        isPb -> CodexTheme.colors.personalBestTag
+                        isCurrentShoot -> CodexTheme.colors.chipOnDialogSelected
                         else -> null
                     }
 
+                    val extraSemanticTextIds = mutableListOf<Int>()
+                    if (isPb) {
+                        extraSemanticTextIds.add(
+                                if (isTied) R.string.archer_round_stats__is_tied_pb
+                                else R.string.archer_round_stats__is_pb
+                        )
+                    }
+                    if (isCurrentShoot) {
+                        extraSemanticTextIds.add(R.string.archer_round_stats__past_records_current)
+                    }
+                    val extraSemanticText = extraSemanticTextIds.map { stringResource(it) }
+
                     Text(
-                            text = text,
+                            text = text.joinToString(delim),
                             style = style().copy(color = CodexTheme.colors.onDialogBackground),
                             modifier = Modifier
                                     .testTag(PAST_RECORDS_DIALOG_ITEM.getTestTag())
@@ -376,6 +433,11 @@ private fun PastRecordsSection(
                                                     )
                                                     .padding(horizontal = 10.dp)
                                     )
+                                    .semantics {
+                                        contentDescription = text
+                                                .plus(extraSemanticText)
+                                                .joinToString(delim)
+                                    }
                     )
                 }
             }

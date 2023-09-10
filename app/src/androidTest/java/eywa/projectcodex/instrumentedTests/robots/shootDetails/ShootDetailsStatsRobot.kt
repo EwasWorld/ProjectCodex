@@ -3,6 +3,8 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
@@ -20,19 +22,11 @@ class ShootDetailsStatsRobot(
         }
     }
 
-    fun checkRound(text: String) {
+    fun checkRound(text: String?) {
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.ROUND_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text)
-        }
-    }
-
-    fun checkNoRound() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.ROUND_TEXT)
-            +CodexNodeInteraction.AssertTextEquals("N/A")
+            +CodexNodeInteraction.AssertTextEquals(text ?: "N/A")
         }
     }
 
@@ -60,51 +54,111 @@ class ShootDetailsStatsRobot(
         }
     }
 
-    fun checkRemainingArrows(text: Int) {
+    fun checkRemainingArrows(text: Int?) {
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.REMAINING_ARROWS_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text.toString())
+            assertTextEqualsOrNotExist(text?.toString())
         }
     }
 
-    fun checkNoRemainingArrows() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.REMAINING_ARROWS_TEXT)
-            +CodexNodeInteraction.AssertDoesNotExist
-        }
-    }
-
-    fun checkHandicap(text: Int) {
+    fun checkHandicap(text: Int?) {
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text.toString())
+            assertTextEqualsOrNotExist(text?.toString())
         }
     }
 
-    fun checkNoHandicap() {
+    fun checkPredictedScore(text: Int?) {
         perform {
             useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.PREDICTED_SCORE_TEXT)
+            assertTextEqualsOrNotExist(text?.toString())
+        }
+    }
+
+    fun checkPb(isPb: Boolean = true, isTiedPb: Boolean = false) {
+        val text = when {
+            !isPb -> null
+            isTiedPb -> "Tied personal best"
+            else -> "Personal best!"
+        }
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.PB_TEXT)
+            assertTextEqualsOrNotExist(text)
+        }
+    }
+
+    fun checkAllowance(text: Int?) {
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.ALLOWANCE_TEXT)
+            assertTextEqualsOrNotExist(text?.toString())
+        }
+    }
+
+    fun checkArcherHandicap(text: Int?) {
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
+            assertTextEqualsOrNotExist(text?.toString())
+        }
+    }
+
+    fun checkAdjustedScore(text: Int?) {
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.ADJUSTED_SCORE_TEXT)
+            assertTextEqualsOrNotExist(text?.toString())
+        }
+    }
+
+    fun checkPastRecordsTextNotShown() {
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
             +CodexNodeInteraction.AssertDoesNotExist
         }
     }
 
-    fun checkPredictedScore(text: Int) {
+    fun clickPastRecordsText() {
         perform {
             useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.PREDICTED_SCORE_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text.toString())
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
+            +CodexNodeInteraction.PerformClick
         }
     }
 
-    fun checkNoPredictedScore() {
+    fun checkPastRecordsDialogItems(items: List<PastRecordsDialogItem>) {
         perform {
             useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.PREDICTED_SCORE_TEXT)
-            +CodexNodeInteraction.AssertDoesNotExist
+            allNodes(CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_ITEM))
+            +CodexNodeGroupInteraction.ForEach(
+                    items.map { CodexNodeInteraction.AssertContentDescriptionEquals(it.semanticText) }
+            )
         }
+    }
+
+    @JvmInline
+    value class PastRecordsDialogItem private constructor(private val data: Triple<String, Int, String?>) {
+        constructor(date: String, score: Int, pbSemanticText: String? = null)
+                : this(Triple(date, score, pbSemanticText?.takeIf { it.isNotBlank() }))
+
+        private val date
+            get() = data.first
+        private val score
+            get() = data.second
+
+        /**
+         * - Is pb
+         * - Is current round
+         */
+        private val semanticTextExtra
+            get() = data.third?.let { " - $it" } ?: ""
+
+        val semanticText
+            get() = "$date - $score$semanticTextExtra"
     }
 }

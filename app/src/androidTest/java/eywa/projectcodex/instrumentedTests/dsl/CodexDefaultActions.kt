@@ -13,4 +13,8 @@ object CodexDefaultActions {
         +CodexNodeMatcher.HasTestTag(testTag)
         +CodexNodeInteraction.SetText(text)
     }
+
+    fun TestActionDsl.assertTextEqualsOrNotExist(text: String?) =
+            if (text != null) +CodexNodeInteraction.AssertTextEquals(text)
+            else +CodexNodeInteraction.AssertDoesNotExist
 }

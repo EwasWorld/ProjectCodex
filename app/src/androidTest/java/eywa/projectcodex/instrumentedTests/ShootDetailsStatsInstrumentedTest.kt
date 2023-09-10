@@ -8,22 +8,28 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
-import eywa.projectcodex.common.utils.asCalendar
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
+import eywa.projectcodex.database.archer.DatabaseArcherHandicap
+import eywa.projectcodex.database.archer.HandicapType
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.shootData.DatabaseShoot
-import eywa.projectcodex.database.shootData.DatabaseShootDetail
-import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -50,62 +56,100 @@ class ShootDetailsStatsInstrumentedTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
 
-    private lateinit var arrows: List<DatabaseArrowScore>
     private val arrowsPerArrowCount = 12
-    private val roundsInput = listOf(
-            Round(1, "round1", "Round1", true, false),
-            Round(2, "round2", "Round2", true, false)
+    private val archerHandicap = DatabaseArcherHandicap(
+            archerHandicapId = 1,
+            archerId = DEFAULT_ARCHER_ID,
+            bowStyle = ClassificationBow.RECURVE,
+            handicapType = HandicapType.OUTDOOR,
+            handicap = 40,
+            dateSet = Calendar.getInstance(),
     )
-    private val arrowCountsInput = listOf(
-            RoundArrowCount(1, 1, 122.0, arrowsPerArrowCount),
-            RoundArrowCount(1, 2, 122.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 1, 122.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 2, 122.0, arrowsPerArrowCount)
-    )
-    private val distancesInput = listOf(
-            RoundDistance(1, 1, 1, 60),
-            RoundDistance(1, 2, 1, 50),
-            RoundDistance(2, 1, 1, 60),
-            RoundDistance(2, 2, 1, 50),
-            RoundDistance(2, 1, 2, 30),
-            RoundDistance(2, 2, 2, 20)
-    )
-    private val subTypesInput = listOf(
-            RoundSubType(2, 1, "Sub Type 1"),
-            RoundSubType(2, 2, "Sub Type 2")
+    private val rounds = listOf(
+            FullRoundInfo(
+                    round = Round(1, "round1", "Round1", true, false),
+                    roundSubTypes = listOf(),
+                    roundArrowCounts = listOf(
+                            RoundArrowCount(1, 1, 122.0, arrowsPerArrowCount),
+                            RoundArrowCount(1, 2, 122.0, arrowsPerArrowCount),
+                    ),
+                    roundDistances = listOf(
+                            RoundDistance(1, 1, 1, 60),
+                            RoundDistance(1, 2, 1, 50),
+                    ),
+            ),
+            FullRoundInfo(
+                    round = Round(2, "round2", "Round2", true, false),
+                    roundSubTypes = listOf(
+                            RoundSubType(2, 1, "Sub Type 1"),
+                            RoundSubType(2, 2, "Sub Type 2"),
+                    ),
+                    roundArrowCounts = listOf(
+                            RoundArrowCount(2, 1, 122.0, arrowsPerArrowCount),
+                            RoundArrowCount(2, 2, 122.0, arrowsPerArrowCount),
+                    ),
+                    roundDistances = listOf(
+                            RoundDistance(2, 1, 1, 60),
+                            RoundDistance(2, 2, 1, 50),
+                            RoundDistance(2, 1, 2, 30),
+                            RoundDistance(2, 2, 2, 20),
+                    ),
+            ),
+            RoundPreviewHelper.yorkRoundData,
     )
     private val shoots = listOf(
-            DatabaseShoot(
-                    shootId = 1,
-                    dateShot = Date(2014, 6, 17, 15, 21, 37).asCalendar(),
-//                    Calendar.Builder().setDate(2014, 6, 17).setTimeOfDay(15, 21, 37).build().time,
-            ),
-            DatabaseShoot(
-                    shootId = 2,
-                    dateShot = TestUtils.generateDate(2013),
-            ),
-            DatabaseShoot(
-                    shootId = 3,
-                    dateShot = TestUtils.generateDate(2012),
-            )
-    )
-    private val shootRounds = listOf(
-            DatabaseShootRound(
-                    shootId = 2,
-                    roundId = 1,
-            ),
-            DatabaseShootRound(
-                    shootId = 3,
-                    roundId = 2,
-                    roundSubTypeId = 1,
-                    faces = listOf(RoundFace.FULL, RoundFace.HALF),
-            )
-    )
-    private val shootDetails = listOf(
-            DatabaseShootDetail(
-                    shootId = 1,
-                    face = RoundFace.HALF,
-            ),
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 1,
+                        dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("17/7/2014 15:21"),
+                )
+                faces = listOf(RoundFace.HALF)
+                arrows = listOf(List(6) { 10 }, List(38) { 5 }, List(4) { 0 })
+                        .flatten()
+                        .mapIndexed { index, score -> DatabaseArrowScore(1, index + 1, score) }
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 2,
+                        dateShot = TestUtils.generateDate(2013),
+                )
+                round = rounds[0]
+                addIdenticalArrows(size = arrowsPerArrowCount, score = 8)
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 3,
+                        dateShot = TestUtils.generateDate(2012),
+                )
+                round = rounds[1]
+                roundSubTypeId = 1
+                faces = listOf(RoundFace.FULL, RoundFace.HALF)
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 4,
+                        dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("20/12/2011 15:21"),
+                        archerId = DEFAULT_ARCHER_ID,
+                )
+                round = rounds[2]
+                completeRound(1264) // 6 HC
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 5,
+                        dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("19/12/2011 15:21"),
+                )
+                round = rounds[2]
+                completeRound(1239) // 11 HC
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 6,
+                        dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("18/12/2011 15:21"),
+                )
+                round = rounds[2]
+                completeRound(1250) // 9 HC
+            },
     )
 
     /**
@@ -124,14 +168,9 @@ class ShootDetailsStatsInstrumentedTest {
              * Fill default rounds
              */
             runBlocking {
-                roundsInput.forEach { db.roundDao().insert(it) }
-                arrowCountsInput.forEach { db.roundArrowCountDao().insert(it) }
-                subTypesInput.forEach { db.roundSubTypeDao().insert(it) }
-                distancesInput.forEach { db.roundDistanceDao().insert(it) }
-                shoots.forEach { db.shootDao().insert(it) }
-                arrows.forEach { db.arrowScoreDao().insert(it) }
-                shootRounds.forEach { db.shootRoundDao().insert(it) }
-                shootDetails.forEach { db.shootDetailDao().insert(it) }
+                rounds.forEach { db.add(it) }
+                shoots.forEach { db.add(it) }
+                db.archerRepo().insert(archerHandicap)
             }
         }
 
@@ -145,33 +184,27 @@ class ShootDetailsStatsInstrumentedTest {
 
     @Test
     fun testAllStatsNoRound() {
-        val shootId = shoots[ShootTypes.NO_ROUND.row].shootId
-        check(shoots.find { it.shootId == shootId } != null) { "Invalid archer round ID" }
-
-        var arrowNumber = 1
-        arrows = listOf(
-                List(6) { TestUtils.ARROWS[10].asArrowScore(shootId, arrowNumber++) },
-                List(38) { TestUtils.ARROWS[5].asArrowScore(shootId, arrowNumber++) },
-                List(4) { TestUtils.ARROWS[0].asArrowScore(shootId, arrowNumber++) }
-        ).flatten()
-
+        setup()
         val expectedScore = 38 * 5 + 6 * 10
 
-        setup()
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                clickRow(ShootTypes.NO_ROUND.row) {
+                clickRow(0) {
                     waitForLoad()
                     clickNavBarStats {
                         checkDate("17 Jul 14 15:21")
                         checkHits("44 (of 48)")
                         checkScore(expectedScore)
                         checkGolds(6)
-                        checkNoRound()
-                        checkNoRemainingArrows()
-                        checkNoHandicap()
-                        checkNoPredictedScore()
+                        checkRound(null)
+                        checkRemainingArrows(null)
+                        checkHandicap(null)
+                        checkPredictedScore(null)
+                        checkPb(isPb = false)
+                        checkAllowance(null)
+                        checkPastRecordsTextNotShown()
+                        checkAdjustedScore(null)
                         facesRobot.checkFaces("Half")
                     }
                 }
@@ -181,22 +214,15 @@ class ShootDetailsStatsInstrumentedTest {
 
     @Test
     fun testHasRound() {
-        val shootId = shoots[ShootTypes.ROUND.row].shootId
-        val shoot = shoots.find { it.shootId == shootId }!!
-        val shootRound = shootRounds.find { it.shootId == shoot.shootId }!!
-        val round = roundsInput.find { it.roundId == shootRound.roundId }!!
-
-        var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].asArrowScore(shootId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                clickRow(ShootTypes.ROUND.row) {
+                clickRow(1) {
                     waitForLoad()
                     clickNavBarStats {
-                        checkRound(round.displayName)
+                        checkRound(shoots[1].round!!.displayName)
                         checkRemainingArrows(arrowsPerArrowCount)
                         // Checked these values in the handicap tables (2023) - double and use score for 2 doz as only
                         // the first distance has been shot so this is what's being use to calculate the handicap
@@ -204,6 +230,11 @@ class ShootDetailsStatsInstrumentedTest {
                         // divide by 2 because only one dozen was shot
                         checkPredictedScore(ceil((192 + 201) / 2f).roundToInt())
                         facesRobot.checkFaces("Full")
+                        checkPb(isPb = false)
+                        checkAllowance(null)
+                        checkPastRecordsTextNotShown()
+                        checkArcherHandicap(null)
+                        checkAdjustedScore(null)
                     }
                 }
             }
@@ -213,23 +244,15 @@ class ShootDetailsStatsInstrumentedTest {
     @Test
     fun testOldHandicapSystem() {
         LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
-
-        val shootId = shoots[ShootTypes.ROUND.row].shootId
-        val shoot = shoots.find { it.shootId == shootId }!!
-        val shootRound = shootRounds.find { it.shootId == shoot.shootId }!!
-        val round = roundsInput.find { it.roundId == shootRound.roundId }!!
-
-        var arrowNumber = 1
-        arrows = List(arrowsPerArrowCount) { TestUtils.ARROWS[8].asArrowScore(shootId, arrowNumber++) }
         setup()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                clickRow(ShootTypes.ROUND.row) {
+                clickRow(1) {
                     waitForLoad()
                     clickNavBarStats {
-                        checkRound(round.displayName)
+                        checkRound(shoots[1].round!!.displayName)
                         checkRemainingArrows(arrowsPerArrowCount)
                         // Checked these values in the handicap tables (1998) - double and use score for 2 doz as only
                         // the first distance has been shot so this is what's being use to calculate the handicap
@@ -244,19 +267,18 @@ class ShootDetailsStatsInstrumentedTest {
 
     @Test
     fun testRoundWithSubTypeEmptyScore() {
-        arrows = emptyList()
         setup()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForLoad()
-                longClickRow(ShootTypes.SUBTYPE.row)
+                longClickRow(2)
                 clickContinueDropdownMenuItem {
                     waitForLoad()
                     clickNavBarStats {
-                        checkRound(subTypesInput[0].name!!)
+                        checkRound(shoots[2].roundSubType!!.name!!)
                         checkRemainingArrows(arrowsPerArrowCount * 2)
-                        checkNoHandicap()
+                        checkHandicap(null)
                         facesRobot.checkFaces("Full, Half")
                     }
                 }
@@ -264,7 +286,36 @@ class ShootDetailsStatsInstrumentedTest {
         }
     }
 
-    private enum class ShootTypes(val row: Int) {
-        NO_ROUND(0), ROUND(1), SUBTYPE(2)
+    @Test
+    fun testAllowanceAndPastScores() {
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForLoad()
+                clickRow(3) {
+                    clickNavBarStats {
+                        checkScore(1264)
+                        checkHandicap(6)
+                        checkPb()
+                        checkArcherHandicap(40)
+                        checkAllowance(535)
+                        checkAdjustedScore(1264 + 535)
+                        clickPastRecordsText()
+                        checkPastRecordsDialogItems(
+                                listOf(
+                                        ShootDetailsStatsRobot.PastRecordsDialogItem(
+                                                "20/12/11",
+                                                1264,
+                                                "Personal best! - Current"
+                                        ),
+                                        ShootDetailsStatsRobot.PastRecordsDialogItem("18/12/11", 1250),
+                                        ShootDetailsStatsRobot.PastRecordsDialogItem("19/12/11", 1239),
+                                )
+                        )
+                    }
+                }
+            }
+        }
     }
 }

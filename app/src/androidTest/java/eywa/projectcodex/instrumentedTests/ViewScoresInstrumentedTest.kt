@@ -226,7 +226,7 @@ class ViewScoresInstrumentedTest {
                 // Single click - score pad
                 clickRow(rowId) {
                     clickNavBarStats {
-                        checkNoRound()
+                        checkRound(null)
                     }
                     pressBack()
                 }
@@ -235,7 +235,7 @@ class ViewScoresInstrumentedTest {
                 longClickRow(rowId)
                 clickScorePadDropdownMenuItem {
                     clickNavBarStats {
-                        checkNoRound()
+                        checkRound(null)
                     }
                     pressBack()
                 }
@@ -244,7 +244,7 @@ class ViewScoresInstrumentedTest {
                 longClickRow(rowId)
                 clickContinueDropdownMenuItem {
                     clickNavBarStats {
-                        checkNoRound()
+                        checkRound(null)
                     }
                     pressBack()
                 }
