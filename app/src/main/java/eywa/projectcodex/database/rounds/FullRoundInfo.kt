@@ -28,4 +28,11 @@ data class FullRoundInfo(
                 roundSubTypes == null || roundSubTypes.size <= 1 -> roundDistances
                 else -> roundDistances?.filter { it.subTypeId == (subTypeId ?: 1) }
             }
+
+    fun getDisplayName(subTypeId: Int?) = roundSubTypes
+            ?.takeIf { it.isNotEmpty() }
+            ?.find { it.subTypeId == (subTypeId ?: 1) }
+            ?.name
+            ?.takeIf { it.isNotBlank() }
+            ?: round.displayName
 }

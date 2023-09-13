@@ -22,9 +22,19 @@ class MainMenuRobot(
         HandicapTablesRobot(composeTestRule).apply { block() }
     }
 
+    fun clickClassificationTables(block: ClassificationTablesRobot.() -> Unit = {}) {
+        clickElement(MainMenuTestTag.CLASSIFICATION_TABLES_BUTTON)
+        ClassificationTablesRobot(composeTestRule).apply { block() }
+    }
+
     fun clickSightMarks(): SightMarksRobot {
         clickElement(MainMenuTestTag.SIGHT_MARKS_BUTTON)
         return SightMarksRobot(composeTestRule, this)
+    }
+
+    fun clickArcherInfo(block: ArcherInfoRobot.() -> Unit = {}) {
+        clickElement(MainMenuTestTag.ARCHER_INFO_BUTTON)
+        ArcherInfoRobot(composeTestRule).apply { block() }
     }
 
     fun clickAboutIcon(block: AboutRobot.() -> Unit) {

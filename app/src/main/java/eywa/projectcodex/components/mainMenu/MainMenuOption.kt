@@ -50,15 +50,13 @@ enum class MainMenuDefaultOptions(
             helpBody = ResOrActual.StringResource(R.string.help_main_menu__view_scores_body),
             testTag = MainMenuTestTag.VIEW_SCORE_BUTTON,
     ),
-
-    // TODO_CURRENT
-//    ARCHER_INFO(
-//            buttonTitle = ResOrActual.StringResource(R.string.main_menu__archer_info),
-//            navRoute = CodexNavRoute.ARCHER_INFO,
-//            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__archer_info_title),
-//            helpBody = ResOrActual.StringResource(R.string.help_main_menu__archer_info_body),
-//            testTag = MainMenuTestTag.ARCHER_INFO_BUTTON,
-//    ),
+    ARCHER_INFO(
+            buttonTitle = ResOrActual.StringResource(R.string.main_menu__archer_info),
+            navRoute = CodexNavRoute.ARCHER_INFO,
+            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__archer_info_title),
+            helpBody = ResOrActual.StringResource(R.string.help_main_menu__archer_info_body),
+            testTag = MainMenuTestTag.ARCHER_INFO_BUTTON,
+    ),
     HANDICAP_TABLE(
             buttonTitle = ResOrActual.StringResource(R.string.main_menu__handicap_tables),
             navRoute = CodexNavRoute.HANDICAP_TABLES,
@@ -72,7 +70,6 @@ enum class MainMenuDefaultOptions(
             helpTitle = ResOrActual.StringResource(R.string.help_main_menu__classification_tables_title),
             helpBody = ResOrActual.StringResource(R.string.help_main_menu__classification_tables_body),
             testTag = MainMenuTestTag.CLASSIFICATION_TABLES_BUTTON,
-            shouldShow = { it.useBetaFeatures }
     ),
     SIGHT_MARKS(
             buttonTitle = ResOrActual.StringResource(R.string.main_menu__sight_marks),

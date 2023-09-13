@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="archer_info__title">Archer Info</string>
+
+    <string name="archer_info__archer_handicap_title">Handicap:</string>
+
+    <string name="help_archer_info__archer_handicap_title">Handicap</string>
+    <string name="help_archer_info__archer_handicap_body">The current handicap of the archer. This will be used to calculate round allowances</string>
+
 </resources>

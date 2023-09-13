@@ -11,7 +11,6 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.mainMenu.MainMenuOption
 import eywa.projectcodex.components.mainMenu.MainMenuState
-import eywa.projectcodex.components.mainMenu.MainMenuTestTag
 import javax.inject.Singleton
 
 enum class LocalMainMenuOptions(
@@ -19,21 +18,27 @@ enum class LocalMainMenuOptions(
         override val navRoute: NavRoute,
         override val helpTitle: ResOrActual<String>,
         override val helpBody: ResOrActual<String>,
-        override val testTag: CodexTestTag,
         override val icon: CodexIconInfo? = null,
         override val shouldShow: (MainMenuState) -> Boolean = { true },
-) : MainMenuOption {
+) : MainMenuOption, CodexTestTag {
     ARCHER_HANDICAPS(
             buttonTitle = ResOrActual.Actual("Archer handicaps"),
             navRoute = LocalNavRoute.ARCHER_HANDICAPS,
             helpTitle = ResOrActual.Actual("Help title"),
             helpBody = ResOrActual.Actual("Help body"),
-            testTag = MainMenuTestTag.ARCHER_INFO_BUTTON,
     ),
     ;
 
+    override val testTag: CodexTestTag
+        get() = this
+
     override val order: Int
         get() = ordinal + 100
+
+    override val screenName: String
+        get() = "LOCAL_MAIN_MENU"
+
+    override fun getElement(): String = name
 }
 
 @Module

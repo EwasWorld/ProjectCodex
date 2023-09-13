@@ -277,7 +277,7 @@ enum class HandicapTablesTestTag : CodexTestTag {
 
 @Preview
 @Composable
-fun PreviewMainMenuScreen() {
+fun HandicapTablesScreen_Preview() {
     HandicapTablesScreen(
             HandicapTablesState(
                     input = PartialNumberFieldState().onValueChanged("31"),

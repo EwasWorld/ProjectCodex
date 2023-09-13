@@ -1,82 +1,23 @@
 package eywa.projectcodex.common.handicaps
 
-import android.content.res.Resources
 import eywa.projectcodex.common.utils.ListUtils.transpose
-import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.model.Handicap.HandicapPair
 import eywa.projectcodex.model.roundHandicap
-import eywa.projectcodex.testUtils.MockDatastore
+import eywa.projectcodex.testUtils.RawResourcesHelper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import java.io.FileInputStream
 import kotlin.math.abs
-import kotlin.reflect.KClass
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FullAgbHandicapUnitTest {
-    private suspend fun runUpdateTask(): List<Any> {
-        val allItems = mutableListOf<Any>()
-
-        val repo = mock<RoundRepo> {
-            on { fullRoundsInfo } doReturn flow { emit(emptyList()) }
-            onBlocking { updateRounds(any()) } doAnswer {
-                @Suppress("UNCHECKED_CAST")
-                allItems.addAll((it.arguments[0] as Map<Any, UpdateType>).keys)
-                Unit
-            }
-        }
-
-        @Suppress("BlockingMethodInNonBlockingContext")
-        val inputStream = FileInputStream("src\\main\\res\\general\\raw\\default_rounds_data.json")
-        val resources = mock<Resources> { on { openRawResource(any()) } doReturn inputStream }
-
-        UpdateDefaultRoundsTask(
-                repository = repo,
-                resources = resources,
-                datastore = MockDatastore().mock,
-                logger = mock {},
-        ).runTask()
-
-        return allItems
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T> Map<KClass<out Any>, List<Any>>.get() = get(T::class) as List<T>
-
-    private fun List<Any>.asFullRoundInfo(): List<FullRoundInfo> {
-        val groupedByClass = groupBy { it::class }
-        val info = mutableListOf<FullRoundInfo>()
-
-        for (round in groupedByClass.get<Round>()) {
-            val roundId = round.roundId
-
-            info.add(
-                    FullRoundInfo(
-                            round = round,
-                            roundSubTypes = groupedByClass.get<RoundSubType>().filter { it.roundId == roundId },
-                            roundArrowCounts = groupedByClass.get<RoundArrowCount>().filter { it.roundId == roundId },
-                            roundDistances = groupedByClass.get<RoundDistance>().filter { it.roundId == roundId },
-                    )
-            )
-        }
-
-        return info
-    }
-
     private suspend fun getHandicapData(): List<HandicapData> {
-        val allRounds = runUpdateTask().asFullRoundInfo().associateBy { it.round.defaultRoundId!! }
+        val allRounds = RawResourcesHelper.getDefaultRounds().associateBy { it.round.defaultRoundId!! }
         assertEquals(29, allRounds.size)
 
         val handicapData = csvData
@@ -124,7 +65,7 @@ class FullAgbHandicapUnitTest {
             Assert.assertTrue(pairs.size > 80)
         }
 
-        assertEquals(emptyList<HandicapOutcome>(), incorrect.map { it.toHandicapString() })
+        assertEquals(emptyList<String>(), incorrect.map { it.toHandicapString() })
     }
 
     @Test
@@ -160,7 +101,7 @@ class FullAgbHandicapUnitTest {
             Assert.assertTrue("pairs too small: ${pairs.size}", pairs.size > 130)
         }
 
-        assertEquals(emptyList<HandicapOutcome>(), incorrect.map { it.toScoreString() })
+        assertEquals(emptyList<String>(), incorrect.map { it.toScoreString() })
     }
 
     companion object {

@@ -6,14 +6,24 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
-import eywa.projectcodex.common.utils.classificationTables.ClassificationTables
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.*
+import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeClicked
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeSelected
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowClicked
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowSelected
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.CloseDropdown
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.HelpShowcaseAction
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.SelectRoundDialogAction
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.ToggleIsGent
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
-import eywa.projectcodex.model.Handicap
-import eywa.projectcodex.model.roundHandicap
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,7 +31,7 @@ import javax.inject.Inject
 class ClassificationTablesViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcaseUseCase,
-        private val tables: ClassificationTables,
+        private val tables: ClassificationTablesUseCase,
         private val datastore: CodexDatastore,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ClassificationTablesState())
@@ -56,29 +66,17 @@ class ClassificationTablesViewModel @Inject constructor(
                     it.copy(selectRoundDialogState = selectRoundDialogState).addScores()
                 }
             }
+
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.CLASSIFICATION_TABLES::class)
         }
     }
 
     private fun ClassificationTablesState.addScores(): ClassificationTablesState {
         val round = selectRoundDialogState.selectedRound
-        val searchRound =
-                if (round == null) return clearScores()
-                else round.round.defaultRoundId ?: return clearScores()
-        return copy(
-                scores = tables
-                        .get(isGent, age, bow, searchRound, selectRoundDialogState.selectedSubTypeId)
-                        .map {
-                            it.copy(
-                                    handicap = Handicap.getHandicapForRound(
-                                            round = round,
-                                            subType = selectRoundDialogState.selectedSubTypeId,
-                                            score = it.score,
-                                            use2023Handicaps = use2023Handicaps,
-                                    )?.roundHandicap()
-                            )
-                        }
-        )
+                ?: return clearScores()
+        val scores = tables.get(isGent, age, bow, round, selectRoundDialogState.selectedSubTypeId, use2023Handicaps)
+                ?: return clearScores()
+        return copy(scores = scores)
     }
 
     private fun ClassificationTablesState.clearScores() = copy(scores = emptyList())

@@ -57,11 +57,4 @@ enum class RoundFace(
             help = R.string.round_face_worcester_help,
             shouldShow = { it.defaultRoundId == WORCESTER_DEFAULT_ID },
     ),
-    ;
-
-    fun toDbData() = ordinal
-
-    companion object {
-        fun fromDbData(value: Int) = values()[value]
-    }
 }

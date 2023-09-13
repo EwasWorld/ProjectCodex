@@ -2,10 +2,14 @@
 <resources>
     <string name="classification_tables__title">Classifications</string>
 
-    <string name="classification_tables__gender_title">Gender</string>
+    <string name="classification_tables__gender_title">Gender:</string>
     <string name="classification_tables__gender_male">Gents</string>
     <string name="classification_tables__gender_female">Ladies</string>
 
+    <string name="classification_tables__age_title">Age:</string>
+    <string name="classification_tables__bow_title">Bow:</string>
+
+    <string name="classification_tables__classification_header">Classification</string>
     <string name="classification_tables__score_field">Score</string>
     <string name="classification_tables__handicap_field">HC</string>
     <string name="classification_tables__no_tables">No data</string>
@@ -16,21 +20,13 @@
     <string name="classification_tables__bowman_3_short">Bowman 3rd</string>
     <string name="classification_tables__bowman_2_short">Bowman 2nd</string>
     <string name="classification_tables__bowman_1_short">Bowman 1st</string>
-    <string name="classification_tables__master_bowman_short">MB</string>
+    <string name="classification_tables__master_bowman_short">Master Bowman</string>
     <string name="classification_tables__grand_master_bowman_short">Grand MB</string>
     <string name="classification_tables__elite_grand_master_bowman_short">Elite GMB</string>
 
-    <!--    <string name="help_handicap_tables__2023_system_title">Handicap system</string>-->
-    <!--    <string name="help_handicap_tables__2023_system_body">The handicap system was changed for the 2023 season to use a new formula from Archery GB. Pre-2023 used David Lane\'s system. Use this toggle to switch between the two systems.</string>-->
-    <!--    <string name="help_handicap_tables__input_type_title">Input type</string>-->
-    <!--    <string name="help_handicap_tables__input_type_body_handicap">Use this toggle to switch between entering a handicap (current) to find the corresponding score, and entering a score to find the corresponding handicap</string>-->
-    <!--    <string name="help_handicap_tables__input_type_body_score">Use this toggle to switch between entering a handicap to find the corresponding score, and entering a score to find the corresponding handicap (current)</string>-->
-    <!--    <string name="help_handicap_tables__input_title">Input</string>-->
-    <!--    <string name="help_handicap_tables__input_body_handicap">Enter a handicap to calculate the corresponding score</string>-->
-    <!--    <string name="help_handicap_tables__input_body_score">Enter a score to calculate the corresponding handicap</string>-->
-    <!--    <string name="help_handicap_tables__round_title">Round</string>-->
-    <!--    <string name="help_handicap_tables__round_body">Specify the round to get a handicap/score for</string>-->
-    <!--    <string name="help_handicap_tables__table_title">Table</string>-->
-    <!--    <string name="help_handicap_tables__table_body">Lists handicaps and their corresponding scores. The result of the search is highlighted</string>-->
+    <string name="help_classification_tables__categories_title">Gender</string>
+    <string name="help_classification_tables__categories_body">Which Archery GB category to display classifications for</string>
+    <string name="help_classification_tables__table_title">Classifications</string>
+    <string name="help_classification_tables__table_body">Lists the scores required to achieve an Archery GB classification. Handicaps are provided for additional context. Note: not all rounds qualify for all classifications.</string>
 
 </resources>

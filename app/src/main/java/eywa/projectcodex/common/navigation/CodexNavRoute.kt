@@ -11,6 +11,7 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
 import eywa.projectcodex.components.about.AboutScreen
+import eywa.projectcodex.components.archerInfo.ArcherInfoScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
@@ -46,7 +47,7 @@ enum class CodexNavRoute : NavRoute {
 
         @Composable
         override fun Screen(navController: NavController) {
-            TODO()
+            ArcherInfoScreen(navController)
         }
     },
     CLASSIFICATION_TABLES {

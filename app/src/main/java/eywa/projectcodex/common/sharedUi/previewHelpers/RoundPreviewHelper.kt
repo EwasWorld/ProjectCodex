@@ -153,6 +153,7 @@ object RoundPreviewHelper {
                         displayName = "York",
                         isOutdoor = true,
                         isMetric = false,
+                        defaultRoundId = 1,
                 ),
                 roundSubTypes = listOf(
                         RoundSubType(

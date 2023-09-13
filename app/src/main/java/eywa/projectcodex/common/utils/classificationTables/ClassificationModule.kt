@@ -14,11 +14,11 @@ import javax.inject.Singleton
 class ClassificationModule {
     @Singleton
     @Provides
-    fun providesClassificationTables(@ApplicationContext context: Context): ClassificationTables {
+    fun providesClassificationTables(@ApplicationContext context: Context): ClassificationTablesUseCase {
         val rawString = context.resources
                 .openRawResource(R.raw.classification_round_scores_2023)
                 .bufferedReader()
                 .use { it.readText() }
-        return ClassificationTables(rawString)
+        return ClassificationTablesUseCase(rawString)
     }
 }
