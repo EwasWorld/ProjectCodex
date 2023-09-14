@@ -6,22 +6,15 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
-import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArcherDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertOrIgnore(archer: DatabaseArcher)
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(archer: DatabaseArcher)
-
-    @Query(
-            """
-                INSERT OR IGNORE 
-                INTO ${DatabaseArcher.TABLE_NAME} (archerId, name) 
-                VALUES ($DEFAULT_ARCHER_ID, "Default")
-            """
-    )
-    suspend fun insertDefaultArcherIfNotExist()
 
     @Query("SELECT * FROM ${DatabaseArcher.TABLE_NAME} WHERE archerId = $DEFAULT_ARCHER_ID")
     fun getDefaultArcher(): Flow<DatabaseArcher?>
@@ -39,7 +32,4 @@ interface ArcherDao {
 
     @Query("UPDATE ${DatabaseArcher.TABLE_NAME} SET age = :age WHERE archerId = $DEFAULT_ARCHER_ID")
     suspend fun updateDefaultArcher(age: ClassificationAge)
-
-    @Query("UPDATE ${DatabaseArcher.TABLE_NAME} SET bow = :bow WHERE archerId = $DEFAULT_ARCHER_ID")
-    suspend fun updateDefaultArcher(bow: ClassificationBow)
 }

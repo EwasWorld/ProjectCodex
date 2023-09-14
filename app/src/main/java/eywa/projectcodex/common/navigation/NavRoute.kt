@@ -1,13 +1,21 @@
 package eywa.projectcodex.common.navigation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.navigation.*
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptionsBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import eywa.projectcodex.common.helpShowcase.ActionBarHelp
+import eywa.projectcodex.common.sharedUi.CodexTabSwitcher
 
 interface NavRoute : ActionBarHelp {
     val routeBase: String
     val args: Map<NavArgument, Boolean>
+    val tabSwitcherItem: TabSwitcherItem?
 
     @Composable
     fun getMenuBarTitle(entry: NavBackStackEntry?): String
@@ -18,19 +26,32 @@ interface NavRoute : ActionBarHelp {
     fun navigate(
             navController: NavController,
             argValues: Map<NavArgument, String> = emptyMap(),
+            popCurrentRoute: Boolean = false,
             options: (NavOptionsBuilder.() -> Unit)? = null,
     ) {
         val route = asRoute(argValues)
 
-        if (options == null) {
+        if (options == null && !popCurrentRoute) {
             navController.navigate(route)
         }
         else {
-            navController.navigate(route, options)
+            navController.navigate(route) {
+                if (popCurrentRoute) {
+                    val currentRoute = navController.currentDestination?.route
+                    if (currentRoute != null) {
+                        popUpTo(currentRoute) { inclusive = true }
+                    }
+                }
+                options?.invoke(this)
+            }
         }
     }
 
-    fun create(navGraphBuilder: NavGraphBuilder, navController: NavController) {
+    fun create(
+            navGraphBuilder: NavGraphBuilder,
+            navController: NavController,
+            tabSwitcherItems: List<TabSwitcherItem>?,
+    ) {
         navGraphBuilder.composable(
                 route = asRoute(null),
                 arguments = args.map { (arg, required) ->
@@ -43,7 +64,18 @@ interface NavRoute : ActionBarHelp {
                     }
                 },
         ) {
-            Screen(navController = navController)
+            Column {
+                if (tabSwitcherItems != null) {
+                    CodexTabSwitcher(
+                            items = tabSwitcherItems,
+                            selectedItem = tabSwitcherItem!!,
+                            itemClickedListener = { item ->
+                                item.navRoute.navigate(navController, popCurrentRoute = true)
+                            },
+                    )
+                }
+                Screen(navController = navController)
+            }
         }
     }
 

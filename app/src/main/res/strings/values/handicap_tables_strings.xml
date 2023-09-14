@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="handicap_tables__title">Handicap Tables</string>
+    <string name="handicap_tables__title">Handicaps</string>
 
     <string name="handicap_tables__input">Search by:</string>
     <string name="handicap_tables__handicap_field">Handicap</string>
     <string name="handicap_tables__score_field">Score</string>
     <string name="handicap_tables__allowance_field">Allowance</string>
-    <string name="handicap_tables__handicap_system_title">Handicap system:</string>
+    <string name="handicap_tables__handicap_system_title">System:</string>
     <string name="handicap_tables__handicap_system_david_lane">David Lane</string>
     <string name="handicap_tables__handicap_system_agb_2023">2023 ArcheryGB</string>
     <string name="handicap_tables__no_tables">No data</string>

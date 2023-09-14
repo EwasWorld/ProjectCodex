@@ -50,6 +50,13 @@ enum class MainMenuDefaultOptions(
             helpBody = ResOrActual.StringResource(R.string.help_main_menu__view_scores_body),
             testTag = MainMenuTestTag.VIEW_SCORE_BUTTON,
     ),
+    SIGHT_MARKS(
+            buttonTitle = ResOrActual.StringResource(R.string.main_menu__sight_marks),
+            navRoute = CodexNavRoute.SIGHT_MARKS,
+            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__sight_marks_title),
+            helpBody = ResOrActual.StringResource(R.string.help_main_menu__sight_marks_body),
+            testTag = MainMenuTestTag.SIGHT_MARKS_BUTTON,
+    ),
     ARCHER_INFO(
             buttonTitle = ResOrActual.StringResource(R.string.main_menu__archer_info),
             navRoute = CodexNavRoute.ARCHER_INFO,
@@ -57,26 +64,12 @@ enum class MainMenuDefaultOptions(
             helpBody = ResOrActual.StringResource(R.string.help_main_menu__archer_info_body),
             testTag = MainMenuTestTag.ARCHER_INFO_BUTTON,
     ),
-    HANDICAP_TABLE(
-            buttonTitle = ResOrActual.StringResource(R.string.main_menu__handicap_tables),
+    REFERENCE_TABLE(
+            buttonTitle = ResOrActual.StringResource(R.string.main_menu__reference_tables),
             navRoute = CodexNavRoute.HANDICAP_TABLES,
-            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__handicap_tables_title),
-            helpBody = ResOrActual.StringResource(R.string.help_main_menu__handicap_tables_body),
-            testTag = MainMenuTestTag.HANDICAP_TABLES_BUTTON,
-    ),
-    CLASSIFICATIONS(
-            buttonTitle = ResOrActual.StringResource(R.string.main_menu__classification_tables),
-            navRoute = CodexNavRoute.CLASSIFICATION_TABLES,
-            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__classification_tables_title),
-            helpBody = ResOrActual.StringResource(R.string.help_main_menu__classification_tables_body),
-            testTag = MainMenuTestTag.CLASSIFICATION_TABLES_BUTTON,
-    ),
-    SIGHT_MARKS(
-            buttonTitle = ResOrActual.StringResource(R.string.main_menu__sight_marks),
-            navRoute = CodexNavRoute.SIGHT_MARKS,
-            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__sight_marks_title),
-            helpBody = ResOrActual.StringResource(R.string.help_main_menu__sight_marks_body),
-            testTag = MainMenuTestTag.SIGHT_MARKS_BUTTON,
+            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__reference_tables_title),
+            helpBody = ResOrActual.StringResource(R.string.help_main_menu__reference_tables_body),
+            testTag = MainMenuTestTag.REFERENCE_TABLES_BUTTON,
     ),
     SETTINGS(
             icon = CodexIconInfo.VectorIcon(

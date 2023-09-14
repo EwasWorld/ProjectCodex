@@ -50,11 +50,4 @@ enum class HandicapType(@StringRes val text: Int) {
     INDOOR(R.string.archer_handicaps__type_indoor),
     OUTDOOR_TOURNAMENT(R.string.archer_handicaps__type_outdoor_tournament),
     INDOOR_TOURNAMENT(R.string.archer_handicaps__type_indoor_tournament),
-    ;
-
-    fun toDbData() = ordinal
-
-    companion object {
-        fun fromDbData(value: Int) = values()[value]
-    }
 }

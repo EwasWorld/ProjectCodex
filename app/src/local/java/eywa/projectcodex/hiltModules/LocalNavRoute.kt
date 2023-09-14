@@ -12,14 +12,24 @@ import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.NavRoute
+import eywa.projectcodex.common.navigation.TabSwitcherGroup
+import eywa.projectcodex.common.navigation.TabSwitcherItem
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
 import javax.inject.Singleton
 
 enum class LocalNavRoute : NavRoute {
     ARCHER_HANDICAPS {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.archer_handicaps__tab_title),
+                group = TabSwitcherGroup.ARCHER_INFO,
+                navRoute = this,
+                position = 1,
+        )
+
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-                stringResource(R.string.archer_handicaps__title)
+                stringResource(R.string.archer_info__title)
 
         @Composable
         override fun Screen(navController: NavController) {
@@ -30,6 +40,7 @@ enum class LocalNavRoute : NavRoute {
 
     override val routeBase = "local_" + name.lowercase()
     override val args: Map<NavArgument, Boolean> = emptyMap()
+    override val tabSwitcherItem: TabSwitcherItem? = null
 }
 
 @Module

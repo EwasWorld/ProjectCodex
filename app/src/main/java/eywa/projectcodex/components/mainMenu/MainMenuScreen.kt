@@ -3,7 +3,11 @@ package eywa.projectcodex.components.mainMenu
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,11 +25,23 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexThemeColors
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.*
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.ExitDialogCloseClicked
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.ExitDialogOkClicked
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.HelpShowcaseAction
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.Navigate
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.NavigateHandled
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.OpenExitDialog
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.WhatsNewClose
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.WhatsNewOpen
 import kotlin.system.exitProcess
 
 @Composable
@@ -148,8 +164,7 @@ enum class MainMenuTestTag : CodexTestTag {
     SCREEN,
     NEW_SCORE_BUTTON,
     VIEW_SCORE_BUTTON,
-    HANDICAP_TABLES_BUTTON,
-    CLASSIFICATION_TABLES_BUTTON,
+    REFERENCE_TABLES_BUTTON,
     SIGHT_MARKS_BUTTON,
     SETTINGS_BUTTON,
     ABOUT_BUTTON,

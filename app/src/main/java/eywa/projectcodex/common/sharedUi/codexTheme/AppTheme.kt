@@ -1,7 +1,8 @@
 package eywa.projectcodex.common.sharedUi.codexTheme
 
 enum class AppTheme(
-        val colors: CodexThemeColors
+        val colors: CodexThemeColors,
+        val dimens: CodexDimens = CodexDimens(),
 ) {
     LIGHT(
             colors = CodexThemeColors()

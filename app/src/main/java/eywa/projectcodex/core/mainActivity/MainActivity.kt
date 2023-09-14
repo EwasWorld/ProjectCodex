@@ -16,7 +16,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
@@ -47,7 +53,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.ClearNoHelpShowcaseFlag
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.CloseHelpShowcase
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.GoToNextHelpShowcaseItem
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.StartHelpShowcase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -111,7 +120,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun NavBackStackEntry.currentCodexNavRoute() = destination
             .route?.takeWhile { it != '/' && it != '?' }
-            .let { CodexNavRoute.reverseMap[it] }
+            .let { CodexNavRoute.baseRouteMapping[it] }
 
     @Composable
     fun TopBar(navController: NavController) {

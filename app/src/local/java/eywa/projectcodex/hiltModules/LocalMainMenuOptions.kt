@@ -21,12 +21,6 @@ enum class LocalMainMenuOptions(
         override val icon: CodexIconInfo? = null,
         override val shouldShow: (MainMenuState) -> Boolean = { true },
 ) : MainMenuOption, CodexTestTag {
-    ARCHER_HANDICAPS(
-            buttonTitle = ResOrActual.Actual("Archer handicaps"),
-            navRoute = LocalNavRoute.ARCHER_HANDICAPS,
-            helpTitle = ResOrActual.Actual("Help title"),
-            helpBody = ResOrActual.Actual("Help body"),
-    ),
     ;
 
     override val testTag: CodexTestTag

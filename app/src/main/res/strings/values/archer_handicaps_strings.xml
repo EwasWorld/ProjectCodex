@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="archer_handicaps__title">Handicaps</string>
+    <string name="archer_handicaps__title">Archer Handicaps</string>
+    <string name="archer_handicaps__tab_title">Handicap</string>
 
     <string name="archer_handicaps__type_indoor">Indoor</string>
     <string name="archer_handicaps__type_outdoor">Outdoor</string>

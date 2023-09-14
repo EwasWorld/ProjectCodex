@@ -15,9 +15,16 @@ fun CodexNavHost(
             .groupBy { it.routeBase.lowercase() }
             .filter { (_, v) -> v.size > 1 }
             .keys
-    if (duplicateRoutes.isNotEmpty()) {
-        throw IllegalStateException("Duplicate navRoutes found: " + duplicateRoutes.joinToString(","))
-    }
+    check(duplicateRoutes.isEmpty()) { "Duplicate navRoutes found: " + duplicateRoutes.joinToString(",") }
+
+    val tabGroups = navRoutes
+            .groupBy { it.tabSwitcherItem?.group }
+            .minus(null)
+            .mapValues { (_, value) -> value.mapNotNull { it.tabSwitcherItem } }
+    val sizeViolations = tabGroups.filter { it.value.size < 2 }.keys
+    val orderViolations = tabGroups.filter { (_, value) -> value.distinctBy { it.position }.size != value.size }.keys
+    check(sizeViolations.isEmpty()) { "Tab groups with size < 2 are forbidden: " + sizeViolations.joinToString() }
+    check(orderViolations.isEmpty()) { "Duplicate tab group order value found: " + orderViolations.joinToString() }
 
     NavHost(
             navController = navHostController,
@@ -25,7 +32,8 @@ fun CodexNavHost(
             modifier = modifier,
     ) {
         navRoutes.forEach { route ->
-            route.create(this, navHostController)
+            val groupItems = route.tabSwitcherItem?.group?.let { tabGroups[it]!! }?.sortedBy { it.position }
+            route.create(this, navHostController, groupItems)
         }
     }
 }

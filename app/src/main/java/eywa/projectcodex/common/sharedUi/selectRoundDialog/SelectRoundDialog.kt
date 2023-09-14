@@ -313,7 +313,7 @@ private fun <T : NamedItem> ItemSelector(
                         verticalAlignment = Alignment.Bottom,
                         modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
                 ) {
-                    item.label.split(" ").forEach { itemLabelWord ->
+                    item.label.get().split(" ").forEach { itemLabelWord ->
                         Text(
                                 text = itemLabelWord,
                                 style = CodexTypography.NORMAL,

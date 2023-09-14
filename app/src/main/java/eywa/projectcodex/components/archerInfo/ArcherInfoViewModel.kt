@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.archerInfo.ArcherInfoIntent.AgeClicked
 import eywa.projectcodex.components.archerInfo.ArcherInfoIntent.AgeSelected
 import eywa.projectcodex.components.archerInfo.ArcherInfoIntent.BowClicked
@@ -21,31 +22,39 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ArcherInfoViewModel @Inject constructor(
-        val db: ScoresRoomDatabase,
+        db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ArcherInfoState())
     val state = _state.asStateFlow()
 
+    private val archerRepo = db.archerRepo()
+    private val bowRepo = db.bowRepo()
+
     init {
         viewModelScope.launch {
-            db.archerRepo().defaultArcher.collect { archer ->
+            archerRepo.defaultArcher.collect { archer ->
                 _state.update { it.copy(defaultArcher = archer) }
+            }
+        }
+        viewModelScope.launch {
+            bowRepo.defaultBow.collect { bow ->
+                _state.update { it.copy(bow = bow?.type ?: ClassificationBow.RECURVE) }
             }
         }
     }
 
     fun handle(action: ArcherInfoIntent) {
         when (action) {
-            is SetIsGent -> viewModelScope.launch { db.archerRepo().updateDefaultArcher(isGent = action.isGent) }
+            is SetIsGent -> viewModelScope.launch { archerRepo.updateDefaultArcher(isGent = action.isGent) }
 
             is AgeSelected -> {
-                viewModelScope.launch { db.archerRepo().updateDefaultArcher(age = action.age) }
+                viewModelScope.launch { archerRepo.updateDefaultArcher(age = action.age) }
                 _state.update { it.copy(expanded = null) }
             }
 
             is BowSelected -> {
-                viewModelScope.launch { db.archerRepo().updateDefaultArcher(bow = action.bow) }
+                viewModelScope.launch { bowRepo.updateDefaultBow(type = action.bow) }
                 _state.update { it.copy(expanded = null) }
             }
 

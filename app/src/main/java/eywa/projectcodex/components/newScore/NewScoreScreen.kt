@@ -71,12 +71,8 @@ private fun handleEffects(
         CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
                 navController,
                 mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
-        ) {
-            val currentRoute = navController.currentDestination?.route
-            if (currentRoute != null) {
-                popUpTo(currentRoute) { inclusive = true }
-            }
-        }
+                popCurrentRoute = true,
+        )
         listener(HandleNavigate)
     }
     if (state.popBackstack) {

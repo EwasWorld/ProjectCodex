@@ -3,6 +3,7 @@ package eywa.projectcodex.database.rounds
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.database.rounds.RoundSubType.Companion.TABLE_NAME
 
 /**
@@ -39,8 +40,8 @@ data class RoundSubType(
          */
         val ladies: Int? = null
 ) : NamedItem {
-    override val label: String
-        get() = name!!
+    override val label
+        get() = ResOrActual.Actual(name!!)
 
     companion object {
         const val TABLE_NAME = "round_sub_types"

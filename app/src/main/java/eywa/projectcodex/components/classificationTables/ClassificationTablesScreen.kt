@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -76,25 +77,22 @@ fun ClassificationTablesScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
+                    .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
                     .verticalScroll(rememberScrollState())
                     .padding(vertical = 20.dp)
                     .testTag(ClassificationTablesTestTag.SCREEN.getTestTag())
     ) {
-        Text(
-                text = "Beta Feature:",
-                fontWeight = FontWeight.Bold,
-                style = CodexTypography.LARGE,
-                color = CodexTheme.colors.onAppBackground,
-        )
-
-        CategorySelectors(state, listener, Modifier.padding(bottom = 20.dp))
+        CategorySelectors(state, listener, Modifier.padding(bottom = 4.dp))
 
         Surface(
-                shape = RoundedCornerShape(20),
+                shape = RoundedCornerShape(
+                        if (state.selectRoundDialogState.selectedRound == null) CodexTheme.dimens.smallCornerRounding
+                        else CodexTheme.dimens.cornerRounding
+                ),
                 border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
                 color = CodexTheme.colors.appBackground,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
             Column(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -231,7 +229,10 @@ private fun Table(
 ) {
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onListItemAppOnBackground)) {
         Surface(
-                shape = RoundedCornerShape(10),
+                shape = RoundedCornerShape(
+                        if (entries.isEmpty()) CodexTheme.dimens.smallCornerRounding
+                        else CodexTheme.dimens.cornerRounding
+                ),
                 color = CodexTheme.colors.listItemOnAppBackground,
                 modifier = Modifier
                         .updateHelpDialogPosition(
@@ -247,7 +248,9 @@ private fun Table(
             if (entries.isEmpty()) {
                 Text(
                         text = stringResource(R.string.classification_tables__no_tables),
-                        modifier = Modifier.testTag(ClassificationTablesTestTag.TABLE_NO_DATA.getTestTag())
+                        modifier = Modifier
+                                .testTag(ClassificationTablesTestTag.TABLE_NO_DATA.getTestTag())
+                                .padding(10.dp)
                 )
             }
             else {
@@ -316,15 +319,13 @@ enum class ClassificationTablesTestTag : CodexTestTag {
 
 @Preview
 @Composable
-fun PreviewClassificationTablesScreen() {
+fun ClassificationTablesScreen_Preview() {
     ClassificationTablesScreen(
             ClassificationTablesState(
                     selectRoundDialogState = SelectRoundDialogState(
                             selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,
                             filters = SelectRoundEnabledFilters(),
                             allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
-                            isRoundDialogOpen = false,
-                            isSubtypeDialogOpen = false,
                     ),
                     scores = listOf(
                             "1,Women,Recurve,Senior,York,211",
@@ -337,6 +338,20 @@ fun PreviewClassificationTablesScreen() {
                             "8,Women,Recurve,Senior,York,1086",
                             "9,Women,Recurve,Senior,York,1162",
                     ).mapNotNull { ClassificationTableEntry.fromString(it) },
+            )
+    ) {}
+}
+
+@Preview
+@Composable
+fun Empty_ClassificationTablesScreen_Preview() {
+    ClassificationTablesScreen(
+            ClassificationTablesState(
+                    selectRoundDialogState = SelectRoundDialogState(
+                            filters = SelectRoundEnabledFilters(),
+                            allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
+                    ),
+                    scores = emptyList(),
             )
     ) {}
 }

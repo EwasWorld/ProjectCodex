@@ -1,7 +1,6 @@
 package eywa.projectcodex.database.archer
 
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
-import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 
 const val DEFAULT_ARCHER_ID = -1
 
@@ -19,11 +18,13 @@ class ArcherRepo(
 
     fun getLatestHandicaps(archerId: Int) = archerHandicapDao.getLatestHandicaps(archerId)
 
+    suspend fun insertDefaultArcherIfNotExist() {
+        archerDao.insertOrIgnore(DatabaseArcher(DEFAULT_ARCHER_ID, "Default"))
+    }
+
     suspend fun updateDefaultArcher(isGent: Boolean) = archerDao.updateDefaultArcher(isGent)
 
     suspend fun updateDefaultArcher(age: ClassificationAge) = archerDao.updateDefaultArcher(age)
-
-    suspend fun updateDefaultArcher(bow: ClassificationBow) = archerDao.updateDefaultArcher(bow)
 
     suspend fun insert(archer: DatabaseArcher) {
         archerDao.insert(archer)

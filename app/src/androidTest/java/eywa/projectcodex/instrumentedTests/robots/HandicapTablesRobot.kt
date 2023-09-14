@@ -1,6 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots
 
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.common.sharedUi.TabSwitcherTestTag
 import eywa.projectcodex.components.handicapTables.HandicapTablesTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
@@ -17,6 +18,15 @@ class HandicapTablesRobot(
 ) : BaseRobot(composeTestRule, HandicapTablesTestTag.SCREEN) {
     val facesRobot = SelectFaceRobot(composeTestRule, HandicapTablesTestTag.SCREEN)
     val roundsRobot = SelectRoundRobot(composeTestRule, HandicapTablesTestTag.SCREEN)
+
+    fun clickClassificationTables(block: ClassificationTablesRobot.() -> Unit = {}) {
+        perform {
+            +CodexNodeMatcher.HasTestTag(TabSwitcherTestTag.ITEM)
+            +CodexNodeMatcher.HasText("Classifications")
+            +CodexNodeInteraction.PerformClick
+        }
+        ClassificationTablesRobot(composeTestRule).apply { block() }
+    }
 
     fun clickHandicapSystem() {
         perform {

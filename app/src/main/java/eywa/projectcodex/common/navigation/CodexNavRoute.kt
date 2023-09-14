@@ -10,6 +10,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.about.AboutScreen
 import eywa.projectcodex.components.archerInfo.ArcherInfoScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
@@ -41,6 +42,13 @@ enum class CodexNavRoute : NavRoute {
         }
     },
     ARCHER_INFO {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.archer_info__tab_title),
+                group = TabSwitcherGroup.ARCHER_INFO,
+                navRoute = this,
+                position = 0,
+        )
+
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
                 stringResource(R.string.archer_info__title)
@@ -51,9 +59,16 @@ enum class CodexNavRoute : NavRoute {
         }
     },
     CLASSIFICATION_TABLES {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.classification_tables__title),
+                group = TabSwitcherGroup.REFERENCES,
+                navRoute = this,
+                position = 1,
+        )
+
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-                stringResource(R.string.classification_tables__title)
+                stringResource(R.string.main_menu__reference_tables)
 
         @Composable
         override fun Screen(navController: NavController) {
@@ -70,9 +85,16 @@ enum class CodexNavRoute : NavRoute {
         }
     },
     HANDICAP_TABLES {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.handicap_tables__title),
+                group = TabSwitcherGroup.REFERENCES,
+                navRoute = this,
+                position = 0,
+        )
+
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-                stringResource(R.string.handicap_tables__title)
+                stringResource(R.string.main_menu__reference_tables)
 
         @Composable
         override fun Screen(navController: NavController) {
@@ -226,9 +248,10 @@ enum class CodexNavRoute : NavRoute {
 
     override val routeBase = "main_" + name.lowercase()
     override val args: Map<NavArgument, Boolean> = emptyMap()
+    override val tabSwitcherItem: TabSwitcherItem? = null
 
     companion object {
-        val reverseMap = values().associateBy { it.routeBase }
+        val baseRouteMapping = values().associateBy { it.routeBase }
     }
 }
 

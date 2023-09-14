@@ -18,13 +18,8 @@ class MainMenuRobot(
     }
 
     fun clickHandicapTables(block: HandicapTablesRobot.() -> Unit = {}) {
-        clickElement(MainMenuTestTag.HANDICAP_TABLES_BUTTON)
+        clickElement(MainMenuTestTag.REFERENCE_TABLES_BUTTON)
         HandicapTablesRobot(composeTestRule).apply { block() }
-    }
-
-    fun clickClassificationTables(block: ClassificationTablesRobot.() -> Unit = {}) {
-        clickElement(MainMenuTestTag.CLASSIFICATION_TABLES_BUTTON)
-        ClassificationTablesRobot(composeTestRule).apply { block() }
     }
 
     fun clickSightMarks(): SightMarksRobot {

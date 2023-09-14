@@ -7,6 +7,7 @@ import androidx.room.TypeConverters
 import eywa.projectcodex.database.archer.*
 import eywa.projectcodex.database.arrows.*
 import eywa.projectcodex.database.bow.BowDao
+import eywa.projectcodex.database.bow.BowRepo
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.database.shootData.*
@@ -59,10 +60,11 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao())
     fun arrowScoresRepo() = ArrowScoresRepo(arrowScoreDao())
     fun archerRepo() = ArcherRepo(archerDao(), archerHandicapDao())
+    fun bowRepo() = BowRepo(bowDao())
 
     suspend fun insertDefaults() {
-        bowDao().insertDefaultBowIfNotExist()
-        archerDao().insertDefaultArcherIfNotExist()
+        bowRepo().insertDefaultBowIfNotExist()
+        archerRepo().insertDefaultArcherIfNotExist()
     }
 
     companion object {

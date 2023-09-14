@@ -61,58 +61,60 @@ class ClassificationTablesE2eTest {
         setup()
 
         composeTestRule.mainMenuRobot {
-            clickClassificationTables {
-                checkNoClassifications()
+            clickHandicapTables {
+                clickClassificationTables {
+                    checkNoClassifications()
 
-                roundRobot.clickSelectedRound()
-                roundRobot.clickRoundDialogRound("York")
-                roundRobot.checkSelectedRound("York")
-                checkClassifications(
-                        listOf(
-                                ClassificationTablesRobot.TableRow("Archer 3rd", 278, 72),
-                                ClassificationTablesRobot.TableRow("Archer 2nd", 394, 65),
-                                ClassificationTablesRobot.TableRow("Archer 1st", 534, 58),
-                                ClassificationTablesRobot.TableRow("Bowman 3rd", 684, 51),
-                                ClassificationTablesRobot.TableRow("Bowman 2nd", 829, 44),
-                                ClassificationTablesRobot.TableRow("Bowman 1st", 957, 37),
-                                ClassificationTablesRobot.TableRow("Master Bowman", 1061, 30),
-                                ClassificationTablesRobot.TableRow("Grand MB", 1142, 23),
-                                ClassificationTablesRobot.TableRow("Elite GMB", 1205, 16),
-                        )
-                )
+                    roundRobot.clickSelectedRound()
+                    roundRobot.clickRoundDialogRound("York")
+                    roundRobot.checkSelectedRound("York")
+                    checkClassifications(
+                            listOf(
+                                    ClassificationTablesRobot.TableRow("Archer 3rd", 278, 72),
+                                    ClassificationTablesRobot.TableRow("Archer 2nd", 394, 65),
+                                    ClassificationTablesRobot.TableRow("Archer 1st", 534, 58),
+                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 684, 51),
+                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 829, 44),
+                                    ClassificationTablesRobot.TableRow("Bowman 1st", 957, 37),
+                                    ClassificationTablesRobot.TableRow("Master Bowman", 1061, 30),
+                                    ClassificationTablesRobot.TableRow("Grand MB", 1142, 23),
+                                    ClassificationTablesRobot.TableRow("Elite GMB", 1205, 16),
+                            )
+                    )
 
-                clickGender()
-                setAge("U15")
-                setBowStyle("Compound")
-                checkClassifications(
-                        listOf(
-                                ClassificationTablesRobot.TableRow("Archer 3rd", 236, 75),
-                                ClassificationTablesRobot.TableRow("Archer 2nd", 325, 69),
-                                ClassificationTablesRobot.TableRow("Archer 1st", 432, 63),
-                                ClassificationTablesRobot.TableRow("Bowman 3rd", 555, 57),
-                                ClassificationTablesRobot.TableRow("Bowman 2nd", 684, 51),
-                                ClassificationTablesRobot.TableRow("Bowman 1st", 809, 45),
-                                ClassificationTablesRobot.TableRow("Master Bowman", 923, 39),
-                                ClassificationTablesRobot.TableRow("Grand MB", 1019, 33),
-                                ClassificationTablesRobot.TableRow("Elite GMB", 1098, 27),
-                        )
-                )
+                    clickGender()
+                    setAge("U15")
+                    setBowStyle("Compound")
+                    checkClassifications(
+                            listOf(
+                                    ClassificationTablesRobot.TableRow("Archer 3rd", 236, 75),
+                                    ClassificationTablesRobot.TableRow("Archer 2nd", 325, 69),
+                                    ClassificationTablesRobot.TableRow("Archer 1st", 432, 63),
+                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 555, 57),
+                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 684, 51),
+                                    ClassificationTablesRobot.TableRow("Bowman 1st", 809, 45),
+                                    ClassificationTablesRobot.TableRow("Master Bowman", 923, 39),
+                                    ClassificationTablesRobot.TableRow("Grand MB", 1019, 33),
+                                    ClassificationTablesRobot.TableRow("Elite GMB", 1098, 27),
+                            )
+                    )
 
-                roundRobot.clickSelectedSubtype()
-                roundRobot.clickSubtypeDialogSubtype("Hereford")
-                checkClassifications(
-                        listOf(
-                                ClassificationTablesRobot.TableRow("Archer 3rd", 370, 75),
-                                ClassificationTablesRobot.TableRow("Archer 2nd", 487, 69),
-                                ClassificationTablesRobot.TableRow("Archer 1st", 614, 63),
-                                ClassificationTablesRobot.TableRow("Bowman 3rd", 742, 57),
-                                ClassificationTablesRobot.TableRow("Bowman 2nd", 863, 51),
-                                ClassificationTablesRobot.TableRow("Bowman 1st", 969, 45),
-                                ClassificationTablesRobot.TableRow("Master Bowman", 1057, 39),
-                                ClassificationTablesRobot.TableRow("Grand MB", 1129, 33),
-                                ClassificationTablesRobot.TableRow("Elite GMB", 1187, 27),
-                        )
-                )
+                    roundRobot.clickSelectedSubtype()
+                    roundRobot.clickSubtypeDialogSubtype("Hereford")
+                    checkClassifications(
+                            listOf(
+                                    ClassificationTablesRobot.TableRow("Archer 3rd", 370, 75),
+                                    ClassificationTablesRobot.TableRow("Archer 2nd", 487, 69),
+                                    ClassificationTablesRobot.TableRow("Archer 1st", 614, 63),
+                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 742, 57),
+                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 863, 51),
+                                    ClassificationTablesRobot.TableRow("Bowman 1st", 969, 45),
+                                    ClassificationTablesRobot.TableRow("Master Bowman", 1057, 39),
+                                    ClassificationTablesRobot.TableRow("Grand MB", 1129, 33),
+                                    ClassificationTablesRobot.TableRow("Elite GMB", 1187, 27),
+                            )
+                    )
+                }
             }
         }
     }

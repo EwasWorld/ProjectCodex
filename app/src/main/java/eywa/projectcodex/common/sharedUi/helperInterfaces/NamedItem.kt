@@ -1,5 +1,7 @@
 package eywa.projectcodex.common.sharedUi.helperInterfaces
 
+import eywa.projectcodex.common.utils.ResOrActual
+
 interface NamedItem {
-    val label: String
+    val label: ResOrActual<String>
 }

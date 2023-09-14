@@ -68,7 +68,7 @@ fun HandicapTablesScreen(
     helpListener(HelpShowcaseIntent.Clear)
 
     Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                     .fillMaxSize()
@@ -145,7 +145,10 @@ fun RoundSelector(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Surface(
-            shape = RoundedCornerShape(20),
+            shape = RoundedCornerShape(
+                    if (state.selectRoundDialogState.selectedRound == null) CodexTheme.dimens.smallCornerRounding
+                    else CodexTheme.dimens.cornerRounding
+            ),
             border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
             color = CodexTheme.colors.appBackground,
             modifier = Modifier.padding(horizontal = 20.dp)
@@ -160,11 +163,13 @@ fun RoundSelector(
                     helpListener = helpListener,
                     listener = { listener(SelectRoundDialogAction(it)) },
             )
-            SelectRoundFaceDialog(
-                    state = state.selectFaceDialogState,
-                    helpListener = helpListener,
-                    listener = { listener(SelectFaceDialogAction(it)) },
-            )
+            if (state.selectRoundDialogState.selectedRound != null) {
+                SelectRoundFaceDialog(
+                        state = state.selectFaceDialogState,
+                        helpListener = helpListener,
+                        listener = { listener(SelectFaceDialogAction(it)) },
+                )
+            }
         }
     }
 }
@@ -175,7 +180,10 @@ fun HandicapDisplay(
         listener: (HandicapTablesIntent) -> Unit,
 ) {
     Surface(
-            shape = RoundedCornerShape(10),
+            shape = RoundedCornerShape(
+                    if (state.handicaps.isEmpty()) CodexTheme.dimens.smallCornerRounding
+                    else CodexTheme.dimens.cornerRounding
+            ),
             color = CodexTheme.colors.listItemOnAppBackground,
             modifier = Modifier
                     .horizontalScroll(rememberScrollState())
@@ -196,6 +204,7 @@ fun HandicapDisplay(
                         modifier = Modifier
                                 .updateHelpDialogPosition(helpState)
                                 .testTag(HandicapTablesTestTag.TABLE_EMPTY_TEXT.getTestTag())
+                                .padding(10.dp)
                 )
             }
             else {

@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.database.rounds.Round.Companion.TABLE_NAME
 
 /**
@@ -29,8 +30,8 @@ data class Round(
         @ColumnInfo(defaultValue = "NULL") val legacyName: String? = null,
         @ColumnInfo(defaultValue = "NULL") val defaultRoundId: Int? = null,
 ) : NamedItem {
-    override val label: String
-        get() = displayName
+    override val label
+        get() = ResOrActual.Actual(displayName)
 
     val isImperial
         get() = !isMetric

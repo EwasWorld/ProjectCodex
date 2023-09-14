@@ -90,8 +90,8 @@ private fun CategorySelectors(
             DataRow(
                     title = stringResource(R.string.classification_tables__gender_title),
                     text = stringResource(
-                            if (state.isGent) R.string.classification_tables__gender_male
-                            else R.string.classification_tables__gender_female
+                            if (state.isGent) R.string.archer_info__gender_male
+                            else R.string.archer_info__gender_female
                     ),
                     helpState = null,
                     onClick = { listener(ArcherInfoIntent.SetIsGent(!state.isGent)) },
@@ -101,7 +101,7 @@ private fun CategorySelectors(
                             .testTag(ArcherInfoTestTag.GENDER_SELECTOR.getTestTag())
             )
             Input(
-                    label = stringResource(R.string.classification_tables__age_title),
+                    label = stringResource(R.string.archer_info__age_dialog_title),
                     currentValue = state.age.rawName,
                     values = ClassificationAge.values().map { it.rawName },
                     testTag = ArcherInfoTestTag.AGE_SELECTOR,
@@ -111,7 +111,7 @@ private fun CategorySelectors(
                     expanded = state.expanded == ArcherInfoState.Dropdown.AGE,
             )
             Input(
-                    label = stringResource(R.string.classification_tables__bow_title),
+                    label = stringResource(R.string.archer_info__bow_dialog_title),
                     currentValue = state.bow.rawName,
                     values = ClassificationBow.values().map { it.rawName },
                     testTag = ArcherInfoTestTag.BOW_SELECTOR,

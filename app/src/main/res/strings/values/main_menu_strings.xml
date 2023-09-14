@@ -3,7 +3,7 @@
     <string name="main_menu__title">Main Menu</string>
     <string name="main_menu__new_score">Begin new score</string>
     <string name="main_menu__view_scores">View scores</string>
-    <string name="main_menu__handicap_tables">Handicap tables</string>
+    <string name="main_menu__reference_tables">Reference Tables</string>
     <string name="main_menu__classification_tables">Classifications</string>
     <string name="main_menu__sight_marks">Sight marks</string>
     <string name="main_menu__archer_info">Archer info</string>
@@ -18,14 +18,12 @@
     <string name="help_main_menu__new_score_body">Start inputting a new score</string>
     <string name="help_main_menu__view_scores_title">View scores</string>
     <string name="help_main_menu__view_scores_body">View, edit, and continue existing scores</string>
-    <string name="help_main_menu__handicap_tables_title">Handicap tables</string>
-    <string name="help_main_menu__handicap_tables_body">Calculate handicaps for scores or vice versa</string>
-    <string name="help_main_menu__classification_tables_title">Classification tables</string>
-    <string name="help_main_menu__classification_tables_body">Look up ArcheryGB classification scores for each round</string>
+    <string name="help_main_menu__reference_tables_title">Reference tables</string>
+    <string name="help_main_menu__reference_tables_body">Look up handicaps and classifications for rounds</string>
     <string name="help_main_menu__sight_marks_title">Sight marks</string>
     <string name="help_main_menu__sight_marks_body">Record and edit sight marks for each distance</string>
     <string name="help_main_menu__archer_info_title">Archer info</string>
-    <string name="help_main_menu__archer_info_body">Record and edit information about the current archer like handicap</string>
+    <string name="help_main_menu__archer_info_body">Edit information about the current archer such as bow style and handicap</string>
     <string name="help_main_menu__settings_title">Settings</string>
     <string name="help_main_menu__settings_body">View and update app settings</string>
     <string name="help_main_menu__about_title">App information</string>
