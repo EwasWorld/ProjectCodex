@@ -1,17 +1,22 @@
 package eywa.projectcodex.database
 
+import android.content.Context
 import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.BuildConfig
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
 import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.hiltModules.FakeData
 import eywa.projectcodex.hiltModules.FakeDataAnnotation
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
@@ -19,7 +24,11 @@ import kotlinx.coroutines.flow.first
 import java.util.*
 
 
-class FakeDataImpl : FakeData {
+class FakeDataImpl(
+        val context: Context,
+        val datastore: CodexDatastore,
+        val logging: CustomLogger,
+) : FakeData {
     override suspend fun addFakeData(db: ScoresRoomDatabase) {
         check(BuildConfig.DEBUG) { "Should not be used in release builds" }
 
@@ -28,6 +37,8 @@ class FakeDataImpl : FakeData {
             return
         }
         Log.i(ScoresRoomDatabase.LOG_TAG, "Adding fake data")
+
+        UpdateDefaultRoundsTask(db.roundsRepo(), context.resources, datastore, logging).runTask()
 
         ArcherHandicapsPreviewHelper.handicaps.forEach { db.archerHandicapDao().insert(it) }
         SightMarksPreviewHelper.sightMarks.forEach { db.sightMarkDao().insert(it) }
@@ -146,5 +157,9 @@ class FakeDataImpl : FakeData {
 class FakeDataModule {
     @FakeDataAnnotation
     @Provides
-    fun providesFakeData(): FakeData = FakeDataImpl()
+    fun providesFakeData(
+            @ApplicationContext context: Context,
+            datastore: CodexDatastore,
+            logging: CustomLogger,
+    ): FakeData = FakeDataImpl(context, datastore, logging)
 }

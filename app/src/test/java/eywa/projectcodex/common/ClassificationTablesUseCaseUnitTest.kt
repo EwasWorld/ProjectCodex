@@ -7,10 +7,12 @@ import eywa.projectcodex.common.utils.classificationTables.model.ClassificationA
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow.*
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationRound
+import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.testUtils.RawResourcesHelper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -131,29 +133,29 @@ class ClassificationTablesUseCaseUnitTest {
         )
     }
 
+    /**
+     * When no round is selected, ClassificationTablesScreen will show a rough handicap for each classification given
+     * the selected categories. The handicap is chosen from either the Gents 1440 or the Metric V. These two were
+     * selected as the Gents 1440 guarantees all classifications will be covered and the Metric V makes handicaps
+     * at the lower end more accurate (as the Gents 1440 has a lot of overlapping handicaps that round to the worst,
+     * giving an inaccurate guess that is worse than it should be).
+     *
+     * This test checks that the Gents 1440 and the Metric V are roughly correct for handicaps. There are a few
+     * [expectedFails] that are known to be slightly off and have been accepted as such
+     */
     @Test
-    fun testHandicapsAreSameAsYork() = runTest {
+    fun testHandicapsAreSameAs1440() = runTest {
         val rounds = RawResourcesHelper.getDefaultRounds().associateBy { it.round.defaultRoundId }
-        val york = rounds[1]!!
-
-        val fails = mutableListOf<FailingItem>()
+        val gents1440 = rounds[8]!!
 
         ClassificationBow.values().forEach { bow ->
             ClassificationAge.values().forEach { age ->
                 listOf(true, false).forEach { isGent ->
                     rounds.forEach { (_, round) ->
                         (round.roundSubTypes?.map { it.subTypeId } ?: listOf(1)).forEach loop@{ subTypeId ->
-                            // TODO Do you want to do anything about these fails?
-                            if (bow == LONGBOW) return@loop
-                            if (
-                                FailingItem(
-                                        isGent = true,
-                                        bowStyle = bow,
-                                        defaultRoundId = round.round.defaultRoundId!!,
-                                        subTypeId = subTypeId,
-                                        age = age,
-                                ) in expectedFails
-                            ) return@loop
+                            if (FailingItem(bow, round.round.defaultRoundId!!, subTypeId, age) in expectedFails) {
+                                return@loop
+                            }
 
                             val actualEntries =
                                     classificationTables.get(
@@ -162,60 +164,70 @@ class ClassificationTablesUseCaseUnitTest {
                                             bow = bow,
                                             fullRoundInfo = round,
                                             roundSubTypeId = subTypeId,
-                                    )!!
+                                    )!!.sortedByDescending { it.handicap }
+                            if (actualEntries.isEmpty()) return@loop
 
-                            val actualHandicaps = actualEntries.map { it.handicap }.sortedByDescending { it }
-                            val yorkHandicaps =
-                                    classificationTables.get(
+                            val expectedEntries =
+                                    classificationTables.getRoughHandicaps(
                                             isGent = isGent,
                                             age = age,
                                             bow = bow,
-                                            fullRoundInfo = york,
-                                            roundSubTypeId = 1,
-                                    )!!.map { it.handicap }.sortedByDescending { it }.take(actualEntries.size)
-                            val isEqual = actualHandicaps == yorkHandicaps
-                            if (!isEqual) {
-                                fails.add(
-                                        FailingItem(
-                                                isGent = isGent,
-                                                bowStyle = bow,
-                                                defaultRoundId = round.round.defaultRoundId!!,
-                                                subTypeId = subTypeId,
-                                                age = age,
-                                                offBy = actualHandicaps.sumOf { it ?: 0 } -
-                                                        yorkHandicaps.sumOf { it ?: 0 }
-                                        )
-                                )
+                                            wa1440RoundInfo = gents1440,
+                                    )!!.sortedByDescending { it.handicap }
+
+                            val actualHandicaps = actualEntries.map { it.handicap }
+
+                            actualEntries.forEachIndexed { index, it ->
+                                val actualHandicap = actualHandicaps[index]
+                                val expectedHandicap = expectedEntries
+                                        .find { entry -> entry.classification == it.classification }
+                                        ?.handicap
+
+                                if (expectedHandicap == actualHandicap) {
+                                    return@forEachIndexed
+                                }
+
+                                val expectedScore = expectedHandicap?.let {
+                                    Handicap.getScoreForRound(
+                                            round = round,
+                                            subType = subTypeId,
+                                            handicap = it.toDouble(),
+                                            innerTenArcher = bow == COMPOUND,
+                                            use2023Handicaps = true,
+                                    )
+                                }
+                                if (expectedScore == it.score) {
+                                    return@forEachIndexed
+                                }
+                                fail()
                             }
                         }
                     }
                 }
             }
         }
-
-        assertEquals(emptyList<FailingItem>(), fails)
     }
 
     private data class FailingItem(
-            val isGent: Boolean,
             val bowStyle: ClassificationBow,
             val defaultRoundId: Int,
             val subTypeId: Int,
             val age: ClassificationAge,
+            val isGent: Boolean = true,
             val offBy: Int = 0,
     )
 
     private val expectedFails = listOf(
             // Long National
-            FailingItem(isGent = true, bowStyle = RECURVE, defaultRoundId = 6, subTypeId = 2, age = U14),
+            FailingItem(bowStyle = RECURVE, defaultRoundId = 6, subTypeId = 2, age = U14),
             // New Warwick
-            FailingItem(isGent = true, bowStyle = RECURVE, defaultRoundId = 7, subTypeId = 1, age = U14),
-            FailingItem(isGent = true, bowStyle = RECURVE, defaultRoundId = 7, subTypeId = 1, age = U12),
-            FailingItem(isGent = true, bowStyle = BAREBOW, defaultRoundId = 7, subTypeId = 1, age = U12),
+            FailingItem(bowStyle = RECURVE, defaultRoundId = 7, subTypeId = 1, age = U14),
+            FailingItem(bowStyle = RECURVE, defaultRoundId = 7, subTypeId = 1, age = U12),
+            FailingItem(bowStyle = BAREBOW, defaultRoundId = 7, subTypeId = 1, age = U12),
             // New National
-            FailingItem(isGent = true, bowStyle = BAREBOW, defaultRoundId = 6, subTypeId = 1, age = U12),
+            FailingItem(bowStyle = BAREBOW, defaultRoundId = 6, subTypeId = 1, age = U12),
             // Long Warwick
-            FailingItem(isGent = true, bowStyle = BAREBOW, defaultRoundId = 7, subTypeId = 2, age = U14),
-            FailingItem(isGent = true, bowStyle = BAREBOW, defaultRoundId = 7, subTypeId = 2, age = U12),
+            FailingItem(bowStyle = BAREBOW, defaultRoundId = 7, subTypeId = 2, age = U14),
+            FailingItem(bowStyle = BAREBOW, defaultRoundId = 7, subTypeId = 2, age = U12),
     )
 }

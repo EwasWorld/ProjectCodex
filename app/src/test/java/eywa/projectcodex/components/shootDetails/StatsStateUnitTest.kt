@@ -1,14 +1,12 @@
 package eywa.projectcodex.components.shootDetails
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.completeRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.components.shootDetails.stats.DistanceExtra
 import eywa.projectcodex.components.shootDetails.stats.GrandTotalExtra
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsState
-import org.junit.Assert.assertEquals
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
 class StatsStateUnitTest {
@@ -16,10 +14,10 @@ class StatsStateUnitTest {
     fun testExtras() {
         val round = RoundPreviewHelper.outdoorImperialRoundData
         val detailsState = ShootDetailsState(
-                fullShootInfo = ShootPreviewHelper
-                        .newFullShootInfo()
-                        .addRound(round)
-                        .completeRound(7)
+                fullShootInfo = ShootPreviewHelperDsl.create {
+                    this.round = round
+                    completeRound(arrowScore = 7)
+                },
         )
         val state = StatsState(main = detailsState, extras = StatsExtras())
 

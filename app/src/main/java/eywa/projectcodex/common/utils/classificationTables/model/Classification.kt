@@ -15,6 +15,9 @@ enum class Classification(val rawName: String, val rawKey: Int, @StringRes val s
     ELITE_MASTER_BOWMAN("Elite Master Bowman", 9, R.string.classification_tables__elite_grand_master_bowman_short),
     ;
 
+    val isArcher
+        get() = ordinal < 3
+
     companion object {
         val backwardsMap = values().associateBy { it.rawKey }
     }

@@ -20,10 +20,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -36,6 +38,7 @@ import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexGrid
+import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
@@ -224,7 +227,7 @@ private fun Input(
 
 @Composable
 private fun Table(
-        entries: List<ClassificationTableEntry>,
+        entries: List<Pair<ClassificationTableEntry, Boolean>>,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onListItemAppOnBackground)) {
@@ -243,7 +246,8 @@ private fun Table(
                                 )
                         )
                         .horizontalScroll(rememberScrollState())
-                        .padding(20.dp)
+                        .padding(horizontal = 20.dp)
+                        .padding(top = 20.dp)
         ) {
             if (entries.isEmpty()) {
                 Text(
@@ -275,10 +279,10 @@ private fun Table(
                             )
                         }
                     }
-                    entries.forEach { entry ->
+                    entries.forEach { (entry, isActual) ->
                         listOf(
                                 resources.getString(entry.classification.shortStringId) to ClassificationTablesTestTag.TABLE_CLASSIFICATION,
-                                entry.score.toString() to ClassificationTablesTestTag.TABLE_SCORE,
+                                (entry.score?.toString() ?: "-") to ClassificationTablesTestTag.TABLE_SCORE,
                                 (entry.handicap?.toString() ?: "-") to ClassificationTablesTestTag.TABLE_HANDICAP,
                         ).forEach { (text, testTag) ->
                             item {
@@ -287,6 +291,7 @@ private fun Table(
                                         modifier = Modifier
                                                 .padding(3.dp)
                                                 .testTag(testTag.getTestTag())
+                                                .modifierIf(!isActual, Modifier.alpha(0.4f))
                                 )
                             }
                         }
@@ -294,6 +299,13 @@ private fun Table(
                 }
             }
         }
+        Text(
+                text = stringResource(R.string.classification_tables__disclaimer),
+                style = CodexTypography.SMALL,
+                color = CodexTheme.colors.onAppBackground,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier.padding(horizontal = 20.dp)
+        )
     }
 }
 
@@ -327,7 +339,7 @@ fun ClassificationTablesScreen_Preview() {
                             filters = SelectRoundEnabledFilters(),
                             allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                     ),
-                    scores = listOf(
+                    officialClassifications = listOf(
                             "1,Women,Recurve,Senior,York,211",
                             "2,Women,Recurve,Senior,York,309",
                             "3,Women,Recurve,Senior,York,432",
@@ -335,8 +347,17 @@ fun ClassificationTablesScreen_Preview() {
                             "5,Women,Recurve,Senior,York,726",
                             "6,Women,Recurve,Senior,York,868",
                             "7,Women,Recurve,Senior,York,989",
-                            "8,Women,Recurve,Senior,York,1086",
-                            "9,Women,Recurve,Senior,York,1162",
+                    ).mapNotNull { ClassificationTableEntry.fromString(it) },
+                    roughHandicaps = listOf(
+                            "1,Women,Recurve,Senior,WA 1440 (90m),337",
+                            "2,Women,Recurve,Senior,WA 1440 (90m),464",
+                            "3,Women,Recurve,Senior,WA 1440 (90m),609",
+                            "4,Women,Recurve,Senior,WA 1440 (90m),761",
+                            "5,Women,Recurve,Senior,WA 1440 (90m),907",
+                            "6,Women,Recurve,Senior,WA 1440 (90m),1033",
+                            "7,Women,Recurve,Senior,WA 1440 (90m),1137",
+                            "8,Women,Recurve,Senior,WA 1440 (90m),1086",
+                            "9,Women,Recurve,Senior,WA 1440 (90m),1162",
                     ).mapNotNull { ClassificationTableEntry.fromString(it) },
             )
     ) {}
@@ -351,7 +372,18 @@ fun Empty_ClassificationTablesScreen_Preview() {
                             filters = SelectRoundEnabledFilters(),
                             allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                     ),
-                    scores = emptyList(),
+                    officialClassifications = emptyList(),
+                    roughHandicaps = listOf(
+                            "1,Women,Recurve,Senior,WA 1440 (90m),337",
+                            "2,Women,Recurve,Senior,WA 1440 (90m),464",
+                            "3,Women,Recurve,Senior,WA 1440 (90m),609",
+                            "4,Women,Recurve,Senior,WA 1440 (90m),761",
+                            "5,Women,Recurve,Senior,WA 1440 (90m),907",
+                            "6,Women,Recurve,Senior,WA 1440 (90m),1033",
+                            "7,Women,Recurve,Senior,WA 1440 (90m),1137",
+                            "8,Women,Recurve,Senior,WA 1440 (90m),1219",
+                            "9,Women,Recurve,Senior,WA 1440 (90m),1283",
+                    ).mapNotNull { ClassificationTableEntry.fromString(it)?.copy(score = null, handicap = 55) },
             )
     ) {}
 }

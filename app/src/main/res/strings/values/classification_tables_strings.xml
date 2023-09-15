@@ -24,6 +24,8 @@
     <string name="classification_tables__grand_master_bowman_short">Grand MB</string>
     <string name="classification_tables__elite_grand_master_bowman_short">Elite GMB</string>
 
+    <string name="classification_tables__disclaimer">Note: certain classifications can only be achieved at longer distances. Greyed out classifications are approximations and are not officially recognised by Archery GB</string>
+
     <string name="help_classification_tables__categories_title">Gender</string>
     <string name="help_classification_tables__categories_body">Which Archery GB category to display classifications for</string>
     <string name="help_classification_tables__table_title">Classifications</string>

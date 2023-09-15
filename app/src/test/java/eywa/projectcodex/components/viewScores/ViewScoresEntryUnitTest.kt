@@ -102,7 +102,7 @@ class ViewScoresEntryUnitTest {
                         false,
                         TestData.ARROWS.size,
                         use2023Handicaps = true,
-                ).roundHandicap(),
+                )!!.roundHandicap(),
                 entry.handicap
         )
     }

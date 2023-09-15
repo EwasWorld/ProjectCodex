@@ -233,6 +233,7 @@ object RoundPreviewHelper {
                         displayName = "WA 25",
                         isOutdoor = false,
                         isMetric = true,
+                        defaultRoundId = 25,
                 ),
                 roundArrowCounts = listOf(
                         RoundArrowCount(
@@ -248,6 +249,104 @@ object RoundPreviewHelper {
                                 distanceNumber = 1,
                                 subTypeId = 1,
                                 distance = 25,
+                        ),
+                ),
+        )
+        val wa1440RoundData = FullRoundInfo(
+                round = Round(
+                        roundId = 6,
+                        name = "wa1440",
+                        displayName = "WA 1440",
+                        isOutdoor = true,
+                        isMetric = true,
+                        defaultRoundId = 8,
+                ),
+                roundSubTypes = listOf(
+                        RoundSubType(
+                                roundId = 6,
+                                subTypeId = 1,
+                                name = "Gents",
+                        ),
+                        RoundSubType(
+                                roundId = 6,
+                                subTypeId = 6,
+                                name = "Metric V",
+                        ),
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 6,
+                                distanceNumber = 1,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 36,
+                        ),
+                        RoundArrowCount(
+                                roundId = 6,
+                                distanceNumber = 2,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 36,
+                        ),
+                        RoundArrowCount(
+                                roundId = 6,
+                                distanceNumber = 3,
+                                faceSizeInCm = 80.0,
+                                arrowCount = 36,
+                        ),
+                        RoundArrowCount(
+                                roundId = 6,
+                                distanceNumber = 4,
+                                faceSizeInCm = 80.0,
+                                arrowCount = 36,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 90,
+                        ),
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 2,
+                                subTypeId = 1,
+                                distance = 70,
+                        ),
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 3,
+                                subTypeId = 1,
+                                distance = 50,
+                        ),
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 4,
+                                subTypeId = 1,
+                                distance = 30,
+                        ),
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 1,
+                                subTypeId = 6,
+                                distance = 30,
+                        ),
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 2,
+                                subTypeId = 6,
+                                distance = 20,
+                        ),
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 3,
+                                subTypeId = 6,
+                                distance = 15,
+                        ),
+                        RoundDistance(
+                                roundId = 6,
+                                distanceNumber = 4,
+                                subTypeId = 6,
+                                distance = 10,
                         ),
                 ),
         )

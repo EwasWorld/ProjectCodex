@@ -72,7 +72,7 @@ class HandicapUnitTest {
                                     null,
                                     faces = hcEntry.face?.let { listOf(it) },
                                     use2023Handicaps = use2023Handicaps,
-                            ).roundHandicap()
+                            )!!.roundHandicap()
                     )
                 }
                 previous = mapping
@@ -111,7 +111,7 @@ class HandicapUnitTest {
                                     null,
                                     faces = hcEntry.face?.let { listOf(it) },
                                     use2023Handicaps = use2023Handicaps,
-                            ),
+                            )!!,
                     )
                 }
                 previous = mapping

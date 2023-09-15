@@ -36,11 +36,34 @@ data class ClassificationTablesUseCase(
                     handicap = Handicap.getHandicapForRound(
                             round = fullRoundInfo,
                             subType = roundSubTypeId,
-                            score = it.score,
+                            score = it.score!!,
                             innerTenArcher = bow == ClassificationBow.COMPOUND,
                             use2023Handicaps = use2023Handicaps,
                     )?.roundHandicap()
             )
         }.sortedBy { it.classification.ordinal }
+    }
+
+    fun getRoughHandicaps(
+            isGent: Boolean,
+            age: ClassificationAge,
+            bow: ClassificationBow,
+            wa1440RoundInfo: FullRoundInfo,
+            use2023Handicaps: Boolean = true,
+    ): List<ClassificationTableEntry>? {
+        check(wa1440RoundInfo.round.defaultRoundId == 8) { "Incorrect round added" }
+        val gents1440 = get(isGent, age, bow, wa1440RoundInfo, 1, use2023Handicaps)?.toMutableList()
+                ?: return null
+        val metricV = get(isGent, age, bow, wa1440RoundInfo, 6, use2023Handicaps)
+
+        if (bow == ClassificationBow.LONGBOW) {
+            gents1440.filter { it.classification.isArcher && it.handicap!! > 100 }.forEach { entry ->
+                val new = metricV?.find { it.classification == entry.classification } ?: return@forEach
+                gents1440.remove(entry)
+                gents1440.add(new)
+            }
+        }
+
+        return gents1440
     }
 }

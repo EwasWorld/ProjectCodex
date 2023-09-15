@@ -11,7 +11,7 @@ data class ClassificationTableEntry(
         val bowStyle: ClassificationBow,
         val rounds: List<ClassificationRound.DbRoundRef>,
         val age: ClassificationAge,
-        val score: Int,
+        val score: Int?,
         val handicap: Int? = null,
 ) {
     companion object {

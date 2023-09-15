@@ -49,7 +49,7 @@ class ShootDetailsRepoUnitTest {
     )
 
     private fun createShootInfo(id: Int) = DatabaseFullShootInfo(
-            shoot = DatabaseShoot(id, Calendar.getInstance(), 1),
+            shoot = DatabaseShoot(id, Calendar.getInstance()),
             arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
     )
 
@@ -71,7 +71,6 @@ class ShootDetailsRepoUnitTest {
 
     @Test
     fun testConnectAndGetState() = runTest {
-        @Suppress("UNCHECKED_CAST")
         val loadingState = ShootDetailsResponse.Loading as ShootDetailsResponse<SimpleState>
         val shootInfo = createShootInfo(1)
         val shootInfo2 = createShootInfo(2)
