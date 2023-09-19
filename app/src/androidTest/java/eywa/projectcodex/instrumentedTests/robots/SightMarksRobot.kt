@@ -12,6 +12,7 @@ import eywa.projectcodex.components.sightMarks.SightMarksTestTag.SCREEN
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.SHIFT_AND_SCALE_MENU_BUTTON
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.SIGHT_MARK_TEXT
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.model.SightMark
@@ -73,8 +74,18 @@ class SightMarksRobot(
     }
 
     fun checkDiagramTickLabelRange(topTick: String, bottomTick: String) {
-        checkElementText(DIAGRAM_TICK_LABEL, 0, topTick, useUnmergedTree = true)
-        checkLastElementText(DIAGRAM_TICK_LABEL, bottomTick, useUnmergedTree = true)
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL))
+            +CodexNodeGroupToOne.First
+            +CodexNodeInteraction.AssertTextEquals(topTick)
+        }
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL))
+            +CodexNodeGroupToOne.Last
+            +CodexNodeInteraction.AssertTextEquals(bottomTick)
+        }
     }
 
     fun flipDiagram() {

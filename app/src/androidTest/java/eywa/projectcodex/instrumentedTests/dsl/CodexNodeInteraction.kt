@@ -63,15 +63,10 @@ sealed class CodexNodeInteraction {
         }
     }
 
-    object AssertIsSelected : CodexNodeInteraction() {
+    data class AssertIsSelected(val value: Boolean) : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
-            node.assertIsSelected()
-        }
-    }
-
-    object AssertIsNotSelected : CodexNodeInteraction() {
-        override fun performInternal(node: SemanticsNodeInteraction) {
-            node.assertIsNotSelected()
+            if (value) node.assertIsSelected()
+            else node.assertIsNotSelected()
         }
     }
 

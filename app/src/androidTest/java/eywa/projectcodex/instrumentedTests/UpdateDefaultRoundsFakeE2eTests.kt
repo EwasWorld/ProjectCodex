@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class UpdateDefaultRoundsFakeE2eTests {
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(60)
+    val testTimeout: Timeout = Timeout.seconds(20)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)

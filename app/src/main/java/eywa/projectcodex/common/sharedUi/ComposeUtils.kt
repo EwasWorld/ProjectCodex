@@ -10,8 +10,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
 object ComposeUtils {
-    fun Modifier.modifierIf(predicate: Boolean, modifier: () -> Modifier) =
-            if (predicate) this.then(modifier()) else this
+    fun <K : Any> Modifier.modifierIfNotNull(value: K?, modifier: (K) -> Modifier) =
+            if (value != null) this.then(modifier(value)) else this
 
     fun Modifier.modifierIf(predicate: Boolean, modifier: Modifier) = if (predicate) this.then(modifier) else this
 

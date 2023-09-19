@@ -24,6 +24,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 
 @Composable
@@ -44,7 +45,7 @@ fun AboutScreen(
                 modifier = Modifier
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground)
-                        .testTag(AboutScreenTestTag.SCREEN)
+                        .testTag(AboutScreenTestTag.SCREEN.getTestTag())
         ) {
             Spacer(modifier = Modifier.weight(1f))
             Text(
@@ -76,18 +77,22 @@ fun AboutScreen(
                                 state.asDisplayString(LocalContext.current.resources),
                         ),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.testTag(AboutScreenTestTag.UPDATE_TASK_STATUS)
+                        modifier = Modifier.testTag(AboutScreenTestTag.UPDATE_TASK_STATUS.getTestTag())
                 )
             }
         }
     }
 }
 
-object AboutScreenTestTag {
-    private const val PREFIX = "ABOUT_"
+enum class AboutScreenTestTag : CodexTestTag {
+    SCREEN,
+    UPDATE_TASK_STATUS,
+    ;
 
-    const val SCREEN = "${PREFIX}_SCREEN"
-    const val UPDATE_TASK_STATUS = "${PREFIX}_UPDATE_TASK_STATUS"
+    override val screenName: String
+        get() = "ABOUT"
+
+    override fun getElement(): String = name
 }
 
 @Preview(

@@ -5,7 +5,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.UpdateCoordinates
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
+import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIfNotNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -13,16 +13,11 @@ import kotlinx.coroutines.flow.update
 import kotlin.reflect.KClass
 
 fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
-        modifierIf(helpState != null) {
+        modifierIfNotNull(helpState) { state ->
             // Null pointer causing a crash, not sure how when modifierIf mean this is skipped when null
-            if (helpState != null) {
-                helpState.add()
-                onGloballyPositioned {
-                    helpState.helpListener(UpdateCoordinates(helpState.helpShowcaseItem.helpTitle, it))
-                }
-            }
-            else {
-                Modifier
+            state.add()
+            onGloballyPositioned {
+                state.helpListener(UpdateCoordinates(state.helpShowcaseItem.helpTitle, it))
             }
         }
 

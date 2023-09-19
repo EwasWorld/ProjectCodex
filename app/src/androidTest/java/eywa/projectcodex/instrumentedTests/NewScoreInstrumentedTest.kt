@@ -49,7 +49,7 @@ class NewScoreInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(1060)
+    val testTimeout: Timeout = Timeout.seconds(30)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)

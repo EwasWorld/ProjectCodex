@@ -38,6 +38,7 @@ fun CodexLabelledNumberField(
         placeholder: String,
         modifier: Modifier = Modifier,
         errorMessage: DisplayableError? = null,
+        selectAllOnFocus: Boolean = true,
         helpState: HelpState? = null,
         onValueChanged: (String?) -> Unit,
 ) {
@@ -51,6 +52,7 @@ fun CodexLabelledNumberField(
                 contentDescription = title,
                 currentValue = currentValue,
                 errorMessage = errorMessage,
+                selectAllOnFocus = selectAllOnFocus,
                 testTag = testTag,
                 placeholder = placeholder,
                 onValueChanged = onValueChanged,
@@ -67,6 +69,7 @@ fun CodexNumberField(
         placeholder: String,
         modifier: Modifier = Modifier,
         errorMessage: DisplayableError? = null,
+        selectAllOnFocus: Boolean = true,
         onValueChanged: (String?) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -82,7 +85,7 @@ fun CodexNumberField(
                 state = CodexTextFieldState(
                         text = displayValue,
                         onValueChange = { onValueChanged(it) },
-                        testTag = "",
+                        testTag = null,
                 ),
                 isError = error != null,
                 placeholderText = placeholder,
@@ -97,6 +100,7 @@ fun CodexNumberField(
                 keyboardActions = KeyboardActions(
                         onDone = { keyboardController?.hide() },
                 ),
+                selectAllOnFocus = selectAllOnFocus,
                 modifier = Modifier
                         .testTag(testTag.getTestTag())
                         .widthIn(min = 40.dp)

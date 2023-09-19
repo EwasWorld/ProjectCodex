@@ -35,6 +35,9 @@ class LocalDatabaseModule {
                                 override fun onOpen(db: SupportSQLiteDatabase) {
                                     super.onOpen(db)
                                     CoroutineScope(Dispatchers.IO).launch {
+                                        @Suppress("ControlFlowWithEmptyBody")
+                                        while (scoresRoomDatabase == null) {
+                                        }
                                         scoresRoomDatabase!!.insertDefaults()
                                         addFakeData()
                                     }

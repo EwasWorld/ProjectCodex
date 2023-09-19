@@ -2,19 +2,7 @@ package eywa.projectcodex.instrumentedTests.robots
 
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertAll
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onLast
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
 import eywa.projectcodex.common.ComposeTestRule
@@ -23,6 +11,7 @@ import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
@@ -36,14 +25,9 @@ annotation class RobotDslMarker
 @TestActionDslMarker
 abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
-        private val screenTestTag: String,
+        private val screenTestTag: CodexTestTag,
         private val screenStack: Stack<BaseRobot> = Stack(),
 ) {
-    constructor(
-            composeTestRule: ComposeTestRule<MainActivity>,
-            screenTestTag: CodexTestTag,
-    ) : this(composeTestRule, screenTestTag.getTestTag())
-
     constructor(
             composeTestRule: ComposeTestRule<MainActivity>,
             screenTestTag: CodexTestTag,
@@ -51,7 +35,7 @@ abstract class BaseRobot(
             addScreenToStack: Boolean = true,
     ) : this(
             composeTestRule,
-            screenTestTag.getTestTag(),
+            screenTestTag,
             previousScreen.screenStack.apply { if (addScreenToStack) push(previousScreen) else pop() },
     )
 
@@ -66,7 +50,10 @@ abstract class BaseRobot(
      * Checks that the node with the tag [screenTestTag] is shown,
      */
     fun checkScreenIsShown(): Boolean {
-        CustomConditionWaiter.waitForComposeCondition { checkElementIsDisplayed(screenTestTag) }
+        perform {
+            +CodexNodeMatcher.HasTestTag(this@BaseRobot.screenTestTag)
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+        }
         return true
     }
 
@@ -79,104 +66,88 @@ abstract class BaseRobot(
             text: String? = null,
             index: Int? = null,
             useUnmergedTree: Boolean = false
-    ) =
-            clickElement(testTag.getTestTag(), text, index, useUnmergedTree)
+    ) {
+        perform {
+            val matchers = listOfNotNull(
+                    CodexNodeMatcher.HasTestTag(testTag),
+                    text?.let { CodexNodeMatcher.HasText(text) },
+            )
 
-    fun clickElement(testTag: String, text: String? = null, index: Int? = null, useUnmergedTree: Boolean = false) {
-        var matcher = hasTestTag(testTag)
-        if (text != null) {
-            matcher = matcher.and(hasText(text))
-        }
+            if (index != null) {
+                allNodes(*matchers.toTypedArray())
+                +CodexNodeGroupToOne.Index(index)
+            }
+            else {
+                matchers.forEach { +it }
+            }
+            this.useUnmergedTree = useUnmergedTree
 
-        val node = if (index != null) {
-            composeTestRule.onAllNodes(matcher, useUnmergedTree)[index]
+            +CodexNodeInteraction.PerformClick
         }
-        else {
-            composeTestRule.onNode(matcher, useUnmergedTree)
-        }
-
-        node.performClick()
     }
 
-    fun checkElementText(testTag: CodexTestTag, text: String, index: Int? = null, useUnmergedTree: Boolean = false) =
-            checkElementText(testTag.getTestTag(), text, index, useUnmergedTree)
 
-    fun checkElementText(testTag: String, text: String, index: Int? = null, useUnmergedTree: Boolean = false) {
-        val node = if (index != null) {
-            composeTestRule.onAllNodesWithTag(testTag, useUnmergedTree)[index]
+    fun checkElementText(testTag: CodexTestTag, text: String, index: Int? = null, useUnmergedTree: Boolean = false) {
+        perform {
+            val matcher = CodexNodeMatcher.HasTestTag(testTag)
+
+            if (index != null) {
+                allNodes(matcher)
+                +CodexNodeGroupToOne.Index(index)
+            }
+            else {
+                +matcher
+            }
+            this.useUnmergedTree = useUnmergedTree
+
+            +CodexNodeInteraction.AssertTextEquals(text)
         }
-        else {
-            composeTestRule.onNodeWithTag(testTag, useUnmergedTree)
-        }
-
-        node.assertTextEquals(text)
     }
-
-    fun checkElementText(testTag: CodexTestTag, index: Int, text: String, useUnmergedTree: Boolean = false) {
-        composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree)[index].assertTextEquals(text)
-    }
-
-    fun checkLastElementText(testTag: CodexTestTag, text: String, useUnmergedTree: Boolean = false) {
-        composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).onLast().assertTextEquals(text)
-    }
-
-    fun checkElementIsDisplayed(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) =
-            checkElementIsDisplayed(testTag.getTestTag(), text, useUnmergedTree)
 
     fun checkAllElements(testTag: CodexTestTag, check: SemanticsMatcher, useUnmergedTree: Boolean = false) =
             composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).assertAll(check)
 
 
-    fun checkElementIsDisplayed(testTag: String, text: String? = null, useUnmergedTree: Boolean = false) {
-        var matcher = hasTestTag(testTag)
-        if (text != null) {
-            matcher = matcher.and(hasText(text))
+    fun checkElementIsDisplayed(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) {
+        perform {
+            this.useUnmergedTree = useUnmergedTree
+            +CodexNodeMatcher.HasTestTag(testTag)
+            if (text != null) {
+                +CodexNodeMatcher.HasText(text)
+            }
+            +CodexNodeInteraction.AssertIsDisplayed
         }
-        composeTestRule.onNode(matcher, useUnmergedTree).assertIsDisplayed()
     }
 
-    fun checkAtLeastOneElementIsDisplayed(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
-        composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).onFirst().assertIsDisplayed()
-    }
-
-    fun checkAtLeastOneElementIsDisplayed(testTag: String, useUnmergedTree: Boolean = false) {
-        composeTestRule.onAllNodesWithTag(testTag, useUnmergedTree).onFirst().assertIsDisplayed()
-    }
-
-    fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) =
-            checkElementDoesNotExist(testTag.getTestTag(), useUnmergedTree)
-
-    private fun checkElementDoesNotExist(testTag: String, useUnmergedTree: Boolean = false) {
-        composeTestRule.onNodeWithTag(testTag, useUnmergedTree).assertDoesNotExist()
-    }
-
-    fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean, useUnmergedTree: Boolean = false) =
-            checkCheckboxState(testTag.getTestTag(), isChecked, useUnmergedTree)
-
-    fun checkCheckboxState(testTag: String, isChecked: Boolean, useUnmergedTree: Boolean = false) {
-        val node = composeTestRule.onNodeWithTag(testTag, useUnmergedTree)
-        if (isChecked) node.assertIsSelected() else node.assertIsNotSelected()
-    }
-
-    fun setText(testTag: CodexTestTag, text: String) = setText(testTag.getTestTag(), text)
-
-    fun setText(testTag: String, text: String, append: Boolean = false) {
-        if (!append) {
-            composeTestRule.onNodeWithTag(testTag).performTextClearance()
+    fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
+        perform {
+            this.useUnmergedTree = useUnmergedTree
+            +CodexNodeMatcher.HasTestTag(testTag)
+            +CodexNodeInteraction.AssertDoesNotExist
         }
-        composeTestRule.onNodeWithTag(testTag).performTextInput(text)
     }
 
-    fun setChip(testTag: CodexTestTag, value: Boolean) {
-        var actual = false
-        try {
-            checkCheckboxState(testTag, false, useUnmergedTree = true)
+    fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean, useUnmergedTree: Boolean = false) {
+        perform {
+            this.useUnmergedTree = useUnmergedTree
+            +CodexNodeMatcher.HasTestTag(testTag)
+            +CodexNodeInteraction.AssertIsSelected(isChecked)
         }
-        catch (e: AssertionError) {
-            actual = true
+    }
+
+    fun setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
+        perform {
+            +CodexNodeMatcher.HasTestTag(testTag)
+            +CodexNodeInteraction.SetText(text, append)
         }
-        if (actual != value) {
-            clickElement(testTag, useUnmergedTree = true)
+    }
+
+    fun setChip(testTag: CodexTestTag, value: Boolean, currentValue: Boolean) {
+        if (value == currentValue) return
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(testTag)
+            +CodexNodeInteraction.PerformClick
         }
     }
 
@@ -199,15 +170,21 @@ abstract class BaseRobot(
         }
     }
 
-    fun clickHomeIcon(): MainMenuRobot {
-        clickElement(MainActivity.MainActivityTestTag.HOME_ICON)
-        return MainMenuRobot(composeTestRule)
+    fun clickHomeIcon() {
+        perform {
+            +CodexNodeMatcher.HasTestTag(MainActivity.MainActivityTestTag.HOME_ICON)
+            +CodexNodeInteraction.PerformClick
+        }
     }
 
     fun clickHelpIcon() {
-        clickElement(MainActivity.MainActivityTestTag.HELP_ICON)
-        CustomConditionWaiter.waitForComposeCondition("Waiting for help to appear") {
-            checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        perform {
+            +CodexNodeMatcher.HasTestTag(MainActivity.MainActivityTestTag.HELP_ICON)
+            +CodexNodeInteraction.PerformClick
+        }
+        perform {
+            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
         }
     }
 
@@ -226,24 +203,31 @@ abstract class BaseRobot(
     }
 
     fun clickHelpShowcaseNext() {
-        clickElement(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
+        perform {
+            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
+            +CodexNodeInteraction.PerformClick
+        }
 
         CustomConditionWaiter.waitFor(400)
-        CustomConditionWaiter.waitForComposeCondition("Waiting for help to appear") {
-            checkElementIsDisplayed(ComposeHelpShowcaseTestTag.TITLE)
-        }
+        checkHelpShowcaseIsDisplayed()
     }
 
     fun clickHelpShowcaseClose() {
-        clickElement(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-
-        CustomConditionWaiter.waitForComposeCondition("Waiting for help to disappear") {
-            checkElementDoesNotExist(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        perform {
+            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+            +CodexNodeInteraction.PerformClick
+        }
+        perform {
+            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+            +CodexNodeInteraction.AssertDoesNotExist.waitFor()
         }
     }
 
     fun checkHelpShowcaseIsDisplayed() {
-        checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        perform {
+            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+            +CodexNodeInteraction.AssertIsDisplayed
+        }
     }
 
     protected fun <R : BaseRobot> popRobot(): R = screenStack.pop().apply { checkScreenIsShown() } as R

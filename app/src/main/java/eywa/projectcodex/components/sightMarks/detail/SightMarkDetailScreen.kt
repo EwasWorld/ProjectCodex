@@ -183,6 +183,7 @@ fun SightMarkDetail(
                         currentValue = state.sightMark,
                         errorMessage = state.sightMarkValidatorError,
                         placeholder = "2.3",
+                        selectAllOnFocus = false,
                         testTag = SIGHT,
                         onValueChanged = { listener(SightMarkUpdated(it ?: "")) },
                         helpState = HelpState(
@@ -209,6 +210,7 @@ fun SightMarkDetail(
                             currentValue = state.distance,
                             errorMessage = state.distanceValidatorError,
                             placeholder = "50",
+                            selectAllOnFocus = false,
                             testTag = DISTANCE,
                             onValueChanged = { listener(DistanceUpdated(it ?: "")) },
                             helpState = HelpState(
@@ -286,7 +288,7 @@ fun SightMarkDetail(
                 CodexChip(
                         text = stringResource(R.string.sight_marks__marked),
                         selected = state.isMarked,
-                        testTag = MARKED.getTestTag(),
+                        testTag = MARKED,
                         onToggle = { listener(ToggleIsMarked) },
                         helpState = HelpState(
                                 helpListener,
@@ -297,7 +299,7 @@ fun SightMarkDetail(
                 CodexChip(
                         text = stringResource(R.string.sight_marks__archived),
                         selected = state.isArchived,
-                        testTag = ARCHIVED.getTestTag(),
+                        testTag = ARCHIVED,
                         onToggle = { listener(ToggleIsArchived) },
                         helpState = HelpState(
                                 helpListener,
@@ -311,7 +313,7 @@ fun SightMarkDetail(
                         state = CodexTextFieldState(
                                 text = state.note ?: "",
                                 onValueChange = { listener(NoteUpdated(it)) },
-                                testTag = NOTE.getTestTag(),
+                                testTag = NOTE,
                         ),
                         placeholderText = stringResource(R.string.sight_marks__note_placeholder),
                         labelText = stringResource(R.string.sight_marks__note),

@@ -5,6 +5,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import com.azimolabs.conditionwatcher.ConditionWatcher
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
@@ -54,7 +55,7 @@ import kotlin.reflect.jvm.jvmName
  * These tests span more than one screen and require an [ActivityScenario]
  */
 @HiltAndroidTest
-class LargeScaleInstrumentedTest {
+class ZLargeScaleInstrumentedTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -79,12 +80,14 @@ class LargeScaleInstrumentedTest {
         scenario.onActivity {
             db = LocalDatabaseModule.scoresRoomDatabase!!
         }
+
+        ConditionWatcher.setTimeoutLimit(20_000)
     }
 
     @After
     fun afterEach() {
         CommonSetupTeardownFns.teardownScenario(composeTestRule.activityRule)
-//        ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
+        ConditionWatcher.setTimeoutLimit(ConditionWatcher.DEFAULT_TIMEOUT_LIMIT)
     }
 
     private fun addSimpleTestDataToDb() {

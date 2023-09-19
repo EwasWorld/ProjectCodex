@@ -73,7 +73,7 @@ class SelectRoundRobot(
                 +CodexNodeMatcher.HasTestTag(FILTER)
                 +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it.label))
                 scrollToParentIndex = it.index
-                +CodexNodeInteraction.AssertIsNotSelected
+                +CodexNodeInteraction.AssertIsSelected(false)
             }
         }
     }
@@ -90,7 +90,7 @@ class SelectRoundRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(FILTER)
             +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
-            +(if (isNowOn) CodexNodeInteraction.AssertIsSelected else CodexNodeInteraction.AssertIsNotSelected).waitFor()
+            +CodexNodeInteraction.AssertIsSelected(isNowOn).waitFor()
         }
     }
 

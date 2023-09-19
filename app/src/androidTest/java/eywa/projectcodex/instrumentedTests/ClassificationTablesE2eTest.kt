@@ -57,7 +57,7 @@ class ClassificationTablesE2eTest {
     }
 
     @Test
-    fun testHandicaps() {
+    fun testClassifications() {
         setup()
 
         composeTestRule.mainMenuRobot {

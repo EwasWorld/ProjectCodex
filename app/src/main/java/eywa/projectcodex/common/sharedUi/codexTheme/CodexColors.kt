@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
@@ -184,10 +185,15 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
             ) {
-                CodexChip(text = "Chip 1", selected = true, testTag = "") {}
-                CodexChip(text = "Chip 2", selected = false, testTag = "") {}
-                CodexChip(text = "Chip 3", selected = true, enabled = false, testTag = "") {}
-                CodexChip(text = "Chip 4", selected = false, enabled = false, testTag = "") {}
+                val testTag = object : CodexTestTag {
+                    override val screenName: String = ""
+                    override fun getElement(): String = ""
+                }
+
+                CodexChip(text = "Chip 1", selected = true, testTag = testTag) {}
+                CodexChip(text = "Chip 2", selected = false, testTag = testTag) {}
+                CodexChip(text = "Chip 3", selected = true, enabled = false, testTag = testTag) {}
+                CodexChip(text = "Chip 4", selected = false, enabled = false, testTag = testTag) {}
             }
 
             Box {

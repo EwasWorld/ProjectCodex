@@ -5,7 +5,13 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -31,7 +37,17 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CODEX_CHIP_SPACING
+import eywa.projectcodex.common.sharedUi.CodexChip
+import eywa.projectcodex.common.sharedUi.CodexFloatingActionButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
+import eywa.projectcodex.common.sharedUi.CodexNewChipState
+import eywa.projectcodex.common.sharedUi.CodexTextField
+import eywa.projectcodex.common.sharedUi.CodexTextFieldRoundedSurface
+import eywa.projectcodex.common.sharedUi.CodexTextFieldState
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -39,7 +55,15 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
+import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.DismissNoEntriesError
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.HelpShowcaseAction
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.IntentHandledSuccessfully
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.NavigateUpHandled
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.OpenError
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.SubmitClicked
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.UpdateBoolean
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.UpdateText
 import eywa.projectcodex.model.Arrow
 
 
@@ -101,7 +125,7 @@ fun EmailScoresScreen(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
                     .fillMaxSize()
-                    .testTag(EmailScoresTestTag.SCREEN)
+                    .testTag(EmailScoresTestTag.Screen.getTestTag())
     ) {
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -127,7 +151,7 @@ private fun EmailScoresTextField.asTextFieldState(
 ) = CodexTextFieldState(
         text = state.getText(this, default?.let { stringResource(it) } ?: ""),
         onValueChange = { listener(UpdateText(it, this)) },
-        testTag = EmailScoresTestTag.forTextField(this),
+        testTag = EmailScoresTestTag.TextField(this),
 )
 
 @Composable
@@ -181,7 +205,7 @@ private fun Attachments(
     fun EmailScoresCheckbox.asState(enabled: Boolean = true) = CodexNewChipState(
             selected = state.isChecked(this),
             enabled = enabled,
-            testTag = EmailScoresTestTag.forCheckbox(this),
+            testTag = EmailScoresTestTag.Checkbox(this),
     )
 
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
@@ -263,7 +287,7 @@ private fun MessageBody(
                         modifier = Modifier
                                 .padding(15.dp)
                                 .fillMaxWidth()
-                                .testTag(EmailScoresTestTag.SCORE_TEXT)
+                                .testTag(EmailScoresTestTag.ScoreText.getTestTag())
                 )
             }
             CodexTextField(
@@ -308,19 +332,27 @@ private fun SendButton(
             modifier = Modifier
                     .padding(15.dp)
                     .updateHelpDialogPosition(sendHelpState)
-                    .testTag(EmailScoresTestTag.SEND_BUTTON)
+                    .testTag(EmailScoresTestTag.SendButton.getTestTag())
     )
 }
 
-object EmailScoresTestTag {
-    private const val PREFIX = "EMAIL_SCORE_"
+sealed class EmailScoresTestTag : CodexTestTag {
+    object Screen : EmailScoresTestTag()
+    object ScoreText : EmailScoresTestTag()
+    object SendButton : EmailScoresTestTag()
 
-    const val SCREEN = "${PREFIX}SCREEN"
-    const val SCORE_TEXT = "${PREFIX}SCORE_TEXT"
-    const val SEND_BUTTON = "${PREFIX}SEND_BUTTON"
+    class TextField(private val field: EmailScoresTextField) : EmailScoresTestTag() {
+        override fun getElement(): String = "TEXT_FIELD_$field"
+    }
 
-    fun forTextField(field: EmailScoresTextField) = "${PREFIX}TEXT_FIELD_" + field.toString()
-    fun forCheckbox(field: EmailScoresCheckbox) = "${PREFIX}CHECK_BOX_" + field.toString()
+    class Checkbox(private val field: EmailScoresCheckbox) : EmailScoresTestTag() {
+        override fun getElement(): String = "CHECK_BOX_$field"
+    }
+
+    override val screenName: String
+        get() = "EMAIL_SCORE"
+
+    override fun getElement(): String = javaClass.simpleName
 }
 
 @Preview(

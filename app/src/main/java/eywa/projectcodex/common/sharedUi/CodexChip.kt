@@ -30,6 +30,7 @@ import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 
 val CODEX_CHIP_SPACING = 10.dp
 
@@ -62,7 +63,7 @@ fun CodexChip(
 fun CodexChip(
         text: String,
         selected: Boolean,
-        testTag: String,
+        testTag: CodexTestTag,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
         colours: ChipColours = ChipColours.Defaults.onPrimary(),
@@ -104,7 +105,7 @@ fun CodexChip(
                 modifier = clickModifier
                         .height(32.dp)
                         .padding(start = 8.dp, end = 16.dp)
-                        .testTag(testTag)
+                        .testTag(testTag.getTestTag())
         ) {
             if (selected) {
                 Icon(
@@ -153,18 +154,10 @@ data class ChipColours(
     }
 }
 
-@Deprecated("Removed onToggle", ReplaceWith("CodexNewChipState"))
-data class CodexChipState(
-        val selected: Boolean,
-        val enabled: Boolean = true,
-        val onToggle: () -> Unit,
-        val testTag: String,
-)
-
 data class CodexNewChipState(
         val selected: Boolean,
         val enabled: Boolean = true,
-        val testTag: String,
+        val testTag: CodexTestTag,
 )
 
 @Preview
@@ -172,6 +165,11 @@ data class CodexNewChipState(
 fun CodexChip_Preview(
         @PreviewParameter(CodexChipPreviewParamProvider::class) params: CodexChipPreviewParams,
 ) {
+    val testTag = object : CodexTestTag {
+        override val screenName: String = ""
+        override fun getElement(): String = ""
+    }
+
     CodexTheme {
         val colours = params.chipColours()
         Column(
@@ -185,11 +183,11 @@ fun CodexChip_Preview(
             ) {
                 CodexChip(
                         text = "First chip", selected = true, enabled = true,
-                        onToggle = {}, testTag = "", colours = colours,
+                        onToggle = {}, testTag = testTag, colours = colours,
                 )
                 CodexChip(
                         text = "Chip 2", selected = false, enabled = true,
-                        onToggle = {}, testTag = "", colours = colours,
+                        onToggle = {}, testTag = testTag, colours = colours,
                 )
             }
             Row(
@@ -197,11 +195,11 @@ fun CodexChip_Preview(
             ) {
                 CodexChip(
                         text = "Chip 3", selected = true, enabled = false,
-                        onToggle = {}, testTag = "", colours = colours,
+                        onToggle = {}, testTag = testTag, colours = colours,
                 )
                 CodexChip(
                         text = "Another chip", selected = false, enabled = false,
-                        onToggle = {}, testTag = "", colours = colours,
+                        onToggle = {}, testTag = testTag, colours = colours,
                 )
             }
         }

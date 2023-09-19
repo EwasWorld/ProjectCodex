@@ -48,7 +48,7 @@ class ShootDetailsStatsInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(60)
+    val testTimeout: Timeout = Timeout.seconds(10)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)

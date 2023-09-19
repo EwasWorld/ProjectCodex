@@ -9,6 +9,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -97,7 +99,14 @@ class MainActivity : ComponentActivity() {
                 WindowCompat.getInsetsController(window, LocalView.current).isAppearanceLightNavigationBars = true
 
                 Box(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                                .fillMaxSize()
+                                .pointerInput(Unit) {
+                                    awaitEachGesture {
+                                        awaitPointerEvent()
+                                        viewModel.handle(MainActivityIntent.PressDetected)
+                                    }
+                                }
                 ) {
                     Scaffold(
                             backgroundColor = CodexTheme.colors.appBackground,

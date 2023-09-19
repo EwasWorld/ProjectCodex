@@ -225,7 +225,7 @@ fun SelectRoundDialog(
                                     text = stringResource(filter.chipText),
                                     state = CodexNewChipState(
                                             selected = enabledFilters.contains(filter),
-                                            testTag = SelectRoundDialogTestTag.FILTER.getTestTag()
+                                            testTag = SelectRoundDialogTestTag.FILTER
                                     ),
                                     colours = ChipColours.Defaults.onDialog(),
                             ) { listener(FilterClicked(filter)) }

@@ -23,6 +23,9 @@ import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
 
@@ -30,8 +33,11 @@ class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, ViewScoresTestTag.SCREEN) {
     fun waitForLoad() {
-        CustomConditionWaiter.waitForComposeCondition {
-            checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.LIST_ITEM, true)
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
+            +CodexNodeGroupToOne.First
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
         }
     }
 
@@ -73,8 +79,12 @@ class ViewScoresRobot(
 
     fun longClickRow(rowIndex: Int) {
         performOnRowItem(rowIndex) { performTouchInput { longClick() } }
-        CustomConditionWaiter.waitForComposeCondition {
-            checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM, useUnmergedTree = true)
+
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM))
+            +CodexNodeGroupToOne.First
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
         }
     }
 
@@ -110,7 +120,12 @@ class ViewScoresRobot(
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {
         // Check at least one menu item is showing
-        checkAtLeastOneElementIsDisplayed(ViewScoresTestTag.DROPDOWN_MENU_ITEM, useUnmergedTree = true)
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM))
+            +CodexNodeGroupToOne.First
+            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+        }
         // Check that the intended menu item is not showing
         composeTestRule
                 .onNode(
