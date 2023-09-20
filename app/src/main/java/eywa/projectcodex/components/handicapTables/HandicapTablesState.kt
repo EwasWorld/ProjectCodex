@@ -48,13 +48,13 @@ enum class InputType(
         val validators: (use2023System: Boolean) -> List<NumberValidator<in Int>>,
 ) {
     HANDICAP(
-            R.string.handicap_tables__handicap_field,
+            R.string.handicap_tables__handicap_input_header,
             R.string.help_handicap_tables__input_type_body_handicap,
             R.string.help_handicap_tables__input_body_handicap,
             { listOf(NumberValidator.InRange(Handicap.MIN_HANDICAP..Handicap.maxHandicap(it))) },
     ),
     SCORE(
-            R.string.handicap_tables__score_field,
+            R.string.handicap_tables__score_input_header,
             R.string.help_handicap_tables__input_type_body_score,
             R.string.help_handicap_tables__input_body_score,
             { listOf(NumberValidator.AtLeast(1)) },

@@ -96,6 +96,27 @@ class HandicapTablesE2eTest {
                                 HandicapTablesRobot.TableRow(132, 5),
                         )
                 )
+
+                clickInputMethod()
+                setInputText("10")
+
+                checkTableData(
+                        listOf(
+                                HandicapTablesRobot.TableRow(114, 15),
+                                HandicapTablesRobot.TableRow(115, 14),
+                                HandicapTablesRobot.TableRow(116, 13),
+                                HandicapTablesRobot.TableRow(117, 12),
+                                HandicapTablesRobot.TableRow(119, 11),
+
+                                HandicapTablesRobot.TableRow(120, 10),
+
+                                HandicapTablesRobot.TableRow(122, 9),
+                                HandicapTablesRobot.TableRow(124, 8),
+                                HandicapTablesRobot.TableRow(126, 7),
+                                HandicapTablesRobot.TableRow(129, 6),
+                                HandicapTablesRobot.TableRow(132, 5),
+                        )
+                )
             }
         }
     }

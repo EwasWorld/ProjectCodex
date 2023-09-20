@@ -2,14 +2,18 @@ package eywa.projectcodex.components.handicapTables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -37,7 +41,9 @@ import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
@@ -85,6 +91,7 @@ fun HandicapTablesScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Selections(
         state: HandicapTablesState,
@@ -105,36 +112,57 @@ fun Selections(
             ),
             onClick = { listener(ToggleHandicapSystem) },
             accessibilityRole = Role.Switch,
-            modifier = Modifier
-                    .padding(bottom = 2.dp)
-                    .testTag(HandicapTablesTestTag.SYSTEM_SELECTOR.getTestTag())
+            modifier = Modifier.testTag(HandicapTablesTestTag.SYSTEM_SELECTOR.getTestTag())
     )
 
-    DataRow(
-            title = stringResource(R.string.handicap_tables__input),
-            text = stringResource(state.inputType.labelId),
-            helpState = HelpState(
-                    helpListener = helpListener,
-                    helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
-                    helpBody = stringResource(state.inputType.typeHelpId),
-            ),
-            onClick = { listener(ToggleInput) },
-            accessibilityRole = Role.Switch,
-            modifier = Modifier.testTag(HandicapTablesTestTag.INPUT_SELECTOR.getTestTag())
-    )
-
-    CodexLabelledNumberField(
-            title = stringResource(state.inputType.labelId),
-            currentValue = state.inputFull.text,
-            placeholder = "50",
-            testTag = HandicapTablesTestTag.INPUT_TEXT,
-            helpState = HelpState(
-                    helpListener = helpListener,
-                    helpTitle = stringResource(R.string.help_handicap_tables__input_title),
-                    helpBody = stringResource(state.inputType.inputHelpId),
-            ),
-            onValueChanged = { listener(InputChanged(it)) },
-    )
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+            modifier = Modifier.padding(vertical = 2.dp)
+    ) {
+        FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                    text = stringResource(state.inputType.labelId),
+                    style = LocalTextStyle.current.asClickableStyle(),
+                    modifier = Modifier
+                            .testTag(HandicapTablesTestTag.INPUT_SELECTOR.getTestTag())
+                            .clickable(
+                                    onClickLabel = stringResource(R.string.handicap_tables__input_selector_click_label),
+                                    onClick = { listener(ToggleInput) },
+                                    role = Role.Switch,
+                            )
+                            .updateHelpDialogPosition(
+                                    HelpState(
+                                            helpListener = helpListener,
+                                            helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
+                                            helpBody = stringResource(state.inputType.typeHelpId),
+                                    ),
+                            )
+            )
+            CodexNumberField(
+                    currentValue = state.inputFull.text,
+                    placeholder = "50",
+                    contentDescription = stringResource(state.inputType.labelId),
+                    errorMessage = state.inputFull.error,
+                    testTag = HandicapTablesTestTag.INPUT_TEXT,
+                    onValueChanged = { listener(InputChanged(it)) },
+                    modifier = Modifier.updateHelpDialogPosition(
+                            HelpState(
+                                    helpListener = helpListener,
+                                    helpTitle = stringResource(R.string.help_handicap_tables__input_title),
+                                    helpBody = stringResource(state.inputType.inputHelpId),
+                            ),
+                    )
+            )
+        }
+        CodexNumberFieldErrorText(
+                errorText = state.inputFull.error,
+                testTag = HandicapTablesTestTag.INPUT_ERROR,
+        )
+    }
 }
 
 @Composable
@@ -272,6 +300,7 @@ enum class HandicapTablesTestTag : CodexTestTag {
     SYSTEM_SELECTOR,
     INPUT_SELECTOR,
     INPUT_TEXT,
+    INPUT_ERROR,
     TABLE_EMPTY_TEXT,
     TABLE_HANDICAP,
     TABLE_SCORE,
@@ -310,6 +339,20 @@ fun HandicapTablesScreen_Preview() {
                             HandicapScore(36, 312),
                     ),
                     highlightedHandicap = HandicapScore(31, 324),
+            )
+    ) {}
+}
+
+@Preview
+@Composable
+fun Error_HandicapTablesScreen_Preview() {
+    HandicapTablesScreen(
+            HandicapTablesState(
+                    input = PartialNumberFieldState().onValueChanged("-1"),
+                    inputType = InputType.HANDICAP,
+                    selectRoundDialogState = SelectRoundDialogState(
+                            allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
+                    ),
             )
     ) {}
 }

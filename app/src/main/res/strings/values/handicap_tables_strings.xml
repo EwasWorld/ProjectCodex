@@ -2,7 +2,9 @@
 <resources>
     <string name="handicap_tables__title">Handicaps</string>
 
-    <string name="handicap_tables__input">Search by:</string>
+    <string name="handicap_tables__input_selector_click_label">Change search type between handicap and score</string>
+    <string name="handicap_tables__handicap_input_header">Handicap:</string>
+    <string name="handicap_tables__score_input_header">Score:</string>
     <string name="handicap_tables__handicap_field">Handicap</string>
     <string name="handicap_tables__score_field">Score</string>
     <string name="handicap_tables__allowance_field">Allowance</string>

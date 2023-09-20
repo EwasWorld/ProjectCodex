@@ -59,8 +59,6 @@ fun DataRow(
         style: TextStyle = LocalTextStyle.current,
         content: @Composable () -> Unit,
 ) {
-    helpState?.add()
-
     FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
