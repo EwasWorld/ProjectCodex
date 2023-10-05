@@ -40,9 +40,6 @@ fun CodexIconButton(
             tint = color,
     )
 
-    require(actualIcon.contentDescription != null || captionBelow != null) { "Must provide a description" }
-    helpState?.add()
-
     IconButton(
             onClick = onClick,
             enabled = enabled,

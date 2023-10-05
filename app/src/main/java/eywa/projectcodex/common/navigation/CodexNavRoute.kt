@@ -249,6 +249,7 @@ enum class CodexNavRoute : NavRoute {
     override val routeBase = "main_" + name.lowercase()
     override val args: Map<NavArgument, Boolean> = emptyMap()
     override val tabSwitcherItem: TabSwitcherItem? = null
+    override val bottomSheets: List<BottomSheetNavRoute>? = null
 
     companion object {
         val baseRouteMapping = values().associateBy { it.routeBase }

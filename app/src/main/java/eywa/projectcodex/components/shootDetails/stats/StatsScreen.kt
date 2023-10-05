@@ -403,7 +403,7 @@ private fun PastRecordsSection(
 
                     val background = when {
                         isPb -> CodexTheme.colors.personalBestTag
-                        isCurrentShoot -> CodexTheme.colors.chipOnDialogSelected
+                        isCurrentShoot -> CodexTheme.colors.dialogBackgroundAccent
                         else -> null
                     }
 

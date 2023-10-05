@@ -20,12 +20,12 @@ class ShootDetailsSettingsState(
 data class ShootDetailsSettingsExtras(
         val addEndSizePartial: NumberFieldState<Int> =
                 NumberFieldState(
-                        DEFAULT_END_SIZE.toString(),
-                        NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(1..12)),
+                        validators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(1..12)),
+                        text = DEFAULT_END_SIZE.toString(),
                 ),
         val scorePadEndSizePartial: NumberFieldState<Int> =
                 NumberFieldState(
-                        DEFAULT_END_SIZE.toString(),
-                        NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(1..12)),
+                        validators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(1..12)),
+                        text = DEFAULT_END_SIZE.toString(),
                 ),
 )

@@ -10,12 +10,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
+import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.NavRoute
 import eywa.projectcodex.common.navigation.TabSwitcherGroup
 import eywa.projectcodex.common.navigation.TabSwitcherItem
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
+import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsBottomSheetAdd
 import javax.inject.Singleton
 
 enum class LocalNavRoute : NavRoute {
@@ -26,6 +28,8 @@ enum class LocalNavRoute : NavRoute {
                 navRoute = this,
                 position = 1,
         )
+        override val bottomSheets: List<BottomSheetNavRoute>
+            get() = listOf(ArcherHandicapsBottomSheetAdd)
 
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
@@ -33,7 +37,7 @@ enum class LocalNavRoute : NavRoute {
 
         @Composable
         override fun Screen(navController: NavController) {
-            ArcherHandicapsScreen()
+            ArcherHandicapsScreen(navController)
         }
     },
     ;

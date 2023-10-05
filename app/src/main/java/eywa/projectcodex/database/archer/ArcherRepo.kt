@@ -18,6 +18,8 @@ class ArcherRepo(
 
     fun getLatestHandicaps(archerId: Int) = archerHandicapDao.getLatestHandicaps(archerId)
 
+    val allHandicapsForDefaultArcher = archerHandicapDao.getAllHandicaps(DEFAULT_ARCHER_ID)
+
     suspend fun insertDefaultArcherIfNotExist() {
         archerDao.insertOrIgnore(DatabaseArcher(DEFAULT_ARCHER_ID, "Default"))
     }
@@ -30,7 +32,11 @@ class ArcherRepo(
         archerDao.insert(archer)
     }
 
-    suspend fun insert(archer: DatabaseArcherHandicap) {
-        archerHandicapDao.insert(archer)
+    suspend fun insert(handicap: DatabaseArcherHandicap) {
+        archerHandicapDao.insert(handicap)
+    }
+
+    suspend fun deleteHandicap(handicapId: Int) {
+        archerHandicapDao.delete(handicapId)
     }
 }

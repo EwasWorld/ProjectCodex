@@ -3,58 +3,59 @@ package eywa.projectcodex.components.archerHandicaps
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import androidx.compose.animation.*
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
-import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
-import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.*
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsMenuItem.DELETE
+import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsBottomSheetAdd
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
-import eywa.projectcodex.database.archer.HandicapType
 
 
 @Composable
 fun ArcherHandicapsScreen(
+        navController: NavController,
         viewModel: ArcherHandicapsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    ArcherHandicapsScreen(state) { viewModel.handle(it) }
+
+    if (state.isLoaded) ArcherHandicapsScreen(state) { viewModel.handle(it) }
+    else LoadingScreen()
+
+    LaunchedEffect(state.openAddDialog) {
+        if (state.openAddDialog) {
+            ArcherHandicapsBottomSheetAdd.navigate(navController)
+            viewModel.handle(AddHandled)
+        }
+    }
 }
 
 @Composable
@@ -62,128 +63,68 @@ fun ArcherHandicapsScreen(
         state: ArcherHandicapsState,
         listener: (ArcherHandicapsIntent) -> Unit,
 ) {
-    Column(
-            verticalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
+    Box(
+            contentAlignment = Alignment.BottomEnd,
     ) {
-        Column(
+        LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(7.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                        .width(IntrinsicSize.Max)
-                        .padding(horizontal = 7.dp)
+                contentPadding = PaddingValues(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 70.dp),
+                modifier = Modifier.fillMaxSize()
         ) {
-            state.displayHandicaps.forEach {
+            items(
+                    count = state.handicapsForDisplay.size,
+                    key = { state.handicapsForDisplay[it].archerHandicapId },
+            ) {
                 HandicapRow(
-                        item = it,
+                        index = it,
                         state = state,
                         listener = listener,
                 )
             }
-            AddHandicapRow(state, listener)
         }
+
+        CodexFloatingActionButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.archer_handicaps__add_submit),
+                ),
+                onClick = { listener(AddClicked) },
+                modifier = Modifier.padding(20.dp)
+        )
     }
 
-    SelectHandicapTypeDialog(state, listener)
-}
 
-@Composable
-private fun AddHandicapRow(
-        state: ArcherHandicapsState,
-        listener: (ArcherHandicapsIntent) -> Unit,
-) {
-    Surface(
-            border = BorderStroke(3.dp, CodexTheme.colors.listItemOnAppBackground),
-            color = Color.Transparent,
-            modifier = Modifier
-                    .fillMaxWidth()
-    ) {
-        ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-            ) {
-                CodexIconButton(
-                        icon = CodexIconInfo.VectorIcon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = stringResource(R.string.archer_handicaps__add_submit),
-                                tint = CodexTheme.colors.onAppBackground,
-                                modifier = Modifier
-                                        .scale(1.4f)
-                                        .padding(13.dp)
-                                        .fillMaxWidth()
-                        ),
-                        onClick = { listener(AddClicked) },
-                )
-                AnimatedVisibility(
-                        visible = state.addDialogOpen,
-                        enter = fadeIn() + expandVertically(),
-                        exit = fadeOut() + shrinkVertically(),
-                ) {
-                    Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 20.dp)
-                    ) {
-                        CodexLabelledNumberField(
-                                title = stringResource(R.string.archer_handicaps__handicap_header),
-                                currentValue = state.addHandicap,
-                                testTag = ArcherHandicapsTestTag.ADD_HANDICAP_VALUE,
-                                placeholder = "75",
-                                errorMessage = state.handicapValidatorError,
-                                onValueChanged = { listener(AddHandicapTextUpdated(it)) },
-                                helpState = null,
-                        )
-                        CodexNumberFieldErrorText(
-                                errorText = state.handicapValidatorError,
-                                testTag = ArcherHandicapsTestTag.ADD_HANDICAP_ERROR_TEXT,
-                                modifier = Modifier.padding(top = 3.dp)
-                        )
-                        DataRow(
-                                title = stringResource(R.string.archer_handicaps__handicap_type),
-                                text = stringResource(state.addHandicapType.text),
-                                helpState = null,
-                                onClick = { listener(SelectHandicapTypeOpen) },
-                                modifier = Modifier.padding(vertical = 12.dp)
-                        )
-                        AnimatedVisibility(
-                                visible = state.handicapTypeDuplicateErrorShown,
-                                enter = fadeIn() + expandVertically(),
-                                exit = fadeOut() + shrinkVertically(),
-                        ) {
-                            Text(
-                                    text = stringResource(R.string.archer_handicaps__add_duplicate_message),
-                                    style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground),
-                                    textAlign = TextAlign.Center,
-                            )
-                        }
-                        CodexButton(
-                                text = stringResource(R.string.archer_handicaps__add_submit),
-                                buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
-                                onClick = { listener(AddSubmit) },
-                                helpState = null,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 20.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
+    DeleteDialog(
+            handicapForDeletion = state.handicapForDeletion,
+            listener = listener,
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun HandicapRow(
-        item: DatabaseArcherHandicap,
+        index: Int,
         state: ArcherHandicapsState,
         listener: (ArcherHandicapsIntent) -> Unit,
 ) {
+    val item = state.handicapsForDisplay[index]
+    val currentIds = state.currentHandicaps.orEmpty().map { it.archerHandicapId }
+    val isFirstNonCurrentHandicap = !currentIds.contains(item.archerHandicapId)
+            && currentIds.contains(state.handicapsForDisplay[index - 1].archerHandicapId)
+
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
     ) {
+        if (index == 0 || isFirstNonCurrentHandicap) {
+            Text(
+                    text = if (index == 0) "Current:" else "Past:",
+                    style = CodexTypography.LARGE.copy(color = CodexTheme.colors.onAppBackground),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 15.dp, bottom = 10.dp)
+            )
+        }
         Surface(
                 color = CodexTheme.colors.listItemOnAppBackground,
                 onClick = { listener(RowClicked(item)) },
@@ -197,11 +138,11 @@ private fun HandicapRow(
                         modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                            text = DateTimeFormat.SHORT_DATE.format(item.dateSet),
+                            text = DateTimeFormat.TIME_24_HOUR.format(item.dateSet),
                             style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemLight),
                     )
                     Text(
-                            text = stringResource(item.handicapType.text),
+                            text = DateTimeFormat.SHORT_DATE.format(item.dateSet),
                             style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -218,7 +159,39 @@ private fun HandicapRow(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun DeleteDialog(
+        handicapForDeletion: DatabaseArcherHandicap?,
+        listener: (ArcherHandicapsIntent) -> Unit,
+) {
+    val message = handicapForDeletion?.dateSet
+            ?.let {
+                stringResource(
+                        R.string.archer_handicap__delete_dialog_body,
+                        DateTimeFormat.SHORT_DATE_TIME.format(it)
+                )
+            }
+            ?: stringResource(R.string.archer_handicap__delete_dialog_body_generic)
+
+    SimpleDialog(
+            isShown = handicapForDeletion != null,
+            onDismissListener = { listener(DeleteDialogCancelClicked) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.archer_handicap__delete_dialog_title),
+                message = message,
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_delete),
+                        onClick = { listener(DeleteDialogOkClicked) },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { listener(DeleteDialogCancelClicked) },
+                ),
+        )
+    }
+}
+
 @Composable
 private fun HandicapRowDropdownMenu(
         item: DatabaseArcherHandicap,
@@ -231,28 +204,24 @@ private fun HandicapRowDropdownMenu(
             exit = fadeOut() + shrinkVertically(),
     ) {
         val resources = LocalContext.current.resources
-        val customActions =
-                ArcherHandicapsMenuItem.values().associateWith { it.asAccessibilityActions(resources, listener) }
 
         Surface(
                 color = CodexTheme.colors.listItemOnAppBackground,
-                onClick = { listener.takeIf { !state.editDialogOpen }?.invoke(EditClicked) },
                 shape = RoundedCornerShape(0, 0, 20, 20),
                 modifier = Modifier
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 5.dp, top = 2.dp)
-                        .semantics {
-                            if (!state.editDialogOpen) {
-                                val action = customActions[ArcherHandicapsMenuItem.EDIT]!!
-                                onClick(action.label, action.action)
-                            }
-                        }
+                        .clickable(
+                                onClickLabel = DELETE.asAccessibilityActions(resources, listener).label,
+                                onClick = { listener(DELETE.intent) },
+                        )
         ) {
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                             .padding(top = 5.dp, bottom = 4.dp)
                             .animateContentSize()
+                            .clearAndSetSemantics { }
             ) {
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -260,73 +229,7 @@ private fun HandicapRowDropdownMenu(
                         modifier = Modifier
                                 .widthIn(min = 140.dp)
                 ) {
-                    ArcherHandicapsMenuItem.EDIT.IconButton(listener)
-                    AnimatedVisibility(
-                            visible = state.editDialogOpen,
-                            enter = fadeIn() + expandHorizontally(),
-                            exit = fadeOut() + shrinkHorizontally(),
-                    ) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                        ) {
-                            CodexNumberField(
-                                    contentDescription = stringResource(R.string.archer_handicaps__handicap_header),
-                                    currentValue = state.addHandicap,
-                                    testTag = ArcherHandicapsTestTag.EDIT_HANDICAP_VALUE,
-                                    placeholder = "75",
-                                    errorMessage = state.handicapValidatorError,
-                                    onValueChanged = { listener(AddHandicapTextUpdated(it)) },
-                                    modifier = Modifier.padding(horizontal = 5.dp)
-                            )
-                            ArcherHandicapsMenuItem.EDIT_SUBMIT.IconButton(listener)
-                        }
-                    }
-                }
-                CodexNumberFieldErrorText(
-                        errorText = state.handicapValidatorError,
-                        testTag = ArcherHandicapsTestTag.EDIT_HANDICAP_ERROR_TEXT,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                                .padding(horizontal = 15.dp)
-                                .padding(bottom = 3.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SelectHandicapTypeDialog(
-        state: ArcherHandicapsState,
-        listener: (ArcherHandicapsIntent) -> Unit,
-) {
-    SimpleDialog(
-            isShown = state.selectHandicapTypeDialogOpen,
-            onDismissListener = { listener(SelectHandicapTypeDialogClose) },
-    ) {
-        SimpleDialogContent(
-                title = stringResource(R.string.archer_handicaps__select_handicap_type_dialog_title),
-                negativeButton = ButtonState(
-                        text = stringResource(R.string.general_cancel),
-                        onClick = { listener(SelectHandicapTypeDialogClose) },
-                ),
-                modifier = Modifier.testTag(ArcherHandicapsTestTag.ADD_SELECT_HANDICAP_TYPE_DIALOG.getTestTag())
-        ) {
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                HandicapType.values().sortedBy { it.ordinal }.forEach {
-                    Text(
-                            text = stringResource(it.text),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                    .clickable { listener(SelectHandicapTypeDialogItemClicked(it)) }
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                                    .testTag(ArcherHandicapsTestTag.ADD_SELECT_HANDICAP_TYPE_ITEM.getTestTag())
-                    )
+                    DELETE.IconButton(listener)
                 }
             }
         }
@@ -339,17 +242,11 @@ private enum class ArcherHandicapsMenuItem(
         val intent: ArcherHandicapsIntent,
         val testTag: CodexTestTag,
 ) {
-    EDIT(
-            icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Edit),
-            contentDescription = R.string.archer_handicaps__menu_edit,
-            intent = EditClicked,
-            testTag = ArcherHandicapsTestTag.EDIT_MENU_ITEM,
-    ),
-    EDIT_SUBMIT(
-            icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Check),
-            contentDescription = R.string.general_save,
-            intent = EditSubmit,
-            testTag = ArcherHandicapsTestTag.EDIT_SUBMIT,
+    DELETE(
+            icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Delete),
+            contentDescription = R.string.general_delete,
+            intent = DeleteClicked,
+            testTag = ArcherHandicapsTestTag.DELETE,
     ),
     ;
 
@@ -383,14 +280,9 @@ private enum class ArcherHandicapsMenuItem(
 
 enum class ArcherHandicapsTestTag : CodexTestTag {
     SCREEN,
-    EDIT_MENU_ITEM,
-    EDIT_SUBMIT,
-    EDIT_HANDICAP_VALUE,
-    EDIT_HANDICAP_ERROR_TEXT,
+    DELETE,
     ADD_HANDICAP_VALUE,
     ADD_HANDICAP_ERROR_TEXT,
-    ADD_SELECT_HANDICAP_TYPE_DIALOG,
-    ADD_SELECT_HANDICAP_TYPE_ITEM,
     ;
 
     override val screenName: String
@@ -407,8 +299,21 @@ enum class ArcherHandicapsTestTag : CodexTestTag {
 fun ArcherHandicapsScreen_Preview() {
     PreviewScreen(
             ArcherHandicapsState(
-                    archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
-                    menuShownForId = 2,
+                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                    allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
+            )
+    )
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun Single_ArcherHandicapsScreen_Preview() {
+    PreviewScreen(
+            ArcherHandicapsState(
+                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
             )
     )
 }
@@ -421,11 +326,10 @@ fun ArcherHandicapsScreen_Preview() {
 fun AddOpen_ArcherHandicapsScreen_Preview() {
     PreviewScreen(
             ArcherHandicapsState(
-                    archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
+                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                    allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
                     menuShownForId = 2,
-                    addDialogOpen = true,
-                    addHandicapType = HandicapType.INDOOR_TOURNAMENT,
-                    editDialogOpen = true,
+                    openAddDialog = true,
             )
     )
 }
@@ -438,11 +342,10 @@ fun AddOpen_ArcherHandicapsScreen_Preview() {
 fun Errors_ArcherHandicapsScreen_Preview() {
     PreviewScreen(
             ArcherHandicapsState(
-                    archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
+                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                    allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
                     menuShownForId = 2,
-                    addDialogOpen = true,
-                    editDialogOpen = true,
-                    addHandicap = "200",
+                    openAddDialog = true,
             )
     )
 }
@@ -459,7 +362,8 @@ private fun PreviewScreen(initialState: ArcherHandicapsState) {
                     state = state.copy(
                             menuShownForId = action.item.archerHandicapId.takeIf { state.menuShownForId != it }
                     )
-                else -> ToastSpamPrevention.displayToast(context, action::class.simpleName.toString())
+
+                else -> Unit // ToastSpamPrevention.displayToast(context, action::class.simpleName.toString())
             }
         }
     }

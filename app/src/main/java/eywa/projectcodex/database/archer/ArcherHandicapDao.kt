@@ -25,4 +25,17 @@ interface ArcherHandicapDao {
             """
     )
     fun getLatestHandicaps(archerId: Int): Flow<List<DatabaseArcherHandicap>>
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query(
+            """
+                SELECT *
+                FROM ${DatabaseArcherHandicap.TABLE_NAME} 
+                WHERE archerId = :archerId
+            """
+    )
+    fun getAllHandicaps(archerId: Int): Flow<List<DatabaseArcherHandicap>>
+
+    @Query("DELETE FROM ${DatabaseArcherHandicap.TABLE_NAME} WHERE archerHandicapId = :archerHandicapId")
+    suspend fun delete(archerHandicapId: Int)
 }

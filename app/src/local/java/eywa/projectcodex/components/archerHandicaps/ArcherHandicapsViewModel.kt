@@ -4,7 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
-import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.*
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.AddClicked
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.AddHandled
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.DeleteClicked
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.DeleteDialogCancelClicked
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.DeleteDialogOkClicked
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.HelpShowcaseAction
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.RowClicked
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalNavRoute
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +29,24 @@ class ArcherHandicapsViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private val archerRepo = db.archerRepo()
+    private val bowRepo = db.bowRepo()
 
     init {
         viewModelScope.launch {
             archerRepo.latestHandicapsForDefaultArcher.collectLatest { dbArcherHandicaps ->
-                _state.update { it.copy(archerHandicaps = dbArcherHandicaps) }
+                _state.update { it.copy(currentHandicaps = dbArcherHandicaps) }
+            }
+        }
+        viewModelScope.launch {
+            archerRepo.allHandicapsForDefaultArcher.collectLatest { dbArcherHandicaps ->
+                _state.update { it.copy(allHandicaps = dbArcherHandicaps) }
+            }
+        }
+        viewModelScope.launch {
+            bowRepo.defaultBow.collectLatest { dbBow ->
+                dbBow?.let { bow ->
+                    _state.update { it.copy(selectedBowStyle = bow.type) }
+                }
             }
         }
     }
@@ -37,71 +56,26 @@ class ArcherHandicapsViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, LocalNavRoute.ARCHER_HANDICAPS::class)
             is RowClicked ->
                 _state.update {
-                    if (it.archerHandicaps.none { item -> item.archerHandicapId == action.item.archerHandicapId }) {
+                    if (it.allHandicaps.orEmpty()
+                                .none { item -> item.archerHandicapId == action.item.archerHandicapId }
+                    ) {
                         return@update it
                     }
                     val menuShownFor = action.item.archerHandicapId.takeIf { id -> id != it.menuShownForId }
-                    it.closeAllDialogs().copy(menuShownForId = menuShownFor)
+                    it.copy(deleteDialogOpen = false, menuShownForId = menuShownFor)
                 }
-            EditClicked ->
-                _state.update {
-                    if (it.menuShownForId == null) return@update it
-                    it.closeAllDialogs().copy(menuShownForId = it.menuShownForId, editDialogOpen = !it.editDialogOpen)
+
+            AddClicked -> _state.update { it.copy(openAddDialog = true) }
+            AddHandled -> _state.update { it.copy(openAddDialog = false) }
+
+            DeleteClicked -> _state.update { it.copy(deleteDialogOpen = true) }
+            DeleteDialogCancelClicked -> _state.update { it.copy(deleteDialogOpen = false) }
+            DeleteDialogOkClicked -> {
+                viewModelScope.launch {
+                    archerRepo.deleteHandicap(state.value.menuShownForId!!)
                 }
-            AddClicked -> _state.update { it.closeAllDialogs().copy(addDialogOpen = !it.addDialogOpen) }
-            is AddHandicapTextUpdated -> _state.update {
-                if (!it.addDialogOpen) return@update it
-                it.copy(
-                        addHandicap = action.value ?: "",
-                        addHandicapIsDirty = true
-                )
+                _state.update { it.copy(deleteDialogOpen = false, menuShownForId = null) }
             }
-            AddSubmit -> {
-                val currentState = state.value
-                if (!currentState.addDialogOpen) return
-                submit(currentState)
-            }
-            EditSubmit -> {
-                val currentState = state.value
-                if (!currentState.editDialogOpen || currentState.menuShownForId == null) return
-
-                val editing = currentState.getEditingHandicap ?: return
-                submit(currentState.copy(addHandicapType = editing.handicapType))
-            }
-            SelectHandicapTypeOpen ->
-                _state.update {
-                    if (!it.addDialogOpen) return@update it
-                    it.copy(selectHandicapTypeDialogOpen = true)
-                }
-            is SelectHandicapTypeDialogItemClicked ->
-                _state.update {
-                    if (!it.addDialogOpen || !it.selectHandicapTypeDialogOpen) return@update it
-                    it.copy(addHandicapType = action.value, selectHandicapTypeDialogOpen = false)
-                }
-            SelectHandicapTypeDialogClose -> _state.update { it.copy(selectHandicapTypeDialogOpen = false) }
         }
-    }
-
-    private fun ArcherHandicapsState.closeAllDialogs() = copy(
-            addDialogOpen = false,
-            editDialogOpen = false,
-            menuShownForId = null,
-            addHandicap = "",
-            addHandicapIsDirty = false,
-    )
-
-    private fun submit(state: ArcherHandicapsState) {
-        if (state.addHandicap.isBlank()) {
-            _state.update { it.copy(addHandicapIsDirty = true) }
-            return
-        }
-        if (state.handicapValidatorError != null) {
-            return
-        }
-
-        viewModelScope.launch {
-            archerRepo.insert(state.addDatabaseValue)
-        }
-        _state.update { it.closeAllDialogs().copy(menuShownForId = it.menuShownForId) }
     }
 }

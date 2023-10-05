@@ -46,7 +46,6 @@ fun CodexTextFieldRoundedSurface(
         helpState: HelpState? = null,
         content: @Composable () -> Unit
 ) {
-    helpState?.add()
     Surface(
             color = color,
             shape = RoundedCornerShape(5.dp),
@@ -118,51 +117,55 @@ fun CodexTextField(
         }
     }
 
-    helpState?.add()
-
-    BasicTextField(
-            value = TextFieldValue(text, selection),
-            onValueChange = {
-                onValueChange(it.text)
-                selection = it.selection
-            },
-            interactionSource = interactionSource,
-            enabled = enabled,
-            singleLine = singleLine,
-            textStyle = textStyle,
-            visualTransformation = VisualTransformation.None,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            modifier = modifier.updateHelpDialogPosition(helpState)
-    ) { innerTextField ->
-        TextFieldDefaults.OutlinedTextFieldDecorationBox(
-                value = text,
-                innerTextField = innerTextField,
-                contentPadding = PaddingValues(10.dp),
-                enabled = enabled,
+    Surface(
+            color = colors.backgroundColor(enabled).value,
+            shape = RoundedCornerShape(5.dp),
+            modifier = modifier,
+    ) {
+        BasicTextField(
+                value = TextFieldValue(text, selection),
+                onValueChange = {
+                    onValueChange(it.text)
+                    selection = it.selection
+                },
                 interactionSource = interactionSource,
+                enabled = enabled,
                 singleLine = singleLine,
-                isError = isError,
+                textStyle = textStyle,
                 visualTransformation = VisualTransformation.None,
-                placeholder = placeholderText?.let {
-                    {
-                        Text(
-                                text = placeholderText,
-                                style = textStyle.asPlaceholderStyle().copy(textAlign = textStyle.textAlign),
-                        )
-                    }
+                keyboardOptions = keyboardOptions,
+                keyboardActions = keyboardActions,
+                modifier = modifier.updateHelpDialogPosition(helpState)
+        ) { innerTextField ->
+            TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                    value = text,
+                    innerTextField = innerTextField,
+                    contentPadding = PaddingValues(10.dp),
+                    enabled = enabled,
+                    interactionSource = interactionSource,
+                    singleLine = singleLine,
+                    isError = isError,
+                    visualTransformation = VisualTransformation.None,
+                    placeholder = placeholderText?.let {
+                        {
+                            Text(
+                                    text = placeholderText,
+                                    style = textStyle.asPlaceholderStyle().copy(textAlign = textStyle.textAlign),
+                            )
+                        }
 
-                },
-                label = labelText?.let {
-                    {
-                        Text(
-                                text = labelText,
-                                style = textStyle,
-                        )
-                    }
-                },
-                colors = colors,
-        )
+                    },
+                    label = labelText?.let {
+                        {
+                            Text(
+                                    text = labelText,
+                                    style = textStyle,
+                            )
+                        }
+                    },
+                    colors = colors,
+            )
+        }
     }
 }
 
@@ -204,10 +207,11 @@ object CodexTextField {
     @Composable
     fun transparentOutlinedTextFieldColors(
             focussedColor: Color = CodexTheme.colors.textFieldFocussedOutline,
-            unfocussedColor: Color = CodexTheme.colors.textFieldUnfocussedOutline
+            unfocussedColor: Color = CodexTheme.colors.textFieldUnfocussedOutline,
+            backgroundColor: Color = CodexTheme.colors.surfaceOnBackground,
     ) = TextFieldDefaults.outlinedTextFieldColors(
             textColor = CodexTypography.NORMAL.color,
-            backgroundColor = Color.Transparent,
+            backgroundColor = backgroundColor,
 
             focusedBorderColor = focussedColor,
             focusedLabelColor = focussedColor,

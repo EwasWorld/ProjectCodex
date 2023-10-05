@@ -16,6 +16,7 @@ interface NavRoute : ActionBarHelp {
     val routeBase: String
     val args: Map<NavArgument, Boolean>
     val tabSwitcherItem: TabSwitcherItem?
+    val bottomSheets: List<BottomSheetNavRoute>?
 
     @Composable
     fun getMenuBarTitle(entry: NavBackStackEntry?): String
@@ -77,6 +78,8 @@ interface NavRoute : ActionBarHelp {
                 Screen(navController = navController)
             }
         }
+
+        bottomSheets?.forEach { it.create(navGraphBuilder, navController) }
     }
 
     private fun asRoute(argValues: Map<NavArgument, String>? = null): String {

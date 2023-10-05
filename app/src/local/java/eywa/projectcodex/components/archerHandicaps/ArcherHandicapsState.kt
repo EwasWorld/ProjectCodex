@@ -1,58 +1,34 @@
 package eywa.projectcodex.components.archerHandicaps
 
-import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
-import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
-import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
+import eywa.projectcodex.common.utils.ListUtils.plusAtIndex
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
-import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
-import eywa.projectcodex.database.archer.HandicapType
-import eywa.projectcodex.model.Handicap
-import java.util.*
 
 data class ArcherHandicapsState(
         /**
          * Most recent handicap of each type
          */
-        val archerHandicaps: List<DatabaseArcherHandicap> = emptyList(),
+        val currentHandicaps: List<DatabaseArcherHandicap>? = null,
+        /**
+         * All past handicaps, may include those in [currentHandicaps]
+         */
+        val allHandicaps: List<DatabaseArcherHandicap>? = null,
         val selectedBowStyle: ClassificationBow = ClassificationBow.RECURVE,
         val menuShownForId: Int? = null,
-        val addDialogOpen: Boolean = false,
-        val editDialogOpen: Boolean = false,
-
-        val addHandicapIsDirty: Boolean = false,
-        val addHandicap: String = "",
-        val addHandicapType: HandicapType = HandicapType.OUTDOOR,
+        val openAddDialog: Boolean = false,
+        val deleteDialogOpen: Boolean = false,
         val selectHandicapTypeDialogOpen: Boolean = false,
 ) {
-    val handicapTypeDuplicateErrorShown
-        get() = archerHandicaps.any { it.handicapType == addHandicapType }
+    val isLoaded = currentHandicaps != null && allHandicaps != null
 
-    val handicapValidatorError = handicapValidators.getFirstError(addHandicap, addHandicapIsDirty)
-    private val parsedHandicap = handicapValidators.parse(addHandicap)
+    val handicapsForDisplay = allHandicaps
+            .orEmpty()
+            .minus(currentHandicaps.orEmpty().toSet())
+            .sortedByDescending { it.dateSet }
+            .plusAtIndex(currentHandicaps.orEmpty().sortedByDescending { it.dateSet }, 0)
 
-    val displayHandicaps = archerHandicaps
-            .filter { it.bowStyle == selectedBowStyle }
-            .sortedBy { it.handicapType.ordinal }
-
-    val getEditingHandicap
-        get() = archerHandicaps.firstOrNull { it.archerHandicapId == menuShownForId }
-
-    val addDatabaseValue
-        get() = DatabaseArcherHandicap(
-                archerHandicapId = 0,
-                archerId = DEFAULT_ARCHER_ID,
-                bowStyle = ClassificationBow.RECURVE,
-                handicapType = addHandicapType,
-                handicap = parsedHandicap!!,
-                dateSet = Calendar.getInstance(),
-        )
-
-    companion object {
-        val handicapValidators = NumberValidatorGroup(
-                TypeValidator.IntValidator,
-                // TODO Use 2023 system param
-                NumberValidator.InRange(Handicap.MIN_HANDICAP..Handicap.maxHandicap(true))
-        )
-    }
+    val handicapForDeletion
+        get() = menuShownForId
+                ?.takeIf { deleteDialogOpen }
+                ?.let { id -> handicapsForDisplay.find { it.archerHandicapId == id } }
 }

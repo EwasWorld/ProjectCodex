@@ -1,7 +1,6 @@
 package eywa.projectcodex.components
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
-import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.*
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsState
@@ -26,7 +25,7 @@ class ArcherHandicapsViewModelUnitTest {
     private val db = MockScoresRoomDatabase()
     private val helpShowcase = mock<HelpShowcaseUseCase> { }
     private val defaultHandicaps = ArcherHandicapsPreviewHelper.handicaps.dropLast(1)
-    private val initialState = ArcherHandicapsState(archerHandicaps = defaultHandicaps)
+    private val initialState = ArcherHandicapsState(currentHandicaps = defaultHandicaps)
 
     private fun getSut(
             handicaps: List<DatabaseArcherHandicap> = defaultHandicaps,
@@ -86,80 +85,10 @@ class ArcherHandicapsViewModelUnitTest {
         )
         sut.handle(AddClicked)
         assertEquals(
-                initialState.copy(addDialogOpen = true),
+                initialState.copy(openAddDialog = true),
                 sut.state.value,
         )
     }
-
-    @Test
-    fun testEditClicked() = runTest {
-        val sut = getSut()
-        advanceUntilIdle()
-
-        sut.handle(RowClicked(defaultHandicaps.first()))
-        assertEquals(
-                initialState.copy(menuShownForId = defaultHandicaps.first().archerHandicapId),
-                sut.state.value,
-        )
-
-        // Open/close
-        sut.handle(EditClicked)
-        assertEquals(
-                initialState.copy(
-                        menuShownForId = defaultHandicaps.first().archerHandicapId,
-                        editDialogOpen = true,
-                ),
-                sut.state.value,
-        )
-        sut.handle(EditClicked)
-        assertEquals(
-                initialState.copy(menuShownForId = defaultHandicaps.first().archerHandicapId,),
-                sut.state.value,
-        )
-
-        // Close row
-        sut.handle(EditClicked)
-        assertEquals(
-                initialState.copy(
-                        menuShownForId = defaultHandicaps.first().archerHandicapId,
-                        editDialogOpen = true,
-                ),
-                sut.state.value,
-        )
-        sut.handle(RowClicked(defaultHandicaps.first()))
-        assertEquals(
-                initialState,
-                sut.state.value,
-        )
-
-        // Open add
-        sut.handle(RowClicked(defaultHandicaps.first()))
-        assertEquals(
-                initialState.copy(menuShownForId = defaultHandicaps.first().archerHandicapId,),
-                sut.state.value,
-        )
-        sut.handle(EditClicked)
-        assertEquals(
-                initialState.copy(
-                        menuShownForId = defaultHandicaps.first().archerHandicapId,
-                        editDialogOpen = true,
-                ),
-                sut.state.value,
-        )
-        sut.handle(AddClicked)
-        assertEquals(
-                initialState.copy(addDialogOpen = true),
-                sut.state.value,
-        )
-
-        // Menu not open
-        sut.handle(EditClicked)
-        assertEquals(
-                initialState.copy(addDialogOpen = true),
-                sut.state.value,
-        )
-    }
-
 
     @Test
     fun testAddClicked() = runTest {
@@ -169,7 +98,7 @@ class ArcherHandicapsViewModelUnitTest {
         // Open/close
         sut.handle(AddClicked)
         assertEquals(
-                initialState.copy(addDialogOpen = true),
+                initialState.copy(openAddDialog = true),
                 sut.state.value,
         )
         sut.handle(AddClicked)
@@ -181,7 +110,7 @@ class ArcherHandicapsViewModelUnitTest {
         // Row clicked
         sut.handle(AddClicked)
         assertEquals(
-                initialState.copy(addDialogOpen = true),
+                initialState.copy(openAddDialog = true),
                 sut.state.value,
         )
         sut.handle(RowClicked(defaultHandicaps.first()))

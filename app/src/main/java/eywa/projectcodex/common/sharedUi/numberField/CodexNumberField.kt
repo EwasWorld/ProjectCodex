@@ -4,11 +4,10 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -39,6 +38,7 @@ fun CodexLabelledNumberField(
         modifier: Modifier = Modifier,
         errorMessage: DisplayableError? = null,
         selectAllOnFocus: Boolean = true,
+        colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         helpState: HelpState? = null,
         onValueChanged: (String?) -> Unit,
 ) {
@@ -55,6 +55,7 @@ fun CodexLabelledNumberField(
                 selectAllOnFocus = selectAllOnFocus,
                 testTag = testTag,
                 placeholder = placeholder,
+                colors = colors,
                 onValueChanged = onValueChanged,
         )
     }
@@ -70,48 +71,44 @@ fun CodexNumberField(
         modifier: Modifier = Modifier,
         errorMessage: DisplayableError? = null,
         selectAllOnFocus: Boolean = true,
+        colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         onValueChanged: (String?) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val displayValue = currentValue ?: ""
     val error = errorMessage?.toErrorString(LocalContext.current.resources)
 
-    Surface(
-            color = CodexTheme.colors.surfaceOnBackground,
-            shape = RoundedCornerShape(5.dp),
-            modifier = modifier,
-    ) {
-        CodexTextField(
-                state = CodexTextFieldState(
-                        text = displayValue,
-                        onValueChange = { onValueChanged(it) },
-                        testTag = null,
-                ),
-                isError = error != null,
-                placeholderText = placeholder,
-                textStyle = CodexTypography.NORMAL.copy(
-                        color = CodexTheme.colors.onSurfaceOnBackground,
-                        textAlign = TextAlign.Center
-                ),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                        onDone = { keyboardController?.hide() },
-                ),
-                selectAllOnFocus = selectAllOnFocus,
-                modifier = Modifier
-                        .testTag(testTag.getTestTag())
-                        .widthIn(min = 40.dp)
-                        .width(IntrinsicSize.Min)
-                        .semantics {
-                            this.contentDescription = contentDescription
-                            editableText = AnnotatedString(displayValue)
-                            error?.let { error(it) }
-                        }
-        )
-    }
+    CodexTextField(
+            state = CodexTextFieldState(
+                    text = displayValue,
+                    onValueChange = { onValueChanged(it) },
+                    testTag = null,
+            ),
+            isError = error != null,
+            placeholderText = placeholder,
+            textStyle = CodexTypography.NORMAL.copy(
+                    color = CodexTheme.colors.onSurfaceOnBackground,
+                    textAlign = TextAlign.Center
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                    onDone = { keyboardController?.hide() },
+            ),
+            selectAllOnFocus = selectAllOnFocus,
+            colors = colors,
+            modifier = modifier
+                    .testTag(testTag.getTestTag())
+                    .widthIn(min = 40.dp)
+                    .width(IntrinsicSize.Min)
+                    .semantics {
+                        this.contentDescription = contentDescription
+                        editableText = AnnotatedString(displayValue)
+                        error?.let { error(it) }
+                    }
+    )
 }
 
 @Composable

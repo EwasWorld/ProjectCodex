@@ -62,7 +62,7 @@ class ShootDetailsSettingsViewModel @Inject constructor(
             is ShootDetailsAction -> repo.handle(action.action, screen)
             is AddEndSizeChanged -> {
                 val currentState = state.value.getData()?.addEndSizePartial ?: return
-                val new = currentState.onValueChanged(action.endSize)
+                val new = currentState.onTextChanged(action.endSize)
                 if (new.parsed != null) {
                     repo.handle(ShootDetailsIntent.SetAddEndEndSize(new.parsed), screen)
                 }
@@ -70,7 +70,7 @@ class ShootDetailsSettingsViewModel @Inject constructor(
             }
             is ScorePadEndSizeChanged -> {
                 val currentState = state.value.getData()?.scorePadEndSizePartial ?: return
-                val new = currentState.onValueChanged(action.endSize)
+                val new = currentState.onTextChanged(action.endSize)
                 if (new.parsed != null) {
                     repo.handle(ShootDetailsIntent.SetScorePadEndSize(new.parsed), screen)
                 }

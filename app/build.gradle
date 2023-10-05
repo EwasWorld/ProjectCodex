@@ -214,6 +214,7 @@ dependencies {
 
     // Jetpack compose
     def compose_version = "1.4.3"
+    def accompanist_version = "0.30.1"
     implementation "androidx.compose.ui:ui:$compose_version"
     // Tooling support (Previews, etc.)
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
@@ -221,6 +222,7 @@ dependencies {
     implementation "androidx.compose.foundation:foundation:$compose_version"
     // Material Design
     implementation "androidx.compose.material:material:$compose_version"
+    implementation "com.google.accompanist:accompanist-navigation-material:$accompanist_version"
     // Material design icons
     implementation "androidx.compose.material:material-icons-core:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"

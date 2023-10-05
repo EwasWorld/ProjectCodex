@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import eywa.projectcodex.common.utils.ListUtils.containsDuplicates
+import eywa.projectcodex.common.utils.ListUtils.getDuplicates
 
 @Composable
 fun CodexNavHost(
@@ -11,20 +13,31 @@ fun CodexNavHost(
         navHostController: NavHostController,
         modifier: Modifier = Modifier,
 ) {
-    val duplicateRoutes = navRoutes
-            .groupBy { it.routeBase.lowercase() }
-            .filter { (_, v) -> v.size > 1 }
-            .keys
-    check(duplicateRoutes.isEmpty()) { "Duplicate navRoutes found: " + duplicateRoutes.joinToString(",") }
+    val bottomSheetsRoutes = navRoutes
+            .flatMap { it.bottomSheets.orEmpty() }
+            .distinctBy { sheet -> sheet::class }
+            .map { it.asRoute() }
+    navRoutes
+            .map { it.routeBase }
+            .plus(bottomSheetsRoutes)
+            .getDuplicates()
+            .takeIf { it.isNotEmpty() }
+            ?.let { throw IllegalStateException("Duplicate navRoutes found: " + it.joinToString(",")) }
 
-    val tabGroups = navRoutes
+    val tabSwitcherGroups = navRoutes
             .groupBy { it.tabSwitcherItem?.group }
             .minus(null)
             .mapValues { (_, value) -> value.mapNotNull { it.tabSwitcherItem } }
-    val sizeViolations = tabGroups.filter { it.value.size < 2 }.keys
-    val orderViolations = tabGroups.filter { (_, value) -> value.distinctBy { it.position }.size != value.size }.keys
-    check(sizeViolations.isEmpty()) { "Tab groups with size < 2 are forbidden: " + sizeViolations.joinToString() }
-    check(orderViolations.isEmpty()) { "Duplicate tab group order value found: " + orderViolations.joinToString() }
+    tabSwitcherGroups
+            .filter { it.value.size < 2 }
+            .keys
+            .takeIf { it.isNotEmpty() }
+            ?.let { throw IllegalStateException("Tab groups with size < 2 are forbidden: " + it.joinToString()) }
+    tabSwitcherGroups
+            .filter { (_, value) -> value.map { it.position }.containsDuplicates() }
+            .keys
+            .takeIf { it.isNotEmpty() }
+            ?.let { throw IllegalStateException("Duplicate tab group order value found: " + it.joinToString()) }
 
     NavHost(
             navController = navHostController,
@@ -32,7 +45,7 @@ fun CodexNavHost(
             modifier = modifier,
     ) {
         navRoutes.forEach { route ->
-            val groupItems = route.tabSwitcherItem?.group?.let { tabGroups[it]!! }?.sortedBy { it.position }
+            val groupItems = route.tabSwitcherItem?.group?.let { tabSwitcherGroups[it]!! }?.sortedBy { it.position }
             route.create(this, navHostController, groupItems)
         }
     }

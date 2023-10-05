@@ -13,6 +13,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -42,6 +43,9 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.ModalBottomSheetLayout
+import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
@@ -72,6 +76,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var navRoutes: Set<@JvmSuppressWildcards NavRoute>
 
+    @OptIn(ExperimentalMaterialNavigationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -82,8 +87,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CodexTheme {
+                val bottomSheetNavigator = rememberBottomSheetNavigator()
+                val navController = rememberNavController(bottomSheetNavigator)
 
-                val navController = rememberNavController()
                 val currentEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = currentEntry?.currentCodexNavRoute()
 
@@ -108,16 +114,26 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                 ) {
-                    Scaffold(
-                            backgroundColor = CodexTheme.colors.appBackground,
-                            contentColor = CodexTheme.colors.onAppBackground,
-                            topBar = { TopBar(navController) }
-                    ) { padding ->
-                        CodexNavHost(
-                                navRoutes = navRoutes,
-                                navHostController = navController,
-                                modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
-                        )
+
+                    ModalBottomSheetLayout(
+                            bottomSheetNavigator = bottomSheetNavigator,
+                            sheetShape = RoundedCornerShape(
+                                    topStart = CodexTheme.dimens.cornerRounding,
+                                    topEnd = CodexTheme.dimens.cornerRounding,
+                            ),
+                            sheetBackgroundColor = CodexTheme.colors.dialogBackground,
+                    ) {
+                        Scaffold(
+                                backgroundColor = CodexTheme.colors.appBackground,
+                                contentColor = CodexTheme.colors.onAppBackground,
+                                topBar = { TopBar(navController) }
+                        ) { padding ->
+                            CodexNavHost(
+                                    navRoutes = navRoutes,
+                                    navHostController = navController,
+                                    modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
+                            )
+                        }
                     }
 
                     HelpItem()

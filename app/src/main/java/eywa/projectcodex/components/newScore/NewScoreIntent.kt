@@ -1,9 +1,9 @@
 package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.sharedUi.UpdateCalendarInfo
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
-import eywa.projectcodex.common.utils.UpdateCalendarInfo
 
 sealed class NewScoreIntent {
     data class DateChanged(val info: UpdateCalendarInfo) : NewScoreIntent()

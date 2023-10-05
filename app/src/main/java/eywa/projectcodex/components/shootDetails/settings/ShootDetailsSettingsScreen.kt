@@ -141,8 +141,8 @@ fun SettingsScreen_Preview() {
                         main = ShootDetailsStatePreviewHelper.SIMPLE,
                         extras = ShootDetailsSettingsExtras().let {
                             it.copy(
-                                    addEndSizePartial = it.addEndSizePartial.onValueChanged("3"),
-                                    scorePadEndSizePartial = it.scorePadEndSizePartial.onValueChanged("3"),
+                                    addEndSizePartial = it.addEndSizePartial.onTextChanged("3"),
+                                    scorePadEndSizePartial = it.scorePadEndSizePartial.onTextChanged("3"),
                             )
                         }
                 )
@@ -162,8 +162,8 @@ fun Error_SettingsScreen_Preview() {
                         main = ShootDetailsStatePreviewHelper.SIMPLE,
                         extras = ShootDetailsSettingsExtras().let {
                             it.copy(
-                                    addEndSizePartial = it.addEndSizePartial.onValueChanged("-1"),
-                                    scorePadEndSizePartial = it.scorePadEndSizePartial.onValueChanged("-1"),
+                                    addEndSizePartial = it.addEndSizePartial.onTextChanged("-1"),
+                                    scorePadEndSizePartial = it.scorePadEndSizePartial.onTextChanged("-1"),
                             )
                         }
                 )

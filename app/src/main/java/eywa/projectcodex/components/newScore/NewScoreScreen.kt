@@ -1,9 +1,6 @@
 package eywa.projectcodex.components.newScore
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,11 +27,11 @@ import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.CodexDateSelectorRow
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
@@ -42,8 +39,6 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.UpdateCalendarInfo
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import java.util.*
@@ -100,7 +95,11 @@ fun NewScoreScreen(
                         .padding(25.dp)
                         .testTag(NewScoreTestTag.SCREEN.getTestTag())
         ) {
-            DateRow(state, listener)
+            CodexDateSelectorRow(
+                    date = state.dateShot,
+                    updateDateListener = { listener(DateChanged(it)) },
+                    helpListener = { listener(HelpShowcaseAction(it)) },
+            )
 
             if (!state.updateDefaultRoundsState.hasTaskFinished) {
                 Text(
@@ -217,68 +216,12 @@ private fun EditingEndRows(
     )
 }
 
-@Composable
-private fun DateRow(
-        state: NewScoreState,
-        listener: (NewScoreIntent) -> Unit,
-) {
-    val context = LocalContext.current
-    val timePicker by lazy {
-        TimePickerDialog(
-                context,
-                { _, hours, minutes ->
-                    listener(DateChanged(UpdateCalendarInfo(hours = hours, minutes = minutes)))
-                },
-                state.dateShot.get(Calendar.HOUR_OF_DAY),
-                state.dateShot.get(Calendar.MINUTE),
-                true,
-        )
-    }
-    val datePicker by lazy {
-        DatePickerDialog(
-                context,
-                { _, year, month, day ->
-                    listener(DateChanged(UpdateCalendarInfo(day = day, month = month, year = year)))
-                },
-                state.dateShot.get(Calendar.YEAR),
-                state.dateShot.get(Calendar.MONTH),
-                state.dateShot.get(Calendar.DATE),
-        )
-    }
-
-    DataRow(
-            title = stringResource(R.string.create_round__date),
-            helpState = HelpState(
-                    helpTitle = stringResource(R.string.help_create_round__date_title),
-                    helpBody = stringResource(R.string.help_create_round__date_body),
-                    helpListener = { listener(HelpShowcaseAction(it)) },
-            ),
-    ) {
-        Text(
-                text = DateTimeFormat.TIME_24_HOUR.format(state.dateShot),
-                style = CodexTypography.NORMAL.asClickableStyle(),
-                modifier = Modifier
-                        .clickable { timePicker.show() }
-                        .testTag(NewScoreTestTag.TIME_BUTTON.getTestTag())
-        )
-        Text(
-                text = DateTimeFormat.LONG_DATE.format(state.dateShot),
-                style = CodexTypography.NORMAL.asClickableStyle(),
-                modifier = Modifier
-                        .clickable { datePicker.show() }
-                        .testTag(NewScoreTestTag.DATE_BUTTON.getTestTag())
-        )
-    }
-}
-
 enum class NewScoreTestTag : CodexTestTag {
     SCREEN,
     DATABASE_WARNING,
     SUBMIT_BUTTON,
     CANCEL_BUTTON,
     RESET_BUTTON,
-    DATE_BUTTON,
-    TIME_BUTTON,
     ;
 
     override val screenName: String

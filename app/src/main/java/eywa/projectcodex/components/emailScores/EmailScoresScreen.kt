@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -173,6 +174,7 @@ private fun ToAndSubject(
                 placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
                 labelText = stringResource(id = R.string.email_scores__to),
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
                 modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
@@ -190,6 +192,7 @@ private fun ToAndSubject(
                 placeholderText = stringResource(id = R.string.email_default_message_subject),
                 labelText = stringResource(id = R.string.email_scores__subject),
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
                 modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
@@ -263,6 +266,7 @@ private fun MessageBody(
                     state = EmailScoresTextField.MESSAGE_HEADER.asTextFieldState(state, listener),
                     placeholderText = stringResource(id = R.string.email_scores__message_header_placeholder),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
+                    colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
                     helpState = HelpState(
                             helpListener = helpListener,
                             helpTitle = stringResource(R.string.help_email_scores__message_start_title),
@@ -294,6 +298,7 @@ private fun MessageBody(
                     state = EmailScoresTextField.MESSAGE_FOOTER.asTextFieldState(state, listener),
                     placeholderText = stringResource(id = R.string.email_scores__message_footer_placeholder),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
+                    colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
                     helpState = HelpState(
                             helpListener = helpListener,
                             helpTitle = stringResource(R.string.help_email_scores__message_end_title),
