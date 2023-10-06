@@ -12,6 +12,8 @@ import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.about.AboutScreen
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
+import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsBottomSheetAdd
 import eywa.projectcodex.components.archerInfo.ArcherInfoScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
@@ -39,6 +41,25 @@ enum class CodexNavRoute : NavRoute {
         @Composable
         override fun Screen(navController: NavController) {
             AboutScreen()
+        }
+    },
+    ARCHER_HANDICAPS {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.archer_handicaps__tab_title),
+                group = TabSwitcherGroup.ARCHER_INFO,
+                navRoute = this,
+                position = 1,
+        )
+        override val bottomSheets: List<BottomSheetNavRoute>
+            get() = listOf(ArcherHandicapsBottomSheetAdd)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.archer_info__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            ArcherHandicapsScreen(navController)
         }
     },
     ARCHER_INFO {

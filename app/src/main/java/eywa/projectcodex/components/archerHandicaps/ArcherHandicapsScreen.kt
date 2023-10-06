@@ -22,8 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -65,6 +68,7 @@ fun ArcherHandicapsScreen(
 ) {
     Box(
             contentAlignment = Alignment.BottomEnd,
+            modifier = Modifier.testTag(ArcherHandicapsTestTag.SCREEN.getTestTag())
     ) {
         LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(7.dp, Alignment.CenterVertically),
@@ -72,6 +76,17 @@ fun ArcherHandicapsScreen(
                 contentPadding = PaddingValues(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 70.dp),
                 modifier = Modifier.fillMaxSize()
         ) {
+            if (state.handicapsForDisplay.isEmpty()) {
+                item {
+                    Text(
+                            text = stringResource(R.string.archer_handicaps__no_handicaps_message),
+                            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.testTag(ArcherHandicapsTestTag.NO_HANDICAPS_MESSAGE)
+                    )
+                }
+            }
+
             items(
                     count = state.handicapsForDisplay.size,
                     key = { state.handicapsForDisplay[it].archerHandicapId },
@@ -90,7 +105,9 @@ fun ArcherHandicapsScreen(
                         contentDescription = stringResource(R.string.archer_handicaps__add_submit),
                 ),
                 onClick = { listener(AddClicked) },
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier
+                        .padding(20.dp)
+                        .testTag(ArcherHandicapsTestTag.ADD_BUTTON)
         )
     }
 
@@ -115,19 +132,28 @@ private fun HandicapRow(
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(ArcherHandicapsTestTag.ROW)
     ) {
         if (index == 0 || isFirstNonCurrentHandicap) {
             Text(
-                    text = if (index == 0) "Current:" else "Past:",
+                    text =
+                    stringResource(
+                            if (index == 0) R.string.archer_handicaps__current_separator
+                            else R.string.archer_handicaps__past_separator
+                    ),
                     style = CodexTypography.LARGE.copy(color = CodexTheme.colors.onAppBackground),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 15.dp, bottom = 10.dp)
+                    modifier = Modifier
+                            .padding(top = 15.dp, bottom = 10.dp)
+                            .testTag(ArcherHandicapsTestTag.LIST_HEADER)
             )
         }
         Surface(
                 color = CodexTheme.colors.listItemOnAppBackground,
                 onClick = { listener(RowClicked(item)) },
+                modifier = Modifier.testTag(ArcherHandicapsTestTag.ROW_LIST_ITEM)
         ) {
             Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -140,18 +166,22 @@ private fun HandicapRow(
                     Text(
                             text = DateTimeFormat.TIME_24_HOUR.format(item.dateSet),
                             style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemLight),
+                            modifier = Modifier.testTag(ArcherHandicapsTestTag.ROW_TIME)
                     )
                     Text(
                             text = DateTimeFormat.SHORT_DATE.format(item.dateSet),
                             style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.widthIn(min = 140.dp)
+                            modifier = Modifier
+                                    .widthIn(min = 140.dp)
+                                    .testTag(ArcherHandicapsTestTag.ROW_DATE)
                     )
                 }
                 Text(
                         text = item.handicap.toString(),
                         style = CodexTypography.LARGE.copy(color = CodexTheme.colors.onListItemAppOnBackground),
+                        modifier = Modifier.testTag(ArcherHandicapsTestTag.ROW_HANDICAP)
                 )
             }
         }
@@ -246,7 +276,7 @@ private enum class ArcherHandicapsMenuItem(
             icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Delete),
             contentDescription = R.string.general_delete,
             intent = DeleteClicked,
-            testTag = ArcherHandicapsTestTag.DELETE,
+            testTag = ArcherHandicapsTestTag.DELETE_BUTTON,
     ),
     ;
 
@@ -280,9 +310,18 @@ private enum class ArcherHandicapsMenuItem(
 
 enum class ArcherHandicapsTestTag : CodexTestTag {
     SCREEN,
-    DELETE,
+    NO_HANDICAPS_MESSAGE,
+    LIST_HEADER,
+    ROW,
+    ROW_LIST_ITEM,
+    ROW_TIME,
+    ROW_DATE,
+    ROW_HANDICAP,
+    DELETE_BUTTON,
+    ADD_BUTTON,
     ADD_HANDICAP_VALUE,
     ADD_HANDICAP_ERROR_TEXT,
+    ADD_HANDICAP_SUBMIT,
     ;
 
     override val screenName: String
@@ -296,63 +335,10 @@ enum class ArcherHandicapsTestTag : CodexTestTag {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun ArcherHandicapsScreen_Preview() {
-    PreviewScreen(
-            ArcherHandicapsState(
-                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
-                    allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
-            )
-    )
-}
-
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
-@Composable
-fun Single_ArcherHandicapsScreen_Preview() {
-    PreviewScreen(
-            ArcherHandicapsState(
-                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
-            )
-    )
-}
-
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
-@Composable
-fun AddOpen_ArcherHandicapsScreen_Preview() {
-    PreviewScreen(
-            ArcherHandicapsState(
-                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
-                    allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
-                    menuShownForId = 2,
-                    openAddDialog = true,
-            )
-    )
-}
-
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
-@Composable
-fun Errors_ArcherHandicapsScreen_Preview() {
-    PreviewScreen(
-            ArcherHandicapsState(
-                    currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
-                    allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
-                    menuShownForId = 2,
-                    openAddDialog = true,
-            )
-    )
-}
-
-@Composable
-private fun PreviewScreen(initialState: ArcherHandicapsState) {
-    var state by remember { mutableStateOf(initialState) }
+fun ArcherHandicapsScreen_Preview(
+        @PreviewParameter(ArcherHandicapsScreenPreviewParamProvider::class) param: ArcherHandicapsState
+) {
+    var state by remember { mutableStateOf(param) }
     val context = LocalContext.current
 
     CodexTheme {
@@ -368,3 +354,28 @@ private fun PreviewScreen(initialState: ArcherHandicapsState) {
         }
     }
 }
+
+class ArcherHandicapsScreenPreviewParamProvider : CollectionPreviewParameterProvider<ArcherHandicapsState>(
+        listOf(
+                ArcherHandicapsState(
+                        currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                        allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
+                ),
+                ArcherHandicapsState(
+                        currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                ),
+                ArcherHandicapsState(),
+                ArcherHandicapsState(
+                        currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                        allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
+                        menuShownForId = 2,
+                        openAddDialog = true,
+                ),
+                ArcherHandicapsState(
+                        currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                        allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
+                        menuShownForId = 2,
+                        openAddDialog = true,
+                ),
+        )
+)

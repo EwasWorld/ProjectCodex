@@ -1,5 +1,7 @@
 package eywa.projectcodex.instrumentedTests.dsl
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyChild
@@ -9,6 +11,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import eywa.projectcodex.common.utils.CodexTestTag
@@ -20,6 +23,29 @@ fun List<CodexNodeMatcher>.getMatcher() =
 sealed class CodexNodeMatcher {
     data class HasText(val text: String) : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = hasText(text)
+    }
+
+    object HasSetTextAction : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = hasSetTextAction()
+    }
+
+    data class HasError(val text: String, val ignoreCase: Boolean = true) : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher =
+                SemanticsMatcher(
+                        "${SemanticsProperties.Error.name} = '$text' (ignoreCase: $ignoreCase)"
+                ) {
+                    it.config.getOrNull(SemanticsProperties.Error)
+                            ?.equals(text, ignoreCase) ?: false
+                }
+    }
+
+    object HasNoError : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher =
+                SemanticsMatcher(
+                        "Has no ${SemanticsProperties.Error.name}"
+                ) {
+                    !it.config.contains(SemanticsProperties.Error)
+                }
     }
 
     data class HasContentDescription(val text: String) : CodexNodeMatcher() {

@@ -7,7 +7,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
+import eywa.projectcodex.common.utils.CodexTestTag
+
+fun Modifier.testTag(testTag: CodexTestTag) = testTag(testTag.getTestTag())
 
 object ComposeUtils {
     fun <K : Any> Modifier.modifierIfNotNull(value: K?, modifier: (K) -> Modifier) =

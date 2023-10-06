@@ -83,7 +83,7 @@ class SightMarksViewModelUnitTest {
 
     @Test
     fun testInitialise_HighestAtTop() = runTest {
-        db.bowDao.isHighestAtTop = true
+        db.bow.isHighestAtTop = true
         val sut = getSut()
         assertEquals(
                 SightMarksState.Loading(),
@@ -164,7 +164,7 @@ class SightMarksViewModelUnitTest {
                 SightMarksState.Loaded(sightMarks = data),
                 sut,
         )
-        verify(db.bowDao.mock).setHighestAtTop(DEFAULT_BOW_ID, true)
+        verify(db.bow.mock).setHighestAtTop(DEFAULT_BOW_ID, true)
     }
 
     @Test

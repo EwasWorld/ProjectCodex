@@ -5,10 +5,20 @@ import eywa.projectcodex.database.archer.ArcherRepo
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.bow.BowDao
+import eywa.projectcodex.database.bow.BowRepo
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.bow.DatabaseBow
-import eywa.projectcodex.database.rounds.*
-import eywa.projectcodex.database.shootData.*
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.RoundArrowCountDao
+import eywa.projectcodex.database.rounds.RoundDao
+import eywa.projectcodex.database.rounds.RoundDistanceDao
+import eywa.projectcodex.database.rounds.RoundRepo
+import eywa.projectcodex.database.rounds.RoundSubTypeDao
+import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
+import eywa.projectcodex.database.shootData.ShootDao
+import eywa.projectcodex.database.shootData.ShootDetailDao
+import eywa.projectcodex.database.shootData.ShootRoundDao
+import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.database.sightMarks.SightMarkDao
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
@@ -17,7 +27,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyList
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 class MockScoresRoomDatabase {
     val shootDao = MockShootDao()
@@ -28,10 +42,10 @@ class MockScoresRoomDatabase {
     val shootRoundDao: ShootRoundDao = mock {}
     val shootDetailDao: ShootDetailDao = mock {}
     val sightMarksDao = MockSightMarksDao()
-    val bowDao = MockBowDao()
 
     val rounds = MockRounds()
     val archerRepo = MockArcherRepo()
+    val bow = MockBow()
 
     val mock: ScoresRoomDatabase = mock {
         on { shootDao() } doReturn shootDao.mock
@@ -44,7 +58,8 @@ class MockScoresRoomDatabase {
         on { shootDetailDao() } doReturn shootDetailDao
         on { shootsRepo() } doReturn ShootsRepo(shootDao.mock, shootDetailDao, shootRoundDao)
         on { sightMarkDao() } doReturn sightMarksDao.mock
-        on { bowDao() } doReturn bowDao.mock
+        on { bowDao() } doReturn bow.mock
+        on { bowRepo() } doReturn bow.mockRepo
         on { archerRepo() } doReturn archerRepo.mock
         on { roundsRepo() } doReturn rounds.mockRepo
     }
@@ -101,11 +116,21 @@ class MockScoresRoomDatabase {
         }
     }
 
-    class MockBowDao {
+    class MockBow {
         var isHighestAtTop = false
 
         val mock: BowDao = mock {
             on { getDefaultBow() } doAnswer {
+                flow {
+                    emit(
+                            DatabaseBow(DEFAULT_BOW_ID, "Default", isSightMarkDiagramHighestAtTop = isHighestAtTop)
+                    )
+                }
+            }
+        }
+
+        val mockRepo: BowRepo = mock {
+            on { defaultBow } doAnswer {
                 flow {
                     emit(
                             DatabaseBow(DEFAULT_BOW_ID, "Default", isSightMarkDiagramHighestAtTop = isHighestAtTop)
@@ -119,7 +144,13 @@ class MockScoresRoomDatabase {
         var handicaps = emptyList<DatabaseArcherHandicap>()
 
         val mock = mock<ArcherRepo> {
-            on { latestHandicapsForDefaultArcher } doAnswer { flow { emit(handicaps) } }
+            on { latestHandicapsForDefaultArcher } doAnswer {
+                handicaps
+                        .groupBy { it.handicapType }
+                        .mapNotNull { it.value.maxByOrNull { hc -> hc.dateSet } }
+                        .let { flow { emit(it) } }
+            }
+            on { allHandicapsForDefaultArcher } doAnswer { flow { emit(handicaps) } }
         }
     }
 }

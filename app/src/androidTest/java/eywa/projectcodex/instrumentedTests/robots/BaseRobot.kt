@@ -1,13 +1,22 @@
 package eywa.projectcodex.instrumentedTests.robots
 
+import android.widget.DatePicker
+import android.widget.TimePicker
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.matcher.ViewMatchers
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.helpShowcase.ui.ComposeHelpShowcaseTestTag
+import eywa.projectcodex.common.onViewWithClassName
+import eywa.projectcodex.common.setDatePickerValue
+import eywa.projectcodex.common.setTimePickerValue
+import eywa.projectcodex.common.sharedUi.DateSelectorRowTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
@@ -16,7 +25,11 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
+import eywa.projectcodex.instrumentedTests.robots.common.Robot
+import java.util.Calendar
 import java.util.Stack
+import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 @DslMarker
 annotation class RobotDslMarker
@@ -27,7 +40,7 @@ abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
         private val screenTestTag: CodexTestTag,
         private val screenStack: Stack<BaseRobot> = Stack(),
-) {
+) : Robot {
     constructor(
             composeTestRule: ComposeTestRule<MainActivity>,
             screenTestTag: CodexTestTag,
@@ -57,8 +70,38 @@ abstract class BaseRobot(
         return true
     }
 
-    fun perform(config: TestActionDsl.() -> Unit) {
+    override fun perform(config: TestActionDsl.() -> Unit) {
         TestActionDsl().apply(config).run(composeTestRule)
+    }
+
+    fun setDateAndTime(calendar: Calendar) {
+        perform {
+            +CodexNodeMatcher.HasTestTag(DateSelectorRowTestTag.DATE_BUTTON)
+            +CodexNodeInteraction.PerformClick
+        }
+        performDatePickerDateSelection(calendar)
+        perform {
+            +CodexNodeMatcher.HasTestTag(DateSelectorRowTestTag.TIME_BUTTON)
+            +CodexNodeInteraction.PerformClick
+        }
+        performTimePickerTimeSelection(calendar)
+    }
+
+    fun performDatePickerDateSelection(calendar: Calendar) {
+        CustomConditionWaiter.waitForClassToAppear(DatePicker::class.java)
+        onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
+        Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
+    }
+
+    fun performTimePickerTimeSelection(calendar: Calendar) {
+        CustomConditionWaiter.waitForClassToAppear(TimePicker::class.java)
+        onViewWithClassName(TimePicker::class.java).perform(
+                setTimePickerValue(
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                )
+        )
+        Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
     fun clickElement(
@@ -235,5 +278,9 @@ abstract class BaseRobot(
     fun <R : BaseRobot> clickAndroidBack(): R {
         pressBack()
         return popRobot()
+    }
+
+    override fun <R : BaseRobot> createRobot(clazz: KClass<R>, block: R.() -> Unit) {
+        clazz.primaryConstructor!!.call(composeTestRule).apply(block)
     }
 }

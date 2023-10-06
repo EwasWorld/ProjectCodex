@@ -62,7 +62,7 @@ class ClassificationTablesE2eTest {
 
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
-                clickClassificationTables {
+                clickTab(ClassificationTablesRobot::class) {
                     checkNoClassifications()
 
                     roundRobot.clickSelectedRound()

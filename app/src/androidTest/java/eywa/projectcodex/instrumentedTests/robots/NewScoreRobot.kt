@@ -12,6 +12,7 @@ import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.onViewWithClassName
 import eywa.projectcodex.common.setDatePickerValue
 import eywa.projectcodex.common.setTimePickerValue
+import eywa.projectcodex.common.sharedUi.DateSelectorRowTestTag
 import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
@@ -44,11 +45,11 @@ class NewScoreRobot(
     }
 
     fun checkTime(time: String) {
-        checkElementText(NewScoreTestTag.TIME_BUTTON, time)
+        checkElementText(DateSelectorRowTestTag.TIME_BUTTON, time)
     }
 
     fun checkDate(date: String) {
-        checkElementText(NewScoreTestTag.DATE_BUTTON, date)
+        checkElementText(DateSelectorRowTestTag.DATE_BUTTON, date)
     }
 
     fun setTime(calendar: Calendar) {
@@ -59,7 +60,7 @@ class NewScoreRobot(
     }
 
     fun setTime(hours: Int, minutes: Int) {
-        clickElement(NewScoreTestTag.TIME_BUTTON)
+        clickElement(DateSelectorRowTestTag.TIME_BUTTON)
         CustomConditionWaiter.waitForClassToAppear(TimePicker::class.java)
         onViewWithClassName(TimePicker::class.java).perform(setTimePickerValue(hours, minutes))
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
@@ -74,7 +75,7 @@ class NewScoreRobot(
     }
 
     fun setDate(day: Int, month: Int, year: Int) {
-        clickElement(NewScoreTestTag.DATE_BUTTON)
+        clickElement(DateSelectorRowTestTag.DATE_BUTTON)
         val calendar = Calendar.getInstance()
         // Use a different hour/minute to ensure it's not overwriting the time
         calendar.set(year, month, day, 13, 15, 0)

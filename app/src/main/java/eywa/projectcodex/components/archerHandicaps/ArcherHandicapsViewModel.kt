@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.AddClicked
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.AddHandled
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.DeleteClicked
@@ -12,7 +13,6 @@ import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.Delete
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.HelpShowcaseAction
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.RowClicked
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.hiltModules.LocalNavRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -53,7 +53,7 @@ class ArcherHandicapsViewModel @Inject constructor(
 
     fun handle(action: ArcherHandicapsIntent) {
         when (action) {
-            is HelpShowcaseAction -> helpShowcase.handle(action.action, LocalNavRoute.ARCHER_HANDICAPS::class)
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.ARCHER_HANDICAPS::class)
             is RowClicked ->
                 _state.update {
                     if (it.allHandicaps.orEmpty()
@@ -62,20 +62,25 @@ class ArcherHandicapsViewModel @Inject constructor(
                         return@update it
                     }
                     val menuShownFor = action.item.archerHandicapId.takeIf { id -> id != it.menuShownForId }
-                    it.copy(deleteDialogOpen = false, menuShownForId = menuShownFor)
+                    it.closeAllDialogs().copy(menuShownForId = menuShownFor)
                 }
 
-            AddClicked -> _state.update { it.copy(openAddDialog = true) }
+            AddClicked -> _state.update { it.closeAllDialogs().copy(openAddDialog = true) }
             AddHandled -> _state.update { it.copy(openAddDialog = false) }
 
             DeleteClicked -> _state.update { it.copy(deleteDialogOpen = true) }
-            DeleteDialogCancelClicked -> _state.update { it.copy(deleteDialogOpen = false) }
+            DeleteDialogCancelClicked -> _state.update { it.closeAllDialogs() }
             DeleteDialogOkClicked -> {
                 viewModelScope.launch {
                     archerRepo.deleteHandicap(state.value.menuShownForId!!)
                 }
-                _state.update { it.copy(deleteDialogOpen = false, menuShownForId = null) }
+                _state.update { it.closeAllDialogs() }
             }
         }
     }
+
+    private fun ArcherHandicapsState.closeAllDialogs() = copy(
+            deleteDialogOpen = false,
+            menuShownForId = null,
+    )
 }

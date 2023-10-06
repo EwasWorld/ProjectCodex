@@ -24,4 +24,22 @@ class NumberValidatorGroup<I : Number>(
     }
 
     fun parse(value: String) = if (getFirstError(value) != null) null else typeValidator.transform(value)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is NumberValidatorGroup<*>) return false
+
+        if (typeValidator != other.typeValidator) return false
+        if (!validators.contentEquals(other.validators)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = typeValidator.hashCode()
+        result = 31 * result + validators.contentHashCode()
+        return result
+    }
+
+
 }

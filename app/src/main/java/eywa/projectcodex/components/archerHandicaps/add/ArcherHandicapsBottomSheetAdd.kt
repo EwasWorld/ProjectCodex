@@ -28,6 +28,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsTestTag
 import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsAddIntent.DateChanged
 import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsAddIntent.HandicapTextUpdated
@@ -103,7 +104,9 @@ private fun AddHandicapBottomSheetContent(
                         buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
                         onClick = { listener(SubmitPressed) },
                         helpState = null,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 20.dp)
+                        modifier = Modifier
+                                .padding(top = 8.dp, bottom = 20.dp)
+                                .testTag(ArcherHandicapsTestTag.ADD_HANDICAP_SUBMIT)
                 )
             }
         }

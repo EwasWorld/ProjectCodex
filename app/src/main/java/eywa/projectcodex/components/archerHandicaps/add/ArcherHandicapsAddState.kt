@@ -29,6 +29,6 @@ internal data class ArcherHandicapsAddState(
                 bowStyle = bowStyle,
                 handicapType = HandicapType.OUTDOOR,
                 handicap = handicap.parsed!!,
-                dateSet = Calendar.getInstance(),
+                dateSet = date,
         )
 }

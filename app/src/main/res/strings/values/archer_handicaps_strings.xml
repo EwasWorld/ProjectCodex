@@ -8,6 +8,10 @@
     <string name="archer_handicaps__type_indoor_tournament">Indoor Tournament</string>
     <string name="archer_handicaps__type_outdoor_tournament">Outdoor Tournament</string>
 
+    <string name="archer_handicaps__no_handicaps_message">No handicaps\nTap the + to create one</string>
+    <string name="archer_handicaps__current_separator">Current:</string>
+    <string name="archer_handicaps__past_separator">Past:</string>
+
     <string name="archer_handicaps__menu_edit">Edit</string>
     <string name="archer_handicaps__menu_history">History</string>
 

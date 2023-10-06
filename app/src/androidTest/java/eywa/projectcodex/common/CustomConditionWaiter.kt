@@ -59,8 +59,14 @@ class CustomConditionWaiter {
 
         fun waitForComposeCondition(description: String? = null, assertion: () -> Unit) {
             ConditionWatcher.waitForCondition(object : Instruction() {
+                var lastError: AssertionError? = null
+
                 override fun getDescription(): String {
-                    return description ?: "Waiting compose condition"
+                    return listOfNotNull(
+                            "Waiting compose condition",
+                            description,
+                            lastError?.message,
+                    ).joinToString()
                 }
 
                 override fun checkCondition(): Boolean {
@@ -69,6 +75,7 @@ class CustomConditionWaiter {
                         return true
                     }
                     catch (e: AssertionError) {
+                        lastError = e
                         println(e)
                     }
                     return false
