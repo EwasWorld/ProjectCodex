@@ -30,7 +30,7 @@ data class ClassificationTablesUseCase(
             it.isGent == isGent
                     && it.age == age
                     && bow == it.bowStyle
-                    && it.rounds.contains(DbRoundRef(defaultRoundId, roundSubTypeId))
+                    && it.round == DbRoundRef(defaultRoundId, roundSubTypeId)
         }.map {
             it.copy(
                     handicap = Handicap.getHandicapForRound(

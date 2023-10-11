@@ -20,6 +20,14 @@ class ClassificationTablesUseCaseUnitTest {
     private val classificationTables = RawResourcesHelper.classificationTables
 
     @Test
+    fun testNoDuplicateRoundRefs() {
+        assertEquals(
+                ClassificationRound.values().size,
+                ClassificationRound.values().distinctBy { it.rounds }.size,
+        )
+    }
+
+    @Test
     fun testMensYork() = runTest {
         val round = RawResourcesHelper.getDefaultRounds().find { it.round.displayName == "York / Hereford" }!!
 
@@ -36,7 +44,7 @@ class ClassificationTablesUseCaseUnitTest {
                         classification = Classification.ARCHER_1ST_CLASS,
                         isGent = true,
                         bowStyle = RECURVE,
-                        rounds = listOf(ClassificationRound.DbRoundRef(1, 1)),
+                        round = ClassificationRound.DbRoundRef(1, 1),
                         age = SENIOR,
                         score = 534,
                         handicap = 58,
@@ -48,7 +56,7 @@ class ClassificationTablesUseCaseUnitTest {
                         classification = Classification.ELITE_MASTER_BOWMAN,
                         isGent = true,
                         bowStyle = RECURVE,
-                        rounds = listOf(ClassificationRound.DbRoundRef(1, 1)),
+                        round = ClassificationRound.DbRoundRef(1, 1),
                         age = SENIOR,
                         score = 1205,
                         handicap = 16,
@@ -74,7 +82,7 @@ class ClassificationTablesUseCaseUnitTest {
                         classification = Classification.ARCHER_1ST_CLASS,
                         isGent = false,
                         bowStyle = RECURVE,
-                        rounds = listOf(ClassificationRound.DbRoundRef(1, 2)),
+                        round = ClassificationRound.DbRoundRef(1, 2),
                         age = SENIOR,
                         score = 614,
                         handicap = 63,
@@ -86,7 +94,7 @@ class ClassificationTablesUseCaseUnitTest {
                         classification = Classification.ELITE_MASTER_BOWMAN,
                         isGent = false,
                         bowStyle = RECURVE,
-                        rounds = listOf(ClassificationRound.DbRoundRef(1, 2)),
+                        round = ClassificationRound.DbRoundRef(1, 2),
                         age = SENIOR,
                         score = 1232,
                         handicap = 21,
@@ -112,7 +120,7 @@ class ClassificationTablesUseCaseUnitTest {
                         classification = Classification.ARCHER_1ST_CLASS,
                         isGent = true,
                         bowStyle = COMPOUND,
-                        rounds = listOf(ClassificationRound.DbRoundRef(8, 1)),
+                        round = ClassificationRound.DbRoundRef(8, 1),
                         age = U15,
                         score = 609,
                         handicap = 63,
@@ -124,7 +132,7 @@ class ClassificationTablesUseCaseUnitTest {
                         classification = Classification.ELITE_MASTER_BOWMAN,
                         isGent = true,
                         bowStyle = COMPOUND,
-                        rounds = listOf(ClassificationRound.DbRoundRef(8, 1)),
+                        round = ClassificationRound.DbRoundRef(8, 1),
                         age = U15,
                         score = 1229,
                         handicap = 27,

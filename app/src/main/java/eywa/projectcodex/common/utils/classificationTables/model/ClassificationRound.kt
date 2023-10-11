@@ -1,6 +1,6 @@
 package eywa.projectcodex.common.utils.classificationTables.model
 
-enum class ClassificationRound(val rawName: String, val rounds: List<DbRoundRef>) {
+enum class ClassificationRound(val rawName: String, val rounds: DbRoundRef) {
     YORK("York", 1, 1),
     HEREFORD_BRISTOL_I("Hereford / Bristol I", 1, 2),
     BRISTOL_II("Bristol II", 1, 3),
@@ -54,7 +54,7 @@ enum class ClassificationRound(val rawName: String, val rounds: List<DbRoundRef>
     WA_900("WA 900", 12),
     WA_70M("WA 70m", 13),
     WA_60M("WA 60m", 14),
-    WA_50M_BAREBOW_METRIC_122_50("WA 50m (Barebow) / Metric 122-50", listOf(DbRoundRef(15), DbRoundRef(16, 1))),
+    WA_50M_BAREBOW_METRIC_122_50("WA 50m (Barebow) / Metric 122-50", 16, 1),
     METRIC_122_40("Metric 122-40", 16, 2),
     METRIC_122_30("Metric 122-30", 16, 3),
     WA_50M_COMPOUND("WA 50m (Compound)", 15),
@@ -63,7 +63,7 @@ enum class ClassificationRound(val rawName: String, val rounds: List<DbRoundRef>
     ;
 
     constructor(rawName: String, defaultRoundId: Int, defaultRoundSubtypeId: Int? = null) :
-            this(rawName, listOf(DbRoundRef(defaultRoundId, defaultRoundSubtypeId)))
+            this(rawName, DbRoundRef(defaultRoundId, defaultRoundSubtypeId))
 
     data class DbRoundRef(
             val defaultRoundId: Int,
