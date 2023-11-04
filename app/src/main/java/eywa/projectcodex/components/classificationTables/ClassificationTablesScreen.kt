@@ -266,7 +266,7 @@ private fun Table(
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
 
-                    HandicapTableColumn.values().forEach {
+                    ClassificationTableColumn.values().forEach {
                         item {
                             Text(
                                     text = it.header.get(),
@@ -276,7 +276,7 @@ private fun Table(
                         }
                     }
                     entries.forEach { (entry, isActual) ->
-                        HandicapTableColumn.values().forEach {
+                        ClassificationTableColumn.values().forEach {
                             item {
                                 Text(
                                         text = it.data(entry).get(),
@@ -306,7 +306,7 @@ private fun Table(
     }
 }
 
-enum class HandicapTableColumn(
+enum class ClassificationTableColumn(
         val header: ResOrActual<String>,
         val tableCellTestTag: ClassificationTablesTestTag,
         val data: (ClassificationTableEntry) -> ResOrActual<String>,

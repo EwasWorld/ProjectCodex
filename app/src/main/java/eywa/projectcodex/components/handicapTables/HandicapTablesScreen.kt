@@ -22,9 +22,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +53,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectFaceDialogAction
@@ -248,6 +252,8 @@ private fun Table(
         highlighted: HandicapScore?,
         helpState: HelpState,
 ) {
+    val resources = LocalContext.current.resources
+
     CodexGrid(
             columns = 3,
             alignment = Alignment.Center,
@@ -255,14 +261,10 @@ private fun Table(
                     .updateHelpDialogPosition(helpState)
                     .padding(horizontal = 10.dp, vertical = 8.dp)
     ) {
-        listOf(
-                R.string.handicap_tables__handicap_field,
-                R.string.handicap_tables__score_field,
-                R.string.handicap_tables__allowance_field,
-        ).forEach {
+        HandicapTableColumn.values().forEach {
             item {
                 Text(
-                        text = stringResource(it),
+                        text = it.label.get(),
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
                 )
@@ -272,14 +274,10 @@ private fun Table(
         handicaps.forEach {
             val isHighlighted = it == highlighted
 
-            listOf(
-                    it.handicap to HandicapTablesTestTag.TABLE_HANDICAP,
-                    it.score to HandicapTablesTestTag.TABLE_SCORE,
-                    it.allowance to HandicapTablesTestTag.TABLE_ALLOWANCE,
-            ).forEach { (it, testTag) ->
+            HandicapTableColumn.values().forEach { column ->
                 item(fillBox = isHighlighted) {
                     Text(
-                            text = it.toString(),
+                            text = column.data(it).get(),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                     .modifierIf(
@@ -287,12 +285,53 @@ private fun Table(
                                             modifier = Modifier.background(CodexTheme.colors.appBackground)
                                     )
                                     .padding(3.dp)
-                                    .testTag(testTag.getTestTag())
+                                    .testTag(column.testTag.getTestTag())
+                                    .semantics {
+                                        contentDescription = column
+                                                .semanticData(it)
+                                                .get(resources)
+                                    }
                     )
                 }
             }
         }
     }
+}
+
+enum class HandicapTableColumn(
+        val label: ResOrActual<String>,
+        val testTag: HandicapTablesTestTag,
+        val data: (HandicapScore) -> ResOrActual<String>,
+        val semanticData: (HandicapScore) -> ResOrActual<String>,
+) {
+    HANDICAP(
+            label = ResOrActual.StringResource(R.string.handicap_tables__handicap_field),
+            testTag = HandicapTablesTestTag.TABLE_HANDICAP,
+            data = { ResOrActual.Actual(it.handicap.toString()) },
+            semanticData = {
+                ResOrActual.StringResource(
+                        R.string.handicap_tables__handicap_semantics,
+                        listOf(it.handicap)
+                )
+            },
+    ),
+    SCORE(
+            label = ResOrActual.StringResource(R.string.handicap_tables__score_field),
+            testTag = HandicapTablesTestTag.TABLE_SCORE,
+            data = { ResOrActual.Actual(it.score.toString()) },
+            semanticData = { ResOrActual.StringResource(R.string.handicap_tables__score_semantics, listOf(it.score)) },
+    ),
+    ALLOWANCE(
+            label = ResOrActual.StringResource(R.string.handicap_tables__allowance_field),
+            testTag = HandicapTablesTestTag.TABLE_ALLOWANCE,
+            data = { ResOrActual.Actual(it.allowance.toString()) },
+            semanticData = {
+                ResOrActual.StringResource(
+                        R.string.handicap_tables__allowance_semantics,
+                        listOf(it.allowance)
+                )
+            },
+    ),
 }
 
 enum class HandicapTablesTestTag : CodexTestTag {

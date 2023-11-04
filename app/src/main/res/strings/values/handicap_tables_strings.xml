@@ -8,6 +8,9 @@
     <string name="handicap_tables__handicap_field">Handicap</string>
     <string name="handicap_tables__score_field">Score</string>
     <string name="handicap_tables__allowance_field">Allowance</string>
+    <string name="handicap_tables__handicap_semantics">%d Handicap</string>
+    <string name="handicap_tables__score_semantics">%d Score</string>
+    <string name="handicap_tables__allowance_semantics">%d Allowance</string>
     <string name="handicap_tables__handicap_system_title">System:</string>
     <string name="handicap_tables__handicap_system_david_lane">David Lane</string>
     <string name="handicap_tables__handicap_system_agb_2023">2023 ArcheryGB</string>
