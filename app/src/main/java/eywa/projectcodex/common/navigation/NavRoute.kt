@@ -66,12 +66,25 @@ interface NavRoute : ActionBarHelp {
                 },
         ) {
             Column {
-                if (tabSwitcherItems != null) {
+                if (!tabSwitcherItems.isNullOrEmpty()) {
+                    val shouldSaveState = tabSwitcherItems.first().group.saveState
                     CodexTabSwitcher(
                             items = tabSwitcherItems,
                             selectedItem = tabSwitcherItem!!,
                             itemClickedListener = { item ->
-                                item.navRoute.navigate(navController, popCurrentRoute = true)
+                                item.navRoute.navigate(navController) {
+                                    val currentRoute = navController.currentDestination?.route
+                                    if (currentRoute != null) {
+                                        popUpTo(currentRoute) {
+                                            inclusive = true
+                                            if (shouldSaveState) saveState = true
+                                        }
+                                    }
+                                    if (shouldSaveState) {
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
                             },
                     )
                 }

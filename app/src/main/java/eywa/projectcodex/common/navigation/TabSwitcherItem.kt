@@ -10,7 +10,9 @@ class TabSwitcherItem(
         val position: Int,
 ) : NamedItem
 
-enum class TabSwitcherGroup {
-    REFERENCES,
+enum class TabSwitcherGroup(
+        val saveState: Boolean = false,
+) {
+    REFERENCES(saveState = true),
     ARCHER_INFO,
 }
