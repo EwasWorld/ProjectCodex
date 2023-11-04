@@ -6,16 +6,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
 sealed class ResOrActual<T> {
-    data class Actual<T>(val actual: T): ResOrActual<T>() {
+    data class Actual<T>(val actual: T) : ResOrActual<T>() {
         @Composable
         override fun get(): T = actual
         override fun get(resources: Resources): T = actual
     }
 
-    data class StringResource(@StringRes val resId: Int, val args: List<Any> = emptyList()): ResOrActual<String>() {
+    data class StringResource(@StringRes val resId: Int, val args: List<Any> = emptyList()) : ResOrActual<String>() {
         @Composable
-        override fun get(): String = stringResource(resId, *args.toTypedArray())
-        override fun get(resources: Resources): String = resources.getString(resId, *args.toTypedArray())
+        override fun get(): String {
+            val resolved = args.mapNotNull { if (it is ResOrActual<*>) it.get() else it }
+            return stringResource(resId, *resolved.toTypedArray())
+        }
+
+        override fun get(resources: Resources): String {
+            val resolved = args.map { if (it is ResOrActual<*>) it.get(resources) else it }
+            return resources.getString(resId, *resolved.toTypedArray())
+        }
     }
 
     @Composable

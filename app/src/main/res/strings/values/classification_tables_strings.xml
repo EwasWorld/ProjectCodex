@@ -11,7 +11,11 @@
 
     <string name="classification_tables__classification_header">Classification</string>
     <string name="classification_tables__score_field">Score</string>
+    <string name="classification_tables__score_field_semantics">%s score %s</string>
     <string name="classification_tables__handicap_field">HC</string>
+    <string name="classification_tables__handicap_field_semantics">%s handicap %s</string>
+    <string name="classification_tables__score_field_empty_semantics">no score</string>
+    <string name="classification_tables__unofficial_semantics">unofficial</string>
     <string name="classification_tables__no_tables">No data</string>
 
     <string name="classification_tables__archer_3_short">Archer 3rd</string>
@@ -26,7 +30,7 @@
 
     <string name="classification_tables__disclaimer">Note: certain classifications can only be achieved at longer distances. Greyed out classifications are approximations and are not officially recognised by Archery GB</string>
 
-    <string name="help_classification_tables__categories_title">Gender</string>
+    <string name="help_classification_tables__categories_title">Categories</string>
     <string name="help_classification_tables__categories_body">Which Archery GB category to display classifications for</string>
     <string name="help_classification_tables__table_title">Classifications</string>
     <string name="help_classification_tables__table_body">Lists the scores required to achieve an Archery GB classification. Handicaps are provided for additional context. Note: not all rounds qualify for all classifications.</string>

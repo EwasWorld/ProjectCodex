@@ -25,10 +25,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,7 +49,9 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEntry
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
@@ -186,16 +189,13 @@ private fun Input(
 ) {
     DataRow(
             title = label,
+            text = currentValue,
             helpState = null,
-            modifier = modifier.testTag(testTag.getTestTag())
-    ) {
-        Text(
-                text = currentValue,
-                color = CodexTheme.colors.linkText,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable { onClick() }
-        )
-    }
+            onClick = onClick,
+            modifier = modifier
+                    .padding(vertical = 7.dp)
+                    .testTag(testTag.getTestTag())
+    )
     SimpleDialog(
             isShown = expanded,
             onDismissListener = onDismiss,
@@ -266,32 +266,29 @@ private fun Table(
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
 
-                    listOf(
-                            R.string.classification_tables__classification_header,
-                            R.string.classification_tables__score_field,
-                            R.string.classification_tables__handicap_field,
-                    ).forEach {
+                    HandicapTableColumn.values().forEach {
                         item {
                             Text(
-                                    text = stringResource(it),
+                                    text = it.header.get(),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
                             )
                         }
                     }
                     entries.forEach { (entry, isActual) ->
-                        listOf(
-                                resources.getString(entry.classification.shortStringId) to ClassificationTablesTestTag.TABLE_CLASSIFICATION,
-                                (entry.score?.toString() ?: "-") to ClassificationTablesTestTag.TABLE_SCORE,
-                                (entry.handicap?.toString() ?: "-") to ClassificationTablesTestTag.TABLE_HANDICAP,
-                        ).forEach { (text, testTag) ->
+                        HandicapTableColumn.values().forEach {
                             item {
                                 Text(
-                                        text = text,
+                                        text = it.data(entry).get(),
                                         modifier = Modifier
                                                 .padding(3.dp)
-                                                .testTag(testTag.getTestTag())
+                                                .testTag(it.tableCellTestTag)
                                                 .modifierIf(!isActual, Modifier.alpha(0.4f))
+                                                .semantics {
+                                                    contentDescription = it
+                                                            .semanticData(entry, isActual)
+                                                            .get(resources)
+                                                }
                                 )
                             }
                         }
@@ -307,6 +304,56 @@ private fun Table(
                 modifier = Modifier.padding(horizontal = 20.dp)
         )
     }
+}
+
+enum class HandicapTableColumn(
+        val header: ResOrActual<String>,
+        val tableCellTestTag: ClassificationTablesTestTag,
+        val data: (ClassificationTableEntry) -> ResOrActual<String>,
+        val semanticData: (ClassificationTableEntry, isActual: Boolean) -> ResOrActual<String>,
+) {
+    CLASSIFICATION_NAME(
+            header = ResOrActual.StringResource(R.string.classification_tables__classification_header),
+            tableCellTestTag = ClassificationTablesTestTag.TABLE_CLASSIFICATION,
+            data = { ResOrActual.StringResource(it.classification.shortStringId) },
+            semanticData = { it, _ -> ResOrActual.StringResource(it.classification.shortStringId) },
+    ),
+    SCORE(
+            header = ResOrActual.StringResource(R.string.classification_tables__score_field),
+            tableCellTestTag = ClassificationTablesTestTag.TABLE_SCORE,
+            data = { ResOrActual.Actual(it.score?.toString() ?: "-") },
+            semanticData = { it, isActual ->
+                if (it.score == null) {
+                    ResOrActual.StringResource(R.string.classification_tables__score_field_empty_semantics)
+                }
+                else {
+                    ResOrActual.StringResource(
+                            R.string.classification_tables__score_field_semantics,
+                            listOfNotNull(
+                                    it.score,
+                                    ResOrActual.StringResource(R.string.classification_tables__unofficial_semantics)
+                                            .takeIf { !isActual } ?: "",
+                            )
+                    )
+                }
+            }
+    ),
+    HANDICAP(
+            header = ResOrActual.StringResource(R.string.classification_tables__handicap_field),
+            tableCellTestTag = ClassificationTablesTestTag.TABLE_HANDICAP,
+            data = { ResOrActual.Actual(it.handicap?.toString() ?: "-") },
+            semanticData = { it, isActual ->
+
+                ResOrActual.StringResource(
+                        R.string.classification_tables__handicap_field_semantics,
+                        listOf(
+                                it.handicap?.toString() ?: "-",
+                                ResOrActual.StringResource(R.string.classification_tables__unofficial_semantics)
+                                        .takeIf { !isActual } ?: "",
+                        ),
+                )
+            }
+    ),
 }
 
 enum class ClassificationTablesTestTag : CodexTestTag {
