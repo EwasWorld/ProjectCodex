@@ -21,6 +21,9 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -61,13 +64,14 @@ fun CodexTextField(
         modifier: Modifier = Modifier,
         labelText: String? = null,
         singleLine: Boolean = false,
-        isError: Boolean = false,
+        error: String? = null,
         textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActions: KeyboardActions = KeyboardActions.Default,
         selectAllOnFocus: Boolean = false,
+        contentDescription: String? = null,
         helpState: HelpState? = null,
 ) = CodexTextField(
         text = state.text,
@@ -76,13 +80,14 @@ fun CodexTextField(
         labelText = labelText,
         modifier = modifier.modifierIfNotNull(state.testTag) { Modifier.testTag(it.getTestTag()) },
         singleLine = singleLine,
-        isError = isError,
+        error = error,
         textStyle = textStyle,
         enabled = enabled,
         colors = colors,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         selectAllTextOnFocus = selectAllOnFocus,
+        contentDescription = contentDescription,
         helpState = helpState,
 )
 
@@ -95,13 +100,14 @@ fun CodexTextField(
         modifier: Modifier = Modifier,
         labelText: String? = null,
         singleLine: Boolean = false,
-        isError: Boolean = false,
+        error: String? = null,
         textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActions: KeyboardActions = KeyboardActions.Default,
         selectAllTextOnFocus: Boolean = false,
+        contentDescription: String? = null,
         helpState: HelpState? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -135,7 +141,12 @@ fun CodexTextField(
                 visualTransformation = VisualTransformation.None,
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
-                modifier = modifier.updateHelpDialogPosition(helpState)
+                modifier = Modifier
+                        .updateHelpDialogPosition(helpState)
+                        .semantics {
+                            contentDescription?.let { this.contentDescription = it }
+                            error?.let { this.error(it) }
+                        }
         ) { innerTextField ->
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
                     value = text,
@@ -144,7 +155,7 @@ fun CodexTextField(
                     enabled = enabled,
                     interactionSource = interactionSource,
                     singleLine = singleLine,
-                    isError = isError,
+                    isError = error != null,
                     visualTransformation = VisualTransformation.None,
                     placeholder = placeholderText?.let {
                         {

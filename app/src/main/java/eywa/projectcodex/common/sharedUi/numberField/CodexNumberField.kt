@@ -16,7 +16,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -84,7 +83,7 @@ fun CodexNumberField(
                     onValueChange = { onValueChanged(it) },
                     testTag = null,
             ),
-            isError = error != null,
+            error = error,
             placeholderText = placeholder,
             textStyle = CodexTypography.NORMAL.copy(
                     color = CodexTheme.colors.onSurfaceOnBackground,
@@ -99,15 +98,11 @@ fun CodexNumberField(
             ),
             selectAllOnFocus = selectAllOnFocus,
             colors = colors,
+            contentDescription = contentDescription,
             modifier = modifier
                     .testTag(testTag.getTestTag())
                     .widthIn(min = 40.dp)
                     .width(IntrinsicSize.Min)
-                    .semantics {
-                        this.contentDescription = contentDescription
-                        editableText = AnnotatedString(displayValue)
-                        error?.let { error(it) }
-                    }
     )
 }
 
