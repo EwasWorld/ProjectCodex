@@ -85,11 +85,8 @@ data class CodexThemeColors(
         val chipOnDialogUnselected: Color = CodexColors.COLOR_ON_PRIMARY_LIGHT,
 
         // Tab Switcher
-        val tabSwitcherSelected: Color = CodexColors.COLOR_PRIMARY_DARK,
-        val onTabSwitcherSelected: Color = Color.White,
-        val tabSwitcherNotSelected: Color = Color.White.copy(0.2f),
-        val onTabSwitcherNotSelected: Color = Color.White,
-        val tabSwitcherBorder: Color = Color.White,
+        val tabSwitcherDivider: Color = Color.White.copy(0.5f),
+        val tabSwitcherSelected: Color = Color.White,
 
         val targetFaceGreen: Color = CodexColors.TARGET_FACE_GREEN,
         val onTargetFaceGreen: Color = Color.Black,

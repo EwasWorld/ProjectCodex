@@ -223,6 +223,7 @@ dependencies {
     // Material Design
     implementation "androidx.compose.material:material:$compose_version"
     implementation "com.google.accompanist:accompanist-navigation-material:$accompanist_version"
+    implementation "androidx.compose.material3:material3:1.1.2"
     // Material design icons
     implementation "androidx.compose.material:material-icons-core:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"

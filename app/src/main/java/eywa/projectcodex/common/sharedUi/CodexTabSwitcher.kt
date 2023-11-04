@@ -1,31 +1,15 @@
 package eywa.projectcodex.common.sharedUi
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -40,80 +24,36 @@ fun <T : NamedItem> CodexTabSwitcher(
         selectedItem: T,
         itemClickedListener: (T) -> Unit,
         modifier: Modifier = Modifier,
-        paddingValues: PaddingValues = PaddingValues(start = 12.dp, end = 12.dp, top = 20.dp),
 ) {
     require(items.count() >= 2) { "Must have at least two items" }
+    val selectedTabIndex = items.indexOfFirst { selectedItem == it }
 
-    val cornerRoundPercent = 30
-    val borderStroke = 2.dp
-
-    Box(
+    // TODO When material3 v1.2.0 becomes stable, this should be changed to PrimaryTabRow
+    TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = Color.Transparent,
+            divider = { Divider(color = CodexTheme.colors.tabSwitcherDivider) },
+            indicator = {
+                TabRowDefaults.Indicator(
+                        modifier = Modifier.tabIndicatorOffset(it[selectedTabIndex]),
+                        color = CodexTheme.colors.tabSwitcherSelected,
+                )
+            },
             modifier = modifier
     ) {
-        Surface(
-                color = Color.Transparent,
-                shape = RoundedCornerShape(cornerRoundPercent, cornerRoundPercent, 0, 0),
-                border = BorderStroke(borderStroke, CodexTheme.colors.tabSwitcherBorder),
-                modifier = Modifier
-                        .height(IntrinsicSize.Min)
-                        .padding(paddingValues)
-        ) {
-            Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-            ) {
-                items.forEachIndexed { index, item ->
-                    val isSelected = selectedItem == item
-                    val textColour: Color
-                    val backgroundColour: Color
-                    if (isSelected) {
-                        backgroundColour = CodexTheme.colors.tabSwitcherSelected
-                        textColour = CodexTheme.colors.onTabSwitcherSelected
-                    }
-                    else {
-                        backgroundColour = CodexTheme.colors.tabSwitcherNotSelected
-                        textColour = CodexTheme.colors.onTabSwitcherNotSelected
-                    }
-
-                    Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                    .selectable(isSelected, role = Role.Tab) { itemClickedListener(item) }
-                                    .weight(1f)
-                                    .background(backgroundColour)
-                                    .fillMaxHeight()
-                                    .padding(10.dp)
-                                    .testTag(TabSwitcherTestTag.ITEM.getTestTag())
-                    ) {
+        items.forEachIndexed { index, item ->
+            Tab(
+                    selected = index == selectedTabIndex,
+                    onClick = { itemClickedListener(item) },
+                    text = {
                         Text(
                                 text = item.label.get(),
-                                color = textColour,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                                color = CodexTheme.colors.tabSwitcherSelected,
                         )
-                    }
-                    if (index != items.count() - 1) {
-                        Divider(
-                                color = CodexTheme.colors.tabSwitcherBorder,
-                                modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(borderStroke)
-                        )
-                    }
-                }
-            }
+                    },
+                    modifier = Modifier.testTag(TabSwitcherTestTag.ITEM)
+            )
         }
-
-        Divider(
-                color = CodexTheme.colors.tabSwitcherBorder,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .width(borderStroke)
-                        .align(Alignment.BottomCenter)
-        )
     }
 }
 
@@ -144,6 +84,7 @@ fun TabSwitcher_Preview() {
                 items = items,
                 selectedItem = items[0],
                 itemClickedListener = {},
+                modifier = Modifier.padding(bottom = 100.dp)
         )
     }
 }
