@@ -80,7 +80,7 @@ fun ClassificationTablesScreen(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                     .fillMaxSize()
@@ -126,7 +126,6 @@ private fun CategorySelectors(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.updateHelpDialogPosition(
                     HelpState(
@@ -169,7 +168,7 @@ private fun CategorySelectors(
                     onItemClick = { listener(BowSelected(ClassificationBow.values()[it])) },
                     onDismiss = { listener(CloseDropdown) },
                     expanded = state.expanded == ClassificationTablesState.Dropdown.BOW,
-                    modifier = Modifier.padding(top = 10.dp)
+                    modifier = Modifier.padding(top = 5.dp)
             )
         }
     }
