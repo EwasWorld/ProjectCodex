@@ -38,6 +38,7 @@ data class CodexThemeColors(
 
         val listItemOnAppBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
         val listAccentRowItemOnAppBackground: Color = Color(0xFFC4FFF6),
+        val listAccentCellOnAppBackground: Color = CodexColors.COLOR_ACCENT,
         val listItemOnAppBackgroundBorder: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onListItemAppOnBackground: Color = Color.Black,
         val onListItemLight: Color = onListItemAppOnBackground.copy(alpha = 0.55f),
