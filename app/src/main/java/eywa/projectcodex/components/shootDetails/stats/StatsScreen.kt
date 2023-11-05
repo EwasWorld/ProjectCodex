@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
@@ -87,6 +88,7 @@ import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ROUND_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCORE_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCREEN
 import eywa.projectcodex.database.RoundFace
+import eywa.projectcodex.model.FullShootInfo
 import java.util.Calendar
 import kotlin.math.abs
 
@@ -153,7 +155,11 @@ private fun StatsScreen(
                         .padding(25.dp)
                         .testTag(SCREEN.getTestTag())
         ) {
-            NewScoreSection(state, listener)
+            NewScoreSection(
+                    fullShootInfo = state.fullShootInfo,
+                    editClickedListener = { listener(EditShootClicked) },
+                    helpListener = { listener(HelpShowcaseAction(it)) },
+            )
             HsgSection(state)
 
             RoundStatsSection(state)
@@ -200,28 +206,29 @@ private fun EditBox(
 }
 
 @Composable
-private fun NewScoreSection(
-        state: StatsState,
-        listener: (StatsIntent) -> Unit,
+fun NewScoreSection(
+        fullShootInfo: FullShootInfo,
+        editClickedListener: () -> Unit,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     EditBox(
             editContentDescription = stringResource(R.string.archer_round_stats__edit_shoot_content_description),
-            editListener = { listener(EditShootClicked) }
+            editListener = editClickedListener,
     ) {
         DataRow(
                 title = stringResource(R.string.archer_round_stats__date),
-                text = DateTimeFormat.LONG_DATE_TIME.format(state.fullShootInfo.shoot.dateShot),
+                text = DateTimeFormat.LONG_DATE_TIME.format(fullShootInfo.shoot.dateShot),
                 textModifier = Modifier.testTag(DATE_TEXT.getTestTag()),
         )
         DataRow(
                 title = stringResource(R.string.archer_round_stats__round),
-                text = state.fullShootInfo.displayName
+                text = fullShootInfo.displayName
                         ?: stringResource(R.string.archer_round_stats__no_round),
                 textModifier = Modifier.testTag(ROUND_TEXT.getTestTag()),
         )
         SelectFaceRow(
-                selectedFaces = state.fullShootInfo.faces,
-                helpListener = { listener(HelpShowcaseAction(it)) },
+                selectedFaces = fullShootInfo.faces,
+                helpListener = helpListener,
                 onClick = null,
         )
     }

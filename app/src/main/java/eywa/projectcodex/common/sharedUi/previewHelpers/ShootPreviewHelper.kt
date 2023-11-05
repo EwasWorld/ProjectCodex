@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
 import eywa.projectcodex.database.RoundFace
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
@@ -24,6 +25,7 @@ class ShootPreviewHelperDsl {
     var isTiedPersonalBest = false
     var use2023HandicapSystem = true
     var faces: List<RoundFace>? = null
+    var counter: DatabaseArrowCounter? = null
 
     fun addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) {
         arrows = ArrowScoresPreviewHelper.getArrows(shoot.shootId, size, 1, score, isX)
@@ -35,6 +37,10 @@ class ShootPreviewHelperDsl {
 
     fun addArrows(a: List<Arrow>) {
         arrows = a.mapIndexed { i, arrow -> arrow.asArrowScore(shoot.shootId, i + 1) }
+    }
+
+    fun addArrowCounter(count: Int) {
+        counter = DatabaseArrowCounter(shoot.shootId, count)
     }
 
     fun completeRound(arrowScore: Int, isX: Boolean = false) {
@@ -84,6 +90,7 @@ class ShootPreviewHelperDsl {
             isTiedPersonalBest = isTiedPersonalBest,
             shootRound = asDatabaseShootRound(),
             shootDetail = asDatabaseShootDetail(),
+            arrowCounter = counter,
     )
 
     fun asFullShootInfo() = FullShootInfo(
@@ -98,6 +105,7 @@ class ShootPreviewHelperDsl {
             isTiedPersonalBest = isTiedPersonalBest,
             shootRound = asDatabaseShootRound(),
             shootDetail = asDatabaseShootDetail(),
+            arrowCounter = counter,
     )
 
     companion object {
@@ -106,6 +114,7 @@ class ShootPreviewHelperDsl {
     }
 }
 
+@Deprecated("Use Dsl")
 object ShootPreviewHelper {
     fun newShoot(id: Int = 1, date: Calendar = Calendar.getInstance()) =
             DatabaseShoot(shootId = id, dateShot = date)

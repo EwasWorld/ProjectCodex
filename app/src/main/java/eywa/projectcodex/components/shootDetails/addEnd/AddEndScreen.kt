@@ -1,7 +1,14 @@
 package eywa.projectcodex.components.shootDetails.addEnd
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +40,12 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.*
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ArrowInputsAction
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ErrorHandled
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.RoundCompleteDialogOkClicked
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.RoundFullDialogOkClicked
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ShootDetailsAction
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
@@ -208,8 +220,9 @@ private fun ScoreIndicatorCell(
 }
 
 @Composable
-private fun RemainingArrowsIndicator(
-        fullShootInfo: FullShootInfo
+fun RemainingArrowsIndicator(
+        fullShootInfo: FullShootInfo,
+        modifier: Modifier = Modifier,
 ) {
     fullShootInfo.remainingArrowsAtDistances?.let {
         val remainingStrings = it.map { (count, distance) ->
@@ -223,6 +236,7 @@ private fun RemainingArrowsIndicator(
 
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier
         ) {
             Text(
                     text = stringResource(R.string.input_end__round_indicator_label),
