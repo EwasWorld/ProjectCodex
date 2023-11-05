@@ -16,7 +16,8 @@ enum class ViewScoresDropdownMenuItem(
 ) {
     SCORE_PAD(
             title = R.string.view_scores_menu__score_pad,
-            handleClick = { copy(openScorePadClicked = true) }
+            handleClick = { copy(openScorePadClicked = true) },
+            shouldShow = { !it.isCount },
     ),
     CONTINUE(
             title = R.string.view_scores_menu__continue,
@@ -53,5 +54,6 @@ enum class ViewScoresDropdownMenuItem(
     CONVERT(
             title = R.string.view_scores_menu__convert,
             handleClick = { copy(convertScoreDialogOpen = true) },
+            shouldShow = { !it.isCount },
     ),
 }

@@ -134,17 +134,19 @@ class EmailScoresViewModel @Inject constructor(
          */
         val fileWriter = FileWriter(attachment)
         for (entry in state.rounds) {
-            val detailedScorePad = entry.getScorePadData(endSize)!!
-                    .getDetailsAsCsv(
+            val detailedScorePad = entry.getScorePadData(endSize)
+                    ?.getDetailsAsCsv(
                             columnHeaderOrder,
                             context.resources,
                             state.isChecked(EmailScoresCheckbox.DISTANCE_TOTAL),
                     )
             fileWriter.append(entry.getScoreSummary(context.resources))
-            fileWriter.append("\n\n")
-            fileWriter.append(detailedScorePad.headerRow)
-            fileWriter.append("\n")
-            fileWriter.append(detailedScorePad.details)
+            detailedScorePad?.let {
+                fileWriter.append("\n\n")
+                fileWriter.append(detailedScorePad.headerRow)
+                fileWriter.append("\n")
+                fileWriter.append(detailedScorePad.details)
+            }
             fileWriter.append("\n\n\n")
         }
         fileWriter.flush()

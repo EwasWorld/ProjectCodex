@@ -7,15 +7,16 @@
     <string name="view_score__single_personal_best">Single round PB</string>
     <string name="view_score__multi_personal_best">Multi round PB</string>
     <string name="view_score__hsg">H/S/G</string>
+    <string name="view_score__arrow_count">Count</string>
     <string name="view_score__hsg_placeholder">-/-/-</string>
     <string name="view_score__handicap">HC</string>
     <string name="view_score__handicap_placeholder">-</string>
     <string name="view_scores_menu__action_label">Open action menu</string>
     <string name="view_scores_menu__score_pad">Score pad</string>
-    <string name="view_scores_menu__continue">Continue scoring</string>
+    <string name="view_scores_menu__continue">Continue</string>
     <string name="view_scores_menu__delete">Delete</string>
     <string name="view_scores_menu__edit">Edit info</string>
-    <string name="view_scores_menu__email_score">Email score</string>
+    <string name="view_scores_menu__email_score">Email</string>
     <string name="view_score__handicap_full">Handicap</string>
     <string name="view_score__no_arrows_shot">No arrows shot</string>
     <string name="view_score__hits">Hits</string>
@@ -63,6 +64,8 @@
     <string name="help_view_score__row_body">Click on a row to open the score pad, press and hold for more actions</string>
     <string name="help_view_score__hsg_title">Hits/Score/Golds</string>
     <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. The label above indicates how golds are being counted: G for 9+, 10 for 10s and Xs, X for Xs only.</string>
+    <string name="help_view_score__arrow_count_title">Arrow count</string>
+    <string name="help_view_score__arrow_count_body">Shows the number of arrows shot</string>
     <string name="help_view_score__round_title">Round shot</string>
     <string name="help_view_score__round_body">Shows the round that was shot. Will be crossed out if too few or too many arrows have been entered.</string>
     <string name="help_view_score__handicap_title">Handicap</string>

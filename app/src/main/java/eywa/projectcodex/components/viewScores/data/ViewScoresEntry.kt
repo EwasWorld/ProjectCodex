@@ -43,14 +43,15 @@ data class ViewScoresEntry(
                 null
             }
 
+    /**
+     * true if the entry represents just an arrow count, false if it's a score
+     */
+    val isCount: Boolean
+        get() = info.arrowCounter != null
+
     fun isRoundComplete(): Boolean {
-        if (info.roundArrowCounts.isNullOrEmpty() || info.arrows.isNullOrEmpty()) {
-            return false
-        }
-        if (info.roundArrowCounts.sumOf { it.arrowCount } == info.arrows.count()) {
-            return true
-        }
-        return false
+        if (info.roundArrowCounts.isNullOrEmpty()) return false
+        return info.roundArrowCounts.sumOf { it.arrowCount } == info.arrowsShot
     }
 
     fun getSingleClickAction() = ViewScoresDropdownMenuItem.SCORE_PAD

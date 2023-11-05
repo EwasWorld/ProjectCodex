@@ -60,7 +60,10 @@ internal fun ViewScoresEntryRow(
 )
 
 /**
- * Displays a [ViewScoresEntry]
+ * Displays a [ViewScoresEntry].
+ * Display the first round (if applicable) on the first line under the date.
+ * Display one more round (if applicable) on a line below that.
+ * All other rounds (if applicable) are truncated to "& X more..."
  *
  * @param showPbs true if pb labels should be shown if applicable
  */
@@ -99,33 +102,12 @@ internal fun ViewScoresEntryRow(
             HsgColumn(entries, helpListener)
             HandicapColumn(entries, helpListener)
         }
-        if (entries.secondDisplayName != null || entries.totalUndisplayedNamesCount != null) {
-            Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.align(Alignment.Start)
-            ) {
-                entries.secondDisplayName?.let {
-                    DisplayName(
-                            nameInfo = it,
-                            modifier = Modifier.weight(1f, false)
-                    )
-                }
-                // Will display up to 2 round names. Indicate how many more there are to the user
-                entries.totalUndisplayedNamesCount?.let { remaining ->
-                    Text(
-                            text = stringResource(R.string.view_score__multiple_ellipses, remaining),
-                            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                            fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-        }
+        OtherNamesColumn(entries)
     }
 }
 
 @Composable
-private fun DateAndFirstNameColumn(
+fun DateAndFirstNameColumn(
         entries: ViewScoresEntryList,
         helpListener: (HelpShowcaseIntent) -> Unit,
         modifier: Modifier = Modifier,
@@ -156,7 +138,35 @@ private fun DateAndFirstNameColumn(
 }
 
 @Composable
-private fun DisplayName(
+fun ColumnScope.OtherNamesColumn(
+        entries: ViewScoresEntryList,
+) {
+    if (entries.secondDisplayName != null || entries.totalUndisplayedNamesCount != null) {
+        Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.align(Alignment.Start)
+        ) {
+            entries.secondDisplayName?.let {
+                DisplayName(
+                        nameInfo = it,
+                        modifier = Modifier.weight(1f, false)
+                )
+            }
+            // Will display up to 2 round names. Indicate how many more there are to the user
+            entries.totalUndisplayedNamesCount?.let { remaining ->
+                Text(
+                        text = stringResource(R.string.view_score__multiple_ellipses, remaining),
+                        style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
+                        fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DisplayName(
         nameInfo: ViewScoresRoundNameInfo,
         modifier: Modifier = Modifier,
 ) =

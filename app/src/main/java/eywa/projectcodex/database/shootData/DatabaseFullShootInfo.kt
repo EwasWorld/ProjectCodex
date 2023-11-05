@@ -9,7 +9,7 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import java.util.*
+import java.util.Calendar
 
 data class DatabaseFullShootInfo(
         @Embedded val shoot: DatabaseShoot,
@@ -25,6 +25,12 @@ data class DatabaseFullShootInfo(
                 entityColumn = "shootId",
         )
         val shootDetail: DatabaseShootDetail? = null,
+
+        @Relation(
+                parentColumn = "shootId",
+                entityColumn = "shootId",
+        )
+        val arrowCounter: DatabaseArrowCounter? = null,
 
         @Relation(
                 parentColumn = "shootId",

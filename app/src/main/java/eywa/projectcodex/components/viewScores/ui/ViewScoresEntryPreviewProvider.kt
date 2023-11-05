@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -129,4 +130,16 @@ object ViewScoresEntryPreviewProvider {
     }
 
     fun List<ViewScoresEntry>.clearArrows() = map { it.copy(info = it.info.copy(arrows = listOf())) }
+
+    /**
+     * Replace all [DatabaseArrowScore] with a single [DatabaseArrowCounter]
+     */
+    fun List<ViewScoresEntry>.convertToArrowCounters() = map {
+        it.copy(
+                info = it.info.copy(
+                        arrows = listOf(),
+                        arrowCounter = DatabaseArrowCounter(shootId = it.id, shotCount = it.info.arrowsShot),
+                )
+        )
+    }
 }

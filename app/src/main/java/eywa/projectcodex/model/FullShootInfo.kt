@@ -4,11 +4,17 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.RoundFace
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.arrows.getGolds
 import eywa.projectcodex.database.arrows.getHits
 import eywa.projectcodex.database.arrows.getScore
-import eywa.projectcodex.database.rounds.*
+import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
@@ -26,6 +32,7 @@ data class FullShootInfo(
         val use2023HandicapSystem: Boolean = false,
         val shootRound: DatabaseShootRound? = null,
         val shootDetail: DatabaseShootDetail? = null,
+        val arrowCounter: DatabaseArrowCounter? = null,
 ) {
     constructor(full: DatabaseFullShootInfo, use2023HandicapSystem: Boolean) : this(
             shoot = full.shoot,
@@ -39,6 +46,7 @@ data class FullShootInfo(
             use2023HandicapSystem = use2023HandicapSystem,
             shootRound = full.shootRound,
             shootDetail = full.shootDetail,
+            arrowCounter = full.arrowCounter,
     )
 
     init {
@@ -83,7 +91,7 @@ data class FullShootInfo(
             else -> null
         }
 
-    val arrowsShot by lazy { arrows?.size ?: 0 }
+    val arrowsShot by lazy { arrowCounter?.shotCount ?: arrows?.size ?: 0 }
 
     val remainingArrows by lazy {
         roundArrowCounts
@@ -195,11 +203,18 @@ data class FullShootInfo(
     }
 
     fun getScoreSummary(resources: Resources): String =
-            if (arrowsShot > 0) {
-                val res = resources.getString(R.string.create_round__no_round)
+            if (arrowCounter != null) {
+                resources.getString(
+                        R.string.email_round_summary_count,
+                        displayName ?: resources.getString(R.string.create_round__no_round),
+                        DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
+                        arrowCounter.shotCount.toString(),
+                )
+            }
+            else if (arrowsShot > 0) {
                 resources.getString(
                         R.string.email_round_summary,
-                        displayName ?: res,
+                        displayName ?: resources.getString(R.string.create_round__no_round),
                         DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
                         hits,
                         score,
