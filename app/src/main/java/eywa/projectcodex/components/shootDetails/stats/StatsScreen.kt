@@ -133,7 +133,7 @@ fun HandleEffects(
             listener(EditShootHandled)
         }
         if (loadedState.openEditArcherInfoScreen) {
-            CodexNavRoute.ARCHER_INFO.navigate(navController)
+            CodexNavRoute.ARCHER_HANDICAPS.navigate(navController)
             listener(EditArcherInfoHandled)
         }
     }
@@ -157,9 +157,8 @@ private fun StatsScreen(
             HsgSection(state)
 
             RoundStatsSection(state)
-            AllowanceSection(state, listener)
-
             PastRecordsSection(state, listener)
+            AllowanceSection(state, listener)
 
             if (state.useBetaFeatures) {
                 NumberBreakdownSection(state)
