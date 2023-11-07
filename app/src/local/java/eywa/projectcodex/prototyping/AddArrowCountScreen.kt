@@ -30,7 +30,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
-import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
@@ -84,73 +83,107 @@ fun AddArrowCountScreen(
                     )
 
             RemainingArrowsIndicator(state.fullShootInfo)
-
-            Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                            .padding(vertical = 30.dp)
-                            .border(2.dp, color = CodexTheme.colors.onAppBackground)
-                            .padding(horizontal = 20.dp, vertical = 10.dp)
-            ) {
-                Text(
-                        text = "Shot:",
-                        style = CodexTypography.LARGE,
-                        color = CodexTheme.colors.onAppBackground,
-                )
-                Text(
-                        text = state.fullShootInfo.arrowsShot.toString(),
-                        style = CodexTypography.X_LARGE,
-                        color = CodexTheme.colors.onAppBackground,
-                )
-            }
-
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    CodexIconButton(
-                            icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Remove),
-                            onClick = { listener(ClickIncrease) },
-                    )
-                    CodexNumberField(
-                            contentDescription = "End size",
-                            currentValue = state.endSize.text,
-                            testTag = AddArrowCountTestTag.ADD_COUNT_INPUT,
-                            placeholder = "6",
-                            onValueChanged = { listener(OnValueChanged(it)) },
-                            modifier = Modifier.semantics {
-                                customActions = listOf(
-                                        CustomAccessibilityAction(
-                                                label = "Increase by one",
-                                                action = { listener(ClickIncrease); true },
-                                        ),
-                                        CustomAccessibilityAction(
-                                                label = "Decrease by one",
-                                                action = { listener(ClickDecrease); true },
-                                        ),
-                                )
-                            }
-                    )
-                    CodexIconButton(
-                            icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Add),
-                            onClick = { listener(ClickDecrease) },
-                    )
-                }
-                CodexNumberFieldErrorText(
-                        errorText = state.endSize.error,
-                        testTag = AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR,
-                )
-
-                CodexButton(
-                        text = "Add",
-                        onClick = { listener(ClickSubmit) },
-                        modifier = Modifier.padding(top = 5.dp)
-                )
-            }
+            ShotCount(state)
+            IncreaseCountInputs(state, listener)
         }
+    }
+}
+
+@Composable
+fun ShotCount(
+        state: AddArrowCountState,
+) {
+    val sighters = state.fullShootInfo.shootRound?.sightersCount?.takeIf { it != 0 }
+    val shot = state.fullShootInfo.arrowsShot
+
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier
+                    .padding(vertical = 30.dp)
+    ) {
+        sighters?.let {
+            Text(
+                    text = "Sighters: $it",
+                    color = CodexTheme.colors.onAppBackground,
+            )
+        }
+        Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                        .border(2.dp, color = CodexTheme.colors.onAppBackground)
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+        ) {
+            Text(
+                    text = "Shot:",
+                    style = CodexTypography.LARGE,
+                    color = CodexTheme.colors.onAppBackground,
+            )
+            Text(
+                    text = shot.toString(),
+                    style = CodexTypography.X_LARGE,
+                    color = CodexTheme.colors.onAppBackground,
+            )
+        }
+        sighters?.let {
+            Text(
+                    text = "Total: ${it + shot}",
+                    color = CodexTheme.colors.onAppBackground,
+            )
+        }
+    }
+}
+
+@Composable
+fun IncreaseCountInputs(
+        state: AddArrowCountState,
+        listener: (AddArrowCountIntent) -> Unit,
+) {
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CodexIconButton(
+                    icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Remove),
+                    onClick = { listener(ClickIncrease) },
+            )
+            CodexNumberField(
+                    contentDescription = "End size",
+                    currentValue = state.endSize.text,
+                    testTag = AddArrowCountTestTag.ADD_COUNT_INPUT,
+                    placeholder = "6",
+                    onValueChanged = { listener(OnValueChanged(it)) },
+                    modifier = Modifier.semantics {
+                        customActions = listOf(
+                                CustomAccessibilityAction(
+                                        label = "Increase by one",
+                                        action = { listener(ClickIncrease); true },
+                                ),
+                                CustomAccessibilityAction(
+                                        label = "Decrease by one",
+                                        action = { listener(ClickDecrease); true },
+                                ),
+                        )
+                    }
+            )
+            CodexIconButton(
+                    icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Add),
+                    onClick = { listener(ClickDecrease) },
+            )
+        }
+        CodexNumberFieldErrorText(
+                errorText = state.endSize.error,
+                testTag = AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR,
+        )
+
+        CodexButton(
+                text = "Add",
+                onClick = { listener(ClickSubmit) },
+                modifier = Modifier.padding(top = 5.dp)
+        )
     }
 }
 
@@ -176,17 +209,10 @@ fun AddArrowCountScreen_Preview() {
         AddArrowCountScreen(
                 AddArrowCountState(
                         fullShootInfo = ShootPreviewHelperDsl.create {
-                            round = RoundPreviewHelper.yorkRoundData
+                            addRound(RoundPreviewHelper.yorkRoundData, 12)
                             addArrowCounter(30)
                         },
-                        endSize = NumberFieldState(
-                                validators = NumberValidatorGroup(
-                                        TypeValidator.IntValidator,
-                                        NumberValidator.AtLeast(1),
-                                ),
-                                text = "6",
-                        ),
-                )
+                ).let { it.copy(endSize = it.endSize.onTextChanged("6")) }
         ) {}
     }
 }
@@ -203,14 +229,7 @@ fun NoRound_AddArrowCountScreen_Preview() {
                         fullShootInfo = ShootPreviewHelperDsl.create {
                             addArrowCounter(24)
                         },
-                        endSize = NumberFieldState(
-                                validators = NumberValidatorGroup(
-                                        TypeValidator.IntValidator,
-                                        NumberValidator.AtLeast(1),
-                                ),
-                                text = "6",
-                        ),
-                )
+                ).let { it.copy(endSize = it.endSize.onTextChanged("6")) }
         ) {}
     }
 }
@@ -228,14 +247,7 @@ fun Error_AddArrowCountScreen_Preview() {
                             round = RoundPreviewHelper.yorkRoundData
                             addArrowCounter(24)
                         },
-                        endSize = NumberFieldState(
-                                validators = NumberValidatorGroup(
-                                        TypeValidator.IntValidator,
-                                        NumberValidator.AtLeast(1),
-                                ),
-                                text = "hi",
-                        ),
-                )
+                ).let { it.copy(endSize = it.endSize.onTextChanged("hi")) }
         ) {}
     }
 }

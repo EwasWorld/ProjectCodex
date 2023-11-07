@@ -85,7 +85,7 @@ private fun ArrowsShotColumn(
                 ),
         )
         Text(
-                text = entries.arrowCount.toString(),
+                text = entries.arrowCountWithSighters.toString(),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 modifier = Modifier.updateHelpDialogPosition(helpState)
         )

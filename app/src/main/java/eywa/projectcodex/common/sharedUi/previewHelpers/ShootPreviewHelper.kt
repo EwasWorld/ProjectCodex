@@ -26,6 +26,12 @@ class ShootPreviewHelperDsl {
     var use2023HandicapSystem = true
     var faces: List<RoundFace>? = null
     var counter: DatabaseArrowCounter? = null
+    private var sightersCount: Int = 0
+
+    fun addRound(round: FullRoundInfo, sightersCount: Int = 0) {
+        this.round = round
+        this.sightersCount = sightersCount
+    }
 
     fun addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) {
         arrows = ArrowScoresPreviewHelper.getArrows(shoot.shootId, size, 1, score, isX)
@@ -66,6 +72,7 @@ class ShootPreviewHelperDsl {
                 roundId = it.round.roundId,
                 roundSubTypeId = roundSubTypeId,
                 faces = faces,
+                sightersCount = sightersCount,
         )
     }
 
