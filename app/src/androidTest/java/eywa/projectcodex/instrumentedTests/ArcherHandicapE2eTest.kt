@@ -26,7 +26,7 @@ class ArcherHandicapE2eTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(9020)
+    val testTimeout: Timeout = Timeout.seconds(20)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -57,7 +57,7 @@ class ArcherHandicapE2eTest {
                 clickTab(ArcherHandicapRobot::class) {
                     checkNoHandicapsMessageShown()
 
-                    ConditionWatcher.setTimeoutLimit(10_000)
+                    ConditionWatcher.setTimeoutLimit(20_000)
 
                     clickAdd()
                     val date1 = DateTimeFormat.SHORT_DATE_TIME.parse("30/5/2020 10:20")

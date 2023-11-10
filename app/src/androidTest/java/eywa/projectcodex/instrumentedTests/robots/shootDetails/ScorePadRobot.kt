@@ -18,7 +18,7 @@ class ScorePadRobot(
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
             +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
@@ -60,8 +60,8 @@ class ScorePadRobot(
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
             +CodexNodeGroupToOne.HasContentDescription("End $endNumber")
-            +CodexNodeInteraction.PerformScrollTo
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformScrollTo()
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -70,7 +70,7 @@ class ScorePadRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
             +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 

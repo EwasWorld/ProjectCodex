@@ -17,31 +17,31 @@ class ArcherInfoRobot(
     fun clickGender() {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherInfoTestTag.GENDER_SELECTOR)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun setAge(value: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherInfoTestTag.AGE_SELECTOR)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherInfoTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun setBowStyle(value: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherInfoTestTag.BOW_SELECTOR)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherInfoTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 }

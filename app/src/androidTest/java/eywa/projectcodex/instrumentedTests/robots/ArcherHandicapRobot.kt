@@ -5,6 +5,8 @@ import eywa.projectcodex.common.navigation.TabSwitcherGroup
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchTextBox
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -20,8 +22,8 @@ class ArcherHandicapRobot(
     fun checkNoHandicapsMessageShown(isShown: Boolean = true) {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.NO_HANDICAPS_MESSAGE)
-            if (isShown) +CodexNodeInteraction.AssertIsDisplayed
-            else +CodexNodeInteraction.AssertDoesNotExist
+            if (isShown) +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            else +CodexNodeInteraction.AssertDoesNotExist().waitFor()
         }
     }
 
@@ -49,7 +51,7 @@ class ArcherHandicapRobot(
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ROW_TIME))
             +CodexNodeGroupToOne.Index(index)
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
             +CodexNodeInteraction.AssertTextEquals(DateTimeFormat.TIME_24_HOUR.format(date))
         }
         perform {
@@ -69,14 +71,11 @@ class ArcherHandicapRobot(
     fun clickAdd() {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
-            +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE)
-            // Possibly because this is in an experimental bottom sheet or because it has a placeholder
-            // It's coming up twice, therefore the HasSetTextAction is needed to disambiguate
-            +CodexNodeMatcher.HasSetTextAction
-            +CodexNodeInteraction.AssertIsDisplayed
+            matchTextBox(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE)
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
@@ -86,12 +85,7 @@ class ArcherHandicapRobot(
 
     fun setAddHandicap(handicap: Int, expectedErrorText: String? = null) {
         perform {
-            +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE)
-            // Possibly because this is in an experimental bottom sheet or because it has a placeholder
-            // It's coming up twice, therefore the HasSetTextAction is needed to disambiguate
-            +CodexNodeMatcher.HasSetTextAction
-
-            +CodexNodeInteraction.SetText(handicap.toString())
+            setText(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE, handicap.toString())
             if (expectedErrorText != null) +CodexNodeInteraction.Assert(CodexNodeMatcher.HasError(expectedErrorText))
             else +CodexNodeInteraction.Assert(CodexNodeMatcher.HasNoError)
         }
@@ -100,11 +94,11 @@ class ArcherHandicapRobot(
     fun clickAddSubmit() {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_HANDICAP_SUBMIT)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE)
-            +CodexNodeInteraction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
@@ -112,21 +106,21 @@ class ArcherHandicapRobot(
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ROW_LIST_ITEM))
             +CodexNodeGroupToOne.Index(index)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun checkDeleteShown() {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.DELETE_BUTTON)
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
     fun clickDelete() {
         perform {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.DELETE_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 }

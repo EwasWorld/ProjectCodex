@@ -20,6 +20,7 @@ import eywa.projectcodex.common.sharedUi.DateSelectorRowTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -65,7 +66,7 @@ abstract class BaseRobot(
     fun checkScreenIsShown(): Boolean {
         perform {
             +CodexNodeMatcher.HasTestTag(this@BaseRobot.screenTestTag)
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
         return true
     }
@@ -77,12 +78,12 @@ abstract class BaseRobot(
     fun setDateAndTime(calendar: Calendar) {
         perform {
             +CodexNodeMatcher.HasTestTag(DateSelectorRowTestTag.DATE_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         performDatePickerDateSelection(calendar)
         perform {
             +CodexNodeMatcher.HasTestTag(DateSelectorRowTestTag.TIME_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         performTimePickerTimeSelection(calendar)
     }
@@ -125,7 +126,7 @@ abstract class BaseRobot(
             }
             this.useUnmergedTree = useUnmergedTree
 
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -158,7 +159,7 @@ abstract class BaseRobot(
             if (text != null) {
                 +CodexNodeMatcher.HasText(text)
             }
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
@@ -166,7 +167,7 @@ abstract class BaseRobot(
         perform {
             this.useUnmergedTree = useUnmergedTree
             +CodexNodeMatcher.HasTestTag(testTag)
-            +CodexNodeInteraction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
@@ -180,8 +181,7 @@ abstract class BaseRobot(
 
     fun setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
         perform {
-            +CodexNodeMatcher.HasTestTag(testTag)
-            +CodexNodeInteraction.SetText(text, append)
+            setText(testTag, text, append)
         }
     }
 
@@ -190,7 +190,7 @@ abstract class BaseRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(testTag)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -198,7 +198,7 @@ abstract class BaseRobot(
         perform {
             +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.TITLE)
             +CodexNodeMatcher.HasText(titleText)
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -209,25 +209,25 @@ abstract class BaseRobot(
         checkDialogIsDisplayed(titleText)
         perform {
             +CodexNodeMatcher.HasTestTag(buttonTag)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun clickHomeIcon() {
         perform {
             +CodexNodeMatcher.HasTestTag(MainActivity.MainActivityTestTag.HOME_ICON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun clickHelpIcon() {
         perform {
             +CodexNodeMatcher.HasTestTag(MainActivity.MainActivityTestTag.HELP_ICON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -248,7 +248,7 @@ abstract class BaseRobot(
     fun clickHelpShowcaseNext() {
         perform {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
 
         CustomConditionWaiter.waitFor(400)
@@ -258,18 +258,18 @@ abstract class BaseRobot(
     fun clickHelpShowcaseClose() {
         perform {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-            +CodexNodeInteraction.AssertDoesNotExist.waitFor()
+            +CodexNodeInteraction.AssertDoesNotExist().waitFor()
         }
     }
 
     fun checkHelpShowcaseIsDisplayed() {
         perform {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 

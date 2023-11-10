@@ -14,7 +14,7 @@ class AddEndRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -22,7 +22,7 @@ class AddEndRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -50,7 +50,7 @@ class AddEndRobot(
                 +CodexNodeInteraction.AssertTextEquals(laterDistances)
             }
             else {
-                +CodexNodeInteraction.AssertDoesNotExist
+                +CodexNodeInteraction.AssertDoesNotExist()
             }
         }
     }

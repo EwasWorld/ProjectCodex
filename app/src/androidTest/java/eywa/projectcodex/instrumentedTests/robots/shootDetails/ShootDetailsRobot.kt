@@ -19,7 +19,7 @@ abstract class ShootDetailsRobot(
     fun clickNavBarAddEndWhileRoundComplete() {
         perform {
             +CodexNodeMatcher.HasTestTag(ShootDetailsBottomNavBarItem.ADD_END)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         clickCannotInputMoreEndsOk()
     }
@@ -39,7 +39,7 @@ abstract class ShootDetailsRobot(
 
         perform {
             +CodexNodeMatcher.HasTestTag(screen)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         R::class.constructors.first().call(composeTestRule).apply { block() }
     }

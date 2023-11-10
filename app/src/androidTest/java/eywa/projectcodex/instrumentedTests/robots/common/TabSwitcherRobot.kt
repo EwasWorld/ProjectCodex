@@ -21,7 +21,7 @@ interface TabSwitcherRobot : Robot {
         perform {
             +CodexNodeMatcher.HasTestTag(TabSwitcherTestTag.ITEM)
             +CodexNodeMatcher.HasText(tab.getTextLabel())
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
 
         createRobot(tab, block)

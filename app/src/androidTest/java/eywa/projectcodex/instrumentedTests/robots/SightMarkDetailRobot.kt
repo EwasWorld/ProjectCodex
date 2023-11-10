@@ -17,6 +17,7 @@ import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SCR
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT_ERROR_TEXT
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
 import eywa.projectcodex.model.SightMark
 
 class SightMarkDetailRobot(
@@ -77,12 +78,16 @@ class SightMarkDetailRobot(
             hasSightMarkError: Boolean = false,
             hasDistanceError: Boolean = false,
     ) {
-        checkElementText(SIGHT, sightMark.sightMark.toString())
+        perform {
+            checkInputtedText(SIGHT, sightMark.sightMark.toString())
+        }
         SIGHT_ERROR_TEXT.let {
             if (hasSightMarkError) checkElementIsDisplayed(it) else checkElementDoesNotExist(it)
         }
 
-        checkElementText(DISTANCE, sightMark.distance.toString())
+        perform {
+            checkInputtedText(DISTANCE, sightMark.distance.toString())
+        }
         DISTANCE_ERROR_TEXT.let {
             if (hasDistanceError) checkElementIsDisplayed(it) else checkElementDoesNotExist(it)
         }
@@ -97,8 +102,9 @@ class SightMarkDetailRobot(
         }
         checkCheckboxState(ARCHIVED, sightMark.isArchived, useUnmergedTree = true)
 
-        checkElementText(NOTE, sightMark.note ?: "", useUnmergedTree = true)
-
+        perform {
+            checkInputtedText(NOTE, sightMark.note ?: "")
+        }
 
         checkButtons(isNew)
     }

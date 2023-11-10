@@ -20,11 +20,13 @@ fun waitForWrapper(waitFor: Boolean, block: () -> Unit) =
 
 /**
  * Actions which can be performed on a [SemanticsNodeInteraction]
+ *
+ * WARNING: Don't use objects here as they are like enum constants, they won't keep the [waitFor] property properly
  */
 sealed class CodexNodeInteraction {
     private var waitFor: Boolean = false
 
-    object PerformClick : CodexNodeInteraction() {
+    class PerformClick : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.performClick()
         }
@@ -34,13 +36,13 @@ sealed class CodexNodeInteraction {
      * Note: LazyRow/Column cannot use this.
      * Instead, should use [TestActionDsl.scrollToParentIndex]
      */
-    object PerformScrollTo : CodexNodeInteraction() {
+    class PerformScrollTo : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.performScrollTo()
         }
     }
 
-    object AssertIsDisplayed : CodexNodeInteraction() {
+    class AssertIsDisplayed : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertIsDisplayed()
         }
@@ -52,7 +54,7 @@ sealed class CodexNodeInteraction {
         }
     }
 
-    object AssertDoesNotExist : CodexNodeInteraction() {
+    class AssertDoesNotExist : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertDoesNotExist()
         }

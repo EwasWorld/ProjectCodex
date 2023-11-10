@@ -22,38 +22,38 @@ class ClassificationTablesRobot(
     fun clickGender() {
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.GENDER_SELECTOR)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun setAge(value: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.AGE_SELECTOR)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun setBowStyle(value: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.BOW_SELECTOR)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun checkNoClassifications() {
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_NO_DATA)
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 

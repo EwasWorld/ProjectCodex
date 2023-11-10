@@ -119,7 +119,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
-            +CodexNodeInteraction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
@@ -127,7 +127,7 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 

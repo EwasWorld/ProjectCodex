@@ -32,11 +32,11 @@ class SelectRoundRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(SELECTED_ROUND_ROW))
             +CodexNodeMatcher.HasClickAction
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             +CodexNodeMatcher.HasTestTag(ROUND_DIALOG)
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -48,7 +48,7 @@ class SelectRoundRobot(
                         .split(" ")
                         .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
                 +CodexNodeMatcher.HasTestTag(ROUND_DIALOG_ITEM)
-                +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
             }
         }
     }
@@ -61,7 +61,7 @@ class SelectRoundRobot(
                         .split(" ")
                         .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
                 +CodexNodeMatcher.HasTestTag(ROUND_DIALOG_ITEM)
-                +CodexNodeInteraction.AssertDoesNotExist.waitFor()
+                +CodexNodeInteraction.AssertDoesNotExist().waitFor()
             }
         }
     }
@@ -84,7 +84,7 @@ class SelectRoundRobot(
             +CodexNodeMatcher.HasTestTag(FILTER)
             +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
             scrollToParentIndex = filter.index
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
         perform {
             useUnmergedTree = true
@@ -101,7 +101,7 @@ class SelectRoundRobot(
                     .split(" ")
                     .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
             +CodexNodeMatcher.HasTestTag(ROUND_DIALOG_ITEM)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 

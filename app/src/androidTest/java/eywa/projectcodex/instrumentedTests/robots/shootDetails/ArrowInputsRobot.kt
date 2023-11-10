@@ -16,7 +16,7 @@ abstract class ArrowInputsRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasText(text)
-            +CodexNodeInteraction.AssertDoesNotExist
+            +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
@@ -25,7 +25,7 @@ abstract class ArrowInputsRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasContentDescription("$text arrow input")
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -62,7 +62,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -70,7 +70,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -78,7 +78,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.SUBMIT_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -86,7 +86,7 @@ abstract class ArrowInputsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CANCEL_BUTTON)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 

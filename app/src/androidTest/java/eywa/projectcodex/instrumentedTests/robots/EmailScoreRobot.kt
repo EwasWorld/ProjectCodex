@@ -5,6 +5,8 @@ import eywa.projectcodex.components.emailScores.EmailScoresCheckbox
 import eywa.projectcodex.components.emailScores.EmailScoresTestTag
 import eywa.projectcodex.components.emailScores.EmailScoresTextField
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
@@ -13,8 +15,7 @@ class EmailScoreRobot(
 ) : BaseRobot(composeTestRule, EmailScoresTestTag.Screen) {
     fun typeText(field: EmailScoresTextField, text: String, append: Boolean = false) {
         perform {
-            +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.TextField(field))
-            +CodexNodeInteraction.SetText(text, append)
+            setText(EmailScoresTestTag.TextField(field), text, append)
         }
     }
 
@@ -22,22 +23,20 @@ class EmailScoreRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.Checkbox(field))
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun checkTextFieldText(field: EmailScoresTextField, text: String) {
         perform {
-            +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.TextField(field))
-            +CodexNodeMatcher.HasText(text)
-            +CodexNodeInteraction.AssertIsDisplayed
+            checkInputtedText(EmailScoresTestTag.TextField(field), text)
         }
     }
 
     fun clickSend() {
         perform {
             +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.SendButton)
-            +CodexNodeInteraction.PerformClick
+            +CodexNodeInteraction.PerformClick()
         }
     }
 

@@ -44,7 +44,7 @@ class HandicapTablesRobot(
     fun checkNoDataInTable() {
         perform {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_EMPTY_TEXT)
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 

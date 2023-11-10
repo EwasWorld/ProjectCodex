@@ -37,7 +37,7 @@ class ViewScoresRobot(
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
             +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -84,18 +84,17 @@ class ViewScoresRobot(
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM))
             +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
     fun clickDropdownMenuItem(menuItem: String) {
-        composeTestRule
-                .onNode(
-                        matcher = hasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM.getTestTag())
-                                .and(hasAnyDescendant(hasText(menuItem))),
-                        useUnmergedTree = true
-                )
-                .performClick()
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+            +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
+            +CodexNodeInteraction.PerformClick().waitFor()
+        }
     }
 
     fun clickEmailDropdownMenuItem(block: EmailScoreRobot.() -> Unit = {}) {
@@ -124,7 +123,7 @@ class ViewScoresRobot(
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM))
             +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed.waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
         // Check that the intended menu item is not showing
         composeTestRule
@@ -216,9 +215,9 @@ class ViewScoresRobot(
 
     object CommonStrings {
         const val SCORE_PAD_MENU_ITEM = "Score pad"
-        const val CONTINUE_MENU_ITEM = "Continue scoring"
+        const val CONTINUE_MENU_ITEM = "Continue"
         const val DELETE_MENU_ITEM = "Delete"
-        const val EMAIL_MENU_ITEM = "Email score"
+        const val EMAIL_MENU_ITEM = "Email"
         const val EDIT_MENU_ITEM = "Edit info"
         const val CONVERT_MENU_ITEM = "Convert"
         const val CONVERT_XS_TO_TENS_OPTION = "Xs to 10s"

@@ -81,7 +81,7 @@ fun CodexNumberField(
             state = CodexTextFieldState(
                     text = displayValue,
                     onValueChange = { onValueChanged(it) },
-                    testTag = null,
+                    testTag = testTag,
             ),
             error = error,
             placeholderText = placeholder,
@@ -100,7 +100,6 @@ fun CodexNumberField(
             colors = colors,
             contentDescription = contentDescription,
             modifier = modifier
-                    .testTag(testTag.getTestTag())
                     .widthIn(min = 40.dp)
                     .width(IntrinsicSize.Min)
     )

@@ -41,8 +41,12 @@ class ArcherTest {
         }
 
         assertEquals(
-                handicaps.take(3).toSet(),
+                handicaps.take(1).toSet(),
                 db.archerRepo().latestHandicapsForDefaultArcher.first().toSet(),
+        )
+        assertEquals(
+                handicaps.toSet(),
+                db.archerRepo().allHandicapsForDefaultArcher.first().toSet(),
         )
     }
 }

@@ -25,7 +25,7 @@ class SightMarksShiftAndScaleRobot(
             useUnmergedTree = true
             +HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT)
             +HasText(text)
-            +AssertIsDisplayed
+            +AssertIsDisplayed()
         }
 
         perform {
@@ -37,14 +37,14 @@ class SightMarksShiftAndScaleRobot(
                             HasText(text),
                     )
             )
-            +if (sightMark.note == null) AssertDoesNotExist else AssertIsDisplayed
+            +if (sightMark.note == null) AssertDoesNotExist() else AssertIsDisplayed()
         }
     }
 
     fun clickComplete(): SightMarksRobot {
         perform {
             +HasTestTag(SightMarksTestTag.SAS_COMPLETE_BUTTON)
-            +PerformClick
+            +PerformClick()
         }
         return popRobot()
     }
@@ -52,7 +52,7 @@ class SightMarksShiftAndScaleRobot(
     fun clickFlip() {
         perform {
             +HasTestTag(SightMarksTestTag.SAS_FLIP_BUTTON)
-            +PerformClick
+            +PerformClick()
         }
     }
 
@@ -60,7 +60,7 @@ class SightMarksShiftAndScaleRobot(
         perform {
             +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
             +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS))
-            +PerformClick
+            +PerformClick()
         }
     }
 
@@ -68,7 +68,7 @@ class SightMarksShiftAndScaleRobot(
         perform {
             +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
             +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS))
-            +PerformClick
+            +PerformClick()
         }
     }
 
@@ -90,7 +90,7 @@ class SightMarksShiftAndScaleRobot(
         perform {
             +HasTestTag(buttonTag)
             +HasAnyAncestor(HasTestTag(groupTestTag))
-            +PerformClick
+            +PerformClick()
         }
     }
 }

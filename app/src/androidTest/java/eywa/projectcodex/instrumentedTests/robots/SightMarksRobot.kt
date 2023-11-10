@@ -49,7 +49,7 @@ class SightMarksRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT)
             +CodexNodeMatcher.HasText(text)
-            +CodexNodeInteraction.AssertIsDisplayed
+            +CodexNodeInteraction.AssertIsDisplayed()
         }
         perform {
             useUnmergedTree = true
@@ -60,7 +60,7 @@ class SightMarksRobot(
                             CodexNodeMatcher.HasText(text),
                     )
             )
-            +if (sightMark.note == null) CodexNodeInteraction.AssertDoesNotExist else CodexNodeInteraction.AssertIsDisplayed
+            +if (sightMark.note == null) CodexNodeInteraction.AssertDoesNotExist() else CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
