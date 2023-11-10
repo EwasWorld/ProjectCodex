@@ -1,4 +1,4 @@
-package eywa.projectcodex.prototyping
+package eywa.projectcodex.prototyping.addArrowCount
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,6 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
@@ -29,38 +28,17 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
-import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
-import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
-import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.addEnd.RemainingArrowsIndicator
 import eywa.projectcodex.components.shootDetails.stats.NewScoreSection
-import eywa.projectcodex.model.FullShootInfo
-import eywa.projectcodex.prototyping.AddArrowCountIntent.ClickDecrease
-import eywa.projectcodex.prototyping.AddArrowCountIntent.ClickEditShootInfo
-import eywa.projectcodex.prototyping.AddArrowCountIntent.ClickIncrease
-import eywa.projectcodex.prototyping.AddArrowCountIntent.ClickSubmit
-import eywa.projectcodex.prototyping.AddArrowCountIntent.HelpShowcaseAction
-import eywa.projectcodex.prototyping.AddArrowCountIntent.OnValueChanged
-
-data class AddArrowCountState(
-        val fullShootInfo: FullShootInfo,
-        /**
-         * The amount displayed on the counter. The amount that will be added to [fullShootInfo] when 'Add' is pressed.
-         */
-        val endSize: NumberFieldState<Int> = NumberFieldState(NumberValidatorGroup(TypeValidator.IntValidator)),
-)
-
-sealed class AddArrowCountIntent {
-    object ClickIncrease : AddArrowCountIntent()
-    object ClickDecrease : AddArrowCountIntent()
-    object ClickSubmit : AddArrowCountIntent()
-    data class OnValueChanged(val value: String?) : AddArrowCountIntent()
-    data class HelpShowcaseAction(val action: HelpShowcaseIntent) : AddArrowCountIntent()
-    object ClickEditShootInfo : AddArrowCountIntent()
-}
+import eywa.projectcodex.prototyping.addArrowCount.AddArrowCountIntent.ClickDecrease
+import eywa.projectcodex.prototyping.addArrowCount.AddArrowCountIntent.ClickEditShootInfo
+import eywa.projectcodex.prototyping.addArrowCount.AddArrowCountIntent.ClickIncrease
+import eywa.projectcodex.prototyping.addArrowCount.AddArrowCountIntent.ClickSubmit
+import eywa.projectcodex.prototyping.addArrowCount.AddArrowCountIntent.HelpShowcaseAction
+import eywa.projectcodex.prototyping.addArrowCount.AddArrowCountIntent.OnValueChanged
 
 @Composable
 fun AddArrowCountScreen(
@@ -79,8 +57,7 @@ fun AddArrowCountScreen(
                     fullShootInfo = state.fullShootInfo,
                     editClickedListener = { listener(ClickEditShootInfo) },
                     helpListener = { listener(HelpShowcaseAction(it)) },
-
-                    )
+            )
 
             RemainingArrowsIndicator(state.fullShootInfo)
             ShotCount(state)
@@ -90,7 +67,7 @@ fun AddArrowCountScreen(
 }
 
 @Composable
-fun ShotCount(
+private fun ShotCount(
         state: AddArrowCountState,
 ) {
     val sighters = state.fullShootInfo.shootRound?.sightersCount?.takeIf { it != 0 }
@@ -136,7 +113,7 @@ fun ShotCount(
 }
 
 @Composable
-fun IncreaseCountInputs(
+private fun IncreaseCountInputs(
         state: AddArrowCountState,
         listener: (AddArrowCountIntent) -> Unit,
 ) {
