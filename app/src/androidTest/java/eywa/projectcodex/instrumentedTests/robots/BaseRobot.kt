@@ -7,7 +7,6 @@ import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import eywa.projectcodex.common.ComposeTestRule
@@ -28,7 +27,6 @@ import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
 import eywa.projectcodex.instrumentedTests.robots.common.Robot
 import java.util.Calendar
-import java.util.Stack
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
@@ -40,19 +38,7 @@ annotation class RobotDslMarker
 abstract class BaseRobot(
         protected val composeTestRule: ComposeTestRule<MainActivity>,
         private val screenTestTag: CodexTestTag,
-        private val screenStack: Stack<BaseRobot> = Stack(),
 ) : Robot {
-    constructor(
-            composeTestRule: ComposeTestRule<MainActivity>,
-            screenTestTag: CodexTestTag,
-            previousScreen: BaseRobot,
-            addScreenToStack: Boolean = true,
-    ) : this(
-            composeTestRule,
-            screenTestTag,
-            previousScreen.screenStack.apply { if (addScreenToStack) push(previousScreen) else pop() },
-    )
-
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
     init {
@@ -271,13 +257,6 @@ abstract class BaseRobot(
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
-    }
-
-    protected fun <R : BaseRobot> popRobot(): R = screenStack.pop().apply { checkScreenIsShown() } as R
-
-    fun <R : BaseRobot> clickAndroidBack(): R {
-        pressBack()
-        return popRobot()
     }
 
     override fun <R : BaseRobot> createRobot(clazz: KClass<R>, block: R.() -> Unit) {

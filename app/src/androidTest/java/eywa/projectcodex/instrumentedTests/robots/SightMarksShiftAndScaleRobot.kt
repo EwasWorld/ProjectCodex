@@ -15,9 +15,7 @@ import eywa.projectcodex.model.SightMark
 
 class SightMarksShiftAndScaleRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
-        previousScreen: BaseRobot,
-        addScreenToStack: Boolean = true,
-) : BaseRobot(composeTestRule, SightMarksTestTag.SCREEN, previousScreen, addScreenToStack) {
+) : BaseRobot(composeTestRule, SightMarksTestTag.SCREEN) {
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
@@ -41,12 +39,11 @@ class SightMarksShiftAndScaleRobot(
         }
     }
 
-    fun clickComplete(): SightMarksRobot {
+    fun clickComplete() {
         perform {
             +HasTestTag(SightMarksTestTag.SAS_COMPLETE_BUTTON)
             +PerformClick()
         }
-        return popRobot()
     }
 
     fun clickFlip() {

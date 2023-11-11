@@ -616,13 +616,13 @@ class ZLargeScaleInstrumentedTest {
                 clickHomeIcon()
             }
 
-            clickSightMarks().apply {
+            clickSightMarks {
                 performAction(SightMarksRobot::class)
 
                 logMessage(this::class, "Navigating to: Sight mark detail")
-                clickSightMark(SightMark(sightMark))
-            }.apply {
-                performAction(SightMarkDetailRobot::class)
+                clickSightMark(SightMark(sightMark)) {
+                    performAction(SightMarkDetailRobot::class)
+                }
             }
         }
     }
@@ -801,13 +801,12 @@ class ZLargeScaleInstrumentedTest {
 
 
             logMessage(this::class, "Sight mark detail")
-            clickSightMarks().apply {
-                clickSightMark(SightMark(sightMark))
-            }.apply {
-                logMessage(this::class, " -> press back")
-                clickAndroidBack<SightMarksRobot>()
-            }.apply {
-                clickAndroidBack<MainMenuRobot>()
+            clickSightMarks {
+                clickSightMark(SightMark(sightMark)) {
+                    logMessage(this::class, " -> press back")
+                    pressBack()
+                }
+                pressBack()
             }
 
 
@@ -979,18 +978,18 @@ class ZLargeScaleInstrumentedTest {
 
 
             logMessage(this::class, "Sight mark")
-            clickSightMarks().apply {
+            clickSightMarks {
                 logMessage(this::class, " -> press home")
                 clickHomeIcon()
             }
 
 
             logMessage(this::class, "Sight mark detail")
-            clickSightMarks().apply {
-                clickSightMark(SightMark(sightMark))
-            }.apply {
-                logMessage(this::class, " -> press home")
-                clickHomeIcon()
+            clickSightMarks {
+                clickSightMark(SightMark(sightMark)) {
+                    logMessage(this::class, " -> press home")
+                    clickHomeIcon()
+                }
             }
 
 

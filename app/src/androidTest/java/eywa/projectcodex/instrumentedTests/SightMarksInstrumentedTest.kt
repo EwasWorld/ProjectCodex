@@ -2,14 +2,14 @@ package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.pressBack
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
-import eywa.projectcodex.instrumentedTests.robots.MainMenuRobot
-import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
+import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -17,7 +17,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
-import java.util.*
+import java.util.Calendar
 
 @HiltAndroidTest
 class SightMarksInstrumentedTest {
@@ -51,90 +51,75 @@ class SightMarksInstrumentedTest {
 
     @Test
     fun testAddAndDiagram() {
-        MainMenuRobot(composeTestRule).run {
-            clickSightMarks()
+        composeTestRule.mainMenuRobot {
+            clickSightMarks {
+                checkEmptyMessage()
 
-        }.run {
-            checkEmptyMessage()
+                // Add one
+                clickAdd {
+                    setInfo(sightMarks[0])
+                    clickSave()
+                }
+                checkSightMarkDisplayed(sightMarks[0])
+                checkDiagramTickLabelRange("1", "4")
 
-            // Add one
-            clickAdd()
+                // Add second
+                clickAdd {
+                    setInfo(sightMarks[1])
+                    clickSave()
 
-        }.run {
-            setInfo(sightMarks[0])
-            clickSave()
+                }
+                checkSightMarkDisplayed(sightMarks[0], true)
+                checkSightMarkDisplayed(sightMarks[1])
+                checkDiagramTickLabelRange("2", "5")
 
-        }.run {
-            checkSightMarkDisplayed(sightMarks[0])
-            checkDiagramTickLabelRange("1", "4")
+                // Flip
+                flipDiagram()
+                checkSightMarkDisplayed(sightMarks[0], true)
+                checkSightMarkDisplayed(sightMarks[1])
+                checkDiagramTickLabelRange("5", "2")
 
-            // Add second
-            clickAdd()
-
-        }.run {
-            setInfo(sightMarks[1])
-            clickSave()
-
-        }.run {
-            checkSightMarkDisplayed(sightMarks[0], true)
-            checkSightMarkDisplayed(sightMarks[1])
-            checkDiagramTickLabelRange("2", "5")
-
-            // Flip
-            flipDiagram()
-            checkSightMarkDisplayed(sightMarks[0], true)
-            checkSightMarkDisplayed(sightMarks[1])
-            checkDiagramTickLabelRange("5", "2")
-
-            // Archive
-            archiveAll()
-            checkSightMarkDisplayed(sightMarks[0].copy(isArchived = true), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(isArchived = true))
-            checkDiagramTickLabelRange("5", "2")
+                // Archive
+                archiveAll()
+                checkSightMarkDisplayed(sightMarks[0].copy(isArchived = true), true)
+                checkSightMarkDisplayed(sightMarks[1].copy(isArchived = true))
+                checkDiagramTickLabelRange("5", "2")
+            }
         }
     }
 
     @Test
     fun testDetail() {
-        MainMenuRobot(composeTestRule).run {
-            clickSightMarks()
+        composeTestRule.mainMenuRobot {
+            clickSightMarks {
+                checkEmptyMessage()
 
-        }.run {
-            checkEmptyMessage()
+                // Add new
+                clickAdd {
+                    setInfo(sightMarks[0])
+                    clickSave()
+                }
+                checkSightMarkDisplayed(sightMarks[0])
 
-            // Add new
-            clickAdd()
+                // Reset & Edit
+                clickSightMark(sightMarks[0]) {
+                    setInfo(sightMarks[1])
+                    clickReset()
+                    checkInfo(sightMarks[0], false)
 
-        }.run {
-            setInfo(sightMarks[0])
-            clickSave()
+                    setInfo(sightMarks[1])
+                    clickSave()
+                }
 
-        }.run {
-            checkSightMarkDisplayed(sightMarks[0])
+                checkSightMarkDisplayed(sightMarks[1])
 
-            // Reset & Edit
-            clickSightMark(sightMarks[0])
+                // Delete
+                clickSightMark(sightMarks[1]) {
+                    clickDelete()
+                }
 
-        }.run {
-            setInfo(sightMarks[1])
-            clickReset()
-            checkInfo(sightMarks[0], false)
-
-            setInfo(sightMarks[1])
-            clickSave()
-
-        }.run {
-            checkSightMarkDisplayed(sightMarks[1])
-
-            // Delete
-            clickSightMark(sightMarks[1])
-
-        }.run {
-            clickDelete()
-
-        }.run {
-            checkEmptyMessage()
-
+                checkEmptyMessage()
+            }
         }
     }
 
@@ -146,129 +131,117 @@ class SightMarksInstrumentedTest {
             }
         }
 
-        MainMenuRobot(composeTestRule).run {
-            clickSightMarks()
+        composeTestRule.mainMenuRobot {
+            clickSightMarks {
+                checkSightMarkDisplayed(sightMarks[0], true)
+                checkSightMarkDisplayed(sightMarks[1])
+                shiftAndScale {
+                    checkSightMarkDisplayed(sightMarks[0], true)
+                    checkSightMarkDisplayed(sightMarks[1])
 
-        }.run {
-            checkSightMarkDisplayed(sightMarks[0], true)
-            checkSightMarkDisplayed(sightMarks[1])
-            shiftAndScale()
+                    /*
+                     * Flip
+                     */
+                    clickFlip()
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.9f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 2.3f))
 
-        }.run {
-            checkSightMarkDisplayed(sightMarks[0], true)
-            checkSightMarkDisplayed(sightMarks[1])
+                    clickFlip()
+                    checkSightMarkDisplayed(sightMarks[0], true)
+                    checkSightMarkDisplayed(sightMarks[1])
 
-            /*
-             * Flip
-             */
-            clickFlip()
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.9f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 2.3f))
+                    /*
+                     * Shift
+                     */
+                    clickShiftChange(isIncrease = true, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
 
-            clickFlip()
-            checkSightMarkDisplayed(sightMarks[0], true)
-            checkSightMarkDisplayed(sightMarks[1])
+                    clickShiftChange(isIncrease = true, isLarge = false)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.4f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 6f))
 
-            /*
-             * Shift
-             */
-            clickShiftChange(isIncrease = true, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
+                    clickShiftChange(isIncrease = false, isLarge = false)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
 
-            clickShiftChange(isIncrease = true, isLarge = false)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.4f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 6f))
+                    clickShiftChange(isIncrease = false, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0], true)
+                    checkSightMarkDisplayed(sightMarks[1])
 
-            clickShiftChange(isIncrease = false, isLarge = false)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
+                    /*
+                     * Scale
+                     */
+                    clickScaleChange(isIncrease = true, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
 
-            clickShiftChange(isIncrease = false, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0], true)
-            checkSightMarkDisplayed(sightMarks[1])
+                    clickScaleChange(isIncrease = true, isLarge = false)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.83f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.29f))
 
-            /*
-             * Scale
-             */
-            clickScaleChange(isIncrease = true, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+                    clickScaleChange(isIncrease = false, isLarge = false)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
 
-            clickScaleChange(isIncrease = true, isLarge = false)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.83f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.29f))
+                    clickScaleChange(isIncrease = false, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0], true)
+                    checkSightMarkDisplayed(sightMarks[1])
 
-            clickScaleChange(isIncrease = false, isLarge = false)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+                    /*
+                     * Reset
+                     */
+                    clickScaleChange(isIncrease = true, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
 
-            clickScaleChange(isIncrease = false, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0], true)
-            checkSightMarkDisplayed(sightMarks[1])
+                    clickShiftChange(isIncrease = true, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
 
-            /*
-             * Reset
-             */
-            clickScaleChange(isIncrease = true, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+                    clickShiftReset()
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
 
-            clickShiftChange(isIncrease = true, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
+                    clickShiftChange(isIncrease = true, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
 
-            clickShiftReset()
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 4.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 9.8f))
+                    clickScaleReset()
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
 
-            clickShiftChange(isIncrease = true, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
+                    /*
+                     * Complete
+                     */
+                    clickScaleChange(isIncrease = true, isLarge = true)
+                    checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+                    checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
 
-            clickScaleReset()
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 3.3f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 5.9f))
+                    clickComplete()
+                }
+                checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
+                checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
 
-            /*
-             * Complete
-             */
-            clickScaleChange(isIncrease = true, isLarge = true)
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
-
-            clickComplete()
-        }.run {
-            checkSightMarkDisplayed(sightMarks[0].copy(sightMark = 5.6f), true)
-            checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
-
+            }
         }
     }
 
     /**
      * Example of using the back button
-     * TODO Update all robots to this pattern and swap large scale back test to this
      */
     @Test
     fun testBack() {
-        MainMenuRobot(composeTestRule).run {
-            clickSightMarks()
+        composeTestRule.mainMenuRobot {
+            clickSightMarks {
+                checkEmptyMessage()
 
-        }.run {
-            checkEmptyMessage()
-
-            // Add new
-            clickAdd()
-
-        }.run {
-            clickAndroidBack<SightMarksRobot>()
-
-        }.run {
-            clickAndroidBack<MainMenuRobot>()
-
-        }.run {
-            clickSightMarks()
-
+                clickAdd {
+                    pressBack()
+                }
+                pressBack()
+            }
+            clickSightMarks { }
         }
     }
 

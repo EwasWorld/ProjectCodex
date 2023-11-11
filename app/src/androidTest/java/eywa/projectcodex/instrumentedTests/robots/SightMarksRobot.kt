@@ -29,17 +29,18 @@ internal fun SightMark.asText(isLeft: Boolean = true) =
 
 class SightMarksRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
-        previousScreen: BaseRobot,
-        addScreenToStack: Boolean = true,
-) : BaseRobot(composeTestRule, SCREEN, previousScreen, addScreenToStack) {
+) : BaseRobot(composeTestRule, SCREEN) {
     fun checkEmptyMessage() {
         checkElementIsDisplayed(NO_SIGHT_MARKS_TEXT)
         checkElementDoesNotExist(DIAGRAM_TICK_LABEL)
     }
 
-    fun clickAdd(): SightMarkDetailRobot {
+    fun clickAdd(block: SightMarkDetailRobot.() -> Unit) {
         clickElement(ADD_BUTTON)
-        return SightMarkDetailRobot(composeTestRule, null, this)
+        createRobot(SightMarkDetailRobot::class) {
+            checkButtons(true)
+            block()
+        }
     }
 
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
@@ -64,13 +65,21 @@ class SightMarksRobot(
         }
     }
 
-    fun clickSightMark(sightMark: SightMark, isLeft: Boolean = false): SightMarkDetailRobot {
+    fun clickSightMark(
+            sightMark: SightMark,
+            isLeft: Boolean = false,
+            block: SightMarkDetailRobot.() -> Unit,
+    ) {
         clickElement(
                 SIGHT_MARK_TEXT,
                 sightMark.asText(isLeft),
                 useUnmergedTree = true,
         )
-        return SightMarkDetailRobot(composeTestRule, sightMark, this, true)
+        createRobot(SightMarkDetailRobot::class) {
+            checkInfo(sightMark, false)
+            checkButtons(false)
+            block()
+        }
     }
 
     fun checkDiagramTickLabelRange(topTick: String, bottomTick: String) {
@@ -93,10 +102,10 @@ class SightMarksRobot(
         clickElement(FLIP_DIAGRAM_MENU_BUTTON)
     }
 
-    fun shiftAndScale(): SightMarksShiftAndScaleRobot {
+    fun shiftAndScale(block: SightMarksShiftAndScaleRobot.() -> Unit) {
         clickOptions()
         clickElement(SHIFT_AND_SCALE_MENU_BUTTON)
-        return SightMarksShiftAndScaleRobot(composeTestRule, this, true)
+        createRobot(SightMarksShiftAndScaleRobot::class, block)
     }
 
     fun archiveAll() {

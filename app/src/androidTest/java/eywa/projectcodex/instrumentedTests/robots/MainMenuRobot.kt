@@ -7,34 +7,34 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 class MainMenuRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, MainMenuTestTag.SCREEN) {
-    fun clickNewScore(block: NewScoreRobot.() -> Unit = {}) {
+    fun clickNewScore(block: NewScoreRobot.() -> Unit) {
         clickElement(MainMenuTestTag.NEW_SCORE_BUTTON)
-        NewScoreRobot(composeTestRule).apply { block() }
+        createRobot(NewScoreRobot::class, block)
     }
 
-    fun clickViewScores(block: ViewScoresRobot.() -> Unit = {}) {
+    fun clickViewScores(block: ViewScoresRobot.() -> Unit) {
         clickElement(MainMenuTestTag.VIEW_SCORE_BUTTON)
-        ViewScoresRobot(composeTestRule).apply { block() }
+        createRobot(ViewScoresRobot::class, block)
     }
 
-    fun clickHandicapTables(block: HandicapTablesRobot.() -> Unit = {}) {
+    fun clickHandicapTables(block: HandicapTablesRobot.() -> Unit) {
         clickElement(MainMenuTestTag.REFERENCE_TABLES_BUTTON)
-        HandicapTablesRobot(composeTestRule).apply { block() }
+        createRobot(HandicapTablesRobot::class, block)
     }
 
-    fun clickSightMarks(): SightMarksRobot {
+    fun clickSightMarks(block: SightMarksRobot.() -> Unit) {
         clickElement(MainMenuTestTag.SIGHT_MARKS_BUTTON)
-        return SightMarksRobot(composeTestRule, this)
+        createRobot(SightMarksRobot::class, block)
     }
 
-    fun clickArcherInfo(block: ArcherInfoRobot.() -> Unit = {}) {
+    fun clickArcherInfo(block: ArcherInfoRobot.() -> Unit) {
         clickElement(MainMenuTestTag.ARCHER_INFO_BUTTON)
-        ArcherInfoRobot(composeTestRule).apply { block() }
+        createRobot(ArcherInfoRobot::class, block)
     }
 
     fun clickAboutIcon(block: AboutRobot.() -> Unit) {
         clickElement(MainMenuTestTag.ABOUT_BUTTON)
-        AboutRobot(composeTestRule).apply(block)
+        createRobot(AboutRobot::class, block)
     }
 
     fun clickCancelWhatsNewDialog() {
