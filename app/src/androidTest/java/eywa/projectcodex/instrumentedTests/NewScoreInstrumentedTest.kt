@@ -23,8 +23,8 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
-import eywa.projectcodex.instrumentedTests.robots.common.SelectRoundRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundRobot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -171,15 +171,15 @@ class NewScoreInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                with(roundsRobot) {
-                    clickSelectedRound()
-                    clickRoundDialogRound("1")
-                    checkSelectedRound("1")
-
-                    clickSelectedRound()
-                    clickRoundDialogNoRound()
-                    checkSelectedRound("No Round")
+                selectRoundsRobot.clickSelectedRound {
+                    clickRound("1")
                 }
+                selectRoundsRobot.checkSelectedRound("1")
+
+                selectRoundsRobot.clickSelectedRound {
+                    clickNoRound()
+                }
+                selectRoundsRobot.checkSelectedRound("No Round")
             }
         }
     }
@@ -200,11 +200,10 @@ class NewScoreInstrumentedTest {
         val selectedSubtype = selectedRound.roundSubTypes!![1]
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                with(roundsRobot) {
-                    clickSelectedRound()
-                    clickRoundDialogRound(selectedRound.round.displayName)
-
-                    clickSelectedSubtype()
+                selectRoundsRobot.clickSelectedRound {
+                    clickRound(selectedRound.round.displayName)
+                }
+                selectRoundsRobot.clickSelectedSubtype {
                     clickSubtypeDialogSubtype(selectedSubtype.name!!)
                 }
 
@@ -267,7 +266,7 @@ class NewScoreInstrumentedTest {
                     checkTime("17:12")
                     checkDate("10 Jun 19")
 
-                    roundsRobot.checkSelectedRound(shootInput.round!!.displayName)
+                    selectRoundsRobot.checkSelectedRound(shootInput.round!!.displayName)
 
                     /*
                      * Change some stuff
@@ -277,8 +276,9 @@ class NewScoreInstrumentedTest {
                     checkTime("13:15")
                     checkDate("30 Oct 40")
 
-                    roundsRobot.clickSelectedRound()
-                    roundsRobot.clickRoundDialogRound(selectedRound.round.displayName)
+                    selectRoundsRobot.clickSelectedRound() {
+                        clickRound(selectedRound.round.displayName)
+                    }
 
                     /*
                      * Reset
@@ -295,8 +295,9 @@ class NewScoreInstrumentedTest {
                     checkTime("13:15")
                     checkDate("30 Oct 40")
 
-                    roundsRobot.clickSelectedRound()
-                    roundsRobot.clickRoundDialogRound(selectedRound.round.displayName)
+                    selectRoundsRobot.clickSelectedRound {
+                        clickRound(selectedRound.round.displayName)
+                    }
 
                     /*
                      * Save
@@ -341,8 +342,9 @@ class NewScoreInstrumentedTest {
             clickViewScores {
                 longClickRow(0)
                 clickEditDropdownMenuItem {
-                    roundsRobot.clickSelectedRound()
-                    roundsRobot.clickRoundDialogNoRound()
+                    selectRoundsRobot.clickSelectedRound {
+                        clickNoRound()
+                    }
                     clickSubmitEditScore()
                 }
             }
@@ -449,35 +451,34 @@ class NewScoreInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                with(roundsRobot) {
-                    clickSelectedRound()
-                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                selectRoundsRobot.clickSelectedRound {
+                    checkRoundOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
                     checkNoFiltersAreOn()
 
                     clickFilter(SelectRoundRobot.Filter.METRIC)
-                    checkSelectRoundDialogOptions(listOf("WA 1440", "WA 25"))
-                    checkSelectRoundDialogOptionsNotExist(listOf("St. George", "Portsmouth"))
+                    checkRoundOptions(listOf("WA 1440", "WA 25"))
+                    checkRoundOptionsNotExist(listOf("St. George", "Portsmouth"))
                     clickFilter(SelectRoundRobot.Filter.IMPERIAL)
-                    checkSelectRoundDialogOptions(listOf("St. George", "Portsmouth"))
-                    checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "WA 25"))
+                    checkRoundOptions(listOf("St. George", "Portsmouth"))
+                    checkRoundOptionsNotExist(listOf("WA 1440", "WA 25"))
                     clickFilter(SelectRoundRobot.Filter.IMPERIAL, false)
-                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                    checkRoundOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
                     checkNoFiltersAreOn()
 
                     clickFilter(SelectRoundRobot.Filter.INDOOR)
-                    checkSelectRoundDialogOptions(listOf("Portsmouth", "WA 25"))
-                    checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George"))
+                    checkRoundOptions(listOf("Portsmouth", "WA 25"))
+                    checkRoundOptionsNotExist(listOf("WA 1440", "St. George"))
                     clickFilter(SelectRoundRobot.Filter.OUTDOOR)
-                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George"))
-                    checkSelectRoundDialogOptionsNotExist(listOf("Portsmouth", "WA 25"))
+                    checkRoundOptions(listOf("WA 1440", "St. George"))
+                    checkRoundOptionsNotExist(listOf("Portsmouth", "WA 25"))
                     clickFilter(SelectRoundRobot.Filter.OUTDOOR, false)
-                    checkSelectRoundDialogOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
+                    checkRoundOptions(listOf("WA 1440", "St. George", "Portsmouth", "WA 25"))
                     checkNoFiltersAreOn()
 
                     clickFilter(SelectRoundRobot.Filter.INDOOR)
                     clickFilter(SelectRoundRobot.Filter.METRIC)
-                    checkSelectRoundDialogOptions(listOf("WA 25"))
-                    checkSelectRoundDialogOptionsNotExist(listOf("WA 1440", "St. George", "Portsmouth"))
+                    checkRoundOptions(listOf("WA 25"))
+                    checkRoundOptionsNotExist(listOf("WA 1440", "St. George", "Portsmouth"))
                 }
             }
         }

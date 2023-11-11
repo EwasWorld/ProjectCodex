@@ -134,8 +134,9 @@ class ZLargeScaleInstrumentedTest {
 
             logMessage(this::class, "Start score A - default date, with round")
             clickNewScore {
-                roundsRobot.clickSelectedRound()
-                roundsRobot.clickRoundDialogRound("Round Name 1")
+                selectRoundsRobot.clickSelectedRound {
+                    clickRound("Round Name 1")
+                }
                 clickSubmitNewScore {
                     logMessage(this::class, "Score A - open score pad - no arrows entered")
                     clickNavBarScorePad {

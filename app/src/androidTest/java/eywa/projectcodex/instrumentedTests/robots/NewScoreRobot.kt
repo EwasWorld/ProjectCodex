@@ -16,7 +16,7 @@ import eywa.projectcodex.common.sharedUi.DateSelectorRowTestTag
 import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
-import eywa.projectcodex.instrumentedTests.robots.common.SelectRoundRobot
+import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import java.util.Calendar
 
@@ -24,7 +24,7 @@ class NewScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, NewScoreTestTag.SCREEN) {
     val facesRobot = SelectFaceRobot(composeTestRule, NewScoreTestTag.SCREEN)
-    val roundsRobot = SelectRoundRobot(composeTestRule, NewScoreTestTag.SCREEN)
+    val selectRoundsRobot = SelectRoundBaseRobot(::perform)
 
     init {
         waitForDatabaseUpdate()

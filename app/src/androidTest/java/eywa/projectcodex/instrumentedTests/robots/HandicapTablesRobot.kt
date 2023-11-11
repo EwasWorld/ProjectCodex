@@ -10,8 +10,8 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
-import eywa.projectcodex.instrumentedTests.robots.common.SelectRoundRobot
 import eywa.projectcodex.instrumentedTests.robots.common.TabSwitcherRobot
+import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
 import eywa.projectcodex.model.Handicap
 
 class HandicapTablesRobot(
@@ -21,7 +21,7 @@ class HandicapTablesRobot(
         get() = TabSwitcherGroup.REFERENCES
 
     val facesRobot = SelectFaceRobot(composeTestRule, HandicapTablesTestTag.SCREEN)
-    val roundsRobot = SelectRoundRobot(composeTestRule, HandicapTablesTestTag.SCREEN)
+    val selectRoundBaseRobot = SelectRoundBaseRobot(::perform)
 
     fun clickHandicapSystem() {
         perform {

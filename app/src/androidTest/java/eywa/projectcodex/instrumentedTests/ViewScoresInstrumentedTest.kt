@@ -263,7 +263,7 @@ class ViewScoresInstrumentedTest {
                 // Long click - edit
                 longClickRow(rowId)
                 clickEditDropdownMenuItem {
-                    roundsRobot.checkSelectedRound("No Round")
+                    selectRoundsRobot.checkSelectedRound("No Round")
                     pressBack()
                 }
             }

@@ -70,9 +70,9 @@ class HandicapTablesE2eTest {
 
                 setInputText("120")
 
-                with(roundsRobot) {
-                    clickSelectedRound()
-                    clickRoundDialogRound("WA 25")
+
+                selectRoundBaseRobot.clickSelectedRound {
+                    clickRound("WA 25")
                 }
                 with(facesRobot) {
                     openDialog()

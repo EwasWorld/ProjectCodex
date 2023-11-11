@@ -8,8 +8,8 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.SelectRoundRobot
 import eywa.projectcodex.instrumentedTests.robots.common.TabSwitcherRobot
+import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
 
 
 class ClassificationTablesRobot(
@@ -18,7 +18,7 @@ class ClassificationTablesRobot(
     override val group: TabSwitcherGroup
         get() = TabSwitcherGroup.REFERENCES
 
-    val roundRobot = SelectRoundRobot(composeTestRule, ClassificationTablesTestTag.SCREEN)
+    val selectRoundsRobot = SelectRoundBaseRobot(::perform)
 
     fun clickGender(expectedNewGenderIsGent: Boolean = true) {
         val expectedNewGender = if (expectedNewGenderIsGent) "Gents" else "Ladies"

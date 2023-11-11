@@ -78,9 +78,10 @@ class ClassificationTablesE2eTest {
                             )
                     )
 
-                    roundRobot.clickSelectedRound()
-                    roundRobot.clickRoundDialogRound("York")
-                    roundRobot.checkSelectedRound("York")
+                    selectRoundsRobot.clickSelectedRound {
+                        clickRound("York")
+                    }
+                    selectRoundsRobot.checkSelectedRound("York")
                     checkClassifications(
                             listOf(
                                     ClassificationTablesRobot.TableRow("Archer 3rd", 278, 72),
@@ -95,8 +96,9 @@ class ClassificationTablesE2eTest {
                             )
                     )
 
-                    roundRobot.clickSelectedSubtype()
-                    roundRobot.clickSubtypeDialogSubtype("Hereford")
+                    selectRoundsRobot.clickSelectedSubtype {
+                        clickSubtypeDialogSubtype("Hereford")
+                    }
                     checkClassifications(
                             listOf(
                                     ClassificationTablesRobot.TableRow("Archer 3rd", 427, 72),
@@ -111,8 +113,9 @@ class ClassificationTablesE2eTest {
                             )
                     )
 
-                    roundRobot.clickSelectedSubtype()
-                    roundRobot.clickSubtypeDialogSubtype("York")
+                    selectRoundsRobot.clickSelectedSubtype {
+                        clickSubtypeDialogSubtype("York")
+                    }
                     clickGender(false)
                     setAge("U15")
                     setBowStyle("Compound")
@@ -130,8 +133,9 @@ class ClassificationTablesE2eTest {
                             )
                     )
 
-                    roundRobot.clickSelectedSubtype()
-                    roundRobot.clickSubtypeDialogSubtype("Hereford")
+                    selectRoundsRobot.clickSelectedSubtype {
+                        clickSubtypeDialogSubtype("Hereford")
+                    }
                     checkClassifications(
                             listOf(
                                     ClassificationTablesRobot.TableRow("Archer 3rd", 370, 75),
