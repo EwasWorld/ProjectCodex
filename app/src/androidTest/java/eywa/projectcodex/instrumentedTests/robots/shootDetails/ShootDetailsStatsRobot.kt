@@ -7,12 +7,12 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqu
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.SelectFaceRobot
+import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 
 class ShootDetailsStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, StatsTestTag.SCREEN) {
-    val facesRobot = SelectFaceRobot(composeTestRule, StatsTestTag.SCREEN)
+    val facesRobot = SelectFaceBaseRobot(::perform)
 
     fun checkDate(text: String) {
         perform {

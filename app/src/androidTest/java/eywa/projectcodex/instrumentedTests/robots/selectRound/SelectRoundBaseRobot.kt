@@ -4,10 +4,10 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTest
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 
-@SelectRoundBaseDsl
-class SelectRoundBaseRobot(val perform: (TestActionDsl.() -> Unit) -> Unit) {
+@SelectRoundDsl
+class SelectRoundBaseRobot(val perform: PerformFn) {
     fun checkNoDialogShown() {
         perform {
             perform {

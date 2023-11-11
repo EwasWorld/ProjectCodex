@@ -4,10 +4,10 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 
-@SelectRoundBaseDsl
-class SelectRoundRobot internal constructor(val perform: (TestActionDsl.() -> Unit) -> Unit) {
+@SelectRoundDsl
+class SelectRoundRobot internal constructor(val perform: PerformFn) {
     init {
         perform {
             +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG)

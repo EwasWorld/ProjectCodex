@@ -381,30 +381,33 @@ class NewScoreInstrumentedTest {
             clickViewScores {
                 longClickRow(0)
                 clickEditDropdownMenuItem {
-                    with(facesRobot) {
+                    with(selectFaceBaseRobot) {
                         checkFaces("Full")
 
-                        openDialog()
-                        checkSwitchToMultiButtonIsShown()
-                        checkSwitchToSingleButtonNotShown()
-                        clickSingleOption("Half")
+                        openSingleSelectDialog {
+                            checkSwitchButton()
+                            clickOption("Half")
+                        }
                         checkFaces("Half")
 
-                        openDialog()
-                        clickSwitchToMulti()
-                        checkSwitchToSingleButtonIsShown()
-                        checkSwitchToMultiButtonNotShown()
-                        checkMultiOptions(listOf("80m: Half", "70m: Half", "60m: Half"))
-                        clickMultiOption(0, "Full")
-                        checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Half"))
-                        clickMultiOption(2, "Triple")
-                        checkMultiOptions(listOf("80m: Full", "70m: Half", "60m: Triple"))
-                        clickConfirm()
+                        openSingleSelectDialog {
+                            clickSwitchButton {
+                                checkSwitchButton()
+                                checkOptions(listOf("80m: Half", "70m: Half", "60m: Half"))
+                                clickOption(0, "Full")
+                                checkOptions(listOf("80m: Full", "70m: Half", "60m: Half"))
+                                clickOption(2, "Triple")
+                                checkOptions(listOf("80m: Full", "70m: Half", "60m: Triple"))
+                                clickConfirm()
+                            }
+                        }
                         checkFaces("Full, Half, Triple")
 
-                        openDialog(false)
-                        clickSwitchToSingle()
-                        clickSingleOption("6-ring")
+                        openMultiSelectDialog {
+                            clickSwitchButton {
+                                clickOption("6-ring")
+                            }
+                        }
                         checkFaces("6-ring")
                     }
                 }
@@ -431,13 +434,13 @@ class NewScoreInstrumentedTest {
             clickViewScores {
                 longClickRow(0)
                 clickEditDropdownMenuItem {
-                    with(facesRobot) {
+                    with(selectFaceBaseRobot) {
                         checkFaces("Full")
 
-                        openDialog()
-                        checkSwitchToMultiButtonNotShown()
-                        checkSwitchToSingleButtonNotShown()
-                        clickSingleOption("Half")
+                        openSingleSelectDialog {
+                            checkSwitchButton(false)
+                            clickOption("Half")
+                        }
                         checkFaces("Half")
                     }
                 }

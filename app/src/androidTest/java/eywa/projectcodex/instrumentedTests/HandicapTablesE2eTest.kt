@@ -74,9 +74,8 @@ class HandicapTablesE2eTest {
                 selectRoundBaseRobot.clickSelectedRound {
                     clickRound("WA 25")
                 }
-                with(facesRobot) {
-                    openDialog()
-                    clickSingleOption("Triple")
+                selectFaceBaseRobot.openSingleSelectDialog {
+                    clickOption("Triple")
                 }
 
                 checkTableData(
