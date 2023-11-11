@@ -4,6 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.navigation.TabSwitcherGroup
 import eywa.projectcodex.components.classificationTables.ClassificationTablesTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -19,10 +20,11 @@ class ClassificationTablesRobot(
 
     val roundRobot = SelectRoundRobot(composeTestRule, ClassificationTablesTestTag.SCREEN)
 
-    fun clickGender() {
+    fun clickGender(expectedNewGenderIsGent: Boolean = true) {
+        val expectedNewGender = if (expectedNewGenderIsGent) "Gents" else "Ladies"
         perform {
-            +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.GENDER_SELECTOR)
-            +CodexNodeInteraction.PerformClick()
+            clickDataRow(ClassificationTablesTestTag.GENDER_SELECTOR)
+            +CodexNodeInteraction.AssertTextEquals(expectedNewGender).waitFor()
         }
     }
 
@@ -36,6 +38,10 @@ class ClassificationTablesRobot(
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
         }
+        perform {
+            +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.AGE_SELECTOR)
+            +CodexNodeInteraction.AssertContentDescriptionEquals("$value Age:")
+        }
     }
 
     fun setBowStyle(value: String) {
@@ -47,6 +53,10 @@ class ClassificationTablesRobot(
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
+        }
+        perform {
+            +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.BOW_SELECTOR)
+            +CodexNodeInteraction.AssertContentDescriptionEquals("$value Bow:")
         }
     }
 
@@ -61,33 +71,49 @@ class ClassificationTablesRobot(
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_CLASSIFICATION))
             +CodexNodeGroupInteraction.ForEach(
-                    data.map { CodexNodeInteraction.AssertTextEquals(it.classification) }
+                    data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.classification).waitFor()) }
             )
         }
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_SCORE))
             +CodexNodeGroupInteraction.ForEach(
-                    data.map { CodexNodeInteraction.AssertTextEquals(it.score.toString()) }
+                    data.map {
+                        listOf(
+                                CodexNodeInteraction.AssertTextEquals(it.getScoreString()),
+                                CodexNodeInteraction.AssertContentDescriptionEquals(it.getScoreContentDescription()),
+                        )
+                    }
             )
         }
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_HANDICAP))
             +CodexNodeGroupInteraction.ForEach(
-                    data.map { CodexNodeInteraction.AssertTextEquals(it.handicap.toString()) }
+                    data.map {
+                        listOf(
+                                CodexNodeInteraction.AssertTextEquals(it.getHandicapString()),
+                                CodexNodeInteraction.AssertContentDescriptionEquals(it.getHandicapContentDescription()),
+                        )
+                    }
             )
         }
     }
 
-    @JvmInline
-    value class TableRow private constructor(val data: Triple<String, Int, Int>) {
-        constructor(classification: String, score: Int, handicap: Int)
-                : this(Triple(classification, score, handicap))
+    data class TableRow constructor(
+            val classification: String,
+            val score: Int?,
+            val handicap: Int,
+            val isOfficial: Boolean = true,
+    ) {
+        fun getScoreString(): String =
+                score?.toString() ?: "-"
 
-        val classification
-            get() = data.first
-        val score
-            get() = data.second
-        val handicap
-            get() = data.third
+        fun getScoreContentDescription(): String =
+                if (score == null) "no score data"
+                else score.toString() + " score" + getSuffix()
+
+        fun getHandicapString(): String = handicap.toString()
+        fun getHandicapContentDescription(): String = handicap.toString() + " handicap" + getSuffix()
+
+        private fun getSuffix() = if (isOfficial) " " else " unofficial"
     }
 }

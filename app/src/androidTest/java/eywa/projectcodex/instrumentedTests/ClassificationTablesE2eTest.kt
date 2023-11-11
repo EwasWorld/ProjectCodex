@@ -46,6 +46,7 @@ class ClassificationTablesE2eTest {
                 listOf(
                         RoundPreviewHelper.yorkRoundData,
                         RoundPreviewHelper.wa25RoundData,
+                        RoundPreviewHelper.wa1440RoundData,
                 ).forEach { db.add(it) }
             }
         }
@@ -63,7 +64,19 @@ class ClassificationTablesE2eTest {
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
                 clickTab(ClassificationTablesRobot::class) {
-                    checkNoClassifications()
+                    checkClassifications(
+                            listOf(
+                                    ClassificationTablesRobot.TableRow("Archer 3rd", null, 72, false),
+                                    ClassificationTablesRobot.TableRow("Archer 2nd", null, 65, false),
+                                    ClassificationTablesRobot.TableRow("Archer 1st", null, 58, false),
+                                    ClassificationTablesRobot.TableRow("Bowman 3rd", null, 51, false),
+                                    ClassificationTablesRobot.TableRow("Bowman 2nd", null, 44, false),
+                                    ClassificationTablesRobot.TableRow("Bowman 1st", null, 37, false),
+                                    ClassificationTablesRobot.TableRow("Master Bowman", null, 30, false),
+                                    ClassificationTablesRobot.TableRow("Grand MB", null, 23, false),
+                                    ClassificationTablesRobot.TableRow("Elite GMB", null, 16, false),
+                            )
+                    )
 
                     roundRobot.clickSelectedRound()
                     roundRobot.clickRoundDialogRound("York")
@@ -82,7 +95,25 @@ class ClassificationTablesE2eTest {
                             )
                     )
 
-                    clickGender()
+                    roundRobot.clickSelectedSubtype()
+                    roundRobot.clickSubtypeDialogSubtype("Hereford")
+                    checkClassifications(
+                            listOf(
+                                    ClassificationTablesRobot.TableRow("Archer 3rd", 427, 72),
+                                    ClassificationTablesRobot.TableRow("Archer 2nd", 571, 65),
+                                    ClassificationTablesRobot.TableRow("Archer 1st", 721, 58),
+                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 863, 51),
+                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 985, 44),
+                                    ClassificationTablesRobot.TableRow("Bowman 1st", 1083, 37, false),
+                                    ClassificationTablesRobot.TableRow("Master Bowman", 1160, 30, false),
+                                    ClassificationTablesRobot.TableRow("Grand MB", 1218, 23, false),
+                                    ClassificationTablesRobot.TableRow("Elite GMB", 1259, 16, false),
+                            )
+                    )
+
+                    roundRobot.clickSelectedSubtype()
+                    roundRobot.clickSubtypeDialogSubtype("York")
+                    clickGender(false)
                     setAge("U15")
                     setBowStyle("Compound")
                     checkClassifications(

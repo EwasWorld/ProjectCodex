@@ -5,7 +5,8 @@ import eywa.projectcodex.common.utils.CodexTestTag
 object CodexDefaultActions {
     fun TestActionDsl.clickDataRow(testTag: CodexTestTag) {
         useUnmergedTree = true
-        +CodexNodeMatcher.HasTestTag(testTag)
+        +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
+        +CodexNodeMatcher.HasClickAction
         +CodexNodeInteraction.PerformClick()
     }
 

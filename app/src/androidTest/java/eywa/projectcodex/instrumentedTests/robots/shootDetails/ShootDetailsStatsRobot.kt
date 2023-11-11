@@ -136,7 +136,7 @@ class ShootDetailsStatsRobot(
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_ITEM))
             +CodexNodeGroupInteraction.ForEach(
-                    items.map { CodexNodeInteraction.AssertContentDescriptionEquals(it.semanticText) }
+                    listOf(items.map { CodexNodeInteraction.AssertContentDescriptionEquals(it.semanticText) })
             )
         }
     }

@@ -14,7 +14,7 @@
     <string name="classification_tables__score_field_semantics">%s score %s</string>
     <string name="classification_tables__handicap_field">HC</string>
     <string name="classification_tables__handicap_field_semantics">%s handicap %s</string>
-    <string name="classification_tables__score_field_empty_semantics">no score</string>
+    <string name="classification_tables__score_field_empty_semantics">no score data</string>
     <string name="classification_tables__unofficial_semantics">unofficial</string>
     <string name="classification_tables__no_tables">No data</string>
 

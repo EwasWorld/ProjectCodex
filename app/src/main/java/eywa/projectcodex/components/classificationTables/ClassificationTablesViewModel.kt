@@ -86,6 +86,7 @@ class ClassificationTablesViewModel @Inject constructor(
                             subType = selectRoundDialogState.selectedSubTypeId,
                             handicap = it.handicap!!.toDouble(),
                             innerTenArcher = bow == ClassificationBow.COMPOUND,
+                            use2023Handicaps = use2023Handicaps,
                     )
             it.copy(score = score)
         }.orEmpty()

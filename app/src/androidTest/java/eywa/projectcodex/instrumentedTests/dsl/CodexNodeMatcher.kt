@@ -92,5 +92,9 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher = hasScrollAction()
     }
 
+    data class Custom(val customMatcher: SemanticsMatcher) : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = customMatcher
+    }
+
     abstract fun getMatcher(): SemanticsMatcher
 }

@@ -31,7 +31,8 @@ class HandicapTablesRobot(
 
     fun clickInputMethod() {
         perform {
-            clickDataRow(HandicapTablesTestTag.INPUT_SELECTOR)
+            +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.INPUT_SELECTOR)
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
@@ -52,19 +53,19 @@ class HandicapTablesRobot(
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_HANDICAP))
             +CodexNodeGroupInteraction.ForEach(
-                    data.map { CodexNodeInteraction.AssertTextEquals(it.handicap.toString()) }
+                    data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.handicap.toString())) }
             )
         }
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_SCORE))
             +CodexNodeGroupInteraction.ForEach(
-                    data.map { CodexNodeInteraction.AssertTextEquals(it.score.toString()) }
+                    data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.score.toString())) }
             )
         }
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_ALLOWANCE))
             +CodexNodeGroupInteraction.ForEach(
-                    data.map { CodexNodeInteraction.AssertTextEquals(it.allowance.toString()) }
+                    data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.allowance.toString())) }
             )
         }
     }

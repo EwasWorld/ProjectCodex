@@ -4,15 +4,16 @@ import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertCountEquals
 
 /**
- * Actions which can be performed on a [SemanticsNodeInteractionCollection]
+ * Actions which can be performed on a [SemanticsNodeInteractionCollection].
+ * One List<CodexNodeInteraction> per expected node. Each node can have multiple [CodexNodeInteraction]
  */
 sealed class CodexNodeGroupInteraction {
-    data class ForEach(
-            val actions: List<CodexNodeInteraction>,
-    ) : CodexNodeGroupInteraction() {
+    data class ForEach(val actions: List<List<CodexNodeInteraction>>) : CodexNodeGroupInteraction() {
         override fun perform(nodes: SemanticsNodeInteractionCollection) {
-            actions.forEachIndexed { index, action ->
-                action.perform(nodes[index])
+            actions.forEachIndexed { index, nodeActions ->
+                nodeActions.forEach {
+                    it.perform(nodes[index])
+                }
             }
         }
     }

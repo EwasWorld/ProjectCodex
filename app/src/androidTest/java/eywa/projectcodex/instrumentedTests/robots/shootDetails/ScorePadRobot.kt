@@ -42,7 +42,7 @@ class ScorePadRobot(
                     }
             useUnmergedTree = true
             allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
-            +CodexNodeGroupInteraction.ForEach(allCells)
+            +CodexNodeGroupInteraction.ForEach(allCells.map { listOf(it) })
             +CodexNodeGroupInteraction.AssertCount(allCells.size)
         }
     }

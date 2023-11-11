@@ -19,6 +19,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTest
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag.SUBTYPE_DIALOG
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
@@ -27,6 +28,17 @@ class SelectRoundRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
         screenTestTag: CodexTestTag,
 ) : BaseRobot(composeTestRule, screenTestTag) {
+    fun checkNoDialogShown() {
+        perform {
+            +CodexNodeMatcher.HasTestTag(ROUND_DIALOG)
+            +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+        }
+        perform {
+            +CodexNodeMatcher.HasTestTag(SUBTYPE_DIALOG)
+            +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+        }
+    }
+
     fun clickSelectedRound() {
         perform {
             useUnmergedTree = true
@@ -131,12 +143,18 @@ class SelectRoundRobot(
     }
 
     fun clickSubtypeDialogSubtype(displayName: String, index: Int = 0) {
-        composeTestRule.onAllNodes(
-                displayName.split(" ").map { hasAnyChild(hasText(it)) }.fold(
-                        hasTestTag(ROUND_DIALOG_ITEM.getTestTag())
-                ) { a, b -> a.and(b) },
-                true,
-        )[index].performClick()
+        perform {
+            useUnmergedTree = true
+            allNodes(
+                    CodexNodeMatcher.HasTestTag(ROUND_DIALOG_ITEM),
+                    *displayName
+                            .split(" ")
+                            .map { CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it)) }
+                            .toTypedArray()
+            )
+            +CodexNodeGroupToOne.Index(index)
+            +CodexNodeInteraction.PerformClick().waitFor()
+        }
     }
 
     enum class Filter(val label: String, val index: Int) {
