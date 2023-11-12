@@ -5,12 +5,16 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelectable
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import eywa.projectcodex.common.CustomConditionWaiter
 
 
@@ -32,6 +36,12 @@ sealed class CodexNodeInteraction {
         }
     }
 
+    class PerformLongClick : CodexNodeInteraction() {
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            node.performTouchInput { longClick() }
+        }
+    }
+
     /**
      * Note: LazyRow/Column cannot use this.
      * Instead, should use [TestActionDsl.scrollToParentIndex]
@@ -39,6 +49,16 @@ sealed class CodexNodeInteraction {
     class PerformScrollTo : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.performScrollTo()
+        }
+    }
+
+    /**
+     * Note: LazyRow/Column cannot use this.
+     * Instead, should use [TestActionDsl.scrollToParentIndex]
+     */
+    data class PerformScrollToIndex(val index: Int) : CodexNodeInteraction() {
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            node.performScrollToIndex(index)
         }
     }
 
@@ -76,6 +96,12 @@ sealed class CodexNodeInteraction {
         override fun performInternal(node: SemanticsNodeInteraction) {
             if (value) node.assertIsSelected()
             else node.assertIsNotSelected()
+        }
+    }
+
+    class AssertIsSelectable : CodexNodeInteraction() {
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            node.assertIsSelectable()
         }
     }
 

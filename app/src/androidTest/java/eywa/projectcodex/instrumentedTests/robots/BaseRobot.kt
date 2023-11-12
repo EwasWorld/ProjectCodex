@@ -33,10 +33,11 @@ import kotlin.reflect.full.primaryConstructor
 @DslMarker
 annotation class RobotDslMarker
 
+@Suppress("DeprecatedCallableAddReplaceWith")
 @RobotDslMarker
 @TestActionDslMarker
 abstract class BaseRobot(
-        protected val composeTestRule: ComposeTestRule<MainActivity>,
+        private val composeTestRule: ComposeTestRule<MainActivity>,
         private val screenTestTag: CodexTestTag,
 ) : Robot {
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
@@ -91,6 +92,7 @@ abstract class BaseRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
+    @Deprecated("Use perform")
     fun clickElement(
             testTag: CodexTestTag,
             text: String? = null,
@@ -117,6 +119,7 @@ abstract class BaseRobot(
     }
 
 
+    @Deprecated("Use perform")
     fun checkElementText(testTag: CodexTestTag, text: String, index: Int? = null, useUnmergedTree: Boolean = false) {
         perform {
             val matcher = CodexNodeMatcher.HasTestTag(testTag)
@@ -134,10 +137,12 @@ abstract class BaseRobot(
         }
     }
 
+    @Deprecated("Use perform")
     fun checkAllElements(testTag: CodexTestTag, check: SemanticsMatcher, useUnmergedTree: Boolean = false) =
             composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).assertAll(check)
 
 
+    @Deprecated("Use perform")
     fun checkElementIsDisplayed(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) {
         perform {
             this.useUnmergedTree = useUnmergedTree
@@ -149,6 +154,7 @@ abstract class BaseRobot(
         }
     }
 
+    @Deprecated("Use perform")
     fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
         perform {
             this.useUnmergedTree = useUnmergedTree
@@ -157,6 +163,7 @@ abstract class BaseRobot(
         }
     }
 
+    @Deprecated("Use perform")
     fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean, useUnmergedTree: Boolean = false) {
         perform {
             this.useUnmergedTree = useUnmergedTree
@@ -165,12 +172,14 @@ abstract class BaseRobot(
         }
     }
 
+    @Deprecated("Use perform")
     fun setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
         perform {
             setText(testTag, text, append)
         }
     }
 
+    @Deprecated("Use perform")
     fun setChip(testTag: CodexTestTag, value: Boolean, currentValue: Boolean) {
         if (value == currentValue) return
         perform {
@@ -180,6 +189,7 @@ abstract class BaseRobot(
         }
     }
 
+    @Deprecated("Use perform")
     fun checkDialogIsDisplayed(titleText: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.TITLE)
@@ -188,9 +198,13 @@ abstract class BaseRobot(
         }
     }
 
+    @Deprecated("Use perform")
     fun clickDialogOk(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.POSITIVE_BUTTON)
+
+    @Deprecated("Use perform")
     fun clickDialogCancel(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.NEGATIVE_BUTTON)
 
+    @Deprecated("Use perform")
     private fun clickDialog(titleText: String, buttonTag: CodexTestTag) {
         checkDialogIsDisplayed(titleText)
         perform {

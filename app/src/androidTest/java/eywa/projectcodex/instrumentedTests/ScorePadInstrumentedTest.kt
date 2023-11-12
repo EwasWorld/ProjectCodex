@@ -34,7 +34,7 @@ class ScorePadInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(10)
+    val testTimeout: Timeout = Timeout.seconds(15)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)

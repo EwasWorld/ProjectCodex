@@ -49,7 +49,7 @@ class ScorePadRobot(
 
     fun clickOkOnNoDataDialog() {
         clickDialogOk("No arrows entered")
-        AddEndRobot(composeTestRule).apply { checkEndTotal(0) }
+        createRobot(AddEndRobot::class) { checkEndTotal(0) }
     }
 
     /**
@@ -76,12 +76,12 @@ class ScorePadRobot(
 
     fun clickEditDropdownMenuItem(block: EditEndRobot.() -> Unit) {
         clickDropdownMenuItem(CommonStrings.EDIT_MENU_ITEM)
-        EditEndRobot(composeTestRule).apply { block() }
+        createRobot(EditEndRobot::class, block)
     }
 
     fun clickInsertDropdownMenuItem(block: InsertEndRobot.() -> Unit) {
         clickDropdownMenuItem(CommonStrings.INSERT_MENU_ITEM)
-        InsertEndRobot(composeTestRule).apply { block() }
+        createRobot(InsertEndRobot::class, block)
     }
 
     fun clickDeleteDropdownMenuItem(dialogAction: Boolean, endNumber: Int) {

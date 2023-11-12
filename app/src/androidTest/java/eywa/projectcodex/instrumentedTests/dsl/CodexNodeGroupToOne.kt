@@ -10,6 +10,12 @@ import androidx.compose.ui.test.onLast
  * Ways to turn a [SemanticsNodeInteractionCollection] into a single [SemanticsNodeInteraction]
  */
 sealed class CodexNodeGroupToOne {
+    data class Filter(val filters: List<CodexNodeMatcher>) : CodexNodeGroupToOne() {
+        constructor(filter: CodexNodeMatcher) : this(listOf(filter))
+
+        override fun toOne(group: SemanticsNodeInteractionCollection) = group.filterToOne(filters.getMatcher())
+    }
+
     object First : CodexNodeGroupToOne() {
         override fun toOne(group: SemanticsNodeInteractionCollection) = group.onFirst()
     }

@@ -8,16 +8,21 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.RadioButton
 import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 
 interface HasDisplayTitle {
@@ -94,8 +99,14 @@ fun <T : HasDisplayTitle> RadioButtonDialogContent(
     }
 }
 
-object RadioButtonDialogTestTag {
-    const val RADIO_BUTTON = "RADIO_BUTTON_DIALOG_RADIO_BUTTON"
+enum class RadioButtonDialogTestTag : CodexTestTag {
+    RADIO_BUTTON,
+    ;
+
+    override val screenName: String
+        get() = "RADIO_BUTTON_DIALOG"
+
+    override fun getElement(): String = name
 }
 
 @Preview

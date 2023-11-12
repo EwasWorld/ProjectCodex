@@ -60,7 +60,7 @@ class AddEndRobot(
 
     fun clickRoundCompleteOk(block: ShootDetailsStatsRobot.() -> Unit = {}) {
         clickDialogOk(ROUND_COMPLETE_DIALOG_TITLE)
-        ShootDetailsStatsRobot(composeTestRule).apply(block)
+        createRobot(ShootDetailsStatsRobot::class, block)
     }
 
     companion object {

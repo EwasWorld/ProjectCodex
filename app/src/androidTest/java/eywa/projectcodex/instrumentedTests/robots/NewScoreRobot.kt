@@ -86,7 +86,7 @@ class NewScoreRobot(
 
     fun clickSubmitNewScore(block: AddEndRobot.() -> Unit = {}) {
         clickElement(NewScoreTestTag.SUBMIT_BUTTON)
-        AddEndRobot(composeTestRule).apply { block() }
+        createRobot(AddEndRobot::class, block)
     }
 
     fun clickSubmitEditScore() {

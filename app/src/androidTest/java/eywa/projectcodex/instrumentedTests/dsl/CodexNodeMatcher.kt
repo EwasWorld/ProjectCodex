@@ -21,8 +21,8 @@ fun List<CodexNodeMatcher>.getMatcher() =
 
 
 sealed class CodexNodeMatcher {
-    data class HasText(val text: String) : CodexNodeMatcher() {
-        override fun getMatcher(): SemanticsMatcher = hasText(text)
+    data class HasText(val text: String, val substring: Boolean = false) : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = hasText(text, substring)
     }
 
     object HasSetTextAction : CodexNodeMatcher() {

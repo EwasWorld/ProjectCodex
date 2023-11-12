@@ -28,7 +28,7 @@ abstract class ShootDetailsRobot(
     fun clickNavBarStats(block: ShootDetailsStatsRobot.() -> Unit = {}) = clickNavBarItem(block)
     fun clickNavBarSettings(block: ShootDetailsSettingsRobot.() -> Unit = {}) = clickNavBarItem(block)
 
-    private inline fun <reified R : ShootDetailsRobot> clickNavBarItem(block: R.() -> Unit = {}) {
+    private inline fun <reified R : ShootDetailsRobot> clickNavBarItem(noinline block: R.() -> Unit = {}) {
         val screen = when (R::class) {
             ShootDetailsStatsRobot::class -> ShootDetailsBottomNavBarItem.STATS
             ShootDetailsSettingsRobot::class -> ShootDetailsBottomNavBarItem.SETTINGS
@@ -41,7 +41,7 @@ abstract class ShootDetailsRobot(
             +CodexNodeMatcher.HasTestTag(screen)
             +CodexNodeInteraction.PerformClick()
         }
-        R::class.constructors.first().call(composeTestRule).apply { block() }
+        createRobot(R::class, block)
     }
 
     companion object {

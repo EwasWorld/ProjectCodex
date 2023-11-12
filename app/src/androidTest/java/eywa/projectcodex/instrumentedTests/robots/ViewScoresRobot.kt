@@ -1,28 +1,11 @@
 package eywa.projectcodex.instrumentedTests.robots
 
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsSelectable
-import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.filterToOne
-import androidx.compose.ui.test.hasAnyDescendant
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
-import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToIndex
-import androidx.compose.ui.test.performTouchInput
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -43,42 +26,48 @@ class ViewScoresRobot(
 
     fun clickOkOnEmptyTableDialog() {
         clickDialogOk("Table is empty")
-        MainMenuRobot(composeTestRule)
+        createRobot(MainMenuRobot::class) {}
     }
 
     /**
      * Wait for the number of rows on the screen to be [rowCount]
      */
     fun waitForRowCount(rowCount: Int) {
-        CustomConditionWaiter.waitForComposeCondition {
-            composeTestRule
-                    .onAllNodesWithTag(ViewScoresTestTag.LIST_ITEM.getTestTag(), true)
-                    .assertCountEquals(rowCount)
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
+            +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
         }
     }
 
     fun scrollToRow(rowIndex: Int) {
-        composeTestRule.onNodeWithTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag()).performScrollToIndex(rowIndex)
+        perform {
+            +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
+            +CodexNodeInteraction.PerformScrollToIndex(rowIndex)
+        }
     }
 
-    private fun performOnRowItem(rowIndex: Int, action: SemanticsNodeInteraction.() -> Unit) {
+    private fun performOnRowItem(rowIndex: Int, action: CodexNodeInteraction) {
         scrollToRow(rowIndex)
-        composeTestRule
-                .onAllNodesWithTag(ViewScoresTestTag.LIST_ITEM.getTestTag(), useUnmergedTree = true)[rowIndex]
-                .action()
+        perform {
+            useUnmergedTree = true
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
+            +CodexNodeGroupToOne.Index(rowIndex)
+            +action
+        }
     }
 
     fun clickRowForMultiSelect(rowIndex: Int) {
-        performOnRowItem(rowIndex) { performClick() }
+        performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
     }
 
     fun clickRow(rowIndex: Int, block: ScorePadRobot.() -> Unit = {}) {
-        performOnRowItem(rowIndex) { performClick() }
-        ScorePadRobot(composeTestRule).apply { block() }
+        performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
+        createRobot(ScorePadRobot::class, block)
     }
 
     fun longClickRow(rowIndex: Int) {
-        performOnRowItem(rowIndex) { performTouchInput { longClick() } }
+        performOnRowItem(rowIndex, CodexNodeInteraction.PerformLongClick())
 
         perform {
             useUnmergedTree = true
@@ -99,22 +88,22 @@ class ViewScoresRobot(
 
     fun clickEmailDropdownMenuItem(block: EmailScoreRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.EMAIL_MENU_ITEM)
-        EmailScoreRobot(composeTestRule).apply { block() }
+        createRobot(EmailScoreRobot::class, block)
     }
 
     fun clickEditDropdownMenuItem(block: NewScoreRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.EDIT_MENU_ITEM)
-        NewScoreRobot(composeTestRule).apply { block() }
+        createRobot(NewScoreRobot::class, block)
     }
 
     fun clickContinueDropdownMenuItem(block: AddEndRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.CONTINUE_MENU_ITEM)
-        AddEndRobot(composeTestRule).apply { block() }
+        createRobot(AddEndRobot::class, block)
     }
 
     fun clickScorePadDropdownMenuItem(block: ScorePadRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.SCORE_PAD_MENU_ITEM)
-        ScorePadRobot(composeTestRule).apply { block() }
+        createRobot(ScorePadRobot::class, block)
     }
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {
@@ -126,20 +115,20 @@ class ViewScoresRobot(
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
         // Check that the intended menu item is not showing
-        composeTestRule
-                .onNode(
-                        hasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM.getTestTag())
-                                .and(hasAnyDescendant(hasText(menuItem)))
-                )
-                .assertDoesNotExist()
+        perform {
+            +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+            +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
     }
 
     fun chooseConvertDialogOption(convertType: String) {
         checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
-        composeTestRule
-                .onAllNodesWithTag(RadioButtonDialogTestTag.RADIO_BUTTON)
-                .filterToOne(hasText(convertType))
-                .performClick()
+        perform {
+            allNodes(CodexNodeMatcher.HasTestTag(RadioButtonDialogTestTag.RADIO_BUTTON))
+            +CodexNodeGroupToOne.Filter(CodexNodeMatcher.HasText(convertType))
+            +CodexNodeInteraction.PerformClick()
+        }
     }
 
     fun clickConvertDialogOk() {
@@ -159,9 +148,12 @@ class ViewScoresRobot(
     }
 
     private fun waitForTextInRow(rowIndex: Int, text: String) {
-        CustomConditionWaiter.waitForComposeCondition {
-            performOnRowItem(rowIndex) { assert(hasAnyDescendant(hasText(text, substring = true))) }
-        }
+        performOnRowItem(
+                rowIndex,
+                CodexNodeInteraction.Assert(
+                        CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(text, true))
+                ).waitFor()
+        )
     }
 
     fun waitForHsg(rowIndex: Int, hsg: String?) = waitForTextInRow(rowIndex, hsg ?: "-/-/-")
@@ -170,7 +162,7 @@ class ViewScoresRobot(
     fun waitForRoundName(rowIndex: Int, roundName: String?) = waitForTextInRow(rowIndex, roundName ?: "No Round")
 
     fun checkContentDescription(rowIndex: Int, description: String) {
-        performOnRowItem(rowIndex) { assert(hasContentDescription(description)) }
+        performOnRowItem(rowIndex, CodexNodeInteraction.AssertContentDescriptionEquals(description))
     }
 
     fun clickStartMultiSelectMode() {
@@ -187,7 +179,7 @@ class ViewScoresRobot(
 
     fun clickMultiSelectEmail(block: EmailScoreRobot.() -> Unit = {}) {
         clickElement(ViewScoresTestTag.MULTI_SELECT_EMAIL)
-        EmailScoreRobot(composeTestRule).apply { block() }
+        createRobot(EmailScoreRobot::class, block)
     }
 
     fun checkMultiSelectMode(isInMultiSelectMode: Boolean = true) {
@@ -206,10 +198,16 @@ class ViewScoresRobot(
      * and that [rowIndexes] are selected and all other rows are not selected
      */
     fun checkEntriesSelected(rowIndexes: Iterable<Int>, totalEntries: Int) {
-        repeat(totalEntries) {
-            val node = composeTestRule.onAllNodesWithTag(ViewScoresTestTag.LIST_ITEM.getTestTag())[it]
-            node.assertIsSelectable()
-            if (rowIndexes.contains(it)) node.assertIsSelected() else node.assertIsNotSelected()
+        perform {
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
+            +CodexNodeGroupInteraction.ForEach(
+                    (0 until totalEntries).map {
+                        listOf(
+                                CodexNodeInteraction.AssertIsSelectable(),
+                                CodexNodeInteraction.AssertIsSelected(rowIndexes.contains(it)),
+                        )
+                    }
+            )
         }
     }
 
