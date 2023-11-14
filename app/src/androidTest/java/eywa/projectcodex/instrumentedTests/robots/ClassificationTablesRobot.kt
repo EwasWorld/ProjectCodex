@@ -5,6 +5,7 @@ import eywa.projectcodex.common.navigation.TabSwitcherGroup
 import eywa.projectcodex.components.classificationTables.ClassificationTablesTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowValue
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -28,6 +29,14 @@ class ClassificationTablesRobot(
         }
     }
 
+    fun checkGender(expectedNewGenderIsGent: Boolean = true) {
+        val expectedNewGender = if (expectedNewGenderIsGent) "Gents" else "Ladies"
+        perform {
+            matchDataRowValue(ClassificationTablesTestTag.GENDER_SELECTOR)
+            +CodexNodeInteraction.AssertTextEquals(expectedNewGender).waitFor()
+        }
+    }
+
     fun setAge(value: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.AGE_SELECTOR)
@@ -38,6 +47,10 @@ class ClassificationTablesRobot(
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
         }
+        checkAge(value)
+    }
+
+    fun checkAge(value: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.AGE_SELECTOR)
             +CodexNodeInteraction.AssertContentDescriptionEquals("$value Age:")
@@ -54,6 +67,10 @@ class ClassificationTablesRobot(
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
         }
+        checkBowStyle(value)
+    }
+
+    fun checkBowStyle(value: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.BOW_SELECTOR)
             +CodexNodeInteraction.AssertContentDescriptionEquals("$value Bow:")

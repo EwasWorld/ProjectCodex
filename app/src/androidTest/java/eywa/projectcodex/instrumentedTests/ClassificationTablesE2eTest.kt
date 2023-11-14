@@ -12,6 +12,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
+import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -57,6 +58,10 @@ class ClassificationTablesE2eTest {
         CommonSetupTeardownFns.teardownScenario(scenario)
     }
 
+    /**
+     * - Check tables load based on inputs
+     * - Check info stays between navigation to HandicapTables
+     */
     @Test
     fun testClassifications() {
         setup()
@@ -149,6 +154,15 @@ class ClassificationTablesE2eTest {
                                     ClassificationTablesRobot.TableRow("Elite GMB", 1187, 27),
                             )
                     )
+
+                    clickTab(HandicapTablesRobot::class) {}
+                }
+                clickTab(ClassificationTablesRobot::class) {
+                    selectRoundsRobot.checkSelectedRound("York")
+                    selectRoundsRobot.checkSelectedSubtype("Hereford")
+                    checkGender(false)
+                    checkAge("U15")
+                    checkBowStyle("Compound")
                 }
             }
         }

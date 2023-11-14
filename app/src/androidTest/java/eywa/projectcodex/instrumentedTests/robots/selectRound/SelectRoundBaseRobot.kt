@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests.robots.selectRound
 
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowValue
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
@@ -30,10 +31,8 @@ class SelectRoundBaseRobot(val perform: PerformFn) {
 
     fun checkSelectedRound(displayName: String) {
         perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW)
-            +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(displayName))
-            +CodexNodeInteraction.AssertIsDisplayed()
+            matchDataRowValue(SelectRoundDialogTestTag.SELECTED_ROUND_ROW)
+            +CodexNodeInteraction.AssertTextEquals(displayName)
         }
     }
 
@@ -46,7 +45,7 @@ class SelectRoundBaseRobot(val perform: PerformFn) {
 
     fun checkSelectedSubtype(displayName: String) {
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW)
+            matchDataRowValue(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW)
             +CodexNodeInteraction.AssertTextEquals(displayName)
         }
     }

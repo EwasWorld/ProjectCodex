@@ -11,6 +11,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
+import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -60,6 +61,10 @@ class HandicapTablesE2eTest {
         CommonSetupTeardownFns.teardownScenario(scenario)
     }
 
+    /**
+     * - Check tables load based on inputs
+     * - Check info stays between navigation to ClassificationTables
+     */
     @Test
     fun testHandicaps() {
         setup()
@@ -68,8 +73,8 @@ class HandicapTablesE2eTest {
             clickHandicapTables {
                 checkNoDataInTable()
 
+                checkInputMethod(true)
                 setInputText("120")
-
 
                 selectRoundBaseRobot.clickSelectedRound {
                     clickRound("WA 25")
@@ -97,6 +102,7 @@ class HandicapTablesE2eTest {
                 )
 
                 clickInputMethod()
+                checkInputMethod(false)
                 setInputText("10")
 
                 checkTableData(
@@ -116,6 +122,14 @@ class HandicapTablesE2eTest {
                                 HandicapTablesRobot.TableRow(132, 5),
                         )
                 )
+
+                clickTab(ClassificationTablesRobot::class) {
+                    clickTab(HandicapTablesRobot::class) {}
+                }
+                checkInputMethod(false)
+                checkInputText("10")
+                selectRoundBaseRobot.checkSelectedRound("WA 25")
+                selectFaceBaseRobot.checkFaces("Triple")
             }
         }
     }

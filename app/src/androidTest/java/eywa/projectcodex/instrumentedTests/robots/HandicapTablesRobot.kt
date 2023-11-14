@@ -4,6 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.navigation.TabSwitcherGroup
 import eywa.projectcodex.components.handicapTables.HandicapTablesTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
@@ -36,9 +37,22 @@ class HandicapTablesRobot(
         }
     }
 
+    fun checkInputMethod(isHandicap: Boolean) {
+        perform {
+            +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.INPUT_SELECTOR)
+            +CodexNodeInteraction.AssertTextEquals(if (isHandicap) "Handicap:" else "Score:")
+        }
+    }
+
     fun setInputText(text: String) {
         perform {
             setText(HandicapTablesTestTag.INPUT_TEXT, text)
+        }
+    }
+
+    fun checkInputText(text: String) {
+        perform {
+            checkInputtedText(HandicapTablesTestTag.INPUT_TEXT, text)
         }
     }
 

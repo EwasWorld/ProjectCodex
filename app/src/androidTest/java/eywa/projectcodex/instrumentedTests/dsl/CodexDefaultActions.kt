@@ -4,10 +4,14 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 
 object CodexDefaultActions {
-    fun TestActionDsl.clickDataRow(testTag: CodexTestTag) {
+    fun TestActionDsl.matchDataRowValue(testTag: CodexTestTag) {
         useUnmergedTree = true
         +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
         +CodexNodeMatcher.HasClickAction
+    }
+
+    fun TestActionDsl.clickDataRow(testTag: CodexTestTag) {
+        matchDataRowValue(testTag)
         +CodexNodeInteraction.PerformClick()
     }
 
