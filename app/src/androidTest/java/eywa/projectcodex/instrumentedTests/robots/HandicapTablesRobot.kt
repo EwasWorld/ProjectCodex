@@ -50,34 +50,30 @@ class HandicapTablesRobot(
     }
 
     fun checkTableData(data: List<TableRow>) {
+        fun getChecks(value: Int, suffix: String) =
+                listOf(
+                        CodexNodeInteraction.AssertContentDescriptionEquals("$value $suffix"),
+                        CodexNodeInteraction.AssertTextEquals(value.toString()),
+                )
+
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_HANDICAP))
-            +CodexNodeGroupInteraction.ForEach(
-                    data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.handicap.toString())) }
-            )
+            +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.handicap, "Handicap") })
         }
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_SCORE))
-            +CodexNodeGroupInteraction.ForEach(
-                    data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.score.toString())) }
-            )
+            +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.score, "Score") })
         }
         perform {
             allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_ALLOWANCE))
-            +CodexNodeGroupInteraction.ForEach(
-                    data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.allowance.toString())) }
-            )
+            +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.allowance, "Allowance") })
         }
     }
 
-    @JvmInline
-    value class TableRow private constructor(val data: Pair<Int, Int>) {
-        constructor(handicap: Int, score: Int) : this(handicap to score)
-
-        val handicap
-            get() = data.first
-        val score
-            get() = data.second
+    data class TableRow(
+            val handicap: Int,
+            val score: Int,
+    ) {
         val allowance
             get() = Handicap.fullRoundScoreToAllowance(score)
     }
