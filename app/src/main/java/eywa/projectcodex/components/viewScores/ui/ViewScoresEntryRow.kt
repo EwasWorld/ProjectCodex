@@ -1,10 +1,7 @@
 package eywa.projectcodex.components.viewScores.ui
 
-import android.content.Context
-import android.content.res.Resources
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
@@ -16,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -24,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -31,7 +31,10 @@ import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo
@@ -85,6 +88,9 @@ internal fun ViewScoresEntryRow(
             Surface(
                     color = CodexTheme.colors.personalBestTag,
                     shape = RoundedCornerShape(100),
+                    modifier = Modifier
+                            .zIndex(ViewScoresEntrySemanticsOrder.PB.zIndex)
+                            .testTag(ViewScoresEntryRowTestTag.PB)
             ) {
                 Text(
                         text = stringResource(entries.allPbTypes.getOverallPbString(entries.isMulti)),
@@ -112,6 +118,7 @@ fun DateAndFirstNameColumn(
         helpListener: (HelpShowcaseIntent) -> Unit,
         modifier: Modifier = Modifier,
 ) {
+    val resources = LocalContext.current.resources
     val helpState = HelpState(
             helpListener = helpListener,
             helpShowcaseItem = HelpShowcaseItem(
@@ -120,6 +127,17 @@ fun DateAndFirstNameColumn(
                     priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
             )
     )
+    val nameSemantics =
+            if (entries.firstDisplayName.displayName != null) {
+                Modifier
+                        .testTag(ViewScoresEntryRowTestTag.FIRST_NAME)
+                        .semantics {
+                            contentDescription = entries.nameSemantics.joinToString { it.get(resources) }
+                        }
+            }
+            else {
+                Modifier.clearAndSetSemantics { }
+            }
 
     Column(
             horizontalAlignment = Alignment.Start,
@@ -129,10 +147,27 @@ fun DateAndFirstNameColumn(
         Text(
                 text = DateTimeFormat.SHORT_DATE_TIME.format(entries.dateShot),
                 style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemLight),
+                modifier = Modifier
+                        .zIndex(ViewScoresEntrySemanticsOrder.DATE.zIndex)
+                        .testTag(ViewScoresEntryRowTestTag.DATE)
+                        .semantics {
+                            val wasThisYear =
+                                    entries.dateShot.get(Calendar.YEAR) == Calendar
+                                            .getInstance()
+                                            .get(Calendar.YEAR)
+                            val format =
+                                    if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH
+                                    else DateTimeFormat.LONG_DATE_FULL_YEAR
+                            contentDescription = format.format(entries.dateShot)
+                        }
         )
+
         DisplayName(
                 nameInfo = entries.firstDisplayName,
-                modifier = Modifier.updateHelpDialogPosition(helpState)
+                modifier = Modifier
+                        .updateHelpDialogPosition(helpState)
+                        .zIndex(ViewScoresEntrySemanticsOrder.NAME.zIndex)
+                        .then(nameSemantics)
         )
     }
 }
@@ -145,12 +180,16 @@ fun ColumnScope.OtherNamesColumn(
         Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.Start)
+                modifier = Modifier
+                        .align(Alignment.Start)
+                        .clearAndSetSemantics { }
         ) {
             entries.secondDisplayName?.let {
                 DisplayName(
                         nameInfo = it,
-                        modifier = Modifier.weight(1f, false)
+                        modifier = Modifier
+                                .weight(1f, false)
+                                .testTag(ViewScoresEntryRowTestTag.SECOND_NAME)
                 )
             }
             // Will display up to 2 round names. Indicate how many more there are to the user
@@ -159,6 +198,7 @@ fun ColumnScope.OtherNamesColumn(
                         text = stringResource(R.string.view_score__multiple_ellipses, remaining),
                         style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.testTag(ViewScoresEntryRowTestTag.OTHER_NAMES_COUNT)
                 )
             }
         }
@@ -171,7 +211,7 @@ fun DisplayName(
         modifier: Modifier = Modifier,
 ) =
         Text(
-                text = getDisplayName(nameInfo, LocalContext.current.resources),
+                text = getDisplayName(nameInfo).get(),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -179,21 +219,21 @@ fun DisplayName(
                 modifier = modifier
         )
 
-private fun getDisplayName(
+fun getDisplayName(
         nameInfo: ViewScoresRoundNameInfo,
-        resources: Resources,
-): String {
-    var text = nameInfo.displayName ?: resources.getString(R.string.create_round__no_round)
+): ResOrActual<String> {
+    var text = nameInfo.displayName?.let { ResOrActual.Actual(it) }
+            ?: ResOrActual.StringResource(R.string.create_round__no_round)
 
     if (nameInfo.identicalCount == 2) {
-        text = resources.getString(R.string.view_score__double, text)
+        text = ResOrActual.StringResource(R.string.view_score__double, listOf(text))
     }
     else if (nameInfo.identicalCount > 2) {
-        text = resources.getString(R.string.view_score__multiple, nameInfo.identicalCount, text)
+        text = ResOrActual.StringResource(R.string.view_score__multiple, listOf(nameInfo.identicalCount, text))
     }
 
     if (nameInfo.prefixWithAmpersand) {
-        text = resources.getString(R.string.view_score__joiner, text)
+        text = ResOrActual.StringResource(R.string.view_score__joiner, listOf(text))
     }
 
     return text
@@ -204,6 +244,7 @@ private fun HsgColumn(
         entries: ViewScoresEntryList,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
+    val resources = LocalContext.current.resources
     val helpState = HelpState(
             helpListener = helpListener,
             helpShowcaseItem = HelpShowcaseItem(
@@ -218,15 +259,20 @@ private fun HsgColumn(
             verticalArrangement = columnVerticalArrangement,
     ) {
         Text(
-                text = stringResource(R.string.view_score__hsg),
+                text = stringResource(R.string.view_score__hsg, stringResource(entries.goldsType.shortStringId)),
                 style = CodexTypography.SMALL.copy(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
+                modifier = Modifier.clearAndSetSemantics { }
         )
         Text(
                 text = entries.hitsScoreGolds ?: stringResource(R.string.view_score__hsg_placeholder),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                modifier = Modifier.updateHelpDialogPosition(helpState)
+                modifier = Modifier
+                        .updateHelpDialogPosition(helpState)
+                        .zIndex(ViewScoresEntrySemanticsOrder.HSG.zIndex)
+                        .testTag(ViewScoresEntryRowTestTag.HSG)
+                        .semantics { contentDescription = entries.hsgSemantics.joinToString { it.get(resources) } }
         )
     }
 }
@@ -236,6 +282,7 @@ private fun HandicapColumn(
         entries: ViewScoresEntryList,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
+    val resources = LocalContext.current.resources
     val helpState = HelpState(
             helpListener = helpListener,
             helpShowcaseItem = HelpShowcaseItem(
@@ -247,6 +294,11 @@ private fun HandicapColumn(
                     priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
             )
     )
+    val handicapSemantics = entries.handicap?.let {
+        Modifier
+                .semantics { contentDescription = resources.getString(R.string.view_score__handicap_semantics, it) }
+                .testTag(ViewScoresEntryRowTestTag.HANDICAP)
+    } ?: Modifier.clearAndSetSemantics { }
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -257,6 +309,7 @@ private fun HandicapColumn(
                 style = CodexTypography.SMALL.copy(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
+                modifier = Modifier.clearAndSetSemantics { }
         )
         Box(
                 contentAlignment = Alignment.Center
@@ -265,7 +318,10 @@ private fun HandicapColumn(
                     text = entries.handicap?.toString()
                             ?: stringResource(R.string.view_score__handicap_placeholder),
                     style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                    modifier = Modifier.updateHelpDialogPosition(helpState)
+                    modifier = Modifier
+                            .updateHelpDialogPosition(helpState)
+                            .zIndex(ViewScoresEntrySemanticsOrder.HANDICAP.zIndex)
+                            .then(handicapSemantics)
             )
             // Force width to always accommodate "00" - this will forces columns into alignment
             Text(
@@ -277,35 +333,32 @@ private fun HandicapColumn(
     }
 }
 
-fun viewScoresEntryRowAccessibilityString(context: Context, entry: ViewScoresEntry) =
-        viewScoresEntryRowAccessibilityString(context.resources, ViewScoresEntryList(entry))
 
-fun viewScoresEntryRowAccessibilityString(resources: Resources, entryList: ViewScoresEntryList): String {
-    fun accessibilityString(@StringRes title: Int, value: Int?) =
-            value?.let { resources.getString(title) + " $it" }
+private enum class ViewScoresEntrySemanticsOrder {
+    DATE,
+    NAME,
+    HSG,
+    HANDICAP,
+    PB,
+    ;
 
-    val dateFormat = Calendar.getInstance().apply {
-        set(
-                // y/m/d
-                get(Calendar.YEAR), 0, 1,
-                // hr/min/s
-                1, 1, 1
-        )
-    }.before(entryList.dateShot).let { wasThisYear ->
-        if (wasThisYear) DateTimeFormat.LONG_DAY_MONTH else DateTimeFormat.LONG_DATE_FULL_YEAR
-    }
+    val zIndex = ordinal.toFloat()
+}
 
-    return listOfNotNull(
-            dateFormat.format(entryList.dateShot),
-            entryList.firstDisplayName.takeIf { it.displayName != null }?.let { getDisplayName(it, resources) },
-            entryList.secondDisplayName?.let { getDisplayName(it, resources) },
-            entryList.totalUndisplayedNamesCount
-                    ?.let { resources.getString(R.string.view_score__multiple_ellipses, it) },
-            accessibilityString(title = R.string.view_score__score, value = entryList.score),
-            accessibilityString(title = R.string.view_score__handicap_full, value = entryList.handicap),
-            accessibilityString(title = R.string.view_score__golds, value = entryList.golds),
-            accessibilityString(title = R.string.view_score__hits, value = entryList.hits),
-    ).joinToString()
+enum class ViewScoresEntryRowTestTag : CodexTestTag {
+    DATE,
+    FIRST_NAME,
+    SECOND_NAME,
+    OTHER_NAMES_COUNT,
+    HSG,
+    HANDICAP,
+    PB,
+    ;
+
+    override val screenName: String
+        get() = "VIEW_SCORES_ENTRY_ROW"
+
+    override fun getElement(): String = name
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

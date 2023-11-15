@@ -86,9 +86,14 @@ sealed class CodexNodeInteraction {
         }
     }
 
-    data class AssertContentDescriptionEquals(val text: String) : CodexNodeInteraction() {
+    /**
+     * @param texts if the node has merge descendants set, each descendant will be an item in this list
+     */
+    data class AssertContentDescriptionEquals(val texts: List<String>) : CodexNodeInteraction() {
+        constructor(text: String) : this(listOf(text))
+
         override fun performInternal(node: SemanticsNodeInteraction) {
-            node.assertContentDescriptionEquals(text)
+            node.assertContentDescriptionEquals(*texts.toTypedArray())
         }
     }
 

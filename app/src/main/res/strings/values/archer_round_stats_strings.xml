@@ -21,7 +21,7 @@
     <string name="archer_round_stats__adjusted_score">Adjusted score:</string>
     <string name="archer_round_stats__is_pb">Personal best!</string>
     <string name="archer_round_stats__is_tied_pb">Tied personal best</string>
-    <string name="archer_round_stats__past_records">Round scores history</string>
+    <string name="archer_round_stats__past_records">Past round scores</string>
     <string name="archer_round_stats__past_records_current">Current</string>
     <string name="archer_round_stats__past_record_item_delim">-</string>
     <string name="archer_round_stats__no_arrows_dialog_title">No arrows entered</string>

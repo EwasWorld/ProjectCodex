@@ -32,7 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
 import java.sql.Date
-import java.util.*
+import java.util.Calendar
 
 @HiltAndroidTest
 class ViewScoresInstrumentedTest {
@@ -105,7 +105,7 @@ class ViewScoresInstrumentedTest {
                         ),
                 ),
                 FullRoundInfo(
-                        round = Round(2, "imperialround", "Imperial Round", true, true),
+                        round = Round(2, "imperialround", "Imperial Round", true, false),
                         roundSubTypes = listOf(
                                 RoundSubType(2, 1, "Sub Type 1"),
                                 RoundSubType(2, 2, "Sub Type 2"),
@@ -120,17 +120,8 @@ class ViewScoresInstrumentedTest {
                 ),
         )
 
-        val firstOfThisYear =
-                Date(Calendar.getInstance().get(Calendar.YEAR), Calendar.JANUARY, 1, 10, 0, 0).asCalendar()
-//        val firstOfThisYear = Calendar.Builder()
-//                .setFields(
-//                        Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR),
-//                        Calendar.MONTH, Calendar.JANUARY,
-//                        Calendar.DAY_OF_MONTH, 1,
-//                        Calendar.HOUR_OF_DAY, 10,
-//                )
-//                .build()
-//                .time
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        val firstOfThisYear = DateTimeFormat.SHORT_DATE_TIME.parse("1/1/$currentYear 10:00")
         shoots = listOf(
                 DatabaseShoot(1, firstOfThisYear),
                 DatabaseShoot(2, Date.valueOf("2012-2-2").asCalendar()),
@@ -157,38 +148,39 @@ class ViewScoresInstrumentedTest {
                 waitForHsg(0, "1/1/0")
                 waitForHandicap(0, null)
                 waitForRoundName(0, null)
-                // Not checking the date as the year will change, other row's date checks are sufficient
-                checkContentDescription(0, "1 Jan, Score 1, Golds 0, Hits 1")
+                val expectedYear = currentYear.toString().takeLast(2)
+                waitForDate(0, "01/01/$expectedYear 10:00")
+                checkContentDescription(0, "1 Jan", "Score 1, Golds 0, Hits 1")
 
                 waitForHsg(1, "1/2/0")
                 waitForHandicap(1, 88)
                 waitForRoundName(1, "Metric Round")
-                waitForDate(1, "02/02/12")
-                checkContentDescription(1, "2 Feb 2012, Metric Round, Score 2, Handicap 88, Golds 0, Hits 1")
+                waitForDate(1, "02/02/12 00:00")
+                checkContentDescription(1, "2 Feb 2012", "Metric Round", "Score 2, 10s+ 0, Hits 1", "Handicap 88")
 
                 waitForHsg(2, "1/3/0")
-                waitForHandicap(2, 82)
-                waitForRoundName(2, "Imperial Round")
-                waitForDate(2, "03/03/11")
-                checkContentDescription(2, "3 Mar 2011, Imperial Round, Score 3, Handicap 82, Golds 0, Hits 1")
+                waitForHandicap(2, 83)
+                waitForRoundName(2, "Sub Type 1")
+                waitForDate(2, "03/03/11 00:00")
+                checkContentDescription(2, "3 Mar 2011", "Sub Type 1", "Score 3, Golds 0, Hits 1", "Handicap 83")
 
                 waitForHsg(3, "1/4/0")
-                waitForHandicap(3, 80)
+                waitForHandicap(3, 81)
                 waitForRoundName(3, "Sub Type 2")
-                waitForDate(3, "04/04/10")
-                checkContentDescription(3, "4 Apr 2010, Sub Type 2, Score 4, Handicap 80, Golds 0, Hits 1")
+                waitForDate(3, "04/04/10 00:00")
+                checkContentDescription(3, "4 Apr 2010", "Sub Type 2", "Score 4, Golds 0, Hits 1", "Handicap 81")
 
                 waitForHsg(4, "1/5/0")
                 waitForHandicap(4, null)
                 waitForRoundName(4, null)
-                waitForDate(4, "05/05/09")
-                checkContentDescription(4, "5 May 2009, Score 5, Golds 0, Hits 1")
+                waitForDate(4, "05/05/09 00:00")
+                checkContentDescription(4, "5 May 2009", "Score 5, Golds 0, Hits 1")
 
                 LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
                 waitForHandicap(0, null)
                 waitForHandicap(1, 64)
-                waitForHandicap(2, 63)
-                waitForHandicap(3, 64)
+                waitForHandicap(2, 64)
+                waitForHandicap(3, 65)
                 waitForHandicap(4, null)
             }
         }

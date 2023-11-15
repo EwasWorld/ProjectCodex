@@ -14,7 +14,8 @@ data class ArcherHandicapsState(
          */
         val allHandicaps: List<DatabaseArcherHandicap>? = null,
         val selectedBowStyle: ClassificationBow = ClassificationBow.RECURVE,
-        val menuShownForId: Int? = null,
+        val lastClickedId: Int? = null,
+        val isDropdownMenuShown: Boolean = false,
         val openAddDialog: Boolean = false,
         val deleteDialogOpen: Boolean = false,
         val selectHandicapTypeDialogOpen: Boolean = false,
@@ -28,7 +29,7 @@ data class ArcherHandicapsState(
             .plusAtIndex(currentHandicaps.orEmpty().sortedByDescending { it.dateSet }, 0)
 
     val handicapForDeletion
-        get() = menuShownForId
+        get() = lastClickedId
                 ?.takeIf { deleteDialogOpen }
                 ?.let { id -> handicapsForDisplay.find { it.archerHandicapId == id } }
 }

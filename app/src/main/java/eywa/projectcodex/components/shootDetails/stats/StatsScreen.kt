@@ -599,6 +599,10 @@ fun RoundIncomplete_StatsScreen_Preview() {
                                     faces = listOf(RoundFace.TRIPLE, RoundFace.FITA_SIX)
                                 },
                                 archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
+                                pastRoundRecords = listOf(
+                                        ShootRecord(2, Calendar.getInstance(), 400),
+                                        ShootRecord(1, Calendar.getInstance(), 700),
+                                ),
                         ),
                         extras = StatsExtras(),
                 )
@@ -622,6 +626,10 @@ fun RoundComplete_StatsScreen_Preview() {
                                     isPersonalBest = true
                                 },
                                 archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
+                                pastRoundRecords = listOf(
+                                        ShootRecord(2, Calendar.getInstance(), 400),
+                                        ShootRecord(1, Calendar.getInstance(), 700),
+                                ),
                         ),
                         extras = StatsExtras(),
                 )

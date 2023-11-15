@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -139,16 +138,11 @@ private fun Input(
 ) {
     DataRow(
             title = label,
+            text = currentValue,
             helpState = null,
+            onClick = onClick,
             modifier = modifier.testTag(testTag.getTestTag())
-    ) {
-        Text(
-                text = currentValue,
-                color = CodexTheme.colors.linkText,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable { onClick() }
-        )
-    }
+    )
     SimpleDialog(
             isShown = expanded,
             onDismissListener = onDismiss,

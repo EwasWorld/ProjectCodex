@@ -12,7 +12,6 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import eywa.projectcodex.common.utils.CodexTestTag
 
@@ -52,8 +51,18 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher = hasContentDescription(text)
     }
 
-    data class HasTestTag(val testTag: CodexTestTag) : CodexNodeMatcher() {
-        override fun getMatcher(): SemanticsMatcher = hasTestTag(testTag.getTestTag())
+    data class HasTestTag(val testTag: CodexTestTag, val substring: Boolean = false) : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher {
+            val text = testTag.getTestTag()
+            return SemanticsMatcher(
+                    "${SemanticsProperties.Error.name} = '$text' (substring: $substring)"
+            ) { node ->
+                node.config
+                        .getOrNull(SemanticsProperties.TestTag)
+                        ?.let { if (substring) it.contains(text) else it == text }
+                        ?: false
+            }
+        }
     }
 
     data class HasAnyAncestor(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {

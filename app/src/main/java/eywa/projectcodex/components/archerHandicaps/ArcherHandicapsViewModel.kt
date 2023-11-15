@@ -61,18 +61,20 @@ class ArcherHandicapsViewModel @Inject constructor(
                     ) {
                         return@update it
                     }
-                    val menuShownFor = action.item.archerHandicapId.takeIf { id -> id != it.menuShownForId }
-                    it.closeAllDialogs().copy(menuShownForId = menuShownFor)
+                    val id = action.item.archerHandicapId.takeIf { id -> id != it.lastClickedId }
+                    it.closeAllDialogs().copy(lastClickedId = id)
                 }
 
             AddClicked -> _state.update { it.closeAllDialogs().copy(openAddDialog = true) }
             AddHandled -> _state.update { it.copy(openAddDialog = false) }
 
-            DeleteClicked -> _state.update { it.copy(deleteDialogOpen = true) }
+            is DeleteClicked ->
+                _state.update { it.copy(lastClickedId = action.item.archerHandicapId, deleteDialogOpen = true) }
+
             DeleteDialogCancelClicked -> _state.update { it.closeAllDialogs() }
             DeleteDialogOkClicked -> {
                 viewModelScope.launch {
-                    archerRepo.deleteHandicap(state.value.menuShownForId!!)
+                    archerRepo.deleteHandicap(state.value.lastClickedId!!)
                 }
                 _state.update { it.closeAllDialogs() }
             }
@@ -81,6 +83,6 @@ class ArcherHandicapsViewModel @Inject constructor(
 
     private fun ArcherHandicapsState.closeAllDialogs() = copy(
             deleteDialogOpen = false,
-            menuShownForId = null,
+            lastClickedId = null,
     )
 }

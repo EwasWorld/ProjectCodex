@@ -6,9 +6,10 @@
     <string name="view_score__multiple_personal_bests">Multiple PBs</string>
     <string name="view_score__single_personal_best">Single round PB</string>
     <string name="view_score__multi_personal_best">Multi round PB</string>
-    <string name="view_score__hsg">H/S/G</string>
+    <string name="view_score__hsg">H/S/%s</string>
     <string name="view_score__arrow_count">Count</string>
     <string name="view_score__hsg_placeholder">-/-/-</string>
+    <string name="view_score__hsg_placeholder_semantics">No arrows shot</string>
     <string name="view_score__handicap">HC</string>
     <string name="view_score__handicap_placeholder">-</string>
     <string name="view_scores_menu__action_label">Open action menu</string>
@@ -18,10 +19,15 @@
     <string name="view_scores_menu__edit">Edit info</string>
     <string name="view_scores_menu__email_score">Email</string>
     <string name="view_score__handicap_full">Handicap</string>
+    <string name="view_score__handicap_semantics">Handicap %d</string>
     <string name="view_score__no_arrows_shot">No arrows shot</string>
     <string name="view_score__hits">Hits</string>
+    <string name="view_score__hits_semantics">Hits %d</string>
     <string name="view_score__score">Score</string>
+    <string name="view_score__score_semantics">Score %d</string>
     <string name="view_score__golds">Golds</string>
+    <!-- Golds type then number of golds e.g. Golds 11 -->
+    <string name="view_score__golds_semantics">%s %d</string>
 
     <string name="view_score__multiple_ellipses">&amp; %d more…</string>
     <string name="view_score__joiner">&amp; %s</string>

@@ -15,7 +15,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.*
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
@@ -24,6 +29,7 @@ import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
@@ -41,7 +47,6 @@ fun ViewScoresListItem(
         dropdownMenuItems: List<ViewScoresDropdownMenuItem>?,
         dropdownExpanded: Boolean,
         listener: (ViewScoresIntent) -> Unit,
-        semanticsContentDescription: String,
         content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -58,7 +63,7 @@ fun ViewScoresListItem(
 
     Box(
             modifier = Modifier
-                    .testTag(ViewScoresTestTag.LIST_ITEM.getTestTag())
+                    .testTag(viewScoresListItemTestTag(entryIndex))
                     .updateHelpDialogPosition(helpState)
                     .pointerInput(entryIndex, isInMultiSelectMode) {
                         detectTapGestures(
@@ -67,7 +72,6 @@ fun ViewScoresListItem(
                         )
                     }
                     .semantics(mergeDescendants = true) {
-                        contentDescription = semanticsContentDescription
                         if (isInMultiSelectMode) {
                             selected = entry.isSelected
                         }
@@ -96,9 +100,7 @@ fun ViewScoresListItem(
                         .takeIf { isInMultiSelectMode && entry.isSelected },
                 color = CodexTheme.colors.listItemOnAppBackground,
                 content = content,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .clearAndSetSemantics {}
+                modifier = Modifier.fillMaxWidth()
         )
         DropdownMenu(
                 expanded = dropdownExpanded && !dropdownMenuItems.isNullOrEmpty(),

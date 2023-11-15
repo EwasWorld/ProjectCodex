@@ -57,7 +57,7 @@ class ArcherHandicapE2eTest {
                 clickTab(ArcherHandicapRobot::class) {
                     checkNoHandicapsMessageShown()
 
-                    ConditionWatcher.setTimeoutLimit(20_000)
+                    ConditionWatcher.setTimeoutLimit(10_000)
 
                     clickAdd()
                     val date1 = DateTimeFormat.SHORT_DATE_TIME.parse("30/5/2020 10:20")
@@ -75,6 +75,7 @@ class ArcherHandicapE2eTest {
                     setAddHandicap(25)
                     clickAddSubmit()
                     checkHandicap(1, date2, 25)
+                    checkHandicap(0, date1, 50)
 
                     checkPastHeader(1)
                 }

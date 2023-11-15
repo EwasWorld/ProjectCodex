@@ -63,7 +63,7 @@ class ArcherHandicapsViewModelUnitTest {
         // Open/close row
         sut.handle(RowClicked(defaultHandicaps.first()))
         assertEquals(
-                initialState.copy(menuShownForId = defaultHandicaps.first().archerHandicapId),
+                initialState.copy(lastClickedId = defaultHandicaps.first().archerHandicapId),
                 sut.state.value,
         )
         sut.handle(RowClicked(defaultHandicaps.first()))
@@ -75,12 +75,12 @@ class ArcherHandicapsViewModelUnitTest {
         // Open row then open another row
         sut.handle(RowClicked(defaultHandicaps.first()))
         assertEquals(
-                initialState.copy(menuShownForId = defaultHandicaps.first().archerHandicapId),
+                initialState.copy(lastClickedId = defaultHandicaps.first().archerHandicapId),
                 sut.state.value,
         )
         sut.handle(RowClicked(defaultHandicaps[1]))
         assertEquals(
-                initialState.copy(menuShownForId = defaultHandicaps[1].archerHandicapId),
+                initialState.copy(lastClickedId = defaultHandicaps[1].archerHandicapId),
                 sut.state.value,
         )
         sut.handle(AddClicked)

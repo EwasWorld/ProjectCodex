@@ -30,6 +30,7 @@ enum class DateTimeFormat(val pattern: String) {
 
     // 01/01/21
     SHORT_DATE("dd/MM/yy"),
+    SEMANTICS_DATE("yy/MM/dd"),
 
     // November 2023
     LONG_MONTH_YEAR("MMMMM yyyy"),

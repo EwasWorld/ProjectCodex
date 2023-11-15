@@ -3,14 +3,24 @@ package eywa.projectcodex.instrumentedTests.robots
 import androidx.compose.ui.test.isSelectable
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
+import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRowTestTag
 import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
+import eywa.projectcodex.components.viewScores.ui.viewScoresListItemTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
+
+private fun TestActionDsl.inRow(rowIndex: Int) {
+    useUnmergedTree = true
+    +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex)))
+}
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -18,7 +28,7 @@ class ViewScoresRobot(
     fun waitForLoad() {
         perform {
             useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true))
             +CodexNodeGroupToOne.First
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
@@ -35,7 +45,7 @@ class ViewScoresRobot(
     fun waitForRowCount(rowCount: Int) {
         perform {
             useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, substring = true))
             +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
         }
     }
@@ -50,9 +60,7 @@ class ViewScoresRobot(
     private fun performOnRowItem(rowIndex: Int, action: CodexNodeInteraction) {
         scrollToRow(rowIndex)
         perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
-            +CodexNodeGroupToOne.Index(rowIndex)
+            +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
             +action
         }
     }
@@ -156,13 +164,33 @@ class ViewScoresRobot(
         )
     }
 
-    fun waitForHsg(rowIndex: Int, hsg: String?) = waitForTextInRow(rowIndex, hsg ?: "-/-/-")
-    fun waitForDate(rowIndex: Int, date: String) = waitForTextInRow(rowIndex, date)
-    fun waitForHandicap(rowIndex: Int, handicap: Int?) = waitForTextInRow(rowIndex, handicap?.toString() ?: "-")
-    fun waitForRoundName(rowIndex: Int, roundName: String?) = waitForTextInRow(rowIndex, roundName ?: "No Round")
+    private fun waitForTextInRow(
+            rowIndex: Int,
+            testTag: CodexTestTag,
+            text: String?,
+    ) {
+        perform {
+            inRow(rowIndex)
+            +CodexNodeMatcher.HasTestTag(testTag)
+            assertTextEqualsOrNotExist(text)
+        }
+    }
 
-    fun checkContentDescription(rowIndex: Int, description: String) {
-        performOnRowItem(rowIndex, CodexNodeInteraction.AssertContentDescriptionEquals(description))
+    fun waitForHsg(rowIndex: Int, hsg: String?) =
+            waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.HSG, hsg ?: "-/-/-")
+
+    fun waitForDate(rowIndex: Int, date: String) = waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.DATE, date)
+    fun waitForHandicap(rowIndex: Int, handicap: Int?) =
+            waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.HANDICAP, handicap?.toString())
+
+    fun waitForRoundName(rowIndex: Int, roundName: String?) =
+            waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.FIRST_NAME, roundName)
+
+    fun checkContentDescription(rowIndex: Int, vararg description: String) {
+        perform {
+            +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
+            +CodexNodeInteraction.AssertContentDescriptionEquals(description.toList())
+        }
     }
 
     fun clickStartMultiSelectMode() {
@@ -199,7 +227,7 @@ class ViewScoresRobot(
      */
     fun checkEntriesSelected(rowIndexes: Iterable<Int>, totalEntries: Int) {
         perform {
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM))
+            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true))
             +CodexNodeGroupInteraction.ForEach(
                     (0 until totalEntries).map {
                         listOf(

@@ -3,6 +3,8 @@
     <string name="archer_handicaps__title">Archer Handicaps</string>
     <string name="archer_handicaps__tab_title">Handicap</string>
 
+    <string name="archer_handicaps__handicap_semantics">%d Handicap</string>
+
     <string name="archer_handicaps__type_indoor">Indoor</string>
     <string name="archer_handicaps__type_outdoor">Outdoor</string>
     <string name="archer_handicaps__type_indoor_tournament">Indoor Tournament</string>

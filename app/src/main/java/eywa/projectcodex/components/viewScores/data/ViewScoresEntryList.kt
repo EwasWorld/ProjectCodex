@@ -1,5 +1,8 @@
 package eywa.projectcodex.components.viewScores.data
 
+import eywa.projectcodex.R
+import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.components.viewScores.ui.getDisplayName
 import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.model.PbType
 import eywa.projectcodex.model.roundHandicap
@@ -42,7 +45,9 @@ data class ViewScoresEntryList(
     val score
         get() = entries.sumOf { it.info.score }
     val golds
-        get() = entries.sumOf { it.golds(entries.first().info.goldsType) }
+        get() = entries.sumOf { it.golds(goldsType) }
+    val goldsType
+        get() = entries.first().info.goldsType
 
     val handicapFloat
         get() = entries
@@ -118,4 +123,28 @@ data class ViewScoresEntryList(
      */
     val totalUndisplayedNamesCount
         get() = (entries.size - 2).takeIf { !allRoundsIdentical && it > 0 }
+
+    val nameSemantics
+        get() = listOfNotNull(
+                firstDisplayName.takeIf { it.displayName != null }?.let { getDisplayName(it) },
+                secondDisplayName?.let { getDisplayName(it) },
+                totalUndisplayedNamesCount
+                        ?.let { ResOrActual.StringResource(R.string.view_score__multiple_ellipses, listOf(it)) },
+        )
+
+    val hsgSemantics
+        get() =
+            if (hitsScoreGolds == null) {
+                listOf(ResOrActual.StringResource(R.string.view_score__hsg_placeholder_semantics))
+            }
+            else {
+                listOfNotNull(
+                        ResOrActual.StringResource(R.string.view_score__score_semantics, listOf(score)),
+                        ResOrActual.StringResource(
+                                R.string.view_score__golds_semantics,
+                                listOf(ResOrActual.StringResource(goldsType.longStringId), golds),
+                        ),
+                        ResOrActual.StringResource(R.string.view_score__hits_semantics, listOf(hits)),
+                )
+            }
 }

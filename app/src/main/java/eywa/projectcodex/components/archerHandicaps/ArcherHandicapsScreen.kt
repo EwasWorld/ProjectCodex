@@ -4,15 +4,16 @@ import android.content.res.Resources
 import androidx.annotation.StringRes
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +22,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
@@ -118,13 +124,13 @@ fun ArcherHandicapsScreen(
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun HandicapRow(
         index: Int,
         state: ArcherHandicapsState,
         listener: (ArcherHandicapsIntent) -> Unit,
 ) {
+    val resources = LocalContext.current.resources
     val item = state.handicapsForDisplay[index]
     val currentIds = state.currentHandicaps.orEmpty().map { it.archerHandicapId }
     val isFirstNonCurrentHandicap = !currentIds.contains(item.archerHandicapId)
@@ -152,8 +158,17 @@ private fun HandicapRow(
         }
         Surface(
                 color = CodexTheme.colors.listItemOnAppBackground,
-                onClick = { listener(RowClicked(item)) },
-                modifier = Modifier.testTag(ArcherHandicapsTestTag.ROW_LIST_ITEM)
+                modifier = Modifier
+                        .testTag(ArcherHandicapsTestTag.ROW_LIST_ITEM)
+                        .clickable(
+                                onClick = { listener(RowClicked(item)) },
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(),
+                        )
+                        .semantics {
+                            onClick(null, null)
+                            customActions = listOf(DELETE).map { it.asAccessibilityActions(item, resources, listener) }
+                        }
         ) {
             Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -176,12 +191,23 @@ private fun HandicapRow(
                             modifier = Modifier
                                     .widthIn(min = 140.dp)
                                     .testTag(ArcherHandicapsTestTag.ROW_DATE)
+                                    .semantics {
+                                        contentDescription = DateTimeFormat.SEMANTICS_DATE.format(item.dateSet)
+                                    }
                     )
                 }
                 Text(
                         text = item.handicap.toString(),
                         style = CodexTypography.LARGE.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                        modifier = Modifier.testTag(ArcherHandicapsTestTag.ROW_HANDICAP)
+                        modifier = Modifier
+                                .testTag(ArcherHandicapsTestTag.ROW_HANDICAP)
+                                .zIndex(-1f)
+                                .semantics {
+                                    contentDescription = resources.getString(
+                                            R.string.archer_handicaps__handicap_semantics,
+                                            item.handicap,
+                                    )
+                                }
                 )
             }
         }
@@ -229,22 +255,17 @@ private fun HandicapRowDropdownMenu(
         listener: (ArcherHandicapsIntent) -> Unit,
 ) {
     AnimatedVisibility(
-            visible = item.archerHandicapId == state.menuShownForId,
+            visible = item.archerHandicapId == state.lastClickedId,
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically(),
     ) {
-        val resources = LocalContext.current.resources
-
         Surface(
                 color = CodexTheme.colors.listItemOnAppBackground,
                 shape = RoundedCornerShape(0, 0, 20, 20),
                 modifier = Modifier
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 5.dp, top = 2.dp)
-                        .clickable(
-                                onClickLabel = DELETE.asAccessibilityActions(resources, listener).label,
-                                onClick = { listener(DELETE.intent) },
-                        )
+                        .clickable { listener(DELETE.intent(item)) }
         ) {
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -259,7 +280,7 @@ private fun HandicapRowDropdownMenu(
                         modifier = Modifier
                                 .widthIn(min = 140.dp)
                 ) {
-                    DELETE.IconButton(listener)
+                    DELETE.IconButton(item, listener)
                 }
             }
         }
@@ -269,41 +290,44 @@ private fun HandicapRowDropdownMenu(
 private enum class ArcherHandicapsMenuItem(
         val icon: CodexIconInfo,
         @StringRes val contentDescription: Int,
-        val intent: ArcherHandicapsIntent,
+        val intent: (DatabaseArcherHandicap) -> ArcherHandicapsIntent,
         val testTag: CodexTestTag,
 ) {
     DELETE(
             icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.Delete),
             contentDescription = R.string.general_delete,
-            intent = DeleteClicked,
+            intent = { DeleteClicked(it) },
             testTag = ArcherHandicapsTestTag.DELETE_BUTTON,
     ),
     ;
 
     fun asAccessibilityActions(
+            item: DatabaseArcherHandicap,
             resources: Resources,
             listener: (ArcherHandicapsIntent) -> Unit,
-    ) = CustomAccessibilityAction(resources.getString(contentDescription)) { listener(intent); true }
+    ) = CustomAccessibilityAction(resources.getString(contentDescription)) { listener(intent(item)); true }
 
     @Composable
     fun IconButton(
+            item: DatabaseArcherHandicap,
             isShown: Boolean,
             listener: (ArcherHandicapsIntent) -> Unit,
     ) = AnimatedVisibility(
             visible = isShown,
             enter = fadeIn() + expandHorizontally(),
             exit = fadeOut() + shrinkHorizontally(),
-    ) { IconButton(listener) }
+    ) { IconButton(item, listener) }
 
     @Composable
     fun IconButton(
+            item: DatabaseArcherHandicap,
             listener: (ArcherHandicapsIntent) -> Unit,
     ) = CodexIconButton(
             icon = icon.copyIcon(
                     contentDescription = stringResource(contentDescription),
                     tint = CodexTheme.colors.iconButtonOnListItem,
             ),
-            onClick = { listener(intent) },
+            onClick = { listener(intent(item)) },
             modifier = Modifier.testTag(testTag.getTestTag())
     )
 }
@@ -346,7 +370,7 @@ fun ArcherHandicapsScreen_Preview(
             when (action) {
                 is RowClicked ->
                     state = state.copy(
-                            menuShownForId = action.item.archerHandicapId.takeIf { state.menuShownForId != it }
+                            lastClickedId = action.item.archerHandicapId.takeIf { state.lastClickedId != it }
                     )
 
                 else -> Unit // ToastSpamPrevention.displayToast(context, action::class.simpleName.toString())
@@ -368,13 +392,13 @@ class ArcherHandicapsScreenPreviewParamProvider : CollectionPreviewParameterProv
                 ArcherHandicapsState(
                         currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
                         allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
-                        menuShownForId = 2,
+                        lastClickedId = 2,
                         openAddDialog = true,
                 ),
                 ArcherHandicapsState(
                         currentHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
                         allHandicaps = ArcherHandicapsPreviewHelper.handicaps.drop(1),
-                        menuShownForId = 2,
+                        lastClickedId = 2,
                         openAddDialog = true,
                 ),
         )

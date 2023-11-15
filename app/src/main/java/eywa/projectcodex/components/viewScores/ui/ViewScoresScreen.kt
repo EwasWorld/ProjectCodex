@@ -176,9 +176,6 @@ fun ViewScoresScreen(
                             viewScoresShowcaseInfo.genericEntryHelpInfo[entryIndex]
                                     .handle(it, CodexNavRoute.VIEW_SCORES::class)
                         },
-                        semanticsContentDescription = viewScoresEntryRowAccessibilityString(
-                                LocalContext.current, entry
-                        )
                 ) {
                     ViewScoresEntryRow(
                             entry = entry,
@@ -242,6 +239,16 @@ enum class ViewScoresTestTag : CodexTestTag {
         get() = "VIEW_SCORES"
 
     override fun getElement(): String = name
+}
+
+/**
+ * @param entryIndex the index of the item in the viewScores list
+ */
+fun viewScoresListItemTestTag(entryIndex: Int) = object : CodexTestTag {
+    override val screenName: String
+        get() = ViewScoresTestTag.SCREEN.screenName
+
+    override fun getElement() = "${ViewScoresTestTag.LIST_ITEM.getElement()}_$entryIndex"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
