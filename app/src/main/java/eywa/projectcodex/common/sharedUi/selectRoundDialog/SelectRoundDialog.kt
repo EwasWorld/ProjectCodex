@@ -211,7 +211,9 @@ fun SelectRoundDialog(
                     LazyRow(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(5.dp),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                    .weight(1f)
+                                    .testTag(SelectRoundDialogTestTag.FILTER_LIST)
                     ) {
                         item {
                             Text(
@@ -225,7 +227,7 @@ fun SelectRoundDialog(
                                     text = stringResource(filter.chipText),
                                     state = CodexNewChipState(
                                             selected = enabledFilters.contains(filter),
-                                            testTag = SelectRoundDialogTestTag.FILTER
+                                            testTag = SelectRoundDialogTestTag.FILTER,
                                     ),
                                     colours = ChipColours.Defaults.onDialog(),
                             ) { listener(FilterClicked(filter)) }
@@ -330,6 +332,7 @@ enum class SelectRoundDialogTestTag : CodexTestTag {
     ROUND_DIALOG,
     SUBTYPE_DIALOG,
     ROUND_DIALOG_ITEM,
+    FILTER_LIST,
     FILTER,
     SELECTED_ROUND_ROW,
     SELECTED_SUBTYPE_ROW,

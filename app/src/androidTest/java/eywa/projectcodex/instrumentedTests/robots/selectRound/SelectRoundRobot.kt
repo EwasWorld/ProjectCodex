@@ -44,10 +44,13 @@ class SelectRoundRobot internal constructor(val perform: PerformFn) {
     fun checkNoFiltersAreOn() {
         Filter.values().forEach {
             perform {
+                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER_LIST)
+                +CodexNodeInteraction.PerformScrollToIndex(it.index)
+            }
+            perform {
                 useUnmergedTree = true
                 +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
                 +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it.label))
-                scrollToParentIndex = it.index
                 +CodexNodeInteraction.AssertIsSelected(false)
             }
         }
@@ -55,16 +58,14 @@ class SelectRoundRobot internal constructor(val perform: PerformFn) {
 
     fun clickFilter(filter: Filter, isNowOn: Boolean = true) {
         perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
-            +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
-            scrollToParentIndex = filter.index
-            +CodexNodeInteraction.PerformClick()
+            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER_LIST)
+            +CodexNodeInteraction.PerformScrollToIndex(filter.index)
         }
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
             +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
+            +CodexNodeInteraction.PerformClick()
             +CodexNodeInteraction.AssertIsSelected(isNowOn).waitFor()
         }
     }

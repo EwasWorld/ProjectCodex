@@ -12,11 +12,14 @@ annotation class TestActionDslMarker
  *
  * @see BaseRobot.perform
  */
+@Deprecated(
+        "There's a shiny new version",
+        ReplaceWith("TestActionDslV2", " eywa.projectcodex.instrumentedTests.dsl.TestActionDslV2"),
+)
 @TestActionDslMarker
 class TestActionDsl {
     private var info: CodexNodeInfo = CodexNodeInfo.Empty
     var useUnmergedTree = false
-    var scrollToParentIndex: Int? = null
 
     operator fun CodexNodeInteraction.unaryPlus() {
         info += this
@@ -40,11 +43,6 @@ class TestActionDsl {
     }
 
     fun run(composeTestRule: ComposeTestRule<MainActivity>) {
-        scrollToParentIndex?.let {
-            info.createScrollableParentNode(composeTestRule, useUnmergedTree)
-            info.scrollToIndexInParent(it)
-        }
-
         info.createNode(composeTestRule, useUnmergedTree)
         info.performActions()
     }

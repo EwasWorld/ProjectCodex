@@ -12,6 +12,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
  * Handles which matchers and actions can be added when.
  * Runs actions with [createNode], [assertIsDisplayed], and [performActions].
  */
+@Deprecated("This is used by TestActionDsl which has been superseded")
 internal sealed class CodexNodeInfo {
     object Empty : CodexNodeInfo() {
         override fun plus(other: CodexNodeInteraction): CodexNodeInfo = Single() + other

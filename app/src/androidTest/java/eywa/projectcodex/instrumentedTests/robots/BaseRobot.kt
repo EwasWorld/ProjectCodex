@@ -25,6 +25,7 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
+import eywa.projectcodex.instrumentedTests.dsl.TestActionDslV2
 import eywa.projectcodex.instrumentedTests.robots.common.Robot
 import java.util.Calendar
 import kotlin.reflect.KClass
@@ -58,8 +59,16 @@ abstract class BaseRobot(
         return true
     }
 
+    @Deprecated(
+            "There's a shiny new version",
+            replaceWith = ReplaceWith("performV2", " eywa.projectcodex.instrumentedTests.dsl.TestActionDslV2")
+    )
     override fun perform(config: TestActionDsl.() -> Unit) {
         TestActionDsl().apply(config).run(composeTestRule)
+    }
+
+    override fun performV2(config: TestActionDslV2.() -> Unit) {
+        TestActionDslV2().apply(config).perform(composeTestRule)
     }
 
     fun setDateAndTime(calendar: Calendar) {
