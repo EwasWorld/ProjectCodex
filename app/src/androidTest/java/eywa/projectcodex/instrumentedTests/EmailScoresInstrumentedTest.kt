@@ -190,7 +190,7 @@ class EmailScoresInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForDate(0, roundDate)
+                waitForDate(0, DateTimeFormat.SHORT_DATE_TIME.format(shoots[0].dateShot))
                 longClickRow(0)
                 clickEmailDropdownMenuItem {
                     checkTextFieldText(EmailScoresTextField.SUBJECT, EmailTestData.INITIAL_SUBJECT)
