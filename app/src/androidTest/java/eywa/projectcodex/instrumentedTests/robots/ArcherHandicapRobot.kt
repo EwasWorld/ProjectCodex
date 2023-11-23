@@ -86,8 +86,7 @@ class ArcherHandicapRobot(
     fun setAddHandicap(handicap: Int, expectedErrorText: String? = null) {
         perform {
             setText(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE, handicap.toString())
-            if (expectedErrorText != null) +CodexNodeInteraction.Assert(CodexNodeMatcher.HasError(expectedErrorText))
-            else +CodexNodeInteraction.Assert(CodexNodeMatcher.HasNoError)
+            +CodexNodeInteraction.AssertHasError(expectedErrorText)
         }
     }
 

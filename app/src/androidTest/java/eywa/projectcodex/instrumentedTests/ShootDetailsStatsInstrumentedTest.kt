@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -316,6 +317,30 @@ class ShootDetailsStatsInstrumentedTest {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    fun testEditAndSwapToCount() {
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickSubmitNewScore {
+                    clickNavBarStats {
+                        clickEditRoundData {
+                            clickType(false)
+
+                            // Changing type opens up the count screen
+                            clickSubmitEditScoreChangeToCount {
+                                Espresso.pressBack()
+                            }
+                        }
+                    }
+                }
+            }
+            // New score and such should all have been removed from the backstack
+            checkScreenIsShown()
         }
     }
 }

@@ -57,10 +57,11 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun testViewDao(): TestViewDao
 
     fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
-    fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao())
+    fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao(), arrowCounterRepo())
     fun arrowScoresRepo() = ArrowScoresRepo(arrowScoreDao())
     fun archerRepo() = ArcherRepo(archerDao(), archerHandicapDao())
     fun bowRepo() = BowRepo(bowDao())
+    fun arrowCounterRepo() = ArrowCounterRepo(arrowCounterDao())
 
     suspend fun insertDefaults() {
         bowRepo().insertDefaultBowIfNotExist()

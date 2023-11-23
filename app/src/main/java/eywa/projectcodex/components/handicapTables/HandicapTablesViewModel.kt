@@ -51,7 +51,7 @@ class HandicapTablesViewModel @Inject constructor(
 
     fun handle(action: HandicapTablesIntent) {
         when (action) {
-            is InputChanged -> _state.update { it.copy(input = it.input.onValueChanged(action.newSize)).addHandicaps() }
+            is InputChanged -> _state.update { it.copy(input = it.input.onTextChanged(action.newSize)).addHandicaps() }
             is SelectRoundDialogAction -> {
                 _state.update {
                     val (selectRoundDialogState, faceIntent) = action.action.handle(it.selectRoundDialogState)

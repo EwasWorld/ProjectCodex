@@ -32,6 +32,10 @@ data class FullShootInfo(
         val use2023HandicapSystem: Boolean = false,
         val shootRound: DatabaseShootRound? = null,
         val shootDetail: DatabaseShootDetail? = null,
+
+        /**
+         * When this is null, the arrows are being scored, otherwise they're being counted
+         */
         val arrowCounter: DatabaseArrowCounter? = null,
 ) {
     constructor(full: DatabaseFullShootInfo, use2023HandicapSystem: Boolean) : this(

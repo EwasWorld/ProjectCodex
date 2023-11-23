@@ -11,9 +11,18 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
-import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.*
+import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.ArrowInputsAction
+import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.CloseHandled
+import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.ErrorHandled
+import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.ShootDetailsAction
 import eywa.projectcodex.components.shootDetails.getData
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +35,6 @@ class EditEndViewModel @Inject constructor(
     private val screen = CodexNavRoute.SHOOT_DETAILS_EDIT_END
     private val extraState = MutableStateFlow(EditEndExtras())
 
-    @Suppress("UNCHECKED_CAST")
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,

@@ -14,7 +14,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,6 +25,7 @@ import eywa.projectcodex.common.sharedUi.CodexTextFieldState
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 
 @Composable
@@ -68,7 +68,7 @@ fun CodexNumberField(
         testTag: CodexTestTag,
         placeholder: String,
         modifier: Modifier = Modifier,
-        errorMessage: DisplayableError? = null,
+        errorMessage: DisplayableError?,
         selectAllOnFocus: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         onValueChanged: (String?) -> Unit,
@@ -87,7 +87,7 @@ fun CodexNumberField(
             placeholderText = placeholder,
             textStyle = CodexTypography.NORMAL.copy(
                     color = CodexTheme.colors.onSurfaceOnBackground,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
@@ -123,7 +123,7 @@ fun CodexNumberFieldErrorText(
                 color = CodexTheme.colors.errorOnAppBackground,
                 textAlign = textAlign,
                 modifier = modifier
-                        .testTag(testTag.getTestTag())
+                        .testTag(testTag)
                         .clearAndSetSemantics { }
         )
     }

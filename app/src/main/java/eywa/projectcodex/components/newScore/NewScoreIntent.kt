@@ -7,6 +7,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 
 sealed class NewScoreIntent {
     data class DateChanged(val info: UpdateCalendarInfo) : NewScoreIntent()
+    object TypeChanged : NewScoreIntent()
 
     data class SelectRoundDialogAction(val action: SelectRoundDialogIntent) : NewScoreIntent()
     data class SelectFaceDialogAction(val action: SelectRoundFaceDialogIntent) : NewScoreIntent()

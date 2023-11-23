@@ -12,7 +12,11 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.*
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.ArrowInputsAction
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.CloseHandled
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.ErrorHandled
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.ShootDetailsAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -29,7 +33,6 @@ class InsertEndViewModel @Inject constructor(
     private val screen = CodexNavRoute.SHOOT_DETAILS_INSERT_END
     private val extraState = MutableStateFlow(InsertEndExtras())
 
-    @Suppress("UNCHECKED_CAST")
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,

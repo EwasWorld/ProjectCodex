@@ -16,10 +16,7 @@ data class NewScoreState(
          * Non-null if the fragment is being used to edit an existing round
          */
         val roundBeingEdited: FullShootInfo? = null,
-        /**
-         * Only used if a round is being edited
-         */
-        val roundBeingEditedArrowsShot: Int? = null,
+
         /**
          * Should block round selection while this is true
          */
@@ -29,6 +26,11 @@ data class NewScoreState(
          * User-set info
          */
         val dateShot: Calendar = getDefaultDate(),
+
+        /**
+         * True to score arrows, false to count arrows
+         */
+        val isScoringNotCounting: Boolean = true,
 
         /*
          * Dialogs
@@ -63,7 +65,8 @@ data class NewScoreState(
      * True if there are more [roundBeingEditedArrowsShot] than there are [totalArrowsInSelectedRound]
      */
     val tooManyArrowsWarningShown by lazy {
-        selectRoundDialogState.selectedRound != null && (roundBeingEditedArrowsShot ?: 0) > totalArrowsInSelectedRound!!
+        selectRoundDialogState.selectedRound != null && (roundBeingEdited?.arrowsShot
+                ?: 0) > totalArrowsInSelectedRound!!
     }
 
     /**

@@ -357,7 +357,7 @@ enum class HandicapTablesTestTag : CodexTestTag {
 fun HandicapTablesScreen_Preview() {
     HandicapTablesScreen(
             HandicapTablesState(
-                    input = PartialNumberFieldState().onValueChanged("31"),
+                    input = PartialNumberFieldState().onTextChanged("31"),
                     inputType = InputType.HANDICAP,
                     use2023System = false,
                     selectRoundDialogState = SelectRoundDialogState(
@@ -387,7 +387,7 @@ fun HandicapTablesScreen_Preview() {
 fun Error_HandicapTablesScreen_Preview() {
     HandicapTablesScreen(
             HandicapTablesState(
-                    input = PartialNumberFieldState().onValueChanged("-1"),
+                    input = PartialNumberFieldState().onTextChanged("-1"),
                     inputType = InputType.HANDICAP,
                     selectRoundDialogState = SelectRoundDialogState(
                             allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),

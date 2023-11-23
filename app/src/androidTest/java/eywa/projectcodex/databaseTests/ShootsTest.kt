@@ -6,6 +6,7 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.ArrowCounterDao
+import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -164,7 +165,7 @@ class ShootsTest {
 
         assertEquals(
                 setOf(2 to false, 3 to true, 4 to true),
-                ShootsRepo(shootDao, shootDetailDao, shootRoundDao)
+                ShootsRepo(shootDao, shootDetailDao, shootRoundDao, ArrowCounterRepo(arrowCounterDao))
                         .getFullShootInfo()
                         .first()
                         .filter { it.isPersonalBest ?: false }
@@ -223,7 +224,7 @@ class ShootsTest {
         suspend fun check(expectedIds: Set<Int>, filters: List<ShootFilter>) {
             assertEquals(
                     expectedIds,
-                    ShootsRepo(shootDao, shootDetailDao, shootRoundDao)
+                    ShootsRepo(shootDao, shootDetailDao, shootRoundDao, ArrowCounterRepo(arrowCounterDao))
                             .getFullShootInfo(Filters(filters))
                             .first()
                             .map { it.shoot.shootId }

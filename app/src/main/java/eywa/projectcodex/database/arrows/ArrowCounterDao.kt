@@ -6,7 +6,7 @@ import eywa.projectcodex.database.arrows.DatabaseArrowCounter.Companion.TABLE_NA
 @Dao
 interface ArrowCounterDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(arrowCounter: DatabaseArrowCounter)
+    suspend fun insert(vararg arrowCounter: DatabaseArrowCounter)
 
     @Update
     suspend fun update(vararg arrowCounters: DatabaseArrowCounter)

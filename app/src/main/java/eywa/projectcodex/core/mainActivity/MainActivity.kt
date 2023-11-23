@@ -39,7 +39,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -91,7 +90,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController(bottomSheetNavigator)
 
                 val currentEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = currentEntry?.currentCodexNavRoute()
+                val currentRoute = CodexNavRoute.fromBackStackEntry(currentEntry)
 
                 LaunchedEffect(currentRoute) {
                     currentRoute?.let {
@@ -143,14 +142,9 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun NavBackStackEntry.currentCodexNavRoute() = destination
-            .route?.takeWhile { it != '/' && it != '?' }
-            .let { CodexNavRoute.baseRouteMapping[it] }
-
-    @Composable
     fun TopBar(navController: NavController) {
         val currentEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = currentEntry?.currentCodexNavRoute()
+        val currentRoute = CodexNavRoute.fromBackStackEntry(currentEntry)
 
         TopAppBar(
                 title = {

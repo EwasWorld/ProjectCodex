@@ -7,6 +7,7 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqu
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 
 class ShootDetailsStatsRobot(
@@ -28,6 +29,15 @@ class ShootDetailsStatsRobot(
             +CodexNodeMatcher.HasTestTag(StatsTestTag.ROUND_TEXT)
             +CodexNodeInteraction.AssertTextEquals(text ?: "N/A")
         }
+    }
+
+    fun clickEditRoundData(block: NewScoreRobot.() -> Unit) {
+        perform {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
+            +CodexNodeInteraction.PerformClick()
+        }
+
+        createRobot(NewScoreRobot::class, block)
     }
 
     fun checkHits(text: String) {

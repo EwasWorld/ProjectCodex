@@ -2,6 +2,8 @@ package eywa.projectcodex.database.shootData
 
 import androidx.room.Transaction
 import eywa.projectcodex.database.Filters
+import eywa.projectcodex.database.arrows.ArrowCounterRepo
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -9,6 +11,7 @@ class ShootsRepo(
         private val shootDao: ShootDao,
         private val shootDetailDao: ShootDetailDao,
         private val shootRoundDao: ShootRoundDao,
+        private val arrowCounterRepo: ArrowCounterRepo,
 ) {
     @Transaction
     fun getMostRecentShootsForRound(count: Int, roundId: Int, subTypeId: Int = 1) =
@@ -44,6 +47,7 @@ class ShootsRepo(
             shoot: DatabaseShoot,
             shootRound: DatabaseShootRound?,
             shootDetail: DatabaseShootDetail?,
+            isScoringNotCounting: Boolean,
     ): Long {
         require(
                 listOfNotNull(
@@ -57,6 +61,7 @@ class ShootsRepo(
         val id = shootDao.insert(shoot)
         if (shootRound != null) shootRoundDao.insert(shootRound.copy(shootId = id.toInt()))
         if (shootDetail != null) shootDetailDao.insert(shootDetail.copy(shootId = id.toInt()))
+        if (!isScoringNotCounting) arrowCounterRepo.insert(DatabaseArrowCounter(id.toInt(), 0))
         return id
     }
 
@@ -64,11 +69,13 @@ class ShootsRepo(
         shootDao.deleteRound(shootId)
     }
 
+    @Transaction
     suspend fun update(
             original: FullShootInfo,
             shoot: DatabaseShoot,
             shootRound: DatabaseShootRound?,
             shootDetail: DatabaseShootDetail?,
+            isScoringNotCounting: Boolean,
     ) {
         require(
                 listOfNotNull(
@@ -79,6 +86,9 @@ class ShootsRepo(
                 ).distinct().size == 1
         ) { "Mismatched shootIds" }
         require(shootRound == null || shootDetail == null) { "Clashing details/round" }
+        require(
+                isScoringNotCounting == (original.arrowCounter == null) || original.arrowsShot == 0
+        ) { "Cannot change type if arrows have been shot" }
 
         shootDao.update(shoot)
 
@@ -97,6 +107,13 @@ class ShootsRepo(
         else {
             shootRoundDao.delete(shoot.shootId)
             shootDetailDao.delete(shoot.shootId)
+        }
+
+        if (isScoringNotCounting && original.arrowCounter != null) {
+            arrowCounterRepo.delete(original.arrowCounter)
+        }
+        else if (!isScoringNotCounting && original.arrowCounter == null) {
+            arrowCounterRepo.insert(DatabaseArrowCounter(original.shoot.shootId, 0))
         }
     }
 }

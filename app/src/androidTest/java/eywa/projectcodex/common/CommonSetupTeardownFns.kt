@@ -3,12 +3,17 @@ package eywa.projectcodex.common
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import com.azimolabs.conditionwatcher.ConditionWatcher
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 
 class CommonSetupTeardownFns {
     companion object {
+        fun generalSetup(timeout: Int = 10_000) {
+            ConditionWatcher.setTimeoutLimit(timeout)
+        }
+
         /**
          * Tears down the scenario ([ActivityScenarioRule] itself will close the scenario)
          * @see teardownScenarioWithoutClosing

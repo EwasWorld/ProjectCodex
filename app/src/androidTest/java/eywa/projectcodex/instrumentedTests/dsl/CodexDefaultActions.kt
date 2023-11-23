@@ -27,8 +27,7 @@ object CodexDefaultActions {
 
     fun TestActionDsl.checkInputtedText(testTag: CodexTestTag, text: String) {
         matchTextBox(testTag)
-        +CodexNodeMatcher.HasText(text)
-        +CodexNodeInteraction.AssertIsDisplayed()
+        +CodexNodeInteraction.AssertTextEquals(text)
     }
 
     fun TestActionDsl.assertTextEqualsOrNotExist(text: String?) =

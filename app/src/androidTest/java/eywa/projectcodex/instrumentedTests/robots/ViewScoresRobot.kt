@@ -14,6 +14,7 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
 
@@ -72,6 +73,12 @@ class ViewScoresRobot(
     fun clickRow(rowIndex: Int, block: ScorePadRobot.() -> Unit = {}) {
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
         createRobot(ScorePadRobot::class, block)
+    }
+
+    fun clickRowCount(rowIndex: Int, block: AddCountRobot.() -> Unit = {}) {
+        TODO("Not implemented this type of row")
+        performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
+        createRobot(AddCountRobot::class, block)
     }
 
     fun longClickRow(rowIndex: Int) {

@@ -21,6 +21,7 @@ import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.newScore.NewScoreScreen
 import eywa.projectcodex.components.settings.SettingsScreen
+import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountScreen
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
@@ -160,16 +161,16 @@ enum class CodexNavRoute : NavRoute {
             SettingsScreen()
         }
     },
-    SHOOT_DETAILS_EDIT_END {
+    SHOOT_DETAILS_ADD_COUNT {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(NavArgument.SHOOT_ID to true)
 
         @Composable
-        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.insert_end__title)
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.add_count__title)
 
         @Composable
         override fun Screen(navController: NavController) {
-            EditEndScreen(navController)
+            AddArrowCountScreen(navController)
         }
     },
     SHOOT_DETAILS_ADD_END {
@@ -182,6 +183,18 @@ enum class CodexNavRoute : NavRoute {
         @Composable
         override fun Screen(navController: NavController) {
             AddEndScreen(navController)
+        }
+    },
+    SHOOT_DETAILS_EDIT_END {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(NavArgument.SHOOT_ID to true)
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.insert_end__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            EditEndScreen(navController)
         }
     },
     SHOOT_DETAILS_INSERT_END {
@@ -273,7 +286,11 @@ enum class CodexNavRoute : NavRoute {
     override val bottomSheets: List<BottomSheetNavRoute>? = null
 
     companion object {
-        val baseRouteMapping = values().associateBy { it.routeBase }
+        private val baseRouteMapping = values().associateBy { it.routeBase }
+
+        fun fromBackStackEntry(entry: NavBackStackEntry?) = entry?.destination
+                ?.route?.takeWhile { it != '/' && it != '?' }
+                .let { CodexNavRoute.baseRouteMapping[it] }
     }
 }
 

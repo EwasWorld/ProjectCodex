@@ -68,7 +68,7 @@ class HandicapTablesViewModelUnitTest {
                                 selectedRoundId = round.round.roundId,
                                 selectedSubTypeId = 1,
                         ),
-                        input = PartialNumberFieldState().onValueChanged(handicap.toString())
+                        input = PartialNumberFieldState().onTextChanged(handicap.toString())
                 ),
                 sut.state.value.copy(handicaps = emptyList(), highlightedHandicap = null),
         )

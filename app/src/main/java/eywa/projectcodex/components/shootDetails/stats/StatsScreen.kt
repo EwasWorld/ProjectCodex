@@ -55,6 +55,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
@@ -125,6 +126,17 @@ fun HandleEffects(
         listener: (StatsIntent) -> Unit,
 ) {
     val loadedState = state.getData() ?: return
+
+    val isCounting = loadedState.fullShootInfo.arrowCounter != null
+    LaunchedEffect(isCounting) {
+        if (isCounting) {
+            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to loadedState.fullShootInfo.id.toString()),
+                    popCurrentRoute = true,
+            )
+        }
+    }
 
     LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditArcherInfoScreen) {
         if (loadedState.openEditShootScreen) {
@@ -200,7 +212,9 @@ private fun EditBox(
                         contentDescription = editContentDescription,
                 ),
                 onClick = editListener,
-                modifier = Modifier.padding(horizontal = 0.dp, vertical = 0.dp)
+                modifier = Modifier
+                        .padding(horizontal = 0.dp, vertical = 0.dp)
+                        .testTag(StatsTestTag.EDIT_SHOOT_INFO)
         )
     }
 }
@@ -555,6 +569,7 @@ enum class StatsTestTag : CodexTestTag {
     ARCHER_HANDICAP_TEXT,
     ALLOWANCE_TEXT,
     ADJUSTED_SCORE_TEXT,
+    EDIT_SHOOT_INFO,
     ;
 
     override val screenName: String

@@ -15,8 +15,11 @@ import eywa.projectcodex.common.setTimePickerValue
 import eywa.projectcodex.common.sharedUi.DateSelectorRowTestTag
 import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowValue
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import java.util.Calendar
 
@@ -84,13 +87,45 @@ class NewScoreRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
+    fun checkType(isScoring: Boolean = true) {
+        val expected = if (isScoring) "Score" else "Count"
+        perform {
+            matchDataRowValue(NewScoreTestTag.TYPE_SWITCH)
+            +CodexNodeInteraction.AssertTextEquals(expected)
+        }
+    }
+
+    fun clickType(becomesIsScoring: Boolean = true) {
+        val expected = if (becomesIsScoring) "Score" else "Count"
+        perform {
+            matchDataRowValue(NewScoreTestTag.TYPE_SWITCH)
+            +CodexNodeInteraction.PerformClick()
+            +CodexNodeInteraction.AssertTextEquals(expected)
+        }
+    }
+
     fun clickSubmitNewScore(block: AddEndRobot.() -> Unit = {}) {
         clickElement(NewScoreTestTag.SUBMIT_BUTTON)
         createRobot(AddEndRobot::class, block)
     }
 
+    fun clickSubmitNewScoreCount(block: AddCountRobot.() -> Unit = {}) {
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
+        createRobot(AddCountRobot::class, block)
+    }
+
     fun clickSubmitEditScore() {
         clickElement(NewScoreTestTag.SUBMIT_BUTTON)
+    }
+
+    fun clickSubmitEditScoreChangeToCount(block: AddCountRobot.() -> Unit = {}) {
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
+        createRobot(AddCountRobot::class, block)
+    }
+
+    fun clickSubmitEditScoreChangeToScore(block: AddEndRobot.() -> Unit = {}) {
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
+        createRobot(AddEndRobot::class, block)
     }
 
     fun clickReset() {

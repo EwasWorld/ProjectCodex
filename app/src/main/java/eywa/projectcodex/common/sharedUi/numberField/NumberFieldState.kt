@@ -12,7 +12,7 @@ data class NumberFieldState<I : Number> internal constructor(
 
     fun onTextChanged(value: String?) = NumberFieldState(text = value ?: "", isDirty = true, validators = validators)
     fun clear() = NumberFieldState(validators = validators)
-    fun markDirty() = NumberFieldState(validators = validators)
+    fun markDirty() = onTextChanged(text)
 }
 
 
@@ -25,5 +25,6 @@ data class PartialNumberFieldState private constructor(
     fun <I : Number> asNumberFieldState(validators: NumberValidatorGroup<I>) =
             NumberFieldState(text = text, isDirty = isDirty, validators = validators)
 
-    fun onValueChanged(value: String?) = PartialNumberFieldState(text = value ?: "", isDirty = true)
+    fun onTextChanged(value: String?) = PartialNumberFieldState(text = value ?: "", isDirty = true)
+    fun markDirty() = onTextChanged(text)
 }

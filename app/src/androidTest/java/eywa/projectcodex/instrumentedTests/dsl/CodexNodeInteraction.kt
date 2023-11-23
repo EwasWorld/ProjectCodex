@@ -117,6 +117,15 @@ sealed class CodexNodeInteraction {
         }
     }
 
+    data class AssertHasError(val errorText: String?) : CodexNodeInteraction() {
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            val expected =
+                    if (errorText != null) CodexNodeMatcher.HasError(errorText)
+                    else CodexNodeMatcher.HasNoError
+            node.assert(expected.getMatcher())
+        }
+    }
+
     protected abstract fun performInternal(node: SemanticsNodeInteraction)
     fun perform(node: SemanticsNodeInteraction) {
         waitForWrapper(waitFor) { performInternal(node) }

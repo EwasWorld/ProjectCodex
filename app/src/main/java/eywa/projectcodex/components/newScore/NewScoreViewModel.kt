@@ -11,7 +11,16 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.components.newScore.NewScoreIntent.*
+import eywa.projectcodex.components.newScore.NewScoreIntent.CancelEditInfo
+import eywa.projectcodex.components.newScore.NewScoreIntent.DateChanged
+import eywa.projectcodex.components.newScore.NewScoreIntent.HandleNavigate
+import eywa.projectcodex.components.newScore.NewScoreIntent.HandlePopBackstack
+import eywa.projectcodex.components.newScore.NewScoreIntent.HelpShowcaseAction
+import eywa.projectcodex.components.newScore.NewScoreIntent.ResetEditInfo
+import eywa.projectcodex.components.newScore.NewScoreIntent.SelectFaceDialogAction
+import eywa.projectcodex.components.newScore.NewScoreIntent.SelectRoundDialogAction
+import eywa.projectcodex.components.newScore.NewScoreIntent.Submit
+import eywa.projectcodex.components.newScore.NewScoreIntent.TypeChanged
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.model.FullShootInfo
@@ -25,7 +34,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewScoreViewModel @Inject constructor(
-        val db: ScoresRoomDatabase,
+        db: ScoresRoomDatabase,
         updateDefaultRoundsTask: UpdateDefaultRoundsTask,
         private val helpShowcase: HelpShowcaseUseCase,
         savedStateHandle: SavedStateHandle,
@@ -55,7 +64,7 @@ class NewScoreViewModel @Inject constructor(
 
     private fun initialiseRoundBeingEdited(roundBeingEditedId: Int?) {
         if (roundBeingEditedId == null) {
-            _state.update { it.copy(roundBeingEdited = null, roundBeingEditedArrowsShot = null) }
+            _state.update { it.copy(roundBeingEdited = null) }
             return
         }
 
@@ -67,7 +76,6 @@ class NewScoreViewModel @Inject constructor(
                             if (info == null) return@update it.copy(roundNotFoundError = true)
                             it.copy(
                                     roundBeingEdited = FullShootInfo(info, true),
-                                    roundBeingEditedArrowsShot = info.arrows.orEmpty().count()
                             ).resetEditInfo()
                         }
                     }
@@ -78,6 +86,10 @@ class NewScoreViewModel @Inject constructor(
         when (action) {
             is DateChanged ->
                 _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
+
+            TypeChanged ->
+                _state.update { it.copy(isScoringNotCounting = !it.isScoringNotCounting) }
+
             is SelectRoundDialogAction -> {
                 _state.update {
                     val (selectRoundDialogState, faceIntent) = action.action.handle(it.selectRoundDialogState)
@@ -109,6 +121,7 @@ class NewScoreViewModel @Inject constructor(
                                 shoot = currentState.asShoot(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
+                                isScoringNotCounting = currentState.isScoringNotCounting,
                         )
                         _state.update { it.copy(popBackstack = true) }
                     }
@@ -117,6 +130,7 @@ class NewScoreViewModel @Inject constructor(
                                 shoot = currentState.asShoot(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
+                                isScoringNotCounting = currentState.isScoringNotCounting,
                         )
                         _state.update { it.copy(navigateToAddEnd = newId.toInt()) }
                     }
@@ -146,6 +160,7 @@ class NewScoreViewModel @Inject constructor(
 
         return copy(
                 dateShot = roundBeingEdited.shoot.dateShot,
+                isScoringNotCounting = roundBeingEdited.arrowCounter == null,
                 selectRoundDialogState = roundsState,
                 selectFaceDialogState = faceAction.handle(selectFaceDialogState)
                         .copy(selectedFaces = faces),

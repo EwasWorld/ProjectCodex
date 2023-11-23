@@ -1,4 +1,4 @@
-package eywa.projectcodex.prototyping.addArrowCount
+package eywa.projectcodex.components.shootDetails.addArrowCount
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 
@@ -9,4 +9,5 @@ sealed class AddArrowCountIntent {
     data class OnValueChanged(val value: String?) : AddArrowCountIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : AddArrowCountIntent()
     object ClickEditShootInfo : AddArrowCountIntent()
+    object EditShootInfoHandled : AddArrowCountIntent()
 }

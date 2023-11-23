@@ -13,7 +13,18 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.SelectScoreP
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.CloseDropdownMenu
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.DeleteEndClicked
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.DeleteEndDialogCancelClicked
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.DeleteEndDialogOkClicked
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.EditEndClicked
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.EditEndHandled
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.InsertEndClicked
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.InsertEndHandled
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.NoArrowsDialogOkClicked
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.RowClicked
+import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.ShootDetailsAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -30,7 +41,6 @@ class ScorePadViewModel @Inject constructor(
     private val screen = CodexNavRoute.SHOOT_DETAILS_SCORE_PAD
     private val extraState = MutableStateFlow(ScorePadExtras())
 
-    @Suppress("UNCHECKED_CAST")
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,

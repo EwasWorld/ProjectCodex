@@ -1,10 +1,13 @@
 package eywa.projectcodex.components.newScore
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -34,10 +38,12 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
@@ -63,11 +69,20 @@ private fun handleEffects(
         listener: (NewScoreIntent) -> Unit,
 ) {
     if (state.navigateToAddEnd != null) {
-        CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
-                navController,
-                mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
-                popCurrentRoute = true,
-        )
+        if (state.isScoringNotCounting) {
+            CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
+                    popCurrentRoute = true,
+            )
+        }
+        else {
+            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
+                    popCurrentRoute = true,
+            )
+        }
         listener(HandleNavigate)
     }
     if (state.popBackstack) {
@@ -100,7 +115,69 @@ fun NewScoreScreen(
                     updateDateListener = { listener(DateChanged(it)) },
                     helpListener = { listener(HelpShowcaseAction(it)) },
             )
+            RoundSelectionSection(state, listener)
+            ScoringTypeSection(state, listener)
 
+            if (state.isEditing) EditingEndButtons(state, listener) else NewScoreEndButtons(listener)
+        }
+    }
+}
+
+@Composable
+private fun ScoringTypeSection(
+        state: NewScoreState,
+        listener: (NewScoreIntent) -> Unit,
+) {
+    if (!state.isEditing || state.roundBeingEdited?.arrowsShot == 0) {
+        DataRow(
+                title = stringResource(R.string.create_round__score_type),
+                text = stringResource(
+                        if (state.isScoringNotCounting) R.string.create_round__score_type_score
+                        else R.string.create_round__score_type_count
+                ),
+                helpState = HelpState(
+                        helpListener = { listener(HelpShowcaseAction(it)) },
+                        helpTitle = stringResource(R.string.help_create_round__score_type_title),
+                        helpBody = stringResource(R.string.help_create_round__score_type_body),
+                ),
+                onClick = { listener(TypeChanged) },
+                modifier = Modifier.testTag(NewScoreTestTag.TYPE_SWITCH)
+        )
+    }
+    else {
+        Text(
+                text = stringResource(R.string.create_round__score_type_cannot_change),
+                textAlign = TextAlign.Center,
+                fontStyle = FontStyle.Italic,
+                style = CodexTypography.SMALL,
+                color = CodexTheme.colors.onAppBackground,
+                modifier = Modifier.padding(horizontal = 20.dp)
+        )
+    }
+}
+
+@Composable
+private fun RoundSelectionSection(
+        state: NewScoreState,
+        listener: (NewScoreIntent) -> Unit,
+) {
+    val isRoundsUpdateCompleteAndNoneSelected =
+            state.selectRoundDialogState.selectedRound == null && state.updateDefaultRoundsState.hasTaskFinished
+
+    Surface(
+            shape = RoundedCornerShape(
+                    if (isRoundsUpdateCompleteAndNoneSelected) CodexTheme.dimens.smallCornerRounding
+                    else CodexTheme.dimens.cornerRounding
+            ),
+            border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+            color = CodexTheme.colors.appBackground,
+            modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+        ) {
             if (!state.updateDefaultRoundsState.hasTaskFinished) {
                 Text(
                         text = stringResource(R.string.create_round__default_rounds_updating_warning),
@@ -118,7 +195,7 @@ fun NewScoreScreen(
             else {
                 SelectRoundRows(
                         state = state.selectRoundDialogState,
-                        helpListener = helpListener,
+                        helpListener = { listener(HelpShowcaseAction(it)) },
                         listener = { listener(SelectRoundDialogAction(it)) },
                 )
 
@@ -127,15 +204,25 @@ fun NewScoreScreen(
                         helpListener = { listener(HelpShowcaseAction(it)) },
                         listener = { listener(SelectFaceDialogAction(it)) },
                 )
+                if (state.isEditing && state.tooManyArrowsWarningShown) {
+                    Text(
+                            text = stringResource(
+                                    R.string.err_create_round__too_many_arrows,
+                                    state.roundBeingEdited!!.arrowsShot,
+                                    state.selectRoundDialogState.displayName!!,
+                                    state.totalArrowsInSelectedRound!!,
+                            ),
+                            color = CodexTheme.colors.errorOnAppBackground,
+                            textAlign = TextAlign.Center,
+                    )
+                }
             }
-
-            if (state.isEditing) EditingEndRows(state, listener) else NewScoreEndRows(listener)
         }
     }
 }
 
 @Composable
-private fun NewScoreEndRows(
+private fun NewScoreEndButtons(
         listener: (NewScoreIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
@@ -154,26 +241,11 @@ private fun NewScoreEndRows(
 }
 
 @Composable
-private fun EditingEndRows(
+private fun EditingEndButtons(
         state: NewScoreState,
         listener: (NewScoreIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
-    if (state.tooManyArrowsWarningShown) {
-        Text(
-                text = stringResource(
-                        R.string.err_create_round__too_many_arrows,
-                        state.roundBeingEditedArrowsShot!!,
-                        state.selectRoundDialogState.displayName!!,
-                        state.totalArrowsInSelectedRound!!,
-                ),
-                style = CodexTypography.NORMAL.copy(
-                        color = CodexTheme.colors.errorOnAppBackground,
-                        textAlign = TextAlign.Center,
-                ),
-        )
-    }
-
     Row(
             horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
@@ -218,6 +290,7 @@ private fun EditingEndRows(
 
 enum class NewScoreTestTag : CodexTestTag {
     SCREEN,
+    TYPE_SWITCH,
     DATABASE_WARNING,
     SUBMIT_BUTTON,
     CANCEL_BUTTON,
@@ -254,13 +327,22 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             RoundPreviewHelper.singleSubtypeRoundData,
     )
     val round = RoundPreviewHelper.outdoorImperialRoundData
+    private val initialState = NewScoreState(
+            selectRoundDialogState = SelectRoundDialogState(
+                    allRounds = roundsData,
+            ),
+            updateDefaultRoundsState = UpdateDefaultRoundsState.Complete(
+                    databaseVersion = 1,
+                    type = UpdateDefaultRoundsState.CompletionType.ALREADY_UP_TO_DATE
+            ),
+    )
 
     override val values = sequenceOf(
-            // No Round
-            NewScoreState(),
+            // No Round Selected
+            initialState,
 
             // Has Round
-            NewScoreState(
+            initialState.copy(
                     selectRoundDialogState = SelectRoundDialogState(
                             allRounds = roundsData,
                             selectedRoundId = round.round.roundId,
@@ -269,30 +351,29 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
 
             // Editing
-            NewScoreState(
-                    selectRoundDialogState = SelectRoundDialogState(allRounds = roundsData),
+            initialState.copy(
                     roundBeingEdited = ShootPreviewHelper.newFullShootInfo(),
             ),
 
             // DbInProgress
-            NewScoreState(
-                    selectRoundDialogState = SelectRoundDialogState(allRounds = roundsData),
+            initialState.copy(
                     updateDefaultRoundsState = UpdateDefaultRoundsState.DeletingOld(1),
             ),
 
             // TooManyArrows
-            NewScoreState(
+            initialState.copy(
                     selectRoundDialogState = SelectRoundDialogState(
                             allRounds = roundsData,
                             selectedRoundId = round.round.roundId,
                             selectedSubTypeId = round.roundSubTypes.first().subTypeId,
                     ),
-                    roundBeingEdited = ShootPreviewHelper.newFullShootInfo().addRound(round),
-                    roundBeingEditedArrowsShot = 1000,
+                    roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
+                            .addRound(round)
+                            .addIdenticalArrows(1000, 1),
             ),
 
             // Select Round Dialog
-            NewScoreState(
+            initialState.copy(
                     selectRoundDialogState = SelectRoundDialogState(
                             allRounds = roundsData,
                             isRoundDialogOpen = true,
@@ -300,13 +381,21 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             ),
 
             // Select Subtype Dialog
-            NewScoreState(
+            initialState.copy(
                     selectRoundDialogState = SelectRoundDialogState(
                             allRounds = roundsData,
                             selectedRoundId = round.round.roundId,
                             selectedSubTypeId = round.roundSubTypes.first().subTypeId,
                             isSubtypeDialogOpen = true,
                     ),
-            )
+            ),
+
+            // No Rounds in DB
+            NewScoreState(
+                    updateDefaultRoundsState = UpdateDefaultRoundsState.Complete(
+                            databaseVersion = 1,
+                            type = UpdateDefaultRoundsState.CompletionType.ALREADY_UP_TO_DATE
+                    ),
+            ),
     )
 }

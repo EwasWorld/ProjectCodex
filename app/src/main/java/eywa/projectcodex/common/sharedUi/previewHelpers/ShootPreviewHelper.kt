@@ -55,6 +55,10 @@ class ShootPreviewHelperDsl {
         }
     }
 
+    fun completeRoundWithCounter() {
+        addArrowCounter(round!!.roundArrowCounts!!.sumOf { it.arrowCount })
+    }
+
     fun completeRound(finalScore: Int) {
         val arrowCount = round!!.roundArrowCounts!!.sumOf { it.arrowCount }
         val tens = finalScore.floorDiv(10)

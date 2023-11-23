@@ -12,7 +12,10 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.*
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.AddEndSizeChanged
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.ScorePadEndSizeChanged
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.ShootDetailsAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -29,7 +32,6 @@ class ShootDetailsSettingsViewModel @Inject constructor(
     private val screen = CodexNavRoute.SHOOT_DETAILS_SETTINGS
     private val extraState = MutableStateFlow(ShootDetailsSettingsExtras())
 
-    @Suppress("UNCHECKED_CAST")
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,
