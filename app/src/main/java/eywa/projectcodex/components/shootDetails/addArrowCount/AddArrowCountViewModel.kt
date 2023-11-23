@@ -47,21 +47,19 @@ class AddArrowCountViewModel @Inject constructor(
 
     init {
         /*
-         * Monitor for add count resulting in the round being completed
+         * If there are fewer than the end size worth of arrows left in the round, return null
          */
         viewModelScope.launch {
-            var previousIsComplete: Boolean? = null
+            var previousRemainingArrows: Int? = null
             state.collect { response ->
                 val data = response.getData()
-                if (data == null || data.fullShootInfo.round == null) {
-                    previousIsComplete = null
-                    return@collect
+                val remaining = data?.fullShootInfo?.remainingArrows ?: return@collect
+
+                val size = data.endSize.parsed
+                if (previousRemainingArrows != remaining && (size == null || size > remaining)) {
+                    extraState.update { it.copy(endSize = PartialNumberFieldState("$remaining")) }
                 }
-                val isComplete = data.fullShootInfo.isRoundComplete
-                if (previousIsComplete == false && isComplete) {
-                    extraState.update { it.copy(endSize = PartialNumberFieldState("0")) }
-                }
-                previousIsComplete = isComplete
+                previousRemainingArrows = remaining
             }
         }
     }

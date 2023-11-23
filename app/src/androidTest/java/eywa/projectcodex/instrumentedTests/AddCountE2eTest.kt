@@ -230,6 +230,9 @@ class AddCountE2eTest {
                     checkTotalCount(shotCount + sightersCount)
 
                     checkInput(maxArrowCount - shotCount)
+
+                    setInputAmount(1)
+                    setInputAmount(6, "Must be between -105 and 3 (inclusive)")
                 }
             }
         }
