@@ -28,4 +28,33 @@
     <string name="archer_round_stats__no_arrows_dialog_button">Go to input end</string>
     <string name="archer_round_stats__no_round">N/A</string>
     <string name="archer_round_stats__edit_shoot_content_description">Edit round information</string>
+
+    <string name="help_archer_round_stats__hits_title">Hits</string>
+    <string name="help_archer_round_stats__hits_body">The number of arrows that have scored at least one point. If there are any misses, it will be in the form 71 (of 72), showing 72 arrows shot: 71 scoring and 1 miss</string>
+    <string name="help_archer_round_stats__golds_title">Golds</string>
+    <string name="help_archer_round_stats__golds_body">The number of golds scored. How golds are counted depends on the round being shot. "Golds" indicates 9 or better, "10s+" indicates 10s and Xs only, "Xs" indicates Xs only</string>
+    <string name="help_archer_round_stats__round_complete_title">Round complete</string>
+    <string name="help_archer_round_stats__round_complete_body">Indicates that all arrows have been added for the selected round. No more arrows can be inputted</string>
+    <string name="help_archer_round_stats__personal_best_title">Personal best</string>
+    <string name="help_archer_round_stats__personal_best_body">Indicates that this is the highest recorded score for the selected round. A tied personal best means this is the highest score recorded but the score has been achieved before</string>
+    <string name="help_archer_round_stats__round_handicap_title">Round handicap</string>
+    <string name="help_archer_round_stats__round_handicap_body">The handicap achieved for the given round and score</string>
+    <string name="help_archer_round_stats__past_records_title">Past scores</string>
+    <string name="help_archer_round_stats__past_records_body">View other scores recorded for the selected round</string>
+    <string name="help_archer_round_stats__archer_handicap_title">Archer handicap</string>
+    <string name="help_archer_round_stats__archer_handicap_body">The current handicap recorded in the \'Archer Info\' section, accessible from the main menu</string>
+    <string name="help_archer_round_stats__allowance_title">Allowance</string>
+    <string name="help_archer_round_stats__allowance_body">An allowance based on the archer handicap that is added to the score to compare it with archers of a different skill level. This is often used in ladder or league competitions so that archers of different skill levels can compete more fairly</string>
+    <string name="help_archer_round_stats__adjusted_score_title">Adjusted score</string>
+    <string name="help_archer_round_stats__adjusted_score_body">The score plus the allowance (uses predicted score if the round isn\'t finished)</string>
+    <string name="help_archer_round_stats__date_title">Date</string>
+    <string name="help_archer_round_stats__date_body">The date the round was shot</string>
+    <string name="help_archer_round_stats__round_title">Round</string>
+    <string name="help_archer_round_stats__round_body">The round being shot. This will affect how many arrows can be added, how golds are counted, and handicap calculations</string>
+    <string name="help_archer_round_stats__score_title">Score</string>
+    <string name="help_archer_round_stats__score_body">The total of all arrows entered</string>
+    <string name="help_archer_round_stats__remaining_arrows_title">Remaining arrows</string>
+    <string name="help_archer_round_stats__remaining_arrows_body">The number of arrows that still need to be shot to complete the round</string>
+    <string name="help_archer_round_stats__predicted_score_title">Predicted score</string>
+    <string name="help_archer_round_stats__predicted_score_body">Predicts the final score for the round based on the current round handicap</string>
 </resources>

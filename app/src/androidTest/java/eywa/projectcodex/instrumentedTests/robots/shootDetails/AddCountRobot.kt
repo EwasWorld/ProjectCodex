@@ -67,6 +67,7 @@ class AddCountRobot(
 
     fun checkSightersCount(count: Int?) {
         perform {
+            useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.SIGHTERS_COUNT)
             if (count == null) +CodexNodeInteraction.AssertDoesNotExist()
             else +CodexNodeInteraction.AssertTextEquals("Sighters: $count")
@@ -75,6 +76,7 @@ class AddCountRobot(
 
     fun checkShotCount(count: Int) {
         perform {
+            useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.SHOT_COUNT)
             +CodexNodeInteraction.AssertTextEquals(count.toString())
         }
@@ -82,6 +84,7 @@ class AddCountRobot(
 
     fun checkTotalCount(count: Int?) {
         perform {
+            useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.TOTAL_COUNT)
             if (count == null) +CodexNodeInteraction.AssertDoesNotExist()
             else +CodexNodeInteraction.AssertTextEquals("Total: $count")

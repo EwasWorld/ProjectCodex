@@ -39,6 +39,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
@@ -159,6 +161,8 @@ private fun StatsScreen(
         modifier: Modifier = Modifier,
         listener: (StatsIntent) -> Unit,
 ) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
@@ -170,11 +174,11 @@ private fun StatsScreen(
             NewScoreSection(
                     fullShootInfo = state.fullShootInfo,
                     editClickedListener = { listener(EditShootClicked) },
-                    helpListener = { listener(HelpShowcaseAction(it)) },
+                    helpListener = helpListener,
             )
-            HsgSection(state)
+            HsgSection(state, helpListener)
 
-            RoundStatsSection(state)
+            RoundStatsSection(state, helpListener)
             PastRecordsSection(state, listener)
             AllowanceSection(state, listener)
 
@@ -232,6 +236,11 @@ fun NewScoreSection(
         DataRow(
                 title = stringResource(R.string.archer_round_stats__date),
                 text = DateTimeFormat.LONG_DATE_TIME.format(fullShootInfo.shoot.dateShot),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_archer_round_stats__date_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__date_body),
+                ),
                 textModifier = Modifier.testTag(DATE_TEXT.getTestTag()),
         )
         DataRow(
@@ -239,6 +248,11 @@ fun NewScoreSection(
                 text = fullShootInfo.displayName
                         ?: stringResource(R.string.archer_round_stats__no_round),
                 textModifier = Modifier.testTag(ROUND_TEXT.getTestTag()),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_archer_round_stats__round_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__round_body),
+                ),
         )
         SelectFaceRow(
                 selectedFaces = fullShootInfo.faces,
@@ -251,6 +265,7 @@ fun NewScoreSection(
 @Composable
 private fun HsgSection(
         state: StatsState,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val hits = state.fullShootInfo.hits
     val arrowsShot = state.fullShootInfo.arrowsShot
@@ -262,16 +277,31 @@ private fun HsgSection(
                         if (hits == arrowsShot) hits.toString()
                         else stringResource(R.string.archer_round_stats__hits_of, hits, arrowsShot)
                         ),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_archer_round_stats__hits_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__hits_body),
+                ),
                 textModifier = Modifier.testTag(HITS_TEXT.getTestTag()),
         )
         DataRow(
                 title = stringResource(R.string.archer_round_stats__score),
                 text = state.fullShootInfo.score.toString(),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_archer_round_stats__score_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__score_body),
+                ),
                 textModifier = Modifier.testTag(SCORE_TEXT.getTestTag()),
         )
         DataRow(
                 title = stringResource(state.fullShootInfo.goldsType.longStringId) + ":",
                 text = state.fullShootInfo.golds().toString(),
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_archer_round_stats__golds_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__golds_body),
+                ),
                 textModifier = Modifier.testTag(GOLDS_TEXT.getTestTag()),
         )
     }
@@ -280,6 +310,7 @@ private fun HsgSection(
 @Composable
 private fun RoundStatsSection(
         state: StatsState,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     if (state.fullShootInfo.round == null) return
 
@@ -289,15 +320,29 @@ private fun RoundStatsSection(
             Text(
                     text = stringResource(R.string.input_end__round_complete),
                     style = style(),
-                    modifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag())
+                    modifier = Modifier
+                            .testTag(REMAINING_ARROWS_TEXT.getTestTag())
+                            .updateHelpDialogPosition(
+                                    HelpState(
+                                            helpListener = helpListener,
+                                            helpTitle = stringResource(R.string.help_archer_round_stats__round_complete_title),
+                                            helpBody = stringResource(R.string.help_archer_round_stats__round_complete_body),
+                                    ),
+                            )
             )
         }
         else {
-            val heading = if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
-            else R.string.archer_round_stats__surplus_arrows
             DataRow(
-                    title = stringResource(heading),
+                    title = stringResource(
+                            if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
+                            else R.string.archer_round_stats__surplus_arrows
+                    ),
                     text = abs(remaining).toString(),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_archer_round_stats__remaining_arrows_title),
+                            helpBody = stringResource(R.string.help_archer_round_stats__remaining_arrows_body),
+                    ),
                     textModifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag()),
             )
         }
@@ -314,12 +359,24 @@ private fun RoundStatsSection(
                             .background(color = CodexTheme.colors.personalBestTag, shape = RoundedCornerShape(100))
                             .padding(horizontal = 10.dp)
                             .testTag(PB_TEXT.getTestTag())
+                            .updateHelpDialogPosition(
+                                    HelpState(
+                                            helpListener = helpListener,
+                                            helpTitle = stringResource(R.string.help_archer_round_stats__personal_best_title),
+                                            helpBody = stringResource(R.string.help_archer_round_stats__personal_best_body),
+                                    ),
+                            )
             )
         }
         if (state.fullShootInfo.handicap != null) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__handicap),
                     text = state.fullShootInfo.handicap.toString(),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_archer_round_stats__round_handicap_title),
+                            helpBody = stringResource(R.string.help_archer_round_stats__round_handicap_body),
+                    ),
                     textModifier = Modifier.testTag(HANDICAP_TEXT.getTestTag()),
             )
         }
@@ -327,6 +384,11 @@ private fun RoundStatsSection(
             DataRow(
                     title = stringResource(R.string.archer_round_stats__predicted_score),
                     text = state.fullShootInfo.predictedScore.toString(),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_archer_round_stats__predicted_score_title),
+                            helpBody = stringResource(R.string.help_archer_round_stats__predicted_score_body),
+                    ),
                     textModifier = Modifier.testTag(PREDICTED_SCORE_TEXT.getTestTag()),
             )
         }
@@ -339,6 +401,7 @@ private fun AllowanceSection(
         listener: (StatsIntent) -> Unit,
 ) {
     if (state.fullShootInfo.round == null || state.allowance == null) return
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Section {
         EditBox(
@@ -348,17 +411,32 @@ private fun AllowanceSection(
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_handicap),
                     text = state.archerHandicap.toString(),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_archer_round_stats__archer_handicap_title),
+                            helpBody = stringResource(R.string.help_archer_round_stats__archer_handicap_body),
+                    ),
                     textModifier = Modifier.testTag(ARCHER_HANDICAP_TEXT.getTestTag()),
             )
             DataRow(
                     title = stringResource(R.string.archer_round_stats__allowance),
                     text = state.allowance.toString(),
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_archer_round_stats__allowance_title),
+                            helpBody = stringResource(R.string.help_archer_round_stats__allowance_body),
+                    ),
                     textModifier = Modifier.testTag(ALLOWANCE_TEXT.getTestTag()),
             )
             if (state.adjustedFinalScore != null) {
                 DataRow(
                         title = stringResource(R.string.archer_round_stats__adjusted_score),
                         text = (state.adjustedFinalScore).toString(),
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_archer_round_stats__adjusted_score_title),
+                                helpBody = stringResource(R.string.help_archer_round_stats__adjusted_score_body),
+                        ),
                         textModifier = Modifier.testTag(ADJUSTED_SCORE_TEXT.getTestTag()),
                 )
             }
@@ -366,6 +444,11 @@ private fun AllowanceSection(
                 DataRow(
                         title = stringResource(R.string.archer_round_stats__predicted_adjusted_score),
                         text = state.predictedAdjustedScore.toString(),
+                        helpState = HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_archer_round_stats__adjusted_score_title),
+                                helpBody = stringResource(R.string.help_archer_round_stats__adjusted_score_body),
+                        ),
                         textModifier = Modifier.testTag(ADJUSTED_SCORE_TEXT.getTestTag()),
                 )
             }
@@ -379,6 +462,7 @@ private fun PastRecordsSection(
         listener: (StatsIntent) -> Unit,
 ) {
     if (state.pastRoundRecords.isNullOrEmpty()) return
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Section {
         Text(
@@ -387,6 +471,13 @@ private fun PastRecordsSection(
                 modifier = Modifier
                         .clickable { listener(PastRoundRecordsClicked) }
                         .testTag(PAST_RECORDS_LINK_TEXT.getTestTag())
+                        .updateHelpDialogPosition(
+                                HelpState(
+                                        helpListener = helpListener,
+                                        helpTitle = stringResource(R.string.help_archer_round_stats__past_records_title),
+                                        helpBody = stringResource(R.string.help_archer_round_stats__past_records_body),
+                                ),
+                        )
         )
     }
 

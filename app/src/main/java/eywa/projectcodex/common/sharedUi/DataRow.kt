@@ -27,21 +27,21 @@ fun DataRow(
         onClick: (() -> Unit)? = null,
         onClickLabel: String? = null,
         accessibilityRole: Role? = null,
-        style: TextStyle = LocalTextStyle.current,
+        textStyle: TextStyle = LocalTextStyle.current,
+        titleStyle: TextStyle = textStyle,
 ) = DataRow(
         title = title,
         helpState = helpState,
-        style = style,
+        style = titleStyle,
         modifier = modifier.clearAndSetSemantics {
             contentDescription = "$text $title"
             onClick?.let { onClick(onClickLabel) { onClick(); true } }
             accessibilityRole?.let { role = accessibilityRole }
         },
 ) {
-    val finalStyle = if (onClick == null) style else style.asClickableStyle()
     Text(
             text = text,
-            style = finalStyle,
+            style = if (onClick == null) textStyle else textStyle.asClickableStyle(),
             modifier = textModifier.modifierIf(
                     onClick != null,
                     Modifier.clickable { onClick!!.invoke() }

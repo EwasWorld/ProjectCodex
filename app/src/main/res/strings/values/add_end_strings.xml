@@ -46,19 +46,17 @@
     <string name="help_input_end__end_inputs_total_title">End total</string>
     <string name="help_input_end__end_inputs_total_body">The score for the current end</string>
     <string name="help_input_end__end_inputs_arrows_title">End</string>
-    <string name="help_input_end__end_inputs_arrows_body">Individual arrow values for the current end</string>
+    <string name="help_input_end__end_inputs_arrows_body">Individual arrow values for the current end. Note: \'X\' on a standard target face is the inner most ring</string>
     <string name="help_input_end__end_inputs_clear_title">Clear</string>
     <string name="help_input_end__end_inputs_clear_body">Removes all arrows from the current end</string>
     <string name="help_input_end__end_inputs_backspace_title">Backspace</string>
     <string name="help_input_end__end_inputs_backspace_body">Deletes the last arrow inputted on the current end</string>
     <string name="help_input_end__end_inputs_reset_title">Reset</string>
     <string name="help_input_end__end_inputs_reset_body">Resets all edits to the current end</string>
-
-    <string name="help_input_end__indicator_title">Current score</string>
-    <string name="help_input_end__indicator_body">Click to open the score pad. Displays running totals for the current round. Does not include the end currently being inputted</string>
-
-    <string name="help_input_end__remaining_arrows_title">Round information</string>
-    <string name="help_input_end__remaining_arrows_body">Shows how many arrows remain for each distance in the current round</string>
+    <string name="help_input_end__summary_table_title">Summary</string>
+    <string name="help_input_end__summary_table_body">Indicates the current score and number of arrows shot. Does not include the end currently being entered</string>
+    <string name="help_input_end__remaining_arrows_title">Remaining arrows</string>
+    <string name="help_input_end__remaining_arrows_body">Indicates the number of arrows remaining at each distance. The first distance is the one currently being shot at</string>
     <string name="help_input_end__next_end_title">Next end</string>
     <string name="help_input_end__next_end_body">Saves the currently inputted end and moves on to the next end</string>
 

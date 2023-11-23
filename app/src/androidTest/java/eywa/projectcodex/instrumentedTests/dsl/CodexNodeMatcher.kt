@@ -55,7 +55,7 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher {
             val text = testTag.getTestTag()
             return SemanticsMatcher(
-                    "${SemanticsProperties.Error.name} = '$text' (substring: $substring)"
+                    "${SemanticsProperties.TestTag.name} = '$text' (substring: $substring)"
             ) { node ->
                 node.config
                         .getOrNull(SemanticsProperties.TestTag)

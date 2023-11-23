@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_count__title">Add arrow count</string>
-    <string name="add_count__sighters">Sighters: %d</string>
+    <string name="add_count__sighters">Sighters:</string>
     <string name="add_count__shot">Shot:</string>
-    <string name="add_count__total">Total: %d</string>
+    <string name="add_count__total">Total:</string>
     <string name="add_count__round_complete">Round complete</string>
     <string name="add_count__add_count_input_desc">End size</string>
     <string name="add_count__increase_add_count_desc">Increase by one</string>
     <string name="add_count__decrease_add_count_desc">Decrease by one</string>
+    <string name="add_count__set_add_count_to_desc">Set to %d</string>
     <string name="add_count__submit">Add</string>
+
+    <string name="help_add_count__shot_title">Shot count</string>
+    <string name="help_add_count__shot_body">The number of arrows shot (does not include sighters)</string>
+    <string name="help_add_count__sighters_title">Sighters</string>
+    <string name="help_add_count__sighters_body">The number of arrows shot to warm up before a round</string>
+    <string name="help_add_count__total_title">Total</string>
+    <string name="help_add_count__total_body">The total number of arrows shot including sighters</string>
+    <string name="help_add_count__end_size_title">End size</string>
+    <string name="help_add_count__end_size_body">The amount to increase the shot count by when \'Add\' is pressed</string>
+    <string name="help_add_count__submit_title">Add</string>
+    <string name="help_add_count__submit_body">Adds the number entered to the shot count</string>
 </resources>

@@ -32,7 +32,7 @@ class AddArrowCountViewModel @Inject constructor(
         savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
-    private val screen = CodexNavRoute.SHOOT_DETAILS_EDIT_END
+    private val screen = CodexNavRoute.SHOOT_DETAILS_ADD_COUNT
     private val extraState = MutableStateFlow(AddArrowCountExtras())
 
     val state = repo.getState(

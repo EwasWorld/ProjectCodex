@@ -148,7 +148,7 @@ private fun RoundInfoHints(
                         helpBody = stringResource(R.string.help_create_round__arrow_count_indicator_body),
                         helpListener = helpListener,
                 ),
-                style = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+                titleStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
         )
     }
     roundSubtypeDistances?.takeIf { it.isNotEmpty() }?.let { distances ->
@@ -162,7 +162,7 @@ private fun RoundInfoHints(
                         helpBody = stringResource(R.string.help_create_round__distance_indicator_body),
                         helpListener = helpListener,
                 ),
-                style = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+                titleStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
         )
     }
     if (arrowCounts != null) {
@@ -176,7 +176,7 @@ private fun RoundInfoHints(
                         helpBody = stringResource(R.string.help_create_round__face_size_indicator_body),
                         helpListener = helpListener,
                 ),
-                style = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+                titleStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
         )
     }
 }

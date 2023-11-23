@@ -16,7 +16,7 @@ fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
         modifierIfNotNull(helpState) { state ->
             // Null pointer causing a crash, not sure how when modifierIf mean this is skipped when null
             state.add()
-            onGloballyPositioned {
+            Modifier.onGloballyPositioned {
                 state.helpListener(UpdateCoordinates(state.helpShowcaseItem.helpTitle, it))
             }
         }

@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.SimpleDialog
@@ -52,8 +55,6 @@ import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePrevi
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsScaffold
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.model.FullShootInfo
-
-// TODO_CURRENT Help info for table and remaining arrows
 
 @Composable
 fun AddEndScreen(
@@ -100,6 +101,8 @@ private fun AddEndScreen(
         modifier: Modifier = Modifier,
         listener: (AddEndIntent) -> Unit,
 ) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
     ArrowInputsScaffold(
             state = state,
             showCancelButton = false,
@@ -113,10 +116,11 @@ private fun AddEndScreen(
             listener = { listener(ArrowInputsAction(it)) },
     ) {
         ScoreIndicator(
-                state.fullShootInfo.score,
-                state.fullShootInfo.arrowsShot,
+                totalScore = state.fullShootInfo.score,
+                arrowsShot = state.fullShootInfo.arrowsShot,
+                helpListener = helpListener,
         )
-        RemainingArrowsIndicator(state.fullShootInfo)
+        RemainingArrowsIndicator(state.fullShootInfo, helpListener)
         Spacer(modifier = Modifier.size(DpSize.Zero))
     }
 
@@ -151,9 +155,18 @@ private fun AddEndScreen(
 private fun ScoreIndicator(
         totalScore: Int,
         arrowsShot: Int,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
-    Row {
+    Row(
+            modifier = Modifier.updateHelpDialogPosition(
+                    HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_input_end__summary_table_title),
+                            helpBody = stringResource(R.string.help_input_end__summary_table_body),
+                    )
+            )
+    ) {
         Column(
                 modifier = Modifier.width(IntrinsicSize.Max)
         ) {
@@ -222,6 +235,7 @@ private fun ScoreIndicatorCell(
 @Composable
 fun RemainingArrowsIndicator(
         fullShootInfo: FullShootInfo,
+        helpListener: (HelpShowcaseIntent) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     fullShootInfo.remainingArrowsAtDistances?.let {
@@ -236,7 +250,13 @@ fun RemainingArrowsIndicator(
 
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier
+                modifier = modifier.updateHelpDialogPosition(
+                        HelpState(
+                                helpListener = helpListener,
+                                helpTitle = stringResource(R.string.help_input_end__remaining_arrows_title),
+                                helpBody = stringResource(R.string.help_input_end__remaining_arrows_body),
+                        )
+                )
         ) {
             Text(
                     text = stringResource(R.string.input_end__round_indicator_label),
