@@ -41,6 +41,6 @@ data class DatabaseShoot(
         @ColumnInfo(defaultValue = "0") val joinWithPrevious: Boolean = false,
 ) {
     companion object {
-        const val TABLE_NAME = "archer_rounds"
+        const val TABLE_NAME = "shoots"
     }
 }

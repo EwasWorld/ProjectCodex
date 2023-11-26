@@ -343,6 +343,7 @@ object DatabaseMigrations {
     ) {
         CustomLogger.customLogger.i(MIGRATION_LOG_TAG, "migrating from $startVersion to $endVersion")
         for (sqlStatement in sqlStrings) {
+            CustomLogger.customLogger.d(MIGRATION_LOG_TAG, sqlStatement)
             database.execSQL(sqlStatement.trimIndent().replace("\\n", ""))
         }
     }

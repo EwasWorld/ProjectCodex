@@ -3,7 +3,6 @@ package eywa.projectcodex.database.migrations
 import androidx.room.ForeignKey
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import eywa.projectcodex.database.migrations.DbMigrationDsl.CreateTableDsl.ColumnType.INTEGER
 
 @DslMarker
 annotation class DbMigrationDslMarker
@@ -36,10 +35,14 @@ class DbMigrationDsl {
         sqlStrings.add("ALTER TABLE `$tableName` ADD ${column.getDefinition()}")
     }
 
+    fun renameColumn(tableName: String, oldColumnName: String, newColumnName: String) {
+        sqlStrings.add("ALTER TABLE `$tableName` RENAME COLUMN $oldColumnName TO $newColumnName")
+    }
+
     class TableColumn(
             private val name: String,
             private val type: CreateTableDsl.ColumnType,
-            private val isNullable: Boolean = false,
+            private val nullable: Boolean = false,
             private val default: String? = null,
             private val indexed: Boolean = false,
     ) {
@@ -50,7 +53,7 @@ class DbMigrationDsl {
                 "`$name`",
                 type.name,
                 default?.let { "DEFAULT $default" },
-                if (isNullable) null else "NOT NULL",
+                if (nullable) null else "NOT NULL",
         ).joinToString(" ")
 
         /**
@@ -83,8 +86,9 @@ class DbMigrationDsl {
             fun Int.asTypeString() = when (this) {
                 ForeignKey.CASCADE -> "CASCADE"
                 ForeignKey.NO_ACTION -> "NO ACTION"
+                ForeignKey.SET_NULL -> "SET NULL"
                 else -> throw IllegalArgumentException()
-            }//.let { "'$it'" }
+            }
         }
     }
 
@@ -108,7 +112,7 @@ class DbMigrationDsl {
             primaryKey = "PRIMARY KEY(`$columnName`)"
         }
 
-        fun compositePrimaryKey(columnNames: List<String>) {
+        fun compositePrimaryKey(vararg columnNames: String) {
             primaryKey = "CONSTRAINT PK_$tableName PRIMARY KEY (${columnNames.joinToString()})"
         }
 
@@ -117,11 +121,18 @@ class DbMigrationDsl {
             return listOf("CREATE TABLE `$tableName` ($items)").plus(indexes)
         }
 
-        /**
-         * Use [INTEGER] for Calendar
-         */
         enum class ColumnType {
-            INTEGER, TEXT, REAL
+            INTEGER,
+            TEXT,
+            REAL,
+            ;
+
+            companion object {
+                val CALENDAR = INTEGER
+                val ENUM = INTEGER
+                val BOOLEAN = INTEGER
+                val LIST = TEXT
+            }
         }
     }
 
