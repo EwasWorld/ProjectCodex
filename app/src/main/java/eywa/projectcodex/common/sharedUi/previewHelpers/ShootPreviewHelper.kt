@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
+import eywa.projectcodex.common.utils.CodexPreviewHelperDsl
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -12,10 +13,8 @@ import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import java.util.Calendar
 
-@DslMarker
-annotation class ShootDslMarker
 
-@ShootDslMarker
+@CodexPreviewHelperDsl
 class ShootPreviewHelperDsl {
     var shoot = DatabaseShoot(shootId = 1, dateShot = Calendar.getInstance())
     var round: FullRoundInfo? = null

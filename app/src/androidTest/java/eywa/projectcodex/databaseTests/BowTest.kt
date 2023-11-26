@@ -3,7 +3,9 @@ package eywa.projectcodex.databaseTests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.bow.BowRepo
 import eywa.projectcodex.database.bow.DatabaseBow
+import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -20,14 +22,12 @@ class BowTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var db: ScoresRoomDatabase
+    private lateinit var bowRepo: BowRepo
 
     @Before
     fun createDb() {
         db = DatabaseTestUtils.createDatabase()
-
-        runBlocking {
-            db.insertDefaults()
-        }
+        bowRepo = db.bowRepo()
     }
 
     @After
@@ -38,17 +38,31 @@ class BowTest {
 
     @Test
     fun testGetDefaultBow() = runBlocking {
-        val defaultBowId = -1
+        assertEquals(
+                emptyList<DatabaseBow>(),
+                db.bowDao().getAllBows().first(),
+        )
+
+        bowRepo.insertDefaultBowIfNotExist()
+        assertEquals(
+                listOf(DatabaseBowPreviewHelper.default),
+                db.bowDao().getAllBows().first(),
+        )
+
+        bowRepo.insertDefaultBowIfNotExist()
+        assertEquals(
+                listOf(DatabaseBowPreviewHelper.default),
+                db.bowDao().getAllBows().first(),
+        )
+
         val bows = listOf(
-                DatabaseBow(id = defaultBowId, name = "Default", isSightMarkDiagramHighestAtTop = false),
+                DatabaseBowPreviewHelper.default,
                 DatabaseBow(id = 1, name = "One", isSightMarkDiagramHighestAtTop = true),
                 DatabaseBow(id = 2, name = "Two", isSightMarkDiagramHighestAtTop = false),
         )
 
-        bows.forEach {
-            if (it.id != defaultBowId) {
-                db.bowDao().insert(it.copy(id = 0))
-            }
+        bows.drop(1).forEach {
+            db.bowDao().insert(it.copy(id = 0))
         }
 
         assertEquals(bows.toSet(), db.bowDao().getAllBows().first().toSet())

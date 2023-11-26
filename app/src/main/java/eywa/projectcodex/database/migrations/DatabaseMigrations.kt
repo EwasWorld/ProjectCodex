@@ -1,4 +1,4 @@
-package eywa.projectcodex.database
+package eywa.projectcodex.database.migrations
 
 import androidx.room.DeleteColumn
 import androidx.room.migration.AutoMigrationSpec
@@ -337,7 +337,7 @@ object DatabaseMigrations {
     @DeleteColumn(tableName = "rounds", columnName = "permittedFaces")
     class Migration9To10 : AutoMigrationSpec
 
-    private fun executeMigrations(
+    internal fun executeMigrations(
             sqlStrings: List<String>, database: SupportSQLiteDatabase,
             startVersion: Int, endVersion: Int
     ) {

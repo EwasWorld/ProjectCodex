@@ -1,4 +1,4 @@
-package eywa.projectcodex.databaseTests
+package eywa.projectcodex.databaseTests.migrationTests
 
 import android.content.ContentValues
 import android.database.Cursor
@@ -8,8 +8,8 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import eywa.projectcodex.database.DatabaseMigrations
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.migrations.DatabaseMigrations
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Ignore
@@ -24,9 +24,9 @@ import org.junit.runner.RunWith
  * (i.e. from version 1 through to the current versions)
  */
 @RunWith(AndroidJUnit4::class)
-class MigrationTests {
+class GeneralMigrationTests {
     companion object {
-        private const val TEST_DB_NAME = "migration-test"
+        internal const val TEST_DB_NAME = "migration-test"
     }
 
     @get:Rule
