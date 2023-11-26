@@ -1,7 +1,7 @@
 package eywa.projectcodex.model
 
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
-import java.util.*
+import java.util.Calendar
 
 data class SightMark(
         val id: Int,
@@ -16,7 +16,7 @@ data class SightMark(
         val bowId: Int? = null,
 ) {
     constructor(dbSightMark: DatabaseSightMark) : this(
-            id = dbSightMark.id,
+            id = dbSightMark.sightMarkId,
             bowId = dbSightMark.bowId,
             distance = dbSightMark.distance,
             isMetric = dbSightMark.isMetric,
@@ -29,7 +29,7 @@ data class SightMark(
     )
 
     fun asDatabaseSightMark() = DatabaseSightMark(
-            id = id,
+            sightMarkId = id,
             bowId = bowId,
             distance = distance,
             isMetric = isMetric,

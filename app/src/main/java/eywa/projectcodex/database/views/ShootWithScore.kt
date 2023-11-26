@@ -6,7 +6,7 @@ import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
-import java.util.*
+import java.util.Calendar
 
 @DatabaseView(
         value = """
@@ -48,7 +48,7 @@ data class ShootWithScore(
         val joinedDate: Calendar,
 ) {
     companion object {
-        const val TABLE_NAME = "completed_round_scores"
+        const val TABLE_NAME = "shoots_with_score"
     }
 }
 

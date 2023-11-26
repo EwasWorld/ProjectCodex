@@ -18,7 +18,7 @@ import java.util.Calendar
         foreignKeys = [
             ForeignKey(
                     entity = DatabaseBow::class,
-                    parentColumns = ["id"],
+                    parentColumns = ["bowId"],
                     childColumns = ["bowId"],
                     onDelete = ForeignKey.SET_NULL,
             ),

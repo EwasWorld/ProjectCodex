@@ -57,12 +57,12 @@ class BowTest {
 
         val bows = listOf(
                 DatabaseBowPreviewHelper.default,
-                DatabaseBow(id = 1, name = "One", isSightMarkDiagramHighestAtTop = true),
-                DatabaseBow(id = 2, name = "Two", isSightMarkDiagramHighestAtTop = false),
+                DatabaseBow(bowId = 1, name = "One", isSightMarkDiagramHighestAtTop = true),
+                DatabaseBow(bowId = 2, name = "Two", isSightMarkDiagramHighestAtTop = false),
         )
 
         bows.drop(1).forEach {
-            db.bowDao().insert(it.copy(id = 0))
+            db.bowDao().insert(it.copy(bowId = 0))
         }
 
         assertEquals(bows.toSet(), db.bowDao().getAllBows().first().toSet())

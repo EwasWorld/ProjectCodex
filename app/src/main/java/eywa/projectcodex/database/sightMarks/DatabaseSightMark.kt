@@ -7,21 +7,21 @@ import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark.Companion.TABLE_NAME
-import java.util.*
+import java.util.Calendar
 
 @Entity(
         tableName = TABLE_NAME,
         foreignKeys = [
             ForeignKey(
                     entity = DatabaseBow::class,
-                    parentColumns = ["id"],
+                    parentColumns = ["bowId"],
                     childColumns = ["bowId"],
                     onDelete = CASCADE,
             ),
         ],
 )
 data class DatabaseSightMark(
-        @PrimaryKey(autoGenerate = true) val id: Int,
+        @PrimaryKey(autoGenerate = true) val sightMarkId: Int,
         @ColumnInfo(index = true) val bowId: Int?,
         val distance: Int,
         val isMetric: Boolean,

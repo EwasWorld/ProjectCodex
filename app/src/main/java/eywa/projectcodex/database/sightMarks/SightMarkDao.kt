@@ -12,13 +12,13 @@ interface SightMarkDao {
     @Query("SELECT * FROM $TABLE_NAME")
     fun getAllSightMarks(): Flow<List<DatabaseSightMark>>
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE id = :id")
+    @Query("SELECT * FROM $TABLE_NAME WHERE sightMarkId = :id")
     fun getSightMark(id: Int): Flow<DatabaseSightMark>
 
     @Query("UPDATE $TABLE_NAME SET isArchived = 1")
     suspend fun archiveAll()
 
-    @Query("DELETE FROM $TABLE_NAME WHERE id = :id")
+    @Query("DELETE FROM $TABLE_NAME WHERE sightMarkId = :id")
     suspend fun deleteRound(id: Int)
 
     @Update

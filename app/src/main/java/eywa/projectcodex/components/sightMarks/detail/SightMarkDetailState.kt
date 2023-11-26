@@ -6,7 +6,8 @@ import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.model.SightMark
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 data class SightMarkDetailState(
         val distance: String = "",
@@ -33,7 +34,7 @@ data class SightMarkDetailState(
     val isFormValid = parsedDistance != null && parsedSightMark != null
 
     fun asDatabaseSightMark() = DatabaseSightMark(
-            id = originalSightMark?.id ?: 0,
+            sightMarkId = originalSightMark?.id ?: 0,
             bowId = DEFAULT_BOW_ID,
             distance = parsedDistance!!,
             isMetric = isMetric,

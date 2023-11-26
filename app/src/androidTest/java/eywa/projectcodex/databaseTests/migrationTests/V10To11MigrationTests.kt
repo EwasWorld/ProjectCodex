@@ -62,7 +62,7 @@ class V10To11MigrationTests {
         response.moveToFirst()
 
         val newValues = mapOf(
-                "id" to 1,
+                "bowId" to 1,
                 "isSightMarkDiagramHighestAtTop" to 0,
                 "name" to "Default",
                 "description" to null,

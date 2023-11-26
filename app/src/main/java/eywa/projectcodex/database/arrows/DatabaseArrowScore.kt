@@ -39,7 +39,7 @@ data class DatabaseArrowScore(
     }
 
     companion object {
-        const val TABLE_NAME = "arrow_values"
+        const val TABLE_NAME = "arrow_scores"
     }
 }
 

@@ -8,7 +8,7 @@ import eywa.projectcodex.database.bow.DatabaseBow.Companion.TABLE_NAME
 
 @Entity(tableName = TABLE_NAME)
 data class DatabaseBow(
-        @PrimaryKey(autoGenerate = true) val id: Int,
+        @PrimaryKey(autoGenerate = true) val bowId: Int,
         @ColumnInfo(defaultValue = "Default") val name: String,
         @ColumnInfo(defaultValue = "NULL") val description: String? = null,
         val type: ClassificationBow = ClassificationBow.RECURVE,

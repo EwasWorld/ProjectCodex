@@ -14,27 +14,28 @@ val MIGRATION_10_11 = DbMigrationDsl.createMigration(10, 11) {
     shootSubTablesMigration()
     shootMigration()
     arrowMigration()
+    renameColumn("sight_marks", "id", "sightMarkId")
 
     createViews()
 }
 
 private fun DbMigrationDsl.bowMigration() {
+    renameColumn("bows", "id", "bowId")
     renameTable("bows", "bows_old")
 
     createTable("bows") {
-        // TODO Rename id to bowId
-        addColumn(TableColumn("id", ColumnType.INTEGER))
+        addColumn(TableColumn("bowId", ColumnType.INTEGER))
         addColumn(TableColumn("name", ColumnType.TEXT, default = "'Default'"))
         addColumn(TableColumn("description", ColumnType.TEXT, nullable = true, default = "NULL"))
         addColumn(TableColumn("type", ColumnType.ENUM))
         addColumn(TableColumn("isSightMarkDiagramHighestAtTop", ColumnType.BOOLEAN))
-        singlePrimaryKey("id")
+        singlePrimaryKey("bowId")
     }
 
     customQuery(
             """
-                INSERT INTO `bows` (`id`, `name`, `description`, `type`, `isSightMarkDiagramHighestAtTop`)
-                SELECT `id`, "Default", NULL, 0, `isSightMarkDiagramHighestAtTop` 
+                INSERT INTO `bows` (`bowId`, `name`, `description`, `type`, `isSightMarkDiagramHighestAtTop`)
+                SELECT `bowId`, "Default", NULL, 0, `isSightMarkDiagramHighestAtTop` 
                 FROM bows_old;
             """
     )
@@ -146,7 +147,7 @@ private fun DbMigrationDsl.shootMigration() {
         addForeignKey(
                 TableForeignKey(
                         foreignTableName = "bows",
-                        foreignTableColumn = listOf("id"),
+                        foreignTableColumn = listOf("bowId"),
                         tableColumn = listOf("bowId"),
                         onDelete = ForeignKey.SET_NULL,
                 )
@@ -180,8 +181,7 @@ private fun DbMigrationDsl.arrowMigration() {
         )
     }
 
-    renameTable("arrow_values", "arrow_values_old")
-    createTable("arrow_values") {
+    createTable("arrow_scores") {
         addColumn(TableColumn("shootId", ColumnType.INTEGER))
         addColumn(TableColumn("arrowNumber", ColumnType.INTEGER))
         addColumn(TableColumn("score", ColumnType.INTEGER))
@@ -198,16 +198,16 @@ private fun DbMigrationDsl.arrowMigration() {
         )
     }
     // TODO Move data
-    dropTable("arrow_values_old")
+    dropTable("arrow_values")
 }
 
 // TODO Db schema for 10 needs rerecording, I'm pretty sure it's not up to date
 // Note the view migration seems to be sensitive to whitespace changes, copy directly from new schema
 private fun DbMigrationDsl.createViews() {
     customQuery(
-            "CREATE VIEW `completed_round_scores` AS SELECT \n                    shoot.*, \n                    arrows.score,\n                    shootRound.roundId,\n                    (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,\n                    ((NOT shootRound.roundId IS NULL) AND arrows.count = roundCount.count) as isComplete,\n                    ( \n                        -- Find the latest date earlier than or equal to this one that doesn't join with previous\n                        -- This will be the first round (inclusive) in the sequence\n                        SELECT MAX(dateShot)\n                        FROM shoots\n                        WHERE dateShot <= shoot.dateShot AND NOT joinWithPrevious\n                    ) as joinedDate\n                FROM shoots as shoot\n                LEFT JOIN shoot_rounds as shootRound \n                        ON shootRound.shootId = shoot.shootId\n                LEFT JOIN (\n                    SELECT SUM(arrowCount) as count, roundId\n                    FROM round_arrow_counts\n                    GROUP BY roundId\n                ) as roundCount ON shootRound.roundId = roundCount.roundId\n                LEFT JOIN (\n                    SELECT COUNT(*) as count, SUM(score) as score, shootId\n                    FROM arrow_values\n                    GROUP BY shootId\n                ) as arrows ON shoot.shootId = arrows.shootId"
+            "CREATE VIEW `shoots_with_score` AS SELECT \n                    shoot.*, \n                    arrows.score,\n                    shootRound.roundId,\n                    (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,\n                    ((NOT shootRound.roundId IS NULL) AND arrows.count = roundCount.count) as isComplete,\n                    ( \n                        -- Find the latest date earlier than or equal to this one that doesn't join with previous\n                        -- This will be the first round (inclusive) in the sequence\n                        SELECT MAX(dateShot)\n                        FROM shoots\n                        WHERE dateShot <= shoot.dateShot AND NOT joinWithPrevious\n                    ) as joinedDate\n                FROM shoots as shoot\n                LEFT JOIN shoot_rounds as shootRound \n                        ON shootRound.shootId = shoot.shootId\n                LEFT JOIN (\n                    SELECT SUM(arrowCount) as count, roundId\n                    FROM round_arrow_counts\n                    GROUP BY roundId\n                ) as roundCount ON shootRound.roundId = roundCount.roundId\n                LEFT JOIN (\n                    SELECT COUNT(*) as count, SUM(score) as score, shootId\n                    FROM arrow_scores\n                    GROUP BY shootId\n                ) as arrows ON shoot.shootId = arrows.shootId"
     )
     customQuery(
-            "CREATE VIEW `personal_bests` AS SELECT\n                    pbs.roundId as roundId,\n                    pbs.roundSubTypeId as roundSubTypeId,\n                    pbs.pbScore as score,\n                    COUNT(*) > 1 as isTiedPb\n                FROM completed_round_scores as shoot\n                LEFT JOIN (\n                    SELECT\n                        roundId,\n                        nonNullSubTypeId as roundSubTypeId,\n                        MAX(score) as pbScore\n                    FROM completed_round_scores\n                    WHERE isComplete AND NOT roundId IS NULL\n                    GROUP BY roundId, roundSubTypeId\n                ) as pbs ON shoot.roundId = pbs.roundId AND shoot.nonNullSubTypeId = pbs.roundSubTypeId\n                WHERE shoot.score = pbs.pbScore\n                GROUP BY pbs.roundId, pbs.roundSubTypeId"
+            "CREATE VIEW `personal_bests` AS SELECT\n                    pbs.roundId as roundId,\n                    pbs.roundSubTypeId as roundSubTypeId,\n                    pbs.pbScore as score,\n                    COUNT(*) > 1 as isTiedPb\n                FROM shoots_with_score as shoot\n                LEFT JOIN (\n                    SELECT\n                        roundId,\n                        nonNullSubTypeId as roundSubTypeId,\n                        MAX(score) as pbScore\n                    FROM shoots_with_score\n                    WHERE isComplete AND NOT roundId IS NULL\n                    GROUP BY roundId, roundSubTypeId\n                ) as pbs ON shoot.roundId = pbs.roundId AND shoot.nonNullSubTypeId = pbs.roundSubTypeId\n                WHERE shoot.score = pbs.pbScore\n                GROUP BY pbs.roundId, pbs.roundSubTypeId"
     )
 }

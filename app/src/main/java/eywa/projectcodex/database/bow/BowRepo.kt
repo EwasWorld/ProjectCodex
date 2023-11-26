@@ -8,7 +8,7 @@ class BowRepo(private val bowDao: BowDao) {
     val defaultBow = bowDao.getDefaultBow()
 
     suspend fun insertDefaultBowIfNotExist() {
-        bowDao.insertOrIgnore(DatabaseBow(id = DEFAULT_BOW_ID, name = "Default"))
+        bowDao.insertOrIgnore(DatabaseBow(bowId = DEFAULT_BOW_ID, name = "Default"))
     }
 
     suspend fun updateDefaultBow(isHighestAtTop: Boolean) {
