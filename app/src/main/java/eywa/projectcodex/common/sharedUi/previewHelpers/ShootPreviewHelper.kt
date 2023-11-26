@@ -50,7 +50,7 @@ class ShootPreviewHelperDsl {
 
     fun completeRound(arrowScore: Int, isX: Boolean = false) {
         arrows = List(round!!.roundArrowCounts!!.sumOf { it.arrowCount }) {
-            DatabaseArrowScore(shoot.shootId, it, arrowScore, isX)
+            DatabaseArrowScore(shoot.shootId, it + 1, arrowScore, isX)
         }
     }
 

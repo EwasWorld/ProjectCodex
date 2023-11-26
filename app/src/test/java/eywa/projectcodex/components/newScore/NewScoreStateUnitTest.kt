@@ -2,6 +2,8 @@ package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -52,12 +54,18 @@ class NewScoreStateUnitTest {
             )
             assertEquals(
                     false,
-                    state.copy(roundBeingEditedArrowsShot = 1000).tooManyArrowsWarningShown,
+                    state.copy(
+                            roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
+                                    .addRound(round)
+                                    .addIdenticalArrows(1000, 1),
+                    ).tooManyArrowsWarningShown,
             )
             assertEquals(
                     false,
                     state.copy(
-                            roundBeingEditedArrowsShot = 2,
+                            roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
+                                    .addRound(round)
+                                    .addIdenticalArrows(2, 1),
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = roundsData,
                                     selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,
@@ -67,7 +75,9 @@ class NewScoreStateUnitTest {
             assertEquals(
                     true,
                     state.copy(
-                            roundBeingEditedArrowsShot = 1000,
+                            roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
+                                    .addRound(round)
+                                    .addIdenticalArrows(1000, 1),
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = roundsData,
                                     selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,

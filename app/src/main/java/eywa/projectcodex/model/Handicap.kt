@@ -157,7 +157,7 @@ object Handicap {
             handicap: Double,
             innerTenArcher: Boolean = false,
             arrows: Int? = null,
-            use2023Handicaps: Boolean = false,
+            use2023Handicaps: Boolean = true,
             faces: List<RoundFace>? = null,
             logger: CustomLogger? = null,
     ): Int? {

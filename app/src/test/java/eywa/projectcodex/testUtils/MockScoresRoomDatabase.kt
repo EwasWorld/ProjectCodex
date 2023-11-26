@@ -3,6 +3,7 @@ package eywa.projectcodex.testUtils
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archer.ArcherRepo
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
+import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.BowRepo
@@ -46,6 +47,7 @@ class MockScoresRoomDatabase {
     val rounds = MockRounds()
     val archerRepo = MockArcherRepo()
     val bow = MockBow()
+    val arrowCounterRepo = mock<ArrowCounterRepo>()
 
     val mock: ScoresRoomDatabase = mock {
         on { shootDao() } doReturn shootDao.mock
@@ -56,7 +58,7 @@ class MockScoresRoomDatabase {
         on { roundDistanceDao() } doReturn roundDistanceDao
         on { shootRoundDao() } doReturn shootRoundDao
         on { shootDetailDao() } doReturn shootDetailDao
-        on { shootsRepo() } doReturn ShootsRepo(shootDao.mock, shootDetailDao, shootRoundDao)
+        on { shootsRepo() } doReturn ShootsRepo(shootDao.mock, shootDetailDao, shootRoundDao, arrowCounterRepo)
         on { sightMarkDao() } doReturn sightMarksDao.mock
         on { bowDao() } doReturn bow.mock
         on { bowRepo() } doReturn bow.mockRepo

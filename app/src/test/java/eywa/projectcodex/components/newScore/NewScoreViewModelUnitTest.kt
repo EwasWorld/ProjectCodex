@@ -2,6 +2,7 @@ package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
@@ -9,7 +10,6 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTas
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
-import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockSavedStateHandle
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -113,8 +113,10 @@ class NewScoreViewModelUnitTest {
         advanceTimeBy(1)
         Assert.assertEquals(
                 NewScoreState(
-                        roundBeingEdited = FullShootInfo(shootInitial, true),
-                        roundBeingEditedArrowsShot = shootInitial.arrows.orEmpty().count(),
+                        roundBeingEdited = ShootPreviewHelperDsl.create {
+                            shoot = shootInitial.shoot
+                            arrows = shootInitial.arrows
+                        },
                         dateShot = shootInitial.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
                 ),
@@ -124,8 +126,10 @@ class NewScoreViewModelUnitTest {
         advanceUntilIdle()
         Assert.assertEquals(
                 NewScoreState(
-                        roundBeingEdited = FullShootInfo(shootSecond, true),
-                        roundBeingEditedArrowsShot = shootSecond.arrows.orEmpty().count(),
+                        roundBeingEdited = ShootPreviewHelperDsl.create {
+                            shoot = shootSecond.shoot
+                            arrows = shootSecond.arrows
+                        },
                         dateShot = shootSecond.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
                 ),
