@@ -110,7 +110,17 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                 )
         )
     }
-    // TODO Move data from archerRounds to shoot_rounds
+
+    customQuery(
+            //language=RoomSql
+            """
+                INSERT INTO `shoot_rounds` (`shootId`, `roundId`, `roundSubTypeId`, `faces`, `sightersCount`)
+                SELECT `archerRoundId`, `roundId`, `roundSubTypeId`, `faces`, 0 
+                FROM archer_rounds
+                WHERE NOT roundId IS NULL 
+                ;
+            """
+    )
 
     createTable("shoot_details") {
         addColumn(DbTableColumn("shootId", ColumnType.INTEGER))
@@ -129,6 +139,18 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                 )
         )
     }
+
+    customQuery(
+            //language=RoomSql
+            """
+                INSERT INTO `shoot_details` (`shootId`, `face`, `distance`, `isDistanceInMeters`, `faceSizeInCm`)
+                SELECT `archerRoundId`, substr(`faces`, 1, 1), NULL, 1, NULL
+                FROM archer_rounds
+                WHERE roundId IS NULL AND NOT faces IS NULL  
+                ;
+            """
+    )
+
 }
 
 private fun DbMigrationDsl.shootMigration() {
@@ -161,7 +183,16 @@ private fun DbMigrationDsl.shootMigration() {
                 )
         )
     }
-    // TODO Move data from archerRounds to shoots
+
+    customQuery(
+            //language=RoomSql
+            """
+                INSERT INTO `shoots` (`shootId`, `dateShot`, `archerId`, `countsTowardsHandicap`, `bowId`, `goalScore`, `shootStatus`, `joinWithPrevious`)
+                SELECT `archerRoundId`, `dateShot`, `archerId`, `countsTowardsHandicap`, `bowId`, `goalScore`, `shootStatus`, `joinWithPrevious` 
+                FROM archer_rounds;
+            """
+    )
+
     dropTable("archer_rounds")
 }
 
@@ -197,7 +228,16 @@ private fun DbMigrationDsl.arrowMigration() {
                 )
         )
     }
-    // TODO Move data
+
+    customQuery(
+            //language=RoomSql
+            """
+                INSERT INTO `arrow_scores` (`shootId`, `arrowNumber`, `score`, `isX`)
+                SELECT `archerRoundId`, `arrowNumber`, `score`, `isX` 
+                FROM arrow_values;
+            """
+    )
+
     dropTable("arrow_values")
 }
 

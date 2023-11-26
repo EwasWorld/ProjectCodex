@@ -92,14 +92,11 @@ data class NewScoreState(
 
     fun asShootDetail() =
             if (
-                selectRoundDialogState.selectedRoundId != null
-                || listOfNotNull(
-                        selectFaceDialogState.selectedFaces?.takeIf { it.isNotEmpty() },
-                ).isEmpty()
+                selectRoundDialogState.selectedRoundId != null || selectFaceDialogState.selectedFaces.isNullOrEmpty()
             ) null
             else DatabaseShootDetail(
                     shootId = roundBeingEdited?.shoot?.shootId ?: 0,
-                    face = selectFaceDialogState.selectedFaces?.firstOrNull(),
+                    face = selectFaceDialogState.selectedFaces.firstOrNull(),
             )
 
     companion object {
