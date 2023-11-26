@@ -1,9 +1,10 @@
 package eywa.projectcodex.database.migrations
 
 import androidx.room.ForeignKey
-import eywa.projectcodex.database.migrations.DbMigrationDsl.CreateTableDsl.ColumnType
-import eywa.projectcodex.database.migrations.DbMigrationDsl.TableColumn
-import eywa.projectcodex.database.migrations.DbMigrationDsl.TableForeignKey
+import eywa.projectcodex.database.migrations.dsl.DbCreateTableDsl.ColumnType
+import eywa.projectcodex.database.migrations.dsl.DbMigrationDsl
+import eywa.projectcodex.database.migrations.dsl.DbTableColumn
+import eywa.projectcodex.database.migrations.dsl.DbTableForeignKey
 
 val MIGRATION_10_11 = DbMigrationDsl.createMigration(10, 11) {
     dropView("completed_round_scores")
@@ -24,15 +25,16 @@ private fun DbMigrationDsl.bowMigration() {
     renameTable("bows", "bows_old")
 
     createTable("bows") {
-        addColumn(TableColumn("bowId", ColumnType.INTEGER))
-        addColumn(TableColumn("name", ColumnType.TEXT, default = "'Default'"))
-        addColumn(TableColumn("description", ColumnType.TEXT, nullable = true, default = "NULL"))
-        addColumn(TableColumn("type", ColumnType.ENUM))
-        addColumn(TableColumn("isSightMarkDiagramHighestAtTop", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("bowId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("name", ColumnType.TEXT, default = "'Default'"))
+        addColumn(DbTableColumn("description", ColumnType.TEXT, nullable = true, default = "NULL"))
+        addColumn(DbTableColumn("type", ColumnType.ENUM))
+        addColumn(DbTableColumn("isSightMarkDiagramHighestAtTop", ColumnType.BOOLEAN))
         singlePrimaryKey("bowId")
     }
 
     customQuery(
+            //language=RoomSql
             """
                 INSERT INTO `bows` (`bowId`, `name`, `description`, `type`, `isSightMarkDiagramHighestAtTop`)
                 SELECT `bowId`, "Default", NULL, 0, `isSightMarkDiagramHighestAtTop` 
@@ -44,26 +46,26 @@ private fun DbMigrationDsl.bowMigration() {
 }
 
 private fun DbMigrationDsl.archerMigration() {
-    addColumn("archers", TableColumn("isGent", ColumnType.BOOLEAN, default = "1"))
-    addColumn("archers", TableColumn("age", ColumnType.ENUM, default = "1"))
+    addColumn("archers", DbTableColumn("isGent", ColumnType.BOOLEAN, default = "1"))
+    addColumn("archers", DbTableColumn("age", ColumnType.ENUM, default = "1"))
 
     createTable("archer_handicaps") {
-        addColumn(TableColumn("archerHandicapId", ColumnType.INTEGER))
-        addColumn(TableColumn("archerId", ColumnType.INTEGER, indexed = true))
-        addColumn(TableColumn("bowStyle", ColumnType.BOOLEAN))
-        addColumn(TableColumn("handicapType", ColumnType.BOOLEAN))
-        addColumn(TableColumn("handicap", ColumnType.INTEGER))
-        addColumn(TableColumn("dateSet", ColumnType.CALENDAR))
-        addColumn(TableColumn("shootId", ColumnType.INTEGER, nullable = true, indexed = true))
+        addColumn(DbTableColumn("archerHandicapId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("archerId", ColumnType.INTEGER, indexed = true))
+        addColumn(DbTableColumn("bowStyle", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("handicapType", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("handicap", ColumnType.INTEGER))
+        addColumn(DbTableColumn("dateSet", ColumnType.CALENDAR))
+        addColumn(DbTableColumn("shootId", ColumnType.INTEGER, nullable = true, indexed = true))
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "archers",
                         foreignTableColumn = listOf("archerId"),
                         tableColumn = listOf("archerId"),
                 )
         )
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
@@ -76,23 +78,23 @@ private fun DbMigrationDsl.archerMigration() {
 
 private fun DbMigrationDsl.shootSubTablesMigration() {
     createTable("shoot_rounds") {
-        addColumn(TableColumn("shootId", ColumnType.INTEGER))
-        addColumn(TableColumn("roundId", ColumnType.INTEGER, indexed = true))
-        addColumn(TableColumn("roundSubTypeId", ColumnType.INTEGER, nullable = true, indexed = true))
-        addColumn(TableColumn("faces", ColumnType.LIST, nullable = true))
-        addColumn(TableColumn("sightersCount", ColumnType.INTEGER))
+        addColumn(DbTableColumn("shootId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("roundId", ColumnType.INTEGER, indexed = true))
+        addColumn(DbTableColumn("roundSubTypeId", ColumnType.INTEGER, nullable = true, indexed = true))
+        addColumn(DbTableColumn("faces", ColumnType.LIST, nullable = true))
+        addColumn(DbTableColumn("sightersCount", ColumnType.INTEGER))
 
         singlePrimaryKey("shootId")
 
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
                 )
         )
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "round_sub_types",
                         foreignTableColumn = listOf("roundId", "subTypeId"),
                         tableColumn = listOf("roundId", "roundSubTypeId"),
@@ -100,7 +102,7 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                 )
         )
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "rounds",
                         foreignTableColumn = listOf("roundId"),
                         tableColumn = listOf("roundId"),
@@ -111,16 +113,16 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
     // TODO Move data from archerRounds to shoot_rounds
 
     createTable("shoot_details") {
-        addColumn(TableColumn("shootId", ColumnType.INTEGER))
-        addColumn(TableColumn("face", ColumnType.ENUM, nullable = true))
-        addColumn(TableColumn("distance", ColumnType.INTEGER, nullable = true))
-        addColumn(TableColumn("isDistanceInMeters", ColumnType.BOOLEAN))
-        addColumn(TableColumn("faceSizeInCm", ColumnType.REAL, nullable = true))
+        addColumn(DbTableColumn("shootId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("face", ColumnType.ENUM, nullable = true))
+        addColumn(DbTableColumn("distance", ColumnType.INTEGER, nullable = true))
+        addColumn(DbTableColumn("isDistanceInMeters", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("faceSizeInCm", ColumnType.REAL, nullable = true))
 
         singlePrimaryKey("shootId")
 
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
@@ -130,22 +132,20 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
 }
 
 private fun DbMigrationDsl.shootMigration() {
-//    renameColumn("archer_rounds", "archerRoundId", "shootId")
-
     createTable("shoots") {
-        addColumn(TableColumn("shootId", ColumnType.INTEGER))
-        addColumn(TableColumn("dateShot", ColumnType.CALENDAR))
-        addColumn(TableColumn("archerId", ColumnType.INTEGER, nullable = true, indexed = true))
-        addColumn(TableColumn("countsTowardsHandicap", ColumnType.BOOLEAN))
-        addColumn(TableColumn("bowId", ColumnType.INTEGER, nullable = true, indexed = true))
-        addColumn(TableColumn("goalScore", ColumnType.INTEGER, nullable = true))
-        addColumn(TableColumn("shootStatus", ColumnType.TEXT, nullable = true))
-        addColumn(TableColumn("joinWithPrevious", ColumnType.BOOLEAN, default = "0"))
+        addColumn(DbTableColumn("shootId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("dateShot", ColumnType.CALENDAR))
+        addColumn(DbTableColumn("archerId", ColumnType.INTEGER, nullable = true, indexed = true))
+        addColumn(DbTableColumn("countsTowardsHandicap", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("bowId", ColumnType.INTEGER, nullable = true, indexed = true))
+        addColumn(DbTableColumn("goalScore", ColumnType.INTEGER, nullable = true))
+        addColumn(DbTableColumn("shootStatus", ColumnType.TEXT, nullable = true))
+        addColumn(DbTableColumn("joinWithPrevious", ColumnType.BOOLEAN, default = "0"))
 
         singlePrimaryKey("shootId")
 
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "bows",
                         foreignTableColumn = listOf("bowId"),
                         tableColumn = listOf("bowId"),
@@ -153,7 +153,7 @@ private fun DbMigrationDsl.shootMigration() {
                 )
         )
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "archers",
                         foreignTableColumn = listOf("archerId"),
                         tableColumn = listOf("archerId"),
@@ -167,13 +167,13 @@ private fun DbMigrationDsl.shootMigration() {
 
 private fun DbMigrationDsl.arrowMigration() {
     createTable("arrow_counters") {
-        addColumn(TableColumn("shootId", ColumnType.INTEGER))
-        addColumn(TableColumn("shotCount", ColumnType.INTEGER))
+        addColumn(DbTableColumn("shootId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("shotCount", ColumnType.INTEGER))
 
         singlePrimaryKey("shootId")
 
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
@@ -182,15 +182,15 @@ private fun DbMigrationDsl.arrowMigration() {
     }
 
     createTable("arrow_scores") {
-        addColumn(TableColumn("shootId", ColumnType.INTEGER))
-        addColumn(TableColumn("arrowNumber", ColumnType.INTEGER))
-        addColumn(TableColumn("score", ColumnType.INTEGER))
-        addColumn(TableColumn("isX", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("shootId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("arrowNumber", ColumnType.INTEGER))
+        addColumn(DbTableColumn("score", ColumnType.INTEGER))
+        addColumn(DbTableColumn("isX", ColumnType.BOOLEAN))
 
         compositePrimaryKey("shootId", "arrowNumber")
 
         addForeignKey(
-                TableForeignKey(
+                DbTableForeignKey(
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
@@ -203,6 +203,7 @@ private fun DbMigrationDsl.arrowMigration() {
 
 // TODO Db schema for 10 needs rerecording, I'm pretty sure it's not up to date
 // Note the view migration seems to be sensitive to whitespace changes, copy directly from new schema
+//language=RoomSql
 private fun DbMigrationDsl.createViews() {
     customQuery(
             "CREATE VIEW `shoots_with_score` AS SELECT \n                    shoot.*, \n                    arrows.score,\n                    shootRound.roundId,\n                    (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,\n                    ((NOT shootRound.roundId IS NULL) AND arrows.count = roundCount.count) as isComplete,\n                    ( \n                        -- Find the latest date earlier than or equal to this one that doesn't join with previous\n                        -- This will be the first round (inclusive) in the sequence\n                        SELECT MAX(dateShot)\n                        FROM shoots\n                        WHERE dateShot <= shoot.dateShot AND NOT joinWithPrevious\n                    ) as joinedDate\n                FROM shoots as shoot\n                LEFT JOIN shoot_rounds as shootRound \n                        ON shootRound.shootId = shoot.shootId\n                LEFT JOIN (\n                    SELECT SUM(arrowCount) as count, roundId\n                    FROM round_arrow_counts\n                    GROUP BY roundId\n                ) as roundCount ON shootRound.roundId = roundCount.roundId\n                LEFT JOIN (\n                    SELECT COUNT(*) as count, SUM(score) as score, shootId\n                    FROM arrow_scores\n                    GROUP BY shootId\n                ) as arrows ON shoot.shootId = arrows.shootId"
