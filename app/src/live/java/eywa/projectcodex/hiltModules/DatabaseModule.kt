@@ -9,8 +9,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import eywa.projectcodex.database.DatabaseMigrations
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.migrations.DatabaseMigrations
+import eywa.projectcodex.database.migrations.MIGRATION_10_11
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
