@@ -83,17 +83,20 @@ class ViewScoresViewModel @Inject constructor(
                     }
                 }
             }
+
             is EntryLongClicked ->
                 _state.update {
                     if (it.isInMultiSelectMode) it.selectItem(action.shootId)
                     else it.copy(lastClickedEntryId = action.shootId, dropdownMenuOpen = true)
                 }
+
             is DropdownMenuClicked ->
                 _state.update {
                     action.item
                             .handleClick(it.copy(lastClickedEntryId = action.shootId), shootIdsUseCase)
                             .copy(dropdownMenuOpen = false)
                 }
+
             DropdownMenuClosed -> _state.update { it.copy(dropdownMenuOpen = false) }
             NoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = true) }
             DeleteDialogCancelClicked -> _state.update { it.copy(deleteDialogOpen = false) }
@@ -107,6 +110,7 @@ class ViewScoresViewModel @Inject constructor(
                     viewModelScope.launch { shootsRepo.deleteRound(id) }
                 }
             }
+
             is AddFilter -> _state.update {
                 it.copy(filters = it.filters.plus(action.filter))
             }
@@ -138,8 +142,8 @@ class ViewScoresViewModel @Inject constructor(
             HandledScorePadOpened -> _state.update { it.copy(openScorePadClicked = false) }
             HandledEditInfoOpened -> _state.update { it.copy(openEditInfoClicked = false) }
             HandledEmailOpened -> _state.update { it.copy(openEmailClicked = false) }
-            HandledAddEndOnCompletedRound ->
-                _state.update { it.copy(openAddEndOnCompletedRound = false) }
+            HandledAddCountOpened -> _state.update { it.copy(openAddCountClicked = false) }
+            HandledAddEndOnCompletedRound -> _state.update { it.copy(openAddEndOnCompletedRound = false) }
             HandledAddEndOpened -> _state.update { it.copy(openAddEndClicked = false) }
             HandledNoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = false) }
         }
@@ -160,10 +164,12 @@ class ViewScoresViewModel @Inject constructor(
                             data = it.data.map { entry -> entry.copy(isSelected = false) },
                     )
                 }
+
             MultiSelectBarIntent.ClickAllOrNone -> _state.update {
                 val selectAll = !it.data.all { entry -> entry.isSelected }
                 it.copy(data = it.data.map { entry -> entry.copy(isSelected = selectAll) })
             }
+
             MultiSelectBarIntent.ClickEmail -> _state.update {
                 val selectedItems = it.data
                         .filter { entry -> entry.isSelected }

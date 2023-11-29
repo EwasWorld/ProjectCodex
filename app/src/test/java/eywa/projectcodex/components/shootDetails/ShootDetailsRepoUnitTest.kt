@@ -91,7 +91,12 @@ class ShootDetailsRepoUnitTest {
                 )
 
         fun DatabaseFullShootInfo.asLoadedState() =
-                SimpleLoaded(shoot.shootId to FullShootInfo(this, true), shoot.shootId, null)
+                SimpleLoaded(
+                        data = shoot.shootId to FullShootInfo(this, true),
+                        shootId = shoot.shootId,
+                        navBarClicked = null,
+                        isCounting = this.arrowCounter != null,
+                )
 
         /*
          * getState for id 1
@@ -196,7 +201,7 @@ class ShootDetailsRepoUnitTest {
         collectLatestState(sut) {
             latestResponse = it
         }
-        val initialResponse = ShootDetailsResponse.Loaded(initialState, 1, null)
+        val initialResponse = ShootDetailsResponse.Loaded(initialState, 1, null, false)
         advanceUntilIdle()
         assertEquals(initialResponse, latestResponse)
 

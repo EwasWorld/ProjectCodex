@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -39,7 +40,6 @@ import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.DataRow
-import eywa.projectcodex.common.sharedUi.LoadingScreen
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -70,7 +70,7 @@ fun AddArrowCountScreen(
     val data = state.getData()
     val listener = { it: AddArrowCountIntent -> viewModel.handle(it) }
 
-    if (data == null) LoadingScreen()
+    if (data == null) CircularProgressIndicator(color = CodexTheme.colors.onAppBackground)
     else AddArrowCountScreen(data, listener)
 
     val isScoring = data?.fullShootInfo != null && data.fullShootInfo.arrowCounter == null

@@ -129,17 +129,6 @@ fun HandleEffects(
 ) {
     val loadedState = state.getData() ?: return
 
-    val isCounting = loadedState.fullShootInfo.arrowCounter != null
-    LaunchedEffect(isCounting) {
-        if (isCounting) {
-            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
-                    navController,
-                    mapOf(NavArgument.SHOOT_ID to loadedState.fullShootInfo.id.toString()),
-                    popCurrentRoute = true,
-            )
-        }
-    }
-
     LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditArcherInfoScreen) {
         if (loadedState.openEditShootScreen) {
             CodexNavRoute.NEW_SCORE.navigate(

@@ -1,4 +1,4 @@
-package eywa.projectcodex.prototyping
+package eywa.projectcodex.components.viewScores.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
@@ -26,15 +28,11 @@ import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
-import eywa.projectcodex.components.viewScores.ui.DateAndFirstNameColumn
-import eywa.projectcodex.components.viewScores.ui.OtherNamesColumn
-import eywa.projectcodex.components.viewScores.ui.ViewScoreHelpPriority
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.convertToArrowCounters
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
-import eywa.projectcodex.components.viewScores.ui.columnVerticalArrangement
 
 @Composable
 fun ViewScoresCountRow(
@@ -74,20 +72,30 @@ private fun ArrowsShotColumn(
             )
     )
 
+    val title = stringResource(R.string.view_score__arrow_count)
+    val count = entries.arrowsShotWithoutSighters.toString()
     Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = columnVerticalArrangement,
+            // Not using merge descendants as that is already used by ViewScoresListItem (which will contain this).
+            // "descendants that themselves have set mergeDescendants are not included in the merge"
+            // https://developer.android.com/jetpack/compose/semantics
+            modifier = Modifier.clearAndSetSemantics {
+                contentDescription = "$title $count"
+            }
     ) {
         Text(
-                text = stringResource(R.string.view_score__arrow_count),
+                text = title,
                 style = CodexTypography.SMALL.copy(
                         color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
                 ),
         )
         Text(
-                text = entries.arrowCountWithSighters.toString(),
+                text = count,
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                modifier = Modifier.updateHelpDialogPosition(helpState)
+                modifier = Modifier
+                        .updateHelpDialogPosition(helpState)
+                        .testTag(ViewScoresRowTestTag.COUNT)
         )
     }
 }

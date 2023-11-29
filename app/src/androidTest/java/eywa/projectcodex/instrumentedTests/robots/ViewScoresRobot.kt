@@ -4,7 +4,7 @@ import androidx.compose.ui.test.isSelectable
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRowTestTag
+import eywa.projectcodex.components.viewScores.ui.ViewScoresRowTestTag
 import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
 import eywa.projectcodex.components.viewScores.ui.viewScoresListItemTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
@@ -76,7 +76,6 @@ class ViewScoresRobot(
     }
 
     fun clickRowCount(rowIndex: Int, block: AddCountRobot.() -> Unit = {}) {
-        TODO("Not implemented this type of row")
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
         createRobot(AddCountRobot::class, block)
     }
@@ -114,6 +113,11 @@ class ViewScoresRobot(
     fun clickContinueDropdownMenuItem(block: AddEndRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.CONTINUE_MENU_ITEM)
         createRobot(AddEndRobot::class, block)
+    }
+
+    fun clickViewDropdownMenuItem(block: AddCountRobot.() -> Unit = {}) {
+        clickDropdownMenuItem(CommonStrings.VIEW_MENU_ITEM)
+        createRobot(AddCountRobot::class, block)
     }
 
     fun clickScorePadDropdownMenuItem(block: ScorePadRobot.() -> Unit = {}) {
@@ -183,20 +187,23 @@ class ViewScoresRobot(
         }
     }
 
-    fun waitForHsg(rowIndex: Int, hsg: String?) =
-            waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.HSG, hsg ?: "-/-/-")
+    fun waitForArrowCount(rowIndex: Int, count: Int) =
+            waitForTextInRow(rowIndex, ViewScoresRowTestTag.COUNT, count.toString())
 
-    fun waitForDate(rowIndex: Int, date: String) = waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.DATE, date)
+    fun waitForHsg(rowIndex: Int, hsg: String?) =
+            waitForTextInRow(rowIndex, ViewScoresRowTestTag.HSG, hsg ?: "-/-/-")
+
+    fun waitForDate(rowIndex: Int, date: String) = waitForTextInRow(rowIndex, ViewScoresRowTestTag.DATE, date)
     fun waitForHandicap(rowIndex: Int, handicap: Int?) =
-            waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.HANDICAP, handicap?.toString())
+            waitForTextInRow(rowIndex, ViewScoresRowTestTag.HANDICAP, handicap?.toString())
 
     fun waitForRoundName(rowIndex: Int, roundName: String?) =
-            waitForTextInRow(rowIndex, ViewScoresEntryRowTestTag.FIRST_NAME, roundName)
+            waitForTextInRow(rowIndex, ViewScoresRowTestTag.FIRST_NAME, roundName)
 
     fun checkContentDescription(rowIndex: Int, vararg description: String) {
         perform {
             +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
-            +CodexNodeInteraction.AssertContentDescriptionEquals(description.toList())
+            +CodexNodeInteraction.AssertContentDescriptionEquals(description.toList()).waitFor()
         }
     }
 
@@ -249,6 +256,7 @@ class ViewScoresRobot(
     object CommonStrings {
         const val SCORE_PAD_MENU_ITEM = "Score pad"
         const val CONTINUE_MENU_ITEM = "Continue"
+        const val VIEW_MENU_ITEM = "View"
         const val DELETE_MENU_ITEM = "Delete"
         const val EMAIL_MENU_ITEM = "Email"
         const val EDIT_MENU_ITEM = "Edit info"

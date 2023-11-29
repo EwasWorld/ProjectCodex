@@ -302,14 +302,14 @@ class V10To11MigrationTests {
     @Test
     fun testMigrateShoots() {
         val archerRound1 = ContentValues().apply {
-            put("archerRoundId", 1)
-            put("dateShot", 1)
-            put("archerId", 1)
-            put("countsTowardsHandicap", 1)
-            put("bowId", 1)
-            put("roundId", 1)
-            put("roundSubTypeId", 1)
-            put("goalScore", 1)
+            put("archerRoundId", 8)
+            put("dateShot", 2)
+            put("archerId", 3)
+            put("countsTowardsHandicap", 0)
+            put("bowId", 4)
+            put("roundId", 5)
+            put("roundSubTypeId", 6)
+            put("goalScore", 7)
             put("shootStatus", "Comp")
             put("faces", "0:1")
             put("joinWithPrevious", 1)
@@ -349,21 +349,6 @@ class V10To11MigrationTests {
         checkValues(
                 response,
                 mapOf(
-                        "shootId" to 1,
-                        "dateShot" to 1,
-                        "archerId" to 1,
-                        "countsTowardsHandicap" to 1,
-                        "bowId" to 1,
-                        "goalScore" to 1,
-                        "shootStatus" to "Comp",
-                        "joinWithPrevious" to 1,
-                ),
-        )
-
-        response.moveToNext()
-        checkValues(
-                response,
-                mapOf(
                         "shootId" to 2,
                         "dateShot" to 2,
                         "archerId" to 2,
@@ -387,6 +372,21 @@ class V10To11MigrationTests {
                         "goalScore" to null,
                         "shootStatus" to null,
                         "joinWithPrevious" to 0,
+                ),
+        )
+
+        response.moveToNext()
+        checkValues(
+                response,
+                mapOf(
+                        "shootId" to 8,
+                        "dateShot" to 2,
+                        "archerId" to 3,
+                        "countsTowardsHandicap" to 0,
+                        "bowId" to 4,
+                        "goalScore" to 7,
+                        "shootStatus" to "Comp",
+                        "joinWithPrevious" to 1,
                 ),
         )
     }

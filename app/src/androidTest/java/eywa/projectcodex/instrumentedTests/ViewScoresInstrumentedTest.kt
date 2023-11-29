@@ -7,6 +7,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
@@ -25,6 +26,7 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -47,6 +49,7 @@ class ViewScoresInstrumentedTest {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
+    private var shootsNew: List<FullShootInfo> = listOf()
     private var shoots: List<DatabaseShoot> = listOf()
     private var rounds = listOf<FullRoundInfo>()
     private var arrows: List<List<DatabaseArrowScore>> = listOf()
@@ -54,6 +57,8 @@ class ViewScoresInstrumentedTest {
 
     @Before
     fun beforeEach() {
+        CommonSetupTeardownFns.generalSetup()
+
         hiltRule.inject()
         shoots = listOf()
         rounds = listOf()
@@ -78,6 +83,7 @@ class ViewScoresInstrumentedTest {
                 shoots.forEach { db.shootDao().insert(it) }
                 arrows.flatten().forEach { db.arrowScoreDao().insert(it) }
                 shootRound.forEach { db.shootRoundDao().insert(it) }
+                shootsNew.forEach { db.add(it) }
             }
         }
     }
@@ -121,29 +127,48 @@ class ViewScoresInstrumentedTest {
         )
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        val firstOfThisYear = DateTimeFormat.SHORT_DATE_TIME.parse("1/1/$currentYear 10:00")
-        shoots = listOf(
-                DatabaseShoot(1, firstOfThisYear),
-                DatabaseShoot(2, Date.valueOf("2012-2-2").asCalendar()),
-                DatabaseShoot(3, Date.valueOf("2011-3-3").asCalendar()),
-                DatabaseShoot(4, Date.valueOf("2010-4-4").asCalendar()),
-                DatabaseShoot(5, Date.valueOf("2009-5-5").asCalendar()),
+        shootsNew = listOf(
+                ShootPreviewHelperDsl.create {
+                    val firstOfThisYear = DateTimeFormat.SHORT_DATE_TIME.parse("1/1/$currentYear 10:00")
+                    shoot = shoot.copy(shootId = 1, dateShot = firstOfThisYear)
+                    addIdenticalArrows(1, 1)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = Date.valueOf("2012-2-2").asCalendar())
+                    round = rounds[0]
+                    addIdenticalArrows(1, 2)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3, dateShot = Date.valueOf("2011-3-3").asCalendar())
+                    round = rounds[1]
+                    addIdenticalArrows(1, 3)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4, dateShot = Date.valueOf("2010-4-4").asCalendar())
+                    round = rounds[1]
+                    roundSubTypeId = 2
+                    addIdenticalArrows(1, 4)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 5, dateShot = Date.valueOf("2009-5-5").asCalendar())
+                    addIdenticalArrows(1, 5)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 6, dateShot = Date.valueOf("2008-6-6").asCalendar())
+                    round = rounds[0]
+                    addArrowCounter(6)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 7, dateShot = Date.valueOf("2007-7-7").asCalendar())
+                    addArrowCounter(7)
+                },
         )
-        shootRound = listOf(
-                DatabaseShootRound(2, roundId = 1),
-                DatabaseShootRound(3, roundId = 2),
-                DatabaseShootRound(4, roundId = 2, roundSubTypeId = 2),
-        )
-        arrows = shoots.map { shoot ->
-            val shootId = shoot.shootId
-            List(1) { arrowNumber -> TestUtils.ARROWS[shootId].asArrowScore(shootId, arrowNumber) }
-        }
 
         populateDb()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForRowCount(5)
+                waitForRowCount(7)
 
                 waitForHsg(0, "1/1/0")
                 waitForHandicap(0, null)
@@ -176,6 +201,16 @@ class ViewScoresInstrumentedTest {
                 waitForDate(4, "05/05/09 00:00")
                 checkContentDescription(4, "5 May 2009", "Score 5, Golds 0, Hits 1")
 
+                waitForArrowCount(5, 6)
+                waitForRoundName(1, "Metric Round")
+                waitForDate(5, "06/06/08 00:00")
+                checkContentDescription(5, "6 Jun 2008", "Metric Round", "Count 6")
+
+                waitForArrowCount(6, 7)
+                waitForRoundName(6, null)
+                waitForDate(6, "07/07/07 00:00")
+                checkContentDescription(6, "7 Jul 2007", "Count 7")
+
                 LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
                 waitForHandicap(0, null)
                 waitForHandicap(1, 64)
@@ -193,25 +228,32 @@ class ViewScoresInstrumentedTest {
     fun testViewScoresEntry_NonDestructiveActions() {
         rounds = TestUtils.ROUNDS.take(1)
 
-        shoots = listOf(
+        shootsNew = listOf(
+
                 // No round
-                DatabaseShoot(1, Calendar.getInstance().apply { set(2020, 8, 28) }),
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = Calendar.getInstance().apply { set(2020, 8, 28) })
+                    addFullSetOfArrows()
+                },
                 // Completed round
-                DatabaseShoot(2, TestUtils.generateDate(2019)),
-        )
-        shootRound = listOf(DatabaseShootRound(2, roundId = 1))
-        arrows = listOf(
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(1, i) },
-                // Add the correct number of arrows to complete the round
-                List(rounds.first().roundArrowCounts!!.sumOf { it.arrowCount }) {
-                    TestUtils.ARROWS[it % TestUtils.ARROWS.size].asArrowScore(2, it)
+                ShootPreviewHelperDsl.create
+                {
+                    shoot = shoot.copy(shootId = 2, dateShot = TestUtils.generateDate(2019))
+                    round = rounds[0]
+                    completeRoundWithFullSet()
+                },
+                // Count
+                ShootPreviewHelperDsl.create
+                {
+                    shoot = shoot.copy(shootId = 3, dateShot = Calendar.getInstance().apply { set(2018, 4, 15) })
+                    addArrowCounter(6)
                 },
         )
         populateDb()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForRowCount(2)
+                waitForRowCount(3)
 
                 val rowId = 0
 
@@ -245,7 +287,7 @@ class ViewScoresInstrumentedTest {
                 longClickRow(1)
                 checkDropdownMenuItemNotThere(ViewScoresRobot.CommonStrings.CONTINUE_MENU_ITEM)
 
-                // Long click - email
+                // Long click - email score
                 longClickRow(rowId)
                 clickEmailDropdownMenuItem {
                     checkScoreText("No Round - 28/09/20\nHits: 11, Score: 65, Golds (Golds): 3")
@@ -258,6 +300,26 @@ class ViewScoresInstrumentedTest {
                     selectRoundsRobot.checkSelectedRound("No Round")
                     pressBack()
                 }
+
+                // Single click - view count
+                clickRowCount(2) {
+                    checkShotCount(6)
+                    pressBack()
+                }
+
+                // Long click - view count
+                longClickRow(2)
+                clickViewDropdownMenuItem {
+                    checkShotCount(6)
+                    pressBack()
+                }
+
+                // Long click - email count
+                longClickRow(2)
+                clickEmailDropdownMenuItem {
+                    checkScoreText("No Round - 15/05/18\n6 arrows shot")
+                }
+                pressBack()
             }
         }
     }

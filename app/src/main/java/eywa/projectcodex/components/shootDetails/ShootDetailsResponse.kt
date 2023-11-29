@@ -14,5 +14,6 @@ sealed class ShootDetailsResponse<in C : Any> {
             val data: T,
             val shootId: Int,
             val navBarClicked: CodexNavRoute?,
+            val isCounting: Boolean,
     ) : ShootDetailsResponse<T>()
 }

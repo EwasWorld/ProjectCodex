@@ -29,8 +29,8 @@ data class ViewScoresEntryList(
     val dateShot
         get() = entries.first().info.shoot.dateShot
 
-    val arrowCountWithSighters
-        get() = entries.sumOf { it.info.arrowsShotWithSighters }
+    val arrowsShotWithoutSighters
+        get() = entries.sumOf { it.info.arrowsShot }
 
     /**
      * Note golds will use the [GoldsType] of the first [entries]

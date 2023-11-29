@@ -57,6 +57,7 @@ class LocalDatabaseModule {
             shootInfo.arrows?.let { arrowScoreDao().insert(*it.toTypedArray()) }
             shootInfo.shootRound?.let { shootRoundDao().insert(it) }
             shootInfo.shootDetail?.let { shootDetailDao().insert(it) }
+            shootInfo.arrowCounter?.let { arrowCounterDao().insert(it) }
         }
 
         suspend fun ScoresRoomDatabase.add(roundInfo: FullRoundInfo) {

@@ -56,4 +56,8 @@ enum class ViewScoresDropdownMenuItem(
             handleClick = { copy(convertScoreDialogOpen = true) },
             shouldShow = { !it.isCount },
     ),
+    VIEW(
+            title = R.string.view_scores_menu__view,
+            handleClick = { copy(openAddCountClicked = true) },
+    ),
 }

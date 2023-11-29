@@ -55,8 +55,9 @@ fun <T: Any> HandleMainEffects(
 ) {
     val mainMenuClicked = (state as? ShootDetailsResponse.Error<T>)?.mainMenuClicked ?: false
     val navBarClickedItem = (state as? ShootDetailsResponse.Loaded<T>)?.navBarClicked
+    val countingShootId = (state as? ShootDetailsResponse.Loaded<T>)?.let { if (it.isCounting) it.shootId else null }
 
-    LaunchedEffect(mainMenuClicked, navBarClickedItem) {
+    LaunchedEffect(mainMenuClicked, navBarClickedItem, countingShootId) {
         if (mainMenuClicked) {
             navController.popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
             listener(ShootDetailsIntent.ReturnToMenuHandled)
@@ -68,6 +69,13 @@ fun <T: Any> HandleMainEffects(
                     popCurrentRoute = true,
             )
             listener(ShootDetailsIntent.NavBarClickHandled(navBarClickedItem))
+        }
+        if (countingShootId != null) {
+            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to countingShootId.toString()),
+                    popCurrentRoute = true,
+            )
         }
     }
 }

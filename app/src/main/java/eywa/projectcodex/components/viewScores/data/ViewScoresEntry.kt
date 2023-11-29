@@ -54,16 +54,28 @@ data class ViewScoresEntry(
         return info.roundArrowCounts.sumOf { it.arrowCount } == info.arrowsShot
     }
 
-    fun getSingleClickAction() = ViewScoresDropdownMenuItem.SCORE_PAD
+    fun getSingleClickAction() =
+            if (isCount) ViewScoresDropdownMenuItem.VIEW
+            else ViewScoresDropdownMenuItem.SCORE_PAD
 
-    fun getDropdownMenuItems() = listOf(
-            ViewScoresDropdownMenuItem.SCORE_PAD,
-            ViewScoresDropdownMenuItem.CONTINUE,
-            ViewScoresDropdownMenuItem.EMAIL_SCORE,
-            ViewScoresDropdownMenuItem.EDIT_INFO,
-            ViewScoresDropdownMenuItem.DELETE,
-            ViewScoresDropdownMenuItem.CONVERT,
-    ).filter { it.shouldShow?.invoke(this) ?: true }
+    fun getDropdownMenuItems() =
+            when {
+                isCount -> listOf(
+                        ViewScoresDropdownMenuItem.VIEW,
+                        ViewScoresDropdownMenuItem.EMAIL_SCORE,
+                        ViewScoresDropdownMenuItem.EDIT_INFO,
+                        ViewScoresDropdownMenuItem.DELETE,
+                )
+
+                else -> listOf(
+                        ViewScoresDropdownMenuItem.SCORE_PAD,
+                        ViewScoresDropdownMenuItem.CONTINUE,
+                        ViewScoresDropdownMenuItem.EMAIL_SCORE,
+                        ViewScoresDropdownMenuItem.EDIT_INFO,
+                        ViewScoresDropdownMenuItem.DELETE,
+                        ViewScoresDropdownMenuItem.CONVERT,
+                )
+            }.filter { it.shouldShow?.invoke(this) ?: true }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

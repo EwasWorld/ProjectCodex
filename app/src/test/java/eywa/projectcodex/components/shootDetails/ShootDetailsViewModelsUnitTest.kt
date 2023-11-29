@@ -74,7 +74,12 @@ class ShootDetailsViewModelsUnitTest {
                 delay(TestUtils.FLOW_EMIT_DELAY)
                 emit(shootDetailsState)
             }.combine(it.arguments[1] as StateFlow<E>) { mainA, extra ->
-                ShootDetailsResponse.Loaded(converter(mainA, extra), 1, null)
+                ShootDetailsResponse.Loaded(
+                        data = converter(mainA, extra),
+                        shootId = 1,
+                        navBarClicked = null,
+                        isCounting = mainA.fullShootInfo!!.arrowCounter != null,
+                )
             }
         }
 

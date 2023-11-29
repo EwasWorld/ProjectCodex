@@ -1,5 +1,6 @@
 package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
+import androidx.test.espresso.Espresso
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountTestTag
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
@@ -70,7 +71,7 @@ class AddCountRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.SIGHTERS_COUNT)
             if (count == null) +CodexNodeInteraction.AssertDoesNotExist()
-            else +CodexNodeInteraction.AssertTextEquals("Sighters: $count")
+            else +CodexNodeInteraction.AssertTextEquals(count.toString())
         }
     }
 
@@ -87,7 +88,7 @@ class AddCountRobot(
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.TOTAL_COUNT)
             if (count == null) +CodexNodeInteraction.AssertDoesNotExist()
-            else +CodexNodeInteraction.AssertTextEquals("Total: $count")
+            else +CodexNodeInteraction.AssertTextEquals(count.toString())
         }
     }
 
@@ -108,10 +109,11 @@ class AddCountRobot(
             setText(AddArrowCountTestTag.ADD_COUNT_INPUT, amount.toString())
             +CodexNodeInteraction.AssertHasError(error)
         }
+        Espresso.closeSoftKeyboard()
         perform {
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR)
             if (error == null) +CodexNodeInteraction.AssertDoesNotExist()
-            else +CodexNodeInteraction.AssertIsDisplayed()
+            else +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 

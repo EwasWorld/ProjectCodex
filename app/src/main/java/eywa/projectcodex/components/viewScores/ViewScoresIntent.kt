@@ -27,6 +27,7 @@ sealed class ViewScoresIntent {
     object HandledNoRoundsDialogOkClicked : EffectComplete()
     object HandledEmailNoSelection : EffectComplete()
     object HandledScorePadOpened : EffectComplete()
+    object HandledAddCountOpened : EffectComplete()
     object HandledAddEndOpened : EffectComplete()
     object HandledAddEndOnCompletedRound : EffectComplete()
     object HandledEmailOpened : EffectComplete()

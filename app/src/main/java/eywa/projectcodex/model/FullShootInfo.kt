@@ -96,7 +96,6 @@ data class FullShootInfo(
         }
 
     val arrowsShot by lazy { arrowCounter?.shotCount ?: arrows?.size ?: 0 }
-    val arrowsShotWithSighters by lazy { arrowsShot + (shootRound?.sightersCount ?: 0) }
 
     val remainingArrows by lazy {
         roundArrowCounts

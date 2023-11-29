@@ -22,6 +22,7 @@ data class ViewScoresState(
 
         val openAddEndOnCompletedRound: Boolean = false,
         val openAddEndClicked: Boolean = false,
+        val openAddCountClicked: Boolean = false,
         val openScorePadClicked: Boolean = false,
         val openEmailClicked: Boolean = false,
         val openEditInfoClicked: Boolean = false,

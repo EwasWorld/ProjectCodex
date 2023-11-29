@@ -54,6 +54,15 @@ class ShootPreviewHelperDsl {
         }
     }
 
+    fun completeRoundWithFullSet() {
+        arrows = ArrowScoresPreviewHelper.getArrowsInOrder(
+                shootId = shoot.shootId,
+                size = round!!.roundArrowCounts!!.sumOf { it.arrowCount },
+                firstArrowNumber = 1,
+                ascending = true,
+        )
+    }
+
     fun completeRoundWithCounter() {
         addArrowCounter(round!!.roundArrowCounts!!.sumOf { it.arrowCount })
     }

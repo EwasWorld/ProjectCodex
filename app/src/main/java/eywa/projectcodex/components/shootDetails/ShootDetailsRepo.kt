@@ -167,7 +167,13 @@ class ShootDetailsRepo(
                 shootId == null || state.isError -> ShootDetailsResponse.Error(state.mainMenuClicked)
                 shootId != state.shootId || state.fullShootInfo == null || state.fullShootInfo.id != shootId ->
                     ShootDetailsResponse.Loading
-                else -> ShootDetailsResponse.Loaded(converter(state, extra), state.shootId, state.navBarClickedItem)
+
+                else -> ShootDetailsResponse.Loaded(
+                        data = converter(state, extra),
+                        shootId = state.shootId,
+                        navBarClicked = state.navBarClickedItem,
+                        isCounting = state.fullShootInfo.arrowCounter != null,
+                )
             }
 
     private fun ShootDetailsState.preserveDatastoreInfo(oldState: ShootDetailsState) =

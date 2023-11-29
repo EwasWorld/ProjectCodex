@@ -90,7 +90,7 @@ internal fun ViewScoresEntryRow(
                     shape = RoundedCornerShape(100),
                     modifier = Modifier
                             .zIndex(ViewScoresEntrySemanticsOrder.PB.zIndex)
-                            .testTag(ViewScoresEntryRowTestTag.PB)
+                            .testTag(ViewScoresRowTestTag.PB)
             ) {
                 Text(
                         text = stringResource(entries.allPbTypes.getOverallPbString(entries.isMulti)),
@@ -130,7 +130,7 @@ fun DateAndFirstNameColumn(
     val nameSemantics =
             if (entries.firstDisplayName.displayName != null) {
                 Modifier
-                        .testTag(ViewScoresEntryRowTestTag.FIRST_NAME)
+                        .testTag(ViewScoresRowTestTag.FIRST_NAME)
                         .semantics {
                             contentDescription = entries.nameSemantics.joinToString { it.get(resources) }
                         }
@@ -149,7 +149,7 @@ fun DateAndFirstNameColumn(
                 style = CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemLight),
                 modifier = Modifier
                         .zIndex(ViewScoresEntrySemanticsOrder.DATE.zIndex)
-                        .testTag(ViewScoresEntryRowTestTag.DATE)
+                        .testTag(ViewScoresRowTestTag.DATE)
                         .semantics {
                             val wasThisYear =
                                     entries.dateShot.get(Calendar.YEAR) == Calendar
@@ -189,7 +189,7 @@ fun ColumnScope.OtherNamesColumn(
                         nameInfo = it,
                         modifier = Modifier
                                 .weight(1f, false)
-                                .testTag(ViewScoresEntryRowTestTag.SECOND_NAME)
+                                .testTag(ViewScoresRowTestTag.SECOND_NAME)
                 )
             }
             // Will display up to 2 round names. Indicate how many more there are to the user
@@ -198,7 +198,7 @@ fun ColumnScope.OtherNamesColumn(
                         text = stringResource(R.string.view_score__multiple_ellipses, remaining),
                         style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.testTag(ViewScoresEntryRowTestTag.OTHER_NAMES_COUNT)
+                        modifier = Modifier.testTag(ViewScoresRowTestTag.OTHER_NAMES_COUNT)
                 )
             }
         }
@@ -271,7 +271,7 @@ private fun HsgColumn(
                 modifier = Modifier
                         .updateHelpDialogPosition(helpState)
                         .zIndex(ViewScoresEntrySemanticsOrder.HSG.zIndex)
-                        .testTag(ViewScoresEntryRowTestTag.HSG)
+                        .testTag(ViewScoresRowTestTag.HSG)
                         .semantics { contentDescription = entries.hsgSemantics.joinToString { it.get(resources) } }
         )
     }
@@ -297,7 +297,7 @@ private fun HandicapColumn(
     val handicapSemantics = entries.handicap?.let {
         Modifier
                 .semantics { contentDescription = resources.getString(R.string.view_score__handicap_semantics, it) }
-                .testTag(ViewScoresEntryRowTestTag.HANDICAP)
+                .testTag(ViewScoresRowTestTag.HANDICAP)
     } ?: Modifier.clearAndSetSemantics { }
 
     Column(
@@ -337,6 +337,7 @@ private fun HandicapColumn(
 private enum class ViewScoresEntrySemanticsOrder {
     DATE,
     NAME,
+    COUNT,
     HSG,
     HANDICAP,
     PB,
@@ -345,12 +346,13 @@ private enum class ViewScoresEntrySemanticsOrder {
     val zIndex = ordinal.toFloat()
 }
 
-enum class ViewScoresEntryRowTestTag : CodexTestTag {
+enum class ViewScoresRowTestTag : CodexTestTag {
     DATE,
     FIRST_NAME,
     SECOND_NAME,
     OTHER_NAMES_COUNT,
     HSG,
+    COUNT,
     HANDICAP,
     PB,
     ;

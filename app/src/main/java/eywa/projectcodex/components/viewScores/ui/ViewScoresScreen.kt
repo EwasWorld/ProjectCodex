@@ -36,6 +36,7 @@ import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.ViewScoresState
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
@@ -84,6 +85,16 @@ private fun handleEffects(
             )
         }
         listener(HandledScorePadOpened)
+    }
+
+    if (state.openAddCountClicked) {
+        if (state.lastClickedEntryId != null) {
+            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
+            )
+        }
+        listener(HandledAddCountOpened)
     }
 
     if (state.openAddEndOnCompletedRound) {
@@ -177,11 +188,19 @@ fun ViewScoresScreen(
                                     .handle(it, CodexNavRoute.VIEW_SCORES::class)
                         },
                 ) {
-                    ViewScoresEntryRow(
-                            entry = entry,
-                            helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
-                            showPbs = !state.filters.contains<ShootFilter.PersonalBests>(),
-                    )
+                    if (entry.isCount) {
+                        ViewScoresCountRow(
+                                entries = ViewScoresEntryList(entry),
+                                helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
+                        )
+                    }
+                    else {
+                        ViewScoresEntryRow(
+                                entry = entry,
+                                helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
+                                showPbs = !state.filters.contains<ShootFilter.PersonalBests>(),
+                        )
+                    }
                 }
             }
         }

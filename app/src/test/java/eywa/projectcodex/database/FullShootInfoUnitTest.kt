@@ -3,9 +3,7 @@ package eywa.projectcodex.database
 import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addFullSetOfArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -13,7 +11,7 @@ import eywa.projectcodex.testUtils.TestData
 import eywa.projectcodex.testUtils.TestUtils
 import org.junit.Assert
 import org.junit.Test
-import java.util.*
+import java.util.Calendar
 
 class FullShootInfoUnitTest {
     private val resources: Resources = setUpResources()
@@ -37,10 +35,11 @@ class FullShootInfoUnitTest {
 
     @Test
     fun testScoreSummary_HasRoundWithArrows() {
-        val entry = ShootPreviewHelper
-                .newFullShootInfo(shoot = ShootPreviewHelper.newShoot(1, date))
-                .addRound(fullRoundInfo)
-                .addFullSetOfArrows()
+        val entry = ShootPreviewHelperDsl.create {
+            shoot = shoot.copy(dateShot = date)
+            round = fullRoundInfo
+            addFullSetOfArrows()
+        }
 
         Assert.assertEquals(
                 "WA - 20/06/22\nHits: 11, Score: 65, Golds (ten_long): 2",
@@ -50,9 +49,10 @@ class FullShootInfoUnitTest {
 
     @Test
     fun testScoreSummary_NoRoundWithArrows() {
-        val entry = ShootPreviewHelper
-                .newFullShootInfo(shoot = ShootPreviewHelper.newShoot(1, date))
-                .addFullSetOfArrows()
+        val entry = ShootPreviewHelperDsl.create {
+            shoot = shoot.copy(dateShot = date)
+            addFullSetOfArrows()
+        }
 
         Assert.assertEquals(
                 "No Round - 20/06/22\nHits: 11, Score: 65, Golds (nine_long): 3",
@@ -62,11 +62,52 @@ class FullShootInfoUnitTest {
 
     @Test
     fun testScoreSummary_NoRoundNoArrows() {
-        val entry = ShootPreviewHelper
-                .newFullShootInfo(shoot = ShootPreviewHelper.newShoot(1, date))
+        val entry = ShootPreviewHelperDsl.create {
+            shoot = shoot.copy(dateShot = date)
+        }
 
         Assert.assertEquals(
                 "No Round - 20/06/22\nNo arrows entered",
+                entry.getScoreSummary(resources)
+        )
+    }
+
+    @Test
+    fun testScoreSummary_CounterNoRoundNoArrows() {
+        val entry = ShootPreviewHelperDsl.create {
+            shoot = shoot.copy(dateShot = date)
+            addArrowCounter(0)
+        }
+
+        Assert.assertEquals(
+                "No Round - 20/06/22\n0 arrows shot",
+                entry.getScoreSummary(resources)
+        )
+    }
+
+    @Test
+    fun testScoreSummary_CounterNoRoundWithArrows() {
+        val entry = ShootPreviewHelperDsl.create {
+            shoot = shoot.copy(dateShot = date)
+            addArrowCounter(6)
+        }
+
+        Assert.assertEquals(
+                "No Round - 20/06/22\n6 arrows shot",
+                entry.getScoreSummary(resources)
+        )
+    }
+
+    @Test
+    fun testScoreSummary_CounterWithRoundWithArrows() {
+        val entry = ShootPreviewHelperDsl.create {
+            shoot = shoot.copy(dateShot = date)
+            round = fullRoundInfo
+            addArrowCounter(6)
+        }
+
+        Assert.assertEquals(
+                "WA - 20/06/22\n6 arrows shot",
                 entry.getScoreSummary(resources)
         )
     }
@@ -83,6 +124,7 @@ class FullShootInfoUnitTest {
                             "%1\$s - %2\$s\nHits: %3\$d, Score: %4\$d, Golds (%5\$s): %6\$d",
                     ),
                     Pair(R.string.email_round_summary_no_arrows, "%1\$s - %2\$s\nNo arrows entered"),
+                    Pair(R.string.email_round_summary_count, "%1\$s - %2\$s\n%3\$s arrows shot"),
                     Pair(R.string.table_golds_nines_full, "nine_long"),
                     Pair(R.string.table_golds_tens_full, "ten_long"),
                     Pair(R.string.table_golds_xs_full, "x_long"),
