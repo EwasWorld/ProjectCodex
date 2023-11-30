@@ -15,6 +15,7 @@ import eywa.projectcodex.components.about.AboutScreen
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
 import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsBottomSheetAdd
 import eywa.projectcodex.components.archerInfo.ArcherInfoScreen
+import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
@@ -42,6 +43,15 @@ enum class CodexNavRoute : NavRoute {
         @Composable
         override fun Screen(navController: NavController) {
             AboutScreen()
+        }
+    },
+    ARROW_COUNT_CALENDAR {
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.count_calendar__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            ArrowCountCalendarScreen()
         }
     },
     ARCHER_HANDICAPS {

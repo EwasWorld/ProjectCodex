@@ -1,6 +1,8 @@
 package eywa.projectcodex.database.shootData
 
 import androidx.room.*
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
@@ -164,4 +166,23 @@ interface ShootDao {
             roundId: Int? = null,
             subTpeId: Int? = null,
     ): Flow<List<DatabaseFullShootInfo>>
+
+    @Query(
+            """
+                SELECT
+                        strftime("%d-%m", shoot.dateShot / 1000, 'unixepoch') as dateString,
+                        (COUNT(scores.rowId) + TOTAL(counts.shotCount) + TOTAL(rounds.sightersCount)) as count
+                FROM $TABLE_NAME as shoot
+                LEFT JOIN ${DatabaseArrowScore.TABLE_NAME} as scores ON shoot.shootId = scores.shootId
+                LEFT JOIN ${DatabaseArrowCounter.TABLE_NAME} as counts ON shoot.shootId = counts.shootId
+                LEFT JOIN ${DatabaseShootRound.TABLE_NAME} as rounds ON shoot.shootId = rounds.shootId
+                WHERE shoot.dateShot >= :fromDate AND shoot.dateShot <= :toDate
+                GROUP BY dateString
+                ORDER BY shoot.dateShot, count
+            """
+    )
+    fun getCountsForCalendar(
+            fromDate: Calendar,
+            toDate: Calendar,
+    ): Flow<List<DatabaseArrowCountCalendarData>>
 }

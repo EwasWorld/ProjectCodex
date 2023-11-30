@@ -71,6 +71,14 @@ enum class MainMenuDefaultOptions(
             helpBody = ResOrActual.StringResource(R.string.help_main_menu__reference_tables_body),
             testTag = MainMenuTestTag.REFERENCE_TABLES_BUTTON,
     ),
+    CALENDAR(
+            buttonTitle = ResOrActual.StringResource(R.string.main_menu__calendar),
+            navRoute = CodexNavRoute.ARROW_COUNT_CALENDAR,
+            helpTitle = ResOrActual.StringResource(R.string.help_main_menu__calendar_title),
+            helpBody = ResOrActual.StringResource(R.string.help_main_menu__calendar_body),
+            testTag = MainMenuTestTag.CALENDAR_BUTTON,
+            shouldShow = { it.useBetaFeatures },
+    ),
     SETTINGS(
             icon = CodexIconInfo.VectorIcon(
                     imageVector = Icons.Default.Settings,

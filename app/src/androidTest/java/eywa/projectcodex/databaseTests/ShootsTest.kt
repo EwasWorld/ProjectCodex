@@ -3,6 +3,8 @@ package eywa.projectcodex.databaseTests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.ArrowCounterDao
@@ -323,6 +325,78 @@ class ShootsTest {
                         .getFullShootInfo(1)
                         .first()!!
                         .arrowCount
+        )
+    }
+
+    @Test
+    fun testGetCountsForCalendar() = runTest {
+        fun String.parseDate() = DateTimeFormat.SHORT_DATE_TIME.parse(this)
+
+        db.add(TestUtils.ROUNDS[0])
+
+        List(12) {
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 1 + it,
+                        dateShot = "${5 + it}/3/20 10:00".parseDate(),
+                )
+                if (it < 6) {
+                    addIdenticalArrows(3, 1)
+                }
+                else {
+                    addArrowCounter(12)
+                }
+            }
+        }.plus(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(
+                            shootId = 13,
+                            dateShot = "8/3/20 10:00".parseDate(),
+                    )
+                    addArrowCounter(24)
+                    addRound(TestUtils.ROUNDS[0], 6)
+                }
+        ).forEach { db.add(it) }
+
+        assertEquals(
+                listOf(
+                        DatabaseArrowCountCalendarData("07-03", 3),
+                        DatabaseArrowCountCalendarData("08-03", 33),
+                        DatabaseArrowCountCalendarData("09-03", 3),
+                        DatabaseArrowCountCalendarData("10-03", 3),
+                        DatabaseArrowCountCalendarData("11-03", 12),
+                        DatabaseArrowCountCalendarData("12-03", 12),
+                        DatabaseArrowCountCalendarData("13-03", 12),
+                ),
+                shootDao.getCountsForCalendar(
+                        fromDate = "7/3/20 02:00".parseDate(),
+                        toDate = "13/3/20 13:00".parseDate(),
+                ).first()
+        )
+    }
+
+    @Test
+    fun testGetShootsForCalendarRepo() = runTest {
+        fun Int.pad() = toString().padStart(2, '0')
+        fun String.parseDate() = DateTimeFormat.SHORT_DATE_TIME.parse(this)
+
+        List(90) {
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(
+                        shootId = 1 + it,
+                        dateShot = "01/02/20 10:00".parseDate().apply { add(Calendar.DATE, it) },
+                )
+                addArrowCounter(3)
+            }
+        }.forEach { db.add(it) }
+
+        assertEquals(
+                listOf(
+                        List(8) { "${(it + 22).pad()}-02" },
+                        List(31) { "${(it + 1).pad()}-03" },
+                        List(8) { "${(it + 1).pad()}-04" },
+                ).flatten(),
+                db.shootsRepo().getCountsForCalendar("05/03/20 10:00".parseDate()).first().map { it.dateString }
         )
     }
 }

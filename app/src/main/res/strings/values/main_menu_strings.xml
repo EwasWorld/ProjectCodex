@@ -4,6 +4,7 @@
     <string name="main_menu__new_score">Begin new score</string>
     <string name="main_menu__view_scores">View scores</string>
     <string name="main_menu__reference_tables">Reference Tables</string>
+    <string name="main_menu__calendar">Arrow counts</string>
     <string name="main_menu__classification_tables">Classifications</string>
     <string name="main_menu__sight_marks">Sight marks</string>
     <string name="main_menu__archer_info">Archer info</string>
@@ -20,6 +21,8 @@
     <string name="help_main_menu__view_scores_body">View, edit, and continue existing scores</string>
     <string name="help_main_menu__reference_tables_title">Reference tables</string>
     <string name="help_main_menu__reference_tables_body">Look up handicaps and classifications for rounds</string>
+    <string name="help_main_menu__calendar_title">Arrow counts calendar</string>
+    <string name="help_main_menu__calendar_body">Shows the number of arrows shot each week and month</string>
     <string name="help_main_menu__sight_marks_title">Sight marks</string>
     <string name="help_main_menu__sight_marks_body">Record and edit sight marks for each distance</string>
     <string name="help_main_menu__archer_info_title">Archer info</string>

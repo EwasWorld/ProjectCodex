@@ -1,4 +1,4 @@
-package eywa.projectcodex.prototyping
+package eywa.projectcodex.components.arrowCountCalendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,11 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
@@ -37,98 +41,17 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.prototyping.ArrowCountCalendarDisplayData.Entry
-import eywa.projectcodex.prototyping.ArrowCountCalendarDisplayData.Entry.Day
-import eywa.projectcodex.prototyping.ArrowCountCalendarDisplayData.Entry.WeeklyTotal
+import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarDisplayData.Entry.Day
+import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarDisplayData.Entry.WeeklyTotal
+import eywa.projectcodex.database.shootData.DatabaseArrowCountCalendarData
 import java.util.Calendar
 
-data class ArrowCountCalendarState(
-        val monthDisplayed: Calendar = Calendar.getInstance(),
-        val firstDayOfWeek: Int = Calendar.MONDAY,
-        private val arrowsShot: List<ArrowCountCalendarRawData> = emptyList(),
+@Composable
+fun ArrowCountCalendarScreen(
+        viewModel: ArrowCountCalendarViewModel = hiltViewModel(),
 ) {
-    val calendarHeadings =
-            DayOfWeek.values()
-                    // firstDayOfWeek is 1-indexed, hence the `-1`s
-                    .let { it.drop(firstDayOfWeek - 1) + it.take(firstDayOfWeek - 1) }
-                    .map { it.shortString }
-                    .plus(ResOrActual.Actual("Total"))
-
-    val data: ArrowCountCalendarDisplayData
-
-    init {
-        val entries = mutableListOf<Entry>()
-
-        // Note mutable datatype, is incremented in for loop
-        val dateToCheck = getFirstDateToDisplay()
-        val (lastDay, lastMonth) = getLastDateToDisplayExclusive()
-                .let { it.get(Calendar.DATE) to it.get(Calendar.MONTH) }
-        val currentMonth = monthDisplayed.get(Calendar.MONTH)
-
-        var monthlyTotal = 0
-        var weeklyTotal = 0
-
-        do {
-            val day = dateToCheck.get(Calendar.DATE)
-            val month = dateToCheck.get(Calendar.MONTH)
-            val count = arrowsShot
-                    .filter { day == it.date && month == it.month }
-                    .takeIf { it.isNotEmpty() }
-                    ?.sumOf { it.count }
-            if (count != null) {
-                weeklyTotal += count
-                if (month == currentMonth) {
-                    monthlyTotal += count
-                }
-            }
-
-            entries.add(Day(day, month == currentMonth, count))
-
-            dateToCheck.add(Calendar.DATE, 1)
-            if (dateToCheck.get(Calendar.DAY_OF_WEEK) == firstDayOfWeek) {
-                entries.add(WeeklyTotal(weeklyTotal))
-                weeklyTotal = 0
-            }
-        } while (dateToCheck.get(Calendar.DATE) != lastDay || dateToCheck.get(Calendar.MONTH) != lastMonth)
-
-        data = ArrowCountCalendarDisplayData(monthlyTotal, entries)
-    }
-
-    /**
-     * The first day of the week that includes the first day of the month
-     */
-    private fun getFirstDateToDisplay(): Calendar {
-        val firstDate = monthDisplayed.clone() as Calendar
-        firstDate.firstDayOfWeek = firstDayOfWeek
-        firstDate.set(Calendar.DATE, 1)
-        // Roll back to first day of week
-        while (firstDate.get(Calendar.DAY_OF_WEEK) != firstDayOfWeek) {
-            firstDate.add(Calendar.DATE, -1)
-        }
-        return firstDate
-    }
-
-    /**
-     * The last day of the week that includes the last day of the month
-     */
-    private fun getLastDateToDisplayExclusive(): Calendar {
-        val lastDate = monthDisplayed.clone() as Calendar
-        lastDate.set(Calendar.DATE, 28)
-        // Roll forward to first day of next month
-        while (lastDate.get(Calendar.MONTH) == monthDisplayed.get(Calendar.MONTH)
-            || lastDate.get(Calendar.DAY_OF_WEEK) != firstDayOfWeek
-        ) {
-            lastDate.add(Calendar.DATE, 1)
-        }
-
-        return lastDate
-    }
-}
-
-sealed class ArrowCountCalendarIntent {
-    object GoToNextMonth : ArrowCountCalendarIntent()
-    object GoToPreviousMonth : ArrowCountCalendarIntent()
+    val state by viewModel.state.collectAsState()
+    ArrowCountCalendarScreen(state) { viewModel.handle(it) }
 }
 
 @Composable
@@ -138,7 +61,7 @@ fun ArrowCountCalendarScreen(
 ) {
     var height by remember { mutableStateOf(0.dp) }
 
-    ProvideTextStyle(CodexTypography.SMALL) {
+    ProvideTextStyle(CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
         Column(
                 modifier = Modifier.padding(CodexTheme.dimens.screenPadding),
         ) {
@@ -158,7 +81,11 @@ fun ArrowCountCalendarScreen(
                         style = CodexTypography.LARGE,
                         color = CodexTheme.colors.onAppBackground,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(5.dp)
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                                .padding(5.dp)
+                                .weight(1f)
                 )
                 CodexIconButton(
                         icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.ChevronLeft),
@@ -204,6 +131,13 @@ fun ArrowCountCalendarScreen(
                     modifier = Modifier
                             .padding(5.dp)
                             .align(Alignment.End)
+            )
+            Text(
+                    text = "Note: amounts include sighters",
+                    style = CodexTypography.X_SMALL,
+                    color = CodexTheme.colors.onAppBackground,
+                    fontStyle = FontStyle.Italic,
+                    modifier = Modifier.align(Alignment.End)
             )
         }
     }
@@ -261,42 +195,13 @@ private fun WeeklyTotal(entry: WeeklyTotal, itemHeight: Dp) {
         Text(
                 text = entry.count.toString(),
                 textAlign = TextAlign.Center,
+                style = CodexTypography.NORMAL,
+                color = CodexTheme.colors.onListItemAppOnBackground,
                 modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
-data class ArrowCountCalendarRawData(
-        val date: Int,
-        val month: Int,
-        val count: Int,
-)
-
-data class ArrowCountCalendarDisplayData(
-        val totalForMonth: Int,
-        val entries: List<Entry>,
-) {
-    sealed class Entry {
-        data class Day(
-                val date: Int,
-                val isCurrentMonth: Boolean,
-                val count: Int?,
-        ) : Entry()
-
-        data class WeeklyTotal(val count: Int) : Entry()
-    }
-}
-
-
-/**
- * Note DO NOT change the order of these, they match the order of [Calendar.SUNDAY] etc.
- */
-enum class DayOfWeek {
-    SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
-    ;
-
-    val shortString: ResOrActual<String> = ResOrActual.Actual(name.take(1))
-}
 
 @Preview(
         showBackground = true,
@@ -304,18 +209,17 @@ enum class DayOfWeek {
 )
 @Composable
 fun ArrowCountCalendarScreen_Preview() {
-    val date = Calendar.getInstance()
+    val date = DateTimeFormat.SHORT_DATE.parse("15/4/23")
     val firstDayOfWeek = Calendar.MONDAY
     date.firstDayOfWeek = firstDayOfWeek
-    val currentMonth = date.get(Calendar.MONTH)
     CodexTheme {
         ArrowCountCalendarScreen(
                 ArrowCountCalendarState(
                         monthDisplayed = date,
                         firstDayOfWeek = firstDayOfWeek,
                         arrowsShot = listOf(
-                                ArrowCountCalendarRawData(2, currentMonth, 24),
-                                ArrowCountCalendarRawData(31, currentMonth - 1, 6),
+                                DatabaseArrowCountCalendarData("02-04", 24),
+                                DatabaseArrowCountCalendarData("31-03", 6),
                         )
                 )
         ) {}

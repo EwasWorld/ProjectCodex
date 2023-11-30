@@ -33,7 +33,7 @@ enum class DateTimeFormat(val pattern: String) {
     SEMANTICS_DATE("yy/MM/dd"),
 
     // November 2023
-    LONG_MONTH_YEAR("MMMMM yyyy"),
+    LONG_MONTH_YEAR("MMMM yyyy"),
 
     TIME_24_HOUR("HH:mm"),
     TIME_12_HOUR("hh:mm a"),

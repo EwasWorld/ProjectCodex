@@ -1,11 +1,13 @@
 package eywa.projectcodex.database.shootData
 
 import androidx.room.Transaction
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.flow.Flow
+import java.util.Calendar
 
 class ShootsRepo(
         private val shootDao: ShootDao,
@@ -39,6 +41,22 @@ class ShootsRepo(
 
     fun getFullShootInfo(shootIds: List<Int>) = shootDao.getFullShootInfo(shootIds)
     fun getFullShootInfo(shootId: Int) = shootDao.getFullShootInfo(shootId)
+
+    /**
+     * Grabs all data from the month of [date], plus 8 days before and after
+     */
+    fun getCountsForCalendar(date: Calendar): Flow<List<DatabaseArrowCountCalendarData>> {
+        val month = date.get(Calendar.MONTH) + 1
+        val year = date.get(Calendar.YEAR)
+        val from = DateTimeFormat.SHORT_DATE_TIME.parse("1/$month/$year 00:01")
+        from.add(Calendar.DATE, -8)
+
+        val nextMonth = (month + 1).let { if (it > 12) 1 else it }
+        val nextYear = if (nextMonth == 1) year + 1 else year
+        val to = DateTimeFormat.SHORT_DATE_TIME.parse("8/$nextMonth/$nextYear 23:59")
+
+        return shootDao.getCountsForCalendar(from, to)
+    }
 
     suspend fun insert(shoot: DatabaseShoot) = shootDao.insert(shoot)
 
