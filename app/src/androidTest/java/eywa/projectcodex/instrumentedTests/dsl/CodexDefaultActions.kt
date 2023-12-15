@@ -16,6 +16,7 @@ object CodexDefaultActions {
     }
 
     fun TestActionDsl.matchTextBox(testTag: CodexTestTag) {
+        useUnmergedTree = true
         +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
         +CodexNodeMatcher.HasSetTextAction
     }

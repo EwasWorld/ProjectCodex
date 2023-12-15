@@ -15,13 +15,12 @@ val MIGRATION_10_11 = DbMigrationDsl.createMigration(10, 11) {
     shootSubTablesMigration()
     shootMigration()
     arrowMigration()
-    renameColumn("sight_marks", "id", "sightMarkId")
+    sightMarkMigration()
 
     createViews()
 }
 
 private fun DbMigrationDsl.bowMigration() {
-    renameColumn("bows", "id", "bowId")
     renameTable("bows", "bows_old")
 
     createTable("bows") {
@@ -37,7 +36,7 @@ private fun DbMigrationDsl.bowMigration() {
             //language=RoomSql
             """
                 INSERT INTO `bows` (`bowId`, `name`, `description`, `type`, `isSightMarkDiagramHighestAtTop`)
-                SELECT `bowId`, "Default", NULL, 0, `isSightMarkDiagramHighestAtTop` 
+                SELECT `id`, "Default", NULL, 0, `isSightMarkDiagramHighestAtTop` 
                 FROM bows_old;
             """
     )
@@ -241,7 +240,50 @@ private fun DbMigrationDsl.arrowMigration() {
     dropTable("arrow_values")
 }
 
-// TODO Db schema for 10 needs rerecording, I'm pretty sure it's not up to date
+fun DbMigrationDsl.sightMarkMigration() {
+    renameTable("sight_marks", "sight_marks_old")
+
+    createTable("sight_marks") {
+        addColumn(DbTableColumn("sightMarkId", ColumnType.INTEGER))
+        addColumn(DbTableColumn("bowId", ColumnType.INTEGER, nullable = true, indexed = true))
+        addColumn(DbTableColumn("distance", ColumnType.INTEGER))
+        addColumn(DbTableColumn("isMetric", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("dateSet", ColumnType.CALENDAR))
+        addColumn(DbTableColumn("sightMark", ColumnType.REAL))
+        addColumn(DbTableColumn("note", ColumnType.TEXT, nullable = true))
+        addColumn(DbTableColumn("isMarked", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("isArchived", ColumnType.BOOLEAN))
+        addColumn(DbTableColumn("useInPredictions", ColumnType.BOOLEAN))
+
+        singlePrimaryKey("sightMarkId")
+
+        addForeignKey(
+                DbTableForeignKey(
+                        foreignTableName = "bows",
+                        foreignTableColumn = listOf("bowId"),
+                        tableColumn = listOf("bowId"),
+                        onDelete = ForeignKey.CASCADE,
+                )
+        )
+
+    }
+    customQuery(
+            //language=RoomSql
+            """
+                INSERT INTO `sight_marks` (
+                    `sightMarkId`, `bowId`, `distance`, `isMetric`, `dateSet`, `sightMark`, 
+                    `note`, `isMarked`, `isArchived`, `useInPredictions`
+                )
+                SELECT 
+                    `id`, `bowId`, `distance`, `isMetric`, `dateSet`, `sightMark`, 
+                    `note`, `isMarked`, `isArchived`, `useInPredictions` 
+                FROM sight_marks_old;
+            """
+    )
+
+    dropTable("sight_marks_old")
+}
+
 // Note the view migration seems to be sensitive to whitespace changes, copy directly from new schema
 //language=RoomSql
 private fun DbMigrationDsl.createViews() {

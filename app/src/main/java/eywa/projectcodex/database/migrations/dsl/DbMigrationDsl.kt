@@ -38,6 +38,10 @@ class DbMigrationDsl {
 
     fun renameColumn(tableName: String, oldColumnName: String, newColumnName: String) {
         sqlStrings.add("ALTER TABLE `$tableName` RENAME COLUMN $oldColumnName TO $newColumnName")
+
+        // https://stackoverflow.com/questions/62269319/sqlite-syntax-error-code-1-when-renaming-a-column-name
+        // Seems like this is poorly supported therefore should not be used, will need to create a new table instead
+        throw UnsupportedOperationException()
     }
 
     companion object {

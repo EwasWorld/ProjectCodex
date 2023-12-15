@@ -48,6 +48,46 @@ class V10To11MigrationTests {
     }
 
     @Test
+    fun testMigrateSightMarks() {
+        val oldValues = ContentValues().apply {
+            put("id", 2)
+            put("bowId", 3)
+            put("distance", 4)
+            put("isMetric", 0)
+            put("dateSet", 5)
+            put("sightMark", 6f)
+            put("note", "Hi")
+            put("isMarked", 1)
+            put("isArchived", 0)
+            put("useInPredictions", 1)
+        }
+
+        val db = createAndRunMigrations {
+            insert("sight_marks", SQLiteDatabase.CONFLICT_ABORT, oldValues)
+        }
+
+        //language=RoomSql
+        val response = db.query("SELECT * FROM sight_marks")
+        assertEquals(1, response.count)
+        response.moveToFirst()
+
+        val newValues = mapOf(
+                "sightMarkId" to 2,
+                "bowId" to 3,
+                "distance" to 4,
+                "isMetric" to 0,
+                "dateSet" to 5,
+                "sightMark" to 6f,
+                "note" to "Hi",
+                "isMarked" to 1,
+                "isArchived" to 0,
+                "useInPredictions" to 1,
+        )
+
+        checkValues(response, newValues)
+    }
+
+    @Test
     fun testMigrateBow() {
         val oldValues = ContentValues().apply {
             put("id", 1)

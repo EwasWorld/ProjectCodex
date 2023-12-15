@@ -21,6 +21,9 @@ class DbTableColumn(
      * CREATE INDEX statement
      */
     fun getIndex(tableName: String) =
-            if (indexed) "CREATE INDEX index_${tableName}_${name} ON $tableName ($name)"
+            if (indexed) listOf(
+                    "DROP INDEX IF EXISTS index_${tableName}_${name}",
+                    "CREATE INDEX index_${tableName}_${name} ON $tableName ($name)"
+            )
             else null
 }

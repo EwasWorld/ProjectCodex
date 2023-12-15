@@ -10,7 +10,7 @@ class DbCreateTableDsl internal constructor(private val tableName: String) {
 
     fun addColumn(column: DbTableColumn) {
         columns.add(column.getDefinition())
-        column.getIndex(tableName)?.let { indexes.add(it) }
+        column.getIndex(tableName)?.let { indexes.addAll(it) }
     }
 
     fun addForeignKey(foreignKey: DbTableForeignKey) {
