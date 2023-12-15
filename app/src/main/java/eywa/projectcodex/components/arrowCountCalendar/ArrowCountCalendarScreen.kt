@@ -5,8 +5,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -18,20 +18,17 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.common.sharedUi.CodexGrid
@@ -49,6 +46,10 @@ import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarDisplay
 import eywa.projectcodex.database.shootData.DatabaseArrowCountCalendarData
 import java.util.Calendar
 
+private val betweenCellPadding = 2.dp
+private val arrowCountTextPadding = 5.dp
+private val totalCountTextPadding = 8.dp
+
 @Composable
 fun ArrowCountCalendarScreen(
         viewModel: ArrowCountCalendarViewModel = hiltViewModel(),
@@ -57,14 +58,13 @@ fun ArrowCountCalendarScreen(
     ArrowCountCalendarScreen(state) { viewModel.handle(it) }
 }
 
+@OptIn(ExperimentalTextApi::class)
 @Composable
 fun ArrowCountCalendarScreen(
         state: ArrowCountCalendarState,
         listener: (ArrowCountCalendarIntent) -> Unit,
 ) {
-    var height by remember { mutableStateOf(0.dp) }
-
-    ProvideTextStyle(CodexTypography.SMALL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
+    ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
         Column(
                 modifier = Modifier
                         .verticalScroll(rememberScrollState())
@@ -105,23 +105,35 @@ fun ArrowCountCalendarScreen(
                 )
             }
 
+            val measurer = rememberTextMeasurer()
+            val minColWidth = with(LocalDensity.current) {
+                measurer.measure("000").size.width.toDp() + (arrowCountTextPadding + betweenCellPadding) * 2
+            }
+            val minTotalColumnWidth = with(LocalDensity.current) {
+                measurer.measure("000", CodexTypography.LARGE).size.width.toDp() +
+                        (totalCountTextPadding + betweenCellPadding) * 2
+            }
+
             CodexGrid(
                     columns = List(8) { if (it < 7) Match(1) else WrapContent },
                     alignment = Alignment.Center,
                     modifier = Modifier
                             .horizontalScroll(rememberScrollState())
                             .padding(10.dp)
+                            .align(Alignment.CenterHorizontally)
             ) {
-                state.calendarHeadings.forEach {
+                state.calendarHeadings.forEachIndexed { index, text ->
+                    val minWidth = if (index == state.calendarHeadings.lastIndex) minTotalColumnWidth else minColWidth
                     item(fillBox = true) {
                         Text(
-                                text = it.get(),
+                                text = text.get(),
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                        .padding(2.dp)
+                                        .padding(betweenCellPadding)
                                         .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                                        .padding(vertical = 5.dp)
+                                        .padding(arrowCountTextPadding)
+                                        .widthIn(min = minWidth)
                         )
                     }
                 }
@@ -129,8 +141,8 @@ fun ArrowCountCalendarScreen(
                 state.data.entries.forEach { entry ->
                     item(fillBox = true) {
                         when (entry) {
-                            is Day -> Day(entry, height) { height = it }
-                            is WeeklyTotal -> WeeklyTotal(entry, height)
+                            is Day -> Day(entry)
+                            is WeeklyTotal -> WeeklyTotal(entry)
                         }
                     }
                 }
@@ -138,7 +150,7 @@ fun ArrowCountCalendarScreen(
 
             Text(
                     text = "Month's total: ${state.data.totalForMonth}",
-                    style = CodexTypography.NORMAL,
+                    style = CodexTypography.LARGE,
                     color = CodexTheme.colors.onAppBackground,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -149,7 +161,7 @@ fun ArrowCountCalendarScreen(
             )
             Text(
                     text = "Note: amounts include sighters",
-                    style = CodexTypography.X_SMALL,
+                    style = CodexTypography.SMALL,
                     color = CodexTheme.colors.onAppBackground,
                     fontStyle = FontStyle.Italic,
                     modifier = Modifier
@@ -163,24 +175,17 @@ fun ArrowCountCalendarScreen(
 @Composable
 private fun Day(
         entry: Day,
-        itemHeight: Dp,
-        onHeightChanged: (Dp) -> Unit,
 ) {
     val alpha = if (!entry.isCurrentMonth) 0.7f else 1f
-    val density = LocalDensity.current
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier
                     .alpha(alpha)
-                    .padding(2.dp)
+                    .padding(betweenCellPadding)
                     .background(CodexTheme.colors.listItemOnAppBackground)
-                    .padding(3.dp)
-                    .onSizeChanged {
-                        val h = with(density) { it.height.toDp() }
-                        if (itemHeight < h) onHeightChanged(h)
-                    }
+                    .padding(arrowCountTextPadding)
     ) {
         Text(
                 text = entry.date.toString(),
@@ -200,20 +205,19 @@ private fun Day(
 }
 
 @Composable
-private fun WeeklyTotal(entry: WeeklyTotal, itemHeight: Dp) {
+private fun WeeklyTotal(entry: WeeklyTotal) {
     Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                    .padding(2.dp)
+                    .padding(betweenCellPadding)
                     .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                    .padding(3.dp)
-                    .height(itemHeight)
+                    .padding(totalCountTextPadding)
     ) {
         Text(
                 text = entry.count.toString(),
                 textAlign = TextAlign.Center,
-                style = CodexTypography.NORMAL,
+                style = CodexTypography.LARGE,
                 color = CodexTheme.colors.onListItemAppOnBackground,
         )
     }
@@ -223,6 +227,7 @@ private fun WeeklyTotal(entry: WeeklyTotal, itemHeight: Dp) {
 @Preview(
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        widthDp = 600
 )
 @Composable
 fun ArrowCountCalendarScreen_Preview() {
