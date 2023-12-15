@@ -24,12 +24,25 @@ class CodexGridConfig {
     }
 }
 
+sealed class CodexGridColumn {
+    object WrapContent : CodexGridColumn()
+    data class Match(val group: Int) : CodexGridColumn()
+}
+
+@Composable
+fun CodexGrid(
+        columns: Int,
+        alignment: Alignment,
+        modifier: Modifier = Modifier,
+        config: CodexGridConfig.() -> Unit,
+) = CodexGrid(List(columns) { CodexGridColumn.WrapContent }, alignment, modifier, config)
+
 /**
  * Create a grid where each column is the width of the item with the largest width
  */
 @Composable
 fun CodexGrid(
-        columns: Int,
+        columns: List<CodexGridColumn>,
         alignment: Alignment,
         modifier: Modifier = Modifier,
         config: CodexGridConfig.() -> Unit,
@@ -39,15 +52,21 @@ fun CodexGrid(
     val items = CodexGridConfig().apply { config() }.items
     val content = @Composable { items.forEach { it.content() } }
 
+    val columnGroups = columns.filterIsInstance<CodexGridColumn.Match>()
+            .withIndex()
+            .groupBy { it.value.group }
+            .values
+            .map { list -> list.map { it.index } }
+
     SubcomposeLayout(
             modifier = modifier,
     ) { constraints ->
-        val columnWidths = MutableList(columns) { 0 }
+        val columnWidths = MutableList(columns.size) { 0 }
         val rowHeights = mutableListOf<Int>()
         val originalPlaceables = subcompose(SlotsEnum.MAIN, content).mapIndexed { index, measurable ->
             val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
 
-            val columnIndex = index % columns
+            val columnIndex = index % columns.size
             columnWidths[columnIndex] = maxOf(placeable.width, columnWidths[columnIndex])
 
             if (columnIndex == 0) {
@@ -58,10 +77,15 @@ fun CodexGrid(
             placeable
         }
 
+        columnGroups.forEach { group ->
+            val width = columnWidths.slice(group).max()
+            group.forEach { columnWidths[it] = width }
+        }
+
         val placeables = subcompose(SlotsEnum.DEPENDANT, content).mapIndexed { index, measurable ->
             if (items[index].fillBox) {
-                val columnWidth = columnWidths[index % columns]
-                val rowHeight = rowHeights[index.floorDiv(columns)]
+                val columnWidth = columnWidths[index % columns.size]
+                val rowHeight = rowHeights[index.floorDiv(columns.size)]
                 measurable.measure(constraints.copy(minWidth = columnWidth, minHeight = rowHeight))
             }
             else {
@@ -74,7 +98,7 @@ fun CodexGrid(
             var y = 0
 
             placeables.forEachIndexed { index, placeable ->
-                val columnIndex = index % columns
+                val columnIndex = index % columns.size
                 val columnWidth = columnWidths[columnIndex]
                 val rowHeight = rowHeights.first()
 
@@ -88,7 +112,7 @@ fun CodexGrid(
                         x = x + offset.x,
                         y = y + offset.y,
                 )
-                if (columnIndex < columns - 1) {
+                if (columnIndex < columns.size - 1) {
                     x += columnWidth
                 }
                 else {
