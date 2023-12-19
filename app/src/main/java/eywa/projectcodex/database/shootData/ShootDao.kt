@@ -73,15 +73,9 @@ interface ShootDao {
     @Transaction
     @Query(
             """
-                SELECT *
-                FROM ${ShootWithScore.TABLE_NAME}
-                WHERE roundId = :roundId
-                    AND nonNullSubTypeId = :subTypeId
-                    AND score = (
-                        SELECT score
-                        FROM ${PersonalBest.TABLE_NAME}
-                        WHERE roundId = :roundId AND roundSubTypeId = :subTypeId
-                    )
+                SELECT s.*, MAX(s.score) as maxScore
+                FROM ${ShootWithScore.TABLE_NAME} as s
+                WHERE s.roundId = :roundId AND s.nonNullSubTypeId = :subTypeId
             """
     )
     fun getRoundPb(
