@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.shootDetails.stats
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -453,7 +455,7 @@ private fun PastRecordsSection(
         state: StatsState,
         listener: (StatsIntent) -> Unit,
 ) {
-    if (state.recentPastRoundScores.isNullOrEmpty()) return
+    if (state.pastRoundScores.isNullOrEmpty()) return
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Section {
@@ -484,15 +486,9 @@ private fun PastRecordsSection(
                         onClick = { listener(PastRoundRecordsDismissed) },
                 ),
         ) {
-            val records =
-                    if (state.pastRoundScoresTab == StatsScreenPastRecordsTabs.RECENT) state.recentPastRoundScores
-                    else state.bestPastRoundScores
-            val pbScore = state.bestPastRoundScores!![0].score
-            val isTied = state.bestPastRoundScores.getOrNull(1)?.score?.let { it == pbScore } ?: false
-            val delim = stringResource(R.string.archer_round_stats__past_record_item_delim).let { " $it " }
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(25.dp),
                     modifier = Modifier.fillMaxWidth()
             ) {
                 CodexTabSwitcher(
@@ -501,60 +497,86 @@ private fun PastRecordsSection(
                         itemClickedListener = { listener(StatsIntent.PastRecordsTabClicked(it)) },
                         itemColor = CodexTheme.colors.tabSwitcherOnDialogSelected,
                         dividerColor = CodexTheme.colors.tabSwitcherOnDialogDivider,
-                        modifier = Modifier.padding(bottom = 15.dp)
+                        modifier = Modifier.testTag(StatsTestTag.PAST_RECORDS_DIALOG_TAB)
                 )
 
-                records!!.forEach { shootRecord ->
-                    val isPb = shootRecord.score == pbScore
-                    val isCurrentShoot = shootRecord.shootId == state.fullShootInfo.id
-
-                    val text = listOfNotNull(
-                            DateTimeFormat.SHORT_DATE.format(shootRecord.dateShot),
-                            shootRecord.score.toString(),
-                    )
-
-                    val background = when {
-                        isPb -> CodexTheme.colors.personalBestTag
-                        isCurrentShoot -> CodexTheme.colors.dialogBackgroundAccent
-                        else -> null
+                Crossfade(
+                        targetState = state.pastRoundScores,
+                        label = "recentBestRecordsTextFade"
+                ) { records ->
+                    Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                    ) {
+                        records.forEach { PastScore(state, it) }
                     }
-
-                    val extraSemanticTextIds = mutableListOf<Int>()
-                    if (isPb) {
-                        extraSemanticTextIds.add(
-                                if (isTied) R.string.archer_round_stats__is_tied_pb
-                                else R.string.archer_round_stats__is_pb
-                        )
-                    }
-                    if (isCurrentShoot) {
-                        extraSemanticTextIds.add(R.string.archer_round_stats__past_records_current)
-                    }
-                    val extraSemanticText = extraSemanticTextIds.map { stringResource(it) }
-
-                    Text(
-                            text = text.joinToString(delim),
-                            style = style().copy(color = CodexTheme.colors.onDialogBackground),
-                            modifier = Modifier
-                                    .testTag(PAST_RECORDS_DIALOG_ITEM.getTestTag())
-                                    .modifierIf(
-                                            predicate = background != null,
-                                            modifier = Modifier
-                                                    .background(
-                                                            color = background ?: Color.Transparent,
-                                                            shape = RoundedCornerShape(100),
-                                                    )
-                                                    .padding(horizontal = 10.dp)
-                                    )
-                                    .semantics {
-                                        contentDescription = text
-                                                .plus(extraSemanticText)
-                                                .joinToString(delim)
-                                    }
-                    )
                 }
             }
         }
     }
+}
+
+
+@Composable
+private fun PastScore(
+        state: StatsState,
+        shootRecord: DatabaseShootShortRecord,
+) {
+    val delim = stringResource(R.string.archer_round_stats__past_record_item_delim).let { " $it " }
+
+    val isPb = shootRecord.score == state.pastRoundScoresPb
+    val isCurrentShoot = shootRecord.shootId == state.fullShootInfo.id
+
+    val text = listOfNotNull(
+            DateTimeFormat.SHORT_DATE.format(shootRecord.dateShot),
+            shootRecord.score.toString(),
+    )
+
+    val background = when {
+        isPb -> CodexTheme.colors.personalBestTag
+        isCurrentShoot -> CodexTheme.colors.dialogBackgroundAccent
+        else -> null
+    }
+
+    val extraSemanticTextIds = mutableListOf<Int>()
+    if (isPb) {
+        extraSemanticTextIds.add(
+                if (state.pastRoundScoresPbIsTied) R.string.archer_round_stats__is_tied_pb
+                else R.string.archer_round_stats__is_pb
+        )
+    }
+    if (isCurrentShoot) {
+        extraSemanticTextIds.add(R.string.archer_round_stats__past_records_current)
+    }
+    if (!shootRecord.isComplete) {
+        extraSemanticTextIds.add(R.string.archer_round_stats__past_records_incomplete)
+    }
+    val extraSemanticText = extraSemanticTextIds.map { stringResource(it) }
+
+    Text(
+            text = text.joinToString(delim),
+            style = style().copy(color = CodexTheme.colors.onDialogBackground),
+            textDecoration = (
+                    if (shootRecord.isComplete) TextDecoration.None else TextDecoration.LineThrough
+                    ),
+            modifier = Modifier
+                    .testTag(PAST_RECORDS_DIALOG_ITEM.getTestTag())
+                    .modifierIf(
+                            predicate = background != null,
+                            modifier = Modifier
+                                    .background(
+                                            color = background ?: Color.Transparent,
+                                            shape = RoundedCornerShape(100),
+                                    )
+                                    .padding(horizontal = 10.dp)
+                    )
+                    .semantics {
+                        contentDescription = text
+                                .plus(extraSemanticText)
+                                .joinToString(delim)
+                    }
+    )
 }
 
 @Composable
@@ -659,6 +681,7 @@ enum class StatsTestTag : CodexTestTag {
     GOLDS_TEXT,
     REMAINING_ARROWS_TEXT,
     PAST_RECORDS_LINK_TEXT,
+    PAST_RECORDS_DIALOG_TAB,
     PAST_RECORDS_DIALOG_ITEM,
     PB_TEXT,
     HANDICAP_TEXT,
@@ -684,12 +707,12 @@ fun NoRound_StatsScreen_Preview() {
     CodexTheme {
         StatsScreen(
                 StatsState(
+                        extras = StatsExtras(),
                         main = ShootDetailsState(
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addFullSetOfArrows()
                                 }
                         ),
-                        extras = StatsExtras(),
                 )
         ) {}
     }
@@ -716,7 +739,7 @@ fun RoundIncomplete_StatsScreen_Preview() {
                                         DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
                         ),
-                        extras = StatsExtras(),
+                        extras = StatsExtras(pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT),
                 )
         ) {}
     }
@@ -743,7 +766,7 @@ fun RoundComplete_StatsScreen_Preview() {
                                         DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
                         ),
-                        extras = StatsExtras(),
+                        extras = StatsExtras(pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT),
                 )
         ) {}
     }
@@ -772,7 +795,10 @@ fun PastRecords_StatsScreen_Preview() {
                                         DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
                         ),
-                        extras = StatsExtras(isPastRoundRecordsDialogOpen = true),
+                        extras = StatsExtras(
+                                isPastRoundRecordsDialogOpen = true,
+                                pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT,
+                        ),
                 )
         ) {}
     }

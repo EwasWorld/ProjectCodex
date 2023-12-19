@@ -17,10 +17,6 @@ class StatsState(
     val openEditShootScreen = extras.openEditShootScreen
     val openEditArcherInfoScreen = extras.openEditArcherInfoScreen
     val archerHandicaps = main.archerHandicaps
-    val recentPastRoundScores = main.pastRoundRecords?.sortedByDescending { it.dateShot }
-    val bestPastRoundScores = main.roundPbs?.sortedByDescending { it.score }
-    val pastRoundScoresTab = extras.pastRoundScoresTab
-    val isPastRoundRecordsDialogOpen = extras.isPastRoundRecordsDialogOpen
 
     val archerHandicap
         get() = when {
@@ -85,6 +81,23 @@ class StatsState(
 
             return extrasList
         }
+
+    /*
+     * Past scores
+     */
+    val pastRoundScoresTab = extras.pastRoundScoresTab
+    private val recentPastRoundScores = main.pastRoundRecords?.sortedByDescending { it.dateShot }
+    private val bestPastRoundScores = main.roundPbs?.sortedByDescending { it.score }
+    val pastRoundScores =
+            if (recentPastRoundScores == null || recentPastRoundScores.size < 2) null
+            else if (pastRoundScoresTab == StatsScreenPastRecordsTabs.RECENT) recentPastRoundScores
+            else bestPastRoundScores
+    val pastRoundScoresPb
+        get() = bestPastRoundScores?.firstOrNull()?.score
+    val pastRoundScoresPbIsTied
+        get() = bestPastRoundScores?.getOrNull(1)?.score?.let { it == pastRoundScoresPb } ?: false
+    val isPastRoundRecordsDialogOpen = extras.isPastRoundRecordsDialogOpen
+
 }
 
 data class StatsExtras(

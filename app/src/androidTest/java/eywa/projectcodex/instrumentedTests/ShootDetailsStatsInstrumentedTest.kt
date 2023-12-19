@@ -314,6 +314,18 @@ class ShootDetailsStatsInstrumentedTest {
                                         ShootDetailsStatsRobot.PastRecordsDialogItem("19/12/11", 1239),
                                 )
                         )
+                        clickPastRecordsRecentTab()
+                        checkPastRecordsDialogItems(
+                                listOf(
+                                        ShootDetailsStatsRobot.PastRecordsDialogItem(
+                                                "20/12/11",
+                                                1264,
+                                                "Personal best! - Current"
+                                        ),
+                                        ShootDetailsStatsRobot.PastRecordsDialogItem("19/12/11", 1239),
+                                        ShootDetailsStatsRobot.PastRecordsDialogItem("18/12/11", 1250),
+                                )
+                        )
                     }
                 }
             }

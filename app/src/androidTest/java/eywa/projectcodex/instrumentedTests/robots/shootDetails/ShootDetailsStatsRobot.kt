@@ -1,6 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
 import eywa.projectcodex.common.ComposeTestRule
+import eywa.projectcodex.common.sharedUi.TabSwitcherTestTag
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
@@ -137,6 +138,23 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
+            +CodexNodeInteraction.PerformClick()
+        }
+    }
+
+    fun clickPastRecordsBestTab() {
+        clickPastRecordsTab("Best")
+    }
+
+    fun clickPastRecordsRecentTab() {
+        clickPastRecordsTab("Recent")
+    }
+
+    private fun clickPastRecordsTab(tab: String) {
+        perform {
+            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_TAB))
+            +CodexNodeMatcher.HasTestTag(TabSwitcherTestTag.ITEM)
+            +CodexNodeMatcher.HasText(tab)
             +CodexNodeInteraction.PerformClick()
         }
     }
