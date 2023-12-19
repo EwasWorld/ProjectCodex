@@ -24,6 +24,8 @@ fun <T : NamedItem> CodexTabSwitcher(
         selectedItem: T,
         itemClickedListener: (T) -> Unit,
         modifier: Modifier = Modifier,
+        itemColor: Color = CodexTheme.colors.tabSwitcherSelected,
+        dividerColor: Color = CodexTheme.colors.tabSwitcherDivider,
 ) {
     require(items.count() >= 2) { "Must have at least two items" }
     val selectedTabIndex = items.indexOfFirst { selectedItem == it }
@@ -32,11 +34,11 @@ fun <T : NamedItem> CodexTabSwitcher(
     TabRow(
             selectedTabIndex = selectedTabIndex,
             containerColor = Color.Transparent,
-            divider = { Divider(color = CodexTheme.colors.tabSwitcherDivider) },
+            divider = { Divider(color = dividerColor) },
             indicator = {
                 TabRowDefaults.Indicator(
                         modifier = Modifier.tabIndicatorOffset(it[selectedTabIndex]),
-                        color = CodexTheme.colors.tabSwitcherSelected,
+                        color = itemColor,
                 )
             },
             modifier = modifier
@@ -48,7 +50,7 @@ fun <T : NamedItem> CodexTabSwitcher(
                     text = {
                         Text(
                                 text = item.label.get(),
-                                color = CodexTheme.colors.tabSwitcherSelected,
+                                color = itemColor,
                         )
                     },
                     modifier = Modifier.testTag(TabSwitcherTestTag.ITEM)

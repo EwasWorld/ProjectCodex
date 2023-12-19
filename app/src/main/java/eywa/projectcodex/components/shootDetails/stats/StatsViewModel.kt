@@ -10,7 +10,15 @@ import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoHandled
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootHandled
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRecordsTabClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsDismissed
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.ShootDetailsAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -26,7 +34,6 @@ class StatsViewModel @Inject constructor(
     private val screen = CodexNavRoute.SHOOT_DETAILS_STATS
     private val extraState = MutableStateFlow(StatsExtras())
 
-    @Suppress("UNCHECKED_CAST")
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,
@@ -47,6 +54,7 @@ class StatsViewModel @Inject constructor(
             EditArcherInfoHandled -> extraState.update { it.copy(openEditArcherInfoScreen = false) }
             PastRoundRecordsClicked -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = true) }
             PastRoundRecordsDismissed -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = false) }
+            is PastRecordsTabClicked -> extraState.update { it.copy(pastRoundScoresTab = action.tab) }
         }
     }
 }

@@ -46,6 +46,7 @@ import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
+import eywa.projectcodex.common.sharedUi.CodexTabSwitcher
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.SimpleDialog
@@ -54,12 +55,14 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -481,18 +484,27 @@ private fun PastRecordsSection(
                         onClick = { listener(PastRoundRecordsDismissed) },
                 ),
         ) {
-            val records = state.recentPastRoundScores
+            val records =
+                    if (state.pastRoundScoresTab == StatsScreenPastRecordsTabs.RECENT) state.recentPastRoundScores
+                    else state.bestPastRoundScores
             val pbScore = state.bestPastRoundScores!![0].score
             val isTied = state.bestPastRoundScores.getOrNull(1)?.score?.let { it == pbScore } ?: false
             val delim = stringResource(R.string.archer_round_stats__past_record_item_delim).let { " $it " }
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 20.dp)
+                    modifier = Modifier.fillMaxWidth()
             ) {
-                records.forEach { shootRecord ->
+                CodexTabSwitcher(
+                        items = StatsScreenPastRecordsTabs.values().toList(),
+                        selectedItem = state.pastRoundScoresTab,
+                        itemClickedListener = { listener(StatsIntent.PastRecordsTabClicked(it)) },
+                        itemColor = CodexTheme.colors.tabSwitcherOnDialogSelected,
+                        dividerColor = CodexTheme.colors.tabSwitcherOnDialogDivider,
+                        modifier = Modifier.padding(bottom = 15.dp)
+                )
+
+                records!!.forEach { shootRecord ->
                     val isPb = shootRecord.score == pbScore
                     val isCurrentShoot = shootRecord.shootId == state.fullShootInfo.id
 
@@ -631,6 +643,11 @@ private fun Section(
     ) {
         content()
     }
+}
+
+enum class StatsScreenPastRecordsTabs(override val label: ResOrActual<String>) : NamedItem {
+    BEST(ResOrActual.StringResource(R.string.archer_round_stats__past_records_best_tab)),
+    RECENT(ResOrActual.StringResource(R.string.archer_round_stats__past_records_recent_tab)),
 }
 
 enum class StatsTestTag : CodexTestTag {

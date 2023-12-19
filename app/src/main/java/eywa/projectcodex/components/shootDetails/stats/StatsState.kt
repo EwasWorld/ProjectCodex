@@ -19,6 +19,7 @@ class StatsState(
     val archerHandicaps = main.archerHandicaps
     val recentPastRoundScores = main.pastRoundRecords?.sortedByDescending { it.dateShot }
     val bestPastRoundScores = main.roundPbs?.sortedByDescending { it.score }
+    val pastRoundScoresTab = extras.pastRoundScoresTab
     val isPastRoundRecordsDialogOpen = extras.isPastRoundRecordsDialogOpen
 
     val archerHandicap
@@ -90,4 +91,5 @@ data class StatsExtras(
         val openEditShootScreen: Boolean = false,
         val openEditArcherInfoScreen: Boolean = false,
         val isPastRoundRecordsDialogOpen: Boolean = false,
+        val pastRoundScoresTab: StatsScreenPastRecordsTabs = StatsScreenPastRecordsTabs.BEST,
 )
