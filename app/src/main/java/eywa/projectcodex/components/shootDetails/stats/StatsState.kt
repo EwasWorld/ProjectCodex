@@ -17,14 +17,8 @@ class StatsState(
     val openEditShootScreen = extras.openEditShootScreen
     val openEditArcherInfoScreen = extras.openEditArcherInfoScreen
     val archerHandicaps = main.archerHandicaps
-    val pastRoundRecords = main.pastRoundRecords?.let { pastRecords ->
-        if (main.roundPb != null && pastRecords.none { it.shootId == main.roundPb.shootId }) {
-            pastRecords.plus(main.roundPb)
-        }
-        else {
-            pastRecords
-        }
-    }
+    val recentPastRoundScores = main.pastRoundRecords?.sortedByDescending { it.dateShot }
+    val bestPastRoundScores = main.roundPbs?.sortedByDescending { it.score }
     val isPastRoundRecordsDialogOpen = extras.isPastRoundRecordsDialogOpen
 
     val archerHandicap

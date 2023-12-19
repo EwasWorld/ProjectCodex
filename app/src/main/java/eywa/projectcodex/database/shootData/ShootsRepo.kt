@@ -20,8 +20,8 @@ class ShootsRepo(
             shootDao.getMostRecentShootsForRound(count, roundId, subTypeId)
 
     @Transaction
-    fun getRoundPb(roundId: Int, subTypeId: Int = 1) =
-            shootDao.getRoundPb(roundId, subTypeId)
+    fun getHighestScoreShootsForRound(count: Int, roundId: Int, subTypeId: Int = 1) =
+            shootDao.getHighestScoreShootsForRound(count, roundId, subTypeId)
 
     @Transaction
     fun getFullShootInfo(

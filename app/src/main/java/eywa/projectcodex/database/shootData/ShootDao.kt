@@ -52,14 +52,13 @@ interface ShootDao {
     )
     fun getFullShootInfo(shootId: Int): Flow<DatabaseFullShootInfo?>
 
-    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
             """
-                SELECT *
+                SELECT shootId, dateShot, score, isComplete
                 FROM ${ShootWithScore.TABLE_NAME}
-                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND isComplete
-                ORDER BY score DESC, dateShot
+                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId
+                ORDER BY dateShot
                 LIMIT :count
             """
     )
@@ -67,21 +66,23 @@ interface ShootDao {
             count: Int,
             roundId: Int,
             subTypeId: Int,
-    ): Flow<List<DatabaseFullShootInfo>>
+    ): Flow<List<DatabaseShootShortRecord>>
 
-    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
             """
-                SELECT s.*, MAX(s.score) as maxScore
-                FROM ${ShootWithScore.TABLE_NAME} as s
-                WHERE s.roundId = :roundId AND s.nonNullSubTypeId = :subTypeId
+                SELECT shootId, dateShot, score, isComplete
+                FROM ${ShootWithScore.TABLE_NAME}
+                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId
+                ORDER BY score DESC, dateShot
+                LIMIT :count
             """
     )
-    fun getRoundPb(
+    fun getHighestScoreShootsForRound(
+            count: Int,
             roundId: Int,
             subTypeId: Int,
-    ): Flow<DatabaseFullShootInfo?>
+    ): Flow<List<DatabaseShootShortRecord>>
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction

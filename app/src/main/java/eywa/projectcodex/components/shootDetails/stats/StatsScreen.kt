@@ -63,7 +63,6 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
-import eywa.projectcodex.components.shootDetails.ShootRecord
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
@@ -91,6 +90,7 @@ import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ROUND_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCORE_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCREEN
 import eywa.projectcodex.database.RoundFace
+import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.model.FullShootInfo
 import java.util.Calendar
 import kotlin.math.abs
@@ -450,7 +450,7 @@ private fun PastRecordsSection(
         state: StatsState,
         listener: (StatsIntent) -> Unit,
 ) {
-    if (state.pastRoundRecords.isNullOrEmpty()) return
+    if (state.recentPastRoundScores.isNullOrEmpty()) return
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Section {
@@ -481,9 +481,9 @@ private fun PastRecordsSection(
                         onClick = { listener(PastRoundRecordsDismissed) },
                 ),
         ) {
-            val records = state.pastRoundRecords.sortedByDescending { it.score }
-            val pbScore = records.first().score
-            val isTied = records.getOrNull(1)?.score?.let { it == pbScore } ?: false
+            val records = state.recentPastRoundScores
+            val pbScore = state.bestPastRoundScores!![0].score
+            val isTied = state.bestPastRoundScores.getOrNull(1)?.score?.let { it == pbScore } ?: false
             val delim = stringResource(R.string.archer_round_stats__past_record_item_delim).let { " $it " }
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -695,8 +695,8 @@ fun RoundIncomplete_StatsScreen_Preview() {
                                 },
                                 archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
                                 pastRoundRecords = listOf(
-                                        ShootRecord(2, Calendar.getInstance(), 400),
-                                        ShootRecord(1, Calendar.getInstance(), 700),
+                                        DatabaseShootShortRecord(2, Calendar.getInstance(), 400, true),
+                                        DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
                         ),
                         extras = StatsExtras(),
@@ -722,8 +722,8 @@ fun RoundComplete_StatsScreen_Preview() {
                                 },
                                 archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
                                 pastRoundRecords = listOf(
-                                        ShootRecord(2, Calendar.getInstance(), 400),
-                                        ShootRecord(1, Calendar.getInstance(), 700),
+                                        DatabaseShootShortRecord(2, Calendar.getInstance(), 400, true),
+                                        DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
                         ),
                         extras = StatsExtras(),
@@ -747,10 +747,12 @@ fun PastRecords_StatsScreen_Preview() {
                                     completeRound(arrowScore = 7, isX = false)
                                 },
                                 archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
-                                roundPb = ShootRecord(3, Calendar.getInstance(), 500),
+                                roundPbs = listOf(
+                                        DatabaseShootShortRecord(3, Calendar.getInstance(), 500, true),
+                                ),
                                 pastRoundRecords = listOf(
-                                        ShootRecord(2, Calendar.getInstance(), 400),
-                                        ShootRecord(1, Calendar.getInstance(), 700),
+                                        DatabaseShootShortRecord(2, Calendar.getInstance(), 400, true),
+                                        DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
                         ),
                         extras = StatsExtras(isPastRoundRecordsDialogOpen = true),
