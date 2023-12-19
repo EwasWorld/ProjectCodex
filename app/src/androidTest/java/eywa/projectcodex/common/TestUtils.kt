@@ -2,7 +2,7 @@ package eywa.projectcodex.common
 
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import eywa.projectcodex.common.utils.asCalendar
+import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -11,7 +11,6 @@ import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.model.Arrow
 import org.mockito.ArgumentCaptor
-import java.sql.Date
 import java.util.Calendar
 import kotlin.random.Random
 
@@ -116,7 +115,7 @@ object TestUtils {
                     else -> 31
                 }
         )
-        return Date.valueOf("$year-$generatedMonth-$day").asCalendar()
+        return DateTimeFormat.SHORT_DATE.parse("$day/$generatedMonth/$year")
     }
 
     fun generateShoots(roundsToGenerate: Int): List<DatabaseShoot> = List(roundsToGenerate) { generateDate() }

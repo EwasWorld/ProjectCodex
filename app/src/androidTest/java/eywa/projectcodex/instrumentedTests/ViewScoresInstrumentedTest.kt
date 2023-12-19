@@ -9,7 +9,6 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -33,7 +32,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
-import java.sql.Date
 import java.util.Calendar
 
 @HiltAndroidTest
@@ -134,32 +132,32 @@ class ViewScoresInstrumentedTest {
                     addIdenticalArrows(1, 1)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(shootId = 2, dateShot = Date.valueOf("2012-2-2").asCalendar())
+                    shoot = shoot.copy(shootId = 2, dateShot = DateTimeFormat.SHORT_DATE.parse("02/02/2012"))
                     round = rounds[0]
                     addIdenticalArrows(1, 2)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(shootId = 3, dateShot = Date.valueOf("2011-3-3").asCalendar())
+                    shoot = shoot.copy(shootId = 3, dateShot = DateTimeFormat.SHORT_DATE.parse("03/03/2011"))
                     round = rounds[1]
                     addIdenticalArrows(1, 3)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(shootId = 4, dateShot = Date.valueOf("2010-4-4").asCalendar())
+                    shoot = shoot.copy(shootId = 4, dateShot = DateTimeFormat.SHORT_DATE.parse("04/04/2010"))
                     round = rounds[1]
                     roundSubTypeId = 2
                     addIdenticalArrows(1, 4)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(shootId = 5, dateShot = Date.valueOf("2009-5-5").asCalendar())
+                    shoot = shoot.copy(shootId = 5, dateShot = DateTimeFormat.SHORT_DATE.parse("05/05/2009"))
                     addIdenticalArrows(1, 5)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(shootId = 6, dateShot = Date.valueOf("2008-6-6").asCalendar())
+                    shoot = shoot.copy(shootId = 6, dateShot = DateTimeFormat.SHORT_DATE.parse("06/06/2008"))
                     round = rounds[0]
                     addArrowCounter(6)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(shootId = 7, dateShot = Date.valueOf("2007-7-7").asCalendar())
+                    shoot = shoot.copy(shootId = 7, dateShot = DateTimeFormat.SHORT_DATE.parse("07/07/2007"))
                     addArrowCounter(7)
                 },
         )

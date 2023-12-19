@@ -16,6 +16,7 @@ fun Date.asCalendar(): Calendar =
         else {
             Calendar.getInstance(Locale.getDefault()).apply {
                 set(year + 1900, month, date, hours, minutes, seconds)
+                set(Calendar.MILLISECOND, (this@asCalendar.time % 1000L).toInt())
             }
         }
 
