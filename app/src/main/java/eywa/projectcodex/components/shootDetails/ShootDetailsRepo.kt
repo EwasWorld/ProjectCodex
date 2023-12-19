@@ -8,7 +8,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archer.DatabaseArcherHandicap
+import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.datastore.CodexDatastore
@@ -63,10 +63,7 @@ class ShootDetailsRepo(
                     .map { it.fullShootInfo?.shoot?.archerId }
                     .distinctUntilChanged()
                     .flatMapLatest { archerId ->
-                        if (archerId == null) {
-                            return@flatMapLatest flow<List<DatabaseArcherHandicap>?> { emit(null) }
-                        }
-                        db.archerRepo().getLatestHandicaps(archerId)
+                        db.archerRepo().getLatestHandicaps(archerId ?: DEFAULT_ARCHER_ID)
                     }
                     .collectLatest { handicaps ->
                         state.update { it.copy(archerHandicaps = handicaps) }
@@ -100,7 +97,7 @@ class ShootDetailsRepo(
                         if (dbInfo == null) {
                             state.update {
                                 if (shootId != it.shootId) it
-                                else ShootDetailsState(shootId = shootId, isError = true).preserveDatastoreInfo(it)
+                                else ShootDetailsState(shootId = shootId, isError = true).preserveFixedInfo(it)
                             }
                             return@collectLatest
                         }
@@ -154,9 +151,9 @@ class ShootDetailsRepo(
     private fun setupState(shootId: Int?) {
         when {
             shootId == null ->
-                state.update { ShootDetailsState(isError = true).preserveDatastoreInfo(it) }
+                state.update { ShootDetailsState(isError = true).preserveFixedInfo(it) }
             state.value.shootId != shootId ->
-                state.update { ShootDetailsState(shootId = shootId).preserveDatastoreInfo(it) }
+                state.update { ShootDetailsState(shootId = shootId).preserveFixedInfo(it) }
         }
     }
 
@@ -179,8 +176,12 @@ class ShootDetailsRepo(
                 )
             }
 
-    private fun ShootDetailsState.preserveDatastoreInfo(oldState: ShootDetailsState) =
-            copy(useBetaFeatures = oldState.useBetaFeatures, use2023System = oldState.use2023System)
+    private fun ShootDetailsState.preserveFixedInfo(oldState: ShootDetailsState) =
+            copy(
+                    useBetaFeatures = oldState.useBetaFeatures,
+                    use2023System = oldState.use2023System,
+                    archerHandicaps = oldState.archerHandicaps,
+            )
 }
 
 @Module

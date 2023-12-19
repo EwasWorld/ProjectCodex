@@ -1,7 +1,6 @@
 package eywa.projectcodex.components.shootDetails.stats
 
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
-import eywa.projectcodex.database.archer.HandicapType
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -16,14 +15,13 @@ class StatsState(
     val useBetaFeatures = main.useBetaFeatures ?: false
     val openEditShootScreen = extras.openEditShootScreen
     val openEditArcherInfoScreen = extras.openEditArcherInfoScreen
-    val archerHandicaps = main.archerHandicaps
+    val archerHandicaps = main.archerHandicaps?.sortedByDescending { it.dateSet }
 
     val archerHandicap
         get() = when {
             archerHandicaps.isNullOrEmpty() -> null
             fullShootInfo.round == null -> null
-            fullShootInfo.round.isOutdoor -> archerHandicaps.find { it.handicapType == HandicapType.OUTDOOR }
-            else -> archerHandicaps.find { it.handicapType == HandicapType.INDOOR }
+            else -> archerHandicaps.firstOrNull()
         }?.handicap
 
     val allowance: Int?
