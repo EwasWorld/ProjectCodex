@@ -259,24 +259,26 @@ fun SightMarkDetail(
                                     .testTag(DATE.getTestTag())
                     )
                 }
-                Text(
-                        text = stringResource(
-                                if (state.updateDateSet) R.string.sight_marks__update_date_set_true
-                                else R.string.sight_marks__update_date_set_false
-                        ),
-                        style = CodexTypography.SMALL
-                                .copy(color = CodexTheme.colors.onAppBackground)
-                                .asClickableStyle(),
-                        modifier = Modifier
-                                .clickable { listener(ToggleUpdateDateSet) }
-                                .updateHelpDialogPosition(
-                                        HelpState(
-                                                helpListener,
-                                                stringResource(R.string.help_sight_marks__update_date_set_title),
-                                                stringResource(R.string.help_sight_marks__update_date_set_body),
-                                        )
-                                )
-                )
+                if (state.originalSightMark != null) {
+                    Text(
+                            text = stringResource(
+                                    if (state.updateDateSet) R.string.sight_marks__update_date_set_true
+                                    else R.string.sight_marks__update_date_set_false
+                            ),
+                            style = CodexTypography.SMALL
+                                    .copy(color = CodexTheme.colors.onAppBackground)
+                                    .asClickableStyle(),
+                            modifier = Modifier
+                                    .clickable { listener(ToggleUpdateDateSet) }
+                                    .updateHelpDialogPosition(
+                                            HelpState(
+                                                    helpListener,
+                                                    stringResource(R.string.help_sight_marks__update_date_set_title),
+                                                    stringResource(R.string.help_sight_marks__update_date_set_body),
+                                            )
+                                    )
+                    )
+                }
             }
             FlowRow(
                     mainAxisSpacing = CODEX_CHIP_SPACING,
