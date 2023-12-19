@@ -313,6 +313,7 @@ private fun <T : NamedItem> ItemSelector(
             ) {
                 FlowRow(
                         verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
                         modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
                 ) {
                     item.label.get().split(" ").forEach { itemLabelWord ->
