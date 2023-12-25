@@ -2,31 +2,63 @@ package eywa.projectcodex.common.sharedUi
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import androidx.compose.foundation.clickable
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import java.util.Calendar
 
 @Composable
-fun CodexDateSelectorRow(
+fun CodexDateTimeSelectorRow(
         date: Calendar,
+        helpState: HelpState?,
         updateDateListener: (UpdateCalendarInfo) -> Unit,
-        helpListener: (HelpShowcaseIntent) -> Unit,
         modifier: Modifier = Modifier,
+        textClickableStyle: TextStyle = LocalTextStyle.current.asClickableStyle(),
 ) {
     val context = LocalContext.current
-    val timePicker by lazy {
+    val datePicker = codexDateSelector(context, date, updateDateListener)
+    val timePicker = codexTimeSelector(context, date, updateDateListener)
+
+    DataRow(
+            title = stringResource(R.string.create_round__date),
+            helpState = helpState,
+            modifier = modifier
+    ) {
+        Text(
+                text = DateTimeFormat.TIME_24_HOUR.format(date),
+                style = textClickableStyle,
+                modifier = Modifier
+                        .clickable { timePicker.show() }
+                        .testTag(DateSelectorRowTestTag.TIME_BUTTON.getTestTag())
+        )
+        Text(
+                text = DateTimeFormat.LONG_DATE.format(date),
+                style = textClickableStyle,
+                modifier = Modifier
+                        .clickable { datePicker.show() }
+                        .testTag(DateSelectorRowTestTag.DATE_BUTTON.getTestTag())
+        )
+    }
+}
+
+fun codexTimeSelector(
+        context: Context,
+        date: Calendar,
+        updateDateListener: (UpdateCalendarInfo) -> Unit,
+) =
+
         TimePickerDialog(
                 context,
                 { _, hours, minutes ->
@@ -36,8 +68,13 @@ fun CodexDateSelectorRow(
                 date.get(Calendar.MINUTE),
                 true,
         )
-    }
-    val datePicker by lazy {
+
+fun codexDateSelector(
+        context: Context,
+        date: Calendar,
+        updateDateListener: (UpdateCalendarInfo) -> Unit,
+) =
+
         DatePickerDialog(
                 context,
                 { _, year, month, day ->
@@ -47,33 +84,6 @@ fun CodexDateSelectorRow(
                 date.get(Calendar.MONTH),
                 date.get(Calendar.DATE),
         )
-    }
-
-    DataRow(
-            title = stringResource(R.string.create_round__date),
-            helpState = HelpState(
-                    helpTitle = stringResource(R.string.help_create_round__date_title),
-                    helpBody = stringResource(R.string.help_create_round__date_body),
-                    helpListener = helpListener,
-            ),
-            modifier = modifier
-    ) {
-        Text(
-                text = DateTimeFormat.TIME_24_HOUR.format(date),
-                style = CodexTypography.NORMAL.asClickableStyle(),
-                modifier = Modifier
-                        .clickable { timePicker.show() }
-                        .testTag(DateSelectorRowTestTag.TIME_BUTTON.getTestTag())
-        )
-        Text(
-                text = DateTimeFormat.LONG_DATE.format(date),
-                style = CodexTypography.NORMAL.asClickableStyle(),
-                modifier = Modifier
-                        .clickable { datePicker.show() }
-                        .testTag(DateSelectorRowTestTag.DATE_BUTTON.getTestTag())
-        )
-    }
-}
 
 data class UpdateCalendarInfo(
         val day: Int? = null,

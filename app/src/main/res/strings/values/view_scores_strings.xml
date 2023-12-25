@@ -48,6 +48,24 @@
     <string name="view_scores__deselect_entry">Deselect</string>
     <string name="view_scores__selected">Selected</string>
 
+    <string name="view_scores__filters_dialog_toggle">Filters</string>
+    <plurals name="view_scores__active_filters_indicator_semantics">
+        <item quantity="one">%s active filter</item>
+        <item quantity="other">%s active filters</item>
+    </plurals>
+    <string name="view_scores__filters_no_filter">No filter</string>
+    <string name="view_scores__filters_clear_from_filter">No filter</string>
+    <string name="view_scores__filters_from_date">From:</string>
+    <string name="view_scores__filters_until_date">Until:</string>
+    <string name="view_scores__filters_title">Filters</string>
+    <string name="view_scores__filters_clear">Clear filter</string>
+    <string name="view_scores__filters_invalid_dates">Invalid date range: \'from\' must be before \'until\'</string>
+    <string name="view_scores__filters_type_title">Type:</string>
+    <string name="view_scores__filters_type_all">All</string>
+    <string name="view_scores__filters_personal_bests">Personal bests:</string>
+    <string name="view_scores__filters_personal_bests_only">Only PBs</string>
+    <string name="view_scores__filters_close">Close filters</string>
+
     <!-- Convert score -->
     <string name="view_scores_menu__convert">Convert</string>
     <string name="view_scores__convert_xs_to_tens">Xs to 10s</string>
@@ -86,4 +104,11 @@
     <string name="help_view_score__action_multi_select_body">Email all selected entries</string>
     <string name="help_view_score__select_all_or_none_title">Select all</string>
     <string name="help_view_score__select_all_or_none_body">Select all entries. If all entries are selected, deselects all entries</string>
+
+    <string name="help_view_scores__filters_dialog_toggle_title">Filters</string>
+    <string name="help_view_scores__filters_dialog_toggle_body">Filter the entries shown</string>
+    <string name="help_view_scores__filters_from_title">From</string>
+    <string name="help_view_scores__filters_from_body">Shows entries shot more recently than the given date</string>
+    <string name="help_view_scores__filters_until_title">Until</string>
+    <string name="help_view_scores__filters_until_body">Shows entries shot more before the given date</string>
 </resources>

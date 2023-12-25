@@ -20,8 +20,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.sharedUi.*
-import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.RoundIntent.*
@@ -40,7 +40,7 @@ import kotlin.math.roundToInt
 fun SelectRoundRows(
         state: SelectRoundDialogState,
         helpListener: (HelpShowcaseIntent) -> Unit,
-        style: TextStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+        textClickableStyle: TextStyle = LocalTextStyle.current.asClickableStyle(),
         listener: (SelectRoundDialogIntent) -> Unit,
 ) = SelectRoundRows(
         displayedRound = (
@@ -58,7 +58,7 @@ fun SelectRoundRows(
         distanceUnit = state.selectedRound?.getDistanceUnit(),
         getDistance = { subType -> state.getFurthestDistance(subType)!!.distance },
         helpListener = helpListener,
-        style = style,
+        textClickableStyle = textClickableStyle,
         listener = listener,
 )
 
@@ -76,53 +76,53 @@ fun SelectRoundRows(
         distanceUnit: String?,
         getDistance: (RoundSubType) -> Int,
         helpListener: (HelpShowcaseIntent) -> Unit,
-        style: TextStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+        textClickableStyle: TextStyle = LocalTextStyle.current.asClickableStyle(),
         listener: (SelectRoundDialogIntent) -> Unit,
 ) {
-    ProvideTextStyle(value = style) {
-        SelectRoundDialog(
-                isShown = isSelectRoundDialogOpen,
-                displayedRounds = rounds,
-                enabledFilters = filters,
-                listener = listener,
-        )
-        SelectSubtypeDialog(
-                isShown = isSelectSubtypeDialogOpen,
-                subTypes = subTypes,
-                getDistance = getDistance,
-                distanceUnit = distanceUnit,
-                listener = listener,
-        )
+    SelectRoundDialog(
+            isShown = isSelectRoundDialogOpen,
+            displayedRounds = rounds,
+            enabledFilters = filters,
+            listener = listener,
+    )
+    SelectSubtypeDialog(
+            isShown = isSelectSubtypeDialogOpen,
+            subTypes = subTypes,
+            getDistance = getDistance,
+            distanceUnit = distanceUnit,
+            listener = listener,
+    )
 
 
+    DataRow(
+            title = stringResource(R.string.create_round__round),
+            text = displayedRound,
+            helpState = HelpState(
+                    helpListener = helpListener,
+                    helpTitle = stringResource(R.string.help_create_round__round_title),
+                    helpBody = stringResource(R.string.help_create_round__round_body),
+            ),
+            modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
+            onClick = { listener(OpenRoundDialog) },
+            textClickableStyle = textClickableStyle,
+    )
+    if (displayedSubtype != null) {
         DataRow(
-                title = stringResource(R.string.create_round__round),
-                text = displayedRound,
+                title = stringResource(R.string.create_round__round_sub_type),
+                text = displayedSubtype,
                 helpState = HelpState(
                         helpListener = helpListener,
-                        helpTitle = stringResource(R.string.help_create_round__round_title),
-                        helpBody = stringResource(R.string.help_create_round__round_body),
+                        helpTitle = stringResource(R.string.help_create_round__sub_round_title),
+                        helpBody = stringResource(R.string.help_create_round__sub_round_body),
                 ),
-                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
-                onClick = { listener(OpenRoundDialog) },
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW.getTestTag()),
+                onClick = { listener(OpenSubTypeDialog) },
+                textClickableStyle = textClickableStyle,
         )
-        if (displayedSubtype != null) {
-            DataRow(
-                    title = stringResource(R.string.create_round__round_sub_type),
-                    text = displayedSubtype,
-                    helpState = HelpState(
-                            helpListener = helpListener,
-                            helpTitle = stringResource(R.string.help_create_round__sub_round_title),
-                            helpBody = stringResource(R.string.help_create_round__sub_round_body),
-                    ),
-                    modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW.getTestTag()),
-                    onClick = { listener(OpenSubTypeDialog) },
-            )
-        }
-
-
-        RoundInfoHints(distanceUnit, arrowCounts, roundSubtypeDistances, helpListener)
     }
+
+
+    RoundInfoHints(distanceUnit, arrowCounts, roundSubtypeDistances, helpListener)
 }
 
 @Composable

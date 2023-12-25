@@ -6,8 +6,6 @@
     <string name="settings__handicap_system_david_lane">David Lane</string>
     <string name="settings__handicap_system_agb_2023">2023 ArcheryGB</string>
     <string name="settings__use_beta_features">Beta features:</string>
-    <string name="settings__use_beta_features_on">On</string>
-    <string name="settings__use_beta_features_off">Off</string>
     <string name="settings__use_beta_features_warning">Warning: turning beta features on could cause crashes in the app</string>
 
     <string name="help_settings__use_2023_system_title">Handicap system</string>

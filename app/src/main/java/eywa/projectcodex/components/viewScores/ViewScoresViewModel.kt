@@ -7,12 +7,13 @@ import eywa.projectcodex.common.diActivityHelpers.ShootIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
+import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -35,7 +36,8 @@ class ViewScoresViewModel @Inject constructor(
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.asStateFlow()
 
-    private val arrowScoresRepo: ArrowScoresRepo = ArrowScoresRepo(db.arrowScoreDao())
+    private val arrowScoresRepo = db.arrowScoresRepo()
+    private val roundRepo = db.roundsRepo()
     private val shootsRepo: ShootsRepo = db.shootsRepo()
 
     init {
@@ -60,12 +62,21 @@ class ViewScoresViewModel @Inject constructor(
                         }
                     }
         }
+        viewModelScope.launch {
+            roundRepo.fullRoundsInfo.collect { data ->
+                val action = ViewScoresFiltersIntent.UpdateRoundsFilter(SelectRoundDialogIntent.SetRounds(data))
+                handle(FiltersAction(action))
+            }
+        }
     }
 
     fun handle(action: ViewScoresIntent) {
         when (action) {
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.VIEW_SCORES::class)
             is MultiSelectAction -> handleMultiSelectIntent(action.action)
+            is FiltersAction ->
+                _state.update { it.copy(viewScoresFiltersState = action.action.handle(it.viewScoresFiltersState)) }
+
             is EffectComplete -> handleEffectComplete(action)
             is ConvertScoreAction -> handleConvertScoreIntent(action.action)
             is EntryClicked -> {
@@ -109,10 +120,6 @@ class ViewScoresViewModel @Inject constructor(
                 if (id != null) {
                     viewModelScope.launch { shootsRepo.deleteRound(id) }
                 }
-            }
-
-            is AddFilter -> _state.update {
-                it.copy(filters = it.filters.plus(action.filter))
             }
         }
     }

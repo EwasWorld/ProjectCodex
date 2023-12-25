@@ -81,6 +81,8 @@
     <string name="general_comma_separator">,\u0020</string>
     <string name="general_error">Error</string>
     <string name="general_loading">Loading…</string>
+    <string name="general_on">On</string>
+    <string name="general_off">Off</string>
 
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__general_error_dialog_title">Error</string>

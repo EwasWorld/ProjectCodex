@@ -22,7 +22,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
-import eywa.projectcodex.common.sharedUi.CodexDateSelectorRow
+import eywa.projectcodex.common.sharedUi.CodexDateTimeSelectorRow
 import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -71,10 +71,10 @@ private fun AddHandicapBottomSheetContent(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.padding(horizontal = 20.dp)
             ) {
-                CodexDateSelectorRow(
+                CodexDateTimeSelectorRow(
                         date = state.date,
                         updateDateListener = { listener(DateChanged(it)) },
-                        helpListener = { },
+                        helpState = null,
                         modifier = Modifier.padding(vertical = 3.dp)
                 )
                 Column(

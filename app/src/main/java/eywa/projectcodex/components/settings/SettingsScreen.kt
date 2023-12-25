@@ -80,8 +80,8 @@ fun SettingsScreen(
                 DataRow(
                         title = stringResource(R.string.settings__use_beta_features),
                         text = stringResource(
-                                if (state.useBetaFeatures) R.string.settings__use_beta_features_on
-                                else R.string.settings__use_beta_features_off
+                                if (state.useBetaFeatures) R.string.general_on
+                                else R.string.general_off
                         ),
                         helpState = HelpState(
                                 helpListener = helpListener,

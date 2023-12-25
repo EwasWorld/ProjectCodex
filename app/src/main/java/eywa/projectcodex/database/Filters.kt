@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 /**
  * A set of items that each have a different subtype. All items must have the same parent class
  */
-class Filters<T : Any> private constructor(private val items: Map<KClass<out T>, T> = mapOf()) {
+data class Filters<T : Any> private constructor(private val items: Map<KClass<out T>, T> = mapOf()) {
     constructor() : this(emptyMap())
     constructor(items: Iterable<T>) : this(items.associateBy { it::class })
 
@@ -19,18 +19,6 @@ class Filters<T : Any> private constructor(private val items: Map<KClass<out T>,
     inline fun <reified I : T> contains() = contains(I::class)
     inline fun <reified I : T> minus() = minus(I::class)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Filters<*>
-
-        if (items != other.items) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return items.hashCode()
-    }
+    val size
+        get() = items.size
 }

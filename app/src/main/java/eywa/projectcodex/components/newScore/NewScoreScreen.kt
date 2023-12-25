@@ -31,7 +31,7 @@ import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
-import eywa.projectcodex.common.sharedUi.CodexDateSelectorRow
+import eywa.projectcodex.common.sharedUi.CodexDateTimeSelectorRow
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -110,10 +110,14 @@ fun NewScoreScreen(
                         .padding(25.dp)
                         .testTag(NewScoreTestTag.SCREEN.getTestTag())
         ) {
-            CodexDateSelectorRow(
+            CodexDateTimeSelectorRow(
                     date = state.dateShot,
+                    helpState = HelpState(
+                            helpListener = helpListener,
+                            helpTitle = stringResource(R.string.help_create_round__date_title),
+                            helpBody = stringResource(R.string.help_create_round__date_body),
+                    ),
                     updateDateListener = { listener(DateChanged(it)) },
-                    helpListener = { listener(HelpShowcaseAction(it)) },
             )
             RoundSelectionSection(state, listener)
             ScoringTypeSection(state, listener)

@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
+import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersState
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.shootData.ShootFilter
 
@@ -27,9 +28,15 @@ data class ViewScoresState(
         val openEmailClicked: Boolean = false,
         val openEditInfoClicked: Boolean = false,
 
-        val filters: Filters<ShootFilter> = Filters(),
+        val viewScoresFiltersState: ViewScoresFiltersState = ViewScoresFiltersState(),
 ) {
     val lastClickedEntry by lazy {
         lastClickedEntryId?.let { id -> data.find { it.id == id } }
     }
+
+    val filters: Filters<ShootFilter>
+        get() = viewScoresFiltersState.filters
+
+    val actionBarExtended
+        get() = isInMultiSelectMode || viewScoresFiltersState.isExpanded
 }

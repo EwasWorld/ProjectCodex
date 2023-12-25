@@ -28,6 +28,7 @@ fun DataRow(
         onClickLabel: String? = null,
         accessibilityRole: Role? = null,
         textStyle: TextStyle = LocalTextStyle.current,
+        textClickableStyle: TextStyle = LocalTextStyle.current.asClickableStyle(),
         titleStyle: TextStyle = textStyle,
 ) = DataRow(
         title = title,
@@ -41,7 +42,7 @@ fun DataRow(
 ) {
     Text(
             text = text,
-            style = if (onClick == null) textStyle else textStyle.asClickableStyle(),
+            style = if (onClick == null) textStyle else textClickableStyle,
             modifier = textModifier.modifierIf(
                     onClick != null,
                     Modifier.clickable { onClick!!.invoke() }

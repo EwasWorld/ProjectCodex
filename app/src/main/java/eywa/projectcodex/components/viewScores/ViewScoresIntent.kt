@@ -2,9 +2,9 @@ package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
+import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
-import eywa.projectcodex.database.shootData.ShootFilter
 
 sealed class ViewScoresIntent {
     data class EntryClicked(val shootId: Int) : ViewScoresIntent()
@@ -12,6 +12,7 @@ sealed class ViewScoresIntent {
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ViewScoresIntent()
     data class MultiSelectAction(val action: MultiSelectBarIntent) : ViewScoresIntent()
+    data class FiltersAction(val action: ViewScoresFiltersIntent) : ViewScoresIntent()
     data class ConvertScoreAction(val action: ConvertScoreIntent) : ViewScoresIntent()
 
     data class DropdownMenuClicked(val item: ViewScoresDropdownMenuItem, val shootId: Int) : ViewScoresIntent()
@@ -21,8 +22,6 @@ sealed class ViewScoresIntent {
 
     object DeleteDialogOkClicked : ViewScoresIntent()
     object DeleteDialogCancelClicked : ViewScoresIntent()
-
-    data class AddFilter(val filter: ShootFilter) : ViewScoresIntent()
 
     object HandledNoRoundsDialogOkClicked : EffectComplete()
     object HandledEmailNoSelection : EffectComplete()

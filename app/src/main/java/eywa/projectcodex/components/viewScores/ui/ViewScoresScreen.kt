@@ -3,6 +3,8 @@ package eywa.projectcodex.components.viewScores.ui
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,6 +41,8 @@ import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
+import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFilters
+import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ViewScoresShowcaseInfo
 import eywa.projectcodex.database.shootData.ShootFilter
@@ -206,13 +210,36 @@ fun ViewScoresScreen(
         }
 
         UnobstructedBox(viewScoresShowcaseInfo) {
-            MultiSelectBar(
-                    isInMultiSelectMode = state.isInMultiSelectMode,
-                    isEveryItemSelected = state.data.all { it.isSelected },
-                    listener = { listener(MultiSelectAction(it)) },
-                    helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
-                    modifier = Modifier.padding(bottom = 20.dp)
-            )
+            ViewScoresActionBar(
+                    modifier = Modifier
+                            .padding(20.dp)
+                            .animateContentSize()
+            ) {
+                Row(
+                        modifier = Modifier.padding(horizontal = 5.dp)
+                ) {
+                    AnimatedVisibility(
+                            state.isInMultiSelectMode || !state.actionBarExtended
+                    ) {
+                        MultiSelectBar(
+                                isInMultiSelectMode = state.isInMultiSelectMode,
+                                isEveryItemSelected = state.data.all { it.isSelected },
+                                listener = { listener(MultiSelectAction(it)) },
+                                helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
+                        )
+                    }
+
+                    AnimatedVisibility(
+                            state.viewScoresFiltersState.isExpanded || !state.actionBarExtended
+                    ) {
+                        ViewScoresFilters(
+                                state = state.viewScoresFiltersState,
+                                listener = { listener(FiltersAction(it)) },
+                                helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -303,6 +330,26 @@ fun MultiSelectMode_ViewScoresScreen_Preview() {
                         data = ViewScoresEntryPreviewProvider
                                 .generateEntries(20)
                                 .setPersonalBests(listOf(3, 6)),
+                ),
+                listener = {},
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY
+)
+@Composable
+fun Filters_ViewScoresScreen_Preview() {
+    CodexTheme {
+        ViewScoresScreen(
+                state = ViewScoresState(
+                        data = ViewScoresEntryPreviewProvider
+                                .generateEntries(20)
+                                .setPersonalBests(listOf(3, 6)),
+                        viewScoresFiltersState = ViewScoresFiltersState(isExpanded = true),
                 ),
                 listener = {},
         )

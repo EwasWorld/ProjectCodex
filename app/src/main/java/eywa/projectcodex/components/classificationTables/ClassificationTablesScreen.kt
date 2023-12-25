@@ -79,41 +79,43 @@ fun ClassificationTablesScreen(
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-    Column(
-            verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                    .fillMaxSize()
-                    .background(CodexTheme.colors.appBackground)
-                    .verticalScroll(rememberScrollState())
-                    .padding(vertical = 20.dp)
-                    .testTag(ClassificationTablesTestTag.SCREEN.getTestTag())
-    ) {
-        CategorySelectors(state, listener, Modifier.padding(bottom = 4.dp))
-
-        Surface(
-                shape = RoundedCornerShape(
-                        if (state.selectRoundDialogState.selectedRound == null) CodexTheme.dimens.smallCornerRounding
-                        else CodexTheme.dimens.cornerRounding
-                ),
-                border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
-                color = CodexTheme.colors.appBackground,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+    ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                        .fillMaxSize()
+                        .background(CodexTheme.colors.appBackground)
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = 20.dp)
+                        .testTag(ClassificationTablesTestTag.SCREEN.getTestTag())
         ) {
-            Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
-            ) {
-                SelectRoundRows(
-                        state = state.selectRoundDialogState,
-                        helpListener = helpListener,
-                        listener = { listener(SelectRoundDialogAction(it)) },
-                )
-            }
-        }
+            CategorySelectors(state, listener, Modifier.padding(bottom = 4.dp))
 
-        Table(state.scores, helpListener)
+            Surface(
+                    shape = RoundedCornerShape(
+                            if (state.selectRoundDialogState.selectedRound == null) CodexTheme.dimens.smallCornerRounding
+                            else CodexTheme.dimens.cornerRounding
+                    ),
+                    border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+                    color = CodexTheme.colors.appBackground,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                ) {
+                    SelectRoundRows(
+                            state = state.selectRoundDialogState,
+                            helpListener = helpListener,
+                            listener = { listener(SelectRoundDialogAction(it)) },
+                    )
+                }
+            }
+
+            Table(state.scores, helpListener)
+        }
     }
 }
 
@@ -135,42 +137,40 @@ private fun CategorySelectors(
                     ),
             )
     ) {
-        ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
-            DataRow(
-                    title = stringResource(R.string.classification_tables__gender_title),
-                    text = stringResource(
-                            if (state.isGent) R.string.classification_tables__gender_male
-                            else R.string.classification_tables__gender_female
-                    ),
-                    helpState = null,
-                    onClick = { listener(ToggleIsGent) },
-                    accessibilityRole = Role.Switch,
-                    modifier = Modifier
-                            .padding(vertical = 7.dp)
-                            .testTag(ClassificationTablesTestTag.GENDER_SELECTOR.getTestTag())
-            )
-            Input(
-                    label = stringResource(R.string.classification_tables__age_title),
-                    currentValue = state.age.rawName,
-                    values = ClassificationAge.values().map { it.rawName },
-                    testTag = ClassificationTablesTestTag.AGE_SELECTOR,
-                    onClick = { listener(AgeClicked) },
-                    onItemClick = { listener(AgeSelected(ClassificationAge.values()[it])) },
-                    onDismiss = { listener(CloseDropdown) },
-                    expanded = state.expanded == ClassificationTablesState.Dropdown.AGE,
-            )
-            Input(
-                    label = stringResource(R.string.classification_tables__bow_title),
-                    currentValue = state.bow.rawName,
-                    values = ClassificationBow.values().map { it.rawName },
-                    testTag = ClassificationTablesTestTag.BOW_SELECTOR,
-                    onClick = { listener(BowClicked) },
-                    onItemClick = { listener(BowSelected(ClassificationBow.values()[it])) },
-                    onDismiss = { listener(CloseDropdown) },
-                    expanded = state.expanded == ClassificationTablesState.Dropdown.BOW,
-                    modifier = Modifier.padding(top = 5.dp)
-            )
-        }
+        DataRow(
+                title = stringResource(R.string.classification_tables__gender_title),
+                text = stringResource(
+                        if (state.isGent) R.string.classification_tables__gender_male
+                        else R.string.classification_tables__gender_female
+                ),
+                helpState = null,
+                onClick = { listener(ToggleIsGent) },
+                accessibilityRole = Role.Switch,
+                modifier = Modifier
+                        .padding(vertical = 7.dp)
+                        .testTag(ClassificationTablesTestTag.GENDER_SELECTOR.getTestTag())
+        )
+        Input(
+                label = stringResource(R.string.classification_tables__age_title),
+                currentValue = state.age.rawName,
+                values = ClassificationAge.values().map { it.rawName },
+                testTag = ClassificationTablesTestTag.AGE_SELECTOR,
+                onClick = { listener(AgeClicked) },
+                onItemClick = { listener(AgeSelected(ClassificationAge.values()[it])) },
+                onDismiss = { listener(CloseDropdown) },
+                expanded = state.expanded == ClassificationTablesState.Dropdown.AGE,
+        )
+        Input(
+                label = stringResource(R.string.classification_tables__bow_title),
+                currentValue = state.bow.rawName,
+                values = ClassificationBow.values().map { it.rawName },
+                testTag = ClassificationTablesTestTag.BOW_SELECTOR,
+                onClick = { listener(BowClicked) },
+                onItemClick = { listener(BowSelected(ClassificationBow.values()[it])) },
+                onDismiss = { listener(CloseDropdown) },
+                expanded = state.expanded == ClassificationTablesState.Dropdown.BOW,
+                modifier = Modifier.padding(top = 5.dp)
+        )
     }
 }
 
