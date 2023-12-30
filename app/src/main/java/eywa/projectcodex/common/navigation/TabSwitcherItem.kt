@@ -15,4 +15,6 @@ enum class TabSwitcherGroup(
 ) {
     REFERENCES(saveState = true),
     ARCHER_INFO,
+
+    DEBUG_COACHING,
 }

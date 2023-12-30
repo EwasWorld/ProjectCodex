@@ -16,6 +16,7 @@ enum class LocalNavRoute : NavRoute {
     override val routeBase = "local_" + name.lowercase()
     override val args: Map<NavArgument, Boolean> = emptyMap()
     override val tabSwitcherItem: TabSwitcherItem? = null
+    override val bottomSheets: List<BottomSheetNavRoute>? = null
 }
 
 @Module
