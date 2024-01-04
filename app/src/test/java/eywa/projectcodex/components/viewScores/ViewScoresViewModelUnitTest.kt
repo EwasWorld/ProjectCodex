@@ -135,7 +135,7 @@ class ViewScoresViewModelUnitTest {
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
         verify(db.shootDao.mock).getAllFullShootInfo(false, null, null, null, null)
 
-        sut.handle(AddFilter(ShootFilter.PersonalBests))
+//        sut.handle(AddFilter(ShootFilter.PersonalBests))
         advanceUntilIdle()
 
         assertEquals(Filters<ShootFilter>(setOf(ShootFilter.PersonalBests)), sut.state.value.filters)
