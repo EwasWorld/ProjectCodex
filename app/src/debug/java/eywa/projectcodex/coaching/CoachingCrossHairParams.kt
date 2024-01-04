@@ -19,7 +19,6 @@ class CoachingCrossHairParams(
          * Positive means below the point (down in the y direction)
          */
         private val distance: Float,
-        val mode: CoachingCrossHairMode = CoachingCrossHairMode.SET_FEET,
 ) {
     private val inverseAngle = rotationRads + Math.PI.toFloat() / 2
 
@@ -58,18 +57,17 @@ class CoachingCrossHairParams(
         c * mult
     }.sorted()[0] to 10f
 
-    fun plus(pan: Offset, rotation: Float, maxSize: Size) = when (mode) {
-        CoachingCrossHairMode.SET_FEET -> {
+    fun plus(mode: CoachingMode, pan: Offset, rotation: Float, maxSize: Size) = when (mode) {
+        CoachingMode.SET_FEET -> {
             CoachingCrossHairParams(
                     x = (x + pan.x).coerceIn(0f, maxSize.width),
                     y = (y + pan.y).coerceIn(0f, maxSize.height),
                     rotationRads = (rotationRads + rotation).coerceIn(-Math.PI.toFloat() / 4, Math.PI.toFloat() / 4),
                     distance = distance,
-                    mode = CoachingCrossHairMode.SET_FEET,
             )
         }
 
-        CoachingCrossHairMode.SET_SHOULDERS -> {
+        CoachingMode.SET_SHOULDERS -> {
             val panMagnitude = getHypotenuse(pan.x, pan.y)
 
             if (panMagnitude.isEqualTo(0f)) {
@@ -89,26 +87,17 @@ class CoachingCrossHairParams(
                         y = y,
                         rotationRads = rotationRads,
                         distance = (distance + distanceChange).coerceIn(minDistance, maxDistance),
-                        mode = mode,
                 )
             }
         }
+
+        else -> throw IllegalStateException()
     }
 
-    fun nextMode(maxSize: Size): CoachingCrossHairParams? {
-        val nextMode = mode.next() ?: return null
-        return shiftMode(nextMode, maxSize)
-    }
-
-    fun previousMode(maxSize: Size): CoachingCrossHairParams? {
-        val nextMode = mode.previous() ?: return null
-        return shiftMode(nextMode, maxSize)
-    }
-
-    private fun shiftMode(nextMode: CoachingCrossHairMode, maxSize: Size): CoachingCrossHairParams {
+    fun shiftMode(nextMode: CoachingMode, maxSize: Size): CoachingCrossHairParams {
         val (minDistance, maxDistance) = getDistanceBounds(maxSize)
         val newDistance =
-                if (nextMode != CoachingCrossHairMode.SET_SHOULDERS) distance
+                if (nextMode != CoachingMode.SET_SHOULDERS) distance
                 else distance.coerceIn(minDistance, maxDistance)
 
         return CoachingCrossHairParams(
@@ -116,7 +105,6 @@ class CoachingCrossHairParams(
                 y = y,
                 rotationRads = rotationRads,
                 distance = newDistance,
-                mode = nextMode,
         )
     }
 

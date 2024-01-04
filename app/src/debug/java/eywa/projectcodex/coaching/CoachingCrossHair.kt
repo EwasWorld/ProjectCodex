@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
@@ -29,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import eywa.projectcodex.coaching.CoachingCrossHairMode.*
+import eywa.projectcodex.coaching.CoachingMode.*
 import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.sharedUi.CodexFloatingActionButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
@@ -44,20 +45,29 @@ fun getHypotenuse(a: Float, b: Float) = sqrt(a.pow(2) + b.pow(2))
 @Composable
 fun CoachingCrossHairTestScreen(
 ) {
-    var params by remember {
-        mutableStateOf<CoachingCrossHairParams?>(null)
-    }
+    var mode by remember { mutableStateOf(SET_FEET) }
+    var params by remember { mutableStateOf<CoachingCrossHairParams?>(null) }
     CoachingCrossHair(
+            mode = mode,
             params = { params },
-            listener = { params = it },
+            listener = { p, m ->
+                params = p
+                mode = m
+            },
     )
 }
 
 @Composable
 fun CoachingCrossHair(
+        mode: CoachingMode,
         params: () -> CoachingCrossHairParams?,
-        listener: (CoachingCrossHairParams) -> Unit,
+        listener: (CoachingCrossHairParams, CoachingMode) -> Unit,
 ) {
+    if (!mode.showCrossHair) {
+        Text("Mode: $mode")
+        return
+    }
+
     fun Size.getCentredCrossHair() = CoachingCrossHairParams(width / 2, 2 * height / 3, 0f, -height / 3)
 
     val lineColour = CodexTheme.colors.onAppBackground
@@ -75,7 +85,7 @@ fun CoachingCrossHair(
                 val s = canvasSize
                 check(s != null) { "Size not set" }
                 val current = this ?: s.getCentredCrossHair()
-                current.plus(pan, rotation, s)
+                current.plus(mode, pan, rotation, s)
             }
 
     Box(
@@ -86,11 +96,11 @@ fun CoachingCrossHair(
                         .fillMaxSize()
                         .pointerInput(Unit) {
                             detectTransformGestures { _, pan, _, rotation ->
-                                listener(params().update(pan, rotation * Math.PI.toFloat() / 180))
+                                listener(params().update(pan, rotation * Math.PI.toFloat() / 180), mode)
                             }
                             detectDragGestures { change, dragAmount ->
                                 change.consume()
-                                listener(params().update(dragAmount, 0f))
+                                listener(params().update(dragAmount, 0f), mode)
                             }
                         }
         ) {
@@ -111,7 +121,7 @@ fun CoachingCrossHair(
                     end = lineBEnd,
                     strokeWidth = thickness,
             )
-            if (actualCrossHair.mode != SET_FEET) {
+            if (mode != SET_FEET) {
                 val (lineCStart, lineCEnd) = actualCrossHair.getShoulderLine(canvasSize!!)
                 drawLine(
                         color = Color.Blue,
@@ -126,20 +136,20 @@ fun CoachingCrossHair(
                 modifier = Modifier.padding(10.dp)
         ) {
             Icon(
-                    imageVector = actualCrossHair.mode.icon,
-                    contentDescription = actualCrossHair.mode.contentDescription.get(),
+                    imageVector = mode.icon,
+                    contentDescription = mode.contentDescription.get(),
                     tint = lineColour,
                     modifier = Modifier
                             .padding(15.dp)
                             .scale(1.5f)
             )
-            if (actualCrossHair.mode == SET_FEET) {
+            if (mode == SET_FEET) {
                 CodexFloatingActionButton(
                         icon = CodexIconInfo.VectorIcon(
                                 imageVector = Icons.Default.Refresh,
                                 contentDescription = "Reset",
                         ),
-                        onClick = { canvasSize?.getCentredCrossHair()?.let { listener(it) } },
+                        onClick = { canvasSize?.getCentredCrossHair()?.let { listener(it, mode) } },
                 )
             }
             CodexFloatingActionButton(
@@ -148,7 +158,8 @@ fun CoachingCrossHair(
                             contentDescription = "Previous",
                     ),
                     onClick = {
-                        listener(actualCrossHair.previousMode(canvasSize!!) ?: actualCrossHair)
+                        val newMode = mode.previous() ?: mode
+                        listener(actualCrossHair.shiftMode(newMode, canvasSize!!), newMode)
                     },
             )
             CodexFloatingActionButton(
@@ -157,7 +168,8 @@ fun CoachingCrossHair(
                             contentDescription = "Next",
                     ),
                     onClick = {
-                        listener(actualCrossHair.nextMode(canvasSize!!) ?: actualCrossHair)
+                        val newMode = mode.next() ?: mode
+                        listener(actualCrossHair.shiftMode(newMode, canvasSize!!), newMode)
                     },
             )
         }
@@ -173,7 +185,7 @@ fun CoachingCrossHair_Preview(
         @PreviewParameter(CoachingCrossHairPreviewPP::class) params: CoachingCrossHairParams?,
 ) {
     CodexTheme {
-        CoachingCrossHair({ params }) {}
+        CoachingCrossHair(SET_FEET, { params }) { _, _ -> }
     }
 }
 

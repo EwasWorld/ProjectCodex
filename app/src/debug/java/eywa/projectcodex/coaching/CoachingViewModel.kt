@@ -12,10 +12,12 @@ import javax.inject.Inject
 
 data class CoachingState(
         val selectedImage: Uri? = null,
+        val crossHairParams: CoachingCrossHairParams? = null,
 )
 
 sealed class CoachingIntent {
     data class VideoSelected(val uri: Uri?) : CoachingIntent()
+    data class CrossHairParamsUpdated(val value: CoachingCrossHairParams) : CoachingIntent()
 }
 
 @HiltViewModel
@@ -33,13 +35,11 @@ class CoachingViewModel @Inject constructor(
         when (action) {
             is CoachingIntent.VideoSelected -> {
                 _state.update { it.copy(selectedImage = action.uri) }
-                playVideo()
+                player.setMediaItem(state.value.selectedImage?.let { MediaItem.fromUri(it) } ?: return)
             }
-        }
-    }
 
-    fun playVideo() {
-        player.setMediaItem(state.value.selectedImage?.let { MediaItem.fromUri(it) } ?: return)
+            is CoachingIntent.CrossHairParamsUpdated -> _state.update { it.copy(crossHairParams = action.value) }
+        }
     }
 
     override fun onCleared() {
