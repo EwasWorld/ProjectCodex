@@ -23,7 +23,7 @@ enum class DebugMainMenuOptions(
 ) : MainMenuOption, CodexTestTag {
     COACHING(
             ResOrActual.Actual("Coaching"),
-            DebugNavRoute.CROSS_HAIR_TEST,
+            DebugNavRoute.COACHING,
             ResOrActual.Actual("Coaching Title"),
             ResOrActual.Actual("Coaching Body"),
     )

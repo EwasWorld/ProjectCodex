@@ -55,15 +55,21 @@ fun CoachingScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val listener = { it: CoachingIntent -> viewModel.handle(it) }
-    Box(
-            contentAlignment = Alignment.Center,
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                     .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
     ) {
+        Text(
+                text = "Mode: ${state.mode}",
+                modifier = Modifier.padding(10.dp)
+        )
+
         when {
-            state.selectedImage == null -> CoachingScreenSelectVideo(listener)
-            else -> CoachingScreen(state, viewModel.player, listener)
+            state.selectedImage == null -> CoachingScreenSelectVideo(listener, modifier = Modifier.weight(1f))
+            else -> CoachingScreen({ state }, viewModel.player, listener, modifier = Modifier.weight(1f))
         }
     }
 }
@@ -71,25 +77,33 @@ fun CoachingScreen(
 @Composable
 fun CoachingScreenSelectVideo(
         listener: (CoachingIntent) -> Unit,
+        modifier: Modifier = Modifier,
 ) {
     val picker = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { listener(CoachingIntent.VideoSelected(it)) }
     )
 
-    CodexButton(
-            text = "Select Video",
-            onClick = {
-                picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
-            },
-    )
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier,
+    ) {
+        CodexButton(
+                text = "Select Video",
+                onClick = {
+                    picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
+                },
+        )
+    }
 }
 
 @Composable
 fun CoachingScreen(
-        state: CoachingState,
+        state: () -> CoachingState,
         player: Player,
         listener: (CoachingIntent) -> Unit,
+        modifier: Modifier = Modifier,
 ) {
     var isPaused by remember { mutableStateOf(false) }
     var videoDuration by remember { mutableStateOf(0f) }
@@ -129,74 +143,85 @@ fun CoachingScreen(
         }
     }
 
-    Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
-    ) {
-        AndroidView(
-                factory = { context ->
-                    PlayerView(context).also {
-                        it.player = player
-                        it.useController = false
-                    }
-                },
-                update = {
-                    player.contentPosition
-                    when (lifecycle) {
-                        Lifecycle.Event.ON_PAUSE -> {
-                            it.onPause()
-                            it.player?.pause()
-                        }
-
-                        Lifecycle.Event.ON_RESUME -> {
-                            it.onResume()
-                        }
-
-                        else -> Unit
-                    }
-                },
-                modifier = Modifier.weight(1f)
-        )
-
-        Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+    Box() {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier.fillMaxSize()
         ) {
-            CodexFloatingActionButton(
-                    icon = CodexIconInfo.VectorIcon(
-                            imageVector = if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
-                            contentDescription = "Play/Pause"
-                    ),
-                    onClick = {
-                        if (!isPaused) {
-                            player.pause()
+            AndroidView(
+                    factory = { context ->
+                        PlayerView(context).also {
+                            it.player = player
+                            it.useController = false
                         }
-                        else {
-                            videoDuration = player.contentDuration.toFloat()
-                            player.play()
-                        }
-                        isPaused = !isPaused
                     },
-                    modifier = Modifier,
-            )
-            CodexFloatingActionButton(
-                    icon = CodexIconInfo.VectorIcon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Complete"
-                    ),
-                    onClick = { },
-                    modifier = Modifier,
-            )
-        }
+                    update = {
+                        player.contentPosition
+                        when (lifecycle) {
+                            Lifecycle.Event.ON_PAUSE -> {
+                                it.onPause()
+                                it.player?.pause()
+                            }
 
-        Text(text = "Time: ${videoTime / 60}:${videoTime % 60}")
-        TimelineSlider(
-                durationIsValid = durationIsValid,
-                circleXPercentage = { circleXPercentage },
-                seek = { player.seekTo((it * videoDuration).roundToLong()) },
-                onUpdatePosition = { circleXPercentage = it },
-                onUpdateDragInProgress = { dragInProgress = it },
-                modifier = Modifier.padding(bottom = 10.dp)
+                            Lifecycle.Event.ON_RESUME -> {
+                                it.onResume()
+                            }
+
+                            else -> Unit
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+            )
+
+            if (state().mode == CoachingMode.FIND_PLACE_IN_VIDEO) {
+                Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    CodexFloatingActionButton(
+                            icon = CodexIconInfo.VectorIcon(
+                                    imageVector = if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                                    contentDescription = "Play/Pause"
+                            ),
+                            onClick = {
+                                if (!isPaused) {
+                                    player.pause()
+                                }
+                                else {
+                                    videoDuration = player.contentDuration.toFloat()
+                                    player.play()
+                                }
+                                isPaused = !isPaused
+                            },
+                            modifier = Modifier,
+                    )
+                    CodexFloatingActionButton(
+                            icon = CodexIconInfo.VectorIcon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Complete"
+                            ),
+                            onClick = { listener(CoachingIntent.CrossHairParamsUpdated(mode = CoachingMode.SET_FEET)) },
+                            modifier = Modifier,
+                    )
+                }
+
+                Text(text = "Time: ${videoTime / 60}:${videoTime % 60}")
+                TimelineSlider(
+                        durationIsValid = durationIsValid,
+                        circleXPercentage = { circleXPercentage },
+                        seek = { player.seekTo((it * videoDuration).roundToLong()) },
+                        onUpdatePosition = { circleXPercentage = it },
+                        onUpdateDragInProgress = { dragInProgress = it },
+                        modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
+        }
+        CoachingCrossHair(
+                mode = { state().mode },
+                params = { state().crossHairParams },
+                listener = { p, m ->
+                    listener(CoachingIntent.CrossHairParamsUpdated(p, m))
+                },
         )
     }
 }
