@@ -57,8 +57,8 @@ interface ShootDao {
             """
                 SELECT shootId, dateShot, score, isComplete
                 FROM ${ShootWithScore.TABLE_NAME}
-                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId
-                ORDER BY dateShot
+                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND score > 0
+                ORDER BY dateShot DESC
                 LIMIT :count
             """
     )
@@ -73,7 +73,7 @@ interface ShootDao {
             """
                 SELECT shootId, dateShot, score, isComplete
                 FROM ${ShootWithScore.TABLE_NAME}
-                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId
+                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND score > 0
                 ORDER BY score DESC, dateShot
                 LIMIT :count
             """
