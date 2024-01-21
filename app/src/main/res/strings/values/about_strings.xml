@@ -2,6 +2,8 @@
 <resources>
     <string name="about__title">About</string>
     <string name="about__main_text">Contact:\ncaldeikeycodes@gmail.com\n\nFeel free to send feedback, feature requests, bug reports, or anything else</string>
+    <string name="about__privacy_policy">Privacy policy</string>
+    <string name="about__privacy_policy_error">No web browser found</string>
     <string name="about__rounds_version">Rounds Version: %d</string>
     <string name="about__app_version">App Version: %s</string>
     <string name="about__update_default_rounds_message">Rounds status: %s</string>

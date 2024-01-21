@@ -1,5 +1,10 @@
 package eywa.projectcodex.common.utils
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+
 
 /**
  * For each entry in [replacements], [resourceString].replace("{$key}", "value"). If no instance of "{$key}" is found,
@@ -23,4 +28,17 @@ fun <T> List<List<T>>.transpose(): List<List<T>> {
     if (first().isEmpty()) return listOf(emptyList())
 
     return first().indices.map { index -> map { it[index] } }
+}
+
+fun Context.openWebPage(url: String, onFail: () -> Unit) {
+    val webpage = Uri.parse(url)
+    val intent = Intent(Intent.ACTION_VIEW, webpage)
+
+    // TODO Swap try/catch with `if (intent.resolveActivity(packageManager) != null)`
+    try {
+        startActivity(intent)
+    }
+    catch (e: ActivityNotFoundException) {
+        onFail()
+    }
 }

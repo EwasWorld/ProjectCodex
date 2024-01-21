@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.about
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,9 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.utils.ToastSpamPrevention
+import eywa.projectcodex.common.utils.openWebPage
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 
 @Composable
@@ -38,6 +42,8 @@ fun AboutScreen(
 fun AboutScreen(
         state: UpdateDefaultRoundsState
 ) {
+    val context = LocalContext.current
+
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -58,6 +64,20 @@ fun AboutScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(20.dp)
             ) {
+                val privacyPolicyErrorMessage = stringResource(R.string.about__privacy_policy_error)
+                Text(
+                        text = stringResource(R.string.about__privacy_policy),
+                        textAlign = TextAlign.Center,
+                        style = CodexTypography.NORMAL.asClickableStyle(),
+                        modifier = Modifier
+                                .padding(10.dp)
+                                .clickable {
+                                    context.openWebPage(AboutViewModel.PRIVACY_POLICY_URL) {
+                                        ToastSpamPrevention.displayToast(context, privacyPolicyErrorMessage)
+                                    }
+                                }
+                )
+
                 Text(
                         text = stringResource(R.string.about__app_version, BuildConfig.VERSION_NAME),
                         textAlign = TextAlign.Center,
