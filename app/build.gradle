@@ -12,7 +12,7 @@ plugins {
 ext.minimumSdkVersion = 21 // 2 digits
 ext.versionMajor = 2 // 2 digits
 ext.versionMinor = 3 // 2 digits
-ext.versionPatch = 1 // 2 digits
+ext.versionPatch = 2 // 2 digits
 ext.extraInfo = 0 // 1 digit (currently unused)
 ext.versionClassifier = null // Extra info to be appended to version name e.g. alpha (used for version name)
 ext.isSnapshot = false // Will append SNAPSHOT to version name
