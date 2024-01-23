@@ -73,12 +73,16 @@ class AddEndViewModel @Inject constructor(
             is ShootDetailsAction -> repo.handle(action.action, screen)
             is ArrowInputsAction -> handleArrowInputIntent(action.action)
             is ErrorHandled -> extraState.update { it.copy(errors = it.errors.minus(action.error)) }
-            RoundFullDialogOkClicked ->
-                repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_STATS), screen)
-            RoundCompleteDialogOkClicked -> {
-                repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_STATS), screen)
-                extraState.update { it.copy(roundCompleted = false) }
-            }
+            RoundFullDialogOkClicked -> repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_STATS), screen)
+            /*
+             * roundCompleted flag is not cleared as this causes dialogs to display incorrectly
+             *      between button press and the navigation happening (flicks up round full dialog).
+             * This navigation will pop the AddEnd screen is popped off the backstack
+             *      causing this ViewModel to be destroyed.
+             * When returning to the screen, roundCompleted flag will be back on the default and the corresponding
+             *      dialog won't be displayed
+             */
+            RoundCompleteDialogOkClicked -> repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_STATS), screen)
         }
     }
 
