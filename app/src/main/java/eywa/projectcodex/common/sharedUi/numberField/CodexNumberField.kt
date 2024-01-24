@@ -70,6 +70,7 @@ fun CodexNumberField(
         modifier: Modifier = Modifier,
         errorMessage: DisplayableError?,
         selectAllOnFocus: Boolean = true,
+        trailingIcon: (@Composable () -> Unit)? = null,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         onValueChanged: (String?) -> Unit,
 ) {
@@ -84,6 +85,7 @@ fun CodexNumberField(
                     testTag = testTag,
             ),
             error = error,
+            trailingIcon = trailingIcon,
             placeholderText = placeholder,
             textStyle = CodexTypography.NORMAL.copy(
                     color = CodexTheme.colors.onSurfaceOnBackground,

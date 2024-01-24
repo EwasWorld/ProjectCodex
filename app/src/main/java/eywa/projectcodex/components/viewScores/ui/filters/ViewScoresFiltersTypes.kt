@@ -14,10 +14,10 @@ enum class ViewScoresFiltersTypes(
     ),
     SCORE(
             label = ResOrActual.StringResource(R.string.create_round__score_type_score),
-            filter = ShootFilter.Scores,
+            filter = ShootFilter.ArrowCounts(false),
     ),
     COUNT(
             label = ResOrActual.StringResource(R.string.create_round__score_type_count),
-            filter = ShootFilter.ArrowCounts,
+            filter = ShootFilter.ArrowCounts(true),
     ),
 }

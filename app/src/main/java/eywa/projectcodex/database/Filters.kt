@@ -14,6 +14,8 @@ data class Filters<T : Any> private constructor(private val items: Map<KClass<ou
     fun <I : T> contains(clazz: KClass<I>) = items.containsKey(clazz)
     fun <I : T> minus(clazz: KClass<I>) = Filters(items.minus(clazz))
     fun <I : T> plus(item: I): Filters<T> = Filters(items.plus(item::class to item))
+    fun forEach(action: (T) -> Unit) = items.values.forEach(action)
+    fun <R> map(action: (T) -> R) = items.values.map(action)
 
     inline fun <reified I : T> get() = get(I::class)
     inline fun <reified I : T> contains() = contains(I::class)

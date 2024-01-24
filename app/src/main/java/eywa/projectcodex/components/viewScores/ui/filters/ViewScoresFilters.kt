@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -50,11 +52,18 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
+import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
+import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialog
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectSubtypeDialog
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.ui.ViewScoresActionBar
 import java.util.Calendar
@@ -96,15 +105,22 @@ internal fun ViewScoresFilters(
                         )
 
                         DateFilters(state, listener, helpShowcaseListener)
+                        ScoreFilters(state, listener, helpShowcaseListener)
 
                         RoundsFilter(
                                 roundFilter = state.roundFilter,
                                 selectRoundDialogState = state.selectRoundDialogState,
-                                helpShowcaseListener = helpShowcaseListener,
                                 onClear = { listener(ViewScoresFiltersIntent.ClearRoundsFilter) },
                                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
                         )
+                        SubTypeFilter(
+                                roundFilter = state.roundFilter,
+                                selectRoundDialogState = state.selectRoundDialogState,
+                                onClear = { listener(ViewScoresFiltersIntent.ClearSubtypeFilter) },
+                                onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
+                        )
 
+                        // TODO Accessibility clear button
                         DataRow(
                                 title = stringResource(R.string.view_scores__filters_personal_bests),
                                 text = stringResource(
@@ -113,6 +129,26 @@ internal fun ViewScoresFilters(
                                 ),
                                 textClickableStyle = clickableStyle,
                                 onClick = { listener(ViewScoresFiltersIntent.ClickPbFilter) }
+                        )
+
+                        DataRow(
+                                title = stringResource(R.string.view_scores__filters_complete),
+                                text = stringResource(
+                                        if (state.completedRoundsFilter) R.string.view_scores__filters_complete_only
+                                        else R.string.view_scores__filters_no_filter
+                                ),
+                                textClickableStyle = clickableStyle,
+                                onClick = { listener(ViewScoresFiltersIntent.ClickCompleteFilter) }
+                        )
+
+                        DataRow(
+                                title = stringResource(R.string.view_scores__filters_first_of_day),
+                                text = stringResource(
+                                        if (state.firstRoundOfDayFilter) R.string.view_scores__filters_first_of_day_only
+                                        else R.string.view_scores__filters_no_filter
+                                ),
+                                textClickableStyle = clickableStyle,
+                                onClick = { listener(ViewScoresFiltersIntent.ClickFirstOfDayFilter) }
                         )
 
                         DataRow(
@@ -178,7 +214,7 @@ private fun ColumnScope.DateFilters(
 ) {
     DateFilter(
             title = stringResource(R.string.view_scores__filters_from_date),
-            date = state.from,
+            date = state.fromDate,
             helpState = HelpState(
                     helpListener = helpShowcaseListener,
                     helpTitle = stringResource(R.string.help_view_scores__filters_from_title),
@@ -189,7 +225,7 @@ private fun ColumnScope.DateFilters(
     )
     DateFilter(
             title = stringResource(R.string.view_scores__filters_until_date),
-            date = state.until,
+            date = state.untilDate,
             helpState = HelpState(
                     helpListener = helpShowcaseListener,
                     helpTitle = stringResource(R.string.help_view_scores__filters_until_title),
@@ -279,10 +315,87 @@ private fun DateFilter(
 }
 
 @Composable
+private fun ColumnScope.ScoreFilters(
+        state: ViewScoresFiltersState,
+        listener: (ViewScoresFiltersIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
+) {
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(text = stringResource(R.string.view_scores__filters_scores))
+
+        ScoreFilters(
+                value = state.minScore,
+                testTag = ViewScoresFiltersTestTag.SCORE_MIN,
+                placeholder = stringResource(R.string.view_scores__filters_scores_min),
+                contentDescription = stringResource(R.string.view_scores__filters_scores_min),
+                onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMinFilter(it)) },
+                onClear = { listener(ViewScoresFiltersIntent.ClearScoreMinFilter) },
+        )
+        Text(text = stringResource(R.string.view_scores__filters_range_separator))
+        ScoreFilters(
+                value = state.maxScore,
+                testTag = ViewScoresFiltersTestTag.SCORE_MAX,
+                placeholder = stringResource(R.string.view_scores__filters_scores_max),
+                contentDescription = stringResource(R.string.view_scores__filters_scores_max),
+                onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMaxFilter(it)) },
+                onClear = { listener(ViewScoresFiltersIntent.ClearScoreMaxFilter) },
+        )
+    }
+
+    val resources = LocalContext.current.resources
+    when {
+        !state.scoreRangeIsValid -> stringResource(R.string.view_scores__filters_invalid_scores)
+        state.minScore.error != null -> state.minScore.error.toErrorString(resources)
+        state.maxScore.error != null -> state.maxScore.error.toErrorString(resources)
+        else -> null
+    }?.let { error ->
+        Text(
+                text = error,
+                style = CodexTypography.SMALL,
+                color = CodexTheme.colors.warningOnAppBackground,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier
+                        .padding(bottom = 5.dp)
+                        .clearAndSetSemantics { }
+        )
+    }
+}
+
+@Composable
+private fun ScoreFilters(
+        value: NumberFieldState<Int>,
+        testTag: ViewScoresFiltersTestTag,
+        placeholder: String,
+        contentDescription: String,
+        onUpdate: (String?) -> Unit,
+        onClear: () -> Unit,
+) {
+    val trailingIcon: (@Composable () -> Unit)? =
+            if (value.text.isNotEmpty()) {
+                { ClearIcon(onClear, CodexTheme.colors.textFieldIcon) }
+            }
+            else {
+                null
+            }
+
+    CodexNumberField(
+            currentValue = value.text,
+            testTag = testTag,
+            contentDescription = contentDescription,
+            placeholder = placeholder,
+            errorMessage = value.error,
+            onValueChanged = onUpdate,
+            trailingIcon = trailingIcon,
+    )
+}
+
+@Composable
 private fun RoundsFilter(
         roundFilter: Boolean,
         selectRoundDialogState: SelectRoundDialogState,
-        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
         onClear: () -> Unit,
         onUpdate: (SelectRoundDialogIntent) -> Unit
 ) {
@@ -292,40 +405,88 @@ private fun RoundsFilter(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
+        val text =
+                if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
+                        ?: stringResource(R.string.create_round__no_round)
+                else stringResource(R.string.view_scores__filters_no_filter)
+        DataRow(
+                title = stringResource(R.string.create_round__round),
+                text = text,
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
+                onClick = { onUpdate(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog) },
+                textClickableStyle = clickableStyle,
+        )
         if (roundFilter) {
-            SelectRoundRows(
-                    state = selectRoundDialogState,
-                    helpListener = helpShowcaseListener,
-                    textClickableStyle = clickableStyle,
-                    listener = onUpdate
-            )
             ClearIcon(onClear)
         }
-        else {
-            SelectRoundDialog(
-                    isShown = selectRoundDialogState.isRoundDialogOpen,
-                    displayedRounds = selectRoundDialogState.filteredRounds,
-                    enabledFilters = selectRoundDialogState.filters,
-                    listener = { onUpdate(it) },
-            )
 
-            DataRow(
-                    title = stringResource(R.string.create_round__round),
-                    text = stringResource(R.string.view_scores__filters_no_filter),
-                    onClick = { onUpdate(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog) },
-                    textClickableStyle = clickableStyle
-            )
+        SelectRoundDialog(
+                isShown = selectRoundDialogState.isRoundDialogOpen,
+                displayedRounds = selectRoundDialogState.filteredRounds,
+                enabledFilters = selectRoundDialogState.filters,
+                listener = { onUpdate(it) },
+        )
+    }
+}
+
+@Composable
+private fun SubTypeFilter(
+        roundFilter: Boolean,
+        selectRoundDialogState: SelectRoundDialogState,
+        onClear: () -> Unit,
+        onUpdate: (SelectRoundDialogIntent) -> Unit
+) {
+    val subtypesSize = selectRoundDialogState.selectedRound?.roundSubTypes?.size ?: 0
+    if (!roundFilter || selectRoundDialogState.selectedRound == null && subtypesSize <= 1) return
+
+    val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
+    val subTypeName = selectRoundDialogState.selectedSubType?.name
+            ?.takeIf { selectRoundDialogState.selectedSubTypeId != null }
+
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        DataRow(
+                title = stringResource(R.string.create_round__round_sub_type),
+                text = subTypeName ?: stringResource(R.string.view_scores__filters_no_filter),
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW.getTestTag()),
+                onClick = { onUpdate(SelectRoundDialogIntent.SubTypeIntent.OpenSubTypeDialog) },
+                textClickableStyle = clickableStyle,
+        )
+        if (subTypeName != null) {
+            ClearIcon(onClear)
         }
     }
+
+    SelectSubtypeDialog(
+            isShown = selectRoundDialogState.isSubtypeDialogOpen,
+            subTypes = selectRoundDialogState.selectedRound?.roundSubTypes ?: emptyList(),
+            getDistance = { subType -> selectRoundDialogState.getFurthestDistance(subType)!!.distance },
+            distanceUnit = selectRoundDialogState.selectedRound?.getDistanceUnit(),
+            listener = { onUpdate(it) },
+    )
+}
+
+enum class ViewScoresFiltersTestTag : CodexTestTag {
+    SCORE_MIN,
+    SCORE_MAX,
+    ;
+
+    override val screenName: String
+        get() = "VIEW_SCORES_FILTERS"
+
+    override fun getElement(): String = name
 }
 
 @Composable
 private fun ClearIcon(
         onClear: () -> Unit,
+        tint: Color = CodexTheme.colors.onFloatingActions,
 ) {
     CodexIconInfo.VectorIcon(
             imageVector = Icons.Default.Close,
-            tint = CodexTheme.colors.onFloatingActions,
+            tint = tint,
     ).CodexIcon(
             modifier = Modifier
                     .clickable { onClear() }
@@ -340,6 +501,8 @@ private fun ClearIcon(
 )
 @Composable
 fun ViewScoresFilters_Preview() {
+    val validatorGroup = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.IsPositive)
+
     CodexTheme {
         ViewScoresActionBar(
                 modifier = Modifier.padding(10.dp)
@@ -350,9 +513,13 @@ fun ViewScoresFilters_Preview() {
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                             ),
-                            from = Calendar.getInstance(),
-                            until = Calendar.getInstance(),
+                            fromDate = Calendar.getInstance(),
+                            untilDate = Calendar.getInstance(),
+                            minScore = NumberFieldState(validatorGroup, "-100"),
+                            maxScore = NumberFieldState(validatorGroup, "300"),
                             roundFilter = true,
+                            firstRoundOfDayFilter = true,
+                            completedRoundsFilter = true,
                             personalBestsFilter = true,
                             typeFilter = ViewScoresFiltersTypes.COUNT,
                     ),

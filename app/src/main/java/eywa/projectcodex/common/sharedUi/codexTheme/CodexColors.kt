@@ -48,6 +48,7 @@ data class CodexThemeColors(
         val disabledOnSurfaceOnBackground: Color = Color.LightGray.copy(alpha = 0.5f),
         val textFieldFocussedOutline: Color = CodexColors.COLOR_ACCENT,
         val textFieldUnfocussedOutline: Color = CodexColors.COLOR_PRIMARY.copy(alpha = 0.5f),
+        val textFieldIcon: Color = Color.Black,
 
         val bottomNavBar: Color = CodexColors.COLOR_PRIMARY_DARK,
         val onBottomNavBar: Color = Color.White,

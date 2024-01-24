@@ -65,6 +65,7 @@ fun CodexTextField(
         labelText: String? = null,
         singleLine: Boolean = false,
         error: String? = null,
+        trailingIcon: (@Composable () -> Unit)? = null,
         textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
@@ -81,6 +82,7 @@ fun CodexTextField(
         modifier = modifier.modifierIfNotNull(state.testTag) { Modifier.testTag(it.getTestTag()) },
         singleLine = singleLine,
         error = error,
+        trailingIcon = trailingIcon,
         textStyle = textStyle,
         enabled = enabled,
         colors = colors,
@@ -101,6 +103,7 @@ fun CodexTextField(
         labelText: String? = null,
         singleLine: Boolean = false,
         error: String? = null,
+        trailingIcon: (@Composable () -> Unit)? = null,
         textStyle: TextStyle = TextStyle.Default,
         enabled: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
@@ -175,6 +178,7 @@ fun CodexTextField(
                         }
                     },
                     colors = colors,
+                    trailingIcon = trailingIcon,
             )
         }
     }

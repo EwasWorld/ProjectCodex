@@ -4,12 +4,13 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 
 sealed class NumberValidator<T : Number> : DisplayableError {
-    object IsPositive : NumberValidator<Number>() {
-        override fun isValid(value: String, parsed: Number): Boolean =
-                Regex("-.*").matchEntire(value) == null
+    /**
+     * Dummy value which can bypass the isRequired check which is on by default
+     */
+    object NotRequired : NumberValidator<Number>() {
+        override fun isValid(value: String, parsed: Number): Boolean = true
 
-        override fun toErrorString(resources: Resources): String =
-                resources.getString(R.string.err__negative_is_invalid)
+        override fun toErrorString(resources: Resources): String = ""
     }
 
     data class InRange<T>(val range: ClosedRange<T>) : NumberValidator<T>() where T : Number, T : Comparable<T> {
@@ -17,6 +18,14 @@ sealed class NumberValidator<T : Number> : DisplayableError {
 
         override fun toErrorString(resources: Resources): String =
                 resources.getString(R.string.err__out_of_range, range.start, range.endInclusive)
+    }
+
+    object IsPositive : NumberValidator<Number>() {
+        override fun isValid(value: String, parsed: Number): Boolean =
+                Regex("-.*").matchEntire(value) == null
+
+        override fun toErrorString(resources: Resources): String =
+                resources.getString(R.string.err__negative_is_invalid)
     }
 
     data class AtLeast<T>(val minInclusive: T) : NumberValidator<T>() where T : Number, T : Comparable<T> {

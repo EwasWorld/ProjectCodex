@@ -13,7 +13,8 @@ class NumberValidatorGroup<I : Number>(
      * @return null if there are no validation errors.
      * Otherwise returns the [NumberValidator.toErrorString] of the first violation.
      */
-    fun getFirstError(value: String?, isDirty: Boolean = true, isRequired: Boolean = true): DisplayableError? {
+    fun getFirstError(value: String?, isDirty: Boolean = true): DisplayableError? {
+        val isRequired = !validators.contains(NumberValidator.NotRequired)
         if (isRequired && isDirty && value.isNullOrBlank()) return StringResError(R.string.err__required_field)
         if (value.isNullOrBlank()) return null
 

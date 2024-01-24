@@ -9,6 +9,12 @@ data class SelectRoundDialogState(
         val selectedRoundId: Int? = null,
         val selectedSubTypeId: Int? = null,
         val allRounds: List<FullRoundInfo>? = null,
+        /**
+         * When a round is selected:
+         *  - false: default subtype is the furthest distance
+         *  - true: default subtype is null
+         */
+        val defaultNullSubtype: Boolean = false,
         val filters: SelectRoundEnabledFilters = SelectRoundEnabledFilters(),
 ) {
     init {

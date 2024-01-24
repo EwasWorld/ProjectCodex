@@ -1,10 +1,13 @@
 package eywa.projectcodex.database.shootData
 
 import androidx.room.Transaction
+import androidx.sqlite.db.SimpleSQLiteQuery
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
+import eywa.projectcodex.database.views.PersonalBest
+import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
@@ -27,16 +30,90 @@ class ShootsRepo(
     fun getFullShootInfo(
             filters: Filters<ShootFilter> = Filters(),
     ): Flow<List<DatabaseFullShootInfo>> {
-        val datesFilter = filters.get<ShootFilter.DateRange>()
-        val roundsFilter = filters.get<ShootFilter.Round>()
+        val shootAlias = "shoot"
 
-        return shootDao.getAllFullShootInfo(
-                filterPersonalBest = filters.contains<ShootFilter.PersonalBests>(),
-                fromDate = datesFilter?.from,
-                toDate = datesFilter?.to,
-                roundId = roundsFilter?.roundId,
-                subTpeId = roundsFilter?.nonNullSubtypeId,
+        val params = mutableListOf<Any>()
+        val wheres = mutableListOf<String>()
+
+        fun Range<*, *>.handle(field: String): String {
+            validate()
+            val from = fromDb?.let {
+                params.add(it)
+                "$field >= ?"
+            }
+            val to = toDb?.let {
+                params.add(it)
+                "$field <= ?"
+            }
+            return listOfNotNull(from, to).joinToString(" AND ") { "($it)" }
+        }
+
+        filters.forEach { filter ->
+            val filterString = when (filter) {
+                ShootFilter.FirstRoundOfDay -> {
+                    //language=RoomSql
+                    val firstShoots = """
+                        SELECT s1.shootId 
+                        FROM (
+                            SELECT
+                                strftime("%d-%m-%Y", s.dateShot / 1000, 'unixepoch') as time,
+                                s.shootId,
+                                MIN(s.dateShot)
+                            FROM ${DatabaseShoot.TABLE_NAME} as s
+                            GROUP BY time
+                        ) as s1
+                    """.trimIndent()
+                    "($shootAlias.shootId IN ($firstShoots))) AND ($shootAlias.joinWithPrevious = 0)"
+                }
+
+                ShootFilter.CompleteRounds -> "$shootAlias.isComplete = 1"
+                is ShootFilter.DateRange -> filter.handle("$shootAlias.dateShot")
+                is ShootFilter.ScoreRange -> filter.handle("$shootAlias.score")
+
+                is ShootFilter.ArrowCounts -> {
+                    val truth = if (filter.only) "" else "NOT"
+                    "$truth $shootAlias.shootId IN (SELECT shootId FROM ${DatabaseArrowCounter.TABLE_NAME})"
+                }
+
+                ShootFilter.PersonalBests -> "isPersonalBest = 1"
+                is ShootFilter.Round -> {
+                    if (filter.roundId == null) {
+                        "$shootAlias.roundId IS NULL"
+                    }
+                    else {
+                        var str = "$shootAlias.roundId = ?"
+                        params.add(filter.roundId)
+
+                        if (filter.subtypeId != null) {
+                            params.add(filter.subtypeId)
+                            str += " AND $shootAlias.nonNullSubTypeId = ?"
+                        }
+                        str
+                    }
+                }
+            }
+            wheres.add(filterString)
+        }
+
+        val wheresString = ("WHERE " + wheres.joinToString(" AND ") { "($it)" })
+                .takeIf { wheres.isNotEmpty() } ?: ""
+
+        val query = SimpleSQLiteQuery(
+                //language=RoomSql
+                """
+                    SELECT 
+                            shoot.*,
+                            (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
+                            (personalBest.isTiedPb) as isTiedPersonalBest
+                    FROM ${ShootWithScore.TABLE_NAME} as shoot
+                    LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
+                            ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
+                    $wheresString
+                """,
+                params.toTypedArray()
         )
+
+        return shootDao.getAllFullShootInfo(query)
     }
 
     fun getFullShootInfo(shootIds: List<Int>) = shootDao.getFullShootInfo(shootIds)

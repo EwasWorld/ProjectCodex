@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.shootData
 
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
@@ -126,7 +127,7 @@ interface ShootDao {
     @Query(
             """
                 SELECT 
-                        shoot.*, 
+                        shoot.*,
                         (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
                         (personalBest.isTiedPb) as isTiedPersonalBest
                 FROM ${ShootWithScore.TABLE_NAME} as shoot
@@ -161,6 +162,9 @@ interface ShootDao {
             roundId: Int? = null,
             subTpeId: Int? = null,
     ): Flow<List<DatabaseFullShootInfo>>
+
+    @RawQuery(observedEntities = [ShootWithScore::class])
+    fun getAllFullShootInfo(query: SupportSQLiteQuery): Flow<List<DatabaseFullShootInfo>>
 
     @Query(
             """

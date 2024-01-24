@@ -6,6 +6,10 @@ data class NumberFieldState<I : Number> internal constructor(
         private val validators: NumberValidatorGroup<I>,
 ) {
     constructor(validators: NumberValidatorGroup<I>, text: String = "") : this(text, false, validators)
+    constructor(
+            typeValidator: TypeValidator<I>,
+            vararg validators: NumberValidator<in I>,
+    ) : this(NumberValidatorGroup(typeValidator, *validators))
 
     val error = validators.getFirstError(text, isDirty)
     val parsed = validators.parse(text)

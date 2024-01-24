@@ -60,10 +60,19 @@
     <string name="view_scores__filters_title">Filters</string>
     <string name="view_scores__filters_clear">Clear filter</string>
     <string name="view_scores__filters_invalid_dates">Invalid date range: \'from\' must be before \'until\'</string>
+    <string name="view_scores__filters_scores">Scores:</string>
+    <string name="view_scores__filters_scores_min">Min</string>
+    <string name="view_scores__filters_scores_max">Max</string>
+    <string name="view_scores__filters_range_separator">to</string>
+    <string name="view_scores__filters_invalid_scores">Invalid score range: \'min\' must be lower than \'max\'</string>
     <string name="view_scores__filters_type_title">Type:</string>
     <string name="view_scores__filters_type_all">All</string>
     <string name="view_scores__filters_personal_bests">Personal bests:</string>
     <string name="view_scores__filters_personal_bests_only">Only PBs</string>
+    <string name="view_scores__filters_complete">Complete:</string>
+    <string name="view_scores__filters_complete_only">Only complete</string>
+    <string name="view_scores__filters_first_of_day">First of day:</string>
+    <string name="view_scores__filters_first_of_day_only">Only first</string>
     <string name="view_scores__filters_close">Close filters</string>
 
     <!-- Convert score -->
