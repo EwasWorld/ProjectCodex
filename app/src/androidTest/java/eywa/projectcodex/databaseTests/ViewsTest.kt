@@ -2,18 +2,15 @@ package eywa.projectcodex.databaseTests
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowScoresPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addFullSetOfArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.completeRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.joinToPrevious
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.setDate
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -48,31 +45,57 @@ class ViewsTest {
     fun testGetShootWithScore() = runTest {
         val joinedDate = Calendar.getInstance().apply { add(Calendar.MINUTE, 20) }
         val secondDate = Calendar.getInstance().apply { add(Calendar.MINUTE, 25) }
-        val round = RoundPreviewHelper.indoorMetricRoundData
-        val fullSetSum = TestUtils.ARROWS.sumOf { it.score }
+        val metricRound = RoundPreviewHelper.indoorMetricRoundData
         val date = Calendar.getInstance()
 
-        db.add(round)
+        fun FullShootInfo.toShootWithScore(joinedDate: Calendar) = ShootWithScore(
+                shoot = shoot,
+                score = arrows.orEmpty().sumOf { it.score },
+                roundId = round?.roundId,
+                nonNullSubTypeId = roundSubType?.subTypeId ?: 1,
+                joinedDate = joinedDate,
+                counterCount = arrowCounter?.shotCount,
+                scoringArrowCount = arrows?.size ?: 0,
+                roundCount = roundArrowCounts?.sumOf { it.arrowCount },
+        )
+
+        db.add(metricRound)
         val shoots = listOf(
-                ShootPreviewHelper.newFullShootInfo(1).addRound(round).completeRound(10, false) to
-                        ShootWithScore(ShootPreviewHelper.newShoot(), 600, round.round.roundId, 1, true, date),
-                ShootPreviewHelper.newFullShootInfo(3).addRound(round).addFullSetOfArrows() to
-                        ShootWithScore(ShootPreviewHelper.newShoot(), fullSetSum, round.round.roundId, 1, false, date),
-                ShootPreviewHelper.newFullShootInfo(4).addFullSetOfArrows() to
-                        ShootWithScore(ShootPreviewHelper.newShoot(), fullSetSum, null, 1, false, date),
-                ShootPreviewHelper.newFullShootInfo(5).addFullSetOfArrows().setDate(joinedDate) to
-                        ShootWithScore(ShootPreviewHelper.newShoot(), fullSetSum, null, 1, false, joinedDate),
-                ShootPreviewHelper.newFullShootInfo(6).addFullSetOfArrows().setDate(secondDate).joinToPrevious() to
-                        ShootWithScore(ShootPreviewHelper.newShoot(), fullSetSum, null, 1, false, joinedDate),
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(shootId = 1, dateShot = date)
+                    round = metricRound
+                    completeRound(10, false)
+                }.let { it to it.toShootWithScore(date) },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(shootId = 3, dateShot = date)
+                    round = metricRound
+                    addFullSetOfArrows()
+                }.let { it to it.toShootWithScore(date) },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(shootId = 4, dateShot = date)
+                    addFullSetOfArrows()
+                }.let { it to it.toShootWithScore(date) },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(shootId = 5, dateShot = joinedDate)
+                }.let { it to it.toShootWithScore(joinedDate) },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(shootId = 6, dateShot = secondDate, joinWithPrevious = true)
+                }.let { it to it.toShootWithScore(joinedDate) },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(shootId = 7, dateShot = date)
+                    addArrowCounter(24)
+                }.let { it to it.toShootWithScore(date) },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(shootId = 8, dateShot = date)
+                    round = metricRound
+                    completeRoundWithCounter()
+                }.let { it to it.toShootWithScore(date) },
         )
         shoots.forEach { db.add(it.first) }
         advanceUntilIdle()
 
         assertEquals(
-                shoots.map {
-                    val d = if (it.first.shoot.joinWithPrevious) joinedDate else it.first.shoot.dateShot
-                    it.second.copy(shoot = it.first.shoot, joinedDate = d)
-                }.toSet(),
+                shoots.map { it.second }.toSet(),
                 db.testViewDao().getShootWithScores().first().toSet(),
         )
     }
@@ -83,39 +106,53 @@ class ViewsTest {
         db.add(RoundPreviewHelper.outdoorImperialRoundData)
 
         db.add(
-                ShootPreviewHelper.newFullShootInfo(1)
-                        .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                        .completeRound(10)
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1)
+                    round = RoundPreviewHelper.indoorMetricRoundData
+                    completeRoundWithFinalScore(10)
+                }
         )
         db.add(
-                ShootPreviewHelper.newFullShootInfo(2)
-                        .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                        .completeRound(20)
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2)
+                    round = RoundPreviewHelper.indoorMetricRoundData
+                    completeRoundWithFinalScore(20)
+                }
         )
         db.add(
-                ShootPreviewHelper.newFullShootInfo(3)
-                        .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                        .completeRound(20)
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3)
+                    round = RoundPreviewHelper.indoorMetricRoundData
+                    completeRoundWithFinalScore(20)
+                }
         )
         db.add(
-                ShootPreviewHelper.newFullShootInfo(4)
-                        .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                        .completeRound(20)
-                        .addFullSetOfArrows()
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4)
+                    round = RoundPreviewHelper.indoorMetricRoundData
+                    completeRoundWithFinalScore(20)
+                    appendArrows(ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId))
+                }
         )
         db.add(
-                ShootPreviewHelper.newFullShootInfo(5)
-                        .addFullSetOfArrows()
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 5)
+                    addFullSetOfArrows()
+                }
         )
         db.add(
-                ShootPreviewHelper.newFullShootInfo(6)
-                        .addRound(RoundPreviewHelper.outdoorImperialRoundData)
-                        .completeRound(300)
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 6)
+                    round = RoundPreviewHelper.outdoorImperialRoundData
+                    completeRoundWithFinalScore(300)
+                }
         )
         db.add(
-                ShootPreviewHelper.newFullShootInfo(7)
-                        .addRound(RoundPreviewHelper.outdoorImperialRoundData)
-                        .completeRound(200)
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 7)
+                    round = RoundPreviewHelper.outdoorImperialRoundData
+                    completeRoundWithFinalScore(200)
+                }
         )
         advanceUntilIdle()
 

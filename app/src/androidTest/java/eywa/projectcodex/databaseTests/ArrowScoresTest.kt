@@ -3,9 +3,10 @@ package eywa.projectcodex.databaseTests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.ListUtils.plusAtIndex
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.model.Arrow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -35,7 +36,7 @@ class ArrowScoresTest {
     fun createDb() {
         db = DatabaseTestUtils.createDatabase()
         runBlocking {
-            db.shootDao().insert(ShootPreviewHelper.newShoot())
+            db.add(ShootPreviewHelperDsl.create { })
         }
     }
 

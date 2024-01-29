@@ -16,7 +16,7 @@ import androidx.room.DatabaseView
                         nonNullSubTypeId as roundSubTypeId,
                         MAX(score) as pbScore
                     FROM ${ShootWithScore.TABLE_NAME}
-                    WHERE isComplete AND NOT roundId IS NULL
+                    WHERE scoringArrowCount = roundCount AND NOT roundId IS NULL
                     GROUP BY roundId, roundSubTypeId
                 ) as pbs ON shoot.roundId = pbs.roundId AND shoot.nonNullSubTypeId = pbs.roundSubTypeId
                 WHERE shoot.score = pbs.pbScore

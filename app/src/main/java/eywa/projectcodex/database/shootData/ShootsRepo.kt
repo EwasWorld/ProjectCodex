@@ -27,9 +27,7 @@ class ShootsRepo(
             shootDao.getHighestScoreShootsForRound(count, roundId, subTypeId)
 
     @Transaction
-    fun getFullShootInfo(
-            filters: Filters<ShootFilter> = Filters(),
-    ): Flow<List<DatabaseFullShootInfo>> {
+    fun getFullShootInfo(filters: Filters<ShootFilter> = Filters()): Flow<List<DatabaseFullShootInfo>> {
         val shootAlias = "shoot"
 
         val params = mutableListOf<Any>()
@@ -48,7 +46,12 @@ class ShootsRepo(
             return listOfNotNull(from, to).joinToString(" AND ") { "($it)" }
         }
 
-        filters.forEach { filter ->
+        var actualFilters = filters
+        if (actualFilters.contains(ShootFilter.ScoreRange::class)) {
+            actualFilters += ShootFilter.ArrowCounts(false)
+        }
+
+        actualFilters.forEach { filter ->
             val filterString = when (filter) {
                 ShootFilter.FirstRoundOfDay -> {
                     //language=RoomSql
@@ -63,10 +66,10 @@ class ShootsRepo(
                             GROUP BY time
                         ) as s1
                     """.trimIndent()
-                    "($shootAlias.shootId IN ($firstShoots))) AND ($shootAlias.joinWithPrevious = 0)"
+                    "($shootAlias.shootId IN ($firstShoots)) AND ($shootAlias.joinWithPrevious = 0)"
                 }
 
-                ShootFilter.CompleteRounds -> "$shootAlias.isComplete = 1"
+                ShootFilter.CompleteRounds -> "$shootAlias.scoringArrowCount = $shootAlias.roundCount OR $shootAlias.counterCount = $shootAlias.roundCount"
                 is ShootFilter.DateRange -> filter.handle("$shootAlias.dateShot")
                 is ShootFilter.ScoreRange -> filter.handle("$shootAlias.score")
 
@@ -103,7 +106,7 @@ class ShootsRepo(
                 """
                     SELECT 
                             shoot.*,
-                            (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
+                            (shoot.scoringArrowCount = shoot.roundCount AND shoot.score = personalBest.score) as isPersonalBest,
                             (personalBest.isTiedPb) as isTiedPersonalBest
                     FROM ${ShootWithScore.TABLE_NAME} as shoot
                     LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest

@@ -118,6 +118,8 @@ object TestUtils {
         return DateTimeFormat.SHORT_DATE.parse("$day/$generatedMonth/$year")
     }
 
+    fun String.parseDate(format: DateTimeFormat = DateTimeFormat.SHORT_DATE_TIME) = format.parse(this)
+
     fun generateShoots(roundsToGenerate: Int): List<DatabaseShoot> = List(roundsToGenerate) { generateDate() }
             .sortedDescending()
             .mapIndexed { index, date ->

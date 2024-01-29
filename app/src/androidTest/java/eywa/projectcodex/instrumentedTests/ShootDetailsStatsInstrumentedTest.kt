@@ -133,7 +133,7 @@ class ShootDetailsStatsInstrumentedTest {
                         archerId = DEFAULT_ARCHER_ID,
                 )
                 round = rounds[2]
-                completeRound(1264) // 6 HC
+                completeRoundWithFinalScore(1264) // 6 HC
             },
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(
@@ -141,7 +141,7 @@ class ShootDetailsStatsInstrumentedTest {
                         dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("19/12/2011 15:21"),
                 )
                 round = rounds[2]
-                completeRound(1239) // 11 HC
+                completeRoundWithFinalScore(1239) // 11 HC
             },
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(
@@ -149,7 +149,7 @@ class ShootDetailsStatsInstrumentedTest {
                         dateShot = DateTimeFormat.SHORT_DATE_TIME.parse("18/12/2011 15:21"),
                 )
                 round = rounds[2]
-                completeRound(1250) // 9 HC
+                completeRoundWithFinalScore(1250) // 9 HC
             },
     )
 

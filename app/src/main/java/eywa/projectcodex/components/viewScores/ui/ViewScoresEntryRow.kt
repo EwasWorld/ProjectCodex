@@ -54,7 +54,7 @@ internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
         helpInfo: HelpShowcaseUseCase,
         modifier: Modifier = Modifier,
-        showPbs: Boolean,
+        showPbs: Boolean = true,
 ) = ViewScoresEntryRow(
         entries = ViewScoresEntryList(entry),
         helpInfo = helpInfo,
@@ -75,7 +75,7 @@ internal fun ViewScoresEntryRow(
         entries: ViewScoresEntryList,
         helpInfo: HelpShowcaseUseCase,
         modifier: Modifier = Modifier,
-        showPbs: Boolean,
+        showPbs: Boolean = true,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> helpInfo.handle(it, CodexNavRoute.VIEW_SCORES::class) }
 
@@ -377,7 +377,6 @@ fun ViewScoresEntryRow_Preview(
         ViewScoresEntryRow(
                 entries = param,
                 helpInfo = HelpShowcaseUseCase(),
-                showPbs = true,
         )
     }
 }

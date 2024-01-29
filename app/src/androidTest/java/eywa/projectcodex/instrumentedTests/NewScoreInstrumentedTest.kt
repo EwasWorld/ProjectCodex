@@ -63,7 +63,7 @@ class NewScoreInstrumentedTest {
         roundSubTypeId = 2
     }
 
-    private suspend fun getCurrentShoots() = db.shootDao().getAllFullShootInfo().first()
+    private suspend fun getCurrentShoots() = db.shootsRepo().getFullShootInfo().first()
 
     private suspend fun getShoots(shootId: Int) =
             db.shootDao().getFullShootInfo(shootId).first()
@@ -191,7 +191,7 @@ class NewScoreInstrumentedTest {
     @Test
     fun testAddRoundWithSubtype() = runTest {
         setup()
-        db.shootDao().getAllFullShootInfo().takeWhile { it.isEmpty() }.collect()
+        db.shootsRepo().getFullShootInfo().takeWhile { it.isEmpty() }.collect()
 
         val roundsBeforeCreate = getCurrentShoots()
         assertEquals(1, roundsBeforeCreate.size)

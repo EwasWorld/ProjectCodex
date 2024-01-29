@@ -8,6 +8,7 @@ import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.*
 
 @Dao
@@ -18,13 +19,19 @@ interface ShootDao {
     @Update
     suspend fun update(vararg shootData: DatabaseShoot)
 
-    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
             """
                 SELECT 
-                        shoot.*,
-                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
+                        shoot.shootId,
+                        shoot.dateShot,
+                        shoot.archerId,
+                        shoot.countsTowardsHandicap,
+                        shoot.bowId,
+                        shoot.goalScore,
+                        shoot.shootStatus,
+                        shoot.joinWithPrevious,
+                        (shoot.scoringArrowCount = shoot.roundCount AND shoot.score = personalBest.score) as isPersonalBest,
                         (personalBest.isTiedPb) as isTiedPersonalBest
                 FROM ${ShootWithScore.TABLE_NAME} as shoot
                 LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
@@ -37,28 +44,17 @@ interface ShootDao {
     @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId")
     suspend fun deleteRound(shootId: Int)
 
-    @RewriteQueriesToDropUnusedColumns
-    @Transaction
-    @Query(
-            """
-                SELECT 
-                        shoot.*,
-                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
-                        (personalBest.isTiedPb) as isTiedPersonalBest
-                FROM ${ShootWithScore.TABLE_NAME} as shoot
-                LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
-                        ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
-                WHERE shoot.shootId == :shootId
-            """
-    )
-    fun getFullShootInfo(shootId: Int): Flow<DatabaseFullShootInfo?>
+    fun getFullShootInfo(shootId: Int) = getFullShootInfo(listOf(shootId)).map { it.firstOrNull() }
 
+    /**
+     * Most recent shoots with the specified round that have at least 1 arrow shot
+     */
     @Transaction
     @Query(
             """
-                SELECT shootId, dateShot, score, isComplete
+                SELECT shootId, dateShot, score, (scoringArrowCount = roundCount OR counterCount = roundCount) as isComplete
                 FROM ${ShootWithScore.TABLE_NAME}
-                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND score > 0
+                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND (scoringArrowCount > 0 OR counterCount > 0)
                 ORDER BY dateShot DESC
                 LIMIT :count
             """
@@ -69,12 +65,15 @@ interface ShootDao {
             subTypeId: Int,
     ): Flow<List<DatabaseShootShortRecord>>
 
+    /**
+     * Top scoring shoots with the specified round that are complete
+     */
     @Transaction
     @Query(
             """
-                SELECT shootId, dateShot, score, isComplete
+                SELECT shootId, dateShot, score, 1 as isComplete
                 FROM ${ShootWithScore.TABLE_NAME}
-                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND score > 0
+                WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND scoringArrowCount = roundCount
                 ORDER BY score DESC, dateShot
                 LIMIT :count
             """
@@ -121,47 +120,6 @@ interface ShootDao {
             """
     )
     fun getJoinedFullShoots(shootId: Int): Flow<List<DatabaseFullShootInfo>>
-
-    @RewriteQueriesToDropUnusedColumns
-    @Transaction
-    @Query(
-            """
-                SELECT 
-                        shoot.*,
-                        (shoot.isComplete = 1 AND shoot.score = personalBest.score) as isPersonalBest,
-                        (personalBest.isTiedPb) as isTiedPersonalBest
-                FROM ${ShootWithScore.TABLE_NAME} as shoot
-                LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
-                        ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
-                LEFT JOIN (
-                    SELECT 
-                            (ar.isComplete = 1 AND ar.score = pb.score) as ljIsPersonalBest,
-                            ar.joinedDate,
-                            COUNT(*) as count
-                    FROM ${ShootWithScore.TABLE_NAME} as ar 
-                    LEFT JOIN ${PersonalBest.TABLE_NAME} as pb 
-                            ON ar.roundId = pb.roundId AND ar.nonNullSubTypeId = pb.roundSubTypeId
-                    WHERE (:fromDate IS NULL OR ar.dateShot >= :fromDate)
-                    AND (:toDate IS NULL OR ar.dateShot <= :toDate)
-                    AND (:roundId IS NULL OR ar.roundId = :roundId)
-                    AND (
-                            :roundId IS NULL OR :subTpeId IS NULL 
-                            OR ar.nonNullSubTypeId = :subTpeId 
-                            OR (ar.nonNullSubTypeId IS NULL AND :subTpeId = 1 AND NOT ar.roundId IS NULL)
-                    )
-                    AND (ljIsPersonalBest OR NOT :filterPersonalBest)
-                    GROUP BY ar.joinedDate
-                ) as counts ON counts.joinedDate = shoot.joinedDate
-                WHERE counts.count > 0
-            """
-    )
-    fun getAllFullShootInfo(
-            filterPersonalBest: Boolean = false,
-            fromDate: Calendar? = null,
-            toDate: Calendar? = null,
-            roundId: Int? = null,
-            subTpeId: Int? = null,
-    ): Flow<List<DatabaseFullShootInfo>>
 
     @RawQuery(observedEntities = [ShootWithScore::class])
     fun getAllFullShootInfo(query: SupportSQLiteQuery): Flow<List<DatabaseFullShootInfo>>

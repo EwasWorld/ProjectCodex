@@ -10,10 +10,10 @@ data class Filters<T : Any> private constructor(private val items: Map<KClass<ou
     constructor(items: Iterable<T>) : this(items.associateBy { it::class })
 
     @Suppress("UNCHECKED_CAST")
-    fun <I : T> get(clazz: KClass<I>) = items[clazz] as? I
-    fun <I : T> contains(clazz: KClass<I>) = items.containsKey(clazz)
-    fun <I : T> minus(clazz: KClass<I>) = Filters(items.minus(clazz))
-    fun <I : T> plus(item: I): Filters<T> = Filters(items.plus(item::class to item))
+    operator fun <I : T> get(clazz: KClass<I>) = items[clazz] as? I
+    operator fun <I : T> contains(clazz: KClass<I>) = items.containsKey(clazz)
+    operator fun <I : T> minus(clazz: KClass<I>) = Filters(items.minus(clazz))
+    operator fun <I : T> plus(item: I): Filters<T> = Filters(items.plus(item::class to item))
     fun forEach(action: (T) -> Unit) = items.values.forEach(action)
     fun <R> map(action: (T) -> R) = items.values.map(action)
 

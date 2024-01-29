@@ -44,6 +44,11 @@ class ShootPreviewHelperDsl {
         arrows = a.mapIndexed { i, arrow -> arrow.asArrowScore(shoot.shootId, i + 1) }
     }
 
+    fun appendArrows(a: List<DatabaseArrowScore>) {
+        val first = (arrows?.maxOf { it.arrowNumber } ?: 0) + 1
+        arrows = arrows.orEmpty().plus(a.mapIndexed { index, arrow -> arrow.copy(arrowNumber = first + index) })
+    }
+
     fun addArrowCounter(count: Int) {
         counter = DatabaseArrowCounter(shoot.shootId, count)
     }
@@ -67,7 +72,7 @@ class ShootPreviewHelperDsl {
         addArrowCounter(round!!.roundArrowCounts!!.sumOf { it.arrowCount })
     }
 
-    fun completeRound(finalScore: Int) {
+    fun completeRoundWithFinalScore(finalScore: Int) {
         val arrowCount = round!!.roundArrowCounts!!.sumOf { it.arrowCount }
         val tens = finalScore.floorDiv(10)
 
@@ -104,7 +109,7 @@ class ShootPreviewHelperDsl {
             roundArrowCounts = round?.roundArrowCounts,
             allRoundSubTypes = round?.roundSubTypes,
             allRoundDistances = round?.roundDistances,
-            arrows = arrows,
+            arrows = arrows?.map { it.copy(shootId = shoot.shootId) },
             isPersonalBest = isPersonalBest,
             isTiedPersonalBest = isTiedPersonalBest,
             shootRound = asDatabaseShootRound(),
@@ -112,20 +117,7 @@ class ShootPreviewHelperDsl {
             arrowCounter = counter,
     )
 
-    fun asFullShootInfo() = FullShootInfo(
-            shoot = shoot,
-            round = round?.round,
-            roundArrowCounts = round?.roundArrowCounts,
-            roundSubType = round?.roundSubTypes?.find { it.subTypeId == (roundSubTypeId ?: 1) },
-            roundDistances = round?.getDistances(roundSubTypeId),
-            arrows = arrows,
-            use2023HandicapSystem = use2023HandicapSystem,
-            isPersonalBest = isPersonalBest,
-            isTiedPersonalBest = isTiedPersonalBest,
-            shootRound = asDatabaseShootRound(),
-            shootDetail = asDatabaseShootDetail(),
-            arrowCounter = counter,
-    )
+    fun asFullShootInfo() = FullShootInfo(asDatabaseFullShootInfo(), use2023HandicapSystem)
 
     companion object {
         fun create(config: ShootPreviewHelperDsl.() -> Unit) =
@@ -135,7 +127,7 @@ class ShootPreviewHelperDsl {
 
 @Deprecated("Use Dsl")
 object ShootPreviewHelper {
-    fun newShoot(id: Int = 1, date: Calendar = Calendar.getInstance()) =
+    private fun newShoot(id: Int = 1, date: Calendar = Calendar.getInstance()) =
             DatabaseShoot(shootId = id, dateShot = date)
 
     fun newFullShootInfo(id: Int) =
@@ -172,10 +164,6 @@ object ShootPreviewHelper {
                         DatabaseArrowScore(shoot.shootId, it, arrowScore, isX)
                     }
             )
-
-    fun FullShootInfo.joinToPrevious() = copy(shoot = shoot.copy(joinWithPrevious = true))
-
-    fun FullShootInfo.setDate(date: Calendar) = copy(shoot = shoot.copy(dateShot = date))
 
     fun FullShootInfo.completeRound(finalScore: Int): FullShootInfo {
         val arrowCount = roundArrowCounts!!.sumOf { it.arrowCount }
