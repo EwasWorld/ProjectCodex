@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -44,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.DataRow
@@ -218,35 +221,47 @@ internal fun ViewScoresFilters(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColumnScope.DateFilters(
         state: ViewScoresFiltersState,
         listener: (ViewScoresFiltersIntent) -> Unit,
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    DateFilter(
-            title = stringResource(R.string.view_scores__filters_from_date),
-            date = state.fromDate,
-            helpState = HelpState(
-                    helpListener = helpShowcaseListener,
-                    helpTitle = stringResource(R.string.help_view_scores__filters_from_title),
-                    helpBody = stringResource(R.string.help_view_scores__filters_from_body),
-            ),
-            onUpdate = { listener(ViewScoresFiltersIntent.UpdateFromFilter(it)) },
-            onClear = { listener(ViewScoresFiltersIntent.ClearFromFilter) },
-    )
-    DateFilter(
-            title = stringResource(R.string.view_scores__filters_until_date),
-            date = state.untilDate,
-            helpState = HelpState(
-                    helpListener = helpShowcaseListener,
-                    helpTitle = stringResource(R.string.help_view_scores__filters_until_title),
-                    helpBody = stringResource(R.string.help_view_scores__filters_until_body),
-            ),
-            isValidDate = state.dateRangeIsValid,
-            onUpdate = { listener(ViewScoresFiltersIntent.UpdateUntilFilter(it)) },
-            onClear = { listener(ViewScoresFiltersIntent.ClearUntilFilter) },
-    )
+    FlowRow(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+                text = stringResource(R.string.view_scores__filters_date),
+        )
+        DateFilter(
+                title = stringResource(R.string.view_scores__filters_from_date),
+                date = state.fromDate,
+                helpState = HelpState(
+                        helpListener = helpShowcaseListener,
+                        helpTitle = stringResource(R.string.help_view_scores__filters_from_title),
+                        helpBody = stringResource(R.string.help_view_scores__filters_from_body),
+                ),
+                onUpdate = { listener(ViewScoresFiltersIntent.UpdateFromFilter(it)) },
+                onClear = { listener(ViewScoresFiltersIntent.ClearFromFilter) },
+        )
+        Text(
+                text = stringResource(R.string.view_scores__filters_range_separator),
+        )
+        DateFilter(
+                title = stringResource(R.string.view_scores__filters_until_date),
+                date = state.untilDate,
+                helpState = HelpState(
+                        helpListener = helpShowcaseListener,
+                        helpTitle = stringResource(R.string.help_view_scores__filters_until_title),
+                        helpBody = stringResource(R.string.help_view_scores__filters_until_body),
+                ),
+                isValidDate = state.dateRangeIsValid,
+                onUpdate = { listener(ViewScoresFiltersIntent.UpdateUntilFilter(it)) },
+                onClear = { listener(ViewScoresFiltersIntent.ClearUntilFilter) },
+        )
+    }
     if (!state.dateRangeIsValid) {
         Text(
                 text = stringResource(R.string.view_scores__filters_invalid_dates),
@@ -283,56 +298,53 @@ private fun DateFilter(
     )
     val errorText = stringResource(R.string.view_scores__filters_invalid_dates)
 
-    DataRow(
-            title = title,
-            helpState = helpState,
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.updateHelpDialogPosition(helpState)
     ) {
-        Row(
-                verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (date == null) {
-                Text(
-                        text = stringResource(R.string.view_scores__filters_no_filter),
-                        style = clickableStyle,
-                        modifier = Modifier.clickable { datePicker.show() }
-                )
-            }
-            else {
-                Text(
-                        text = DateTimeFormat.LONG_DATE.format(date),
-                        style = clickableStyle,
+        if (date == null) {
+            Text(
+                    text = title,
+                    style = clickableStyle,
+                    modifier = Modifier.clickable { datePicker.show() }
+            )
+        }
+        else {
+            Text(
+                    text = DateTimeFormat.LONG_DATE.format(date),
+                    style = clickableStyle,
+                    modifier = Modifier
+                            .clickable { datePicker.show() }
+                            .semantics {
+                                this.customActions = customActions
+                                if (!isValidDate) error(errorText)
+                            }
+                            .padding(end = 3.dp)
+            )
+            if (!isValidDate) {
+                CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.WarningAmber,
+                        tint = CodexTheme.colors.warningOnAppBackground,
+                ).CodexIcon(
                         modifier = Modifier
-                                .clickable { datePicker.show() }
-                                .semantics {
-                                    this.customActions = customActions
-                                    if (!isValidDate) error(errorText)
-                                }
-                                .padding(end = 3.dp)
+                                .clearAndSetSemantics { }
+                                .scale(0.7f)
+                                .padding(start = 3.dp)
                 )
-                if (!isValidDate) {
-                    CodexIconInfo.VectorIcon(
-                            imageVector = Icons.Default.WarningAmber,
-                            tint = CodexTheme.colors.warningOnAppBackground,
-                    ).CodexIcon(
-                            modifier = Modifier
-                                    .clearAndSetSemantics { }
-                                    .scale(0.7f)
-                                    .padding(start = 3.dp)
-                    )
-                }
-                ClearIcon(onClear)
             }
+            ClearIcon(onClear)
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColumnScope.ScoreFilters(
         state: ViewScoresFiltersState,
         listener: (ViewScoresFiltersIntent) -> Unit,
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    Row(
+    FlowRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {

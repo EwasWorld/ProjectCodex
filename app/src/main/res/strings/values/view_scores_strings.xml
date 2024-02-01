@@ -55,8 +55,9 @@
     </plurals>
     <string name="view_scores__filters_no_filter">No filter</string>
     <string name="view_scores__filters_clear_from_filter">No filter</string>
-    <string name="view_scores__filters_from_date">From:</string>
-    <string name="view_scores__filters_until_date">Until:</string>
+    <string name="view_scores__filters_date">Date:</string>
+    <string name="view_scores__filters_from_date">From</string>
+    <string name="view_scores__filters_until_date">Until</string>
     <string name="view_scores__filters_title">Filters</string>
     <string name="view_scores__filters_clear">Clear filter</string>
     <string name="view_scores__filters_clear_all">Clear all filters</string>
