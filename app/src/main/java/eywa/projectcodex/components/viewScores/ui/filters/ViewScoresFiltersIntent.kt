@@ -9,6 +9,7 @@ import java.util.Calendar
 sealed class ViewScoresFiltersIntent {
     object OpenFilters : ViewScoresFiltersIntent()
     object CloseFilters : ViewScoresFiltersIntent()
+    object ClearAllFilters : ViewScoresFiltersIntent()
 
     data class UpdateFromFilter(val info: UpdateCalendarInfo) : ViewScoresFiltersIntent()
     object ClearFromFilter : ViewScoresFiltersIntent()
@@ -60,6 +61,11 @@ sealed class ViewScoresFiltersIntent {
         ClearScoreMinFilter -> state.copy(minScore = state.minScore.onTextChanged(null))
         is UpdateScoreMaxFilter -> state.copy(maxScore = state.maxScore.onTextChanged(value))
         is UpdateScoreMinFilter -> state.copy(minScore = state.minScore.onTextChanged(value))
+        ClearAllFilters -> ViewScoresFiltersState(
+                isExpanded = state.isExpanded,
+                selectRoundDialogState = state.selectRoundDialogState,
+                roundFilter = false,
+        )
     }
 
     fun Calendar?.update(info: UpdateCalendarInfo, time: String): Calendar {

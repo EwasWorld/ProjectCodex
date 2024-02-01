@@ -32,7 +32,7 @@ class FakeDataImpl(
     override suspend fun addFakeData(db: ScoresRoomDatabase) {
         check(BuildConfig.DEBUG) { "Should not be used in release builds" }
 
-        if (db.shootDao().getAllFullShootInfo().first().isNotEmpty()) {
+        if (db.shootsRepo().getFullShootInfo().first().isNotEmpty()) {
             Log.i(ScoresRoomDatabase.LOG_TAG, "Skipped adding fake data")
             return
         }

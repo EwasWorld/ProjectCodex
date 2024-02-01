@@ -7,7 +7,7 @@ import eywa.projectcodex.database.shootData.ShootFilter
 
 data class ViewScoresState(
         val isInMultiSelectMode: Boolean = false,
-        val data: List<ViewScoresEntry> = listOf(),
+        val data: List<ViewScoresEntry>? = null,
         val noRoundsDialogOkClicked: Boolean = false,
 
         val multiSelectEmailNoSelection: Boolean = false,
@@ -31,7 +31,7 @@ data class ViewScoresState(
         val viewScoresFiltersState: ViewScoresFiltersState = ViewScoresFiltersState(),
 ) {
     val lastClickedEntry by lazy {
-        lastClickedEntryId?.let { id -> data.find { it.id == id } }
+        lastClickedEntryId?.let { id -> data?.find { it.id == id } }
     }
 
     val filters: Filters<ShootFilter>
@@ -39,4 +39,7 @@ data class ViewScoresState(
 
     val actionBarExtended
         get() = isInMultiSelectMode || viewScoresFiltersState.isExpanded
+
+    val showNoItemsDialog: Boolean
+        get() = data != null && data.isEmpty() && filters.size == 0
 }

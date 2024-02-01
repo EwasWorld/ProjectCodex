@@ -48,7 +48,8 @@ class ViewScoresViewModel @Inject constructor(
                     .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
                     .collect { (flowData, use2023System) ->
                         _state.update {
-                            val previousSelectedEntries = it.data.associate { entry -> entry.id to entry.isSelected }
+                            val previousSelectedEntries = it.data.orEmpty()
+                                    .associate { entry -> entry.id to entry.isSelected }
                             it.copy(
                                     data = flowData.map { roundInfo ->
                                         val info = FullShootInfo(roundInfo, use2023System)
@@ -86,7 +87,7 @@ class ViewScoresViewModel @Inject constructor(
                     }
                     else {
                         it.data
-                                .find { entry -> entry.id == action.shootId }
+                                ?.find { entry -> entry.id == action.shootId }
                                 ?.getSingleClickAction()
                                 ?.handleClick
                                 ?.invoke(it.copy(lastClickedEntryId = action.shootId), shootIdsUseCase)
@@ -127,10 +128,9 @@ class ViewScoresViewModel @Inject constructor(
     private fun ViewScoresState.selectItem(shootId: Int): ViewScoresState {
         if (!isInMultiSelectMode) return this
 
-        val entryIndex = _state.value
-                .data
-                .indexOfFirst { entry -> entry.id == shootId }
-                .takeIf { index -> index >= 0 }
+        val entryIndex = data
+                ?.indexOfFirst { entry -> entry.id == shootId }
+                ?.takeIf { index -> index >= 0 }
                 ?: return this
 
         val entry = data[entryIndex]
@@ -168,17 +168,18 @@ class ViewScoresViewModel @Inject constructor(
                     shootIdsUseCase.clear()
                     it.copy(
                             isInMultiSelectMode = false,
-                            data = it.data.map { entry -> entry.copy(isSelected = false) },
+                            data = it.data?.map { entry -> entry.copy(isSelected = false) },
                     )
                 }
 
             MultiSelectBarIntent.ClickAllOrNone -> _state.update {
-                val selectAll = !it.data.all { entry -> entry.isSelected }
-                it.copy(data = it.data.map { entry -> entry.copy(isSelected = selectAll) })
+                val allSelected = it.data?.none { entry -> !entry.isSelected } ?: false
+                it.copy(data = it.data?.map { entry -> entry.copy(isSelected = allSelected) })
             }
 
             MultiSelectBarIntent.ClickEmail -> _state.update {
                 val selectedItems = it.data
+                        .orEmpty()
                         .filter { entry -> entry.isSelected }
                 if (selectedItems.isEmpty()) {
                     return@update it.copy(multiSelectEmailNoSelection = true)
@@ -196,7 +197,7 @@ class ViewScoresViewModel @Inject constructor(
 
             is ConvertScoreIntent.Ok -> _state.update {
                 val arrows = it.data
-                        .find { entry -> entry.id == it.lastClickedEntryId }
+                        ?.find { entry -> entry.id == it.lastClickedEntryId }
                         ?.info
                         ?.arrows
                         ?.takeIf { arrows -> arrows.isNotEmpty() }

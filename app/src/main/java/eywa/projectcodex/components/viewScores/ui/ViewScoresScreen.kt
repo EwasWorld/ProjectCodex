@@ -5,10 +5,14 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,9 +35,12 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.sharedUi.LoadingScreen
 import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
@@ -42,6 +51,7 @@ import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
 import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFilters
+import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.utils.ViewScoresShowcaseInfo
@@ -145,11 +155,11 @@ fun ViewScoresScreen(
     val lazyListState = rememberLazyListState()
     listener(HelpShowcaseAction(HelpShowcaseIntent.Clear))
 
-    val viewScoresShowcaseInfo = ViewScoresShowcaseInfo(state.data.map { it::class }, lazyListState)
+    val viewScoresShowcaseInfo = ViewScoresShowcaseInfo(state.data.orEmpty().map { it::class }, lazyListState)
     listener(HelpShowcaseAction(HelpShowcaseIntent.AddDynamicInfo(viewScoresShowcaseInfo)))
 
     SetOfDialogs(
-            state.data.isEmpty() to { ViewScoresEmptyListDialog(isShown = it, listener = listener) },
+            state.showNoItemsDialog to { ViewScoresEmptyListDialog(isShown = it, listener = listener) },
             (state.lastClickedEntryId != null && state.convertScoreDialogOpen) to {
                 ConvertScoreDialog(
                         isShown = it,
@@ -166,75 +176,112 @@ fun ViewScoresScreen(
     )
 
     Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                     .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
                     .testTag(ViewScoresTestTag.SCREEN.getTestTag())
     ) {
-        LazyColumn(
-                state = lazyListState,
-                contentPadding = PaddingValues(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.testTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag())
-        ) {
-            items(state.data.size) { entryIndex ->
-                val entry = state.data[entryIndex]
-                ViewScoresListItem(
-                        entry = entry,
-                        entryIndex = entryIndex,
-                        isInMultiSelectMode = state.isInMultiSelectMode,
-                        dropdownMenuItems = entry.getDropdownMenuItems(),
-                        dropdownExpanded = state.dropdownMenuOpen && entry.id == state.lastClickedEntryId,
-                        listener = listener,
-                        helpListener = {
-                            viewScoresShowcaseInfo.genericEntryHelpInfo[entryIndex]
-                                    .handle(it, CodexNavRoute.VIEW_SCORES::class)
-                        },
-                ) {
-                    if (entry.isCount) {
-                        ViewScoresCountRow(
-                                entries = ViewScoresEntryList(entry),
-                                helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
-                        )
-                    }
-                    else {
-                        ViewScoresEntryRow(
-                                entry = entry,
-                                helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
-                        )
+        // If data has not been loaded
+        if (state.data == null) {
+            LoadingScreen()
+        }
+        // If there is data to show
+        else if (state.data.isNotEmpty()) {
+            LazyColumn(
+                    state = lazyListState,
+                    contentPadding = PaddingValues(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier
+                            .testTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag())
+                            .align(Alignment.TopCenter)
+            ) {
+                items(state.data.size) { entryIndex ->
+                    val entry = state.data[entryIndex]
+                    ViewScoresListItem(
+                            entry = entry,
+                            entryIndex = entryIndex,
+                            isInMultiSelectMode = state.isInMultiSelectMode,
+                            dropdownMenuItems = entry.getDropdownMenuItems(),
+                            dropdownExpanded = state.dropdownMenuOpen && entry.id == state.lastClickedEntryId,
+                            listener = listener,
+                            helpListener = {
+                                viewScoresShowcaseInfo.genericEntryHelpInfo[entryIndex]
+                                        .handle(it, CodexNavRoute.VIEW_SCORES::class)
+                            },
+                    ) {
+                        if (entry.isCount) {
+                            ViewScoresCountRow(
+                                    entries = ViewScoresEntryList(entry),
+                                    helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
+                            )
+                        }
+                        else {
+                            ViewScoresEntryRow(
+                                    entry = entry,
+                                    helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
+                            )
+                        }
                     }
                 }
             }
         }
-
-        UnobstructedBox(viewScoresShowcaseInfo) {
-            ViewScoresActionBar(
-                    modifier = Modifier
-                            .padding(20.dp)
-                            .animateContentSize()
+        // If there is no data due to filters
+        else if (state.filters.size > 0) {
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(CodexTheme.dimens.screenPadding)
             ) {
-                Row(
-                        modifier = Modifier.padding(horizontal = 5.dp)
-                ) {
-                    AnimatedVisibility(
-                            state.isInMultiSelectMode || !state.actionBarExtended
-                    ) {
-                        MultiSelectBar(
-                                isInMultiSelectMode = state.isInMultiSelectMode,
-                                isEveryItemSelected = state.data.all { it.isSelected },
-                                listener = { listener(MultiSelectAction(it)) },
-                                helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
-                        )
-                    }
+                Text(
+                        text = stringResource(R.string.view_scores__filters_no_results),
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                        textAlign = TextAlign.Center,
+                )
+                Text(
+                        text = stringResource(R.string.view_scores__filters_clear_all),
+                        style = CodexTypography.NORMAL.asClickableStyle(),
+                        modifier = Modifier
+                                .clickable { listener(FiltersAction(ViewScoresFiltersIntent.ClearAllFilters)) }
+                )
+            }
+        }
 
-                    AnimatedVisibility(
-                            state.viewScoresFiltersState.isExpanded || !state.actionBarExtended
+        AnimatedVisibility(
+                visible = state.data != null,
+                enter = fadeIn(),
+                exit = fadeOut(),
+        ) {
+            UnobstructedBox(viewScoresShowcaseInfo) {
+                ViewScoresActionBar(
+                        modifier = Modifier
+                                .padding(20.dp)
+                                .animateContentSize()
+                ) {
+                    Row(
+                            modifier = Modifier.padding(horizontal = 5.dp)
                     ) {
-                        ViewScoresFilters(
-                                state = state.viewScoresFiltersState,
-                                listener = { listener(FiltersAction(it)) },
-                                helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
-                        )
+                        AnimatedVisibility(
+                                state.isInMultiSelectMode || !state.actionBarExtended
+                        ) {
+                            MultiSelectBar(
+                                    isInMultiSelectMode = state.isInMultiSelectMode,
+                                    isEveryItemSelected = state.data.orEmpty().none { !it.isSelected },
+                                    listener = { listener(MultiSelectAction(it)) },
+                                    helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
+                            )
+                        }
+
+                        AnimatedVisibility(
+                                state.viewScoresFiltersState.isExpanded || !state.actionBarExtended
+                        ) {
+                            ViewScoresFilters(
+                                    state = state.viewScoresFiltersState,
+                                    listener = { listener(FiltersAction(it)) },
+                                    helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
+                            )
+                        }
                     }
                 }
             }
@@ -362,6 +409,48 @@ fun Filters_ViewScoresScreen_Preview() {
 )
 @Composable
 fun NoEntries_ViewScoresScreen_Preview() {
+    CodexTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ViewScoresScreen(
+                    state = ViewScoresState(data = listOf()),
+                    listener = {},
+            )
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        device = Devices.PIXEL_2
+)
+@Composable
+fun NoEntriesWithFilter_ViewScoresScreen_Preview() {
+    CodexTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ViewScoresScreen(
+                    state = ViewScoresState(
+                            data = listOf(),
+                            viewScoresFiltersState = ViewScoresFiltersState(
+                                    isExpanded = false,
+                                    firstRoundOfDayFilter = true,
+                            )
+                    ),
+                    listener = {},
+            )
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        device = Devices.PIXEL_2
+)
+@Composable
+fun Loading_ViewScoresScreen_Preview() {
     CodexTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             ViewScoresScreen(

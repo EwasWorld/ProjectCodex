@@ -59,6 +59,7 @@
     <string name="view_scores__filters_until_date">Until:</string>
     <string name="view_scores__filters_title">Filters</string>
     <string name="view_scores__filters_clear">Clear filter</string>
+    <string name="view_scores__filters_clear_all">Clear all filters</string>
     <string name="view_scores__filters_invalid_dates">Invalid date range: \'from\' must be before \'until\'</string>
     <string name="view_scores__filters_scores">Scores:</string>
     <string name="view_scores__filters_scores_min">Min</string>
@@ -74,6 +75,7 @@
     <string name="view_scores__filters_first_of_day">First of day:</string>
     <string name="view_scores__filters_first_of_day_only">Only first</string>
     <string name="view_scores__filters_close">Close filters</string>
+    <string name="view_scores__filters_no_results">No entries found based on filters selected</string>
 
     <!-- Convert score -->
     <string name="view_scores_menu__convert">Convert</string>

@@ -19,6 +19,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -158,6 +159,17 @@ internal fun ViewScoresFilters(
                                 onClick = { listener(ViewScoresFiltersIntent.ClickTypeFilter) }
                         )
                     }
+
+                    CodexIconInfo.VectorIcon(
+                            imageVector = Icons.Default.FilterAltOff,
+                            contentDescription = stringResource(R.string.view_scores__filters_clear_all),
+                            tint = CodexTheme.colors.onFloatingActions,
+                    ).CodexIcon(
+                            modifier = Modifier
+                                    .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
+                                    .padding(15.dp)
+                                    .align(Alignment.TopStart)
+                    )
 
                     CodexIconInfo.VectorIcon(
                             imageVector = Icons.Default.Close,
