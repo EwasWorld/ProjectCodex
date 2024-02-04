@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -83,142 +84,177 @@ internal fun ViewScoresFilters(
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     Column {
-        AnimatedVisibility(
-                visible = state.isExpanded,
-                enter = fadeIn() + expandIn(expandFrom = Alignment.BottomCenter),
-                exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter),
-        ) {
-            ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onFloatingActions)) {
-                val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
+        ExpandedFiltersPanel(state, listener, helpShowcaseListener)
+        CollapsedFiltersPanel(state, listener, helpShowcaseListener)
+    }
+}
 
-                Box(
-                        contentAlignment = Alignment.TopEnd,
-                ) {
-                    Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier
-                                    .padding(horizontal = 20.dp, vertical = 15.dp)
-                                    .fillMaxWidth()
-                    ) {
-                        Text(
-                                text = stringResource(R.string.view_scores__filters_title),
-                                style = CodexTypography.NORMAL,
-                                color = CodexTheme.colors.onFloatingActions,
-                                fontWeight = FontWeight.Bold,
-                        )
-
-                        DateFilters(state, listener, helpShowcaseListener)
-                        ScoreFilters(state, listener, helpShowcaseListener)
-
-                        RoundsFilter(
-                                roundFilter = state.roundFilter,
-                                selectRoundDialogState = state.selectRoundDialogState,
-                                onClear = { listener(ViewScoresFiltersIntent.ClearRoundsFilter) },
-                                onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
-                        )
-                        SubTypeFilter(
-                                roundFilter = state.roundFilter,
-                                selectRoundDialogState = state.selectRoundDialogState,
-                                onClear = { listener(ViewScoresFiltersIntent.ClearSubtypeFilter) },
-                                onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
-                        )
-
-                        // TODO Accessibility clear button
-                        DataRow(
-                                title = stringResource(R.string.view_scores__filters_personal_bests),
-                                text = stringResource(
-                                        if (state.personalBestsFilter) R.string.view_scores__filters_personal_bests_only
-                                        else R.string.view_scores__filters_no_filter
-                                ),
-                                textClickableStyle = clickableStyle,
-                                onClick = { listener(ViewScoresFiltersIntent.ClickPbFilter) }
-                        )
-
-                        DataRow(
-                                title = stringResource(R.string.view_scores__filters_complete),
-                                text = stringResource(
-                                        if (state.completedRoundsFilter) R.string.view_scores__filters_complete_only
-                                        else R.string.view_scores__filters_no_filter
-                                ),
-                                textClickableStyle = clickableStyle,
-                                onClick = { listener(ViewScoresFiltersIntent.ClickCompleteFilter) }
-                        )
-
-                        DataRow(
-                                title = stringResource(R.string.view_scores__filters_first_of_day),
-                                text = stringResource(
-                                        if (state.firstRoundOfDayFilter) R.string.view_scores__filters_first_of_day_only
-                                        else R.string.view_scores__filters_no_filter
-                                ),
-                                textClickableStyle = clickableStyle,
-                                onClick = { listener(ViewScoresFiltersIntent.ClickFirstOfDayFilter) }
-                        )
-
-                        DataRow(
-                                title = stringResource(R.string.view_scores__filters_type_title),
-                                text = state.typeFilter.label.get(),
-                                textClickableStyle = clickableStyle,
-                                onClick = { listener(ViewScoresFiltersIntent.ClickTypeFilter) }
-                        )
-                    }
-
-                    CodexIconInfo.VectorIcon(
-                            imageVector = Icons.Default.FilterAltOff,
-                            contentDescription = stringResource(R.string.view_scores__filters_clear_all),
-                            tint = CodexTheme.colors.onFloatingActions,
-                    ).CodexIcon(
-                            modifier = Modifier
-                                    .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
-                                    .padding(15.dp)
-                                    .align(Alignment.TopStart)
-                    )
-
-                    CodexIconInfo.VectorIcon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.view_scores__filters_close),
-                            tint = CodexTheme.colors.onFloatingActions,
-                    ).CodexIcon(
-                            modifier = Modifier
-                                    .clickable { listener(ViewScoresFiltersIntent.CloseFilters) }
-                                    .padding(15.dp)
-                    )
-                }
-            }
-        }
-        AnimatedVisibility(
-                visible = !state.isExpanded,
-                enter = fadeIn() + expandIn(expandFrom = Alignment.BottomCenter),
-                exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter),
-        ) {
-            Box(
-                    contentAlignment = Alignment.BottomEnd,
-            ) {
-                val semantics = pluralStringResource(
-                        R.plurals.view_scores__active_filters_indicator_semantics,
-                        state.activeFilterCount,
-                        state.activeFilterCount,
-                )
-                CodexIconButton(
-                        icon = CodexIconInfo.VectorIcon(
-                                imageVector = Icons.Default.FilterAlt,
-                                contentDescription = stringResource(R.string.view_scores__filters_dialog_toggle),
-                                modifier = Modifier.padding(vertical = 5.dp)
-                        ),
-                        helpState = HelpState(
-                                helpListener = helpShowcaseListener,
-                                helpTitle = stringResource(R.string.help_view_scores__filters_dialog_toggle_title),
-                                helpBody = stringResource(R.string.help_view_scores__filters_dialog_toggle_body),
-                        ),
-                        onClick = { listener(ViewScoresFiltersIntent.OpenFilters) },
-                        caption = state.activeFilterCount.toString(),
-                        captionModifier = Modifier.semantics { contentDescription = semantics },
-                        captionStyle = CodexTypography.SMALL,
-                        modifier = Modifier.semantics(true) {}
-                )
+@Composable
+private fun ExpandedFiltersPanel(
+        state: ViewScoresFiltersState,
+        listener: (ViewScoresFiltersIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
+) {
+    AnimatedVisibility(
+            visible = state.isExpanded,
+            enter = fadeIn() + expandIn(expandFrom = Alignment.BottomCenter),
+            exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter),
+    ) {
+        ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onFloatingActions)) {
+            Box {
+                Filters(state, listener, helpShowcaseListener)
+                Icons(state, listener, helpShowcaseListener)
             }
         }
     }
+}
+
+@Composable
+private fun Filters(
+        state: ViewScoresFiltersState,
+        listener: (ViewScoresFiltersIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
+) {
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 15.dp)
+                    .fillMaxWidth()
+    ) {
+        Text(
+                text = stringResource(R.string.view_scores__filters_title),
+                style = CodexTypography.NORMAL,
+                color = CodexTheme.colors.onFloatingActions,
+                fontWeight = FontWeight.Bold,
+        )
+
+        DateFilters(state, listener, helpShowcaseListener)
+        ScoreFilters(state, listener, helpShowcaseListener)
+
+        RoundsFilter(
+                roundFilter = state.roundFilter,
+                selectRoundDialogState = state.selectRoundDialogState,
+                onClear = { listener(ViewScoresFiltersIntent.ClearRoundsFilter) },
+                onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
+        )
+        SubTypeFilter(
+                roundFilter = state.roundFilter,
+                selectRoundDialogState = state.selectRoundDialogState,
+                onClear = { listener(ViewScoresFiltersIntent.ClearSubtypeFilter) },
+                onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
+        )
+
+        ToggleFilter(
+                title = stringResource(R.string.view_scores__filters_personal_bests),
+                textWhenOn = stringResource(R.string.view_scores__filters_personal_bests_only),
+                isOn = state.personalBestsFilter,
+                onClick = { listener(ViewScoresFiltersIntent.ClickPbFilter) },
+        )
+        ToggleFilter(
+                title = stringResource(R.string.view_scores__filters_complete),
+                textWhenOn = stringResource(R.string.view_scores__filters_complete_only),
+                isOn = state.completedRoundsFilter,
+                onClick = { listener(ViewScoresFiltersIntent.ClickCompleteFilter) },
+        )
+        ToggleFilter(
+                title = stringResource(R.string.view_scores__filters_first_of_day),
+                textWhenOn = stringResource(R.string.view_scores__filters_first_of_day_only),
+                isOn = state.firstRoundOfDayFilter,
+                onClick = { listener(ViewScoresFiltersIntent.ClickFirstOfDayFilter) },
+        )
+
+        DataRow(
+                title = stringResource(R.string.view_scores__filters_type_title),
+                text = state.typeFilter.label.get(),
+                textClickableStyle = LocalTextStyle.current.asCustomClickableStyle(),
+                onClick = { listener(ViewScoresFiltersIntent.ClickTypeFilter) }
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.Icons(
+        state: ViewScoresFiltersState,
+        listener: (ViewScoresFiltersIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
+) {
+    CodexIconInfo.VectorIcon(
+            imageVector = Icons.Default.FilterAltOff,
+            contentDescription = stringResource(R.string.view_scores__filters_clear_all),
+            tint = CodexTheme.colors.onFloatingActions,
+    ).CodexIcon(
+            modifier = Modifier
+                    .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
+                    .padding(15.dp)
+                    .align(Alignment.TopStart)
+    )
+
+    CodexIconInfo.VectorIcon(
+            imageVector = Icons.Default.Close,
+            contentDescription = stringResource(R.string.view_scores__filters_close),
+            tint = CodexTheme.colors.onFloatingActions,
+    ).CodexIcon(
+            modifier = Modifier
+                    .clickable { listener(ViewScoresFiltersIntent.CloseFilters) }
+                    .padding(15.dp)
+                    .align(Alignment.TopEnd)
+    )
+}
+
+@Composable
+private fun CollapsedFiltersPanel(
+        state: ViewScoresFiltersState,
+        listener: (ViewScoresFiltersIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
+) {
+    AnimatedVisibility(
+            visible = !state.isExpanded,
+            enter = fadeIn() + expandIn(expandFrom = Alignment.BottomCenter),
+            exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter),
+    ) {
+        Box(
+                contentAlignment = Alignment.BottomEnd,
+        ) {
+            val semantics = pluralStringResource(
+                    R.plurals.view_scores__active_filters_indicator_semantics,
+                    state.activeFilterCount,
+                    state.activeFilterCount,
+            )
+            CodexIconButton(
+                    icon = CodexIconInfo.VectorIcon(
+                            imageVector = Icons.Default.FilterAlt,
+                            contentDescription = stringResource(R.string.view_scores__filters_dialog_toggle),
+                            modifier = Modifier.padding(vertical = 5.dp)
+                    ),
+                    helpState = HelpState(
+                            helpListener = helpShowcaseListener,
+                            helpTitle = stringResource(R.string.help_view_scores__filters_dialog_toggle_title),
+                            helpBody = stringResource(R.string.help_view_scores__filters_dialog_toggle_body),
+                    ),
+                    onClick = { listener(ViewScoresFiltersIntent.OpenFilters) },
+                    caption = state.activeFilterCount.toString(),
+                    captionModifier = Modifier.semantics { contentDescription = semantics },
+                    captionStyle = CodexTypography.SMALL,
+                    modifier = Modifier.semantics(true) {}
+            )
+        }
+    }
+}
+
+@Composable
+private fun ToggleFilter(
+        title: String,
+        textWhenOn: String,
+        isOn: Boolean,
+        onClick: () -> Unit,
+) {
+    DataRow(
+            title = title,
+            text = if (isOn) textWhenOn else stringResource(R.string.view_scores__filters_no_filter),
+            textClickableStyle = LocalTextStyle.current.asCustomClickableStyle(),
+            onClick = onClick,
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
