@@ -12,7 +12,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -74,7 +73,7 @@ fun AboutScreen(
                 Text(
                         text = stringResource(
                                 R.string.about__update_default_rounds_message,
-                                state.asDisplayString(LocalContext.current.resources),
+                                state.displayString.get(),
                         ),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.testTag(AboutScreenTestTag.UPDATE_TASK_STATUS.getTestTag())

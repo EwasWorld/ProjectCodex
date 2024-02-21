@@ -14,7 +14,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -40,6 +39,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
@@ -182,21 +182,10 @@ private fun RoundSelectionSection(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
         ) {
-            if (!state.updateDefaultRoundsState.hasTaskFinished) {
-                Text(
-                        text = stringResource(R.string.create_round__default_rounds_updating_warning),
-                        style = CodexTypography.NORMAL.copy(
-                                color = CodexTheme.colors.warningOnAppBackground,
-                                textAlign = TextAlign.Center,
-                        ),
-                        modifier = Modifier.testTag(NewScoreTestTag.DATABASE_WARNING.getTestTag())
-                )
-                DataRow(
-                        title = stringResource(R.string.create_round__default_rounds_updating_warning_status),
-                        text = state.updateDefaultRoundsState.asDisplayString(LocalContext.current.resources),
-                )
-            }
-            else {
+            RoundsUpdatingWrapper(
+                    state = state.updateDefaultRoundsState,
+                    errorText = stringResource(R.string.create_round__default_rounds_updating_warning),
+            ) {
                 SelectRoundRows(
                         state = state.selectRoundDialogState,
                         helpListener = { listener(HelpShowcaseAction(it)) },

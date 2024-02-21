@@ -5,6 +5,7 @@ import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEn
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.datastore.DatastoreKey
 
 data class ClassificationTablesState(
@@ -16,6 +17,7 @@ data class ClassificationTablesState(
         private val roughHandicaps: List<ClassificationTableEntry> = emptyList(),
         val use2023Handicaps: Boolean = DatastoreKey.Use2023HandicapSystem.defaultValue,
         val selectRoundDialogState: SelectRoundDialogState = SelectRoundDialogState(),
+        val updateDefaultRoundsState: UpdateDefaultRoundsState = UpdateDefaultRoundsState.NotStarted,
 ) {
     val scores = Classification.values().mapNotNull { classification ->
         val roundScore = officialClassifications.find { it.classification == classification }

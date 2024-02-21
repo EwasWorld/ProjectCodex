@@ -5,7 +5,7 @@
     <string name="create_round__submit">Start Scoring</string>
     <string name="create_round__imperial_metric">Imperial</string>
     <string name="create_round__date">Date:</string>
-    <string name="create_round__default_rounds_updating_warning">Rounds list is being updated. Please wait a few moments for list to update or start scoring without a round.</string>
+    <string name="create_round__default_rounds_updating_warning">Rounds list is being updated. Please wait a few moments for the list to update or start scoring without a round.</string>
     <string name="create_round__default_rounds_updating_warning_status">Current status:</string>
     <string name="create_round__round">Round:</string>
     <string name="create_round__round_sub_type">Round Subtype:</string>

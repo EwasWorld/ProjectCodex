@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectFaceDialogAction
@@ -32,6 +33,7 @@ class HandicapTablesViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         private val helpShowcase: HelpShowcaseUseCase,
         private val datastore: CodexDatastore,
+        private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HandicapTablesState())
     val state = _state.asStateFlow()
@@ -44,6 +46,13 @@ class HandicapTablesViewModel @Inject constructor(
             state.map { it.selectRoundDialogState.filters }.distinctUntilChanged().collectLatest { filters ->
                 db.roundsRepo().fullRoundsInfo(filters).collectLatest { rounds ->
                     handle(SelectRoundDialogAction(SelectRoundDialogIntent.SetRounds(rounds)))
+                }
+            }
+        }
+        viewModelScope.launch {
+            updateDefaultRoundsTask.state.collect { updateState ->
+                _state.update {
+                    it.copy(updateDefaultRoundsState = updateState)
                 }
             }
         }

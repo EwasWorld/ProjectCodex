@@ -63,6 +63,7 @@ import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialog
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
@@ -70,6 +71,8 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTest
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectSubtypeDialog
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.viewScores.ui.ViewScoresActionBar
 import java.util.Calendar
 
@@ -133,6 +136,7 @@ private fun Filters(
         ScoreFilters(state, listener, helpShowcaseListener)
 
         RoundsFilter(
+                updateDefaultRoundsState = state.updateDefaultRoundsState,
                 roundFilter = state.roundFilter,
                 selectRoundDialogState = state.selectRoundDialogState,
                 onClear = { listener(ViewScoresFiltersIntent.ClearRoundsFilter) },
@@ -454,6 +458,7 @@ private fun ScoreFilters(
 
 @Composable
 private fun RoundsFilter(
+        updateDefaultRoundsState: UpdateDefaultRoundsState,
         roundFilter: Boolean,
         selectRoundDialogState: SelectRoundDialogState,
         onClear: () -> Unit,
@@ -461,31 +466,37 @@ private fun RoundsFilter(
 ) {
     val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
 
-    Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(3.dp)
+    RoundsUpdatingWrapper(
+            state = updateDefaultRoundsState,
+            style = CodexTypography.SMALL.copy(fontStyle = FontStyle.Italic),
+            spacing = 3.dp,
     ) {
-        val text =
-                if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
-                        ?: stringResource(R.string.create_round__no_round)
-                else stringResource(R.string.view_scores__filters_no_filter)
-        DataRow(
-                title = stringResource(R.string.create_round__round),
-                text = text,
-                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
-                onClick = { onUpdate(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog) },
-                textClickableStyle = clickableStyle,
-        )
-        if (roundFilter) {
-            ClearIcon(onClear)
-        }
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            val text =
+                    if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
+                            ?: stringResource(R.string.create_round__no_round)
+                    else stringResource(R.string.view_scores__filters_no_filter)
+            DataRow(
+                    title = stringResource(R.string.create_round__round),
+                    text = text,
+                    modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
+                    onClick = { onUpdate(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog) },
+                    textClickableStyle = clickableStyle,
+            )
+            if (roundFilter) {
+                ClearIcon(onClear)
+            }
 
-        SelectRoundDialog(
-                isShown = selectRoundDialogState.isRoundDialogOpen,
-                displayedRounds = selectRoundDialogState.filteredRounds,
-                enabledFilters = selectRoundDialogState.filters,
-                listener = { onUpdate(it) },
-        )
+            SelectRoundDialog(
+                    isShown = selectRoundDialogState.isRoundDialogOpen,
+                    displayedRounds = selectRoundDialogState.filteredRounds,
+                    enabledFilters = selectRoundDialogState.filters,
+                    listener = { onUpdate(it) },
+            )
+        }
     }
 }
 
@@ -582,6 +593,7 @@ fun ViewScoresFilters_Preview() {
                             completedRoundsFilter = true,
                             personalBestsFilter = true,
                             typeFilter = ViewScoresFiltersTypes.COUNT,
+                            updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                     ),
                     listener = {},
                     helpShowcaseListener = {},
@@ -606,6 +618,34 @@ fun NoFiltersOn_ViewScoresFilters_Preview() {
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                             ),
+                            updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
+                    ),
+                    listener = {},
+                    helpShowcaseListener = {},
+            )
+        }
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun RoundsUpdating_ViewScoresFilters_Preview() {
+    CodexTheme {
+        ViewScoresActionBar(
+                modifier = Modifier.padding(10.dp)
+        ) {
+            ViewScoresFilters(
+                    ViewScoresFiltersState(
+                            isExpanded = true,
+                            selectRoundDialogState = SelectRoundDialogState(
+                                    allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
+                            ),
+                            personalBestsFilter = true,
+                            roundFilter = true,
+                            updateDefaultRoundsState = UpdateDefaultRoundsState.Initialising,
                     ),
                     listener = {},
                     helpShowcaseListener = {},
@@ -631,7 +671,8 @@ fun Collapsed_ViewScoresFilters_Preview() {
                                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                             ),
                             personalBestsFilter = true,
-                            roundFilter = true
+                            roundFilter = true,
+                            updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                     ),
                     listener = {},
                     helpShowcaseListener = {},

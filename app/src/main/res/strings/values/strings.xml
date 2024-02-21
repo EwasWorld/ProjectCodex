@@ -84,6 +84,8 @@
     <string name="general_on">On</string>
     <string name="general_off">Off</string>
 
+    <string name="default_rounds_updating_warning">Rounds list is being updated. Please wait a few moments for the list to update.</string>
+
     <!-- TODO Make a more informative message on what to do next -->
     <string name="err__general_error_dialog_title">Error</string>
     <string name="err__internal_error">Internal error occurred</string>

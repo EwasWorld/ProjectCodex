@@ -46,6 +46,7 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
@@ -94,23 +95,29 @@ fun ClassificationTablesScreen(
 
             Surface(
                     shape = RoundedCornerShape(
-                            if (state.selectRoundDialogState.selectedRound == null) CodexTheme.dimens.smallCornerRounding
+                            if (!state.updateDefaultRoundsState.hasTaskFinished) CodexTheme.dimens.cornerRounding
+                            else if (state.selectRoundDialogState.selectedRound == null) CodexTheme.dimens.smallCornerRounding
                             else CodexTheme.dimens.cornerRounding
                     ),
                     border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
                     color = CodexTheme.colors.appBackground,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
-                Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                RoundsUpdatingWrapper(
+                        state = state.updateDefaultRoundsState,
+                        modifier = Modifier.padding(10.dp)
                 ) {
-                    SelectRoundRows(
-                            state = state.selectRoundDialogState,
-                            helpListener = helpListener,
-                            listener = { listener(SelectRoundDialogAction(it)) },
-                    )
+                    Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                    ) {
+                        SelectRoundRows(
+                                state = state.selectRoundDialogState,
+                                helpListener = helpListener,
+                                listener = { listener(SelectRoundDialogAction(it)) },
+                        )
+                    }
                 }
             }
 

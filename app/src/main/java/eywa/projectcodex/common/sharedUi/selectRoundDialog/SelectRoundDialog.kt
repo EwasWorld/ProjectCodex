@@ -15,11 +15,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
@@ -28,12 +30,48 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.SubTypeIntent.*
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.Sorting
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
+import eywa.projectcodex.components.newScore.NewScoreTestTag
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
+
+@Composable
+fun RoundsUpdatingWrapper(
+        state: UpdateDefaultRoundsState,
+        modifier: Modifier = Modifier,
+        style: TextStyle = LocalTextStyle.current,
+        errorText: String = stringResource(R.string.default_rounds_updating_warning),
+        spacing: Dp = 10.dp,
+        content: @Composable () -> Unit,
+) {
+    if (!state.hasTaskFinished) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier
+        ) {
+            ProvideTextStyle(style) {
+                Text(
+                        text = errorText,
+                        color = CodexTheme.colors.warningOnAppBackground,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag(NewScoreTestTag.DATABASE_WARNING.getTestTag())
+                )
+                DataRow(
+                        title = stringResource(R.string.create_round__default_rounds_updating_warning_status),
+                        text = state.displayString.get(),
+                )
+            }
+        }
+    }
+    else {
+        content()
+    }
+}
 
 // TODO Turn empty rounds into a different field and show a warning message instead
 @Composable

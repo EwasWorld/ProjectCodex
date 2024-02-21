@@ -8,6 +8,7 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeClicked
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeSelected
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowClicked
@@ -35,6 +36,7 @@ class ClassificationTablesViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
         private val tables: ClassificationTablesUseCase,
         private val datastore: CodexDatastore,
+        private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ClassificationTablesState())
     val state = _state.asStateFlow()
@@ -50,6 +52,13 @@ class ClassificationTablesViewModel @Inject constructor(
         viewModelScope.launch {
             datastore.get(DatastoreKey.Use2023HandicapSystem).collect { use2023 ->
                 _state.update { it.copy(use2023Handicaps = use2023) }
+            }
+        }
+        viewModelScope.launch {
+            updateDefaultRoundsTask.state.collect { updateState ->
+                _state.update {
+                    it.copy(updateDefaultRoundsState = updateState)
+                }
             }
         }
     }

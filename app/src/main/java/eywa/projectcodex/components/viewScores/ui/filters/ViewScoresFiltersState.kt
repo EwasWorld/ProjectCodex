@@ -4,6 +4,7 @@ import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.shootData.ShootFilter
 import eywa.projectcodex.database.shootData.ShootFilter.CompleteRounds
@@ -29,6 +30,7 @@ data class ViewScoresFiltersState(
                 NumberValidator.NotRequired,
         ),
         val selectRoundDialogState: SelectRoundDialogState = SelectRoundDialogState(defaultNullSubtype = true),
+        val updateDefaultRoundsState: UpdateDefaultRoundsState = UpdateDefaultRoundsState.NotStarted,
         /**
          * True if round filter indicated by [selectRoundDialogState] should be applied.
          * Cannot use null in [selectRoundDialogState] as 'No Round' is a valid round filter.

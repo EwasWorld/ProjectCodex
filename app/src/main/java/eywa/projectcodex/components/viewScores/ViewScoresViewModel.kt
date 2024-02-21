@@ -8,6 +8,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
@@ -32,6 +33,7 @@ class ViewScoresViewModel @Inject constructor(
         private val customLogger: CustomLogger,
         private val datastore: CodexDatastore,
         private val shootIdsUseCase: ShootIdsUseCase,
+        private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
 ) : ViewModel() {
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.asStateFlow()
@@ -67,6 +69,14 @@ class ViewScoresViewModel @Inject constructor(
             roundRepo.fullRoundsInfo.collect { data ->
                 val action = ViewScoresFiltersIntent.UpdateRoundsFilter(SelectRoundDialogIntent.SetRounds(data))
                 handle(FiltersAction(action))
+            }
+        }
+        viewModelScope.launch {
+            updateDefaultRoundsTask.state.collect { updateState ->
+                _state.update {
+                    it.viewScoresFiltersState.copy(updateDefaultRoundsState = updateState)
+                            .let { newState -> it.copy(viewScoresFiltersState = newState) }
+                }
             }
         }
     }

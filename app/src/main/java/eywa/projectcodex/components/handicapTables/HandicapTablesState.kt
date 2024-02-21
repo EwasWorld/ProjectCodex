@@ -8,6 +8,7 @@ import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.Handicap
 
@@ -22,6 +23,7 @@ data class HandicapTablesState(
                 round = selectRoundDialogState.selectedRound?.round,
                 distances = selectRoundDialogState.roundSubTypeDistances?.map { it.distance },
         ),
+        val updateDefaultRoundsState: UpdateDefaultRoundsState = UpdateDefaultRoundsState.NotStarted,
 ) {
     val inputFull
         get() = input.asNumberFieldState(
