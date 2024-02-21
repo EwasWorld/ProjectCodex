@@ -110,10 +110,10 @@ data class DatabaseFullShootInfo(
 ) {
     val roundSubType
         get() = allRoundSubTypes
-                ?.takeIf { it.isNotEmpty() }
+                ?.takeIf { it.isNotEmpty() && shootRound != null }
                 ?.find { it.subTypeId == (shootRound!!.roundSubTypeId ?: 1) }
     val roundDistances
         get() = allRoundDistances
-                ?.takeIf { it.isNotEmpty() }
+                ?.takeIf { it.isNotEmpty() && shootRound != null }
                 ?.filter { it.subTypeId == (shootRound!!.roundSubTypeId ?: 1) }
 }

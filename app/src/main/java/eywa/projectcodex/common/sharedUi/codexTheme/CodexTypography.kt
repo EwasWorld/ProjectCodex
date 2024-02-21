@@ -33,6 +33,10 @@ object CodexTypography {
             fontWeight = FontWeight(400),
     )
 
+    val SMALL_PLUS = NORMAL.copy(
+            fontSize = 17.sp,
+    )
+
     val SMALL = NORMAL.copy(
             fontSize = 14.sp,
     )

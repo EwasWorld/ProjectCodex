@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
@@ -465,6 +466,7 @@ private fun RoundsFilter(
         onUpdate: (SelectRoundDialogIntent) -> Unit
 ) {
     val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
+    val hasNoRounds = selectRoundDialogState.allRounds.isNullOrEmpty()
 
     RoundsUpdatingWrapper(
             state = updateDefaultRoundsState,
@@ -479,13 +481,28 @@ private fun RoundsFilter(
                     if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
                             ?: stringResource(R.string.create_round__no_round)
                     else stringResource(R.string.view_scores__filters_no_filter)
-            DataRow(
-                    title = stringResource(R.string.create_round__round),
-                    text = text,
-                    modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
-                    onClick = { onUpdate(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog) },
-                    textClickableStyle = clickableStyle,
-            )
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                DataRow(
+                        title = stringResource(R.string.create_round__round),
+                        text = text,
+                        modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
+                        onClick = { onUpdate(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog) }
+                                .takeIf { !hasNoRounds },
+                        textClickableStyle = clickableStyle,
+                )
+                if (hasNoRounds) {
+                    Text(
+                            text = stringResource(R.string.create_round__no_rounds_found),
+                            color = CodexTheme.colors.warningOnAppBackground,
+                            textAlign = TextAlign.Center,
+                            style = CodexTypography.SMALL_PLUS,
+                            fontStyle = FontStyle.Italic,
+                    )
+                }
+            }
             if (roundFilter) {
                 ClearIcon(onClear)
             }

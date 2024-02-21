@@ -10,7 +10,7 @@
     <string name="create_round__round">Round:</string>
     <string name="create_round__round_sub_type">Round Subtype:</string>
     <string name="create_round__no_round">No Round</string>
-    <string name="create_round__no_rounds_found">No rounds found in database</string>
+    <string name="create_round__no_rounds_found">No rounds found</string>
     <string name="create_round__arrow_count_indicator">Arrows (doz):</string>
     <string name="create_round__distance_indicator">Distances:</string>
     <string name="create_round__face_size_indicator">Face sizes:</string>

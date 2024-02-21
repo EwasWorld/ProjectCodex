@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -75,16 +76,14 @@ fun RoundsUpdatingWrapper(
 
 // TODO Turn empty rounds into a different field and show a warning message instead
 @Composable
-fun SelectRoundRows(
+fun ColumnScope.SelectRoundRows(
         state: SelectRoundDialogState,
         helpListener: (HelpShowcaseIntent) -> Unit,
         textClickableStyle: TextStyle = LocalTextStyle.current.asClickableStyle(),
         listener: (SelectRoundDialogIntent) -> Unit,
 ) = SelectRoundRows(
-        displayedRound = (
-                if (state.allRounds.isNullOrEmpty()) stringResource(R.string.create_round__no_rounds_found)
-                else state.selectedRound?.round?.displayName ?: stringResource(R.string.create_round__no_round)
-                ),
+        hasNoRounds = state.allRounds.isNullOrEmpty(),
+        displayedRound = state.selectedRound?.round?.displayName ?: stringResource(R.string.create_round__no_round),
         displayedSubtype = state.selectedSubType?.name,
         isSelectRoundDialogOpen = state.isRoundDialogOpen,
         isSelectSubtypeDialogOpen = state.isSubtypeDialogOpen,
@@ -101,7 +100,8 @@ fun SelectRoundRows(
 )
 
 @Composable
-fun SelectRoundRows(
+fun ColumnScope.SelectRoundRows(
+        hasNoRounds: Boolean,
         displayedRound: String,
         displayedSubtype: String?,
         isSelectRoundDialogOpen: Boolean,
@@ -131,19 +131,32 @@ fun SelectRoundRows(
             listener = listener,
     )
 
-
-    DataRow(
-            title = stringResource(R.string.create_round__round),
-            text = displayedRound,
-            helpState = HelpState(
-                    helpListener = helpListener,
-                    helpTitle = stringResource(R.string.help_create_round__round_title),
-                    helpBody = stringResource(R.string.help_create_round__round_body),
-            ),
-            modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
-            onClick = { listener(OpenRoundDialog) },
-            textClickableStyle = textClickableStyle,
-    )
+    Column(
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        DataRow(
+                title = stringResource(R.string.create_round__round),
+                text = displayedRound,
+                helpState = HelpState(
+                        helpListener = helpListener,
+                        helpTitle = stringResource(R.string.help_create_round__round_title),
+                        helpBody = stringResource(R.string.help_create_round__round_body),
+                ),
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
+                onClick = { listener(OpenRoundDialog) }.takeIf { !hasNoRounds },
+                textClickableStyle = textClickableStyle,
+        )
+        if (hasNoRounds) {
+            Text(
+                    text = stringResource(R.string.create_round__no_rounds_found),
+                    color = CodexTheme.colors.warningOnAppBackground,
+                    textAlign = TextAlign.Center,
+                    style = CodexTypography.SMALL_PLUS,
+                    fontStyle = FontStyle.Italic,
+            )
+        }
+    }
     if (displayedSubtype != null) {
         DataRow(
                 title = stringResource(R.string.create_round__round_sub_type),

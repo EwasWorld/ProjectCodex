@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -43,6 +44,7 @@ fun DataRow(
     Text(
             text = text,
             style = if (onClick == null) textStyle else textClickableStyle,
+            textAlign = TextAlign.Center,
             modifier = textModifier.modifierIf(
                     onClick != null,
                     Modifier.clickable { onClick!!.invoke() }
