@@ -3,6 +3,12 @@ package eywa.projectcodex.common.helpShowcase
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Add
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Clear
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Remove
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.SetScreen
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.SetScreenSize
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.SetVisibleScreenSize
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.UpdateCoordinates
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIfNotNull
@@ -12,12 +18,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlin.reflect.KClass
 
-fun Modifier.updateHelpDialogPosition(helpState: HelpState?) =
+fun Modifier.updateHelpDialogPosition(helpState: HelpState?, id: Int = 0) =
         modifierIfNotNull(helpState) { state ->
             // Null pointer causing a crash, not sure how when modifierIf mean this is skipped when null
             state.add()
             Modifier.onGloballyPositioned {
-                state.helpListener(UpdateCoordinates(state.helpShowcaseItem.helpTitle, it))
+                state.helpListener(UpdateCoordinates(state.helpShowcaseItem.helpTitle, it, id))
             }
         }
 
@@ -25,10 +31,10 @@ class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute
     private val _state = MutableStateFlow(HelpShowcaseInternalState(currentScreen = startScreen))
     val state = _state.map { it.asExternalState() }.distinctUntilChanged()
 
-    internal fun updateItem(key: String, layoutCoordinates: LayoutCoordinates) {
+    internal fun updateItem(key: String, layoutCoordinates: LayoutCoordinates, id: Int) {
         _state.update {
-            val item = it.helpInfoMap[key]?.copy(layoutCoordinates = layoutCoordinates)
-                    ?: return@update it
+            val old = it.helpInfoMap[key] ?: return@update it
+            val item = old.copy(layoutCoordinates = old.layoutCoordinates.plus(id to layoutCoordinates))
             it.copy(helpInfoMap = it.helpInfoMap.plus(item.helpTitle to item))
         }
     }
@@ -39,33 +45,31 @@ class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute
                 return@update it.copy(startedButNoItems = true)
             }
 
-            it.copy(
+            val newState = it.copy(
                     currentShowcase = it.helpInfoMap.values
-                            .plus(it.dynamicHelpShowcaseInfo?.start() ?: emptyList())
                             .sortedBy { v -> v.priority }
                             .map { v -> v.helpTitle },
-                    currentlyDisplayedIndex = 0,
             )
+            val index = newState.nextItemIndex ?: return@update it.copy(startedButNoItems = true)
+            newState.copy(currentlyDisplayedIndex = index)
         }
     }
 
     fun nextShowcase() {
         _state.update {
-            val nextIndex = it.currentlyDisplayedIndex?.plus(1)
-            if (nextIndex == null || it.currentShowcase.isNullOrEmpty()) return@update it
+            val nextIndex = it.nextItemIndex
+                    ?: return@update it.copy(currentShowcase = null, currentlyDisplayedIndex = null)
 
-            if (nextIndex in it.currentShowcase.indices) return@update it.copy(currentlyDisplayedIndex = nextIndex)
+            check(
+                    !it.currentShowcase.isNullOrEmpty() && nextIndex in it.currentShowcase.indices
+            ) { "Invalid index" }
 
-            it.dynamicHelpShowcaseInfo?.end()
-            it.copy(currentShowcase = null, currentlyDisplayedIndex = null)
+            it.copy(currentlyDisplayedIndex = nextIndex)
         }
     }
 
     fun endShowcase() {
-        _state.update {
-            it.dynamicHelpShowcaseInfo?.end()
-            it.copy(currentShowcase = null, currentlyDisplayedIndex = null)
-        }
+        _state.update { it.copy(currentShowcase = null, currentlyDisplayedIndex = null) }
     }
 
     fun clearNoShowcaseFlag() {
@@ -74,36 +78,31 @@ class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute
 
     fun handle(action: HelpShowcaseIntent, screen: KClass<out ActionBarHelp>? = null) {
         when (action) {
-            is HelpShowcaseIntent.Add ->
+            is Add ->
                 _state.update {
                     if (it.currentScreen != screen) return@update it
                     if (it.helpInfoMap.containsKey(action.item.helpTitle)) return@update it
                     it.copy(helpInfoMap = it.helpInfoMap.plus(action.item.helpTitle to action.item))
                 }
-            is HelpShowcaseIntent.AddDynamicInfo -> {
-                require(action.info.type == screen!!) { "Incorrect screen" }
-                _state.update {
-                    if (it.currentScreen != screen) return@update it
-                    it.copy(dynamicHelpShowcaseInfo = action.info)
-                }
-            }
-            HelpShowcaseIntent.Clear -> _state.update { it.copy(helpInfoMap = emptyMap()) }
-            is HelpShowcaseIntent.Remove -> _state.update { it.copy(helpInfoMap = it.helpInfoMap.minus(action.key)) }
-            is UpdateCoordinates -> updateItem(action.key, action.layoutCoordinates)
-            is HelpShowcaseIntent.SetScreen -> _state.update {
+
+            Clear -> _state.update { it.copy(helpInfoMap = emptyMap()) }
+            is Remove -> _state.update { it.copy(helpInfoMap = it.helpInfoMap.minus(action.key)) }
+            is UpdateCoordinates -> updateItem(action.key, action.layoutCoordinates, action.id)
+            is SetScreen -> _state.update {
                 require(screen == null || action.screen == screen) { "Incorrect screen" }
                 if (it.currentScreen == screen) return@update it
-                HelpShowcaseInternalState(currentScreen = action.screen)
+                HelpShowcaseInternalState(
+                        currentScreen = action.screen,
+                        currentVisibleSize = null,
+                        screenSize = it.screenSize,
+                )
             }
-        }
-    }
 
-    companion object {
-        fun combineContent(showcases: List<HelpShowcaseUseCase>): Map<String, HelpShowcaseItem> {
-            val allStates = showcases.map { it._state.value }
-            val screens = allStates.map { it.currentScreen }.distinct()
-            require(screens.size <= 1) { "Must all be the same screen" }
-            return allStates.flatMap { s -> s.helpInfoMap.map { it.key to it.value } }.toMap()
+            is SetScreenSize -> _state.update { it.copy(screenSize = action.size) }
+            is SetVisibleScreenSize -> _state.update {
+                if (it.currentScreen != screen) return@update it
+                it.copy(currentVisibleSize = action.offset to action.size)
+            }
         }
     }
 }

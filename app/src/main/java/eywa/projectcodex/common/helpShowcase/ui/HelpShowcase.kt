@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -154,8 +155,10 @@ private fun ComposeHelpShowcasePreview(
                         ovalTopLeft = param.ovalTopLeft,
                         ovalHeight = param.ovalHeight,
                         ovalWidth = param.ovalWidth,
-                        screenHeight = this.constraints.minHeight.toFloat(),
-                        screenWidth = this.constraints.minWidth.toFloat(),
+                        screenSize = Size(
+                                height = constraints.minHeight.toFloat(),
+                                width = constraints.minWidth.toFloat(),
+                        ),
                 )
         )
     }

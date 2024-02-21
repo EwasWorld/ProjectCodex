@@ -20,10 +20,8 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -37,11 +35,10 @@ import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider
 @Composable
 fun ViewScoresCountRow(
         entries: ViewScoresEntryList,
-        helpInfo: HelpShowcaseUseCase,
+        entryIndex: Int,
         modifier: Modifier = Modifier,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> helpInfo.handle(it, CodexNavRoute.VIEW_SCORES::class) }
-
     Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,8 +48,8 @@ fun ViewScoresCountRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
-            DateAndFirstNameColumn(entries, helpListener, Modifier.weight(1f))
-            ArrowsShotColumn(entries, helpListener)
+            DateAndFirstNameColumn(entries, entryIndex, helpListener, Modifier.weight(1f))
+            ArrowsShotColumn(entries, entryIndex, helpListener)
         }
         OtherNamesColumn(entries)
     }
@@ -61,6 +58,7 @@ fun ViewScoresCountRow(
 @Composable
 private fun ArrowsShotColumn(
         entries: ViewScoresEntryList,
+        entryIndex: Int,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val helpState = HelpState(
@@ -94,7 +92,7 @@ private fun ArrowsShotColumn(
                 text = count,
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 modifier = Modifier
-                        .updateHelpDialogPosition(helpState)
+                        .updateHelpDialogPosition(helpState, entryIndex)
                         .testTag(ViewScoresRowTestTag.COUNT)
         )
     }
@@ -111,10 +109,7 @@ fun ViewScoresCountRow_Preview(
         @PreviewParameter(ViewScoresCountRowPreviewProvider::class) param: ViewScoresEntryList,
 ) {
     CodexTheme {
-        ViewScoresCountRow(
-                entries = param,
-                helpInfo = HelpShowcaseUseCase(),
-        )
+        ViewScoresCountRow(entries = param, entryIndex = 1) {}
     }
 }
 

@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -190,9 +191,18 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun HelpItem() {
         val state by viewModel.state.collectAsState()
+        val configuration = LocalConfiguration.current
+        val screenSize = Size(
+                height = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx() },
+                width = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() },
+        )
 
         BackHandler(state.helpShowcaseState?.isInProgress == true) {
             viewModel.helpShowcase.endShowcase()
+        }
+
+        LaunchedEffect(Unit) {
+            viewModel.handle(MainActivityIntent.SetScreenSize(screenSize))
         }
 
         LaunchedEffect(state.helpShowcaseState?.startedButNoItems) {
@@ -212,15 +222,13 @@ class MainActivity : ComponentActivity() {
         val displayedHelpItemAnimationState =
                 remember { Animatable(if (displayedHelpItem == null) 0f else 1f) }
 
-        val configuration = LocalConfiguration.current
-
         displayedHelpItem?.let { item ->
             item.helpShowcaseItem.asShape(
+                    visibleScreenSize = state.helpShowcaseState?.currentVisibleSize,
                     hasNextItem = item.hasNextItem,
                     goToNextItemListener = { viewModel.handle(GoToNextHelpShowcaseItem) },
                     endShowcaseListener = { viewModel.handle(CloseHelpShowcase) },
-                    screenHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx() },
-                    screenWidth = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() },
+                    screenSize = screenSize,
             )?.let {
                 HelpShowcase(it, displayedHelpItemAnimationState.value)
             }

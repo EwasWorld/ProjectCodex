@@ -64,7 +64,7 @@ fun ViewScoresListItem(
     Box(
             modifier = Modifier
                     .testTag(viewScoresListItemTestTag(entryIndex))
-                    .updateHelpDialogPosition(helpState)
+                    .updateHelpDialogPosition(helpState, entryIndex)
                     .pointerInput(entryIndex, isInMultiSelectMode) {
                         detectTapGestures(
                                 onTap = { listener(ViewScoresIntent.EntryClicked(entry.id)) },

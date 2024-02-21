@@ -2,6 +2,7 @@ package eywa.projectcodex.common.helpShowcase.ui
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.IntOffset
 
@@ -9,13 +10,12 @@ class HelpShowcaseNoShapeState(
         title: String,
         message: String,
         hasNextItem: Boolean,
-        screenHeight: Float,
-        screenWidth: Float,
+        screenSize: Size,
         nextItemListener: () -> Unit,
         closeListener: () -> Unit,
         overlayClickedListener: () -> Unit,
 ) : HelpShowcaseOvalState(
-        ovalTopLeft = Offset(x = screenWidth, y = screenHeight).div(2f),
+        ovalTopLeft = Offset(x = screenSize.width, y = screenSize.height).div(2f),
         ovalHeight = 1f,
         ovalWidth = 1f,
         title = title,
@@ -24,10 +24,9 @@ class HelpShowcaseNoShapeState(
         nextItemListener = nextItemListener,
         closeListener = closeListener,
         overlayClickedListener = overlayClickedListener,
-        screenHeight = screenHeight,
-        screenWidth = screenWidth,
+        screenSize = screenSize,
 ) {
-    override val textAreaHeight: Float = screenHeight
+    override val textAreaHeight: Float = screenSize.height
     override val textAreaTopLeft: IntOffset = IntOffset.Zero
     override val textAreaVerticalArrangement: Alignment.Vertical = Alignment.Top
 

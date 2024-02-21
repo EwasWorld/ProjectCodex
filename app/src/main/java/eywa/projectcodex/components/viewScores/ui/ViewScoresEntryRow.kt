@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.*
-import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -52,14 +51,16 @@ internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 @Composable
 internal fun ViewScoresEntryRow(
         entry: ViewScoresEntry,
-        helpInfo: HelpShowcaseUseCase,
+        entryIndex: Int,
         modifier: Modifier = Modifier,
         showPbs: Boolean = true,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) = ViewScoresEntryRow(
         entries = ViewScoresEntryList(entry),
-        helpInfo = helpInfo,
+        entryIndex = entryIndex,
         showPbs = showPbs,
         modifier = modifier,
+        helpListener = helpListener,
 )
 
 /**
@@ -73,12 +74,11 @@ internal fun ViewScoresEntryRow(
 @Composable
 internal fun ViewScoresEntryRow(
         entries: ViewScoresEntryList,
-        helpInfo: HelpShowcaseUseCase,
+        entryIndex: Int,
         modifier: Modifier = Modifier,
         showPbs: Boolean = true,
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> helpInfo.handle(it, CodexNavRoute.VIEW_SCORES::class) }
-
     Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -104,9 +104,9 @@ internal fun ViewScoresEntryRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
-            DateAndFirstNameColumn(entries, helpListener, Modifier.weight(1f))
-            HsgColumn(entries, helpListener)
-            HandicapColumn(entries, helpListener)
+            DateAndFirstNameColumn(entries, entryIndex, helpListener, Modifier.weight(1f))
+            HsgColumn(entries, entryIndex, helpListener)
+            HandicapColumn(entries, entryIndex, helpListener)
         }
         OtherNamesColumn(entries)
     }
@@ -115,6 +115,7 @@ internal fun ViewScoresEntryRow(
 @Composable
 fun DateAndFirstNameColumn(
         entries: ViewScoresEntryList,
+        entryIndex: Int,
         helpListener: (HelpShowcaseIntent) -> Unit,
         modifier: Modifier = Modifier,
 ) {
@@ -165,7 +166,7 @@ fun DateAndFirstNameColumn(
         DisplayName(
                 nameInfo = entries.firstDisplayName,
                 modifier = Modifier
-                        .updateHelpDialogPosition(helpState)
+                        .updateHelpDialogPosition(helpState, entryIndex)
                         .zIndex(ViewScoresEntrySemanticsOrder.NAME.zIndex)
                         .then(nameSemantics)
         )
@@ -242,6 +243,7 @@ fun getDisplayName(
 @Composable
 private fun HsgColumn(
         entries: ViewScoresEntryList,
+        entryIndex: Int,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
@@ -269,7 +271,7 @@ private fun HsgColumn(
                 text = entries.hitsScoreGolds ?: stringResource(R.string.view_score__hsg_placeholder),
                 style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                 modifier = Modifier
-                        .updateHelpDialogPosition(helpState)
+                        .updateHelpDialogPosition(helpState, entryIndex)
                         .zIndex(ViewScoresEntrySemanticsOrder.HSG.zIndex)
                         .testTag(ViewScoresRowTestTag.HSG)
                         .semantics { contentDescription = entries.hsgSemantics.joinToString { it.get(resources) } }
@@ -280,6 +282,7 @@ private fun HsgColumn(
 @Composable
 private fun HandicapColumn(
         entries: ViewScoresEntryList,
+        entryIndex: Int,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
@@ -319,7 +322,7 @@ private fun HandicapColumn(
                             ?: stringResource(R.string.view_score__handicap_placeholder),
                     style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
                     modifier = Modifier
-                            .updateHelpDialogPosition(helpState)
+                            .updateHelpDialogPosition(helpState, entryIndex)
                             .zIndex(ViewScoresEntrySemanticsOrder.HANDICAP.zIndex)
                             .then(handicapSemantics)
             )
@@ -374,10 +377,7 @@ fun ViewScoresEntryRow_Preview(
         @PreviewParameter(ViewScoresEntryRowPreviewProvider::class) param: ViewScoresEntryList,
 ) {
     CodexTheme {
-        ViewScoresEntryRow(
-                entries = param,
-                helpInfo = HelpShowcaseUseCase(),
-        )
+        ViewScoresEntryRow(entries = param, entryIndex = 1) {}
     }
 }
 

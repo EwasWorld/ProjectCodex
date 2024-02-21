@@ -19,14 +19,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
@@ -54,7 +58,6 @@ import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFilters
 import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
-import eywa.projectcodex.components.viewScores.utils.ViewScoresShowcaseInfo
 
 private const val LOG_TAG = "ViewScores"
 
@@ -155,9 +158,6 @@ fun ViewScoresScreen(
     val lazyListState = rememberLazyListState()
     listener(HelpShowcaseAction(HelpShowcaseIntent.Clear))
 
-    val viewScoresShowcaseInfo = ViewScoresShowcaseInfo(state.data.orEmpty().map { it::class }, lazyListState)
-    listener(HelpShowcaseAction(HelpShowcaseIntent.AddDynamicInfo(viewScoresShowcaseInfo)))
-
     SetOfDialogs(
             state.showNoItemsDialog to { ViewScoresEmptyListDialog(isShown = it, listener = listener) },
             (state.lastClickedEntryId != null && state.convertScoreDialogOpen) to {
@@ -205,21 +205,20 @@ fun ViewScoresScreen(
                             dropdownMenuItems = entry.getDropdownMenuItems(),
                             dropdownExpanded = state.dropdownMenuOpen && entry.id == state.lastClickedEntryId,
                             listener = listener,
-                            helpListener = {
-                                viewScoresShowcaseInfo.genericEntryHelpInfo[entryIndex]
-                                        .handle(it, CodexNavRoute.VIEW_SCORES::class)
-                            },
+                            helpListener = { listener(HelpShowcaseAction(it)) },
                     ) {
                         if (entry.isCount) {
                             ViewScoresCountRow(
                                     entries = ViewScoresEntryList(entry),
-                                    helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
+                                    entryIndex = entryIndex,
+                                    helpListener = { listener(HelpShowcaseAction(it)) },
                             )
                         }
                         else {
                             ViewScoresEntryRow(
                                     entry = entry,
-                                    helpInfo = viewScoresShowcaseInfo.specificEntryHelpInfo[entryIndex],
+                                    entryIndex = entryIndex,
+                                    helpListener = { listener(HelpShowcaseAction(it)) },
                             )
                         }
                     }
@@ -253,7 +252,11 @@ fun ViewScoresScreen(
                 enter = fadeIn(),
                 exit = fadeOut(),
         ) {
-            UnobstructedBox(viewScoresShowcaseInfo) {
+            UnobstructedBox(
+                    onGloballyPositioned = {
+                        listener(HelpShowcaseAction(HelpShowcaseIntent.SetVisibleScreenSize(it.first, it.second)))
+                    }
+            ) {
                 ViewScoresActionBar(
                         modifier = Modifier
                                 .padding(20.dp)
@@ -291,18 +294,20 @@ fun ViewScoresScreen(
 
 @Composable
 private fun UnobstructedBox(
-        viewScoresShowcaseInfo: ViewScoresShowcaseInfo,
+        onGloballyPositioned: (Pair<Offset, Size>) -> Unit,
         bottomObstruction: @Composable () -> Unit,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
     ) {
-        BoxWithConstraints(
-                modifier = Modifier.weight(1f)
-        ) {
-            with(LocalDensity.current) { viewScoresShowcaseInfo.unobstructedHeight = maxHeight.toPx() }
-        }
+        Box(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .onGloballyPositioned {
+                            onGloballyPositioned(it.positionInRoot() to it.size.toSize())
+                        }
+        )
 
         bottomObstruction()
     }

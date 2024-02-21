@@ -1,5 +1,7 @@
 package eywa.projectcodex.common.helpShowcase
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.core.mainActivity.MainActivity
 import kotlin.reflect.KClass
@@ -9,6 +11,7 @@ data class HelpShowcaseState(
         val currentItem: HelpShowcaseItem? = null,
         val hasNextItem: Boolean = false,
         val startedButNoItems: Boolean = false,
+        val currentVisibleSize: Pair<Offset, Size>? = null,
 )
 
 internal data class HelpShowcaseInternalState(
@@ -19,34 +22,62 @@ internal data class HelpShowcaseInternalState(
          * fading out. This means that the last call of [HelpShowcaseIntent.Add] is not guaranteed to be the new screen
          */
         val currentScreen: KClass<out ActionBarHelp> = CodexNavRoute.MAIN_MENU::class,
-        val helpInfoMap: Map<String, HelpShowcaseItem> = emptyMap(),
-        val dynamicHelpShowcaseInfo: DynamicHelpShowcaseInfo? = null,
 
+        /**
+         * Visible size of the current screen (used to decide whether a help item is visible on the screen).
+         * Null for no visibility checking
+         */
+        val currentVisibleSize: Pair<Offset, Size>? = null,
+
+        /**
+         * Total size of the screen (used to create overlay)
+         */
+        val screenSize: Size? = null,
+        val helpInfoMap: Map<String, HelpShowcaseItem> = emptyMap(),
+
+        /**
+         * List of keys in [helpInfoMap]
+         */
         val currentShowcase: List<String>? = null,
+
+        /**
+         * [currentShowcase] index
+         */
         val currentlyDisplayedIndex: Int? = null,
 
         val startedButNoItems: Boolean = false,
 ) {
     private val isInProgress
-        get() = currentShowcase != null && currentlyDisplayedIndex != null
+        get() = !currentShowcase.isNullOrEmpty() && currentlyDisplayedIndex != null
                 && currentlyDisplayedIndex in currentShowcase.indices
 
     private val currentItem
         get() =
             if (!isInProgress) null
-            else currentShowcase!![currentlyDisplayedIndex!!].let {
-                helpInfoMap[it] ?: dynamicHelpShowcaseInfo!!.getInfoShowcases(it)!!
-            }
+            else helpInfoMap[currentShowcase!![currentlyDisplayedIndex!!]]
 
-    private val hasNextItem
-        get() = currentShowcase != null && currentlyDisplayedIndex != null
-                && (currentlyDisplayedIndex + 1) in currentShowcase.indices
+    val nextItemIndex
+        get() =
+            if (currentShowcase.isNullOrEmpty() || screenSize == null) {
+                null
+            }
+            else {
+                val seenItemCount = currentlyDisplayedIndex?.plus(1) ?: 0
+                currentShowcase
+                        .drop(seenItemCount)
+                        .indexOfFirst { title ->
+                            helpInfoMap[title]?.firstVisible(screenSize, currentVisibleSize) != null
+                        }
+                        .takeIf { it != -1 }
+                        ?.plus(seenItemCount)
+            }
 
     fun asExternalState() = HelpShowcaseState(
             isInProgress = isInProgress,
             currentItem = currentItem,
-            hasNextItem = hasNextItem,
+            hasNextItem = nextItemIndex != null,
             startedButNoItems = startedButNoItems,
+            currentVisibleSize = currentVisibleSize,
     )
 }
 

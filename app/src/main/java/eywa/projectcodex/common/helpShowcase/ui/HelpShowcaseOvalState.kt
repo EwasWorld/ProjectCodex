@@ -27,8 +27,7 @@ open class HelpShowcaseOvalState(
         override val nextItemListener: () -> Unit,
         override val closeListener: () -> Unit,
         override val overlayClickedListener: () -> Unit,
-        screenHeight: Float,
-        screenWidth: Float,
+        screenSize: Size,
 ) : HelpShowcaseState {
     init {
         require(title.isNotBlank()) { "Showcase title cannot be blank" }
@@ -36,9 +35,9 @@ open class HelpShowcaseOvalState(
     }
 
     private val ovalBottomOffset = ovalTopLeft.y + ovalHeight
-    private val isTextAboveOval = ovalTopLeft.y > screenHeight - ovalBottomOffset
+    private val isTextAboveOval = ovalTopLeft.y > screenSize.height - ovalBottomOffset
 
-    override val textAreaHeight = if (isTextAboveOval) ovalTopLeft.y else screenHeight - ovalBottomOffset
+    override val textAreaHeight = if (isTextAboveOval) ovalTopLeft.y else screenSize.height - ovalBottomOffset
     override val textAreaTopLeft = IntOffset(
             x = 0,
             y = if (isTextAboveOval) 0 else ovalBottomOffset.roundToInt()
@@ -59,9 +58,9 @@ open class HelpShowcaseOvalState(
 
         maximisedOvalScale = listOf(
                 0f to 0f,
-                0f to screenHeight,
-                screenWidth to 0f,
-                screenWidth to screenHeight
+                0f to screenSize.height,
+                screenSize.width to 0f,
+                screenSize.width to screenSize.height,
         )
                 .maxOf { (x, y) ->
                     /*
@@ -117,8 +116,7 @@ open class HelpShowcaseOvalState(
                 closeButtonListener: () -> Unit,
                 overlayClickedListener: () -> Unit,
                 viewInfo: LayoutCoordinates,
-                screenHeight: Float,
-                screenWidth: Float,
+                screenSize: Size,
                 padding: Dp = DEFAULT_PADDING,
                 density: Density,
         ): HelpShowcaseOvalState {
@@ -147,8 +145,7 @@ open class HelpShowcaseOvalState(
                     ovalTopLeft = Offset(ovalCentreX - ovalWidth / 2, ovalCentreY - ovalHeight / 2),
                     ovalHeight = ovalHeight,
                     ovalWidth = ovalWidth,
-                    screenHeight = screenHeight,
-                    screenWidth = screenWidth,
+                    screenSize = screenSize,
             )
         }
     }
