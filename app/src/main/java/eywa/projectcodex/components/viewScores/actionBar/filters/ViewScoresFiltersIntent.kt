@@ -65,6 +65,7 @@ sealed class ViewScoresFiltersIntent {
                 isExpanded = state.isExpanded,
                 selectRoundDialogState = state.selectRoundDialogState,
                 roundFilter = false,
+                updateDefaultRoundsState = state.updateDefaultRoundsState,
         )
     }
 

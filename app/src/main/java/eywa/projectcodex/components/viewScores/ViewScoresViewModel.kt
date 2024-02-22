@@ -20,6 +20,7 @@ import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,14 +47,15 @@ class ViewScoresViewModel @Inject constructor(
         viewModelScope.launch {
             state.map { it.filters }
                     .distinctUntilChanged()
-                    .flatMapLatest { shootsRepo.getFullShootInfo(it) }
+                    .flatMapLatest { filters -> shootsRepo.getFullShootInfo(filters).map { it to filters } }
                     .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
                     .collect { (flowData, use2023System) ->
+                        delay(1000)
                         _state.update {
                             val previousSelectedEntries = it.data.orEmpty()
                                     .associate { entry -> entry.id to entry.isSelected }
                             it.copy(
-                                    data = flowData.map { roundInfo ->
+                                    rawData = flowData.first.map { roundInfo ->
                                         val info = FullShootInfo(roundInfo, use2023System)
                                         ViewScoresEntry(
                                                 info = info,
@@ -61,6 +63,7 @@ class ViewScoresViewModel @Inject constructor(
                                                 customLogger = customLogger,
                                         )
                                     }.sortedByDescending { entry -> entry.info.shoot.dateShot }
+                                            to flowData.second
                             )
                         }
                     }
@@ -74,8 +77,8 @@ class ViewScoresViewModel @Inject constructor(
         viewModelScope.launch {
             updateDefaultRoundsTask.state.collect { updateState ->
                 _state.update {
-                    it.viewScoresFiltersState.copy(updateDefaultRoundsState = updateState)
-                            .let { newState -> it.copy(viewScoresFiltersState = newState) }
+                    it.filtersState.copy(updateDefaultRoundsState = updateState)
+                            .let { newState -> it.copy(filtersState = newState) }
                 }
             }
         }
@@ -86,7 +89,7 @@ class ViewScoresViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.VIEW_SCORES::class)
             is MultiSelectAction -> handleMultiSelectIntent(action.action)
             is FiltersAction ->
-                _state.update { it.copy(viewScoresFiltersState = action.action.handle(it.viewScoresFiltersState)) }
+                _state.update { it.copy(filtersState = action.action.handle(it.filtersState)) }
 
             is EffectComplete -> handleEffectComplete(action)
             is ConvertScoreAction -> handleConvertScoreIntent(action.action)
@@ -137,6 +140,7 @@ class ViewScoresViewModel @Inject constructor(
 
     private fun ViewScoresState.selectItem(shootId: Int): ViewScoresState {
         if (!isInMultiSelectMode) return this
+        rawData ?: return this
 
         val entryIndex = data
                 ?.indexOfFirst { entry -> entry.id == shootId }
@@ -146,10 +150,12 @@ class ViewScoresViewModel @Inject constructor(
         val entry = data[entryIndex]
 
         return copy(
-                data = data
-                        .take(entryIndex)
-                        .plus(entry.copy(isSelected = !entry.isSelected))
-                        .plus(data.drop(entryIndex + 1))
+                rawData = rawData.copy(
+                        data
+                                .take(entryIndex)
+                                .plus(entry.copy(isSelected = !entry.isSelected))
+                                .plus(data.drop(entryIndex + 1))
+                )
         )
     }
 
@@ -178,13 +184,17 @@ class ViewScoresViewModel @Inject constructor(
                     shootIdsUseCase.clear()
                     it.copy(
                             isInMultiSelectMode = false,
-                            data = it.data?.map { entry -> entry.copy(isSelected = false) },
+                            rawData = it.rawData
+                                    ?.copy(it.rawData.first.map { entry -> entry.copy(isSelected = false) }),
                     )
                 }
 
             MultiSelectBarIntent.ClickAllOrNone -> _state.update {
                 val allSelected = it.data?.none { entry -> !entry.isSelected } ?: false
-                it.copy(data = it.data?.map { entry -> entry.copy(isSelected = allSelected) })
+                it.copy(
+                        rawData = it.rawData
+                                ?.copy(it.rawData.first.map { entry -> entry.copy(isSelected = allSelected) }),
+                )
             }
 
             MultiSelectBarIntent.ClickEmail -> _state.update {

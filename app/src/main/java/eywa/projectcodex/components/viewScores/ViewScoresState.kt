@@ -7,7 +7,7 @@ import eywa.projectcodex.database.shootData.ShootFilter
 
 data class ViewScoresState(
         val isInMultiSelectMode: Boolean = false,
-        val data: List<ViewScoresEntry>? = null,
+        val rawData: Pair<List<ViewScoresEntry>, Filters<ShootFilter>>? = null,
         val noRoundsDialogOkClicked: Boolean = false,
 
         val multiSelectEmailNoSelection: Boolean = false,
@@ -28,18 +28,25 @@ data class ViewScoresState(
         val openEmailClicked: Boolean = false,
         val openEditInfoClicked: Boolean = false,
 
-        val viewScoresFiltersState: ViewScoresFiltersState = ViewScoresFiltersState(),
+        val filtersState: ViewScoresFiltersState = ViewScoresFiltersState(),
 ) {
     val lastClickedEntry by lazy {
         lastClickedEntryId?.let { id -> data?.find { it.id == id } }
     }
 
-    val filters: Filters<ShootFilter>
-        get() = viewScoresFiltersState.filters
+    val data = rawData?.first
+
+    val filters = filtersState.filters
 
     val actionBarExtended
-        get() = isInMultiSelectMode || viewScoresFiltersState.isExpanded
+        get() = isInMultiSelectMode || filtersState.isExpanded
 
-    val showNoItemsDialog: Boolean
-        get() = data != null && data.isEmpty() && filters.size == 0
+    val isLoading: Boolean
+        get() = rawData == null || (rawData.first.isEmpty() && filters.size == 0 && rawData.second != filters)
+
+    val showNoItemsDialog
+        get() =
+            rawData != null && data!!.isEmpty()
+                    && filters.size == 0 // A softer error is shown if filters cause the no data
+                    && rawData.second == filters // Data is not out of date
 }

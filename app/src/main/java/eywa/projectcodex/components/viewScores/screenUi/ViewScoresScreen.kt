@@ -56,12 +56,14 @@ import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFilte
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBar
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setPersonalBests
 import eywa.projectcodex.components.viewScores.dialogs.ViewScoresDeleteEntryDialog
 import eywa.projectcodex.components.viewScores.dialogs.ViewScoresEmptyListDialog
 import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreDialog
+import eywa.projectcodex.database.Filters
 
 private const val LOG_TAG = "ViewScores"
 
@@ -187,11 +189,11 @@ fun ViewScoresScreen(
                     .testTag(ViewScoresTestTag.SCREEN.getTestTag())
     ) {
         // If data has not been loaded
-        if (state.data == null) {
+        if (state.isLoading) {
             LoadingScreen()
         }
         // If there is data to show
-        else if (state.data.isNotEmpty()) {
+        else if (state.data!!.isNotEmpty()) {
             LazyColumn(
                     state = lazyListState,
                     contentPadding = PaddingValues(6.dp),
@@ -269,9 +271,7 @@ fun ViewScoresScreen(
                     Row(
                             modifier = Modifier.padding(horizontal = 5.dp)
                     ) {
-                        AnimatedVisibility(
-                                state.isInMultiSelectMode || !state.actionBarExtended
-                        ) {
+                        AnimatedVisibility(state.isInMultiSelectMode || !state.actionBarExtended) {
                             MultiSelectBar(
                                     isInMultiSelectMode = state.isInMultiSelectMode,
                                     isEveryItemSelected = state.data.orEmpty().none { !it.isSelected },
@@ -280,11 +280,9 @@ fun ViewScoresScreen(
                             )
                         }
 
-                        AnimatedVisibility(
-                                state.viewScoresFiltersState.isExpanded || !state.actionBarExtended
-                        ) {
+                        AnimatedVisibility(state.filtersState.isExpanded || !state.actionBarExtended) {
                             ViewScoresFilters(
-                                    state = state.viewScoresFiltersState,
+                                    state = state.filtersState,
                                     listener = { listener(FiltersAction(it)) },
                                     helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
                             )
@@ -361,9 +359,9 @@ fun ViewScoresScreen_Preview() {
     CodexTheme {
         ViewScoresScreen(
                 state = ViewScoresState(
-                        data = ViewScoresEntryPreviewProvider
+                        rawData = ViewScoresEntryPreviewProvider
                                 .generateEntries(20)
-                                .setPersonalBests(listOf(3, 6)),
+                                .setPersonalBests(listOf(3, 6)) to Filters(),
                 ),
                 listener = {},
         )
@@ -381,9 +379,9 @@ fun MultiSelectMode_ViewScoresScreen_Preview() {
         ViewScoresScreen(
                 state = ViewScoresState(
                         isInMultiSelectMode = true,
-                        data = ViewScoresEntryPreviewProvider
+                        rawData = ViewScoresEntryPreviewProvider
                                 .generateEntries(20)
-                                .setPersonalBests(listOf(3, 6)),
+                                .setPersonalBests(listOf(3, 6)) to Filters(),
                 ),
                 listener = {},
         )
@@ -400,10 +398,10 @@ fun Filters_ViewScoresScreen_Preview() {
     CodexTheme {
         ViewScoresScreen(
                 state = ViewScoresState(
-                        data = ViewScoresEntryPreviewProvider
+                        rawData = ViewScoresEntryPreviewProvider
                                 .generateEntries(20)
-                                .setPersonalBests(listOf(3, 6)),
-                        viewScoresFiltersState = ViewScoresFiltersState(isExpanded = true),
+                                .setPersonalBests(listOf(3, 6)) to Filters(),
+                        filtersState = ViewScoresFiltersState(isExpanded = true),
                 ),
                 listener = {},
         )
@@ -421,7 +419,7 @@ fun NoEntries_ViewScoresScreen_Preview() {
     CodexTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             ViewScoresScreen(
-                    state = ViewScoresState(data = listOf()),
+                    state = ViewScoresState(rawData = listOf<ViewScoresEntry>() to Filters()),
                     listener = {},
             )
         }
@@ -440,8 +438,8 @@ fun NoEntriesWithFilter_ViewScoresScreen_Preview() {
         Box(modifier = Modifier.fillMaxSize()) {
             ViewScoresScreen(
                     state = ViewScoresState(
-                            data = listOf(),
-                            viewScoresFiltersState = ViewScoresFiltersState(
+                            rawData = listOf<ViewScoresEntry>() to Filters(),
+                            filtersState = ViewScoresFiltersState(
                                     isExpanded = false,
                                     firstRoundOfDayFilter = true,
                             )
@@ -482,7 +480,7 @@ fun ConvertScore_ViewScoresScreen_Preview() {
         Box(modifier = Modifier.fillMaxSize()) {
             ViewScoresScreen(
                     state = ViewScoresState(
-                            data = ViewScoresEntryPreviewProvider.generateEntries(20),
+                            rawData = ViewScoresEntryPreviewProvider.generateEntries(20) to Filters(),
                             lastClickedEntryId = 2,
                             convertScoreDialogOpen = true,
                     ),
