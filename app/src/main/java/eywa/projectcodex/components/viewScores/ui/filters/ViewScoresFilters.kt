@@ -8,7 +8,6 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -16,6 +15,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
@@ -105,9 +106,12 @@ private fun ExpandedFiltersPanel(
             exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter),
     ) {
         ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onFloatingActions)) {
-            Box {
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(15.dp)
+            ) {
+                TitleBar(state, listener, helpShowcaseListener)
                 Filters(state, listener, helpShowcaseListener)
-                Icons(state, listener, helpShowcaseListener)
             }
         }
     }
@@ -123,16 +127,10 @@ private fun Filters(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 15.dp)
+                    .padding(horizontal = 5.dp)
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
     ) {
-        Text(
-                text = stringResource(R.string.view_scores__filters_title),
-                style = CodexTypography.NORMAL,
-                color = CodexTheme.colors.onFloatingActions,
-                fontWeight = FontWeight.Bold,
-        )
-
         DateFilters(state, listener, helpShowcaseListener)
         ScoreFilters(state, listener, helpShowcaseListener)
 
@@ -179,32 +177,42 @@ private fun Filters(
 }
 
 @Composable
-private fun BoxScope.Icons(
+private fun TitleBar(
         state: ViewScoresFiltersState,
         listener: (ViewScoresFiltersIntent) -> Unit,
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    CodexIconInfo.VectorIcon(
-            imageVector = Icons.Default.FilterAltOff,
-            contentDescription = stringResource(R.string.view_scores__filters_clear_all),
-            tint = CodexTheme.colors.onFloatingActions,
-    ).CodexIcon(
-            modifier = Modifier
-                    .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
-                    .padding(15.dp)
-                    .align(Alignment.TopStart)
-    )
+    Box(
+            modifier = Modifier.fillMaxWidth()
+    ) {
+        CodexIconInfo.VectorIcon(
+                imageVector = Icons.Default.FilterAltOff,
+                contentDescription = stringResource(R.string.view_scores__filters_clear_all),
+                tint = CodexTheme.colors.onFloatingActions,
+        ).CodexIcon(
+                modifier = Modifier
+                        .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
+                        .align(Alignment.TopStart)
+        )
 
-    CodexIconInfo.VectorIcon(
-            imageVector = Icons.Default.Close,
-            contentDescription = stringResource(R.string.view_scores__filters_close),
-            tint = CodexTheme.colors.onFloatingActions,
-    ).CodexIcon(
-            modifier = Modifier
-                    .clickable { listener(ViewScoresFiltersIntent.CloseFilters) }
-                    .padding(15.dp)
-                    .align(Alignment.TopEnd)
-    )
+        Text(
+                text = stringResource(R.string.view_scores__filters_title),
+                style = CodexTypography.NORMAL,
+                color = CodexTheme.colors.onFloatingActions,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.TopCenter)
+        )
+
+        CodexIconInfo.VectorIcon(
+                imageVector = Icons.Default.Close,
+                contentDescription = stringResource(R.string.view_scores__filters_close),
+                tint = CodexTheme.colors.onFloatingActions,
+        ).CodexIcon(
+                modifier = Modifier
+                        .clickable { listener(ViewScoresFiltersIntent.CloseFilters) }
+                        .align(Alignment.TopEnd)
+        )
+    }
 }
 
 @Composable
@@ -271,7 +279,7 @@ private fun ColumnScope.DateFilters(
 ) {
     FlowRow(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
     ) {
         Text(
                 text = stringResource(R.string.view_scores__filters_date),
@@ -387,7 +395,7 @@ private fun ColumnScope.ScoreFilters(
 ) {
     FlowRow(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
     ) {
         Text(text = stringResource(R.string.view_scores__filters_scores))
 
@@ -457,6 +465,7 @@ private fun ScoreFilters(
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RoundsFilter(
         updateDefaultRoundsState: UpdateDefaultRoundsState,
@@ -473,9 +482,9 @@ private fun RoundsFilter(
             style = CodexTypography.SMALL.copy(fontStyle = FontStyle.Italic),
             spacing = 3.dp,
     ) {
-        Row(
+        FlowRow(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally),
         ) {
             val text =
                     if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
@@ -517,6 +526,7 @@ private fun RoundsFilter(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SubTypeFilter(
         roundFilter: Boolean,
@@ -525,15 +535,15 @@ private fun SubTypeFilter(
         onUpdate: (SelectRoundDialogIntent) -> Unit
 ) {
     val subtypesSize = selectRoundDialogState.selectedRound?.roundSubTypes?.size ?: 0
-    if (!roundFilter || selectRoundDialogState.selectedRound == null && subtypesSize <= 1) return
+    if (!roundFilter || selectRoundDialogState.selectedRound == null || subtypesSize <= 1) return
 
     val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
     val subTypeName = selectRoundDialogState.selectedSubType?.name
             ?.takeIf { selectRoundDialogState.selectedSubTypeId != null }
 
-    Row(
+    FlowRow(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(3.dp)
+            horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally),
     ) {
         DataRow(
                 title = stringResource(R.string.create_round__round_sub_type),
