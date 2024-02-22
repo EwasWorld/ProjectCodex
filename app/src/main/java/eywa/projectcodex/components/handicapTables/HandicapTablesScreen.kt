@@ -55,6 +55,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectFaceDialogAction
@@ -385,6 +386,7 @@ fun HandicapTablesScreen_Preview() {
                             HandicapScore(36, 312),
                     ),
                     highlightedHandicap = HandicapScore(31, 324),
+                    updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
             )
     ) {}
 }
@@ -399,6 +401,7 @@ fun Error_HandicapTablesScreen_Preview() {
                     selectRoundDialogState = SelectRoundDialogState(
                             allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
                     ),
+                    updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
             )
     ) {}
 }

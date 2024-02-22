@@ -56,6 +56,7 @@ import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEntry
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeClicked
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeSelected
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowClicked
@@ -412,6 +413,7 @@ fun ClassificationTablesScreen_Preview() {
                             "8,Women,Recurve,Senior,WA 1440 (90m),1086",
                             "9,Women,Recurve,Senior,WA 1440 (90m),1162",
                     ).mapNotNull { ClassificationTableEntry.fromString(it) },
+                    updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
             )
     ) {}
 }
@@ -437,6 +439,7 @@ fun Empty_ClassificationTablesScreen_Preview() {
                             "8,Women,Recurve,Senior,WA 1440 (90m),1219",
                             "9,Women,Recurve,Senior,WA 1440 (90m),1283",
                     ).mapNotNull { ClassificationTableEntry.fromString(it)?.copy(score = null, handicap = 55) },
+                    updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
             )
     ) {}
 }
