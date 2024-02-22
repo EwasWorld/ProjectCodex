@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui.filters
+package eywa.projectcodex.components.viewScores.actionBar.filters
 
 import eywa.projectcodex.common.sharedUi.UpdateCalendarInfo
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui.filters
+package eywa.projectcodex.components.viewScores.actionBar.filters
 
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.utils
+package eywa.projectcodex.components.viewScores.screenUi
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R

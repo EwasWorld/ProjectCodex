@@ -2,8 +2,8 @@ package eywa.projectcodex.components.viewScores.data
 
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryRow
-import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoresDropdownMenuItem
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoresEntryRow
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.GoldsType

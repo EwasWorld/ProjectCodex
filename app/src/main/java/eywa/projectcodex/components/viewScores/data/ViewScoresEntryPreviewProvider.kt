@@ -1,9 +1,8 @@
-package eywa.projectcodex.components.viewScores.ui
+package eywa.projectcodex.components.viewScores.data
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import eywa.projectcodex.common.logging.CustomLogger
-import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui
+package eywa.projectcodex.components.viewScores.screenUi
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
@@ -32,7 +32,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
 
 /**
  * Wraps [content] in an appropriate [Surface] with a [DropdownMenu] and generates click handlers related to [entry]

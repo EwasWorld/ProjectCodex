@@ -31,7 +31,7 @@ import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsSc
 import eywa.projectcodex.components.shootDetails.stats.StatsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
-import eywa.projectcodex.components.viewScores.ui.ViewScoresScreen
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoresScreen
 import javax.inject.Singleton
 
 

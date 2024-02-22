@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui.convertScoreDialog
+package eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -7,7 +7,6 @@ import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogContent
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.rememberRadioButtonDialogState
-import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
 
 @Composable
 fun ConvertScoreDialog(

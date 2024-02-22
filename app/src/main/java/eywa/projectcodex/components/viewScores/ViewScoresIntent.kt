@@ -1,10 +1,10 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
-import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersIntent
-import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
-import eywa.projectcodex.components.viewScores.utils.ViewScoresDropdownMenuItem
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
+import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBarIntent
+import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreIntent
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoresDropdownMenuItem
 
 sealed class ViewScoresIntent {
     data class EntryClicked(val shootId: Int) : ViewScoresIntent()

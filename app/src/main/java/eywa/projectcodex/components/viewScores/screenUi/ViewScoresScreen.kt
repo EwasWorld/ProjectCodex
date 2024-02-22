@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui
+package eywa.projectcodex.components.viewScores.screenUi
 
 import android.content.Context
 import android.os.Build
@@ -51,13 +51,17 @@ import eywa.projectcodex.components.viewScores.ViewScoresIntent
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.ViewScoresState
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
+import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFilters
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
+import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBar
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
-import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreDialog
-import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFilters
-import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersIntent
-import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersState
-import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setPersonalBests
+import eywa.projectcodex.components.viewScores.dialogs.ViewScoresDeleteEntryDialog
+import eywa.projectcodex.components.viewScores.dialogs.ViewScoresEmptyListDialog
+import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreDialog
 
 private const val LOG_TAG = "ViewScores"
 

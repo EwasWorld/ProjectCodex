@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.viewScores
 
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersState
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.shootData.ShootFilter
 

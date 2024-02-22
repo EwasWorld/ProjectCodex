@@ -4,14 +4,16 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.clearArrows
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setPersonalBests
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.clearArrows
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.model.PbType
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ViewScoresEntryListUnitTest {

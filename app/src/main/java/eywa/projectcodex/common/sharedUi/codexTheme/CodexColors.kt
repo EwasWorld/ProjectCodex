@@ -19,8 +19,8 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.*
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
-import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBar
-import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
+import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBar
+import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreType
 
 val LocalCodexThemeColors = staticCompositionLocalOf { CodexThemeColors() }
 

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui.filters
+package eywa.projectcodex.components.viewScores.actionBar.filters
 
 import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidator

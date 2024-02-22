@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui
+package eywa.projectcodex.components.viewScores.dialogs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui.filters
+package eywa.projectcodex.components.viewScores.actionBar.filters
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
@@ -75,7 +75,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
-import eywa.projectcodex.components.viewScores.ui.ViewScoresActionBar
+import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
 import java.util.Calendar
 
 

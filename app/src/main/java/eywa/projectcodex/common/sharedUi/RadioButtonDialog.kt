@@ -23,7 +23,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
+import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreType
 
 interface HasDisplayTitle {
     val displayTitle: Int

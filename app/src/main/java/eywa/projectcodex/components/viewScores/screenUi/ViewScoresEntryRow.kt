@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui
+package eywa.projectcodex.components.viewScores.screenUi
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -36,9 +36,10 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setPersonalBests
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import eywa.projectcodex.model.getOverallPbString
 import java.util.*
 

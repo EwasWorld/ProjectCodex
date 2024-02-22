@@ -2,7 +2,7 @@ package eywa.projectcodex.components.viewScores.data
 
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.components.viewScores.ui.getDisplayName
+import eywa.projectcodex.components.viewScores.screenUi.getDisplayName
 import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.model.PbType
 import eywa.projectcodex.model.roundHandicap

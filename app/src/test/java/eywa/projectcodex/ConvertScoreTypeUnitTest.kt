@@ -1,6 +1,6 @@
 package eywa.projectcodex
 
-import eywa.projectcodex.components.viewScores.utils.ConvertScoreType
+import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreType
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.testUtils.TestData

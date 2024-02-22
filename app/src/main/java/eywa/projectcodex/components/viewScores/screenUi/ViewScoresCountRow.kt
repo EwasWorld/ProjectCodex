@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui
+package eywa.projectcodex.components.viewScores.screenUi
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -28,9 +28,10 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.convertToArrowCounters
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setPersonalBests
-import eywa.projectcodex.components.viewScores.ui.ViewScoresEntryPreviewProvider.setTiedPersonalBests
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.convertToArrowCounters
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setPersonalBests
+import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 
 @Composable
 fun ViewScoresCountRow(

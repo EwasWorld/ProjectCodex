@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui.multiSelectBar
+package eywa.projectcodex.components.viewScores.actionBar.multiSelectBar
 
 sealed class MultiSelectBarIntent {
     /**

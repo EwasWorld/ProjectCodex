@@ -10,10 +10,10 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
+import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
-import eywa.projectcodex.components.viewScores.ui.convertScoreDialog.ConvertScoreIntent
-import eywa.projectcodex.components.viewScores.ui.filters.ViewScoresFiltersIntent
-import eywa.projectcodex.components.viewScores.ui.multiSelectBar.MultiSelectBarIntent
+import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.datastore.CodexDatastore

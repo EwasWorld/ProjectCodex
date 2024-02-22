@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.viewScores.ui.multiSelectBar
+package eywa.projectcodex.components.viewScores.actionBar.multiSelectBar
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -26,9 +26,9 @@ import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.components.viewScores.ui.ViewScoreHelpPriority
-import eywa.projectcodex.components.viewScores.ui.ViewScoresActionBar
-import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
+import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoreHelpPriority
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoresTestTag
 
 @Composable
 internal fun MultiSelectBar(
