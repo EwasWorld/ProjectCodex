@@ -2,6 +2,7 @@ package eywa.projectcodex.components.viewScores.screenUi
 
 import android.content.Context
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -26,6 +27,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +41,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.LoadingScreen
 import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -56,6 +59,7 @@ import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFilte
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBar
+import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider
@@ -78,6 +82,13 @@ fun ViewScoresScreen(
 
     val context = LocalContext.current
     LaunchedEffect(state) { handleEffects(state, navController, context, listener) }
+
+    BackHandler(state.isInMultiSelectMode) {
+        viewModel.handle(MultiSelectAction(MultiSelectBarIntent.ClickClose))
+    }
+    BackHandler(state.filtersState.isExpanded) {
+        viewModel.handle(FiltersAction(ViewScoresFiltersIntent.CloseFilters))
+    }
 }
 
 private fun handleEffects(
@@ -201,6 +212,7 @@ fun ViewScoresScreen(
                     modifier = Modifier
                             .testTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag())
                             .align(Alignment.TopCenter)
+                            .modifierIf(state.filtersState.isExpanded, Modifier.clearAndSetSemantics { })
             ) {
                 items(state.data.size) { entryIndex ->
                     val entry = state.data[entryIndex]
