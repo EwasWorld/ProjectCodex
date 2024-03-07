@@ -17,17 +17,18 @@ data class HelpShowcaseItem(
         val priority: Int? = DEFAULT_HELP_PRIORITY,
         private val shape: HelpShowcaseShape = HelpShowcaseShape.OVAL,
         val layoutCoordinates: Map<Int, LayoutCoordinates> = mapOf(),
+        val boundsId: Int? = null,
 ) {
     fun firstVisible(
             currentScreenSize: Size,
-            currentVisibleSize: Pair<Offset, Size>?,
+            boundaries: Map<Int, Pair<Offset, Size>>,
     ) =
             layoutCoordinates.entries
                     .sortedBy { it.key }
                     .map { it.value }
                     .firstOrNull {
                         if (!it.isAttached) return@firstOrNull false
-                        val screen = currentVisibleSize ?: (Offset.Zero to currentScreenSize)
+                        val screen = boundsId?.let { b -> boundaries[b] } ?: (Offset.Zero to currentScreenSize)
 
                         val topLeft = it.positionInRoot()
                         val (w, h) = it.size
@@ -38,13 +39,13 @@ data class HelpShowcaseItem(
 
     @Composable
     fun asShape(
-            visibleScreenSize: Pair<Offset, Size>?,
+            boundaries: Map<Int, Pair<Offset, Size>>,
             hasNextItem: Boolean,
             goToNextItemListener: () -> Unit,
             endShowcaseListener: () -> Unit,
             screenSize: Size,
     ) = shape.asState(
-            visibleScreenSize = visibleScreenSize,
+            boundaries = boundaries,
             item = this,
             hasNextItem = hasNextItem,
             goToNextItemListener = goToNextItemListener,

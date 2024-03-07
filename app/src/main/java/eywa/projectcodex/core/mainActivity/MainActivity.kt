@@ -224,7 +224,7 @@ class MainActivity : ComponentActivity() {
 
         displayedHelpItem?.let { item ->
             item.helpShowcaseItem.asShape(
-                    visibleScreenSize = state.helpShowcaseState?.currentVisibleSize,
+                    boundaries = state.helpShowcaseState?.boundaries ?: emptyMap(),
                     hasNextItem = item.hasNextItem,
                     goToNextItemListener = { viewModel.handle(GoToNextHelpShowcaseItem) },
                     endShowcaseListener = { viewModel.handle(CloseHelpShowcase) },

@@ -56,7 +56,8 @@ fun ViewScoresListItem(
             helpShowcaseItem = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_view_score__row_title),
                     helpBody = stringResource(R.string.help_view_score__row_body),
-                    priority = ViewScoreHelpPriority.GENERIC_ROW_ACTIONS.ordinal
+                    priority = ViewScoreHelpPriority.GENERIC_ROW_ACTIONS.ordinal,
+                    boundsId = ViewScoresHelpBoundaries.LIST.ordinal,
             ),
     )
 

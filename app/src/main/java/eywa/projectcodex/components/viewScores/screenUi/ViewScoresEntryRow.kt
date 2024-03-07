@@ -127,6 +127,7 @@ fun DateAndFirstNameColumn(
                     helpTitle = stringResource(R.string.help_view_score__round_title),
                     helpBody = stringResource(R.string.help_view_score__round_body),
                     priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
+                    boundsId = ViewScoresHelpBoundaries.LIST.ordinal,
             )
     )
     val nameSemantics =
@@ -254,6 +255,7 @@ private fun HsgColumn(
                     helpTitle = stringResource(R.string.help_view_score__hsg_title),
                     helpBody = stringResource(R.string.help_view_score__hsg_body),
                     priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
+                    boundsId = ViewScoresHelpBoundaries.LIST.ordinal,
             )
     )
 
@@ -296,6 +298,7 @@ private fun HandicapColumn(
                             else R.string.help_view_score__handicap_old_body
                     ),
                     priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
+                    boundsId = ViewScoresHelpBoundaries.LIST.ordinal,
             )
     )
     val handicapSemantics = entries.handicap?.let {

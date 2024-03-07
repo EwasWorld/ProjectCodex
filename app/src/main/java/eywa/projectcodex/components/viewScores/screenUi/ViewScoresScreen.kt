@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.SetVisibleScreenSize
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -272,7 +273,7 @@ fun ViewScoresScreen(
         ) {
             UnobstructedBox(
                     onGloballyPositioned = {
-                        listener(HelpShowcaseAction(HelpShowcaseIntent.SetVisibleScreenSize(it.first, it.second)))
+                        listener(HelpShowcaseAction(SetVisibleScreenSize(ViewScoresHelpBoundaries.LIST.ordinal, it)))
                     }
             ) {
                 ViewScoresActionBar(
@@ -330,9 +331,9 @@ private fun UnobstructedBox(
 /**
  * Ordinals are used for [HelpShowcaseItem.priority]
  */
-internal enum class ViewScoreHelpPriority {
-    GENERIC_ROW_ACTIONS, SPECIFIC_ROW_ACTION, MULTI_SELECT
-}
+internal enum class ViewScoreHelpPriority { GENERIC_ROW_ACTIONS, SPECIFIC_ROW_ACTION, ACTION_BAR }
+
+enum class ViewScoresHelpBoundaries { LIST }
 
 enum class ViewScoresTestTag : CodexTestTag {
     SCREEN,

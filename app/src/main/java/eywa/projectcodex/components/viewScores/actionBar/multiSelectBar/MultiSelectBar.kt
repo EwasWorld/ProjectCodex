@@ -53,7 +53,7 @@ internal fun MultiSelectBar(
                         HelpShowcaseItem(
                                 helpTitle = stringResource(helpTitle),
                                 helpBody = stringResource(helpBody),
-                                priority = ViewScoreHelpPriority.MULTI_SELECT.ordinal,
+                                priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
                         )
                 ),
                 onClick = onClick,

@@ -68,6 +68,7 @@ private fun ArrowsShotColumn(
                     helpTitle = stringResource(R.string.help_view_score__arrow_count_title),
                     helpBody = stringResource(R.string.help_view_score__arrow_count_body),
                     priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
+                    boundsId = ViewScoresHelpBoundaries.LIST.ordinal,
             )
     )
 

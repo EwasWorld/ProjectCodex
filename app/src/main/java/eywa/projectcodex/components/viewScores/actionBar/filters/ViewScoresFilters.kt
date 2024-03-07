@@ -48,7 +48,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
@@ -76,6 +78,7 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoreHelpPriority
 import java.util.Calendar
 
 
@@ -110,7 +113,7 @@ private fun ExpandedFiltersPanel(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.padding(15.dp)
             ) {
-                TitleBar(state, listener, helpShowcaseListener)
+                TitleBar(listener, helpShowcaseListener)
                 Filters(state, listener, helpShowcaseListener)
             }
         }
@@ -140,12 +143,14 @@ private fun Filters(
                 selectRoundDialogState = state.selectRoundDialogState,
                 onClear = { listener(ViewScoresFiltersIntent.ClearRoundsFilter) },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
+                helpShowcaseListener = helpShowcaseListener,
         )
         SubTypeFilter(
                 roundFilter = state.roundFilter,
                 selectRoundDialogState = state.selectRoundDialogState,
                 onClear = { listener(ViewScoresFiltersIntent.ClearSubtypeFilter) },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateRoundsFilter(it)) },
+                helpShowcaseListener = helpShowcaseListener,
         )
 
         ToggleFilter(
@@ -153,32 +158,51 @@ private fun Filters(
                 textWhenOn = stringResource(R.string.view_scores__filters_personal_bests_only),
                 isOn = state.personalBestsFilter,
                 onClick = { listener(ViewScoresFiltersIntent.ClickPbFilter) },
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_view_scores__filters_personal_best_title),
+                        helpBody = stringResource(R.string.help_view_scores__filters_personal_best_body),
+                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                ).asHelpState(helpShowcaseListener),
         )
         ToggleFilter(
                 title = stringResource(R.string.view_scores__filters_complete),
                 textWhenOn = stringResource(R.string.view_scores__filters_complete_only),
                 isOn = state.completedRoundsFilter,
                 onClick = { listener(ViewScoresFiltersIntent.ClickCompleteFilter) },
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_view_scores__filters_complete_title),
+                        helpBody = stringResource(R.string.help_view_scores__filters_complete_body),
+                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                ).asHelpState(helpShowcaseListener),
         )
         ToggleFilter(
                 title = stringResource(R.string.view_scores__filters_first_of_day),
                 textWhenOn = stringResource(R.string.view_scores__filters_first_of_day_only),
                 isOn = state.firstRoundOfDayFilter,
                 onClick = { listener(ViewScoresFiltersIntent.ClickFirstOfDayFilter) },
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_view_scores__filters_first_of_day_title),
+                        helpBody = stringResource(R.string.help_view_scores__filters_first_of_day_body),
+                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                ).asHelpState(helpShowcaseListener),
         )
 
         DataRow(
                 title = stringResource(R.string.view_scores__filters_type_title),
                 text = state.typeFilter.label.get(),
                 textClickableStyle = LocalTextStyle.current.asCustomClickableStyle(),
-                onClick = { listener(ViewScoresFiltersIntent.ClickTypeFilter) }
+                onClick = { listener(ViewScoresFiltersIntent.ClickTypeFilter) },
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_view_scores__filters_type_title),
+                        helpBody = stringResource(R.string.help_view_scores__filters_type_body),
+                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                ).asHelpState(helpShowcaseListener),
         )
     }
 }
 
 @Composable
 private fun TitleBar(
-        state: ViewScoresFiltersState,
         listener: (ViewScoresFiltersIntent) -> Unit,
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
@@ -193,6 +217,13 @@ private fun TitleBar(
                 modifier = Modifier
                         .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
                         .align(Alignment.TopStart)
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_view_scores__filters_clear_title),
+                                        helpBody = stringResource(R.string.help_view_scores__filters_clear_body),
+                                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                                ).asHelpState(helpShowcaseListener)
+                        )
         )
 
         Text(
@@ -240,11 +271,11 @@ private fun CollapsedFiltersPanel(
                             contentDescription = stringResource(R.string.view_scores__filters_dialog_toggle),
                             modifier = Modifier.padding(vertical = 5.dp)
                     ),
-                    helpState = HelpState(
-                            helpListener = helpShowcaseListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_view_scores__filters_dialog_toggle_title),
                             helpBody = stringResource(R.string.help_view_scores__filters_dialog_toggle_body),
-                    ),
+                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                    ).asHelpState(helpShowcaseListener),
                     onClick = { listener(ViewScoresFiltersIntent.OpenFilters) },
                     caption = state.activeFilterCount.toString(),
                     captionModifier = Modifier.semantics { contentDescription = semantics },
@@ -260,6 +291,7 @@ private fun ToggleFilter(
         title: String,
         textWhenOn: String,
         isOn: Boolean,
+        helpState: HelpState,
         onClick: () -> Unit,
 ) {
     DataRow(
@@ -267,6 +299,7 @@ private fun ToggleFilter(
             text = if (isOn) textWhenOn else stringResource(R.string.view_scores__filters_no_filter),
             textClickableStyle = LocalTextStyle.current.asCustomClickableStyle(),
             onClick = onClick,
+            helpState = helpState,
     )
 }
 
@@ -280,6 +313,13 @@ private fun ColumnScope.DateFilters(
     FlowRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            modifier = Modifier.updateHelpDialogPosition(
+                    HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_scores__filters_date_title),
+                            helpBody = stringResource(R.string.help_view_scores__filters_date_body),
+                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                    ).asHelpState(helpShowcaseListener),
+            )
     ) {
         Text(
                 text = stringResource(R.string.view_scores__filters_date),
@@ -287,11 +327,6 @@ private fun ColumnScope.DateFilters(
         DateFilter(
                 title = stringResource(R.string.view_scores__filters_from_date),
                 date = state.fromDate,
-                helpState = HelpState(
-                        helpListener = helpShowcaseListener,
-                        helpTitle = stringResource(R.string.help_view_scores__filters_from_title),
-                        helpBody = stringResource(R.string.help_view_scores__filters_from_body),
-                ),
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateFromFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearFromFilter) },
         )
@@ -301,11 +336,6 @@ private fun ColumnScope.DateFilters(
         DateFilter(
                 title = stringResource(R.string.view_scores__filters_until_date),
                 date = state.untilDate,
-                helpState = HelpState(
-                        helpListener = helpShowcaseListener,
-                        helpTitle = stringResource(R.string.help_view_scores__filters_until_title),
-                        helpBody = stringResource(R.string.help_view_scores__filters_until_body),
-                ),
                 isValidDate = state.dateRangeIsValid,
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateUntilFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearUntilFilter) },
@@ -328,7 +358,6 @@ private fun ColumnScope.DateFilters(
 private fun DateFilter(
         title: String,
         date: Calendar?,
-        helpState: HelpState,
         isValidDate: Boolean = true,
         onUpdate: (UpdateCalendarInfo) -> Unit,
         onClear: () -> Unit,
@@ -349,7 +378,6 @@ private fun DateFilter(
 
     Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.updateHelpDialogPosition(helpState)
     ) {
         if (date == null) {
             Text(
@@ -395,7 +423,14 @@ private fun ColumnScope.ScoreFilters(
 ) {
     FlowRow(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            modifier = Modifier.updateHelpDialogPosition(
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_scores__filters_scores_title),
+                            helpBody = stringResource(R.string.help_view_scores__filters_scores_body),
+                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                    ).asHelpState(helpShowcaseListener),
+            )
     ) {
         Text(text = stringResource(R.string.view_scores__filters_scores))
 
@@ -472,7 +507,8 @@ private fun RoundsFilter(
         roundFilter: Boolean,
         selectRoundDialogState: SelectRoundDialogState,
         onClear: () -> Unit,
-        onUpdate: (SelectRoundDialogIntent) -> Unit
+        onUpdate: (SelectRoundDialogIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
     val hasNoRounds = selectRoundDialogState.allRounds.isNullOrEmpty()
@@ -485,6 +521,13 @@ private fun RoundsFilter(
         FlowRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally),
+                modifier = Modifier.updateHelpDialogPosition(
+                        helpState = HelpShowcaseItem(
+                                helpTitle = stringResource(R.string.help_view_scores__filters_round_title),
+                                helpBody = stringResource(R.string.help_view_scores__filters_round_body),
+                                priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                        ).asHelpState(helpShowcaseListener),
+                )
         ) {
             val text =
                     if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
@@ -532,7 +575,8 @@ private fun SubTypeFilter(
         roundFilter: Boolean,
         selectRoundDialogState: SelectRoundDialogState,
         onClear: () -> Unit,
-        onUpdate: (SelectRoundDialogIntent) -> Unit
+        onUpdate: (SelectRoundDialogIntent) -> Unit,
+        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val subtypesSize = selectRoundDialogState.selectedRound?.roundSubTypes?.size ?: 0
     if (!roundFilter || selectRoundDialogState.selectedRound == null || subtypesSize <= 1) return
@@ -544,6 +588,13 @@ private fun SubTypeFilter(
     FlowRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally),
+            modifier = Modifier.updateHelpDialogPosition(
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_scores__filters_round_title),
+                            helpBody = stringResource(R.string.help_view_scores__filters_round_body),
+                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                    ).asHelpState(helpShowcaseListener),
+            )
     ) {
         DataRow(
                 title = stringResource(R.string.create_round__round_sub_type),

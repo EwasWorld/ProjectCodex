@@ -11,7 +11,7 @@ data class HelpShowcaseState(
         val currentItem: HelpShowcaseItem? = null,
         val hasNextItem: Boolean = false,
         val startedButNoItems: Boolean = false,
-        val currentVisibleSize: Pair<Offset, Size>? = null,
+        val boundaries: Map<Int, Pair<Offset, Size>> = emptyMap(),
 )
 
 internal data class HelpShowcaseInternalState(
@@ -24,10 +24,9 @@ internal data class HelpShowcaseInternalState(
         val currentScreen: KClass<out ActionBarHelp> = CodexNavRoute.MAIN_MENU::class,
 
         /**
-         * Visible size of the current screen (used to decide whether a help item is visible on the screen).
-         * Null for no visibility checking
+         * Set of boundaries stored by ID (used to decide whether a help item is visible on the screen).
          */
-        val currentVisibleSize: Pair<Offset, Size>? = null,
+        val boundaries: Map<Int, Pair<Offset, Size>> = emptyMap(),
 
         /**
          * Total size of the screen (used to create overlay)
@@ -66,7 +65,7 @@ internal data class HelpShowcaseInternalState(
                 currentShowcase
                         .drop(seenItemCount)
                         .indexOfFirst { title ->
-                            helpInfoMap[title]?.firstVisible(screenSize, currentVisibleSize) != null
+                            helpInfoMap[title]?.firstVisible(screenSize, boundaries) != null
                         }
                         .takeIf { it != -1 }
                         ?.plus(seenItemCount)
@@ -77,7 +76,7 @@ internal data class HelpShowcaseInternalState(
             currentItem = currentItem,
             hasNextItem = nextItemIndex != null,
             startedButNoItems = startedButNoItems,
-            currentVisibleSize = currentVisibleSize,
+            boundaries = boundaries,
     )
 }
 

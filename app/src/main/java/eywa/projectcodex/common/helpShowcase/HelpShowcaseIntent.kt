@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 sealed class HelpShowcaseIntent {
     data class SetScreenSize(val size: Size) : HelpShowcaseIntent()
-    data class SetVisibleScreenSize(val offset: Offset, val size: Size) : HelpShowcaseIntent()
+    data class SetVisibleScreenSize(val id: Int, val boundary: Pair<Offset, Size>) : HelpShowcaseIntent()
     data class Add(val item: HelpShowcaseItem) : HelpShowcaseIntent()
 
     data class Remove(val key: String) : HelpShowcaseIntent()

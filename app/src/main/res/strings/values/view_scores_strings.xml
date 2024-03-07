@@ -119,8 +119,22 @@
 
     <string name="help_view_scores__filters_dialog_toggle_title">Filters</string>
     <string name="help_view_scores__filters_dialog_toggle_body">Filter the entries shown</string>
-    <string name="help_view_scores__filters_from_title">From</string>
-    <string name="help_view_scores__filters_from_body">Shows entries shot more recently than the given date</string>
-    <string name="help_view_scores__filters_until_title">Until</string>
-    <string name="help_view_scores__filters_until_body">Shows entries shot more before the given date</string>
+    <string name="help_view_scores__filters_clear_title">Clear filters</string>
+    <string name="help_view_scores__filters_clear_body">Filter the entries shown</string>
+    <string name="help_view_scores__filters_date_title">Date filter</string>
+    <string name="help_view_scores__filters_date_body">Filter entries to show only those shot within a given date range</string>
+    <string name="help_view_scores__filters_scores_title">Scores filter</string>
+    <string name="help_view_scores__filters_scores_body">Filter entries to show only those with a certain score (also filters out arrow counts)</string>
+    <string name="help_view_scores__filters_round_title">Round filter</string>
+    <string name="help_view_scores__filters_round_body">Filter entries to show only a certain round</string>
+    <string name="help_view_scores__filters_round_subtype_title">Sub Type filter</string>
+    <string name="help_view_scores__filters_round_subtype_body">Filter entries to show only a certain sub type within a round (leave blank to show all sub types for the selected round)</string>
+    <string name="help_view_scores__filters_personal_best_title">Personal best filter</string>
+    <string name="help_view_scores__filters_personal_best_body">Filter entries to show only personal best scores for each round</string>
+    <string name="help_view_scores__filters_complete_title">Complete rounds filter</string>
+    <string name="help_view_scores__filters_complete_body">Filter entries to show only completed rounds (rounds where the correct number of arrows have been shot)</string>
+    <string name="help_view_scores__filters_first_of_day_title">First of the day filter</string>
+    <string name="help_view_scores__filters_first_of_day_body">Filter entries to show only the first of each day</string>
+    <string name="help_view_scores__filters_type_title">Type filter</string>
+    <string name="help_view_scores__filters_type_body">Filter entries to show only arrow counts or only scores</string>
 </resources>

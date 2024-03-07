@@ -93,7 +93,7 @@ class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute
                 if (it.currentScreen == screen) return@update it
                 HelpShowcaseInternalState(
                         currentScreen = action.screen,
-                        currentVisibleSize = null,
+                        boundaries = emptyMap(),
                         screenSize = it.screenSize,
                 )
             }
@@ -101,7 +101,7 @@ class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute
             is SetScreenSize -> _state.update { it.copy(screenSize = action.size) }
             is SetVisibleScreenSize -> _state.update {
                 if (it.currentScreen != screen) return@update it
-                it.copy(currentVisibleSize = action.offset to action.size)
+                it.copy(boundaries = it.boundaries.plus(action.id to action.boundary))
             }
         }
     }

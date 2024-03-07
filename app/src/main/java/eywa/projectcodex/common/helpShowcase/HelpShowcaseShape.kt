@@ -3,7 +3,6 @@ package eywa.projectcodex.common.helpShowcase
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcaseNoShapeState
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcaseOvalState
@@ -19,27 +18,17 @@ enum class HelpShowcaseShape {
     OVAL {
         @Composable
         override fun asState(
-                visibleScreenSize: Pair<Offset, Size>?,
+                boundaries: Map<Int, Pair<Offset, Size>>,
                 item: HelpShowcaseItem,
                 hasNextItem: Boolean,
                 goToNextItemListener: () -> Unit,
                 endShowcaseListener: () -> Unit,
                 screenSize: Size,
         ): HelpShowcaseState? {
-            val coordinates = item.layoutCoordinates.entries
-                    .sortedBy { it.key }
-                    .map { it.value }
-                    .firstOrNull {
-                        if (!it.isAttached) return@firstOrNull false
-                        val screen = visibleScreenSize ?: (Offset.Zero to screenSize)
-
-                        val topLeft = it.positionInRoot()
-                        val (w, h) = it.size
-                        val bottomRight = topLeft.plus(Offset(w.toFloat(), h.toFloat()))
-
-                        topLeft in screen && bottomRight in screen
-                    }
-                    ?: return null
+            val coordinates = item.firstVisible(
+                    currentScreenSize = screenSize,
+                    boundaries = boundaries,
+            ) ?: return null
 
             return HelpShowcaseOvalState.from(
                     title = item.helpTitle,
@@ -58,7 +47,7 @@ enum class HelpShowcaseShape {
     NO_SHAPE {
         @Composable
         override fun asState(
-                visibleScreenSize: Pair<Offset, Size>?,
+                boundaries: Map<Int, Pair<Offset, Size>>,
                 item: HelpShowcaseItem,
                 hasNextItem: Boolean,
                 goToNextItemListener: () -> Unit,
@@ -80,7 +69,7 @@ enum class HelpShowcaseShape {
 
     @Composable
     abstract fun asState(
-            visibleScreenSize: Pair<Offset, Size>?,
+            boundaries: Map<Int, Pair<Offset, Size>>,
             item: HelpShowcaseItem,
             hasNextItem: Boolean,
             goToNextItemListener: () -> Unit,

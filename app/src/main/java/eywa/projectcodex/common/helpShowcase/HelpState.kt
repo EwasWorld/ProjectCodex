@@ -4,6 +4,7 @@ data class HelpState(
         val helpListener: (HelpShowcaseIntent) -> Unit,
         val helpShowcaseItem: HelpShowcaseItem,
 ) {
+    @Deprecated("Use HelpShowcaseItem.asHelpState")
     constructor(
             helpListener: (HelpShowcaseIntent) -> Unit,
             helpTitle: String,
@@ -12,3 +13,5 @@ data class HelpState(
 
     fun add() = helpListener(HelpShowcaseIntent.Add(helpShowcaseItem))
 }
+
+fun HelpShowcaseItem.asHelpState(helpListener: (HelpShowcaseIntent) -> Unit) = HelpState(helpListener, this)
