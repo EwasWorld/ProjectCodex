@@ -4,12 +4,14 @@ import eywa.projectcodex.common.sharedUi.UpdateCalendarInfo
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.RoundIntent
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import java.util.Calendar
 
 sealed class ViewScoresFiltersIntent {
     object OpenFilters : ViewScoresFiltersIntent()
     object CloseFilters : ViewScoresFiltersIntent()
     object ClearAllFilters : ViewScoresFiltersIntent()
+    data class SetUpdateRoundsState(val updateState: UpdateDefaultRoundsState) : ViewScoresFiltersIntent()
 
     data class UpdateFromFilter(val info: UpdateCalendarInfo) : ViewScoresFiltersIntent()
     object ClearFromFilter : ViewScoresFiltersIntent()
@@ -67,6 +69,8 @@ sealed class ViewScoresFiltersIntent {
                 roundFilter = false,
                 updateDefaultRoundsState = state.updateDefaultRoundsState,
         )
+
+        is SetUpdateRoundsState -> state.copy(updateDefaultRoundsState = updateState)
     }
 
     fun Calendar?.update(info: UpdateCalendarInfo, time: String): Calendar {

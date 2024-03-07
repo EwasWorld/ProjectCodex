@@ -11,9 +11,12 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersUseCase
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreIntent
+import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.datastore.CodexDatastore
@@ -35,9 +38,15 @@ class ViewScoresViewModel @Inject constructor(
         private val datastore: CodexDatastore,
         private val shootIdsUseCase: ShootIdsUseCase,
         private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
+        private val viewScoresFiltersUseCase: ViewScoresFiltersUseCase,
 ) : ViewModel() {
+    private val filtersRepoId = viewScoresFiltersUseCase.initialiseNew()
+    private val filtersState = viewScoresFiltersUseCase.getState(filtersRepoId)
+
     private var _state = MutableStateFlow(ViewScoresState())
-    val state = _state.asStateFlow()
+    val state = _state.combine(filtersState) { mainState, filtersState ->
+        mainState.copy(filtersState = filtersState ?: ViewScoresFiltersState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewScoresState())
 
     private val arrowScoresRepo = db.arrowScoresRepo()
     private val roundRepo = db.roundsRepo()
@@ -45,7 +54,8 @@ class ViewScoresViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            state.map { it.filters }
+            filtersState
+                    .map { it?.filters ?: Filters() }
                     .distinctUntilChanged()
                     .flatMapLatest { filters -> shootsRepo.getFullShootInfo(filters).map { it to filters } }
                     .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
@@ -71,25 +81,29 @@ class ViewScoresViewModel @Inject constructor(
         viewModelScope.launch {
             roundRepo.fullRoundsInfo.collect { data ->
                 val action = ViewScoresFiltersIntent.UpdateRoundsFilter(SelectRoundDialogIntent.SetRounds(data))
-                handle(FiltersAction(action))
+                viewScoresFiltersUseCase.handle(filtersRepoId, action)
             }
         }
         viewModelScope.launch {
             updateDefaultRoundsTask.state.collect { updateState ->
-                _state.update {
-                    it.filtersState.copy(updateDefaultRoundsState = updateState)
-                            .let { newState -> it.copy(filtersState = newState) }
-                }
+                viewScoresFiltersUseCase.handle(
+                        filtersRepoId,
+                        ViewScoresFiltersIntent.SetUpdateRoundsState(updateState)
+                )
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewScoresFiltersUseCase.clearState(filtersRepoId)
     }
 
     fun handle(action: ViewScoresIntent) {
         when (action) {
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.VIEW_SCORES::class)
             is MultiSelectAction -> handleMultiSelectIntent(action.action)
-            is FiltersAction ->
-                _state.update { it.copy(filtersState = action.action.handle(it.filtersState)) }
+            is FiltersAction -> viewScoresFiltersUseCase.handle(filtersRepoId, action.action)
 
             is EffectComplete -> handleEffectComplete(action)
             is ConvertScoreAction -> handleConvertScoreIntent(action.action)
@@ -173,7 +187,7 @@ class ViewScoresViewModel @Inject constructor(
     }
 
     private fun handleMultiSelectIntent(action: MultiSelectBarIntent) {
-        check(action is MultiSelectBarIntent.ClickOpen || state.value.isInMultiSelectMode) {
+        check(action is MultiSelectBarIntent.ClickOpen || _state.value.isInMultiSelectMode) {
             "Tried to invoke a multi-select action while not in multi-select mode"
         }
 
