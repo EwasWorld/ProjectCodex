@@ -60,6 +60,7 @@ data class CodexThemeColors(
         val dialogRadioButton: Color = CodexColors.COLOR_PRIMARY,
         val dialogPositiveText: Color = CodexColors.COLOR_PRIMARY,
         val dialogNegativeText: Color = Color.Black.copy(alpha = 0.55f),
+        val warningOnDialog: Color = CodexColors.ERROR_TEXT,
 
         val helpShowcaseScrim: Color = CodexColors.COLOR_PRIMARY_DARK.copy(alpha = 0.9f),
         val helpShowcaseTitle: Color = CodexColors.COLOR_LIGHT_ACCENT,

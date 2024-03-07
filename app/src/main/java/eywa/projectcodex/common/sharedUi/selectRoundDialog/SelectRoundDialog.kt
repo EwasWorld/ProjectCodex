@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,6 +47,7 @@ fun RoundsUpdatingWrapper(
         modifier: Modifier = Modifier,
         style: TextStyle = LocalTextStyle.current,
         errorText: String = stringResource(R.string.default_rounds_updating_warning),
+        errorTextColour: Color = CodexTheme.colors.warningOnAppBackground,
         spacing: Dp = 10.dp,
         content: @Composable () -> Unit,
 ) {
@@ -58,7 +60,7 @@ fun RoundsUpdatingWrapper(
             ProvideTextStyle(style) {
                 Text(
                         text = errorText,
-                        color = CodexTheme.colors.warningOnAppBackground,
+                        color = errorTextColour,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.testTag(NewScoreTestTag.DATABASE_WARNING.getTestTag())
                 )

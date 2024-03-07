@@ -16,7 +16,7 @@ import eywa.projectcodex.database.shootData.ShootFilter.ScoreRange
 import java.util.Calendar
 
 data class ViewScoresFiltersState(
-        val isExpanded: Boolean = false,
+        val shouldCloseDialog: Boolean = false,
         val fromDate: Calendar? = null,
         val untilDate: Calendar? = null,
         val minScore: NumberFieldState<Int> = NumberFieldState(

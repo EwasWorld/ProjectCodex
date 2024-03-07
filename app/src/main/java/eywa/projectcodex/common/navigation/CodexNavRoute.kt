@@ -31,6 +31,7 @@ import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsSc
 import eywa.projectcodex.components.shootDetails.stats.StatsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresBottomSheetFilters
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoresScreen
 import javax.inject.Singleton
 
@@ -280,6 +281,9 @@ enum class CodexNavRoute : NavRoute {
         }
     },
     VIEW_SCORES {
+        override val bottomSheets: List<BottomSheetNavRoute>
+            get() = listOf(ViewScoresBottomSheetFilters)
+
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.view_score__title)
 

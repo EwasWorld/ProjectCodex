@@ -1,10 +1,5 @@
 package eywa.projectcodex.components.viewScores.actionBar.filters
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +21,9 @@ import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -40,20 +38,23 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
+import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.UpdateCalendarInfo
 import eywa.projectcodex.common.sharedUi.codexDateSelector
@@ -82,18 +83,26 @@ import eywa.projectcodex.components.viewScores.screenUi.ViewScoreHelpPriority
 import java.util.Calendar
 
 
-@Composable
-private fun TextStyle.asCustomClickableStyle() = asClickableStyle().copy(color = CodexTheme.colors.appBackground)
+object ViewScoresBottomSheetFilters : BottomSheetNavRoute {
+    override val routeBase = "view_scores_filters"
 
-@Composable
-internal fun ViewScoresFilters(
-        state: ViewScoresFiltersState,
-        listener: (ViewScoresFiltersIntent) -> Unit,
-        helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
-) {
-    Column {
-        ExpandedFiltersPanel(state, listener, helpShowcaseListener)
-        CollapsedFiltersPanel(state, listener, helpShowcaseListener)
+    @Composable
+    override fun ColumnScope.SheetContent(navController: NavController) {
+        val viewModel: ViewScoresFiltersViewModel = hiltViewModel()
+
+        val state by viewModel.state.collectAsState()
+        ExpandedFiltersPanel(
+                state = state,
+                listener = { viewModel.handle(it) },
+                helpShowcaseListener = { /* TODO_CURRENT */ }
+        )
+
+        LaunchedEffect(state.shouldCloseDialog) {
+            if (state.shouldCloseDialog) {
+                navController.popBackStack()
+                viewModel.handle(ViewScoresFiltersIntent.CloseFiltersHandled)
+            }
+        }
     }
 }
 
@@ -103,19 +112,13 @@ private fun ExpandedFiltersPanel(
         listener: (ViewScoresFiltersIntent) -> Unit,
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    AnimatedVisibility(
-            visible = state.isExpanded,
-            enter = fadeIn() + expandIn(expandFrom = Alignment.BottomCenter),
-            exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter),
-    ) {
-        ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onFloatingActions)) {
-            Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(15.dp)
-            ) {
-                TitleBar(listener, helpShowcaseListener)
-                Filters(state, listener, helpShowcaseListener)
-            }
+    ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground)) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(15.dp)
+        ) {
+            TitleBar(listener, helpShowcaseListener)
+            Filters(state, listener, helpShowcaseListener)
         }
     }
 }
@@ -190,7 +193,7 @@ private fun Filters(
         DataRow(
                 title = stringResource(R.string.view_scores__filters_type_title),
                 text = state.typeFilter.label.get(),
-                textClickableStyle = LocalTextStyle.current.asCustomClickableStyle(),
+                textClickableStyle = LocalTextStyle.current.asClickableStyle(),
                 onClick = { listener(ViewScoresFiltersIntent.ClickTypeFilter) },
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_view_scores__filters_type_title),
@@ -212,7 +215,7 @@ private fun TitleBar(
         CodexIconInfo.VectorIcon(
                 imageVector = Icons.Default.FilterAltOff,
                 contentDescription = stringResource(R.string.view_scores__filters_clear_all),
-                tint = CodexTheme.colors.onFloatingActions,
+                tint = CodexTheme.colors.onDialogBackground,
         ).CodexIcon(
                 modifier = Modifier
                         .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
@@ -229,7 +232,7 @@ private fun TitleBar(
         Text(
                 text = stringResource(R.string.view_scores__filters_title),
                 style = CodexTypography.NORMAL,
-                color = CodexTheme.colors.onFloatingActions,
+                color = CodexTheme.colors.onDialogBackground,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.TopCenter)
         )
@@ -237,7 +240,7 @@ private fun TitleBar(
         CodexIconInfo.VectorIcon(
                 imageVector = Icons.Default.Close,
                 contentDescription = stringResource(R.string.view_scores__filters_close),
-                tint = CodexTheme.colors.onFloatingActions,
+                tint = CodexTheme.colors.onDialogBackground,
         ).CodexIcon(
                 modifier = Modifier
                         .clickable { listener(ViewScoresFiltersIntent.CloseFilters) }
@@ -247,42 +250,36 @@ private fun TitleBar(
 }
 
 @Composable
-private fun CollapsedFiltersPanel(
+fun CollapsedFiltersPanel(
         state: ViewScoresFiltersState,
-        listener: (ViewScoresFiltersIntent) -> Unit,
+        openFiltersListener: () -> Unit,
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    AnimatedVisibility(
-            visible = !state.isExpanded,
-            enter = fadeIn() + expandIn(expandFrom = Alignment.BottomCenter),
-            exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter),
+    Box(
+            contentAlignment = Alignment.BottomEnd,
     ) {
-        Box(
-                contentAlignment = Alignment.BottomEnd,
-        ) {
-            val semantics = pluralStringResource(
-                    R.plurals.view_scores__active_filters_indicator_semantics,
-                    state.activeFilterCount,
-                    state.activeFilterCount,
-            )
-            CodexIconButton(
-                    icon = CodexIconInfo.VectorIcon(
-                            imageVector = Icons.Default.FilterAlt,
-                            contentDescription = stringResource(R.string.view_scores__filters_dialog_toggle),
-                            modifier = Modifier.padding(vertical = 5.dp)
-                    ),
-                    helpState = HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_view_scores__filters_dialog_toggle_title),
-                            helpBody = stringResource(R.string.help_view_scores__filters_dialog_toggle_body),
-                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
-                    ).asHelpState(helpShowcaseListener),
-                    onClick = { listener(ViewScoresFiltersIntent.OpenFilters) },
-                    caption = state.activeFilterCount.toString(),
-                    captionModifier = Modifier.semantics { contentDescription = semantics },
-                    captionStyle = CodexTypography.SMALL,
-                    modifier = Modifier.semantics(true) {}
-            )
-        }
+        val semantics = pluralStringResource(
+                R.plurals.view_scores__active_filters_indicator_semantics,
+                state.activeFilterCount,
+                state.activeFilterCount,
+        )
+        CodexIconButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.FilterAlt,
+                        contentDescription = stringResource(R.string.view_scores__filters_dialog_toggle),
+                        modifier = Modifier.padding(vertical = 5.dp)
+                ),
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_view_scores__filters_dialog_toggle_title),
+                        helpBody = stringResource(R.string.help_view_scores__filters_dialog_toggle_body),
+                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                ).asHelpState(helpShowcaseListener),
+                onClick = openFiltersListener,
+                caption = state.activeFilterCount.toString(),
+                captionModifier = Modifier.semantics { contentDescription = semantics },
+                captionStyle = CodexTypography.SMALL,
+                modifier = Modifier.semantics(true) {}
+        )
     }
 }
 
@@ -297,7 +294,7 @@ private fun ToggleFilter(
     DataRow(
             title = title,
             text = if (isOn) textWhenOn else stringResource(R.string.view_scores__filters_no_filter),
-            textClickableStyle = LocalTextStyle.current.asCustomClickableStyle(),
+            textClickableStyle = LocalTextStyle.current.asClickableStyle(),
             onClick = onClick,
             helpState = helpState,
     )
@@ -345,7 +342,7 @@ private fun ColumnScope.DateFilters(
         Text(
                 text = stringResource(R.string.view_scores__filters_invalid_dates),
                 style = CodexTypography.SMALL,
-                color = CodexTheme.colors.warningOnAppBackground,
+                color = CodexTheme.colors.warningOnDialog,
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier
                         .padding(bottom = 5.dp)
@@ -362,7 +359,7 @@ private fun DateFilter(
         onUpdate: (UpdateCalendarInfo) -> Unit,
         onClear: () -> Unit,
 ) {
-    val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
+    val clickableStyle = LocalTextStyle.current.asClickableStyle()
     val datePicker = codexDateSelector(
             context = LocalContext.current,
             date = date ?: Calendar.getInstance(),
@@ -401,7 +398,7 @@ private fun DateFilter(
             if (!isValidDate) {
                 CodexIconInfo.VectorIcon(
                         imageVector = Icons.Default.WarningAmber,
-                        tint = CodexTheme.colors.warningOnAppBackground,
+                        tint = CodexTheme.colors.warningOnDialog,
                 ).CodexIcon(
                         modifier = Modifier
                                 .clearAndSetSemantics { }
@@ -463,7 +460,7 @@ private fun ColumnScope.ScoreFilters(
         Text(
                 text = error,
                 style = CodexTypography.SMALL,
-                color = CodexTheme.colors.warningOnAppBackground,
+                color = CodexTheme.colors.warningOnDialog,
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier
                         .padding(bottom = 5.dp)
@@ -497,6 +494,7 @@ private fun ScoreFilters(
             errorMessage = value.error,
             onValueChanged = onUpdate,
             trailingIcon = trailingIcon,
+            colors = CodexTextField.transparentOutlinedTextFieldColorsOnDialog(),
     )
 }
 
@@ -510,12 +508,13 @@ private fun RoundsFilter(
         onUpdate: (SelectRoundDialogIntent) -> Unit,
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
+    val clickableStyle = LocalTextStyle.current.asClickableStyle()
     val hasNoRounds = selectRoundDialogState.allRounds.isNullOrEmpty()
 
     RoundsUpdatingWrapper(
             state = updateDefaultRoundsState,
             style = CodexTypography.SMALL.copy(fontStyle = FontStyle.Italic),
+            errorTextColour = CodexTheme.colors.warningOnDialog,
             spacing = 3.dp,
     ) {
         FlowRow(
@@ -548,7 +547,7 @@ private fun RoundsFilter(
                 if (hasNoRounds) {
                     Text(
                             text = stringResource(R.string.create_round__no_rounds_found),
-                            color = CodexTheme.colors.warningOnAppBackground,
+                            color = CodexTheme.colors.warningOnDialog,
                             textAlign = TextAlign.Center,
                             style = CodexTypography.SMALL_PLUS,
                             fontStyle = FontStyle.Italic,
@@ -581,7 +580,7 @@ private fun SubTypeFilter(
     val subtypesSize = selectRoundDialogState.selectedRound?.roundSubTypes?.size ?: 0
     if (!roundFilter || selectRoundDialogState.selectedRound == null || subtypesSize <= 1) return
 
-    val clickableStyle = LocalTextStyle.current.asCustomClickableStyle()
+    val clickableStyle = LocalTextStyle.current.asClickableStyle()
     val subTypeName = selectRoundDialogState.selectedSubType?.name
             ?.takeIf { selectRoundDialogState.selectedSubTypeId != null }
 
@@ -644,21 +643,17 @@ private fun ClearIcon(
     )
 }
 
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
+@Preview(showBackground = true)
 @Composable
 fun ViewScoresFilters_Preview() {
     val validatorGroup = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.IsPositive)
 
     CodexTheme {
-        ViewScoresActionBar(
+        Box(
                 modifier = Modifier.padding(10.dp)
         ) {
-            ViewScoresFilters(
+            ExpandedFiltersPanel(
                     ViewScoresFiltersState(
-                            isExpanded = true,
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                             ),
@@ -680,19 +675,15 @@ fun ViewScoresFilters_Preview() {
     }
 }
 
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
+@Preview(showBackground = true)
 @Composable
 fun NoFiltersOn_ViewScoresFilters_Preview() {
     CodexTheme {
-        ViewScoresActionBar(
+        Box(
                 modifier = Modifier.padding(10.dp)
         ) {
-            ViewScoresFilters(
+            ExpandedFiltersPanel(
                     ViewScoresFiltersState(
-                            isExpanded = true,
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                             ),
@@ -705,19 +696,15 @@ fun NoFiltersOn_ViewScoresFilters_Preview() {
     }
 }
 
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
+@Preview(showBackground = true)
 @Composable
 fun RoundsUpdating_ViewScoresFilters_Preview() {
     CodexTheme {
-        ViewScoresActionBar(
+        Box(
                 modifier = Modifier.padding(10.dp)
         ) {
-            ViewScoresFilters(
+            ExpandedFiltersPanel(
                     ViewScoresFiltersState(
-                            isExpanded = true,
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                             ),
@@ -742,9 +729,8 @@ fun Collapsed_ViewScoresFilters_Preview() {
         ViewScoresActionBar(
                 modifier = Modifier.padding(10.dp)
         ) {
-            ViewScoresFilters(
+            CollapsedFiltersPanel(
                     ViewScoresFiltersState(
-                            isExpanded = false,
                             selectRoundDialogState = SelectRoundDialogState(
                                     allRounds = listOf(RoundPreviewHelper.outdoorImperialRoundData),
                             ),
@@ -752,7 +738,7 @@ fun Collapsed_ViewScoresFilters_Preview() {
                             roundFilter = true,
                             updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                     ),
-                    listener = {},
+                    openFiltersListener = {},
                     helpShowcaseListener = {},
             )
         }

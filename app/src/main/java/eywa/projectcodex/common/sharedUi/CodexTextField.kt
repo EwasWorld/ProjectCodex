@@ -238,4 +238,10 @@ object CodexTextField {
             errorBorderColor = CodexTheme.colors.errorOnAppBackground,
             errorLabelColor = CodexTheme.colors.errorOnAppBackground,
     )
+
+    @Composable
+    fun transparentOutlinedTextFieldColorsOnDialog() = transparentOutlinedTextFieldColors(
+            backgroundColor = Color.Transparent,
+            unfocussedColor = CodexTheme.colors.appBackground,
+    )
 }

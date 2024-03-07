@@ -28,6 +28,7 @@ data class ViewScoresState(
         val openEmailClicked: Boolean = false,
         val openEditInfoClicked: Boolean = false,
 
+        val openFiltersDialog: Boolean = false,
         val filtersState: ViewScoresFiltersState = ViewScoresFiltersState(),
 ) {
     val lastClickedEntry by lazy {
@@ -39,7 +40,7 @@ data class ViewScoresState(
     val filters = filtersState.filters
 
     val actionBarExtended
-        get() = isInMultiSelectMode || filtersState.isExpanded
+        get() = isInMultiSelectMode
 
     val isLoading: Boolean
         get() = rawData == null || (rawData.first.isEmpty() && filters.size == 0 && rawData.second != filters)

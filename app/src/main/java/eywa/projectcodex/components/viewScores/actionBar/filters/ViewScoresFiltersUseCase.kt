@@ -19,7 +19,7 @@ typealias Id = Int
 class ViewScoresFiltersUseCase {
     private val state = MutableStateFlow(emptyMap<Id, ViewScoresFiltersState>())
 
-    fun getState(id: Id) = state.map { it[id] }
+    fun getState(id: Id) = state.map { it[id] ?: ViewScoresFiltersState() }
 
     fun clearState(id: Id) {
         state.update { it.minus(id) }

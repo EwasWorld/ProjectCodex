@@ -26,6 +26,7 @@ fun <T> SavedStateHandle.get(argument: NavArgument): T? {
 enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     SHOOT_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     SIGHT_MARK_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
+    FILTERS_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG)
     ;
 
     fun toArgName() = Regex("_[a-z]").replace(name.lowercase()) { it.value.drop(1).uppercase() }

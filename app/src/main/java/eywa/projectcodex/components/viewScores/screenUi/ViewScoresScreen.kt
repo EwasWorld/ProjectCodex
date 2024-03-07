@@ -27,7 +27,6 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +41,6 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.LoadingScreen
 import eywa.projectcodex.common.sharedUi.SetOfDialogs
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -56,7 +54,7 @@ import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.ViewScoresState
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
-import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFilters
+import eywa.projectcodex.components.viewScores.actionBar.filters.CollapsedFiltersPanel
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBar
@@ -82,18 +80,16 @@ fun ViewScoresScreen(
     ViewScoresScreen(state, listener)
 
     val context = LocalContext.current
-    LaunchedEffect(state) { handleEffects(state, navController, context, listener) }
+    LaunchedEffect(state) { handleEffects(state, viewModel.filtersRepoId, navController, context, listener) }
 
     BackHandler(state.isInMultiSelectMode) {
         viewModel.handle(MultiSelectAction(MultiSelectBarIntent.ClickClose))
-    }
-    BackHandler(state.filtersState.isExpanded) {
-        viewModel.handle(FiltersAction(ViewScoresFiltersIntent.CloseFilters))
     }
 }
 
 private fun handleEffects(
         state: ViewScoresState,
+        filtersId: Int,
         navController: NavController,
         context: Context,
         listener: (ViewScoresIntent) -> Unit,
@@ -166,6 +162,14 @@ private fun handleEffects(
         navController.popBackStack()
         listener(HandledNoRoundsDialogOkClicked)
     }
+
+//    if (state.openFiltersDialog) {
+//        ViewScoresBottomSheetFilters.navigate(
+//                navController,
+//                mapOf(NavArgument.FILTERS_ID to filtersId),
+//        )
+//        listener(HandledOpenFilters)
+//    }
 }
 
 @Composable
@@ -213,7 +217,6 @@ fun ViewScoresScreen(
                     modifier = Modifier
                             .testTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag())
                             .align(Alignment.TopCenter)
-                            .modifierIf(state.filtersState.isExpanded, Modifier.clearAndSetSemantics { })
             ) {
                 items(state.data.size) { entryIndex ->
                     val entry = state.data[entryIndex]
@@ -293,10 +296,10 @@ fun ViewScoresScreen(
                             )
                         }
 
-                        AnimatedVisibility(state.filtersState.isExpanded || !state.actionBarExtended) {
-                            ViewScoresFilters(
+                        AnimatedVisibility(!state.actionBarExtended) {
+                            CollapsedFiltersPanel(
                                     state = state.filtersState,
-                                    listener = { listener(FiltersAction(it)) },
+                                    openFiltersListener = { listener(OpenFilters) },
                                     helpShowcaseListener = { listener(HelpShowcaseAction(it)) },
                             )
                         }
@@ -414,7 +417,7 @@ fun Filters_ViewScoresScreen_Preview() {
                         rawData = ViewScoresEntryPreviewProvider
                                 .generateEntries(20)
                                 .setPersonalBests(listOf(3, 6)) to Filters(),
-                        filtersState = ViewScoresFiltersState(isExpanded = true),
+                        filtersState = ViewScoresFiltersState(),
                 ),
                 listener = {},
         )
@@ -452,10 +455,7 @@ fun NoEntriesWithFilter_ViewScoresScreen_Preview() {
             ViewScoresScreen(
                     state = ViewScoresState(
                             rawData = listOf<ViewScoresEntry>() to Filters(),
-                            filtersState = ViewScoresFiltersState(
-                                    isExpanded = false,
-                                    firstRoundOfDayFilter = true,
-                            )
+                            filtersState = ViewScoresFiltersState(firstRoundOfDayFilter = true)
                     ),
                     listener = {},
             )

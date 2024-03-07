@@ -8,8 +8,8 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsSta
 import java.util.Calendar
 
 sealed class ViewScoresFiltersIntent {
-    object OpenFilters : ViewScoresFiltersIntent()
     object CloseFilters : ViewScoresFiltersIntent()
+    object CloseFiltersHandled : ViewScoresFiltersIntent()
     object ClearAllFilters : ViewScoresFiltersIntent()
     data class SetUpdateRoundsState(val updateState: UpdateDefaultRoundsState) : ViewScoresFiltersIntent()
 
@@ -35,8 +35,8 @@ sealed class ViewScoresFiltersIntent {
     object ClickCompleteFilter : ViewScoresFiltersIntent()
 
     fun handle(state: ViewScoresFiltersState): ViewScoresFiltersState = when (this) {
-        OpenFilters -> state.copy(isExpanded = true)
-        CloseFilters -> state.copy(isExpanded = false)
+        CloseFilters -> state.copy(shouldCloseDialog = true)
+        CloseFiltersHandled -> state.copy(shouldCloseDialog = false)
         ClearFromFilter -> state.copy(fromDate = null)
         ClearUntilFilter -> state.copy(untilDate = null)
         ClearRoundsFilter -> state.copy(roundFilter = false)
@@ -64,7 +64,6 @@ sealed class ViewScoresFiltersIntent {
         is UpdateScoreMaxFilter -> state.copy(maxScore = state.maxScore.onTextChanged(value))
         is UpdateScoreMinFilter -> state.copy(minScore = state.minScore.onTextChanged(value))
         ClearAllFilters -> ViewScoresFiltersState(
-                isExpanded = state.isExpanded,
                 selectRoundDialogState = state.selectRoundDialogState,
                 roundFilter = false,
                 updateDefaultRoundsState = state.updateDefaultRoundsState,

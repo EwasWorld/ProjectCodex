@@ -40,7 +40,7 @@ class ViewScoresViewModel @Inject constructor(
         private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
         private val viewScoresFiltersUseCase: ViewScoresFiltersUseCase,
 ) : ViewModel() {
-    private val filtersRepoId = viewScoresFiltersUseCase.initialiseNew()
+    val filtersRepoId = viewScoresFiltersUseCase.initialiseNew()
     private val filtersState = viewScoresFiltersUseCase.getState(filtersRepoId)
 
     private var _state = MutableStateFlow(ViewScoresState())
@@ -149,6 +149,9 @@ class ViewScoresViewModel @Inject constructor(
                     viewModelScope.launch { shootsRepo.deleteRound(id) }
                 }
             }
+
+            OpenFilters -> _state.update { it.copy(openFiltersDialog = true) }
+            HandledOpenFilters -> _state.update { it.copy(openFiltersDialog = false) }
         }
     }
 

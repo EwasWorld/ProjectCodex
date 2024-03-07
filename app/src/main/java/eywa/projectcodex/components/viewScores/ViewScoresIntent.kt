@@ -12,8 +12,11 @@ sealed class ViewScoresIntent {
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ViewScoresIntent()
     data class MultiSelectAction(val action: MultiSelectBarIntent) : ViewScoresIntent()
-    data class FiltersAction(val action: ViewScoresFiltersIntent) : ViewScoresIntent()
     data class ConvertScoreAction(val action: ConvertScoreIntent) : ViewScoresIntent()
+
+    data class FiltersAction(val action: ViewScoresFiltersIntent) : ViewScoresIntent()
+    object OpenFilters : ViewScoresIntent()
+    object HandledOpenFilters : ViewScoresIntent()
 
     data class DropdownMenuClicked(val item: ViewScoresDropdownMenuItem, val shootId: Int) : ViewScoresIntent()
     object DropdownMenuClosed : ViewScoresIntent()
