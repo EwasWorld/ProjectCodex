@@ -5,10 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 import eywa.projectcodex.common.sharedUi.CodexTabSwitcher
 
-interface ScreenNavRoute : NavRoute, ActionBarHelp {
+interface ScreenNavRoute : NavRoute {
     val tabSwitcherItem: TabSwitcherItem?
     val bottomSheets: List<BottomSheetNavRoute>?
 

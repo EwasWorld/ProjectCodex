@@ -6,8 +6,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import eywa.projectcodex.common.helpShowcase.ActionBarHelp
 
-interface NavRoute {
+interface NavRoute : ActionBarHelp {
     val routeBase: String
 
     /**

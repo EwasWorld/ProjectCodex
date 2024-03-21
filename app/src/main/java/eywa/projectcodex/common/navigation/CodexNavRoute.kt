@@ -300,7 +300,9 @@ enum class CodexNavRoute : ScreenNavRoute {
     override val bottomSheets: List<BottomSheetNavRoute>? = null
 
     companion object {
-        private val baseRouteMapping = values().associateBy { it.routeBase }
+        private val baseRouteMapping = values()
+                .flatMap { it.bottomSheets.orEmpty().plus(it) }
+                .associateBy { it.routeBase }
 
         fun fromBackStackEntry(entry: NavBackStackEntry?) = entry?.destination
                 ?.route?.takeWhile { it != '/' && it != '?' }
