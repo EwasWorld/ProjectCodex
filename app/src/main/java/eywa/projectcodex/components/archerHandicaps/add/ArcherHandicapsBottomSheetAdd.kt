@@ -16,9 +16,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.BottomSheetNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.CodexDateTimeSelectorRow
@@ -34,7 +36,12 @@ import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsAddIntent
 import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsAddIntent.SubmitPressed
 
 object ArcherHandicapsBottomSheetAdd : BottomSheetNavRoute {
-    override val routeBase = "archer_handicap_add"
+    override val sheetRouteBase = "archer_handicap_add"
+
+    override val args: Map<NavArgument, Boolean> = emptyMap()
+
+    @Composable override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+            stringResource(R.string.archer_info__title)
 
     @Composable
     override fun ColumnScope.SheetContent(navController: NavController) {
@@ -63,7 +70,9 @@ private fun AddHandicapBottomSheetContent(
     ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground)) {
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = CodexTheme.dimens.cornerRounding)
         ) {
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,

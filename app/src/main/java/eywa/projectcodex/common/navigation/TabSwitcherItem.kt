@@ -6,7 +6,7 @@ import eywa.projectcodex.common.utils.ResOrActual
 class TabSwitcherItem(
         override val label: ResOrActual<String>,
         val group: TabSwitcherGroup,
-        val navRoute: NavRoute,
+        val navRoute: ScreenNavRoute,
         val position: Int,
 ) : NamedItem
 

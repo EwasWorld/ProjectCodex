@@ -52,7 +52,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.ui.HelpShowcase
 import eywa.projectcodex.common.navigation.CodexNavHost
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.NavRoute
+import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
     lateinit var shootDetailsRepo: ShootDetailsRepo
 
     @Inject
-    lateinit var navRoutes: Set<@JvmSuppressWildcards NavRoute>
+    lateinit var navRoutes: Set<@JvmSuppressWildcards ScreenNavRoute>
 
     @OptIn(ExperimentalMaterialNavigationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {

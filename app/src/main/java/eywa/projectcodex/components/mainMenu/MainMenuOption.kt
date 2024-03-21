@@ -10,7 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.NavRoute
+import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 interface MainMenuOption {
     val buttonTitle: ResOrActual<String>?
-    val navRoute: NavRoute
+    val navRoute: ScreenNavRoute
     val helpTitle: ResOrActual<String>
     val helpBody: ResOrActual<String>
     val testTag: CodexTestTag
@@ -29,7 +29,7 @@ interface MainMenuOption {
 
 enum class MainMenuDefaultOptions(
         override val buttonTitle: ResOrActual<String>? = null,
-        override val navRoute: NavRoute,
+        override val navRoute: ScreenNavRoute,
         override val helpTitle: ResOrActual<String>,
         override val helpBody: ResOrActual<String>,
         override val testTag: CodexTestTag,

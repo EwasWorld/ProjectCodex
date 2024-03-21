@@ -9,7 +9,7 @@ import eywa.projectcodex.common.utils.ListUtils.getDuplicates
 
 @Composable
 fun CodexNavHost(
-        navRoutes: Set<NavRoute>,
+        navRoutes: Set<ScreenNavRoute>,
         navHostController: NavHostController,
         modifier: Modifier = Modifier,
 ) {

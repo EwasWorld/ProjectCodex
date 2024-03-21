@@ -1,28 +1,23 @@
 package eywa.projectcodex.common.navigation
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
-import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import eywa.projectcodex.common.helpShowcase.ActionBarHelp
-import eywa.projectcodex.common.sharedUi.CodexTabSwitcher
 
-interface NavRoute : ActionBarHelp {
+interface NavRoute {
     val routeBase: String
+
+    /**
+     * true if arg is required,
+     * false if it's optional
+     */
     val args: Map<NavArgument, Boolean>
-    val tabSwitcherItem: TabSwitcherItem?
-    val bottomSheets: List<BottomSheetNavRoute>?
 
     @Composable
     fun getMenuBarTitle(entry: NavBackStackEntry?): String
-
-    @Composable
-    fun Screen(navController: NavController)
 
     fun navigate(
             navController: NavController,
@@ -48,54 +43,7 @@ interface NavRoute : ActionBarHelp {
         }
     }
 
-    fun create(
-            navGraphBuilder: NavGraphBuilder,
-            navController: NavController,
-            tabSwitcherItems: List<TabSwitcherItem>?,
-    ) {
-        navGraphBuilder.composable(
-                route = asRoute(null),
-                arguments = args.map { (arg, required) ->
-                    navArgument(arg.toArgName()) {
-                        nullable = !required && arg.type == NavType.StringType
-                        arg.defaultValue?.let {
-                            defaultValue = it
-                        }
-                        type = arg.type
-                    }
-                },
-        ) {
-            Column {
-                if (!tabSwitcherItems.isNullOrEmpty()) {
-                    val shouldSaveState = tabSwitcherItems.first().group.saveState
-                    CodexTabSwitcher(
-                            items = tabSwitcherItems,
-                            selectedItem = tabSwitcherItem!!,
-                            itemClickedListener = { item ->
-                                item.navRoute.navigate(navController) {
-                                    val currentRoute = navController.currentDestination?.route
-                                    if (currentRoute != null) {
-                                        popUpTo(currentRoute) {
-                                            inclusive = true
-                                            if (shouldSaveState) saveState = true
-                                        }
-                                    }
-                                    if (shouldSaveState) {
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
-                            },
-                    )
-                }
-                Screen(navController = navController)
-            }
-        }
-
-        bottomSheets?.forEach { it.create(navGraphBuilder, navController) }
-    }
-
-    private fun asRoute(argValues: Map<NavArgument, String>? = null): String {
+    fun asRoute(argValues: Map<NavArgument, String>? = null): String {
         val (req, opt) = args.entries.partition { it.value }
 
         fun NavArgument.asNameAndValue() = Pair(
@@ -119,5 +67,15 @@ interface NavRoute : ActionBarHelp {
                 ?.let { "?$it" }
                 ?: ""
         return routeBase + required + optional
+    }
+
+    fun navGraphBuilderArgs() = args.map { (arg, required) ->
+        navArgument(arg.toArgName()) {
+            nullable = !required && arg.type == NavType.StringType
+            arg.defaultValue?.let {
+                defaultValue = it
+            }
+            type = arg.type
+        }
     }
 }

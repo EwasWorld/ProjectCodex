@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
@@ -52,6 +53,7 @@ import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.BottomSheetNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.CodexTextField
@@ -84,7 +86,13 @@ import java.util.Calendar
 
 
 object ViewScoresBottomSheetFilters : BottomSheetNavRoute {
-    override val routeBase = "view_scores_filters"
+    override val sheetRouteBase = "view_scores_filters"
+
+    override val args: Map<NavArgument, Boolean>
+        get() = mapOf(NavArgument.FILTERS_ID to true)
+
+    @Composable override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+            stringResource(R.string.view_score__title)
 
     @Composable
     override fun ColumnScope.SheetContent(navController: NavController) {
@@ -115,7 +123,7 @@ private fun ExpandedFiltersPanel(
     ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground)) {
         Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(15.dp)
+                modifier = Modifier.padding(25.dp)
         ) {
             TitleBar(listener, helpShowcaseListener)
             Filters(state, listener, helpShowcaseListener)

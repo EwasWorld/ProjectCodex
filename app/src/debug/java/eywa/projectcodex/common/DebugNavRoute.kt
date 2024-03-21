@@ -12,11 +12,11 @@ import eywa.projectcodex.coaching.CoachingCrossHairTestScreen
 import eywa.projectcodex.coaching.CoachingScreen
 import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.navigation.NavRoute
+import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.navigation.TabSwitcherItem
 import javax.inject.Singleton
 
-enum class DebugNavRoute : NavRoute {
+enum class DebugNavRoute : ScreenNavRoute {
     COACHING {
 //        override val tabSwitcherItem = TabSwitcherItem(
 //                label = ResOrActual.Actual("Video"),
@@ -59,5 +59,5 @@ class DebugNavRouteModule {
     @Singleton
     @Provides
     @ElementsIntoSet
-    fun providesLocalNavRoute(): Set<NavRoute> = DebugNavRoute.values().toSet()
+    fun providesLocalNavRoute(): Set<ScreenNavRoute> = DebugNavRoute.values().toSet()
 }

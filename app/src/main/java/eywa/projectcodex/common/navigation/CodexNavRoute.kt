@@ -36,7 +36,7 @@ import eywa.projectcodex.components.viewScores.screenUi.ViewScoresScreen
 import javax.inject.Singleton
 
 
-enum class CodexNavRoute : NavRoute {
+enum class CodexNavRoute : ScreenNavRoute {
     ABOUT {
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.about__title)
@@ -314,5 +314,5 @@ class CodexNavRouteModule {
     @Singleton
     @Provides
     @ElementsIntoSet
-    fun providesCodexNavRoutes(): Set<NavRoute> = CodexNavRoute.values().toSet()
+    fun providesCodexNavRoutes(): Set<ScreenNavRoute> = CodexNavRoute.values().toSet()
 }

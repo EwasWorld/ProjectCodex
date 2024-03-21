@@ -5,7 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
-import eywa.projectcodex.common.navigation.NavRoute
+import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 enum class DebugMainMenuOptions(
         override val buttonTitle: ResOrActual<String>? = null,
-        override val navRoute: NavRoute,
+        override val navRoute: ScreenNavRoute,
         override val helpTitle: ResOrActual<String>,
         override val helpBody: ResOrActual<String>,
         override val icon: CodexIconInfo? = null,

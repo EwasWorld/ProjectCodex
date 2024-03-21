@@ -55,6 +55,7 @@ import eywa.projectcodex.components.viewScores.ViewScoresState
 import eywa.projectcodex.components.viewScores.ViewScoresViewModel
 import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
 import eywa.projectcodex.components.viewScores.actionBar.filters.CollapsedFiltersPanel
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresBottomSheetFilters
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBar
@@ -163,13 +164,13 @@ private fun handleEffects(
         listener(HandledNoRoundsDialogOkClicked)
     }
 
-//    if (state.openFiltersDialog) {
-//        ViewScoresBottomSheetFilters.navigate(
-//                navController,
-//                mapOf(NavArgument.FILTERS_ID to filtersId),
-//        )
-//        listener(HandledOpenFilters)
-//    }
+    if (state.openFiltersDialog) {
+        ViewScoresBottomSheetFilters.navigate(
+                navController,
+                mapOf(NavArgument.FILTERS_ID to filtersId.toString()),
+        )
+        listener(HandledOpenFilters)
+    }
 }
 
 @Composable

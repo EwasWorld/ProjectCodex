@@ -7,11 +7,11 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.navigation.NavRoute
+import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.navigation.TabSwitcherItem
 import javax.inject.Singleton
 
-enum class LocalNavRoute : NavRoute {
+enum class LocalNavRoute : ScreenNavRoute {
     ;
 
     override val routeBase = "local_" + name.lowercase()
@@ -26,5 +26,5 @@ class LocalNavRouteModule {
     @Singleton
     @Provides
     @ElementsIntoSet
-    fun providesLocalNavRoute(): Set<NavRoute> = LocalNavRoute.values().toSet()
+    fun providesLocalNavRoute(): Set<ScreenNavRoute> = LocalNavRoute.values().toSet()
 }
