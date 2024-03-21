@@ -17,7 +17,6 @@ class ViewScoresFiltersViewModel @Inject constructor(
 ) : ViewModel() {
     private val id = savedStateHandle.get<Int>(NavArgument.FILTERS_ID)!!
 
-    // TODO Check the rounds/update-state will update while this dialog is open
     val state = viewScoresFiltersUseCase.getState(id)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewScoresFiltersState())
 

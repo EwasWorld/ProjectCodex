@@ -39,9 +39,9 @@ class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute
         }
     }
 
-    fun startShowcase(screen: ActionBarHelp?) {
+    fun startShowcase(screen: KClass<out ActionBarHelp>?) {
         _state.update {
-            if (screen == null || screen::class != it.currentScreen || it.helpInfoMap.isEmpty()) {
+            if (screen == null || screen != it.currentScreen || it.helpInfoMap.isEmpty()) {
                 return@update it.copy(startedButNoItems = true)
             }
 

@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.sharedUi.selectRoundDialog
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,7 +45,8 @@ import kotlin.math.roundToInt
 @Composable
 fun RoundsUpdatingWrapper(
         state: UpdateDefaultRoundsState,
-        modifier: Modifier = Modifier,
+        @SuppressLint("ModifierParameter") // Not being used as the top-level modifier
+        warningModifier: Modifier = Modifier,
         style: TextStyle = LocalTextStyle.current,
         errorText: String = stringResource(R.string.default_rounds_updating_warning),
         errorTextColour: Color = CodexTheme.colors.warningOnAppBackground,
@@ -55,7 +57,7 @@ fun RoundsUpdatingWrapper(
         Column(
                 verticalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier
+                modifier = warningModifier
         ) {
             ProvideTextStyle(style) {
                 Text(

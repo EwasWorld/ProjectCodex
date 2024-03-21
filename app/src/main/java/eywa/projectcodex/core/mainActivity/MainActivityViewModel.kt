@@ -43,7 +43,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun handle(action: MainActivityIntent) {
         when (action) {
-            is StartHelpShowcase -> helpShowcase.startShowcase(action.screen)
+            is StartHelpShowcase -> helpShowcase.startShowcase(action.screen?.let { it::class })
             GoToNextHelpShowcaseItem -> helpShowcase.nextShowcase()
             CloseHelpShowcase -> helpShowcase.endShowcase()
             ClearNoHelpShowcaseFlag -> helpShowcase.clearNoShowcaseFlag()

@@ -106,7 +106,7 @@ fun ClassificationTablesScreen(
             ) {
                 RoundsUpdatingWrapper(
                         state = state.updateDefaultRoundsState,
-                        modifier = Modifier.padding(10.dp)
+                        warningModifier = Modifier.padding(10.dp)
                 ) {
                     Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp),

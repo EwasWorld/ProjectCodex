@@ -32,4 +32,8 @@ object CodexTheme {
     val dimens: CodexDimens
         @Composable
         get() = LocalCodexThemeDimens.current
+
+    val icons: CodexIcons
+        @Composable
+        get() = LocalCodexThemeIcons.current
 }

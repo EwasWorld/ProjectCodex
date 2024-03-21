@@ -18,6 +18,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -94,8 +96,11 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = CodexNavRoute.fromBackStackEntry(currentEntry)
 
                 LaunchedEffect(currentRoute) {
-                    currentRoute?.let {
-                        viewModel.helpShowcase.handle(HelpShowcaseIntent.SetScreen(it::class), it::class)
+                    if (currentRoute != null && currentRoute is ScreenNavRoute) {
+                        viewModel.helpShowcase.handle(
+                                action = HelpShowcaseIntent.SetScreen(currentRoute::class),
+                                screen = currentRoute::class,
+                        )
                     }
                 }
 
@@ -159,16 +164,16 @@ class MainActivity : ComponentActivity() {
                 backgroundColor = CodexTheme.colors.appBackground,
                 actions = {
                     CodexIconButton(
-                            icon = CodexIconInfo.PainterIcon(
-                                    drawable = R.drawable.ic_help_icon,
+                            icon = CodexIconInfo.VectorIcon(
+                                    imageVector = CodexTheme.icons.helpInfo,
                                     contentDescription = stringResource(R.string.action_bar__help),
                             ),
                             modifier = Modifier.testTag(MainActivityTestTag.HELP_ICON.getTestTag())
                     ) { viewModel.handle(StartHelpShowcase(currentRoute)) }
 
                     CodexIconButton(
-                            icon = CodexIconInfo.PainterIcon(
-                                    drawable = R.drawable.ic_home_icon,
+                            icon = CodexIconInfo.VectorIcon(
+                                    imageVector = Icons.Default.Home,
                                     contentDescription = stringResource(R.string.action_bar__home),
                             ),
                             modifier = Modifier.testTag(MainActivityTestTag.HOME_ICON.getTestTag())

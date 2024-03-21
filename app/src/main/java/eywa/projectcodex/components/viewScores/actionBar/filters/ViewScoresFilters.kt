@@ -99,10 +99,14 @@ object ViewScoresBottomSheetFilters : BottomSheetNavRoute {
         val viewModel: ViewScoresFiltersViewModel = hiltViewModel()
 
         val state by viewModel.state.collectAsState()
+        val listener = { it: ViewScoresFiltersIntent -> viewModel.handle(it) }
         ExpandedFiltersPanel(
                 state = state,
-                listener = { viewModel.handle(it) },
-                helpShowcaseListener = { /* TODO_CURRENT */ }
+                listener = listener,
+                helpShowcaseListener = {
+                    // TODO_CURRENT Fix
+//                    listener(ViewScoresFiltersIntent.HelpShowcaseAction(it, ViewScoresBottomSheetFilters::class))
+                }
         )
 
         LaunchedEffect(state.shouldCloseDialog) {
@@ -172,7 +176,7 @@ private fun Filters(
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_view_scores__filters_personal_best_title),
                         helpBody = stringResource(R.string.help_view_scores__filters_personal_best_body),
-                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                        priority = ViewScoresFiltersHelpPriority.AFTER_ROUNDS.ordinal,
                 ).asHelpState(helpShowcaseListener),
         )
         ToggleFilter(
@@ -183,7 +187,7 @@ private fun Filters(
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_view_scores__filters_complete_title),
                         helpBody = stringResource(R.string.help_view_scores__filters_complete_body),
-                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                        priority = ViewScoresFiltersHelpPriority.AFTER_ROUNDS.ordinal,
                 ).asHelpState(helpShowcaseListener),
         )
         ToggleFilter(
@@ -194,7 +198,7 @@ private fun Filters(
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_view_scores__filters_first_of_day_title),
                         helpBody = stringResource(R.string.help_view_scores__filters_first_of_day_body),
-                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                        priority = ViewScoresFiltersHelpPriority.AFTER_ROUNDS.ordinal,
                 ).asHelpState(helpShowcaseListener),
         )
 
@@ -206,7 +210,7 @@ private fun Filters(
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_view_scores__filters_type_title),
                         helpBody = stringResource(R.string.help_view_scores__filters_type_body),
-                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                        priority = ViewScoresFiltersHelpPriority.AFTER_ROUNDS.ordinal,
                 ).asHelpState(helpShowcaseListener),
         )
     }
@@ -220,22 +224,35 @@ private fun TitleBar(
     Box(
             modifier = Modifier.fillMaxWidth()
     ) {
-        CodexIconInfo.VectorIcon(
-                imageVector = Icons.Default.FilterAltOff,
-                contentDescription = stringResource(R.string.view_scores__filters_clear_all),
-                tint = CodexTheme.colors.onDialogBackground,
-        ).CodexIcon(
-                modifier = Modifier
-                        .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
-                        .align(Alignment.TopStart)
-                        .updateHelpDialogPosition(
-                                HelpShowcaseItem(
-                                        helpTitle = stringResource(R.string.help_view_scores__filters_clear_title),
-                                        helpBody = stringResource(R.string.help_view_scores__filters_clear_body),
-                                        priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
-                                ).asHelpState(helpShowcaseListener)
-                        )
-        )
+        Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.align(Alignment.TopStart)
+        ) {
+            CodexIconInfo.VectorIcon(
+                    imageVector = Icons.Default.FilterAltOff,
+                    contentDescription = stringResource(R.string.view_scores__filters_clear_all),
+                    tint = CodexTheme.colors.onDialogBackground,
+            ).CodexIcon(
+                    modifier = Modifier
+                            .clickable { listener(ViewScoresFiltersIntent.ClearAllFilters) }
+                            .updateHelpDialogPosition(
+                                    HelpShowcaseItem(
+                                            helpTitle = stringResource(R.string.help_view_scores__filters_clear_title),
+                                            helpBody = stringResource(R.string.help_view_scores__filters_clear_body),
+                                            priority = ViewScoresFiltersHelpPriority.BEFORE_ROUNDS.ordinal,
+                                    ).asHelpState(helpShowcaseListener)
+                            )
+            )
+
+            // TODO_CURRENT Add help
+//            CodexIconInfo.VectorIcon(
+//                    imageVector = CodexTheme.icons.helpInfo,
+//                    contentDescription = stringResource(R.string.view_scores__filters_help),
+//                    tint = CodexTheme.colors.onDialogBackground,
+//            ).CodexIcon(
+//                    modifier = Modifier.clickable { listener(ViewScoresFiltersIntent.StartHelpShowcase) }
+//            )
+        }
 
         Text(
                 text = stringResource(R.string.view_scores__filters_title),
@@ -322,7 +339,7 @@ private fun ColumnScope.DateFilters(
                     HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_view_scores__filters_date_title),
                             helpBody = stringResource(R.string.help_view_scores__filters_date_body),
-                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                            priority = ViewScoresFiltersHelpPriority.BEFORE_ROUNDS.ordinal,
                     ).asHelpState(helpShowcaseListener),
             )
     ) {
@@ -433,7 +450,7 @@ private fun ColumnScope.ScoreFilters(
                     helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_view_scores__filters_scores_title),
                             helpBody = stringResource(R.string.help_view_scores__filters_scores_body),
-                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                            priority = ViewScoresFiltersHelpPriority.BEFORE_ROUNDS.ordinal,
                     ).asHelpState(helpShowcaseListener),
             )
     ) {
@@ -532,9 +549,9 @@ private fun RoundsFilter(
                         helpState = HelpShowcaseItem(
                                 helpTitle = stringResource(R.string.help_view_scores__filters_round_title),
                                 helpBody = stringResource(R.string.help_view_scores__filters_round_body),
-                                priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                                priority = ViewScoresFiltersHelpPriority.ROUNDS.ordinal,
                         ).asHelpState(helpShowcaseListener),
-                )
+                ),
         ) {
             val text =
                     if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
@@ -599,7 +616,7 @@ private fun SubTypeFilter(
                     helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_view_scores__filters_round_title),
                             helpBody = stringResource(R.string.help_view_scores__filters_round_body),
-                            priority = ViewScoreHelpPriority.ACTION_BAR.ordinal,
+                            priority = ViewScoresFiltersHelpPriority.ROUNDS.ordinal,
                     ).asHelpState(helpShowcaseListener),
             )
     ) {
@@ -634,6 +651,8 @@ enum class ViewScoresFiltersTestTag : CodexTestTag {
 
     override fun getElement(): String = name
 }
+
+enum class ViewScoresFiltersHelpPriority { BEFORE_ROUNDS, ROUNDS, AFTER_ROUNDS }
 
 @Composable
 private fun ClearIcon(
