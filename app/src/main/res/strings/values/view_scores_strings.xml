@@ -58,6 +58,8 @@
     <string name="view_scores__filters_date">Date:</string>
     <string name="view_scores__filters_from_date">From</string>
     <string name="view_scores__filters_until_date">Until</string>
+    <string name="view_scores__filters_from_date_content_description">From date</string>
+    <string name="view_scores__filters_until_date_content_description">Until date</string>
     <string name="view_scores__filters_title">Filters</string>
     <string name="view_scores__filters_clear">Clear filter</string>
     <string name="view_scores__filters_clear_all">Clear all filters</string>
@@ -66,6 +68,8 @@
     <string name="view_scores__filters_scores">Scores:</string>
     <string name="view_scores__filters_scores_min">Min</string>
     <string name="view_scores__filters_scores_max">Max</string>
+    <string name="view_scores__filters_scores_min_content_description">Min score</string>
+    <string name="view_scores__filters_scores_max_content_description">Max score</string>
     <string name="view_scores__filters_range_separator">to</string>
     <string name="view_scores__filters_invalid_scores">Invalid score range: \'min\' must be lower than \'max\'</string>
     <string name="view_scores__filters_type_title">Type:</string>

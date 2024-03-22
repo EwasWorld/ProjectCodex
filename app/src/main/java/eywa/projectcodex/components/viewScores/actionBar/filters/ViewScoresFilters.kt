@@ -36,7 +36,6 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
-import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -65,9 +64,11 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
+import eywa.projectcodex.common.sharedUi.numberField.DisplayableError
 import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
+import eywa.projectcodex.common.sharedUi.numberField.StringResError
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
@@ -83,6 +84,14 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsSta
 import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoreHelpPriority
 import java.util.Calendar
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.OptIn
+import kotlin.String
+import kotlin.Unit
+import kotlin.let
+import kotlin.takeIf
+import kotlin.to
 
 
 object ViewScoresBottomSheetFilters : BottomSheetNavRoute {
@@ -340,25 +349,29 @@ private fun ColumnScope.DateFilters(
                             helpTitle = stringResource(R.string.help_view_scores__filters_date_title),
                             helpBody = stringResource(R.string.help_view_scores__filters_date_body),
                             priority = ViewScoresFiltersHelpPriority.BEFORE_ROUNDS.ordinal,
-                    ).asHelpState(helpShowcaseListener),
+                    ).asHelpState(helpShowcaseListener)
             )
     ) {
         Text(
                 text = stringResource(R.string.view_scores__filters_date),
+                modifier = Modifier.clearAndSetSemantics { }
         )
         DateFilter(
                 title = stringResource(R.string.view_scores__filters_from_date),
+                contentDescription = stringResource(R.string.view_scores__filters_from_date_content_description),
                 date = state.fromDate,
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateFromFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearFromFilter) },
         )
         Text(
                 text = stringResource(R.string.view_scores__filters_range_separator),
+                modifier = Modifier.clearAndSetSemantics { }
         )
         DateFilter(
                 title = stringResource(R.string.view_scores__filters_until_date),
+                contentDescription = stringResource(R.string.view_scores__filters_until_date_content_description),
                 date = state.untilDate,
-                isValidDate = state.dateRangeIsValid,
+                error = stringResource(R.string.view_scores__filters_invalid_dates).takeIf { !state.dateRangeIsValid },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateUntilFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearUntilFilter) },
         )
@@ -379,8 +392,10 @@ private fun ColumnScope.DateFilters(
 @Composable
 private fun DateFilter(
         title: String,
+        contentDescription: String,
         date: Calendar?,
-        isValidDate: Boolean = true,
+        modifier: Modifier = Modifier,
+        error: String? = null,
         onUpdate: (UpdateCalendarInfo) -> Unit,
         onClear: () -> Unit,
 ) {
@@ -396,31 +411,37 @@ private fun DateFilter(
                     action = { onClear(); true },
             ),
     )
-    val errorText = stringResource(R.string.view_scores__filters_invalid_dates)
 
     Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
     ) {
         if (date == null) {
             Text(
                     text = title,
                     style = clickableStyle,
-                    modifier = Modifier.clickable { datePicker.show() }
-            )
-        }
-        else {
-            Text(
-                    text = DateTimeFormat.LONG_DATE.format(date),
-                    style = clickableStyle,
                     modifier = Modifier
                             .clickable { datePicker.show() }
                             .semantics {
-                                this.customActions = customActions
-                                if (!isValidDate) error(errorText)
+                                this.contentDescription = contentDescription
                             }
+            )
+        }
+        else {
+            val dateString = DateTimeFormat.LONG_DATE.format(date)
+
+            Text(
+                    text = dateString,
+                    style = clickableStyle,
+                    modifier = Modifier
+                            .semantics {
+                                this.customActions = customActions
+                                this.contentDescription = "$dateString. $contentDescription. ${error ?: ""}"
+                            }
+                            .clickable { datePicker.show() }
                             .padding(end = 3.dp)
             )
-            if (!isValidDate) {
+            if (error != null) {
                 CodexIconInfo.VectorIcon(
                         imageVector = Icons.Default.WarningAmber,
                         tint = CodexTheme.colors.warningOnDialog,
@@ -454,22 +475,30 @@ private fun ColumnScope.ScoreFilters(
                     ).asHelpState(helpShowcaseListener),
             )
     ) {
-        Text(text = stringResource(R.string.view_scores__filters_scores))
+        Text(
+                text = stringResource(R.string.view_scores__filters_scores),
+                modifier = Modifier.clearAndSetSemantics { }
+        )
 
         ScoreFilters(
                 value = state.minScore,
                 testTag = ViewScoresFiltersTestTag.SCORE_MIN,
                 placeholder = stringResource(R.string.view_scores__filters_scores_min),
-                contentDescription = stringResource(R.string.view_scores__filters_scores_min),
+                contentDescription = stringResource(R.string.view_scores__filters_scores_min_content_description),
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMinFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearScoreMinFilter) },
         )
-        Text(text = stringResource(R.string.view_scores__filters_range_separator))
+        Text(
+                text = stringResource(R.string.view_scores__filters_range_separator),
+                modifier = Modifier.clearAndSetSemantics { }
+        )
         ScoreFilters(
                 value = state.maxScore,
                 testTag = ViewScoresFiltersTestTag.SCORE_MAX,
                 placeholder = stringResource(R.string.view_scores__filters_scores_max),
-                contentDescription = stringResource(R.string.view_scores__filters_scores_max),
+                contentDescription = stringResource(R.string.view_scores__filters_scores_max_content_description),
+                error = StringResError(R.string.view_scores__filters_invalid_scores)
+                        .takeIf { !state.scoreRangeIsValid },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMaxFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearScoreMaxFilter) },
         )
@@ -500,9 +529,16 @@ private fun ScoreFilters(
         testTag: ViewScoresFiltersTestTag,
         placeholder: String,
         contentDescription: String,
+        error: DisplayableError? = null,
         onUpdate: (String?) -> Unit,
         onClear: () -> Unit,
 ) {
+    val customActions = listOf(
+            CustomAccessibilityAction(
+                    label = stringResource(R.string.view_scores__filters_clear),
+                    action = { onClear(); true },
+            ),
+    )
     val trailingIcon: (@Composable () -> Unit)? =
             if (value.text.isNotEmpty()) {
                 { ClearIcon(onClear, CodexTheme.colors.textFieldIcon) }
@@ -516,10 +552,13 @@ private fun ScoreFilters(
             testTag = testTag,
             contentDescription = contentDescription,
             placeholder = placeholder,
-            errorMessage = value.error,
+            errorMessage = error ?: value.error,
             onValueChanged = onUpdate,
             trailingIcon = trailingIcon,
             colors = CodexTextField.transparentOutlinedTextFieldColorsOnDialog(),
+            modifier = Modifier.semantics {
+                this.customActions = customActions
+            }
     )
 }
 
@@ -657,15 +696,15 @@ enum class ViewScoresFiltersHelpPriority { BEFORE_ROUNDS, ROUNDS, AFTER_ROUNDS }
 @Composable
 private fun ClearIcon(
         onClear: () -> Unit,
-        tint: Color = CodexTheme.colors.onFloatingActions,
+        tint: Color = CodexTheme.colors.onDialogBackground,
 ) {
     CodexIconInfo.VectorIcon(
             imageVector = Icons.Default.Close,
             tint = tint,
     ).CodexIcon(
             modifier = Modifier
-                    .clickable { onClear() }
                     .clearAndSetSemantics { }
+                    .clickable { onClear() }
                     .scale(0.7f)
     )
 }
