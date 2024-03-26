@@ -6,6 +6,7 @@ import eywa.projectcodex.database.archer.ArcherRepo
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.ArrowScoreDao
+import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.BowRepo
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
@@ -39,6 +40,7 @@ import org.mockito.kotlin.mock
 
 class MockScoresRoomDatabase {
     val shootDao = MockShoot()
+    val arrowScoresRepo: ArrowScoresRepo = mock {}
     val arrowScoreDao: ArrowScoreDao = mock {}
     val roundArrowCountDao: RoundArrowCountDao = mock {}
     val roundSubTypeDao: RoundSubTypeDao = mock {}
@@ -67,6 +69,7 @@ class MockScoresRoomDatabase {
         on { bowRepo() } doReturn bow.mockRepo
         on { archerRepo() } doReturn archerRepo.mock
         on { roundsRepo() } doReturn rounds.mockRepo
+        on { arrowScoresRepo() } doReturn arrowScoresRepo
     }
 
     class MockShoot {

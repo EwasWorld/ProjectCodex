@@ -10,6 +10,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.asDat
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.completeRound
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersUseCase
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
@@ -28,6 +29,8 @@ import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -48,7 +51,12 @@ class ViewScoresViewModelUnitTest {
     private val customLogger: CustomLogger = mock { }
     private val datastore = MockDatastore()
     private val shootIdsUseCase = ShootIdsUseCase()
-    private val filtersUseCase: ViewScoresFiltersUseCase = mock { }
+
+    private var filtersState = ViewScoresFiltersState()
+    private val filtersUseCase: ViewScoresFiltersUseCase = mock {
+        on { initialiseNew() } doReturn 1
+        on { getState(any()) } doAnswer { flow { emit(filtersState) } }
+    }
 
     private fun getSut(datastoreUse2023System: Boolean = true): ViewScoresViewModel {
         datastore.values = mapOf(DatastoreKey.Use2023HandicapSystem to datastoreUse2023System)
@@ -60,6 +68,7 @@ class ViewScoresViewModelUnitTest {
                 shootIdsUseCase = shootIdsUseCase,
                 updateDefaultRoundsTask = FakeUpdateDefaultRoundsTask(),
                 viewScoresFiltersUseCase = filtersUseCase,
+                sharingStarted = SharingStarted.Eagerly,
         )
     }
 
@@ -82,7 +91,7 @@ class ViewScoresViewModelUnitTest {
         val sut = getSut()
 
         assertEquals(
-                listOf<ViewScoresEntry>(),
+                null,
                 sut.state.value.data,
         )
 
@@ -120,7 +129,7 @@ class ViewScoresViewModelUnitTest {
         val sut = getSut(datastoreUse2023System = false)
 
         assertEquals(
-                listOf<ViewScoresEntry>(),
+                null,
                 sut.state.value.data,
         )
 
@@ -138,15 +147,9 @@ class ViewScoresViewModelUnitTest {
      * Filter should be added
      */
     @Test
-    fun testAddFilter() = runTest {
+    fun testWithFilter() = runTest {
+        filtersState = ViewScoresFiltersState(personalBestsFilter = true)
         val sut = getSut()
-        advanceUntilIdle()
-
-        assertEquals(Filters<ShootFilter>(), sut.state.value.filters)
-        assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.shootDao.mockRepo).getFullShootInfo(sut.state.value.filters)
-
-//        sut.handle(AddFilter(ShootFilter.PersonalBests))
         advanceUntilIdle()
 
         assertEquals(Filters<ShootFilter>(setOf(ShootFilter.PersonalBests)), sut.state.value.filters)
@@ -163,7 +166,6 @@ class ViewScoresViewModelUnitTest {
         )
         db.shootDao.fullShoots = shoots.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
-        advanceUntilIdle()
 
         fun addSelected(isSelected: List<Boolean>): List<ViewScoresEntry> {
             check(isSelected.size == shoots.size) { "Invalid size" }
@@ -173,7 +175,10 @@ class ViewScoresViewModelUnitTest {
         }
 
         var expectedState = ViewScoresState(rawData = addSelected(List(3) { false }) to Filters())
-        fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
+        fun checkState() {
+            advanceUntilIdle()
+            assertEquals(expectedState, sut.state.value.reorderDataById())
+        }
 
         checkState()
 
@@ -283,9 +288,11 @@ class ViewScoresViewModelUnitTest {
         )
         db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
-        advanceUntilIdle()
 
-        fun checkState() = assertEquals(expectedState, sut.state.value)
+        fun checkState() {
+            advanceUntilIdle()
+            assertEquals(expectedState, sut.state.value.reorderDataById())
+        }
         checkState()
 
         sut.handle(EntryLongClicked(1))
@@ -314,10 +321,10 @@ class ViewScoresViewModelUnitTest {
 
         advanceUntilIdle()
         if (changedArrows.isNullOrEmpty() || testClose) {
-            verify(db.arrowScoreDao, never()).update(anyVararg())
+            verify(db.arrowScoresRepo, never()).update(anyVararg())
         }
         else {
-            verify(db.arrowScoreDao).update(*changedArrows.toTypedArray())
+            verify(db.arrowScoresRepo).update(*changedArrows.toTypedArray())
         }
     }
 
@@ -337,8 +344,11 @@ class ViewScoresViewModelUnitTest {
         ).reorderDataById()
         db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
-        advanceUntilIdle()
-        fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
+
+        fun checkState() {
+            advanceUntilIdle()
+            assertEquals(expectedState, sut.state.value.reorderDataById())
+        }
         checkState()
 
         // Normal
@@ -378,8 +388,11 @@ class ViewScoresViewModelUnitTest {
         ).reorderDataById()
         db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
-        advanceUntilIdle()
-        fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
+
+        fun checkState() {
+            advanceUntilIdle()
+            assertEquals(expectedState, sut.state.value.reorderDataById())
+        }
         checkState()
 
         // Open dropdown - with continue
@@ -414,8 +427,11 @@ class ViewScoresViewModelUnitTest {
         )
         db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
-        fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
-        advanceUntilIdle()
+
+        fun checkState() {
+            advanceUntilIdle()
+            assertEquals(expectedState, sut.state.value.reorderDataById())
+        }
         checkState()
 
         fun openDropdown() {
@@ -471,8 +487,11 @@ class ViewScoresViewModelUnitTest {
         ).reorderDataById()
         db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
-        fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
-        advanceUntilIdle()
+
+        fun checkState() {
+            advanceUntilIdle()
+            assertEquals(expectedState, sut.state.value.reorderDataById())
+        }
         checkState()
 
         // Continue incomplete round
@@ -513,8 +532,11 @@ class ViewScoresViewModelUnitTest {
         )
         db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
-        fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
-        advanceUntilIdle()
+
+        fun checkState() {
+            advanceUntilIdle()
+            assertEquals(expectedState, sut.state.value.reorderDataById())
+        }
         checkState()
 
         // Open -> Delete -> Cancel
@@ -547,22 +569,25 @@ class ViewScoresViewModelUnitTest {
         checkState()
 
         advanceUntilIdle()
-        verify(db.shootDao.mock).deleteRound(1)
+        verify(db.shootDao.mockRepo).deleteRound(1)
     }
 
     @Test
     fun testNoRoundsDialogOkClicked() = runTest {
+        val emptyData = listOf<ViewScoresEntry>() to Filters<ShootFilter>()
         db.shootDao.fullShoots = listOf()
         val sut = getSut()
         advanceUntilIdle()
-        assertEquals(ViewScoresState(), sut.state.value.reorderDataById())
+        assertEquals(ViewScoresState(rawData = emptyData), sut.state.value.reorderDataById())
 
         sut.handle(NoRoundsDialogOkClicked)
-        assertEquals(ViewScoresState(noRoundsDialogOkClicked = true), sut.state.value)
+        advanceUntilIdle()
+        assertEquals(ViewScoresState(rawData = emptyData, noRoundsDialogOkClicked = true), sut.state.value)
 
         sut.handle(HandledNoRoundsDialogOkClicked)
-        assertEquals(ViewScoresState(noRoundsDialogOkClicked = false), sut.state.value)
+        advanceUntilIdle()
+        assertEquals(ViewScoresState(rawData = emptyData, noRoundsDialogOkClicked = false), sut.state.value)
     }
 
-    private fun ViewScoresState.reorderDataById() = copy(rawData = data!!.sortedBy { it.id } to Filters())
+    private fun ViewScoresState.reorderDataById() = copy(rawData = data.orEmpty().sortedBy { it.id } to Filters())
 }

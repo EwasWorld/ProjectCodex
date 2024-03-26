@@ -11,19 +11,15 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent
-import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersUseCase
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreIntent
-import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,28 +35,28 @@ class ViewScoresViewModel @Inject constructor(
         private val shootIdsUseCase: ShootIdsUseCase,
         private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
         private val viewScoresFiltersUseCase: ViewScoresFiltersUseCase,
+        sharingStarted: SharingStarted,
 ) : ViewModel() {
     val filtersRepoId = viewScoresFiltersUseCase.initialiseNew()
     private val filtersState = viewScoresFiltersUseCase.getState(filtersRepoId)
 
     private var _state = MutableStateFlow(ViewScoresState())
     val state = _state.combine(filtersState) { mainState, filtersState ->
-        mainState.copy(filtersState = filtersState ?: ViewScoresFiltersState())
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewScoresState())
+        mainState.copy(filtersState = filtersState)
+    }.stateIn(viewModelScope, sharingStarted, ViewScoresState())
 
     private val arrowScoresRepo = db.arrowScoresRepo()
     private val roundRepo = db.roundsRepo()
-    private val shootsRepo: ShootsRepo = db.shootsRepo()
+    private val shootsRepo = db.shootsRepo()
 
     init {
         viewModelScope.launch {
             filtersState
-                    .map { it?.filters ?: Filters() }
+                    .map { it.filters }
                     .distinctUntilChanged()
                     .flatMapLatest { filters -> shootsRepo.getFullShootInfo(filters).map { it to filters } }
                     .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { info, system -> info to system }
                     .collect { (flowData, use2023System) ->
-                        delay(1000)
                         _state.update {
                             val previousSelectedEntries = it.data.orEmpty()
                                     .associate { entry -> entry.id to entry.isSelected }
@@ -210,7 +206,7 @@ class ViewScoresViewModel @Inject constructor(
                 val allSelected = it.data?.none { entry -> !entry.isSelected } ?: false
                 it.copy(
                         rawData = it.rawData
-                                ?.copy(it.rawData.first.map { entry -> entry.copy(isSelected = allSelected) }),
+                                ?.copy(it.rawData.first.map { entry -> entry.copy(isSelected = !allSelected) }),
                 )
             }
 
