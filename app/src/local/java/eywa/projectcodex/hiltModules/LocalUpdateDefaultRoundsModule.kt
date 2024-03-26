@@ -10,8 +10,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
-import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.CompletionType
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTaskImpl
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.datastore.CodexDatastore
@@ -32,11 +33,10 @@ class LocalUpdateDefaultRoundsModule {
             logging: CustomLogger,
     ): UpdateDefaultRoundsTask {
         return if (useActual) {
-            UpdateDefaultRoundsTask(RoundRepo(db), context.resources, datastore, logging)
+            UpdateDefaultRoundsTaskImpl(RoundRepo(db), context.resources, datastore, logging)
         }
         else {
-            FakeUpdateDefaultRoundsTask(RoundRepo(db), context, datastore, logging)
-                    .apply { mockedTask = this }
+            FakeUpdateDefaultRoundsTask().apply { mockedTask = this }
         }
     }
 
@@ -51,14 +51,9 @@ class LocalUpdateDefaultRoundsModule {
 /**
  * TODO Struggling to get mockito to work with the suspend function :(
  */
-class FakeUpdateDefaultRoundsTask(
-        repository: RoundRepo,
-        context: Context,
-        datastore: CodexDatastore,
-        customLogger: CustomLogger,
-) : UpdateDefaultRoundsTask(repository, context.resources, datastore, customLogger) {
+class FakeUpdateDefaultRoundsTask : UpdateDefaultRoundsTask {
     var runTaskFakeReturn = true
-    var stateFakeReturn = UpdateDefaultRoundsState.Complete(1, CompletionType.ALREADY_UP_TO_DATE)
+    var stateFakeReturn = UpdateDefaultRoundsStatePreviewHelper.complete
 
     var runTaskCalls = 0
         private set

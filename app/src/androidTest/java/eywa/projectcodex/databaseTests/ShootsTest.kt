@@ -342,7 +342,7 @@ class ShootsTest {
                 shootDao
                         .getFullShootInfo(1)
                         .first()!!
-                        .arrowCount!!
+                        .arrowCounter!!
                         .shotCount
         )
     }

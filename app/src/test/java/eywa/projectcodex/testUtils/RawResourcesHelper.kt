@@ -2,7 +2,7 @@ package eywa.projectcodex.testUtils
 
 import android.content.res.Resources
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
-import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTaskImpl
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
@@ -41,7 +41,7 @@ object RawResourcesHelper {
         val inputStream = FileInputStream("src\\main\\res\\general\\raw\\default_rounds_data.json")
         val resources = mock<Resources> { on { openRawResource(any()) } doReturn inputStream }
 
-        UpdateDefaultRoundsTask(
+        UpdateDefaultRoundsTaskImpl(
                 repository = repo,
                 resources = resources,
                 datastore = MockDatastore().mock,

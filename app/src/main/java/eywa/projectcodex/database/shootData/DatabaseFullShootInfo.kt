@@ -40,12 +40,6 @@ data class DatabaseFullShootInfo(
 
         @Relation(
                 parentColumn = "shootId",
-                entityColumn = "shootId",
-        )
-        val arrowCount: DatabaseArrowCounter? = null,
-
-        @Relation(
-                parentColumn = "shootId",
                 entityColumn = "roundId",
                 associateBy = Junction(
                         value = DatabaseShootRound::class,

@@ -5,6 +5,7 @@ import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTaskImpl
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.datastore.CodexDatastore
@@ -62,7 +63,7 @@ class UpdateDefaultRoundsUnitTest {
         val datastore = MockDatastore().apply { values = datastoreValues.toMap() }
         mockDatastore = datastore.mock
 
-        sut = UpdateDefaultRoundsTask(
+        sut = UpdateDefaultRoundsTaskImpl(
                 repository = repo,
                 resources = resources,
                 datastore = mockDatastore,

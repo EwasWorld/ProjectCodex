@@ -23,5 +23,5 @@ class UpdateDefaultRoundsModule {
             db: ScoresRoomDatabase,
             datastore: CodexDatastore,
             logging: CustomLogger,
-    ) = UpdateDefaultRoundsTask(RoundRepo(db), context.resources, datastore, logging)
+    ): UpdateDefaultRoundsTask = UpdateDefaultRoundsTaskImpl(RoundRepo(db), context.resources, datastore, logging)
 }

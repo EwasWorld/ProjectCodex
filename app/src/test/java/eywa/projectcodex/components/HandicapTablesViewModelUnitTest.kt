@@ -6,10 +6,12 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 import eywa.projectcodex.components.handicapTables.HandicapTablesState
 import eywa.projectcodex.components.handicapTables.HandicapTablesViewModel
 import eywa.projectcodex.database.RoundFace
+import eywa.projectcodex.hiltModules.FakeUpdateDefaultRoundsTask
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -42,7 +44,12 @@ class HandicapTablesViewModelUnitTest {
 
     private fun getSut(): HandicapTablesViewModel {
         db.rounds.fullRoundsInfo = initialRounds
-        return HandicapTablesViewModel(db.mock, helpShowcase, datastore.mock)
+        return HandicapTablesViewModel(
+                db = db.mock,
+                helpShowcase = helpShowcase,
+                datastore = datastore.mock,
+                updateDefaultRoundsTask = FakeUpdateDefaultRoundsTask(),
+        )
     }
 
     private fun TestScope.setUpGetHandicapsTest(handicap: Int): HandicapTablesViewModel {
@@ -52,6 +59,7 @@ class HandicapTablesViewModelUnitTest {
         assertEquals(
                 HandicapTablesState(
                         selectRoundDialogState = SelectRoundDialogState(allRounds = initialRounds),
+                        updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                 ),
                 sut.state.value,
         )
@@ -68,7 +76,8 @@ class HandicapTablesViewModelUnitTest {
                                 selectedRoundId = round.round.roundId,
                                 selectedSubTypeId = 1,
                         ),
-                        input = PartialNumberFieldState().onTextChanged(handicap.toString())
+                        input = PartialNumberFieldState().onTextChanged(handicap.toString()),
+                        updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                 ),
                 sut.state.value.copy(handicaps = emptyList(), highlightedHandicap = null),
         )

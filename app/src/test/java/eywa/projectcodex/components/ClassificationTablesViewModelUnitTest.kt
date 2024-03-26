@@ -9,9 +9,11 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.*
 import eywa.projectcodex.components.classificationTables.ClassificationTablesState
 import eywa.projectcodex.components.classificationTables.ClassificationTablesViewModel
+import eywa.projectcodex.hiltModules.FakeUpdateDefaultRoundsTask
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
@@ -52,11 +54,18 @@ class ClassificationTablesViewModelUnitTest {
             selectRoundDialogState = SelectRoundDialogState(
                     allRounds = initialRounds,
             ),
+            updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
     )
 
     private fun getSut(): ClassificationTablesViewModel {
         db.rounds.fullRoundsInfo = initialRounds
-        return ClassificationTablesViewModel(db.mock, helpShowcase, classificationTables, datastore.mock)
+        return ClassificationTablesViewModel(
+                db = db.mock,
+                helpShowcase = helpShowcase,
+                tables = classificationTables,
+                datastore = datastore.mock,
+                updateDefaultRoundsTask = FakeUpdateDefaultRoundsTask(),
+        )
     }
 
     @Test
@@ -108,7 +117,8 @@ class ClassificationTablesViewModelUnitTest {
                                 allRounds = initialRounds,
                                 selectedRoundId = RoundPreviewHelper.yorkRoundData.round.roundId,
                                 selectedSubTypeId = 1,
-                        )
+                        ),
+                        updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                 ),
                 sut.state.value,
         )
@@ -148,7 +158,8 @@ class ClassificationTablesViewModelUnitTest {
                                 allRounds = initialRounds,
                                 selectedRoundId = RoundPreviewHelper.yorkRoundData.round.roundId,
                                 selectedSubTypeId = 2,
-                        )
+                        ),
+                        updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                 ),
                 sut.state.value,
         )

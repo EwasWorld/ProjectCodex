@@ -10,6 +10,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.asDat
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.completeRound
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersUseCase
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBarIntent
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreIntent
@@ -21,6 +22,7 @@ import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.ShootFilter
 import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.hiltModules.FakeUpdateDefaultRoundsTask
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
@@ -46,10 +48,19 @@ class ViewScoresViewModelUnitTest {
     private val customLogger: CustomLogger = mock { }
     private val datastore = MockDatastore()
     private val shootIdsUseCase = ShootIdsUseCase()
+    private val filtersUseCase: ViewScoresFiltersUseCase = mock { }
 
     private fun getSut(datastoreUse2023System: Boolean = true): ViewScoresViewModel {
         datastore.values = mapOf(DatastoreKey.Use2023HandicapSystem to datastoreUse2023System)
-        return ViewScoresViewModel(db.mock, helpShowcase, customLogger, datastore.mock, shootIdsUseCase)
+        return ViewScoresViewModel(
+                db = db.mock,
+                helpShowcase = helpShowcase,
+                customLogger = customLogger,
+                datastore = datastore.mock,
+                shootIdsUseCase = shootIdsUseCase,
+                updateDefaultRoundsTask = FakeUpdateDefaultRoundsTask(),
+                viewScoresFiltersUseCase = filtersUseCase,
+        )
     }
 
     /**
@@ -80,7 +91,7 @@ class ViewScoresViewModelUnitTest {
                 shootsInitial.map {
                     ViewScoresEntry(FullShootInfo(it, true), false, customLogger)
                 },
-                sut.state.value.data.sortedBy { it.id },
+                sut.state.value.data?.sortedBy { it.id },
         )
 
         sut.handle(MultiSelectAction(MultiSelectBarIntent.ClickOpen))
@@ -90,7 +101,7 @@ class ViewScoresViewModelUnitTest {
                 shootsSecond.map {
                     ViewScoresEntry(FullShootInfo(it, true), it.shoot.shootId == 1, customLogger)
                 },
-                sut.state.value.data.sortedBy { it.id },
+                sut.state.value.data?.sortedBy { it.id },
         )
     }
 
@@ -118,7 +129,7 @@ class ViewScoresViewModelUnitTest {
                 shootsInitial.map {
                     ViewScoresEntry(FullShootInfo(it, false), false, customLogger)
                 },
-                sut.state.value.data.sortedBy { it.id },
+                sut.state.value.data?.sortedBy { it.id },
         )
     }
 
@@ -133,17 +144,14 @@ class ViewScoresViewModelUnitTest {
 
         assertEquals(Filters<ShootFilter>(), sut.state.value.filters)
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.shootDao.mock).getAllFullShootInfo(false, null, null, null, null)
+        verify(db.shootDao.mockRepo).getFullShootInfo(sut.state.value.filters)
 
 //        sut.handle(AddFilter(ShootFilter.PersonalBests))
         advanceUntilIdle()
 
         assertEquals(Filters<ShootFilter>(setOf(ShootFilter.PersonalBests)), sut.state.value.filters)
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.shootDao.mock).getAllFullShootInfo(true, null, null, null, null)
-
-        verify(db.shootDao.mock, times(2))
-                .getAllFullShootInfo(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
+        verify(db.shootDao.mockRepo).getFullShootInfo(sut.state.value.filters)
     }
 
     @Test
@@ -164,7 +172,7 @@ class ViewScoresViewModelUnitTest {
             }
         }
 
-        var expectedState = ViewScoresState(data = addSelected(List(3) { false }))
+        var expectedState = ViewScoresState(rawData = addSelected(List(3) { false }) to Filters())
         fun checkState() = assertEquals(expectedState, sut.state.value.reorderDataById())
 
         checkState()
@@ -185,29 +193,29 @@ class ViewScoresViewModelUnitTest {
 
         // All or none
         sut.handle(MultiSelectAction(MultiSelectBarIntent.ClickAllOrNone))
-        expectedState = expectedState.copy(data = addSelected(List(3) { true }))
+        expectedState = expectedState.copy(rawData = addSelected(List(3) { true }) to Filters())
         checkState()
 
         sut.handle(MultiSelectAction(MultiSelectBarIntent.ClickAllOrNone))
-        expectedState = expectedState.copy(data = addSelected(List(3) { false }))
+        expectedState = expectedState.copy(rawData = addSelected(List(3) { false }) to Filters())
         checkState()
 
         // Individual select
         sut.handle(EntryClicked(2))
-        expectedState = expectedState.copy(data = addSelected(listOf(false, true, false)))
+        expectedState = expectedState.copy(rawData = addSelected(listOf(false, true, false)) to Filters())
         checkState()
 
         sut.handle(EntryClicked(1))
-        expectedState = expectedState.copy(data = addSelected(listOf(true, true, false)))
+        expectedState = expectedState.copy(rawData = addSelected(listOf(true, true, false)) to Filters())
         checkState()
 
         sut.handle(EntryClicked(1))
-        expectedState = expectedState.copy(data = addSelected(listOf(false, true, false)))
+        expectedState = expectedState.copy(rawData = addSelected(listOf(false, true, false)) to Filters())
         checkState()
 
         // All or none from some selected
         sut.handle(MultiSelectAction(MultiSelectBarIntent.ClickAllOrNone))
-        expectedState = expectedState.copy(data = addSelected(List(3) { true }))
+        expectedState = expectedState.copy(rawData = addSelected(List(3) { true }) to Filters())
         checkState()
 
         // Email
@@ -221,7 +229,10 @@ class ViewScoresViewModelUnitTest {
 
         // Turn off
         sut.handle(MultiSelectAction(MultiSelectBarIntent.ClickClose))
-        expectedState = expectedState.copy(isInMultiSelectMode = false, data = addSelected(List(3) { false }))
+        expectedState = expectedState.copy(
+                isInMultiSelectMode = false,
+                rawData = addSelected(List(3) { false }) to Filters(),
+        )
         checkState()
 
         // Action while off
@@ -266,7 +277,9 @@ class ViewScoresViewModelUnitTest {
                 .newFullShootInfo()
                 .copy(arrows = originalArrows)
         var expectedState = ViewScoresState(
-                data = listOf(ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger))
+                rawData = listOf(
+                        ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
+                ) to Filters(),
         )
         db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
@@ -318,7 +331,9 @@ class ViewScoresViewModelUnitTest {
                                 .completeRound(5),
                 )
         var expectedState = ViewScoresState(
-                data = shoot.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
+                rawData = shoot.map {
+                    ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger)
+                } to Filters(),
         ).reorderDataById()
         db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
@@ -342,7 +357,7 @@ class ViewScoresViewModelUnitTest {
 
         sut.handle(EntryClicked(1))
         expectedState = expectedState.copy(
-                data = expectedState.data.map { if (it.id == 1) it.copy(isSelected = true) else it },
+                rawData = expectedState.data!!.map { if (it.id == 1) it.copy(isSelected = true) else it } to Filters(),
         )
         checkState()
     }
@@ -357,7 +372,9 @@ class ViewScoresViewModelUnitTest {
                                 .completeRound(5),
                 )
         var expectedState = ViewScoresState(
-                data = shoot.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
+                rawData = shoot.map {
+                    ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger)
+                } to Filters(),
         ).reorderDataById()
         db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
@@ -391,7 +408,9 @@ class ViewScoresViewModelUnitTest {
         val shoot = ShootPreviewHelper.newFullShootInfo()
                 .addRound(RoundPreviewHelper.indoorMetricRoundData)
         var expectedState = ViewScoresState(
-                data = listOf(ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger))
+                rawData = listOf(
+                        ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
+                ) to Filters(),
         )
         db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
@@ -446,7 +465,9 @@ class ViewScoresViewModelUnitTest {
                                 .completeRound(5),
                 )
         var expectedState = ViewScoresState(
-                data = shoot.map { ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger) }
+                rawData = shoot.map {
+                    ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger)
+                } to Filters(),
         ).reorderDataById()
         db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
@@ -486,7 +507,9 @@ class ViewScoresViewModelUnitTest {
         val shoot = ShootPreviewHelper.newFullShootInfo()
                 .addRound(RoundPreviewHelper.indoorMetricRoundData)
         var expectedState = ViewScoresState(
-                data = listOf(ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger))
+                rawData = listOf(
+                        ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
+                ) to Filters(),
         )
         db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
@@ -541,5 +564,5 @@ class ViewScoresViewModelUnitTest {
         assertEquals(ViewScoresState(noRoundsDialogOkClicked = false), sut.state.value)
     }
 
-    private fun ViewScoresState.reorderDataById() = copy(data = data.sortedBy { it.id })
+    private fun ViewScoresState.reorderDataById() = copy(rawData = data!!.sortedBy { it.id } to Filters())
 }

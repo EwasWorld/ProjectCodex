@@ -46,6 +46,7 @@ class ShootDetailsRepoUnitTest {
             fullShootInfo = FullShootInfo(shootInfo, true),
             use2023System = DatastoreKey.Use2023HandicapSystem.defaultValue,
             useBetaFeatures = DatastoreKey.UseBetaFeatures.defaultValue,
+            archerHandicaps = listOf(),
     )
 
     private fun createShootInfo(id: Int) = DatabaseFullShootInfo(
@@ -104,7 +105,7 @@ class ShootDetailsRepoUnitTest {
         val id1CollectedStates = mutableListOf<ShootDetailsResponse<SimpleState>>()
         startCollectingStateForId(1, id1CollectedStates)
         advanceTimeBy(1)
-        verify(db.shootDao.mock).getFullShootInfo(1)
+        verify(db.shootDao.mockRepo).getFullShootInfo(1)
         assertEquals(
                 listOf(loadingState, shootInfo.asLoadedState()),
                 id1CollectedStates.toList(),
@@ -119,7 +120,7 @@ class ShootDetailsRepoUnitTest {
         db.shootDao.fullShoots = listOf(shootInfo2)
         db.shootDao.secondFullShoots = listOf()
         advanceTimeBy(1)
-        verify(db.shootDao.mock).getFullShootInfo(2)
+        verify(db.shootDao.mockRepo).getFullShootInfo(2)
         Assert.assertTrue(id1CollectedStates.all { it == loadingState })
         assertEquals(
                 listOf(loadingState, shootInfo2.asLoadedState()),

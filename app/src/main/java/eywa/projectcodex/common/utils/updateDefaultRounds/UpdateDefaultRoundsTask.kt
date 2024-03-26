@@ -6,9 +6,16 @@ import com.beust.klaxon.KlaxonException
 import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.R
 import eywa.projectcodex.common.logging.CustomLogger
-import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.*
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.Complete
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.CompletionType.ALREADY_UP_TO_DATE
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.CompletionType.COMPLETE
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.DeletingOld
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.Initialising
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.InternalError
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.NotStarted
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.StartProcessingNew
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.TemporaryError
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState.UnexpectedFinish
 import eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects.DefaultRoundInfo
 import eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects.DefaultRoundInfoJsonConverter
 import eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects.RoundsList
@@ -23,12 +30,13 @@ import eywa.projectcodex.datastore.retrieve
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.Locale
 
 // TODO Make this private
 object DefaultRoundInfoHelper {
@@ -39,20 +47,25 @@ object DefaultRoundInfoHelper {
             roundDisplayName.replace(Regex("[^A-Za-z0-9]| "), "").lowercase(Locale.getDefault())
 }
 
+interface UpdateDefaultRoundsTask {
+    val state: StateFlow<UpdateDefaultRoundsState>
+    suspend fun runTask(): Boolean
+}
+
 /**
  * This task will update the default rounds in the repository
  */
-open class UpdateDefaultRoundsTask(
+open class UpdateDefaultRoundsTaskImpl(
         private val repository: RoundRepo,
         private val resources: Resources,
         private val datastore: CodexDatastore,
         private val logger: CustomLogger,
         private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-) {
+) : UpdateDefaultRoundsTask {
     private val _state = MutableStateFlow<UpdateDefaultRoundsState>(NotStarted)
-    open val state = _state.asStateFlow()
+    override val state = _state.asStateFlow()
 
-    open suspend fun runTask() = withContext(dispatcher) {
+    override suspend fun runTask() = withContext(dispatcher) {
         if (_state.value != NotStarted) {
             return@withContext false
         }
