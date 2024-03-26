@@ -2,8 +2,7 @@ package eywa.projectcodex.components.shootDetails
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndExtras
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndState
@@ -60,7 +59,7 @@ class ShootDetailsViewModelsUnitTest {
 
     private var shootDetailsState = ShootDetailsState(
             shootId = 1,
-            fullShootInfo = ShootPreviewHelper.newFullShootInfo().addIdenticalArrows(36, 7),
+            fullShootInfo = ShootPreviewHelperDsl.create { addIdenticalArrows(36, 7) },
             scorePadSelectedEnd = 1,
     )
 

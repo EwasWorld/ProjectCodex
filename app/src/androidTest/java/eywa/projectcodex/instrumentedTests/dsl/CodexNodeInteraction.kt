@@ -22,6 +22,10 @@ fun waitForWrapper(waitFor: Boolean, block: () -> Unit) =
         if (!waitFor) block()
         else CustomConditionWaiter.waitForComposeCondition { block() }
 
+fun assertTextEqualsOrDoesntExist(text: String?) =
+        if (text != null) CodexNodeInteraction.AssertTextEquals(text)
+        else CodexNodeInteraction.AssertDoesNotExist()
+
 /**
  * Actions which can be performed on a [SemanticsNodeInteraction]
  *

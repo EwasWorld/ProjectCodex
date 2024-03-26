@@ -4,10 +4,8 @@ import eywa.projectcodex.common.diActivityHelpers.ShootIdsUseCase
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.asDatabaseFullShootInfo
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.completeRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.previewHelpers.asDatabaseFullShootInfo
 import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.components.viewScores.ViewScoresIntent.*
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersState
@@ -160,9 +158,13 @@ class ViewScoresViewModelUnitTest {
     @Test
     fun testMultiSelectStatesAndTransitions() = runTest {
         val shoots = listOf(
-                ShootPreviewHelper.newFullShootInfo(1),
-                ShootPreviewHelper.newFullShootInfo(2),
-                ShootPreviewHelper.newFullShootInfo(3),
+                ShootPreviewHelperDsl.create {},
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3)
+                },
         )
         db.shootDao.fullShoots = shoots.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
@@ -278,9 +280,9 @@ class ViewScoresViewModelUnitTest {
             type: ConvertScoreType = ConvertScoreType.TO_FIVE_ZONE,
             testClose: Boolean = false,
     ) = runTest {
-        val shoot = ShootPreviewHelper
-                .newFullShootInfo()
-                .copy(arrows = originalArrows)
+        val shoot = ShootPreviewHelperDsl.create {
+            arrows = originalArrows
+        }
         var expectedState = ViewScoresState(
                 rawData = listOf(
                         ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
@@ -332,10 +334,12 @@ class ViewScoresViewModelUnitTest {
     fun testEntryClicked() = runTest {
         val shoot =
                 listOf(
-                        ShootPreviewHelper.newFullShootInfo(1),
-                        ShootPreviewHelper.newFullShootInfo(2)
-                                .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                                .completeRound(5),
+                        ShootPreviewHelperDsl.create {},
+                        ShootPreviewHelperDsl.create {
+                            shoot = shoot.copy(shootId = 2)
+                            round = RoundPreviewHelper.indoorMetricRoundData
+                            completeRoundWithFinalScore(5)
+                        },
                 )
         var expectedState = ViewScoresState(
                 rawData = shoot.map {
@@ -376,10 +380,12 @@ class ViewScoresViewModelUnitTest {
     fun testDropdownMenu_OpenDisplayClose() = runTest {
         val shoot =
                 listOf(
-                        ShootPreviewHelper.newFullShootInfo(1),
-                        ShootPreviewHelper.newFullShootInfo(2)
-                                .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                                .completeRound(5),
+                        ShootPreviewHelperDsl.create {},
+                        ShootPreviewHelperDsl.create {
+                            shoot = shoot.copy(shootId = 2)
+                            round = RoundPreviewHelper.indoorMetricRoundData
+                            completeRoundWithFinalScore(5)
+                        },
                 )
         var expectedState = ViewScoresState(
                 rawData = shoot.map {
@@ -418,8 +424,9 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_Options() = runTest {
-        val shoot = ShootPreviewHelper.newFullShootInfo()
-                .addRound(RoundPreviewHelper.indoorMetricRoundData)
+        val shoot = ShootPreviewHelperDsl.create {
+            round = RoundPreviewHelper.indoorMetricRoundData
+        }
         var expectedState = ViewScoresState(
                 rawData = listOf(
                         ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
@@ -475,10 +482,12 @@ class ViewScoresViewModelUnitTest {
     fun testDropdownMenu_Continue() = runTest {
         val shoot =
                 listOf(
-                        ShootPreviewHelper.newFullShootInfo(1),
-                        ShootPreviewHelper.newFullShootInfo(2)
-                                .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                                .completeRound(5),
+                        ShootPreviewHelperDsl.create {},
+                        ShootPreviewHelperDsl.create {
+                            shoot = shoot.copy(shootId = 2)
+                            round = RoundPreviewHelper.indoorMetricRoundData
+                            completeRoundWithFinalScore(5)
+                        },
                 )
         var expectedState = ViewScoresState(
                 rawData = shoot.map {
@@ -523,8 +532,9 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_Delete() = runTest {
-        val shoot = ShootPreviewHelper.newFullShootInfo()
-                .addRound(RoundPreviewHelper.indoorMetricRoundData)
+        val shoot = ShootPreviewHelperDsl.create {
+            round = RoundPreviewHelper.indoorMetricRoundData
+        }
         var expectedState = ViewScoresState(
                 rawData = listOf(
                         ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)

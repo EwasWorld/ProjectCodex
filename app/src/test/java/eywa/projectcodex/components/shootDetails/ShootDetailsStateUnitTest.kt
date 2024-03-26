@@ -1,9 +1,7 @@
 package eywa.projectcodex.components.shootDetails
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import org.junit.Assert
 import org.junit.Test
 
@@ -16,9 +14,10 @@ class ShootDetailsStateUnitTest {
         }
 
         val baseState = ShootDetailsState(
-                fullShootInfo = ShootPreviewHelper.newFullShootInfo()
-                        .addIdenticalArrows(60, 7)
-                        .addRound(RoundPreviewHelper.outdoorImperialRoundData),
+                fullShootInfo = ShootPreviewHelperDsl.create {
+                    addIdenticalArrows(60, 7)
+                    round = RoundPreviewHelper.outdoorImperialRoundData
+                }
         )
 
         // No selected end

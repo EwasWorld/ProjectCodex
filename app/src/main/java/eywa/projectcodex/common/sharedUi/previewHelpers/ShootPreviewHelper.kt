@@ -125,6 +125,17 @@ class ShootPreviewHelperDsl {
     }
 }
 
+fun FullShootInfo.asDatabaseFullShootInfo() = DatabaseFullShootInfo(
+        shoot = shoot,
+        arrows = arrows,
+        round = round,
+        roundArrowCounts = roundArrowCounts,
+        allRoundSubTypes = roundSubType?.let { listOf(it) },
+        allRoundDistances = roundDistances,
+        shootRound = shootRound,
+        shootDetail = shootDetail,
+)
+
 @Deprecated("Use Dsl")
 object ShootPreviewHelper {
     private fun newShoot(id: Int = 1, date: Calendar = Calendar.getInstance()) =
@@ -175,15 +186,4 @@ object ShootPreviewHelper {
 
         return copy(arrows = newArrows.mapIndexed { index, arrow -> arrow.asArrowScore(shoot.shootId, index) })
     }
-
-    fun FullShootInfo.asDatabaseFullShootInfo() = DatabaseFullShootInfo(
-            shoot = shoot,
-            arrows = arrows,
-            round = round,
-            roundArrowCounts = roundArrowCounts,
-            allRoundSubTypes = roundSubType?.let { listOf(it) },
-            allRoundDistances = roundDistances,
-            shootRound = shootRound,
-            shootDetail = shootDetail,
-    )
 }

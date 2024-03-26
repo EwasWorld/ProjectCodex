@@ -1,42 +1,47 @@
 package eywa.projectcodex.instrumentedTests.robots
 
-import androidx.compose.ui.test.isSelectable
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.viewScores.ui.ViewScoresRowTestTag
-import eywa.projectcodex.components.viewScores.ui.ViewScoresTestTag
-import eywa.projectcodex.components.viewScores.ui.viewScoresListItemTestTag
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoresRowTestTag
+import eywa.projectcodex.components.viewScores.screenUi.ViewScoresTestTag
+import eywa.projectcodex.components.viewScores.screenUi.viewScoresListItemTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkDialogIsDisplayed
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.click
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogCancel
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogOk
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
+import eywa.projectcodex.instrumentedTests.dsl.assertTextEqualsOrDoesntExist
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
-
-private fun TestActionDsl.inRow(rowIndex: Int) {
-    useUnmergedTree = true
-    +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex)))
-}
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, ViewScoresTestTag.SCREEN) {
     fun waitForLoad() {
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true))
-            +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+        performV2 {
+            allNodes {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true)
+                toSingle(CodexNodeGroupToOne.First) {
+                    +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+                }
+            }
         }
     }
 
     fun clickOkOnEmptyTableDialog() {
-        clickDialogOk("Table is empty")
+        performV2 {
+            checkDialogIsDisplayed("Table is empty")
+        }
+        performV2 {
+            clickDialogOk()
+        }
         createRobot(MainMenuRobot::class) {}
     }
 
@@ -44,25 +49,31 @@ class ViewScoresRobot(
      * Wait for the number of rows on the screen to be [rowCount]
      */
     fun waitForRowCount(rowCount: Int) {
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, substring = true))
-            +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
+        performV2 {
+            allNodes {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, substring = true)
+                +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
+            }
         }
     }
 
     fun scrollToRow(rowIndex: Int) {
-        perform {
-            +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
-            +CodexNodeInteraction.PerformScrollToIndex(rowIndex)
+        performV2 {
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
+                +CodexNodeInteraction.PerformScrollToIndex(rowIndex)
+            }
         }
     }
 
     private fun performOnRowItem(rowIndex: Int, action: CodexNodeInteraction) {
         scrollToRow(rowIndex)
-        perform {
-            +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
-            +action
+        performV2 {
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
+                +action
+            }
         }
     }
 
@@ -83,20 +94,25 @@ class ViewScoresRobot(
     fun longClickRow(rowIndex: Int) {
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformLongClick())
 
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM))
-            +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+        performV2 {
+            allNodes {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+                toSingle(CodexNodeGroupToOne.First) {
+                    +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+                }
+            }
         }
     }
 
     fun clickDropdownMenuItem(menuItem: String) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
-            +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
-            +CodexNodeInteraction.PerformClick().waitFor()
+        performV2 {
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+                +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
+                +CodexNodeInteraction.PerformClick().waitFor()
+            }
         }
     }
 
@@ -127,43 +143,73 @@ class ViewScoresRobot(
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {
         // Check at least one menu item is showing
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM))
-            +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+        performV2 {
+            allNodes {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+                toSingle(CodexNodeGroupToOne.First) {
+                    +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+                }
+            }
         }
         // Check that the intended menu item is not showing
-        perform {
-            +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
-            +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
-            +CodexNodeInteraction.AssertDoesNotExist()
+        performV2 {
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
+                +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
         }
     }
 
     fun chooseConvertDialogOption(convertType: String) {
-        checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
-        perform {
-            allNodes(CodexNodeMatcher.HasTestTag(RadioButtonDialogTestTag.RADIO_BUTTON))
-            +CodexNodeGroupToOne.Filter(CodexNodeMatcher.HasText(convertType))
-            +CodexNodeInteraction.PerformClick()
+        performV2 {
+            checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
+        }
+        performV2 {
+            allNodes {
+                +CodexNodeMatcher.HasTestTag(RadioButtonDialogTestTag.RADIO_BUTTON)
+                toSingle(CodexNodeGroupToOne.Filter(CodexNodeMatcher.HasText(convertType))) {
+                    +CodexNodeInteraction.PerformClick()
+                }
+            }
         }
     }
 
     fun clickConvertDialogOk() {
-        clickDialogOk(CONVERT_SCORE_DIALOG_TITLE)
+        performV2 {
+            checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
+        }
+        performV2 {
+            clickDialogOk()
+        }
     }
 
     fun clickConvertDialogCancel() {
-        clickDialogCancel(CONVERT_SCORE_DIALOG_TITLE)
+        performV2 {
+            checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
+        }
+        performV2 {
+            clickDialogCancel()
+        }
     }
 
     fun clickDeleteDialogOk() {
-        clickDialogOk(DELETE_ENTRY_DIALOG_TITLE)
+        performV2 {
+            checkDialogIsDisplayed(DELETE_ENTRY_DIALOG_TITLE)
+        }
+        performV2 {
+            clickDialogOk()
+        }
     }
 
     fun clickDeleteDialogCancel() {
-        clickDialogCancel(DELETE_ENTRY_DIALOG_TITLE)
+        performV2 {
+            checkDialogIsDisplayed(DELETE_ENTRY_DIALOG_TITLE)
+        }
+        performV2 {
+            clickDialogCancel()
+        }
     }
 
     private fun waitForTextInRow(rowIndex: Int, text: String) {
@@ -180,10 +226,13 @@ class ViewScoresRobot(
             testTag: CodexTestTag,
             text: String?,
     ) {
-        perform {
-            inRow(rowIndex)
-            +CodexNodeMatcher.HasTestTag(testTag)
-            assertTextEqualsOrNotExist(text)
+        performV2 {
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex)))
+                +CodexNodeMatcher.HasTestTag(testTag)
+                +assertTextEqualsOrDoesntExist(text)
+            }
         }
     }
 
@@ -201,38 +250,58 @@ class ViewScoresRobot(
             waitForTextInRow(rowIndex, ViewScoresRowTestTag.FIRST_NAME, roundName)
 
     fun checkContentDescription(rowIndex: Int, vararg description: String) {
-        perform {
-            +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
-            +CodexNodeInteraction.AssertContentDescriptionEquals(description.toList()).waitFor()
+        performV2 {
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
+                +CodexNodeInteraction.AssertContentDescriptionEquals(description.toList()).waitFor()
+            }
         }
     }
 
     fun clickStartMultiSelectMode() {
-        clickElement(ViewScoresTestTag.MULTI_SELECT_START)
+        performV2 {
+            click(ViewScoresTestTag.MULTI_SELECT_START)
+        }
     }
 
     fun clickMultiSelectSelectAll() {
-        clickElement(ViewScoresTestTag.MULTI_SELECT_ALL)
+        performV2 {
+            click(ViewScoresTestTag.MULTI_SELECT_ALL)
+        }
     }
 
     fun clickCancelMultiSelectMode() {
-        clickElement(ViewScoresTestTag.MULTI_SELECT_CANCEL)
+        performV2 {
+            click(ViewScoresTestTag.MULTI_SELECT_CANCEL)
+        }
     }
 
     fun clickMultiSelectEmail(block: EmailScoreRobot.() -> Unit = {}) {
-        clickElement(ViewScoresTestTag.MULTI_SELECT_EMAIL)
+        performV2 {
+            click(ViewScoresTestTag.MULTI_SELECT_EMAIL)
+        }
         createRobot(EmailScoreRobot::class, block)
     }
 
     fun checkMultiSelectMode(isInMultiSelectMode: Boolean = true) {
-        checkElementIsDisplayed(
-                if (isInMultiSelectMode) ViewScoresTestTag.MULTI_SELECT_CANCEL
-                else ViewScoresTestTag.MULTI_SELECT_START
-        )
+        performV2 {
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(
+                        if (isInMultiSelectMode) ViewScoresTestTag.MULTI_SELECT_CANCEL
+                        else ViewScoresTestTag.MULTI_SELECT_START
+                )
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
+        }
     }
 
     fun checkEntriesNotSelectable() {
-        checkAllElements(ViewScoresTestTag.LIST_ITEM, isSelectable().not())
+        performV2 {
+            allNodes {
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM)
+                +CodexNodeGroupInteraction.AssertAll(CodexNodeMatcher.IsNotSelectable)
+            }
+        }
     }
 
     /**
@@ -240,16 +309,18 @@ class ViewScoresRobot(
      * and that [rowIndexes] are selected and all other rows are not selected
      */
     fun checkEntriesSelected(rowIndexes: Iterable<Int>, totalEntries: Int) {
-        perform {
-            allNodes(CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true))
-            +CodexNodeGroupInteraction.ForEach(
-                    (0 until totalEntries).map {
-                        listOf(
-                                CodexNodeInteraction.AssertIsSelectable(),
-                                CodexNodeInteraction.AssertIsSelected(rowIndexes.contains(it)),
-                        )
-                    }
-            )
+        performV2 {
+            allNodes {
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true)
+                +CodexNodeGroupInteraction.ForEach(
+                        (0 until totalEntries).map {
+                            listOf(
+                                    CodexNodeInteraction.AssertIsSelectable(),
+                                    CodexNodeInteraction.AssertIsSelected(rowIndexes.contains(it)),
+                            )
+                        }
+                )
+            }
         }
     }
 

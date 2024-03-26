@@ -51,4 +51,32 @@ object CodexDefaultActions {
         +CodexNodeMatcher.HasTestTag(buttonTag)
         +CodexNodeInteraction.PerformClick()
     }
+
+    fun TestActionDslV2.clickDialogOk() =
+            clickDialog(SimpleDialogTestTag.POSITIVE_BUTTON)
+
+    fun TestActionDslV2.clickDialogCancel() =
+            clickDialog(SimpleDialogTestTag.NEGATIVE_BUTTON)
+
+    private fun TestActionDslV2.clickDialog(buttonTag: CodexTestTag) {
+        singleNode {
+            +CodexNodeMatcher.HasTestTag(buttonTag)
+            +CodexNodeInteraction.PerformClick()
+        }
+    }
+
+    fun TestActionDslV2.checkDialogIsDisplayed(titleText: String) {
+        singleNode {
+            +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.TITLE)
+            +CodexNodeMatcher.HasText(titleText)
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+        }
+    }
+
+    fun TestActionDslV2.click(testTag: CodexTestTag) {
+        singleNode {
+            +CodexNodeMatcher.HasTestTag(testTag)
+            +CodexNodeInteraction.PerformClick()
+        }
+    }
 }

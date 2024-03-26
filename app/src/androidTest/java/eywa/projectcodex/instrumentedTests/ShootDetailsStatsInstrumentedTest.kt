@@ -30,7 +30,7 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot.PastRecordsDialogItem
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -223,19 +223,22 @@ class ShootDetailsStatsInstrumentedTest {
                 clickRow(1) {
                     waitForLoad()
                     clickNavBarStats {
+                        val predictedScore = ceil((192 + 201) / 2f).roundToInt()
+                        val allowance = 1250
+
                         checkRound(shoots[1].round!!.displayName)
                         checkRemainingArrows(arrowsPerArrowCount)
                         // Checked these values in the handicap tables (2023) - double and use score for 2 doz as only
                         // the first distance has been shot so this is what's being use to calculate the handicap
                         checkHandicap(36)
                         // divide by 2 because only one dozen was shot
-                        checkPredictedScore(ceil((192 + 201) / 2f).roundToInt())
+                        checkPredictedScore(predictedScore)
                         facesRobot.checkFaces("Full")
                         checkPb(isPb = false)
-                        checkAllowance(null)
+                        checkAllowance(allowance)
                         checkPastRecordsTextNotShown()
-                        checkArcherHandicap(null)
-                        checkAdjustedScore(null)
+                        checkArcherHandicap(40)
+                        checkAdjustedScore(allowance + predictedScore)
                     }
                 }
             }
@@ -305,25 +308,17 @@ class ShootDetailsStatsInstrumentedTest {
                         clickPastRecordsText()
                         checkPastRecordsDialogItems(
                                 listOf(
-                                        ShootDetailsStatsRobot.PastRecordsDialogItem(
-                                                "20/12/11",
-                                                1264,
-                                                "Personal best! - Current"
-                                        ),
-                                        ShootDetailsStatsRobot.PastRecordsDialogItem("18/12/11", 1250),
-                                        ShootDetailsStatsRobot.PastRecordsDialogItem("19/12/11", 1239),
+                                        PastRecordsDialogItem("20/12/11", 1264, "Personal best! - Current"),
+                                        PastRecordsDialogItem("18/12/11", 1250),
+                                        PastRecordsDialogItem("19/12/11", 1239),
                                 )
                         )
                         clickPastRecordsRecentTab()
                         checkPastRecordsDialogItems(
                                 listOf(
-                                        ShootDetailsStatsRobot.PastRecordsDialogItem(
-                                                "20/12/11",
-                                                1264,
-                                                "Personal best! - Current"
-                                        ),
-                                        ShootDetailsStatsRobot.PastRecordsDialogItem("19/12/11", 1239),
-                                        ShootDetailsStatsRobot.PastRecordsDialogItem("18/12/11", 1250),
+                                        PastRecordsDialogItem("20/12/11", 1264, "Personal best! - Current"),
+                                        PastRecordsDialogItem("19/12/11", 1239),
+                                        PastRecordsDialogItem("18/12/11", 1250),
                                 )
                         )
                     }

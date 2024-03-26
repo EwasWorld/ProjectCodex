@@ -1,6 +1,7 @@
 package eywa.projectcodex.instrumentedTests.dsl
 
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals
 
 /**
@@ -27,6 +28,12 @@ sealed class CodexNodeGroupInteraction {
     data class AssertCount(val count: Int) : CodexNodeGroupInteraction() {
         override fun performInternal(nodes: SemanticsNodeInteractionCollection) {
             nodes.assertCountEquals(count)
+        }
+    }
+
+    data class AssertAll(val matcher: CodexNodeMatcher) : CodexNodeGroupInteraction() {
+        override fun performInternal(nodes: SemanticsNodeInteractionCollection) {
+            nodes.assertAll(matcher.getMatcher())
         }
     }
 

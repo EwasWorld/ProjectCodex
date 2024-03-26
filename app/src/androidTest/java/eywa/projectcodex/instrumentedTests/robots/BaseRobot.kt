@@ -2,9 +2,6 @@ package eywa.projectcodex.instrumentedTests.robots
 
 import android.widget.DatePicker
 import android.widget.TimePicker
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assertAll
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
@@ -145,10 +142,6 @@ abstract class BaseRobot(
             +CodexNodeInteraction.AssertTextEquals(text)
         }
     }
-
-    @Deprecated("Use perform")
-    fun checkAllElements(testTag: CodexTestTag, check: SemanticsMatcher, useUnmergedTree: Boolean = false) =
-            composeTestRule.onAllNodesWithTag(testTag.getTestTag(), useUnmergedTree).assertAll(check)
 
 
     @Deprecated("Use perform")

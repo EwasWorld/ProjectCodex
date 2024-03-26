@@ -13,6 +13,7 @@ import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
 import eywa.projectcodex.common.utils.CodexTestTag
 
 fun List<CodexNodeMatcher>.getMatcher() =
@@ -99,6 +100,10 @@ sealed class CodexNodeMatcher {
 
     object HasScrollAction : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = hasScrollAction()
+    }
+
+    object IsNotSelectable : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher = isSelectable().not()
     }
 
     data class Custom(val customMatcher: SemanticsMatcher) : CodexNodeMatcher() {

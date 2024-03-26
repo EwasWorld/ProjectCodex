@@ -9,12 +9,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
  * Represents a single action or check
  */
 open class TestActionDslV2 internal constructor() {
-    private var useUnmergedTree = false
     private var nodes = mutableListOf<TestActionDslNode>()
-
-    fun useUnmergedTree(value: Boolean = true) {
-        useUnmergedTree = value
-    }
 
     /**
      * Start a check or action by matching a single node
@@ -23,7 +18,10 @@ open class TestActionDslV2 internal constructor() {
         if (nodes.isNotEmpty())
             throw IllegalStateException("Action already used, start a new perform block to run a new check")
 
-        nodes.add(TestActionDslSingleNode.First(this).apply(config))
+        TestActionDslSingleNode.First(this).apply {
+            nodes.add(this)
+            config()
+        }
     }
 
     /**
@@ -33,7 +31,10 @@ open class TestActionDslV2 internal constructor() {
         if (nodes.isNotEmpty())
             throw IllegalStateException("Action already used, start a new perform block to run a new check")
 
-        nodes.add(TestActionDslGroupNode.First(this).apply(config))
+        TestActionDslGroupNode.First(this).apply {
+            nodes.add(this)
+            config()
+        }
     }
 
     internal fun addNode(node: TestActionDslNode) {
@@ -42,7 +43,8 @@ open class TestActionDslV2 internal constructor() {
 
     internal fun perform(composeTestRule: ComposeTestRule<MainActivity>) {
         nodes.fold<TestActionDslNode, TestActionDslPreviousNode?>(null) { prev, node ->
-            node.perform(composeTestRule, prev)
+            val next = node.perform(composeTestRule, prev)
+            next
         }
     }
 }
@@ -104,6 +106,11 @@ open class TestActionDslSingleNode internal constructor(
     @TestActionDslMarker
     class First internal constructor(props: TestActionDslV2) : TestActionDslSingleNode(null, props) {
         private val matchers = mutableListOf<CodexNodeMatcher>()
+        private var useUnmergedTree = false
+
+        fun useUnmergedTree(value: Boolean = true) {
+            useUnmergedTree = value
+        }
 
         operator fun CodexNodeMatcher.unaryPlus() {
             checkIsValidSetupCall()
@@ -117,7 +124,7 @@ open class TestActionDslSingleNode internal constructor(
             if (previous != null) throw IllegalStateException()
 
             return composeTestRule
-                    .onNode(matchers.getMatcher())
+                    .onNode(matchers.getMatcher(), useUnmergedTree)
                     .apply { actions.forEach { it.perform(this) } }
                     .let { TestActionDslPreviousNode.Single(it) }
         }
@@ -162,6 +169,11 @@ open class TestActionDslGroupNode internal constructor(
     @TestActionDslMarker
     class First internal constructor(props: TestActionDslV2) : TestActionDslGroupNode(props) {
         private val matchers = mutableListOf<CodexNodeMatcher>()
+        private var useUnmergedTree = false
+
+        fun useUnmergedTree(value: Boolean = true) {
+            useUnmergedTree = value
+        }
 
         operator fun CodexNodeMatcher.unaryPlus() {
             checkIsValidSetupCall()
@@ -173,7 +185,7 @@ open class TestActionDslGroupNode internal constructor(
                 previous: TestActionDslPreviousNode?
         ): TestActionDslPreviousNode {
             if (previous != null) throw IllegalStateException()
-            val node = composeTestRule.onAllNodes(matchers.getMatcher())
+            val node = composeTestRule.onAllNodes(matchers.getMatcher(), useUnmergedTree)
             actions.forEach { it.perform(node) }
             return TestActionDslPreviousNode.Group(node)
         }
