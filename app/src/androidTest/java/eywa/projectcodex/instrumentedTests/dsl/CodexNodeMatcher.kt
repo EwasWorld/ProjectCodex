@@ -66,6 +66,16 @@ sealed class CodexNodeMatcher {
         }
     }
 
+    /**
+     * LazyColumn will cache nodes that have been removed, leaving them in the hierarchy.
+     * An update to compose could resolve this issue as outlined in https://issuetracker.google.com/issues/187188981
+     */
+    object IsNotCached : CodexNodeMatcher() {
+        override fun getMatcher(): SemanticsMatcher {
+            return SemanticsMatcher("isNotCached") { node -> node.layoutInfo.isPlaced }
+        }
+    }
+
     data class HasAnyAncestor(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
         constructor(matcher: CodexNodeMatcher) : this(listOf(matcher))
 

@@ -154,6 +154,13 @@ class ShootsTest {
                     round = rounds[0]
                     completeRound(1, false)
                 },
+                // Different sub type
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(8, TestUtils.generateDate())
+                    round = rounds[0]
+                    roundSubTypeId = 2
+                    completeRound(10, true)
+                },
         )
 
         rounds.forEach { db.add(it) }
@@ -161,9 +168,9 @@ class ShootsTest {
 
         // Compiled query
         assertEquals(
-                setOf(2 to false, 3 to true, 4 to true),
+                setOf(2 to false, 3 to true, 4 to true, 8 to false),
                 shootDao
-                        .getFullShootInfo((1..7).toList())
+                        .getFullShootInfo((1..8).toList())
                         .first()
                         .filter { it.isPersonalBest ?: false }
                         .map { it.shoot.shootId to it.isTiedPersonalBest }
@@ -171,7 +178,7 @@ class ShootsTest {
         )
         // Raw query
         assertEquals(
-                setOf(2 to false, 3 to true, 4 to true),
+                setOf(2 to false, 3 to true, 4 to true, 8 to false),
                 shootsRepo
                         .getFullShootInfo()
                         .first()

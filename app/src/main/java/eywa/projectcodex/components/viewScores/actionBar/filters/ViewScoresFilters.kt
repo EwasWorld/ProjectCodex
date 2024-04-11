@@ -77,6 +77,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectSubtypeDialog
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
@@ -84,14 +85,6 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsSta
 import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoreHelpPriority
 import java.util.Calendar
-import kotlin.Boolean
-import kotlin.Int
-import kotlin.OptIn
-import kotlin.String
-import kotlin.Unit
-import kotlin.let
-import kotlin.takeIf
-import kotlin.to
 
 
 object ViewScoresBottomSheetFilters : BottomSheetNavRoute {
@@ -136,7 +129,9 @@ private fun ExpandedFiltersPanel(
     ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground)) {
         Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(25.dp)
+                modifier = Modifier
+                        .padding(25.dp)
+                        .testTag(ViewScoresFiltersTestTag.SCREEN)
         ) {
             TitleBar(listener, helpShowcaseListener)
             Filters(state, listener, helpShowcaseListener)
@@ -177,22 +172,39 @@ private fun Filters(
                 helpShowcaseListener = helpShowcaseListener,
         )
 
-        ToggleFilter(
-                title = stringResource(R.string.view_scores__filters_personal_bests),
-                textWhenOn = stringResource(R.string.view_scores__filters_personal_bests_only),
-                isOn = state.personalBestsFilter,
-                onClick = { listener(ViewScoresFiltersIntent.ClickPbFilter) },
-                helpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_view_scores__filters_personal_best_title),
-                        helpBody = stringResource(R.string.help_view_scores__filters_personal_best_body),
-                        priority = ViewScoresFiltersHelpPriority.AFTER_ROUNDS.ordinal,
-                ).asHelpState(helpShowcaseListener),
-        )
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+        ) {
+            ToggleFilter(
+                    title = stringResource(R.string.view_scores__filters_personal_bests),
+                    textWhenOn = stringResource(R.string.view_scores__filters_personal_bests_only),
+                    isOn = state.personalBestsFilter,
+                    onClick = { listener(ViewScoresFiltersIntent.ClickPbFilter) },
+                    testTag = ViewScoresFiltersTestTag.PERSONAL_BESTS_FILTER,
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_view_scores__filters_personal_best_title),
+                            helpBody = stringResource(R.string.help_view_scores__filters_personal_best_body),
+                            priority = ViewScoresFiltersHelpPriority.AFTER_ROUNDS.ordinal,
+                    ).asHelpState(helpShowcaseListener),
+            )
+            if (state.personalBestsFilter && state.filters.size > 1) {
+                Text(
+                        text = stringResource(R.string.view_scores__filters_personal_bests_warning),
+                        style = CodexTypography.SMALL,
+                        color = CodexTheme.colors.warningOnDialog,
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier.testTag(ViewScoresFiltersTestTag.PERSONAL_BESTS_FILTER_WARNING)
+                )
+            }
+        }
+
         ToggleFilter(
                 title = stringResource(R.string.view_scores__filters_complete),
                 textWhenOn = stringResource(R.string.view_scores__filters_complete_only),
                 isOn = state.completedRoundsFilter,
                 onClick = { listener(ViewScoresFiltersIntent.ClickCompleteFilter) },
+                testTag = ViewScoresFiltersTestTag.COMPLETE_FILTER,
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_view_scores__filters_complete_title),
                         helpBody = stringResource(R.string.help_view_scores__filters_complete_body),
@@ -204,6 +216,7 @@ private fun Filters(
                 textWhenOn = stringResource(R.string.view_scores__filters_first_of_day_only),
                 isOn = state.firstRoundOfDayFilter,
                 onClick = { listener(ViewScoresFiltersIntent.ClickFirstOfDayFilter) },
+                testTag = ViewScoresFiltersTestTag.FIRST_OF_DAY_FILTER,
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_view_scores__filters_first_of_day_title),
                         helpBody = stringResource(R.string.help_view_scores__filters_first_of_day_body),
@@ -221,6 +234,7 @@ private fun Filters(
                         helpBody = stringResource(R.string.help_view_scores__filters_type_body),
                         priority = ViewScoresFiltersHelpPriority.AFTER_ROUNDS.ordinal,
                 ).asHelpState(helpShowcaseListener),
+                modifier = Modifier.testTag(ViewScoresFiltersTestTag.TYPE_FILTER)
         )
     }
 }
@@ -279,6 +293,7 @@ private fun TitleBar(
                 modifier = Modifier
                         .clickable { listener(ViewScoresFiltersIntent.CloseFilters) }
                         .align(Alignment.TopEnd)
+                        .testTag(ViewScoresFiltersTestTag.CLOSE_BUTTON)
         )
     }
 }
@@ -310,9 +325,13 @@ fun CollapsedFiltersPanel(
                 ).asHelpState(helpShowcaseListener),
                 onClick = openFiltersListener,
                 caption = state.activeFilterCount.toString(),
-                captionModifier = Modifier.semantics { contentDescription = semantics },
+                captionModifier = Modifier
+                        .semantics { contentDescription = semantics }
+                        .testTag(ViewScoresFiltersTestTag.COLLAPSED_FILTER_COUNT),
                 captionStyle = CodexTypography.SMALL,
-                modifier = Modifier.semantics(true) {}
+                modifier = Modifier
+                        .semantics(true) {}
+                        .testTag(ViewScoresFiltersTestTag.COLLAPSED_BUTTON)
         )
     }
 }
@@ -322,6 +341,7 @@ private fun ToggleFilter(
         title: String,
         textWhenOn: String,
         isOn: Boolean,
+        testTag: ViewScoresFiltersTestTag,
         helpState: HelpState,
         onClick: () -> Unit,
 ) {
@@ -331,6 +351,7 @@ private fun ToggleFilter(
             textClickableStyle = LocalTextStyle.current.asClickableStyle(),
             onClick = onClick,
             helpState = helpState,
+            modifier = Modifier.testTag(testTag),
     )
 }
 
@@ -360,6 +381,8 @@ private fun ColumnScope.DateFilters(
                 title = stringResource(R.string.view_scores__filters_from_date),
                 contentDescription = stringResource(R.string.view_scores__filters_from_date_content_description),
                 date = state.fromDate,
+                testTag = ViewScoresFiltersTestTag.DATE_FROM_FILTER,
+                clearTestTag = ViewScoresFiltersTestTag.CLEAR_DATE_FROM_FILTER_BUTTON,
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateFromFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearFromFilter) },
         )
@@ -371,6 +394,8 @@ private fun ColumnScope.DateFilters(
                 title = stringResource(R.string.view_scores__filters_until_date),
                 contentDescription = stringResource(R.string.view_scores__filters_until_date_content_description),
                 date = state.untilDate,
+                testTag = ViewScoresFiltersTestTag.DATE_UNTIL_FILTER,
+                clearTestTag = ViewScoresFiltersTestTag.CLEAR_DATE_UNTIL_FILTER_BUTTON,
                 error = stringResource(R.string.view_scores__filters_invalid_dates).takeIf { !state.dateRangeIsValid },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateUntilFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearUntilFilter) },
@@ -384,6 +409,7 @@ private fun ColumnScope.DateFilters(
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier
                         .padding(bottom = 5.dp)
+                        .testTag(ViewScoresFiltersTestTag.DATE_UNTIL_FILTER_ERROR)
                         .clearAndSetSemantics { }
         )
     }
@@ -394,6 +420,8 @@ private fun DateFilter(
         title: String,
         contentDescription: String,
         date: Calendar?,
+        testTag: ViewScoresFiltersTestTag,
+        clearTestTag: ViewScoresFiltersTestTag,
         modifier: Modifier = Modifier,
         error: String? = null,
         onUpdate: (UpdateCalendarInfo) -> Unit,
@@ -425,6 +453,7 @@ private fun DateFilter(
                             .semantics {
                                 this.contentDescription = contentDescription
                             }
+                            .testTag(testTag)
             )
         }
         else {
@@ -439,6 +468,7 @@ private fun DateFilter(
                                 this.contentDescription = "$dateString. $contentDescription. ${error ?: ""}"
                             }
                             .clickable { datePicker.show() }
+                            .testTag(testTag)
                             .padding(end = 3.dp)
             )
             if (error != null) {
@@ -452,7 +482,7 @@ private fun DateFilter(
                                 .padding(start = 3.dp)
                 )
             }
-            ClearIcon(onClear)
+            ClearIcon(onClear, clearTestTag)
         }
     }
 }
@@ -482,7 +512,8 @@ private fun ColumnScope.ScoreFilters(
 
         ScoreFilters(
                 value = state.minScore,
-                testTag = ViewScoresFiltersTestTag.SCORE_MIN,
+                testTag = ViewScoresFiltersTestTag.SCORE_MIN_FILTER,
+                clearTestTag = ViewScoresFiltersTestTag.CLEAR_SCORE_MIN_FILTER_BUTTON,
                 placeholder = stringResource(R.string.view_scores__filters_scores_min),
                 contentDescription = stringResource(R.string.view_scores__filters_scores_min_content_description),
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMinFilter(it)) },
@@ -494,7 +525,8 @@ private fun ColumnScope.ScoreFilters(
         )
         ScoreFilters(
                 value = state.maxScore,
-                testTag = ViewScoresFiltersTestTag.SCORE_MAX,
+                testTag = ViewScoresFiltersTestTag.SCORE_MAX_FILTER,
+                clearTestTag = ViewScoresFiltersTestTag.CLEAR_SCORE_MAX_FILTER_BUTTON,
                 placeholder = stringResource(R.string.view_scores__filters_scores_max),
                 contentDescription = stringResource(R.string.view_scores__filters_scores_max_content_description),
                 error = StringResError(R.string.view_scores__filters_invalid_scores)
@@ -518,6 +550,7 @@ private fun ColumnScope.ScoreFilters(
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier
                         .padding(bottom = 5.dp)
+                        .testTag(ViewScoresFiltersTestTag.SCORE_FILTER_ERROR)
                         .clearAndSetSemantics { }
         )
     }
@@ -527,6 +560,7 @@ private fun ColumnScope.ScoreFilters(
 private fun ScoreFilters(
         value: NumberFieldState<Int>,
         testTag: ViewScoresFiltersTestTag,
+        clearTestTag: ViewScoresFiltersTestTag,
         placeholder: String,
         contentDescription: String,
         error: DisplayableError? = null,
@@ -541,7 +575,7 @@ private fun ScoreFilters(
     )
     val trailingIcon: (@Composable () -> Unit)? =
             if (value.text.isNotEmpty()) {
-                { ClearIcon(onClear, CodexTheme.colors.textFieldIcon) }
+                { ClearIcon(onClear, clearTestTag, CodexTheme.colors.textFieldIcon) }
             }
             else {
                 null
@@ -619,7 +653,7 @@ private fun RoundsFilter(
                 }
             }
             if (roundFilter) {
-                ClearIcon(onClear)
+                ClearIcon(onClear, ViewScoresFiltersTestTag.CLEAR_ROUND_FILTER_BUTTON)
             }
 
             SelectRoundDialog(
@@ -667,7 +701,7 @@ private fun SubTypeFilter(
                 textClickableStyle = clickableStyle,
         )
         if (subTypeName != null) {
-            ClearIcon(onClear)
+            ClearIcon(onClear, ViewScoresFiltersTestTag.CLEAR_SUB_ROUND_FILTER_BUTTON)
         }
     }
 
@@ -681,8 +715,27 @@ private fun SubTypeFilter(
 }
 
 enum class ViewScoresFiltersTestTag : CodexTestTag {
-    SCORE_MIN,
-    SCORE_MAX,
+    SCREEN,
+    DATE_FROM_FILTER,
+    DATE_UNTIL_FILTER,
+    CLEAR_DATE_FROM_FILTER_BUTTON,
+    CLEAR_DATE_UNTIL_FILTER_BUTTON,
+    DATE_UNTIL_FILTER_ERROR,
+    SCORE_MIN_FILTER,
+    SCORE_MAX_FILTER,
+    SCORE_FILTER_ERROR,
+    CLEAR_SCORE_MAX_FILTER_BUTTON,
+    CLEAR_SCORE_MIN_FILTER_BUTTON,
+    CLEAR_ROUND_FILTER_BUTTON,
+    CLEAR_SUB_ROUND_FILTER_BUTTON,
+    PERSONAL_BESTS_FILTER,
+    PERSONAL_BESTS_FILTER_WARNING,
+    COMPLETE_FILTER,
+    FIRST_OF_DAY_FILTER,
+    TYPE_FILTER,
+    COLLAPSED_BUTTON,
+    COLLAPSED_FILTER_COUNT,
+    CLOSE_BUTTON,
     ;
 
     override val screenName: String
@@ -696,6 +749,7 @@ enum class ViewScoresFiltersHelpPriority { BEFORE_ROUNDS, ROUNDS, AFTER_ROUNDS }
 @Composable
 private fun ClearIcon(
         onClear: () -> Unit,
+        testTag: ViewScoresFiltersTestTag,
         tint: Color = CodexTheme.colors.onDialogBackground,
 ) {
     CodexIconInfo.VectorIcon(
@@ -703,6 +757,7 @@ private fun ClearIcon(
             tint = tint,
     ).CodexIcon(
             modifier = Modifier
+                    .testTag(testTag)
                     .clearAndSetSemantics { }
                     .clickable { onClear() }
                     .scale(0.7f)

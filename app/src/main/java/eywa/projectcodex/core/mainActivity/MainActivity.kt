@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,9 +48,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
-import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
@@ -78,7 +81,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var navRoutes: Set<@JvmSuppressWildcards ScreenNavRoute>
 
-    @OptIn(ExperimentalMaterialNavigationApi::class)
+    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -89,7 +92,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CodexTheme {
-                val bottomSheetNavigator = rememberBottomSheetNavigator()
+                val sheetState = rememberModalBottomSheetState(
+                        initialValue = ModalBottomSheetValue.Hidden,
+                        skipHalfExpanded = true,
+                )
+                val bottomSheetNavigator = remember { BottomSheetNavigator(sheetState) }
                 val navController = rememberNavController(bottomSheetNavigator)
 
                 val currentEntry by navController.currentBackStackEntryAsState()

@@ -76,6 +76,7 @@
     <string name="view_scores__filters_type_all">All</string>
     <string name="view_scores__filters_personal_bests">Personal bests:</string>
     <string name="view_scores__filters_personal_bests_only">Only PBs</string>
+    <string name="view_scores__filters_personal_bests_warning">Warning: other filters may interfere with PBs</string>
     <string name="view_scores__filters_complete">Complete:</string>
     <string name="view_scores__filters_complete_only">Only complete</string>
     <string name="view_scores__filters_first_of_day">First of day:</string>

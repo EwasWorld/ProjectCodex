@@ -3,6 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.RadioButtonDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersTestTag
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoresRowTestTag
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoresTestTag
 import eywa.projectcodex.components.viewScores.screenUi.viewScoresListItemTestTag
@@ -53,6 +54,7 @@ class ViewScoresRobot(
             allNodes {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, substring = true)
+                +CodexNodeMatcher.IsNotCached
                 +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
             }
         }
@@ -231,7 +233,11 @@ class ViewScoresRobot(
                 useUnmergedTree()
                 +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex)))
                 +CodexNodeMatcher.HasTestTag(testTag)
-                +assertTextEqualsOrDoesntExist(text)
+                +CodexNodeMatcher.IsNotCached
+                if (text != null) {
+                    scrollToParentIndex(rowIndex)
+                }
+                +assertTextEqualsOrDoesntExist(text).waitFor()
             }
         }
     }
@@ -249,6 +255,23 @@ class ViewScoresRobot(
     fun waitForRoundName(rowIndex: Int, roundName: String?) =
             waitForTextInRow(rowIndex, ViewScoresRowTestTag.FIRST_NAME, roundName)
 
+    fun waitForRowNotExist(rowIndex: Int) {
+        performV2 {
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex - 1))
+                scrollToParentIndex(rowIndex - 1)
+            }
+        }
+        performV2 {
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
+                +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+            }
+        }
+    }
+
     fun checkContentDescription(rowIndex: Int, vararg description: String) {
         performV2 {
             singleNode {
@@ -257,6 +280,24 @@ class ViewScoresRobot(
             }
         }
     }
+
+    /**
+     * @param items accepts [String]s (HSG) and [Int]s (arrow count). Order is the order they should appear
+     */
+    fun checkRows(items: List<Any>) {
+        items.forEachIndexed { index, expected ->
+            when (expected) {
+                is String -> waitForHsg(index, expected)
+                is Int -> waitForArrowCount(index, expected)
+            }
+        }
+//        waitForRowNotExist(items.size)
+    }
+
+    /**
+     * @see checkRows
+     */
+    fun checkRows(vararg items: Any) = checkRows(items.toList())
 
     fun clickStartMultiSelectMode() {
         performV2 {
@@ -320,6 +361,26 @@ class ViewScoresRobot(
                             )
                         }
                 )
+            }
+        }
+    }
+
+    fun clickFilters(block: ViewScoresFiltersRobot.() -> Unit) {
+        performV2 {
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(ViewScoresFiltersTestTag.COLLAPSED_BUTTON)
+                +CodexNodeInteraction.PerformClick()
+            }
+        }
+        ViewScoresFiltersRobot(::performV2, ::perform, ::performDatePickerDateSelection).apply(block)
+    }
+
+    fun checkFiltersCount(count: Int) {
+        performV2 {
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(ViewScoresFiltersTestTag.COLLAPSED_FILTER_COUNT)
+                +CodexNodeInteraction.AssertTextEquals(count.toString())
             }
         }
     }

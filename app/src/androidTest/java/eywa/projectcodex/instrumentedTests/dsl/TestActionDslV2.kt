@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests.dsl
 
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.performScrollToIndex
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.core.mainActivity.MainActivity
 
@@ -107,9 +108,17 @@ open class TestActionDslSingleNode internal constructor(
     class First internal constructor(props: TestActionDslV2) : TestActionDslSingleNode(null, props) {
         private val matchers = mutableListOf<CodexNodeMatcher>()
         private var useUnmergedTree = false
+        private var scrollToParentIndex: Int? = null
 
         fun useUnmergedTree(value: Boolean = true) {
             useUnmergedTree = value
+        }
+
+        /**
+         * Performs a [performScrollToIndex] on any parent of the matched node with the required action
+         */
+        fun scrollToParentIndex(value: Int) {
+            scrollToParentIndex = value
         }
 
         operator fun CodexNodeMatcher.unaryPlus() {
@@ -125,7 +134,20 @@ open class TestActionDslSingleNode internal constructor(
 
             return composeTestRule
                     .onNode(matchers.getMatcher(), useUnmergedTree)
-                    .apply { actions.forEach { it.perform(this) } }
+                    .apply {
+                        scrollToParentIndex?.let { index ->
+                            val parentMatchers = listOf(
+                                    CodexNodeMatcher.HasAnyDescendant(
+                                            matchers.filter { it !is CodexNodeMatcher.IsNotCached },
+                                    ),
+                                    CodexNodeMatcher.HasScrollToIndexAction,
+                            )
+                            composeTestRule
+                                    .onNode(parentMatchers.getMatcher(), useUnmergedTree)
+                                    .performScrollToIndex(index)
+                        }
+                        actions.forEach { it.perform(this) }
+                    }
                     .let { TestActionDslPreviousNode.Single(it) }
         }
     }

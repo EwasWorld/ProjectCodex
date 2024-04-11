@@ -72,7 +72,7 @@ class NewScoreRobot(
     fun setDate(calendar: Calendar) {
         setDate(
                 calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.MONTH) + 1,
                 calendar.get(Calendar.YEAR),
         )
     }
@@ -81,7 +81,7 @@ class NewScoreRobot(
         clickElement(DateSelectorRowTestTag.DATE_BUTTON)
         val calendar = Calendar.getInstance()
         // Use a different hour/minute to ensure it's not overwriting the time
-        calendar.set(year, month, day, 13, 15, 0)
+        calendar.set(year, month - 1, day, 13, 15, 0)
         CustomConditionWaiter.waitForClassToAppear(DatePicker::class.java)
         onViewWithClassName(DatePicker::class.java).perform(setDatePickerValue(calendar))
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())

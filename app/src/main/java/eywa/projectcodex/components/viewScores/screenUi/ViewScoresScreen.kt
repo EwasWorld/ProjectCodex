@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -219,8 +220,10 @@ fun ViewScoresScreen(
                             .testTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag())
                             .align(Alignment.TopCenter)
             ) {
-                items(state.data.size) { entryIndex ->
-                    val entry = state.data[entryIndex]
+                itemsIndexed(
+                        items = state.data,
+                        key = { _, entry -> entry.id },
+                ) { entryIndex, entry ->
                     ViewScoresListItem(
                             entry = entry,
                             entryIndex = entryIndex,

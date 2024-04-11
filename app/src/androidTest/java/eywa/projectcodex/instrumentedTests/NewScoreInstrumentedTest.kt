@@ -228,7 +228,7 @@ class NewScoreInstrumentedTest {
                 setTime(20, 22)
                 checkTime("20:22")
 
-                setDate(30, 9, 2040)
+                setDate(30, 10, 2040)
                 checkTime("20:22")
                 checkDate("30 Oct 40")
 

@@ -50,6 +50,10 @@ class ShootsRepo(
         if (actualFilters.contains(ShootFilter.ScoreRange::class)) {
             actualFilters += ShootFilter.ArrowCounts(false)
         }
+        if (actualFilters.contains(ShootFilter.PersonalBests::class)) {
+            actualFilters += ShootFilter.ArrowCounts(false)
+            actualFilters += ShootFilter.CompleteRounds
+        }
 
         actualFilters.forEach { filter ->
             val filterString = when (filter) {

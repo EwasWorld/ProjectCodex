@@ -7,8 +7,11 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.TestUtils.parseDate
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersTypes
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -23,6 +26,7 @@ import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
+import eywa.projectcodex.instrumentedTests.robots.ViewScoresFiltersRobot
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.model.FullShootInfo
@@ -37,7 +41,7 @@ import java.util.Calendar
 @HiltAndroidTest
 class ViewScoresInstrumentedTest {
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(20)
+    val testTimeout: Timeout = Timeout.seconds(35)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -535,6 +539,270 @@ class ViewScoresInstrumentedTest {
                 waitForLoad()
                 scrollToRow(19)
                 cycleThroughComposeHelpDialogs()
+            }
+        }
+    }
+
+    @Test
+    fun testFilters() {
+        shootsNew = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = "30/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(1)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = "29/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(2)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3, dateShot = "28/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(3)
+                    arrows = arrows!!.dropLast(1)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4, dateShot = "27/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    roundSubTypeId = 6
+                    completeRoundWithCounter()
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 5, dateShot = "25/10/2020 12:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(5)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 6, dateShot = "25/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    roundSubTypeId = 6
+                    completeRoundWithFinalScore(6)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 7, dateShot = "24/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa25RoundData
+                    completeRoundWithFinalScore(7)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 8, dateShot = "23/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa25RoundData
+                    completeRoundWithFinalScore(8)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 9, dateShot = "22/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(9)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 10, dateShot = "21/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(10)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 11, dateShot = "20/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(11)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 12, dateShot = "19/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                    completeRoundWithFinalScore(12)
+                },
+        )
+        rounds = listOf(RoundPreviewHelper.wa1440RoundData, RoundPreviewHelper.wa25RoundData)
+        populateDb()
+
+        fun ViewScoresRobot.setFilter(block: ViewScoresFiltersRobot.() -> Unit) {
+            clickFilters {
+                block()
+                clickClose()
+            }
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                checkFiltersCount(0)
+                checkRows(
+                        "1/1/0", "1/2/0", "1/3/0",
+                        144, "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1", "2/11/1", "2/12/1",
+                )
+
+                setFilter {
+                    setFromDate(2020, 10, 20)
+                }
+                checkFiltersCount(1)
+                waitForRowNotExist(11)
+                checkRows(
+                        "1/1/0", "1/2/0", "1/3/0",
+                        144, "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1", "2/11/1",
+                )
+
+                setFilter {
+                    setUntilDate(2020, 10, 10)
+                    checkUntilDateErrorShown()
+                }
+                checkFiltersCount(1)
+                waitForRowNotExist(11)
+                checkRows(
+                        "1/1/0", "1/2/0", "1/3/0",
+                        144, "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1", "2/11/1",
+                )
+
+                setFilter {
+                    setUntilDate(2020, 10, 29)
+                }
+                checkFiltersCount(1)
+                waitForRowCount(10)
+                waitForRowNotExist(10)
+                checkRows(
+                        "1/2/0", "1/3/0",
+                        144, "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1", "2/11/1",
+                )
+
+                setFilter {
+                    checkTypeFilter(ViewScoresFiltersTypes.ALL)
+                    clickTypeFilter()
+                    checkTypeFilter(ViewScoresFiltersTypes.SCORE)
+                    clickTypeFilter()
+                    checkTypeFilter(ViewScoresFiltersTypes.COUNT)
+                }
+                checkFiltersCount(2)
+                waitForRowCount(1)
+                checkRows(144)
+
+                setFilter {
+                    clickTypeFilter()
+                    checkTypeFilter(ViewScoresFiltersTypes.ALL)
+                    clickTypeFilter()
+                    checkTypeFilter(ViewScoresFiltersTypes.SCORE)
+                }
+                checkFiltersCount(2)
+                waitForRowCount(9)
+                waitForRowNotExist(9)
+                checkRows(
+                        "1/2/0", "1/3/0",
+                        "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1", "2/11/1",
+                )
+
+                setFilter {
+                    setMinScore(3)
+                }
+                checkFiltersCount(3)
+                waitForRowCount(8)
+                checkRows(
+                        "1/3/0",
+                        "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1", "2/11/1",
+                )
+
+                setFilter {
+                    setMaxScore(2)
+                    checkScoreErrorShown()
+                }
+                checkFiltersCount(3)
+                waitForRowCount(8)
+                checkRows(
+                        "1/3/0",
+                        "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1", "2/11/1",
+                )
+
+                setFilter {
+                    setMaxScore(10)
+                }
+                checkFiltersCount(3)
+                waitForRowCount(7)
+                checkRows(
+                        "1/3/0",
+                        "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1",
+                )
+
+                setFilter {
+                    clickCompleteOnlyFilter()
+                }
+                checkFiltersCount(4)
+                waitForRowCount(6)
+                checkRows(
+                        "1/5/0", "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1",
+                )
+
+                setFilter {
+                    clickFirstOfDayFilter()
+                }
+                checkFiltersCount(5)
+                waitForRowCount(5)
+                checkRows(
+                        "1/6/0",
+                        "1/7/0", "1/8/0", "1/9/0",
+                        "1/10/1",
+                )
+
+                setFilter {
+                    with(selectRoundsRobot) {
+                        clickSelectedRound {
+                            clickRound(RoundPreviewHelper.wa25RoundData.getDisplayName(null))
+                        }
+                    }
+                }
+                checkFiltersCount(6)
+                waitForRowCount(2)
+                checkRows("1/7/0", "1/8/0")
+
+                setFilter {
+                    with(selectRoundsRobot) {
+                        clickSelectedRound {
+                            clickRound(RoundPreviewHelper.wa1440RoundData.round.displayName)
+                        }
+                    }
+                }
+                checkFiltersCount(6)
+                waitForRowCount(3)
+                checkRows("1/6/0", "1/9/0", "1/10/1")
+
+                setFilter {
+                    with(selectRoundsRobot) {
+                        clickSelectedSubtype {
+                            clickSubtypeDialogSubtype(RoundPreviewHelper.wa1440RoundData.roundSubTypes!![0].name!!)
+                        }
+                    }
+                }
+                checkFiltersCount(6)
+                waitForRowCount(2)
+                checkRows("1/9/0", "1/10/1")
+
+                setFilter {
+                    clearRoundsFilter()
+                    clickPbsOnlyFilter()
+                    checkPbFilterInterferenceErrorShown()
+                }
+                checkFiltersCount(6)
+                waitForRowCount(2)
+                checkRows("1/6/0", "1/8/0")
+
+                setFilter {
+                    clearDateFilters()
+                    clearScoreFilters()
+                }
+                checkFiltersCount(4)
+                waitForRowCount(3)
+                checkRows("1/6/0", "1/8/0", "2/12/1")
             }
         }
     }

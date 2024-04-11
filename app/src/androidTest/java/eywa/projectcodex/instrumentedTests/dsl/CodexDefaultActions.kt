@@ -79,4 +79,30 @@ object CodexDefaultActions {
             +CodexNodeInteraction.PerformClick()
         }
     }
+
+    fun TestActionDslSingleNode.First.matchTextBox(testTag: CodexTestTag) {
+        useUnmergedTree()
+        +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
+        +CodexNodeMatcher.HasSetTextAction
+    }
+
+    fun TestActionDslSingleNode.First.matchDataRowValue(testTag: CodexTestTag) {
+        useUnmergedTree()
+        +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
+        +CodexNodeMatcher.HasClickAction
+    }
+
+    fun TestActionDslV2.clickDataRow(testTag: CodexTestTag) {
+        singleNode {
+            matchDataRowValue(testTag)
+            +CodexNodeInteraction.PerformClick()
+        }
+    }
+
+    fun TestActionDslV2.setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
+        singleNode {
+            matchTextBox(testTag)
+            +CodexNodeInteraction.SetText(text, append)
+        }
+    }
 }
