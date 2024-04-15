@@ -4,26 +4,30 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTestTag
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 
 @SelectRoundDsl
-class SelectRoundRobot internal constructor(val perform: PerformFn) {
+class SelectRoundRobot internal constructor(val perform: PerformFnV2) {
     init {
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG)
-            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG)
+                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            }
         }
     }
 
     fun checkRoundOptions(displayNames: List<String>) {
         displayNames.forEach { displayName ->
             perform {
-                useUnmergedTree = true
-                displayName
-                        .split(" ")
-                        .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
-                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
-                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+                singleNode {
+                    useUnmergedTree()
+                    displayName
+                            .split(" ")
+                            .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
+                    +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                    +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+                }
             }
         }
     }
@@ -31,12 +35,14 @@ class SelectRoundRobot internal constructor(val perform: PerformFn) {
     fun checkRoundOptionsNotExist(displayNames: List<String>) {
         displayNames.forEach { displayName ->
             perform {
-                useUnmergedTree = true
-                displayName
-                        .split(" ")
-                        .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
-                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
-                +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+                singleNode {
+                    useUnmergedTree()
+                    displayName
+                            .split(" ")
+                            .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
+                    +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                    +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+                }
             }
         }
     }
@@ -44,47 +50,59 @@ class SelectRoundRobot internal constructor(val perform: PerformFn) {
     fun checkNoFiltersAreOn() {
         Filter.values().forEach {
             perform {
-                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER_LIST)
-                +CodexNodeInteraction.PerformScrollToIndex(it.index)
+                singleNode {
+                    +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER_LIST)
+                    +CodexNodeInteraction.PerformScrollToIndex(it.index)
+                }
             }
             perform {
-                useUnmergedTree = true
-                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
-                +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it.label))
-                +CodexNodeInteraction.AssertIsSelected(false)
+                singleNode {
+                    useUnmergedTree()
+                    +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
+                    +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it.label))
+                    +CodexNodeInteraction.AssertIsSelected(false)
+                }
             }
         }
     }
 
     fun clickFilter(filter: Filter, isNowOn: Boolean = true) {
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER_LIST)
-            +CodexNodeInteraction.PerformScrollToIndex(filter.index)
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER_LIST)
+                +CodexNodeInteraction.PerformScrollToIndex(filter.index)
+            }
         }
         perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
-            +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
-            +CodexNodeInteraction.PerformClick()
-            +CodexNodeInteraction.AssertIsSelected(isNowOn).waitFor()
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.FILTER)
+                +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(filter.label))
+                +CodexNodeInteraction.PerformClick()
+                +CodexNodeInteraction.AssertIsSelected(isNowOn).waitFor()
+            }
         }
     }
 
     fun clickRound(displayName: String) {
         perform {
-            useUnmergedTree = true
-            displayName
-                    .split(" ")
-                    .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
-            +CodexNodeInteraction.PerformClick()
+            singleNode {
+                useUnmergedTree()
+                displayName
+                        .split(" ")
+                        .forEach { +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(it)) }
+                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                +CodexNodeInteraction.PerformClick()
+            }
         }
     }
 
     fun clickNoRound() {
         perform {
-            +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.POSITIVE_BUTTON)
-            +CodexNodeInteraction.PerformClick()
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.POSITIVE_BUTTON)
+                +CodexNodeInteraction.PerformClick()
+            }
         }
     }
 

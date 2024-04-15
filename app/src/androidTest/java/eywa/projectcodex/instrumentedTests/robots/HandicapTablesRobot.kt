@@ -22,7 +22,7 @@ class HandicapTablesRobot(
         get() = TabSwitcherGroup.REFERENCES
 
     val selectFaceBaseRobot = SelectFaceBaseRobot(::perform)
-    val selectRoundBaseRobot = SelectRoundBaseRobot(::perform)
+    val selectRoundBaseRobot = SelectRoundBaseRobot(::performV2)
 
     fun clickHandicapSystem() {
         perform {

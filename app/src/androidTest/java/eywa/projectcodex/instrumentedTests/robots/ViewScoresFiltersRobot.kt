@@ -7,17 +7,15 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowV
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
 import java.util.Calendar
 
 class ViewScoresFiltersRobot(
         val perform: PerformFnV2,
-        performOld: PerformFn,
         val performDatePickerDateSelection: (Calendar) -> Unit,
 ) {
-    val selectRoundsRobot = SelectRoundBaseRobot(performOld)
+    val selectRoundsRobot = SelectRoundBaseRobot(perform)
 
     init {
         perform {

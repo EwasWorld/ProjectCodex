@@ -19,7 +19,7 @@ class ClassificationTablesRobot(
     override val group: TabSwitcherGroup
         get() = TabSwitcherGroup.REFERENCES
 
-    val selectRoundsRobot = SelectRoundBaseRobot(::perform)
+    val selectRoundsRobot = SelectRoundBaseRobot(::performV2)
 
     fun clickGender(expectedNewGenderIsGent: Boolean = true) {
         val expectedNewGender = if (expectedNewGenderIsGent) "Gents" else "Ladies"

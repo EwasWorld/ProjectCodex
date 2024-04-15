@@ -372,7 +372,7 @@ class ViewScoresRobot(
                 +CodexNodeInteraction.PerformClick()
             }
         }
-        ViewScoresFiltersRobot(::performV2, ::perform, ::performDatePickerDateSelection).apply(block)
+        ViewScoresFiltersRobot(::performV2, ::performDatePickerDateSelection).apply(block)
     }
 
     fun checkFiltersCount(count: Int) {

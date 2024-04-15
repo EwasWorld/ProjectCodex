@@ -9,6 +9,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 /**
  * Represents a single action or check
  */
+@TestActionDslMarker
 open class TestActionDslV2 internal constructor() {
     private var nodes = mutableListOf<TestActionDslNode>()
 
@@ -20,7 +21,7 @@ open class TestActionDslV2 internal constructor() {
             throw IllegalStateException("Action already used, start a new perform block to run a new check")
 
         TestActionDslSingleNode.First(this).apply {
-            nodes.add(this)
+            this@TestActionDslV2.nodes.add(this)
             config()
         }
     }
@@ -33,7 +34,7 @@ open class TestActionDslV2 internal constructor() {
             throw IllegalStateException("Action already used, start a new perform block to run a new check")
 
         TestActionDslGroupNode.First(this).apply {
-            nodes.add(this)
+            this@TestActionDslV2.nodes.add(this)
             config()
         }
     }

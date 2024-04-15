@@ -4,29 +4,30 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogTest
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 
 @SelectRoundDsl
-class SelectRoundSubTypeRobot internal constructor(val perform: PerformFn) {
+class SelectRoundSubTypeRobot internal constructor(val perform: PerformFnV2) {
     init {
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG)
-            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG)
+                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            }
         }
     }
 
     fun clickSubtypeDialogSubtype(displayName: String, index: Int = 0) {
         perform {
-            useUnmergedTree = true
-            allNodes(
-                    CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM),
-                    *displayName
-                            .split(" ")
-                            .map { CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it)) }
-                            .toTypedArray()
-            )
-            +CodexNodeGroupToOne.Index(index)
-            +CodexNodeInteraction.PerformClick().waitFor()
+            allNodes {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM)
+                displayName.split(" ")
+                        .forEach { +CodexNodeMatcher.HasAnyChild(CodexNodeMatcher.HasText(it)) }
+                toSingle(CodexNodeGroupToOne.Index(index)) {
+                    +CodexNodeInteraction.PerformClick().waitFor()
+                }
+            }
         }
     }
 }

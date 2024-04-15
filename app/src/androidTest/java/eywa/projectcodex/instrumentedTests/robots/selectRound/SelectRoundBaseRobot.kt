@@ -5,17 +5,19 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowValue
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 
 @SelectRoundDsl
-class SelectRoundBaseRobot(val perform: PerformFn) {
+class SelectRoundBaseRobot(val perform: PerformFnV2) {
     fun checkNoDialogShown() {
         perform {
-            perform {
+            singleNode {
                 +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.ROUND_DIALOG)
                 +CodexNodeInteraction.AssertDoesNotExist().waitFor()
             }
-            perform {
+        }
+        perform {
+            singleNode {
                 +CodexNodeMatcher.HasTestTag(SelectRoundDialogTestTag.SUBTYPE_DIALOG)
                 +CodexNodeInteraction.AssertDoesNotExist().waitFor()
             }
@@ -31,8 +33,10 @@ class SelectRoundBaseRobot(val perform: PerformFn) {
 
     fun checkSelectedRound(displayName: String) {
         perform {
-            matchDataRowValue(SelectRoundDialogTestTag.SELECTED_ROUND_ROW)
-            +CodexNodeInteraction.AssertTextEquals(displayName)
+            singleNode {
+                matchDataRowValue(SelectRoundDialogTestTag.SELECTED_ROUND_ROW)
+                +CodexNodeInteraction.AssertTextEquals(displayName)
+            }
         }
     }
 
@@ -45,8 +49,10 @@ class SelectRoundBaseRobot(val perform: PerformFn) {
 
     fun checkSelectedSubtype(displayName: String) {
         perform {
-            matchDataRowValue(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW)
-            +CodexNodeInteraction.AssertTextEquals(displayName)
+            singleNode {
+                matchDataRowValue(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW)
+                +CodexNodeInteraction.AssertTextEquals(displayName)
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ class NewScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, NewScoreTestTag.SCREEN) {
     val selectFaceBaseRobot = SelectFaceBaseRobot(::perform)
-    val selectRoundsRobot = SelectRoundBaseRobot(::perform)
+    val selectRoundsRobot = SelectRoundBaseRobot(::performV2)
 
     init {
         waitForDatabaseUpdate()
