@@ -11,7 +11,7 @@ import eywa.projectcodex.BuildConfig
 import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTaskImpl
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
@@ -38,7 +38,7 @@ class FakeDataImpl(
         }
         Log.i(ScoresRoomDatabase.LOG_TAG, "Adding fake data")
 
-        UpdateDefaultRoundsTask(db.roundsRepo(), context.resources, datastore, logging).runTask()
+        UpdateDefaultRoundsTaskImpl(db.roundsRepo(), context.resources, datastore, logging).runTask()
 
         ArcherHandicapsPreviewHelper.handicaps.forEach { db.archerHandicapDao().insert(it) }
         SightMarksPreviewHelper.sightMarks.forEach { db.sightMarkDao().insert(it) }
