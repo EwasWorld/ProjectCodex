@@ -27,4 +27,8 @@ class AboutViewModel @Inject constructor(
             }
         }
     }
+
+    companion object {
+        const val PRIVACY_POLICY_URL = "https://github.com/EwasWorld/ProjectCodex/blob/master/PRIVACY_POLICY.md"
+    }
 }
