@@ -120,9 +120,9 @@ class ShootDetailsRepo(
                         }
                         val (roundId, subTypeId) = it
                         db.shootsRepo()
-                                .getMostRecentShootsForRound(5, roundId, subTypeId ?: 1)
+                                .getMostRecentShootsForRound(10, roundId, subTypeId ?: 1)
                                 .combine(
-                                        db.shootsRepo().getHighestScoreShootsForRound(5, roundId, subTypeId ?: 1)
+                                        db.shootsRepo().getHighestScoreShootsForRound(10, roundId, subTypeId ?: 1)
                                 ) { latest, pbs -> latest to pbs }
                     }.collect { (latest, pbs) ->
                         state.update { it.copy(roundPbs = pbs, pastRoundRecords = latest) }
