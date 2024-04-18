@@ -37,6 +37,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
+import eywa.projectcodex.database.archer.getGenderString
 
 @Composable
 fun ArcherInfoScreen(
@@ -88,10 +89,7 @@ private fun CategorySelectors(
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
             DataRow(
                     title = stringResource(R.string.classification_tables__gender_title),
-                    text = stringResource(
-                            if (state.isGent) R.string.archer_info__gender_male
-                            else R.string.archer_info__gender_female
-                    ),
+                    text = getGenderString(state.isGent).get(),
                     helpState = null,
                     onClick = { listener(ArcherInfoIntent.SetIsGent(!state.isGent)) },
                     accessibilityRole = Role.Switch,

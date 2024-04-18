@@ -1,7 +1,10 @@
 package eywa.projectcodex.components.shootDetails.stats
 
+import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
+import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.model.Handicap
@@ -9,12 +12,16 @@ import eywa.projectcodex.model.Handicap
 class StatsState(
         main: ShootDetailsState,
         extras: StatsExtras,
+        classificationTablesUseCase: ClassificationTablesUseCase,
 ) {
     val fullShootInfo = main.fullShootInfo!!
     val endSize = main.scorePadEndSize
     val useBetaFeatures = main.useBetaFeatures ?: false
     val openEditShootScreen = extras.openEditShootScreen
+    val openEditHandicapInfoScreen = extras.openEditHandicapInfoScreen
     val openEditArcherInfoScreen = extras.openEditArcherInfoScreen
+    val archerInfo = main.archerInfo
+    val bow = main.bow
     val archerHandicaps = main.archerHandicaps?.sortedByDescending { it.dateSet }
 
     val archerHandicap
@@ -59,6 +66,55 @@ class StatsState(
                 )
             }
 
+    val classification = getClassification(
+            classificationTables = classificationTablesUseCase,
+            use2023System = main.use2023System ?: true,
+            wa1440FullRoundInfo = main.wa1440FullRoundInfo,
+    )
+
+    /**
+     * @return classification of the current score TO isOfficialClassification
+     */
+    private fun getClassification(
+            classificationTables: ClassificationTablesUseCase,
+            use2023System: Boolean,
+            wa1440FullRoundInfo: FullRoundInfo?,
+    ): Pair<Classification, Boolean>? {
+        if (
+            archerInfo == null
+            || bow == null
+            || fullShootInfo.fullRoundInfo == null
+            || fullShootInfo.arrowCounter != null
+            || fullShootInfo.arrowsShot == 0
+        ) return null
+
+        val currentScore = (if (fullShootInfo.isRoundComplete) fullShootInfo.score else fullShootInfo.predictedScore)
+                ?: return null
+
+        val trueEntries = classificationTables.get(
+                archerInfo.isGent,
+                archerInfo.age,
+                bow.type,
+                fullShootInfo.fullRoundInfo!!,
+                fullShootInfo.roundSubType?.subTypeId,
+                use2023System,
+        )
+        val roughEntries = wa1440FullRoundInfo?.let {
+            classificationTables.getRoughHandicaps(
+                    archerInfo.isGent,
+                    archerInfo.age,
+                    bow.type,
+                    wa1440FullRoundInfo,
+                    use2023System,
+            )
+        }
+
+        return (trueEntries ?: roughEntries)
+                ?.filter { it.score!! <= currentScore }
+                ?.maxByOrNull { it.score!! }?.classification
+                ?.to(trueEntries != null)
+    }
+
     val extras: List<ExtraStats>?
         get() {
             val distances = fullShootInfo.roundDistances ?: return null
@@ -100,6 +156,7 @@ class StatsState(
 
 data class StatsExtras(
         val openEditShootScreen: Boolean = false,
+        val openEditHandicapInfoScreen: Boolean = false,
         val openEditArcherInfoScreen: Boolean = false,
         val isPastRoundRecordsDialogOpen: Boolean = false,
         val pastRoundScoresTab: StatsScreenPastRecordsTabs = StatsScreenPastRecordsTabs.BEST,

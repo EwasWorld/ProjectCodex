@@ -41,7 +41,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
@@ -65,6 +67,10 @@ import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEntry
+import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -73,20 +79,26 @@ import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoClicked
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoHandled
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditHandicapInfoClicked
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootClicked
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootHandled
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.HelpShowcaseAction
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRecordsTabClicked
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsClicked
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsDismissed
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.ShootDetailsAction
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ADJUSTED_SCORE_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ALLOWANCE_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ARCHER_HANDICAP_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.CLASSIFICATION
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.CLASSIFICATION_CATEGORY
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.DATE_TEXT
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.EDIT_SHOOT_INFO
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.GOLDS_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.HANDICAP_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.HITS_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_DIALOG_ITEM
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_DIALOG_TAB
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_LINK_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PB_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PREDICTED_SCORE_TEXT
@@ -95,6 +107,10 @@ import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ROUND_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCORE_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCREEN
 import eywa.projectcodex.database.RoundFace
+import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
+import eywa.projectcodex.database.archer.DatabaseArcher
+import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
+import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.model.FullShootInfo
 import java.util.Calendar
@@ -134,7 +150,7 @@ fun HandleEffects(
 ) {
     val loadedState = state.getData() ?: return
 
-    LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditArcherInfoScreen) {
+    LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditHandicapInfoScreen) {
         if (loadedState.openEditShootScreen) {
             CodexNavRoute.NEW_SCORE.navigate(
                     navController,
@@ -142,8 +158,12 @@ fun HandleEffects(
             )
             listener(EditShootHandled)
         }
-        if (loadedState.openEditArcherInfoScreen) {
+        if (loadedState.openEditHandicapInfoScreen) {
             CodexNavRoute.ARCHER_HANDICAPS.navigate(navController)
+            listener(EditArcherInfoHandled)
+        }
+        if (loadedState.openEditArcherInfoScreen) {
+            CodexNavRoute.ARCHER_INFO.navigate(navController)
             listener(EditArcherInfoHandled)
         }
     }
@@ -174,6 +194,7 @@ private fun StatsScreen(
 
             RoundStatsSection(state, helpListener)
             PastRecordsSection(state, listener)
+            ClassificationSection(state, listener)
             AllowanceSection(state, listener)
 
             if (state.useBetaFeatures) {
@@ -212,7 +233,7 @@ private fun EditBox(
                 onClick = editListener,
                 modifier = Modifier
                         .padding(horizontal = 0.dp, vertical = 0.dp)
-                        .testTag(StatsTestTag.EDIT_SHOOT_INFO)
+                        .testTag(EDIT_SHOOT_INFO)
         )
     }
 }
@@ -400,7 +421,7 @@ private fun AllowanceSection(
     Section {
         EditBox(
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_edit),
-                editListener = { listener(EditArcherInfoClicked) }
+                editListener = { listener(EditHandicapInfoClicked) }
         ) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_handicap),
@@ -451,6 +472,50 @@ private fun AllowanceSection(
 }
 
 @Composable
+private fun ClassificationSection(
+        state: StatsState,
+        listener: (StatsIntent) -> Unit,
+) {
+    if (state.fullShootInfo.round == null || state.archerInfo == null || state.bow == null) return
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    val unofficialSuffix =
+            if (state.classification?.second == true) ""
+            else stringResource(R.string.archer_round_stats__archer_info_classification_unofficial).let { " $it" }
+
+    Section {
+        EditBox(
+                editContentDescription = stringResource(R.string.archer_round_stats__archer_info_edit),
+                editListener = { listener(EditArcherInfoClicked) }
+        ) {
+            DataRow(
+                    title = stringResource(R.string.archer_round_stats__archer_info_category),
+                    text = listOf(
+                            state.archerInfo.age.rawName,
+                            state.archerInfo.genderString.get(),
+                            state.bow.type.rawName,
+                    ).joinToString(" "),
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_archer_round_stats__archer_info_title),
+                            helpBody = stringResource(R.string.help_archer_round_stats__archer_info_body),
+                    ).asHelpState(helpListener),
+                    textModifier = Modifier.testTag(CLASSIFICATION_CATEGORY.getTestTag()),
+            )
+            DataRow(
+                    title = stringResource(R.string.archer_round_stats__archer_info_classification),
+                    text = state.classification?.first?.rawName?.plus(unofficialSuffix)
+                            ?: stringResource(R.string.archer_round_stats__archer_info_classification_none),
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_archer_round_stats__archer_info_classification_title),
+                            helpBody = stringResource(R.string.help_archer_round_stats__archer_info_classification_body),
+                    ).asHelpState(helpListener),
+                    textModifier = Modifier.testTag(CLASSIFICATION.getTestTag()),
+            )
+        }
+    }
+}
+
+@Composable
 private fun PastRecordsSection(
         state: StatsState,
         listener: (StatsIntent) -> Unit,
@@ -494,10 +559,10 @@ private fun PastRecordsSection(
                 CodexTabSwitcher(
                         items = StatsScreenPastRecordsTabs.values().toList(),
                         selectedItem = state.pastRoundScoresTab,
-                        itemClickedListener = { listener(StatsIntent.PastRecordsTabClicked(it)) },
+                        itemClickedListener = { listener(PastRecordsTabClicked(it)) },
                         itemColor = CodexTheme.colors.tabSwitcherOnDialogSelected,
                         dividerColor = CodexTheme.colors.tabSwitcherOnDialogDivider,
-                        modifier = Modifier.testTag(StatsTestTag.PAST_RECORDS_DIALOG_TAB)
+                        modifier = Modifier.testTag(PAST_RECORDS_DIALOG_TAB)
                 )
 
                 Crossfade(
@@ -690,6 +755,8 @@ enum class StatsTestTag : CodexTestTag {
     ALLOWANCE_TEXT,
     ADJUSTED_SCORE_TEXT,
     EDIT_SHOOT_INFO,
+    CLASSIFICATION_CATEGORY,
+    CLASSIFICATION,
     ;
 
     override val screenName: String
@@ -711,8 +778,9 @@ fun NoRound_StatsScreen_Preview() {
                         main = ShootDetailsState(
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addFullSetOfArrows()
-                                }
+                                },
                         ),
+                        classificationTablesUseCase = ClassificationTablesUseCase(listOf()),
                 )
         ) {}
     }
@@ -729,17 +797,25 @@ fun RoundIncomplete_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 fullShootInfo = ShootPreviewHelperDsl.create {
-                                    round = RoundPreviewHelper.outdoorImperialRoundData
+                                    round = RoundPreviewHelper.wa1440RoundData
                                     addIdenticalArrows(20, 7)
-                                    faces = listOf(RoundFace.TRIPLE, RoundFace.FITA_SIX)
+                                    faces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF)
                                 },
                                 archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
                                 pastRoundRecords = listOf(
                                         DatabaseShootShortRecord(2, Calendar.getInstance(), 400, true),
                                         DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
+                                archerInfo = DatabaseArcher(DEFAULT_ARCHER_ID, "", false, ClassificationAge.SENIOR),
+                                bow = DatabaseBow(DEFAULT_BOW_ID, "", "", ClassificationBow.RECURVE),
                         ),
                         extras = StatsExtras(pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT),
+                        classificationTablesUseCase = ClassificationTablesUseCase(
+                                data = listOf(
+                                        ClassificationTableEntry
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                ),
+                        ),
                 )
         ) {}
     }
@@ -756,8 +832,8 @@ fun RoundComplete_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 fullShootInfo = ShootPreviewHelperDsl.create {
-                                    round = RoundPreviewHelper.outdoorImperialRoundData
-                                    completeRound(arrowScore = 7, isX = false)
+                                    round = RoundPreviewHelper.wa1440RoundData
+                                    completeRound(arrowScore = 8, isX = false)
                                     isPersonalBest = true
                                 },
                                 archerHandicaps = ArcherHandicapsPreviewHelper.handicaps,
@@ -765,8 +841,16 @@ fun RoundComplete_StatsScreen_Preview() {
                                         DatabaseShootShortRecord(2, Calendar.getInstance(), 400, true),
                                         DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
+                                archerInfo = DatabaseArcher(DEFAULT_ARCHER_ID, "", false, ClassificationAge.SENIOR),
+                                bow = DatabaseBow(DEFAULT_BOW_ID, "", "", ClassificationBow.RECURVE),
                         ),
                         extras = StatsExtras(pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT),
+                        classificationTablesUseCase = ClassificationTablesUseCase(
+                                data = listOf(
+                                        ClassificationTableEntry
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                ),
+                        ),
                 )
         ) {}
     }
@@ -799,6 +883,7 @@ fun PastRecords_StatsScreen_Preview() {
                                 isPastRoundRecordsDialogOpen = true,
                                 pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT,
                         ),
+                        classificationTablesUseCase = ClassificationTablesUseCase(listOf()),
                 )
         ) {}
     }

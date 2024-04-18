@@ -8,6 +8,8 @@ sealed class StatsIntent {
     object EditShootHandled : StatsIntent()
     object EditArcherInfoClicked : StatsIntent()
     object EditArcherInfoHandled : StatsIntent()
+    object EditHandicapInfoClicked : StatsIntent()
+    object EditHandicapInfoHandled : StatsIntent()
     object PastRoundRecordsClicked : StatsIntent()
     object PastRoundRecordsDismissed : StatsIntent()
     data class PastRecordsTabClicked(val tab: StatsScreenPastRecordsTabs) : StatsIntent()

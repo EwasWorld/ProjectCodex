@@ -4,6 +4,7 @@ import eywa.projectcodex.common.utils.classificationTables.model.ClassificationA
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationRound.DbRoundRef
 import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.model.roundHandicap
 
@@ -51,7 +52,10 @@ data class ClassificationTablesUseCase(
             wa1440RoundInfo: FullRoundInfo,
             use2023Handicaps: Boolean = true,
     ): List<ClassificationTableEntry>? {
-        check(wa1440RoundInfo.round.defaultRoundId == 8) { "Incorrect round added" }
+        check(
+                wa1440RoundInfo.round.defaultRoundId == RoundRepo.WA_1440_DEFAULT_ROUND_ID
+        ) { "Incorrect round provided" }
+
         val gents1440 = get(isGent, age, bow, wa1440RoundInfo, 1, use2023Handicaps)?.toMutableList()
                 ?: return null
         val metricV = get(isGent, age, bow, wa1440RoundInfo, 6, use2023Handicaps)

@@ -8,10 +8,13 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.get
+import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoClicked
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoHandled
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditHandicapInfoClicked
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditHandicapInfoHandled
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootClicked
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootHandled
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.HelpShowcaseAction
@@ -30,6 +33,7 @@ class StatsViewModel @Inject constructor(
         private val repo: ShootDetailsRepo,
         savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
+        private val classificationTables: ClassificationTablesUseCase,
 ) : ViewModel() {
     private val screen = CodexNavRoute.SHOOT_DETAILS_STATS
     private val extraState = MutableStateFlow(StatsExtras())
@@ -37,7 +41,7 @@ class StatsViewModel @Inject constructor(
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,
-    ) { main, extras -> StatsState(main, extras) }
+    ) { main, extras -> StatsState(main, extras, classificationTables) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
@@ -52,6 +56,8 @@ class StatsViewModel @Inject constructor(
             EditShootHandled -> extraState.update { it.copy(openEditShootScreen = false) }
             EditArcherInfoClicked -> extraState.update { it.copy(openEditArcherInfoScreen = true) }
             EditArcherInfoHandled -> extraState.update { it.copy(openEditArcherInfoScreen = false) }
+            EditHandicapInfoClicked -> extraState.update { it.copy(openEditHandicapInfoScreen = true) }
+            EditHandicapInfoHandled -> extraState.update { it.copy(openEditHandicapInfoScreen = false) }
             PastRoundRecordsClicked -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = true) }
             PastRoundRecordsDismissed -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = false) }
             is PastRecordsTabClicked -> extraState.update { it.copy(pastRoundScoresTab = action.tab) }

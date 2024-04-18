@@ -6,6 +6,7 @@ import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
+import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.datastore.DatastoreKey
 
 data class ClassificationTablesState(
@@ -34,7 +35,8 @@ data class ClassificationTablesState(
     }
 
     val wa1440RoundInfo
-        get() = selectRoundDialogState.allRounds?.find { it.round.defaultRoundId == 8 }
+        get() = selectRoundDialogState.allRounds
+                ?.find { it.round.defaultRoundId == RoundRepo.WA_1440_DEFAULT_ROUND_ID }
 
     enum class Dropdown { AGE, BOW }
 }

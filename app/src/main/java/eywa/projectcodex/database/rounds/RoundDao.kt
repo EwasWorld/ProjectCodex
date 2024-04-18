@@ -30,6 +30,10 @@ interface RoundDao : RoundTypeDao<Round> {
             isMetric: Boolean,
     ): Flow<List<FullRoundInfo>>
 
+    @Transaction
+    @Query("SELECT * FROM $TABLE_NAME WHERE defaultRoundId = :defaultRoundId")
+    fun getFullRoundInfo(defaultRoundId: Int): Flow<FullRoundInfo?>
+
     @Update
     override fun updateSingle(updateItem: Round)
 

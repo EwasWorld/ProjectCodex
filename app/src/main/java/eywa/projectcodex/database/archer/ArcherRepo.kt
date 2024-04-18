@@ -8,7 +8,6 @@ class ArcherRepo(
         private val archerDao: ArcherDao,
         private val archerHandicapDao: ArcherHandicapDao,
 ) {
-    val allArchers = archerDao.getAllArchers()
     val defaultArcher = archerDao.getDefaultArcher()
 
     /**

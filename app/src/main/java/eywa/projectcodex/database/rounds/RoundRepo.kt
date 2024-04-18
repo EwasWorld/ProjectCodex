@@ -16,7 +16,8 @@ class RoundRepo(
         private val roundSubTypeDao: RoundSubTypeDao,
         private val roundDistanceDao: RoundDistanceDao,
 ) {
-    val fullRoundsInfo: Flow<List<FullRoundInfo>> = roundDao.getAllRoundsFullInfo()
+    val fullRoundsInfo = roundDao.getAllRoundsFullInfo()
+    val wa1440FullRoundInfo = roundDao.getFullRoundInfo(WA_1440_DEFAULT_ROUND_ID)
 
     fun fullRoundsInfo(filters: SelectRoundEnabledFilters): Flow<List<FullRoundInfo>> =
             roundDao.getAllRoundsFullInfo(
@@ -25,6 +26,7 @@ class RoundRepo(
                     allMetricImperial = filters.contains(SelectRoundFilter.METRIC) == filters.contains(SelectRoundFilter.IMPERIAL),
                     isMetric = filters.contains(SelectRoundFilter.METRIC),
             )
+
 
     constructor(db: ScoresRoomDatabase) : this(
             db.roundDao(),
@@ -71,6 +73,8 @@ class RoundRepo(
 
 
     companion object {
+        const val WA_1440_DEFAULT_ROUND_ID = 8
+
         /**
          * Sort [Round]s to be at the start
          */

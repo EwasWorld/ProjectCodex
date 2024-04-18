@@ -1,7 +1,11 @@
 package eywa.projectcodex.components.shootDetails
 
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.utils.classificationTables.model.Classification
+import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
+import eywa.projectcodex.database.bow.DatabaseBow
+import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
@@ -19,6 +23,10 @@ data class ShootDetailsState(
         val use2023System: Boolean? = null,
         val fullShootInfo: FullShootInfo? = null,
         val archerHandicaps: List<DatabaseArcherHandicap>? = null,
+        val archerInfo: DatabaseArcher? = null,
+        val bow: DatabaseBow? = null,
+        val wa1440FullRoundInfo: FullRoundInfo? = null,
+        val classification: Classification? = null,
         val roundPbs: List<DatabaseShootShortRecord>? = null,
         val pastRoundRecords: List<DatabaseShootShortRecord>? = null,
 

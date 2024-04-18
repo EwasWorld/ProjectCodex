@@ -64,10 +64,21 @@ class ShootDetailsRepo(
                     .distinctUntilChanged()
                     .flatMapLatest { archerId ->
                         db.archerRepo().getLatestHandicaps(archerId ?: DEFAULT_ARCHER_ID)
+                                .combine(db.archerRepo().defaultArcher) { a, b -> a to b }
                     }
-                    .collectLatest { handicaps ->
-                        state.update { it.copy(archerHandicaps = handicaps) }
+                    .collectLatest { (handicaps, archerInfo) ->
+                        state.update { it.copy(archerHandicaps = handicaps, archerInfo = archerInfo) }
                     }
+        }
+        launch {
+            db.bowRepo().defaultBow
+                    .distinctUntilChanged()
+                    .collectLatest { bow -> state.update { it.copy(bow = bow) } }
+        }
+        launch {
+            db.roundsRepo().wa1440FullRoundInfo
+                    .distinctUntilChanged()
+                    .collectLatest { info -> state.update { it.copy(wa1440FullRoundInfo = info) } }
         }
         launch {
             datastore.get(
@@ -152,6 +163,7 @@ class ShootDetailsRepo(
         when {
             shootId == null ->
                 state.update { ShootDetailsState(isError = true).preserveFixedInfo(it) }
+
             state.value.shootId != shootId ->
                 state.update { ShootDetailsState(shootId = shootId).preserveFixedInfo(it) }
         }
