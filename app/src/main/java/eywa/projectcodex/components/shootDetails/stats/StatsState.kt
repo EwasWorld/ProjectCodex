@@ -98,7 +98,9 @@ class StatsState(
                 fullShootInfo.fullRoundInfo!!,
                 fullShootInfo.roundSubType?.subTypeId,
                 use2023System,
-        )?.filter { it.score!! <= currentScore }
+        )
+                ?.takeIf { it.isNotEmpty() }
+                ?.filter { it.score!! <= currentScore }
         val roughEntries = wa1440FullRoundInfo?.let {
             classificationTables.getRoughHandicaps(
                     archerInfo.isGent,
@@ -107,7 +109,9 @@ class StatsState(
                     wa1440FullRoundInfo,
                     use2023System,
             )
-        }?.filter { (it.handicap ?: 0) >= (fullShootInfo.handicap ?: Handicap.maxHandicap(use2023System)) }
+        }
+                ?.takeIf { it.isNotEmpty() }
+                ?.filter { (it.handicap ?: 0) >= (fullShootInfo.handicap ?: Handicap.maxHandicap(use2023System)) }
 
         return (trueEntries ?: roughEntries)
                 ?.maxByOrNull { it.score!! }?.classification
