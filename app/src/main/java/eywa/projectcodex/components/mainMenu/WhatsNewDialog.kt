@@ -1,7 +1,13 @@
 package eywa.projectcodex.components.mainMenu
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -22,12 +28,17 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
+import eywa.projectcodex.common.sharedUi.DialogPreviewHelper
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.DateTimeFormat
-import java.util.*
+import java.util.Calendar
 
 val SEEN_HANDICAP_NOTICE_LATEST_APP_VERSION
     get() = WhatsNewInfo.V2_1_0.appVersion
@@ -155,7 +166,7 @@ private fun WhatsNewInfo(info: WhatsNewInfo) {
                         .padding(horizontal = 5.dp, vertical = 7.dp)
                         .background(
                                 color = CodexTheme.colors.dialogBackgroundAccent,
-                                shape = RoundedCornerShape(15)
+                                shape = RoundedCornerShape(10)
                         )
                         // Between box and text
                         .padding(horizontal = 10.dp, vertical = 7.dp)
@@ -176,6 +187,12 @@ private enum class WhatsNewInfo(
         val importantUpdates: Int? = null,
         val updates: Int? = null,
 ) {
+    V2_4_0(
+            appVersion = AppVersion("2.4.0"),
+            releaseDate = DateTimeFormat.SHORT_DATE.parse("19/04/24"),
+            importantUpdates = R.string.whats_new__2_4_0_important_update,
+            updates = R.string.whats_new__2_4_0_update,
+    ),
     V2_3_0(
             appVersion = AppVersion("2.3.0"),
             releaseDate = DateTimeFormat.SHORT_DATE.parse("14/08/23"),
