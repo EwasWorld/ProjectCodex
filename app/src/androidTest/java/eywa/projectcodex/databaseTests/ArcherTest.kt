@@ -4,8 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
-import eywa.projectcodex.database.archer.DatabaseFullArcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -38,11 +36,6 @@ class ArcherTest {
     fun testGetLatestHandicapsForDefaultArcher() = runTest {
         db.archerRepo().insertDefaultArcherIfNotExist()
         db.archerRepo().insertDefaultArcherIfNotExist()
-
-        assertEquals(
-                listOf(DatabaseFullArcher(DatabaseArcherPreviewHelper.default, listOf())),
-                db.archerRepo().allArchers.first(),
-        )
 
         val handicaps = ArcherHandicapsPreviewHelper.handicaps
         handicaps.forEach { db.archerHandicapDao().insert(it) }

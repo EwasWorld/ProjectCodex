@@ -59,13 +59,8 @@ class ShootDetailsRepo(
 
     fun connect(launch: (block: suspend () -> Unit) -> Unit) {
         launch {
-            state
-                    .map { it.fullShootInfo?.shoot?.archerId }
-                    .distinctUntilChanged()
-                    .flatMapLatest { archerId ->
-                        db.archerRepo().getLatestHandicaps(archerId ?: DEFAULT_ARCHER_ID)
-                                .combine(db.archerRepo().defaultArcher) { a, b -> a to b }
-                    }
+            db.archerRepo().getLatestHandicaps(DEFAULT_ARCHER_ID)
+                    .combine(db.archerRepo().defaultArcher) { a, b -> a to b }
                     .collectLatest { (handicaps, archerInfo) ->
                         state.update { it.copy(archerHandicaps = handicaps, archerInfo = archerInfo) }
                     }
@@ -155,8 +150,9 @@ class ShootDetailsRepo(
             converter: (ShootDetailsState, E) -> T,
     ): Flow<ShootDetailsResponse<T>> {
         setupState(shootId)
-        return state.combine(extraFlow) { main, extra -> main to extra }
-                .map { (main, extra) -> combineStates(shootId, main, extra) { s, e -> converter(s, e!!) } }
+        return state.combine(extraFlow) { main, extra ->
+            combineStates(shootId, main, extra) { s, e -> converter(s, e!!) }
+        }
     }
 
     private fun setupState(shootId: Int?) {
@@ -192,7 +188,10 @@ class ShootDetailsRepo(
             copy(
                     useBetaFeatures = oldState.useBetaFeatures,
                     use2023System = oldState.use2023System,
+                    archerInfo = oldState.archerInfo,
                     archerHandicaps = oldState.archerHandicaps,
+                    bow = oldState.bow,
+                    wa1440FullRoundInfo = oldState.wa1440FullRoundInfo,
             )
 }
 

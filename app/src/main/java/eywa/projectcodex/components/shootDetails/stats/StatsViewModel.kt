@@ -44,7 +44,7 @@ class StatsViewModel @Inject constructor(
     ) { main, extras -> StatsState(main, extras, classificationTables) }
             .stateIn(
                     viewModelScope,
-                    SharingStarted.WhileSubscribed(),
+                    SharingStarted.WhileSubscribed(1000),
                     ShootDetailsResponse.Loading as ShootDetailsResponse<StatsState>,
             )
 

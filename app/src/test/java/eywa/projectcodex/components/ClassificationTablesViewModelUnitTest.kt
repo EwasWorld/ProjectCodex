@@ -13,12 +13,12 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsSta
 import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.*
 import eywa.projectcodex.components.classificationTables.ClassificationTablesState
 import eywa.projectcodex.components.classificationTables.ClassificationTablesViewModel
-import eywa.projectcodex.hiltModules.FakeUpdateDefaultRoundsTask
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
 import eywa.projectcodex.testUtils.RawResourcesHelper
+import eywa.projectcodex.testUtils.mockUpdateDefaultRoundsTask
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -64,7 +64,7 @@ class ClassificationTablesViewModelUnitTest {
                 helpShowcase = helpShowcase,
                 tables = classificationTables,
                 datastore = datastore.mock,
-                updateDefaultRoundsTask = FakeUpdateDefaultRoundsTask(),
+                updateDefaultRoundsTask = mockUpdateDefaultRoundsTask,
         )
     }
 

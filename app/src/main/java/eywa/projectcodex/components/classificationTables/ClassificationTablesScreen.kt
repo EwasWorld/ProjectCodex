@@ -322,8 +322,8 @@ enum class ClassificationTableColumn(
     CLASSIFICATION_NAME(
             header = ResOrActual.StringResource(R.string.classification_tables__classification_header),
             tableCellTestTag = ClassificationTablesTestTag.TABLE_CLASSIFICATION,
-            data = { ResOrActual.StringResource(it.classification.shortStringId) },
-            semanticData = { it, _ -> ResOrActual.StringResource(it.classification.shortStringId) },
+            data = { it.classification.shortStringId },
+            semanticData = { it, _ -> it.classification.shortStringId },
     ),
     SCORE(
             header = ResOrActual.StringResource(R.string.classification_tables__score_field),

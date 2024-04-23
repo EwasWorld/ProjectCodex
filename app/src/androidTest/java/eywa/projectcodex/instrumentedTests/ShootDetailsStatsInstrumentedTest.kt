@@ -3,15 +3,18 @@ package eywa.projectcodex.instrumentedTests
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.RoundFace
@@ -49,7 +52,7 @@ class ShootDetailsStatsInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(10)
+    val testTimeout: Timeout = Timeout.seconds(15)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -97,8 +100,9 @@ class ShootDetailsStatsInstrumentedTest {
                     ),
             ),
             RoundPreviewHelper.yorkRoundData,
+            RoundPreviewHelper.wa1440RoundData,
     )
-    private val shoots = listOf(
+    private var shoots = listOf(
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(
                         shootId = 1,
@@ -348,6 +352,95 @@ class ShootDetailsStatsInstrumentedTest {
             }
             // New score and such should all have been removed from the backstack
             checkScreenIsShown()
+        }
+    }
+
+    @Test
+    fun testClassifications() {
+        shoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = "10/10/2023 10:00".parseDate())
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(800)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = "10/10/2022 10:00".parseDate())
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(800)
+                    arrows = arrows!!.drop(1)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3, dateShot = "10/10/2021 10:00".parseDate())
+                    round = rounds[0]
+                    completeRoundWithFinalScore(200)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4, dateShot = "10/10/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(200)
+                },
+        )
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(4)
+                clickRow(0) {
+                    clickNavBarStats {
+                        checkRound("York")
+                        checkScore(800)
+                        checkClassification(
+                                classification = Classification.BOWMAN_3RD_CLASS,
+                                isOfficial = true,
+                                isPredicted = false,
+                        )
+                        checkClassificationCategory("Senior Gentleman Recurve")
+                        pressBack()
+                    }
+                }
+
+                clickRow(1) {
+                    clickNavBarStats {
+                        checkRound("York")
+                        checkScore(790)
+                        checkClassification(
+                                classification = Classification.BOWMAN_3RD_CLASS,
+                                isOfficial = true,
+                                isPredicted = true,
+                        )
+                        checkClassificationCategory("Senior Gentleman Recurve")
+                        pressBack()
+                    }
+                }
+
+                clickRow(2) {
+                    clickNavBarStats {
+                        checkRound("Round1")
+                        checkScore(200)
+                        checkClassification(
+                                classification = Classification.BOWMAN_1ST_CLASS,
+                                isOfficial = false,
+                                isPredicted = false,
+                        )
+                        checkClassificationCategory("Senior Gentleman Recurve")
+                        pressBack()
+                    }
+                }
+
+                clickRow(3) {
+                    clickNavBarStats {
+                        checkRound("York")
+                        checkScore(200)
+                        checkClassification(
+                                classification = null,
+                                isOfficial = true,
+                                isPredicted = false,
+                        )
+                        checkClassificationCategory("Senior Gentleman Recurve")
+                        pressBack()
+                    }
+                }
+            }
         }
     }
 }

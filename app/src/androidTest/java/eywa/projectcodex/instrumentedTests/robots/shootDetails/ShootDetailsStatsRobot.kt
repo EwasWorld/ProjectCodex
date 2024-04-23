@@ -2,6 +2,16 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.TabSwitcherTestTag
+import eywa.projectcodex.common.utils.classificationTables.model.Classification
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.ARCHER_1ST_CLASS
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.ARCHER_2ND_CLASS
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.ARCHER_3RD_CLASS
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.BOWMAN_1ST_CLASS
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.BOWMAN_2ND_CLASS
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.BOWMAN_3RD_CLASS
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.ELITE_MASTER_BOWMAN
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.GRAND_MASTER_BOWMAN
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.MASTER_BOWMAN
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
@@ -167,6 +177,43 @@ class ShootDetailsStatsRobot(
                     items.map { listOf(CodexNodeInteraction.AssertContentDescriptionEquals(it.semanticText)) }
             )
         }
+    }
+
+    fun checkClassificationCategory(value: String) {
+        checkElementText(StatsTestTag.CLASSIFICATION_CATEGORY, value, useUnmergedTree = true)
+    }
+
+    fun checkClassification(
+            classification: Classification?,
+            isOfficial: Boolean,
+            isPredicted: Boolean,
+    ) {
+        performV2 {
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasAnySibling(CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION))
+                +CodexNodeInteraction.AssertTextEquals(
+                        if (isPredicted) "Predicted classification:"
+                        else "Classification:"
+                ).waitFor()
+            }
+        }
+
+        val expectedValue = classification?.classificationString()?.plus(if (isOfficial) "" else " (unofficial)")
+                ?: "None"
+        checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, useUnmergedTree = true)
+    }
+
+    private fun Classification.classificationString() = when (this) {
+        ARCHER_3RD_CLASS -> "Archer 3rd Class"
+        ARCHER_2ND_CLASS -> "Archer 2nd Class"
+        ARCHER_1ST_CLASS -> "Archer 1st Class"
+        BOWMAN_3RD_CLASS -> "Bowman 3rd Class"
+        BOWMAN_2ND_CLASS -> "Bowman 2nd Class"
+        BOWMAN_1ST_CLASS -> "Bowman 1st Class"
+        MASTER_BOWMAN -> "Master Bowman"
+        GRAND_MASTER_BOWMAN -> "Grand Master Bowman"
+        ELITE_MASTER_BOWMAN -> "Elite Grand Master Bowman"
     }
 
     @JvmInline

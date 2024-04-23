@@ -21,11 +21,11 @@ import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.ShootFilter
 import eywa.projectcodex.datastore.DatastoreKey
-import eywa.projectcodex.hiltModules.FakeUpdateDefaultRoundsTask
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
+import eywa.projectcodex.testUtils.mockUpdateDefaultRoundsTask
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
@@ -64,7 +64,7 @@ class ViewScoresViewModelUnitTest {
                 customLogger = customLogger,
                 datastore = datastore.mock,
                 shootIdsUseCase = shootIdsUseCase,
-                updateDefaultRoundsTask = FakeUpdateDefaultRoundsTask(),
+                updateDefaultRoundsTask = mockUpdateDefaultRoundsTask,
                 viewScoresFiltersUseCase = filtersUseCase,
                 sharingStarted = SharingStarted.Eagerly,
         )

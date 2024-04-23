@@ -21,6 +21,7 @@
     <string name="archer_round_stats__adjusted_score">Adjusted score:</string>
     <string name="archer_round_stats__archer_info_category">Category:</string>
     <string name="archer_round_stats__archer_info_classification">Classification:</string>
+    <string name="archer_round_stats__archer_info_classification_predicted">Predicted classification:</string>
     <string name="archer_round_stats__archer_info_classification_none">None</string>
     <string name="archer_round_stats__archer_info_classification_unofficial">(unofficial)</string>
     <string name="archer_round_stats__archer_info_edit">Edit archer info</string>
@@ -65,7 +66,7 @@
     <string name="help_archer_round_stats__remaining_arrows_body">The number of arrows that still need to be shot to complete the round</string>
     <string name="help_archer_round_stats__predicted_score_title">Predicted score</string>
     <string name="help_archer_round_stats__predicted_score_body">Predicts the final score for the round based on the current round handicap</string>
-    <string name="help_archer_round_stats__archer_info_title">Categories</string>
+    <string name="help_archer_round_stats__archer_info_title">Category</string>
     <string name="help_archer_round_stats__archer_info_body">Which Archery GB category the classification is being calculated for</string>
     <string name="help_archer_round_stats__archer_info_classification_title">Classification</string>
     <string name="help_archer_round_stats__archer_info_classification_body">The Archery GB classification for the given round, score, and category. Unofficial means that the given category is not officially eligible for classifications for the given round</string>

@@ -24,7 +24,7 @@ data class ClassificationTableEntry(
 
             val split = value.split(",")
             return ClassificationTableEntry(
-                    classification = Classification.backwardsMap[split[0].toInt()]!!,
+                    classification = Classification.rawKeyBackwardsMap[split[0].toInt()]!!,
                     isGent = split[1] == "Men",
                     bowStyle = ClassificationBow.backwardsMap[split[2]]!!,
                     age = ClassificationAge.backwardsMap[split[3]]!!,

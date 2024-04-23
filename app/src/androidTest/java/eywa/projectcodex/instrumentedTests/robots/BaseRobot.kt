@@ -125,21 +125,15 @@ abstract class BaseRobot(
     }
 
 
-    @Deprecated("Use perform")
-    fun checkElementText(testTag: CodexTestTag, text: String, index: Int? = null, useUnmergedTree: Boolean = false) {
-        perform {
-            val matcher = CodexNodeMatcher.HasTestTag(testTag)
-
-            if (index != null) {
-                allNodes(matcher)
-                +CodexNodeGroupToOne.Index(index)
+    fun checkElementText(testTag: CodexTestTag, text: String, useUnmergedTree: Boolean = false) {
+        performV2 {
+            singleNode {
+                if (useUnmergedTree) {
+                    useUnmergedTree()
+                }
+                +CodexNodeMatcher.HasTestTag(testTag)
+                +CodexNodeInteraction.AssertTextEquals(text)
             }
-            else {
-                +matcher
-            }
-            this.useUnmergedTree = useUnmergedTree
-
-            +CodexNodeInteraction.AssertTextEquals(text)
         }
     }
 

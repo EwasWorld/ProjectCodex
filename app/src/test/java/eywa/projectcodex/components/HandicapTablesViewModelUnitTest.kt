@@ -11,10 +11,10 @@ import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 import eywa.projectcodex.components.handicapTables.HandicapTablesState
 import eywa.projectcodex.components.handicapTables.HandicapTablesViewModel
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.hiltModules.FakeUpdateDefaultRoundsTask
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
+import eywa.projectcodex.testUtils.mockUpdateDefaultRoundsTask
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -48,7 +48,7 @@ class HandicapTablesViewModelUnitTest {
                 db = db.mock,
                 helpShowcase = helpShowcase,
                 datastore = datastore.mock,
-                updateDefaultRoundsTask = FakeUpdateDefaultRoundsTask(),
+                updateDefaultRoundsTask = mockUpdateDefaultRoundsTask,
         )
     }
 

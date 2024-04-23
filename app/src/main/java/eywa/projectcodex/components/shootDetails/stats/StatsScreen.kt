@@ -69,8 +69,6 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEntry
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
-import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
-import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -107,10 +105,8 @@ import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ROUND_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCORE_TEXT
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCREEN
 import eywa.projectcodex.database.RoundFace
-import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
-import eywa.projectcodex.database.archer.DatabaseArcher
-import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
-import eywa.projectcodex.database.bow.DatabaseBow
+import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
+import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.model.FullShootInfo
 import java.util.Calendar
@@ -150,7 +146,11 @@ fun HandleEffects(
 ) {
     val loadedState = state.getData() ?: return
 
-    LaunchedEffect(loadedState.openEditShootScreen, loadedState.openEditHandicapInfoScreen) {
+    LaunchedEffect(
+            loadedState.openEditShootScreen,
+            loadedState.openEditHandicapInfoScreen,
+            loadedState.openEditArcherInfoScreen,
+    ) {
         if (loadedState.openEditShootScreen) {
             CodexNavRoute.NEW_SCORE.navigate(
                     navController,
@@ -476,7 +476,12 @@ private fun ClassificationSection(
         state: StatsState,
         listener: (StatsIntent) -> Unit,
 ) {
-    if (state.fullShootInfo.round == null || state.archerInfo == null || state.bow == null) return
+    if (
+        state.fullShootInfo.round == null
+        || state.fullShootInfo.arrowsShot == 0
+        || state.archerInfo == null
+        || state.bow == null
+    ) return
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     val unofficialSuffix =
@@ -486,7 +491,7 @@ private fun ClassificationSection(
     Section {
         EditBox(
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_info_edit),
-                editListener = { listener(EditArcherInfoClicked) }
+                editListener = { listener(EditArcherInfoClicked) },
         ) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_info_category),
@@ -502,8 +507,16 @@ private fun ClassificationSection(
                     textModifier = Modifier.testTag(CLASSIFICATION_CATEGORY.getTestTag()),
             )
             DataRow(
-                    title = stringResource(R.string.archer_round_stats__archer_info_classification),
-                    text = state.classification?.first?.rawName?.plus(unofficialSuffix)
+                    title = stringResource(
+                            if (state.fullShootInfo.isRoundComplete) {
+                                R.string.archer_round_stats__archer_info_classification
+                            }
+                            else {
+                                R.string.archer_round_stats__archer_info_classification_predicted
+                            }
+                    ),
+                    text = state.classification?.first?.fullStringId?.get()
+                            ?.plus(unofficialSuffix)
                             ?: stringResource(R.string.archer_round_stats__archer_info_classification_none),
                     helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_archer_round_stats__archer_info_classification_title),
@@ -806,8 +819,8 @@ fun RoundIncomplete_StatsScreen_Preview() {
                                         DatabaseShootShortRecord(2, Calendar.getInstance(), 400, true),
                                         DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
-                                archerInfo = DatabaseArcher(DEFAULT_ARCHER_ID, "", false, ClassificationAge.SENIOR),
-                                bow = DatabaseBow(DEFAULT_BOW_ID, "", "", ClassificationBow.RECURVE),
+                                archerInfo = DatabaseArcherPreviewHelper.default.copy(isGent = false),
+                                bow = DatabaseBowPreviewHelper.default,
                         ),
                         extras = StatsExtras(pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT),
                         classificationTablesUseCase = ClassificationTablesUseCase(
@@ -841,8 +854,8 @@ fun RoundComplete_StatsScreen_Preview() {
                                         DatabaseShootShortRecord(2, Calendar.getInstance(), 400, true),
                                         DatabaseShootShortRecord(1, Calendar.getInstance(), 700, true),
                                 ),
-                                archerInfo = DatabaseArcher(DEFAULT_ARCHER_ID, "", false, ClassificationAge.SENIOR),
-                                bow = DatabaseBow(DEFAULT_BOW_ID, "", "", ClassificationBow.RECURVE),
+                                archerInfo = DatabaseArcherPreviewHelper.default.copy(isGent = false),
+                                bow = DatabaseBowPreviewHelper.default,
                         ),
                         extras = StatsExtras(pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT),
                         classificationTablesUseCase = ClassificationTablesUseCase(

@@ -1,8 +1,12 @@
 package eywa.projectcodex.testUtils
 
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archer.ArcherRepo
+import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
+import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.ArrowScoreDao
@@ -124,6 +128,7 @@ class MockScoresRoomDatabase {
         val mockRepo: RoundRepo = mock {
             on { fullRoundsInfo(any()) } doReturn getRoundsInfo()
             on { fullRoundsInfo } doReturn getRoundsInfo()
+            on { wa1440FullRoundInfo } doReturn flow { emit(RoundPreviewHelper.wa1440RoundData) }
         }
 
         private fun getRoundsInfo() = flow {
@@ -170,6 +175,7 @@ class MockScoresRoomDatabase {
 
     class MockArcherRepo {
         var handicaps = emptyList<DatabaseArcherHandicap>()
+        var defaultArcher = DatabaseArcher(DEFAULT_ARCHER_ID, "Default Archer", true, ClassificationAge.SENIOR)
 
         val mock = mock<ArcherRepo> {
             on { latestHandicapsForDefaultArcher } doAnswer {
@@ -180,6 +186,7 @@ class MockScoresRoomDatabase {
             }
             on { allHandicapsForDefaultArcher } doAnswer { flow { emit(handicaps) } }
             on { getLatestHandicaps(any()) } doAnswer { flow { emit(handicaps) } }
+            on { defaultArcher } doAnswer { flow { emit(defaultArcher) } }
         }
     }
 }

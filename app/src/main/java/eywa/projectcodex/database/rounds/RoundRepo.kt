@@ -27,7 +27,6 @@ class RoundRepo(
                     isMetric = filters.contains(SelectRoundFilter.METRIC),
             )
 
-
     constructor(db: ScoresRoomDatabase) : this(
             db.roundDao(),
             db.roundArrowCountDao(),
