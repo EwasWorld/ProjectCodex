@@ -3,10 +3,12 @@ package eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects
 import com.beust.klaxon.Converter
 import com.beust.klaxon.JsonValue
 import com.beust.klaxon.KlaxonException
+import eywa.projectcodex.common.utils.DoNotObfuscate
 
 /**
  * Reads the 'version' property from the given object as an int {"version": 000, ...}
  */
+@DoNotObfuscate
 class RoundsVersion(val version: Int) {
     class RoundsVersionJsonConverter : Converter {
         override fun canConvert(cls: Class<*>): Boolean {

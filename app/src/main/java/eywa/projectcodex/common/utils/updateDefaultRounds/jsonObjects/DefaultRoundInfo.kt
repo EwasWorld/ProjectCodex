@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects
 
+import eywa.projectcodex.common.utils.DoNotObfuscate
 import eywa.projectcodex.common.utils.updateDefaultRounds.DefaultRoundInfoHelper
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -9,6 +10,7 @@ import eywa.projectcodex.database.rounds.RoundSubType
 /**
  * @see Round
  */
+@DoNotObfuscate
 class DefaultRoundInfo(
         val legacyName: String?,
         val rawRoundId: Int,

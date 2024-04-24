@@ -11,6 +11,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keep class eywa.projectcodex.common.utils.DoNotObfuscate
+-keep class * extends @eywa.projectcodex.common.utils.DoNotObfuscate ** { *; }
+-keep @eywa.projectcodex.common.utils.DoNotObfuscate class ** { *; }
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.

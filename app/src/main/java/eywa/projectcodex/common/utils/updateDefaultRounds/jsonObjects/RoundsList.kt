@@ -1,10 +1,12 @@
 package eywa.projectcodex.common.utils.updateDefaultRounds.jsonObjects
 
 import com.beust.klaxon.*
+import eywa.projectcodex.common.utils.DoNotObfuscate
 
 /**
  * Reads the 'rounds' property from the given object as an array of strings {"rounds": [...], ...}
  */
+@DoNotObfuscate
 class RoundsList(val rounds: List<String>) {
     class RoundsListJsonConverter : Converter {
         override fun canConvert(cls: Class<*>): Boolean {
