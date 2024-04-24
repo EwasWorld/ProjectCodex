@@ -1,20 +1,17 @@
 package eywa.projectcodex.testUtils
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archer.ArcherRepo
-import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
-import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
+import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.BowRepo
-import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
-import eywa.projectcodex.database.bow.DatabaseBow
+import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
@@ -150,32 +147,25 @@ class MockScoresRoomDatabase {
     }
 
     class MockBow {
-        var isHighestAtTop = false
+        var isHighestAtTop = DatabaseBowPreviewHelper.default.isSightMarkDiagramHighestAtTop
 
         val mock: BowDao = mock {
-            on { getDefaultBow() } doAnswer {
-                flow {
-                    emit(
-                            DatabaseBow(DEFAULT_BOW_ID, "Default", isSightMarkDiagramHighestAtTop = isHighestAtTop)
-                    )
-                }
-            }
+            on { getDefaultBow() } doAnswer { getDefaultBow() }
         }
 
         val mockRepo: BowRepo = mock {
-            on { defaultBow } doAnswer {
-                flow {
-                    emit(
-                            DatabaseBow(DEFAULT_BOW_ID, "Default", isSightMarkDiagramHighestAtTop = isHighestAtTop)
-                    )
-                }
-            }
+            on { defaultBow } doAnswer { getDefaultBow() }
         }
+
+        private fun getDefaultBow() =
+                flow {
+                    emit(DatabaseBowPreviewHelper.default.copy(isSightMarkDiagramHighestAtTop = isHighestAtTop))
+                }
     }
 
     class MockArcherRepo {
         var handicaps = emptyList<DatabaseArcherHandicap>()
-        var defaultArcher = DatabaseArcher(DEFAULT_ARCHER_ID, "Default Archer", true, ClassificationAge.SENIOR)
+        var defaultArcher = DatabaseArcherPreviewHelper.default
 
         val mock = mock<ArcherRepo> {
             on { latestHandicapsForDefaultArcher } doAnswer {

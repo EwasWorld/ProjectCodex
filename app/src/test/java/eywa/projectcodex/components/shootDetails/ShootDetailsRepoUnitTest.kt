@@ -3,8 +3,11 @@ package eywa.projectcodex.components.shootDetails
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.*
+import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.datastore.DatastoreKey
@@ -47,6 +50,9 @@ class ShootDetailsRepoUnitTest {
             use2023System = DatastoreKey.Use2023HandicapSystem.defaultValue,
             useBetaFeatures = DatastoreKey.UseBetaFeatures.defaultValue,
             archerHandicaps = listOf(),
+            bow = DatabaseBowPreviewHelper.default,
+            archerInfo = DatabaseArcherPreviewHelper.default,
+            wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
     )
 
     private fun createShootInfo(id: Int) = DatabaseFullShootInfo(
