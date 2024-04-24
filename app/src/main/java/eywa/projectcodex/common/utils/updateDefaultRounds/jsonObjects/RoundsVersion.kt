@@ -10,6 +10,7 @@ import eywa.projectcodex.common.utils.DoNotObfuscate
  */
 @DoNotObfuscate
 class RoundsVersion(val version: Int) {
+    @DoNotObfuscate
     class RoundsVersionJsonConverter : Converter {
         override fun canConvert(cls: Class<*>): Boolean {
             return RoundsVersion::class.java.isAssignableFrom(cls)

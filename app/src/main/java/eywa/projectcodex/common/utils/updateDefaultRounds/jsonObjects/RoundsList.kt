@@ -8,6 +8,7 @@ import eywa.projectcodex.common.utils.DoNotObfuscate
  */
 @DoNotObfuscate
 class RoundsList(val rounds: List<String>) {
+    @DoNotObfuscate
     class RoundsListJsonConverter : Converter {
         override fun canConvert(cls: Class<*>): Boolean {
             return RoundsList::class.java.isAssignableFrom(cls)

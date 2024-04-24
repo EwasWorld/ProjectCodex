@@ -72,6 +72,7 @@ class DefaultRoundInfo(
      * Properties cannot be private due to Klaxon parsing
      * @see RoundSubType
      */
+    @DoNotObfuscate
     class RoundInfoSubType(
             val id: Int,
             val subTypeName: String,
@@ -87,6 +88,7 @@ class DefaultRoundInfo(
      * Properties cannot be private due to Klaxon parsing
      * @see RoundArrowCount
      */
+    @DoNotObfuscate
     class RoundInfoArrowCount(
             val distanceNumber: Int,
             val faceSizeInCm: Double,
@@ -101,6 +103,7 @@ class DefaultRoundInfo(
      * Properties cannot be private due to Klaxon parsing
      * @see RoundDistance
      */
+    @DoNotObfuscate
     class RoundInfoDistance(
             val distanceNumber: Int,
             val roundSubTypeId: Int,
