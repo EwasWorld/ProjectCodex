@@ -67,6 +67,7 @@ class StatsStateUnitTest {
                 },
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
+                wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -86,6 +87,7 @@ class StatsStateUnitTest {
                 },
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
+                wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -104,6 +106,7 @@ class StatsStateUnitTest {
                 },
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
+                wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -122,6 +125,7 @@ class StatsStateUnitTest {
                 },
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
+                wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -141,11 +145,52 @@ class StatsStateUnitTest {
                 },
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
+                wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
         assertEquals(
-                null,
+                Classification.BOWMAN_2ND_CLASS to false,
+                state.classification,
+        )
+    }
+
+    @Test
+    fun testClassification_RoughAndTrueMix_UseRough() {
+        val detailsState = ShootDetailsState(
+                fullShootInfo = ShootPreviewHelperDsl.create {
+                    this.round = RoundPreviewHelper.yorkRoundData
+                    roundSubTypeId = 2
+                    completeRound(10)
+                },
+                archerInfo = DatabaseArcherPreviewHelper.default,
+                bow = DatabaseBowPreviewHelper.default,
+                wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+        )
+        val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
+
+        assertEquals(
+                Classification.ELITE_MASTER_BOWMAN to false,
+                state.classification,
+        )
+    }
+
+    @Test
+    fun testClassification_RoughAndTrueMix_UseReal() {
+        val detailsState = ShootDetailsState(
+                fullShootInfo = ShootPreviewHelperDsl.create {
+                    this.round = RoundPreviewHelper.yorkRoundData
+                    roundSubTypeId = 2
+                    completeRoundWithFinalScore(900)
+                },
+                archerInfo = DatabaseArcherPreviewHelper.default,
+                bow = DatabaseBowPreviewHelper.default,
+                wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+        )
+        val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
+
+        assertEquals(
+                Classification.BOWMAN_3RD_CLASS to true,
                 state.classification,
         )
     }

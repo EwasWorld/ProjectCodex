@@ -379,12 +379,18 @@ class ShootDetailsStatsInstrumentedTest {
                     round = RoundPreviewHelper.yorkRoundData
                     completeRoundWithFinalScore(200)
                 },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 5, dateShot = "10/10/2019 10:00".parseDate())
+                    round = RoundPreviewHelper.yorkRoundData
+                    roundSubTypeId = 2
+                    completeRound(9)
+                },
         )
         setup()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForRowCount(4)
+                waitForRowCount(5)
                 clickRow(0) {
                     clickNavBarStats {
                         checkRound("York")
@@ -434,6 +440,20 @@ class ShootDetailsStatsInstrumentedTest {
                         checkClassification(
                                 classification = null,
                                 isOfficial = true,
+                                isPredicted = false,
+                        )
+                        checkClassificationCategory("Senior Gentleman Recurve")
+                        pressBack()
+                    }
+                }
+
+                clickRow(4) {
+                    clickNavBarStats {
+                        checkRound("Hereford")
+                        checkScore(1296)
+                        checkClassification(
+                                classification = Classification.ELITE_MASTER_BOWMAN,
+                                isOfficial = false,
                                 isPredicted = false,
                         )
                         checkClassificationCategory("Senior Gentleman Recurve")

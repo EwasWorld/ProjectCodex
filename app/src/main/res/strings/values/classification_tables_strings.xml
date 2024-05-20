@@ -35,7 +35,7 @@
     <string name="classification_tables__bowman_1_full">Bowman 1st Class</string>
     <string name="classification_tables__master_bowman_full">Master Bowman</string>
     <string name="classification_tables__grand_master_bowman_full">Grand Master Bowman</string>
-    <string name="classification_tables__elite_grand_master_bowman_full">Elite Master Bowman</string>
+    <string name="classification_tables__elite_grand_master_bowman_full">Elite Grand Master Bowman</string>
 
     <string name="classification_tables__disclaimer">Note: certain classifications can only be achieved at longer distances. Greyed out classifications are approximations and are not officially recognised by Archery GB</string>
 

@@ -91,7 +91,7 @@ class StatsState(
         val currentScore = (if (fullShootInfo.isRoundComplete) fullShootInfo.score else fullShootInfo.predictedScore)
                 ?: return null
 
-        val trueEntries = classificationTables.get(
+        val trueClassification = classificationTables.get(
                 archerInfo.isGent,
                 archerInfo.age,
                 bow.type,
@@ -101,7 +101,10 @@ class StatsState(
         )
                 ?.takeIf { it.isNotEmpty() }
                 ?.filter { it.score!! <= currentScore }
-        val roughEntries = wa1440FullRoundInfo?.let {
+                ?.maxByOrNull { it.score!! }
+                ?.classification
+                ?.to(true)
+        val roughClassification = wa1440FullRoundInfo?.let {
             classificationTables.getRoughHandicaps(
                     archerInfo.isGent,
                     archerInfo.age,
@@ -112,10 +115,16 @@ class StatsState(
         }
                 ?.takeIf { it.isNotEmpty() }
                 ?.filter { (it.handicap ?: 0) >= (fullShootInfo.handicap ?: Handicap.maxHandicap(use2023System)) }
+                ?.maxByOrNull { it.score!! }
+                ?.classification
+                ?.to(false)
 
-        return (trueEntries ?: roughEntries)
-                ?.maxByOrNull { it.score!! }?.classification
-                ?.to(trueEntries != null)
+        return when {
+            trueClassification == null && roughClassification == null -> null
+            trueClassification == null || roughClassification == null -> trueClassification ?: roughClassification
+            trueClassification.first.ordinal >= roughClassification.first.ordinal -> trueClassification
+            else -> roughClassification
+        }
     }
 
     val extras: List<ExtraStats>?
