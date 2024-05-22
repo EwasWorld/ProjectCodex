@@ -83,7 +83,7 @@ class SightMarksViewModelUnitTest {
 
     @Test
     fun testInitialise_HighestAtTop() = runTest {
-        db.bow.isHighestAtTop = true
+        db.bow.defaultBow = db.bow.defaultBow.copy(isSightMarkDiagramHighestAtTop = true)
         val sut = getSut()
         assertEquals(
                 SightMarksState.Loading(),

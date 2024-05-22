@@ -89,6 +89,7 @@ class MockScoresRoomDatabase {
             on { getFullShootInfo(anyList()) } doReturn getShoots()
             on { getMostRecentShootsForRound(any(), any(), any()) } doReturn getShortShoots()
             on { getHighestScoreShootsForRound(any(), any(), any()) } doReturn getShortShoots()
+            on { mostRecentRoundShot } doReturn getShoots().map { it.firstOrNull()?.shootRound }
         }
 
         private fun getShoots() = flow {
@@ -147,7 +148,7 @@ class MockScoresRoomDatabase {
     }
 
     class MockBow {
-        var isHighestAtTop = DatabaseBowPreviewHelper.default.isSightMarkDiagramHighestAtTop
+        var defaultBow = DatabaseBowPreviewHelper.default
 
         val mock: BowDao = mock {
             on { getDefaultBow() } doAnswer { getDefaultBow() }
@@ -157,10 +158,7 @@ class MockScoresRoomDatabase {
             on { defaultBow } doAnswer { getDefaultBow() }
         }
 
-        private fun getDefaultBow() =
-                flow {
-                    emit(DatabaseBowPreviewHelper.default.copy(isSightMarkDiagramHighestAtTop = isHighestAtTop))
-                }
+        private fun getDefaultBow() = flow { emit(defaultBow) }
     }
 
     class MockArcherRepo {

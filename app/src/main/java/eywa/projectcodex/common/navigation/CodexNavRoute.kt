@@ -92,6 +92,12 @@ enum class CodexNavRoute : ScreenNavRoute {
         }
     },
     CLASSIFICATION_TABLES {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(
+                    NavArgument.ROUND_ID to false,
+                    NavArgument.ROUND_SUB_TYPE_ID to false,
+            )
+
         override val tabSwitcherItem = TabSwitcherItem(
                 label = ResOrActual.StringResource(R.string.classification_tables__title),
                 group = TabSwitcherGroup.REFERENCES,
@@ -118,6 +124,13 @@ enum class CodexNavRoute : ScreenNavRoute {
         }
     },
     HANDICAP_TABLES {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(
+                    NavArgument.HANDICAP to false,
+                    NavArgument.ROUND_ID to false,
+                    NavArgument.ROUND_SUB_TYPE_ID to false,
+            )
+
         override val tabSwitcherItem = TabSwitcherItem(
                 label = ResOrActual.StringResource(R.string.handicap_tables__title),
                 group = TabSwitcherGroup.REFERENCES,

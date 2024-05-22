@@ -21,12 +21,14 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -74,35 +76,8 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoHandled
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditHandicapInfoClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootHandled
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRecordsTabClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsDismissed
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.ShootDetailsAction
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ADJUSTED_SCORE_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ALLOWANCE_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ARCHER_HANDICAP_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.CLASSIFICATION
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.CLASSIFICATION_CATEGORY
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.DATE_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.EDIT_SHOOT_INFO
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.GOLDS_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.HANDICAP_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.HITS_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_DIALOG_ITEM
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_DIALOG_TAB
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PAST_RECORDS_LINK_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PB_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.PREDICTED_SCORE_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.REMAINING_ARROWS_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.ROUND_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCORE_TEXT
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCREEN
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
+import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.*
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
@@ -149,6 +124,8 @@ fun HandleEffects(
             loadedState.openEditShootScreen,
             loadedState.openEditHandicapInfoScreen,
             loadedState.openEditArcherInfoScreen,
+            loadedState.openHandicapTablesScreen,
+            loadedState.openClassificationTablesScreen,
     ) {
         if (loadedState.openEditShootScreen) {
             CodexNavRoute.NEW_SCORE.navigate(
@@ -164,6 +141,27 @@ fun HandleEffects(
         if (loadedState.openEditArcherInfoScreen) {
             CodexNavRoute.ARCHER_INFO.navigate(navController)
             listener(EditArcherInfoHandled)
+        }
+        if (loadedState.openHandicapTablesScreen) {
+            CodexNavRoute.HANDICAP_TABLES.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.HANDICAP to loadedState.fullShootInfo.handicap,
+                            NavArgument.ROUND_ID to loadedState.fullShootInfo.round?.roundId,
+                            NavArgument.ROUND_SUB_TYPE_ID to loadedState.fullShootInfo.roundSubType?.subTypeId,
+                    ).filter { it.value != null }.mapValues { (_, value) -> value.toString() },
+            )
+            listener(ExpandHandicapsHandled)
+        }
+        if (loadedState.openClassificationTablesScreen) {
+            CodexNavRoute.CLASSIFICATION_TABLES.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.ROUND_ID to loadedState.fullShootInfo.round?.roundId,
+                            NavArgument.ROUND_SUB_TYPE_ID to loadedState.fullShootInfo.roundSubType?.subTypeId,
+                    ).filter { it.value != null }.mapValues { (_, value) -> value.toString() },
+            )
+            listener(ExpandClassificationsHandled)
         }
     }
 }
@@ -205,12 +203,16 @@ private fun StatsScreen(
 
 @Composable
 private fun EditBox(
-        editContentDescription: String,
-        editListener: () -> Unit,
+        testTag: StatsTestTag,
+        editContentDescription: String? = null,
+        editListener: (() -> Unit)? = null,
+        expandContentDescription: String? = null,
+        expandListener: (() -> Unit)? = null,
         content: @Composable () -> Unit,
 ) {
     Box(
-            contentAlignment = Alignment.BottomEnd,
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.testTag(testTag)
     ) {
         Surface(
                 shape = RoundedCornerShape(20),
@@ -224,16 +226,31 @@ private fun EditBox(
                 content()
             }
         }
-        CodexIconButton(
-                icon = CodexIconInfo.VectorIcon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = editContentDescription,
-                ),
-                onClick = editListener,
-                modifier = Modifier
-                        .padding(horizontal = 0.dp, vertical = 0.dp)
-                        .testTag(EDIT_SHOOT_INFO)
-        )
+        if (editListener != null && editContentDescription != null) {
+            CodexIconButton(
+                    icon = CodexIconInfo.VectorIcon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = editContentDescription,
+                    ),
+                    onClick = editListener,
+                    modifier = Modifier
+                            .testTag(EDIT_SHOOT_INFO)
+                            .align(Alignment.BottomEnd)
+            )
+        }
+        if (expandListener != null && expandContentDescription != null) {
+            CodexIconButton(
+                    icon = CodexIconInfo.VectorIcon(
+                            imageVector = Icons.Default.OpenInFull,
+                            contentDescription = expandContentDescription,
+                            modifier = Modifier.scale(-1f, 1f)
+                    ),
+                    onClick = expandListener,
+                    modifier = Modifier
+                            .testTag(EXPAND_SHOOT_INFO)
+                            .align(Alignment.BottomStart)
+            )
+        }
     }
 }
 
@@ -244,6 +261,7 @@ fun NewScoreSection(
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     EditBox(
+            testTag = SHOOT_DETAIL_SECTION,
             editContentDescription = stringResource(R.string.archer_round_stats__edit_shoot_content_description),
             editListener = editClickedListener,
     ) {
@@ -409,8 +427,11 @@ private fun AllowanceSection(
 
     Section {
         EditBox(
+                testTag = HANDICAP_SECTION,
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_edit),
-                editListener = { listener(EditHandicapInfoClicked) }
+                editListener = { listener(EditHandicapInfoClicked) },
+                expandContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_expand),
+                expandListener = { listener(ExpandHandicapsClicked) },
         ) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_handicap),
@@ -475,8 +496,11 @@ private fun ClassificationSection(
 
     Section {
         EditBox(
+                testTag = CLASSIFICATION_SECTION,
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_info_edit),
                 editListener = { listener(EditArcherInfoClicked) },
+                expandContentDescription = stringResource(R.string.archer_round_stats__archer_info_expand),
+                expandListener = { listener(ExpandClassificationsClicked) },
         ) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_info_category),
@@ -752,8 +776,12 @@ enum class StatsTestTag : CodexTestTag {
     ALLOWANCE_TEXT,
     ADJUSTED_SCORE_TEXT,
     EDIT_SHOOT_INFO,
+    EXPAND_SHOOT_INFO,
     CLASSIFICATION_CATEGORY,
     CLASSIFICATION,
+    SHOOT_DETAIL_SECTION,
+    CLASSIFICATION_SECTION,
+    HANDICAP_SECTION,
     ;
 
     override val screenName: String

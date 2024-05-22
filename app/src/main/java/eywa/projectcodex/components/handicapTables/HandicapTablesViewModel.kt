@@ -1,18 +1,18 @@
 package eywa.projectcodex.components.handicapTables
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.navigation.get
+import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectFaceDialogAction
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectRoundDialogAction
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleHandicapSystem
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleInput
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -34,8 +34,14 @@ class HandicapTablesViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
         private val datastore: CodexDatastore,
         private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
+        savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(HandicapTablesState())
+    private var argRoundId = savedStateHandle.get<Int>(NavArgument.ROUND_ID)
+    private var argRoundSubTypeId = savedStateHandle.get<Int>(NavArgument.ROUND_SUB_TYPE_ID)
+    private val argHandicap = savedStateHandle.get<Int>(NavArgument.HANDICAP)
+
+    private val _state =
+            MutableStateFlow(HandicapTablesState(input = PartialNumberFieldState(argHandicap?.toString() ?: "")))
     val state = _state.asStateFlow()
 
     init {
@@ -43,6 +49,8 @@ class HandicapTablesViewModel @Inject constructor(
             datastore.get(DatastoreKey.Use2023HandicapSystem).firstOrNull()?.let { use2023 ->
                 _state.update { it.copy(use2023System = use2023) }
             }
+        }
+        viewModelScope.launch {
             state.map { it.selectRoundDialogState.filters }.distinctUntilChanged().collectLatest { filters ->
                 db.roundsRepo().fullRoundsInfo(filters).collectLatest { rounds ->
                     handle(SelectRoundDialogAction(SelectRoundDialogIntent.SetRounds(rounds)))
@@ -56,6 +64,33 @@ class HandicapTablesViewModel @Inject constructor(
                 }
             }
         }
+        if (argRoundId == null) {
+            viewModelScope.launch {
+                db.shootsRepo().mostRecentRoundShot.collect { round ->
+                    if (round != null) {
+                        argRoundId = round.roundId
+                        argRoundSubTypeId = round.roundSubTypeId
+                        _state.update {
+                            it.copy(
+                                    selectRoundDialogState = it.selectRoundDialogState
+                                            .copy(selectedRoundId = argRoundId, selectedSubTypeId = argRoundSubTypeId)
+                                            .clearSelectedIfInvalid()
+                            ).addHandicaps()
+                        }
+                    }
+                }
+            }
+        }
+        if (argHandicap == null) {
+            viewModelScope.launch {
+                db.archerRepo().latestHandicapsForDefaultArcher.collect { round ->
+                    val handicap = round.find { it.bowStyle == ClassificationBow.RECURVE }?.handicap
+                    if (handicap != null) {
+                        _state.update { it.copy(input = PartialNumberFieldState(handicap.toString())).addHandicaps() }
+                    }
+                }
+            }
+        }
     }
 
     fun handle(action: HandicapTablesIntent) {
@@ -63,9 +98,14 @@ class HandicapTablesViewModel @Inject constructor(
             is InputChanged -> _state.update { it.copy(input = it.input.onTextChanged(action.newSize)).addHandicaps() }
             is SelectRoundDialogAction -> {
                 _state.update {
-                    val (selectRoundDialogState, faceIntent) = action.action.handle(it.selectRoundDialogState)
+                    var (selectRoundDialogState, faceIntent) = action.action.handle(it.selectRoundDialogState)
                     val selectFaceDialogState = faceIntent?.handle(it.selectFaceDialogState)
                             ?: it.selectFaceDialogState
+                    if (action.action is SelectRoundDialogIntent.SetRounds) {
+                        selectRoundDialogState = selectRoundDialogState
+                                .copy(selectedRoundId = argRoundId, selectedSubTypeId = argRoundSubTypeId)
+                                .clearSelectedIfInvalid()
+                    }
                     it.copy(
                             selectRoundDialogState = selectRoundDialogState,
                             selectFaceDialogState = selectFaceDialogState,

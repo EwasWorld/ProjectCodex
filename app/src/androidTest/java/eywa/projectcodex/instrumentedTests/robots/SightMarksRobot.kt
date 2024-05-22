@@ -1,16 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots
 
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.ADD_BUTTON
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.ARCHIVE_MENU_BUTTON
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.DIAGRAM_NOTE_ICON
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.DIAGRAM_TICK_LABEL
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.FLIP_DIAGRAM_MENU_BUTTON
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.NO_SIGHT_MARKS_TEXT
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.OPTIONS_BUTTON
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.SCREEN
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.SHIFT_AND_SCALE_MENU_BUTTON
-import eywa.projectcodex.components.sightMarks.SightMarksTestTag.SIGHT_MARK_TEXT
+import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
@@ -70,11 +61,12 @@ class SightMarksRobot(
             isLeft: Boolean = false,
             block: SightMarkDetailRobot.() -> Unit,
     ) {
-        clickElement(
-                SIGHT_MARK_TEXT,
-                sightMark.asText(isLeft),
-                useUnmergedTree = true,
-        )
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT)
+            +CodexNodeMatcher.HasText(sightMark.asText(isLeft))
+            useUnmergedTree()
+            +CodexNodeInteraction.PerformClick()
+        }
         createRobot(SightMarkDetailRobot::class) {
             checkInfo(sightMark, false)
             checkButtons(false)

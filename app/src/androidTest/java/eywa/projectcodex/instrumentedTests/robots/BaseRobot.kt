@@ -17,11 +17,12 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
+import eywa.projectcodex.instrumentedTests.dsl.TestActionDslGroupNode
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
+import eywa.projectcodex.instrumentedTests.dsl.TestActionDslSingleNode
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslV2
 import eywa.projectcodex.instrumentedTests.robots.common.Robot
 import java.util.Calendar
@@ -68,6 +69,22 @@ abstract class BaseRobot(
         TestActionDslV2().apply(config).perform(composeTestRule)
     }
 
+    fun performV2Single(config: TestActionDslSingleNode.First.() -> Unit) {
+        TestActionDslV2().apply {
+            singleNode {
+                config()
+            }
+        }.perform(composeTestRule)
+    }
+
+    fun performV2Group(config: TestActionDslGroupNode.First.() -> Unit) {
+        TestActionDslV2().apply {
+            allNodes {
+                config()
+            }
+        }.perform(composeTestRule)
+    }
+
     fun setDateAndTime(calendar: Calendar) {
         perform {
             +CodexNodeMatcher.HasTestTag(DateSelectorRowTestTag.DATE_BUTTON)
@@ -98,28 +115,13 @@ abstract class BaseRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
-    @Deprecated("Use perform")
     fun clickElement(
             testTag: CodexTestTag,
-            text: String? = null,
-            index: Int? = null,
             useUnmergedTree: Boolean = false
     ) {
-        perform {
-            val matchers = listOfNotNull(
-                    CodexNodeMatcher.HasTestTag(testTag),
-                    text?.let { CodexNodeMatcher.HasText(text) },
-            )
-
-            if (index != null) {
-                allNodes(*matchers.toTypedArray())
-                +CodexNodeGroupToOne.Index(index)
-            }
-            else {
-                matchers.forEach { +it }
-            }
-            this.useUnmergedTree = useUnmergedTree
-
+        performV2Single {
+            useUnmergedTree(useUnmergedTree)
+            +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.PerformClick()
         }
     }

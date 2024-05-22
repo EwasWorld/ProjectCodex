@@ -11,17 +11,7 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditArcherInfoHandled
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditHandicapInfoClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditHandicapInfoHandled
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.EditShootHandled
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRecordsTabClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsClicked
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.PastRoundRecordsDismissed
-import eywa.projectcodex.components.shootDetails.stats.StatsIntent.ShootDetailsAction
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -61,6 +51,10 @@ class StatsViewModel @Inject constructor(
             PastRoundRecordsClicked -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = true) }
             PastRoundRecordsDismissed -> extraState.update { it.copy(isPastRoundRecordsDialogOpen = false) }
             is PastRecordsTabClicked -> extraState.update { it.copy(pastRoundScoresTab = action.tab) }
+            ExpandHandicapsClicked -> extraState.update { it.copy(openHandicapTablesScreen = true) }
+            ExpandHandicapsHandled -> extraState.update { it.copy(openHandicapTablesScreen = false) }
+            ExpandClassificationsClicked -> extraState.update { it.copy(openClassificationTablesScreen = true) }
+            ExpandClassificationsHandled -> extraState.update { it.copy(openClassificationTablesScreen = false) }
         }
     }
 }

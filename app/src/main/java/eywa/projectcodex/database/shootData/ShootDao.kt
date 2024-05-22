@@ -52,6 +52,22 @@ interface ShootDao {
     @Transaction
     @Query(
             """
+                SELECT shootRound.*
+                FROM ${DatabaseShootRound.TABLE_NAME} as shootRound 
+                LEFT JOIN $TABLE_NAME as shoot ON shootRound.shootId = shoot.shootId
+                WHERE NOT roundId IS NULL
+                ORDER BY dateShot DESC
+                LIMIT 1
+            """
+    )
+    fun getMostRecentRoundShot(): Flow<DatabaseShootRound?>
+
+    /**
+     * Most recent shoots with the specified round that have at least 1 arrow shot
+     */
+    @Transaction
+    @Query(
+            """
                 SELECT shootId, dateShot, score, (scoringArrowCount = roundCount OR counterCount = roundCount) as isComplete
                 FROM ${ShootWithScore.TABLE_NAME}
                 WHERE roundId = :roundId AND nonNullSubTypeId = :subTypeId AND (scoringArrowCount > 0 OR counterCount > 0)

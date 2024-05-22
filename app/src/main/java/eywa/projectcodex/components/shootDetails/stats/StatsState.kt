@@ -20,6 +20,8 @@ class StatsState(
     val openEditShootScreen = extras.openEditShootScreen
     val openEditHandicapInfoScreen = extras.openEditHandicapInfoScreen
     val openEditArcherInfoScreen = extras.openEditArcherInfoScreen
+    val openHandicapTablesScreen = extras.openHandicapTablesScreen
+    val openClassificationTablesScreen = extras.openClassificationTablesScreen
     val archerInfo = main.archerInfo
     val bow = main.bow
     val archerHandicaps = main.archerHandicaps?.sortedByDescending { it.dateSet }
@@ -170,6 +172,8 @@ data class StatsExtras(
         val openEditShootScreen: Boolean = false,
         val openEditHandicapInfoScreen: Boolean = false,
         val openEditArcherInfoScreen: Boolean = false,
+        val openHandicapTablesScreen: Boolean = false,
+        val openClassificationTablesScreen: Boolean = false,
         val isPastRoundRecordsDialogOpen: Boolean = false,
         val pastRoundScoresTab: StatsScreenPastRecordsTabs = StatsScreenPastRecordsTabs.BEST,
 )

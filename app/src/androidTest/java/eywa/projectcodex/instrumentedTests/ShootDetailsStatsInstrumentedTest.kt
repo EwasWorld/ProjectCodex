@@ -69,6 +69,7 @@ class ShootDetailsStatsInstrumentedTest {
             handicap = 40,
             dateSet = Calendar.getInstance(),
     )
+    private var defaultArcherIsGent = true
     private val rounds = listOf(
             FullRoundInfo(
                     round = Round(1, "round1", "Round1", true, false),
@@ -176,6 +177,7 @@ class ShootDetailsStatsInstrumentedTest {
                 rounds.forEach { db.add(it) }
                 shoots.forEach { db.add(it) }
                 db.archerRepo().insert(archerHandicap)
+                db.archerRepo().updateDefaultArcher(defaultArcherIsGent)
             }
         }
 
@@ -458,6 +460,60 @@ class ShootDetailsStatsInstrumentedTest {
                         )
                         checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testOpenReferenceTables() {
+        defaultArcherIsGent = false
+        shoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = "10/10/2023 10:00".parseDate())
+                    round = RoundPreviewHelper.yorkRoundData
+                    roundSubTypeId = 2
+                    completeRoundWithFinalScore(800)
+                },
+        )
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(1)
+                clickRow(0) {
+                    clickNavBarStats {
+                        checkRound("Hereford")
+                        checkScore(800)
+                        checkClassificationCategory("Senior Lady Recurve")
+                        checkArcherHandicap(40)
+                        checkHandicap(55)
+
+                        openHandicapTablesInFull {
+                            checkInputText("55")
+                            with(selectRoundBaseRobot) {
+                                checkSelectedSubtype("Hereford")
+                            }
+                            pressBack()
+                        }
+
+                        openClassificationTablesInFull {
+                            with(selectRoundsRobot) {
+                                checkSelectedSubtype("Hereford")
+                            }
+                            checkGender(false)
+                            pressBack()
+                        }
+
+                        openEditArcherInfo {
+                            checkGenderIsGent(false)
+                            pressBack()
+                        }
+
+                        openEditArcherHandicaps {
+                            checkHandicap(0, archerHandicap.dateSet, archerHandicap.handicap)
+                        }
                     }
                 }
             }

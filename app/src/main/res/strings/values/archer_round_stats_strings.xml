@@ -16,6 +16,7 @@
     <string name="archer_round_stats__predicted_score">Predicted score:</string>
     <string name="archer_round_stats__archer_handicap">Archer handicap:</string>
     <string name="archer_round_stats__archer_handicap_edit">Edit archer handicap</string>
+    <string name="archer_round_stats__archer_handicap_expand">Open full handicap tables</string>
     <string name="archer_round_stats__allowance">Allowance:</string>
     <string name="archer_round_stats__predicted_adjusted_score">Predicted adjusted score:</string>
     <string name="archer_round_stats__adjusted_score">Adjusted score:</string>
@@ -25,6 +26,7 @@
     <string name="archer_round_stats__archer_info_classification_none">None</string>
     <string name="archer_round_stats__archer_info_classification_unofficial">(unofficial)</string>
     <string name="archer_round_stats__archer_info_edit">Edit archer info</string>
+    <string name="archer_round_stats__archer_info_expand">Open full classification tables</string>
     <string name="archer_round_stats__is_pb">Personal best!</string>
     <string name="archer_round_stats__is_tied_pb">Tied personal best</string>
     <string name="archer_round_stats__past_records">Past scores</string>

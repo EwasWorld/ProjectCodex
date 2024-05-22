@@ -1,18 +1,25 @@
 package eywa.projectcodex.components
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.previewHelpers.asDatabaseFullShootInfo
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.SubTypeIntent.CloseSubTypeDialog
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.SubTypeIntent.OpenSubTypeDialog
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 import eywa.projectcodex.components.handicapTables.HandicapTablesState
 import eywa.projectcodex.components.handicapTables.HandicapTablesViewModel
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
+import eywa.projectcodex.testUtils.MockSavedStateHandle
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
 import eywa.projectcodex.testUtils.mockUpdateDefaultRoundsTask
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,6 +40,7 @@ class HandicapTablesViewModelUnitTest {
     private val db = MockScoresRoomDatabase()
     private val datastore = MockDatastore()
     private val helpShowcase = mock<HelpShowcaseUseCase> { }
+    private val savedStateHandle = MockSavedStateHandle()
 
     private val initialRounds = listOf(
             RoundPreviewHelper.indoorMetricRoundData,
@@ -40,6 +48,10 @@ class HandicapTablesViewModelUnitTest {
             RoundPreviewHelper.singleSubtypeRoundData,
             RoundPreviewHelper.yorkRoundData,
             RoundPreviewHelper.wa25RoundData,
+    )
+    private val initialState = HandicapTablesState(
+            selectRoundDialogState = SelectRoundDialogState(allRounds = initialRounds),
+            updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
     )
 
     private fun getSut(): HandicapTablesViewModel {
@@ -49,6 +61,7 @@ class HandicapTablesViewModelUnitTest {
                 helpShowcase = helpShowcase,
                 datastore = datastore.mock,
                 updateDefaultRoundsTask = mockUpdateDefaultRoundsTask,
+                savedStateHandle = savedStateHandle.mock,
         )
     }
 
@@ -57,10 +70,7 @@ class HandicapTablesViewModelUnitTest {
         advanceUntilIdle()
 
         assertEquals(
-                HandicapTablesState(
-                        selectRoundDialogState = SelectRoundDialogState(allRounds = initialRounds),
-                        updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
-                ),
+                initialState,
                 sut.state.value,
         )
 
@@ -147,6 +157,104 @@ class HandicapTablesViewModelUnitTest {
         assertEquals(
                 listOf(114, 115, 116, 117, 119, 120, 122, 124, 126, 129, 132),
                 sut.state.value.handicaps.map { it.handicap },
+        )
+    }
+
+    @Test
+    fun testInitFromSavedState() = runTest {
+        savedStateHandle.values[NavArgument.ROUND_ID.toArgName()] = RoundPreviewHelper.yorkRoundData.round.roundId
+        savedStateHandle.values[NavArgument.ROUND_SUB_TYPE_ID.toArgName()] = 2
+        savedStateHandle.values[NavArgument.HANDICAP.toArgName()] = 50
+
+        val sut = getSut()
+        advanceUntilIdle()
+
+        sut.checkInitialState(
+                initialState.copy(
+                        input = PartialNumberFieldState("50"),
+                        selectRoundDialogState = initialState.selectRoundDialogState.copy(
+                                selectedRoundId = RoundPreviewHelper.yorkRoundData.round.roundId,
+                                selectedSubTypeId = 2,
+                        ),
+                ),
+                50,
+        )
+    }
+
+    @Test
+    fun testInitFromDefaults() = runTest {
+        db.shootDao.fullShoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.yorkRoundData
+                    roundSubTypeId = 2
+                },
+        ).map { it.asDatabaseFullShootInfo() }
+        db.archerRepo.handicaps = ArcherHandicapsPreviewHelper.handicaps
+
+        val sut = getSut()
+        advanceUntilIdle()
+
+        sut.checkInitialState(
+                initialState.copy(
+                        input = PartialNumberFieldState("46"),
+                        selectRoundDialogState = initialState.selectRoundDialogState.copy(
+                                selectedRoundId = RoundPreviewHelper.yorkRoundData.round.roundId,
+                                selectedSubTypeId = 2,
+                        ),
+                ),
+                46,
+        )
+    }
+
+    @Test
+    fun testInitFromDefaultsAndSavedState() = runTest {
+        db.shootDao.fullShoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.indoorMetricRoundData
+                },
+        ).map { it.asDatabaseFullShootInfo() }
+        db.archerRepo.handicaps = ArcherHandicapsPreviewHelper.handicaps
+
+        savedStateHandle.values[NavArgument.ROUND_ID.toArgName()] = RoundPreviewHelper.yorkRoundData.round.roundId
+        savedStateHandle.values[NavArgument.ROUND_SUB_TYPE_ID.toArgName()] = 2
+        savedStateHandle.values[NavArgument.HANDICAP.toArgName()] = 50
+
+        val sut = getSut()
+        advanceUntilIdle()
+
+        val expectedState = initialState.copy(
+                input = PartialNumberFieldState("50"),
+                selectRoundDialogState = initialState.selectRoundDialogState.copy(
+                        selectedRoundId = RoundPreviewHelper.yorkRoundData.round.roundId,
+                        selectedSubTypeId = 2,
+                ),
+        )
+
+        sut.checkInitialState(
+                expectedState,
+                50,
+        )
+
+        sut.handle(SelectRoundDialogAction(OpenSubTypeDialog))
+        sut.handle(SelectRoundDialogAction(CloseSubTypeDialog))
+
+        sut.checkInitialState(
+                expectedState,
+                50,
+        )
+    }
+
+    private fun HandicapTablesViewModel.checkInitialState(
+            expectedState: HandicapTablesState,
+            highlightedHc: Int,
+    ) {
+        assertEquals(
+                expectedState,
+                state.value.copy(handicaps = emptyList(), highlightedHandicap = null),
+        )
+        assertEquals(
+                highlightedHc,
+                state.value.highlightedHandicap?.handicap,
         )
     }
 }

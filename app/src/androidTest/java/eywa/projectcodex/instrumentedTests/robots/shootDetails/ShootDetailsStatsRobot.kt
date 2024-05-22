@@ -3,21 +3,17 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.TabSwitcherTestTag
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.ARCHER_1ST_CLASS
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.ARCHER_2ND_CLASS
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.ARCHER_3RD_CLASS
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.BOWMAN_1ST_CLASS
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.BOWMAN_2ND_CLASS
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.BOWMAN_3RD_CLASS
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.ELITE_MASTER_BOWMAN
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.GRAND_MASTER_BOWMAN
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.MASTER_BOWMAN
+import eywa.projectcodex.common.utils.classificationTables.model.Classification.*
 import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.robots.ArcherHandicapRobot
+import eywa.projectcodex.instrumentedTests.robots.ArcherInfoRobot
+import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
+import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 
@@ -45,6 +41,7 @@ class ShootDetailsStatsRobot(
     fun clickEditRoundData(block: NewScoreRobot.() -> Unit) {
         perform {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
+            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.SHOOT_DETAIL_SECTION))
             +CodexNodeInteraction.PerformClick()
         }
 
@@ -202,6 +199,46 @@ class ShootDetailsStatsRobot(
         val expectedValue = classification?.classificationString()?.plus(if (isOfficial) "" else " (unofficial)")
                 ?: "None"
         checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, useUnmergedTree = true)
+    }
+
+    fun openHandicapTablesInFull(block: HandicapTablesRobot.() -> Unit) {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.EXPAND_SHOOT_INFO)
+            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_SECTION))
+            +CodexNodeInteraction.PerformScrollTo()
+            +CodexNodeInteraction.PerformClick()
+        }
+        createRobot(HandicapTablesRobot::class, block)
+    }
+
+    fun openClassificationTablesInFull(block: ClassificationTablesRobot.() -> Unit) {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.EXPAND_SHOOT_INFO)
+            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_SECTION))
+            +CodexNodeInteraction.PerformScrollTo()
+            +CodexNodeInteraction.PerformClick()
+        }
+        createRobot(ClassificationTablesRobot::class, block)
+    }
+
+    fun openEditArcherInfo(block: ArcherInfoRobot.() -> Unit) {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
+            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_SECTION))
+            +CodexNodeInteraction.PerformScrollTo()
+            +CodexNodeInteraction.PerformClick()
+        }
+        createRobot(ArcherInfoRobot::class, block)
+    }
+
+    fun openEditArcherHandicaps(block: ArcherHandicapRobot.() -> Unit) {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
+            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_SECTION))
+            +CodexNodeInteraction.PerformScrollTo()
+            +CodexNodeInteraction.PerformClick()
+        }
+        createRobot(ArcherHandicapRobot::class, block)
     }
 
     private fun Classification.classificationString() = when (this) {

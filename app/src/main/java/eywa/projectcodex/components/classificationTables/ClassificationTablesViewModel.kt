@@ -1,22 +1,18 @@
 package eywa.projectcodex.components.classificationTables
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeClicked
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeSelected
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowClicked
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowSelected
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.CloseDropdown
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.HelpShowcaseAction
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.SelectRoundDialogAction
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.ToggleIsGent
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
@@ -24,6 +20,7 @@ import eywa.projectcodex.model.Handicap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -37,7 +34,11 @@ class ClassificationTablesViewModel @Inject constructor(
         private val tables: ClassificationTablesUseCase,
         private val datastore: CodexDatastore,
         private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
+        savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+    private var argRoundId = savedStateHandle.get<Int>(NavArgument.ROUND_ID)
+    private var argRoundSubTypeId = savedStateHandle.get<Int>(NavArgument.ROUND_SUB_TYPE_ID)
+
     private val _state = MutableStateFlow(ClassificationTablesState())
     val state = _state.asStateFlow()
 
@@ -56,8 +57,38 @@ class ClassificationTablesViewModel @Inject constructor(
         }
         viewModelScope.launch {
             updateDefaultRoundsTask.state.collect { updateState ->
-                _state.update {
-                    it.copy(updateDefaultRoundsState = updateState)
+                _state.update { it.copy(updateDefaultRoundsState = updateState) }
+            }
+        }
+        viewModelScope.launch {
+            db.archerRepo().defaultArcher
+                    .combine(db.bowRepo().defaultBow) { a, b -> a to b }
+                    .collect { (archer, bow) ->
+                        if (archer != null || bow != null) {
+                            _state.update {
+                                it.copy(
+                                        isGent = archer?.isGent ?: it.isGent,
+                                        age = archer?.age ?: it.age,
+                                        bow = bow?.type ?: it.bow,
+                                ).addScores()
+                            }
+                        }
+                    }
+        }
+        if (argRoundId == null) {
+            viewModelScope.launch {
+                db.shootsRepo().mostRecentRoundShot.collect { round ->
+                    if (round != null) {
+                        argRoundId = round.roundId
+                        argRoundSubTypeId = round.roundSubTypeId
+                        _state.update {
+                            it.copy(
+                                    selectRoundDialogState = it.selectRoundDialogState
+                                            .copy(selectedRoundId = argRoundId, selectedSubTypeId = argRoundSubTypeId)
+                                            .clearSelectedIfInvalid()
+                            ).addScores()
+                        }
+                    }
                 }
             }
         }
@@ -73,7 +104,12 @@ class ClassificationTablesViewModel @Inject constructor(
             CloseDropdown -> _state.update { it.copy(expanded = null) }
             is SelectRoundDialogAction -> {
                 _state.update {
-                    val (selectRoundDialogState, _) = action.action.handle(it.selectRoundDialogState)
+                    var (selectRoundDialogState, _) = action.action.handle(it.selectRoundDialogState)
+                    if (action.action is SelectRoundDialogIntent.SetRounds) {
+                        selectRoundDialogState = selectRoundDialogState
+                                .copy(selectedRoundId = argRoundId, selectedSubTypeId = argRoundSubTypeId)
+                                .clearSelectedIfInvalid()
+                    }
                     it.copy(selectRoundDialogState = selectRoundDialogState).addScores()
                 }
             }

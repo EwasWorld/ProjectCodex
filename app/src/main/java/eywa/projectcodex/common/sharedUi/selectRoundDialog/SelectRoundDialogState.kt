@@ -50,4 +50,12 @@ data class SelectRoundDialogState(
 
     val displayName
         get() = selectedSubType?.name ?: selectedRound?.round?.displayName
+
+    fun clearSelectedIfInvalid(): SelectRoundDialogState =
+            when {
+                selectedRoundId == null -> this
+                selectedRound == null -> copy(selectedRoundId = null, selectedSubTypeId = null)
+                selectedSubTypeId != null && selectedSubType == null -> copy(selectedSubTypeId = null)
+                else -> this
+            }
 }

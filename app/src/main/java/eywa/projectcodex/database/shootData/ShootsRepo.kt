@@ -18,6 +18,8 @@ class ShootsRepo(
         private val shootRoundDao: ShootRoundDao,
         private val arrowCounterRepo: ArrowCounterRepo,
 ) {
+    val mostRecentRoundShot = shootDao.getMostRecentRoundShot()
+
     @Transaction
     fun getMostRecentShootsForRound(count: Int, roundId: Int, subTypeId: Int = 1) =
             shootDao.getMostRecentShootsForRound(count, roundId, subTypeId)
