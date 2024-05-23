@@ -44,6 +44,7 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -205,9 +206,11 @@ private fun StatsScreen(
 private fun EditBox(
         testTag: StatsTestTag,
         editContentDescription: String? = null,
+        editHelpState: HelpState? = null,
         editListener: (() -> Unit)? = null,
         expandContentDescription: String? = null,
         expandListener: (() -> Unit)? = null,
+        expandHelpState: HelpState? = null,
         content: @Composable () -> Unit,
 ) {
     Box(
@@ -236,6 +239,7 @@ private fun EditBox(
                     modifier = Modifier
                             .testTag(EDIT_SHOOT_INFO)
                             .align(Alignment.BottomEnd)
+                            .updateHelpDialogPosition(editHelpState)
             )
         }
         if (expandListener != null && expandContentDescription != null) {
@@ -249,6 +253,7 @@ private fun EditBox(
                     modifier = Modifier
                             .testTag(EXPAND_SHOOT_INFO)
                             .align(Alignment.BottomStart)
+                            .updateHelpDialogPosition(expandHelpState)
             )
         }
     }
@@ -264,6 +269,10 @@ fun NewScoreSection(
             testTag = SHOOT_DETAIL_SECTION,
             editContentDescription = stringResource(R.string.archer_round_stats__edit_shoot_content_description),
             editListener = editClickedListener,
+            editHelpState = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_archer_round_stats__edit_round_info_title),
+                    helpBody = stringResource(R.string.help_archer_round_stats__edit_round_info_body),
+            ).asHelpState(helpListener),
     ) {
         DataRow(
                 title = stringResource(R.string.archer_round_stats__date),
@@ -430,8 +439,16 @@ private fun AllowanceSection(
                 testTag = HANDICAP_SECTION,
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_edit),
                 editListener = { listener(EditHandicapInfoClicked) },
+                editHelpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_archer_round_stats__edit_archer_info_category_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__edit_archer_info_category_body),
+                ).asHelpState(helpListener),
                 expandContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_expand),
                 expandListener = { listener(ExpandHandicapsClicked) },
+                expandHelpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_classification_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__expand_classification_body),
+                ).asHelpState(helpListener),
         ) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_handicap),
@@ -499,8 +516,16 @@ private fun ClassificationSection(
                 testTag = CLASSIFICATION_SECTION,
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_info_edit),
                 editListener = { listener(EditArcherInfoClicked) },
+                editHelpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_archer_round_stats__edit_archer_info_handicaps_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__edit_archer_info_handicaps_body),
+                ).asHelpState(helpListener),
                 expandContentDescription = stringResource(R.string.archer_round_stats__archer_info_expand),
                 expandListener = { listener(ExpandClassificationsClicked) },
+                expandHelpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_handicaps_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__expand_handicaps_body),
+                ).asHelpState(helpListener),
         ) {
             DataRow(
                     title = stringResource(R.string.archer_round_stats__archer_info_category),

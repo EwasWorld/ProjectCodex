@@ -53,7 +53,7 @@
     <string name="help_archer_round_stats__past_records_title">Past scores</string>
     <string name="help_archer_round_stats__past_records_body">View other scores recorded for the selected round</string>
     <string name="help_archer_round_stats__archer_handicap_title">Archer handicap</string>
-    <string name="help_archer_round_stats__archer_handicap_body">The current handicap recorded in the \'Archer Info\' section, accessible from the main menu</string>
+    <string name="help_archer_round_stats__archer_handicap_body">The current handicap recorded in the \'Archer Info\' section, accessible from the main menu. This is used to calculate the allowance for the round</string>
     <string name="help_archer_round_stats__allowance_title">Allowance</string>
     <string name="help_archer_round_stats__allowance_body">An allowance based on the archer handicap that is added to the score to compare it with archers of a different skill level. This is often used in ladder or league competitions so that archers of different skill levels can compete more fairly</string>
     <string name="help_archer_round_stats__adjusted_score_title">Adjusted score</string>
@@ -72,4 +72,14 @@
     <string name="help_archer_round_stats__archer_info_body">Which Archery GB category the classification is being calculated for</string>
     <string name="help_archer_round_stats__archer_info_classification_title">Classification</string>
     <string name="help_archer_round_stats__archer_info_classification_body">The Archery GB classification for the given round, score, and category. Unofficial means that the given category is not officially eligible for classifications for the given round</string>
+    <string name="help_archer_round_stats__expand_classification_title">Open classification tables</string>
+    <string name="help_archer_round_stats__expand_classification_body">View the full Archery GB classification tables for the given round and category</string>
+    <string name="help_archer_round_stats__expand_handicaps_title">Open handicap tables</string>
+    <string name="help_archer_round_stats__expand_handicaps_body">Open full handicap tables for the given round</string>
+    <string name="help_archer_round_stats__edit_archer_info_category_title">Edit category</string>
+    <string name="help_archer_round_stats__edit_archer_info_category_body">Edit category used to calculate Archery GB classification</string>
+    <string name="help_archer_round_stats__edit_archer_info_handicaps_title">Edit archer handicap</string>
+    <string name="help_archer_round_stats__edit_archer_info_handicaps_body">Edit handicap for archer. This will update the allowance for round</string>
+    <string name="help_archer_round_stats__edit_round_info_title">Edit shoot details</string>
+    <string name="help_archer_round_stats__edit_round_info_body">Edit the date shot, round shot, and target face type, or switch between scoring and arrow counts</string>
 </resources>
