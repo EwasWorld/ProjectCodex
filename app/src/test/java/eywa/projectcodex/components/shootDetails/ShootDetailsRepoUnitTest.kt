@@ -4,16 +4,21 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.previewHelpers.asDatabaseFullShootInfo
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.*
+import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
-import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
-import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
-import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.datastore.get
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,7 +51,7 @@ class ShootDetailsRepoUnitTest {
     private val shootInfo = createShootInfo(1)
     private val initialState = ShootDetailsState(
             shootId = 1,
-            fullShootInfo = FullShootInfo(shootInfo, true),
+            fullShootInfo = shootInfo,
             use2023System = DatastoreKey.Use2023HandicapSystem.defaultValue,
             useBetaFeatures = DatastoreKey.UseBetaFeatures.defaultValue,
             archerHandicaps = listOf(),
@@ -55,15 +60,15 @@ class ShootDetailsRepoUnitTest {
             wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
     )
 
-    private fun createShootInfo(id: Int) = DatabaseFullShootInfo(
-            shoot = DatabaseShoot(id, Calendar.getInstance()),
-            arrows = listOf(DatabaseArrowScore(id, 1, 10, false)),
-    )
+    private fun createShootInfo(id: Int) = ShootPreviewHelperDsl.create {
+        shoot = shoot.copy(shootId = id)
+        addIdenticalArrows(1, 10)
+    }
 
     private fun TestScope.getSut(
-            shoots: List<DatabaseFullShootInfo>? = listOf(shootInfo)
+            shoots: FullShootInfo? = shootInfo
     ): ShootDetailsRepo {
-        shoots?.let { db.shootDao.fullShoots = it }
+        shoots?.let { db.shootDao.fullShoots = listOf(it.asDatabaseFullShootInfo()) }
         val sut = ShootDetailsRepo(db.mock, datastore.mock, helpShowcase)
 
         sut.connect { jobs.add(launch { it() }) }
@@ -81,12 +86,11 @@ class ShootDetailsRepoUnitTest {
         val loadingState = ShootDetailsResponse.Loading as ShootDetailsResponse<SimpleState>
         val shootInfo = createShootInfo(1)
         val shootInfo2 = createShootInfo(2)
-        db.shootDao.fullShoots = listOf(shootInfo)
 
         /*
          * Initial
          */
-        val sut = getSut(null)
+        val sut = getSut(shootInfo)
         verify(datastore.mock).get(DatastoreKey.Use2023HandicapSystem, DatastoreKey.UseBetaFeatures)
         verify(db.mock, never()).shootsRepo()
 
@@ -97,9 +101,9 @@ class ShootDetailsRepoUnitTest {
                         }
                 )
 
-        fun DatabaseFullShootInfo.asLoadedState() =
+        fun FullShootInfo.asLoadedState() =
                 SimpleLoaded(
-                        data = shoot.shootId to FullShootInfo(this, true),
+                        data = shoot.shootId to this,
                         shootId = shoot.shootId,
                         navBarClicked = null,
                         isCounting = this.arrowCounter != null,
@@ -123,7 +127,7 @@ class ShootDetailsRepoUnitTest {
         id1CollectedStates.clear()
         val id2CollectedStates = mutableListOf<ShootDetailsResponse<SimpleState>>()
         startCollectingStateForId(2, id2CollectedStates)
-        db.shootDao.fullShoots = listOf(shootInfo2)
+        db.shootDao.fullShoots = listOf(shootInfo2.asDatabaseFullShootInfo())
         db.shootDao.secondFullShoots = listOf()
         advanceTimeBy(1)
         verify(db.shootDao.mockRepo).getFullShootInfo(2)
@@ -157,6 +161,81 @@ class ShootDetailsRepoUnitTest {
     }
 
     @Test
+    fun testData() = runTest {
+        val shootInfo = ShootPreviewHelperDsl.create {
+            round = RoundPreviewHelper.yorkRoundData
+            addIdenticalArrows(72, 10)
+        }
+        val highest = listOf(
+                ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(800)
+                },
+                ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(700)
+                },
+        )
+        val recent = listOf(
+                ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(600)
+                },
+                ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(500)
+                },
+        )
+        val sightMark = SightMarksPreviewHelper.sightMarks.take(1).map { SightMark(it) }
+
+        db.rounds.fullRoundsInfo = listOf(RoundPreviewHelper.yorkRoundData)
+        db.shootDao.highestScoreForRound = highest
+        db.shootDao.mostRecentForRound = recent
+        db.archerRepo.handicaps = ArcherHandicapsPreviewHelper.handicaps.take(1)
+        db.archerRepo.defaultArcher =
+                DatabaseArcherPreviewHelper.default.copy(isGent = false, age = ClassificationAge.OVER_50)
+        db.bow.defaultBow = DatabaseBowPreviewHelper.default.copy(type = ClassificationBow.COMPOUND)
+        db.sightMarksDao.sightMarks = sightMark
+        datastore.values = mapOf(
+                DatastoreKey.Use2023HandicapSystem to false,
+                DatastoreKey.UseBetaFeatures to true,
+        )
+
+        val sut = getSut(shootInfo)
+        var latestState: ShootDetailsState? = null
+        collectLatestState(sut) {
+            latestState = it.getData()
+        }
+        advanceUntilIdle()
+        assertEquals(
+                ShootDetailsState(
+                        shootId = 1,
+                        useBetaFeatures = true,
+                        use2023System = false,
+                        fullShootInfo = shootInfo.copy(use2023HandicapSystem = false),
+                        archerHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
+                        archerInfo = db.archerRepo.defaultArcher,
+                        bow = db.bow.defaultBow,
+                        wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                        classification = null,
+                        roundPbs = highest.map { it.asShort() },
+                        pastRoundRecords = recent.map { it.asShort() },
+                        sightMark = sightMark.first(),
+                ),
+                latestState
+        )
+
+        teardown()
+    }
+
+    private fun FullShootInfo.asShort() = DatabaseShootShortRecord(
+            shootId = shoot.shootId,
+            dateShot = shoot.dateShot,
+            score = score,
+            isComplete = isRoundComplete,
+    )
+
+    @Test
     fun testHelpShowcaseAction() = runTest {
         val sut = getSut()
         var latestState: ShootDetailsState? = null
@@ -181,7 +260,7 @@ class ShootDetailsRepoUnitTest {
 
     @Test
     fun testReturnToMenu() = runTest {
-        val sut = getSut(listOf())
+        val sut = getSut(null)
         var latestResponse: ShootDetailsResponse<ShootDetailsState>? = null
         collectLatestState(sut) {
             latestResponse = it

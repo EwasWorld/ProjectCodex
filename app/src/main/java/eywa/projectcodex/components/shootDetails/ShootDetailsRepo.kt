@@ -17,6 +17,7 @@ import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
 import eywa.projectcodex.datastore.get
 import eywa.projectcodex.datastore.retrieve
 import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import java.util.*
@@ -132,6 +133,20 @@ class ShootDetailsRepo(
                                 ) { latest, pbs -> latest to pbs }
                     }.collect { (latest, pbs) ->
                         state.update { it.copy(roundPbs = pbs, pastRoundRecords = latest) }
+                    }
+        }
+        launch {
+            state
+                    .map {
+                        val distance = it.fullShootInfo?.remainingArrowsAtDistances?.firstOrNull()?.second
+                        distance to it.fullShootInfo?.round?.isMetric
+                    }
+                    .distinctUntilChanged()
+                    .flatMapLatest { (distance, isMetric) ->
+                        if (distance == null || isMetric == null) return@flatMapLatest emptyFlow()
+                        db.sightMarkRepo().getSightMarkForDistance(distance, isMetric)
+                    }.collect { sightMark ->
+                        state.update { it.copy(sightMark = sightMark?.let { sm -> SightMark(sm) }) }
                     }
         }
     }

@@ -2,7 +2,6 @@ package eywa.projectcodex.database.rounds
 
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundFilter
-import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import kotlinx.coroutines.flow.Flow
@@ -26,13 +25,6 @@ class RoundRepo(
                     allMetricImperial = filters.contains(SelectRoundFilter.METRIC) == filters.contains(SelectRoundFilter.IMPERIAL),
                     isMetric = filters.contains(SelectRoundFilter.METRIC),
             )
-
-    constructor(db: ScoresRoomDatabase) : this(
-            db.roundDao(),
-            db.roundArrowCountDao(),
-            db.roundSubTypeDao(),
-            db.roundDistanceDao(),
-    )
 
     /**
      * Updates rounds tables based on update items. WARNING: performs minimal checking for consistency.

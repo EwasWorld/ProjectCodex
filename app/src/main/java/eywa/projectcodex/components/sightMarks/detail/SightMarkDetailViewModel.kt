@@ -9,7 +9,6 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.sightMarks.SightMarkRepo
 import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +27,7 @@ class SightMarkDetailViewModel @Inject constructor(
     private val _state = MutableStateFlow<SightMarkDetailState?>(null)
     val state = _state.asStateFlow()
 
-    private val sightMarkRepo = SightMarkRepo(db.sightMarkDao())
+    private val sightMarkRepo = db.sightMarkRepo()
 
     /**
      * When a sight mark is being edited, this job is listening for database changes and updating [_state]
@@ -38,7 +37,12 @@ class SightMarkDetailViewModel @Inject constructor(
     init {
         val editId = savedStateHandle.get<Int>(NavArgument.SIGHT_MARK_ID)
         if (editId == null) {
-            _state.update { SightMarkDetailState() }
+            _state.update {
+                SightMarkDetailState(
+                        distance = savedStateHandle.get<Int>(NavArgument.DISTANCE)?.toString() ?: "",
+                        isMetric = savedStateHandle.get<Boolean>(NavArgument.IS_METRIC) ?: true,
+                )
+            }
         }
         else {
             collectSightMarkJob = viewModelScope.launch {
@@ -60,8 +64,10 @@ class SightMarkDetailViewModel @Inject constructor(
 
             is SightMarkDetailIntent.DistanceUpdated ->
                 _state.update { it?.copy(distance = action.value, distanceIsDirty = true) }
+
             is SightMarkDetailIntent.SightMarkUpdated ->
                 _state.update { it?.copy(sightMark = action.value, sightMarkIsDirty = true) }
+
             is SightMarkDetailIntent.NoteUpdated -> _state.update { it?.copy(note = action.value) }
 
             SightMarkDetailIntent.CloseHandled -> _state.update { it?.copy(closeScreen = false) }
@@ -72,8 +78,10 @@ class SightMarkDetailViewModel @Inject constructor(
                 viewModelScope.launch { sightMarkRepo.delete(id) }
                 _state.update { it?.copy(closeScreen = true) }
             }
+
             SightMarkDetailIntent.ResetClicked ->
                 _state.update { it?.reset() }
+
             SightMarkDetailIntent.SaveClicked -> {
                 val currentState = state.value ?: return
                 collectSightMarkJob?.cancel()

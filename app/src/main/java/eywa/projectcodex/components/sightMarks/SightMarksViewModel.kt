@@ -10,10 +10,12 @@ import eywa.projectcodex.components.sightMarks.SightMarksState.Loaded
 import eywa.projectcodex.components.sightMarks.SightMarksState.Loading
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.bow.BowRepo
-import eywa.projectcodex.database.sightMarks.SightMarkRepo
 import eywa.projectcodex.model.SightMark
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,8 +27,8 @@ class SightMarksViewModel @Inject constructor(
     private val _state: MutableStateFlow<SightMarksState> = MutableStateFlow(Loading())
     val state = _state.asStateFlow()
 
-    private val sightMarkRepo = SightMarkRepo(db.sightMarkDao())
-    private val bowRepo = BowRepo(db.bowDao())
+    private val sightMarkRepo = db.sightMarkRepo()
+    private val bowRepo = db.bowRepo()
 
     init {
         viewModelScope.launch {

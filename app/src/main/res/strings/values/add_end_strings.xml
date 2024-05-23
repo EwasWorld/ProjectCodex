@@ -11,7 +11,7 @@
     <!-- Extra info -->
     <string name="input_end__end_total_accessibility">%s end total</string>
     <string name="input_end__end_arrows_accessibility">%s arrows entered for end</string>
-    <string name="input_end__round_indicator_label">Remaining Arrows in Round:</string>
+    <string name="input_end__round_indicator_label">Remaining:</string>
     <string name="input_end__round_indicator_at">%1$d at %2$d%3$s</string> <!-- "60 at 100yd" i.e. 60 arrows remaining to be shot at 100 yards -->
     <string name="input_end__round_complete">Round Complete</string>
     <string name="input_end__cannot_open_input_end_title">Round is complete</string>
@@ -22,6 +22,13 @@
     <string name="input_end__archer_arrows_count_header">Arrows</string>
     <string name="input_end__archer_arrow_count_accessibility_text">%s arrows shot</string>
     <string name="input_end__go_to_summary">Go to summary</string>
+
+    <!-- Sight marks -->
+    <string name="input_end__sight_mark">%1$d%2$s sight mark:</string> <!-- 100yd sight mark -->
+    <string name="input_end__sight_mark_none">No sight mark for %1$d%2$s</string> <!-- No sight mark for 100yd -->
+    <string name="input_end__sight_mark_edit">Edit sight mark for %1$d%2$s</string> <!-- Edit sight mark for 100yd -->
+    <string name="input_end__sight_mark_edit_none">Add sight mark for %1$d%2$s</string> <!-- Add sight mark for 100yd -->
+    <string name="input_end__sight_mark_expand">View all sight marks</string>
 
     <!-- Edit end -->
     <string name="edit_end__title">Edit End</string>
@@ -59,6 +66,8 @@
     <string name="help_input_end__remaining_arrows_body">Indicates the number of arrows remaining at each distance. The first distance is the one currently being shot at</string>
     <string name="help_input_end__next_end_title">Next end</string>
     <string name="help_input_end__next_end_body">Saves the currently inputted end and moves on to the next end</string>
+    <string name="help_input_end__sight_mark_title">Sight mark</string>
+    <string name="help_input_end__sight_mark_body">Shows the sight mark for the current distance. Click the pencil to edit or add a sight mark for the current distance. Click the arrows to view all sight marks.</string>
 
     <!-- Note: used for both insert and edit -->
     <string name="help_edit_end__complete_title">Complete</string>

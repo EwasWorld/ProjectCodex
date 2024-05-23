@@ -310,7 +310,7 @@ class ViewScoresViewModelUnitTest {
         checkState()
 
         advanceUntilIdle()
-        verify(db.arrowScoreDao, never()).update(anyVararg())
+        verify(db.arrowScoresRepo, never()).update(anyVararg())
 
         if (testClose) {
             sut.handle(ConvertScoreAction(ConvertScoreIntent.Close))

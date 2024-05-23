@@ -10,6 +10,7 @@ import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.ScorePadData
+import eywa.projectcodex.model.SightMark
 
 const val DEFAULT_END_SIZE = 6
 
@@ -29,6 +30,7 @@ data class ShootDetailsState(
         val classification: Classification? = null,
         val roundPbs: List<DatabaseShootShortRecord>? = null,
         val pastRoundRecords: List<DatabaseShootShortRecord>? = null,
+        val sightMark: SightMark? = null,
 
         /*
          * Whole-screen state

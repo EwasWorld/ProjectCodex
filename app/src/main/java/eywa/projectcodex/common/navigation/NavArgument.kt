@@ -26,6 +26,8 @@ fun <T> SavedStateHandle.get(argument: NavArgument): T? {
 enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     SHOOT_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     SIGHT_MARK_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
+    DISTANCE(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
+    IS_METRIC(type = NavType.BoolType, defaultValue = true),
     FILTERS_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     HANDICAP(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     ROUND_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),

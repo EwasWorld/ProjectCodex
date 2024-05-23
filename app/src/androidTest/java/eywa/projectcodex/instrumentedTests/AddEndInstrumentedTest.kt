@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -10,6 +11,7 @@ import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.checkContainsToast
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.WORCESTER_DEFAULT_ID
@@ -20,7 +22,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
-import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -85,7 +87,7 @@ class AddEndInstrumentedTest {
             ),
     )
 
-    private val shoots = listOf<FullShootInfo>(
+    private val shoots = listOf(
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
             },
@@ -98,6 +100,8 @@ class AddEndInstrumentedTest {
                 round = rounds[1]
             },
     )
+
+    private val sightMarks = SightMarksPreviewHelper.sightMarks
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
@@ -116,6 +120,7 @@ class AddEndInstrumentedTest {
             runBlocking {
                 rounds.forEach { db.add(it) }
                 shoots.forEach { db.add(it) }
+                sightMarks.forEach { db.sightMarkRepo().insert(it) }
             }
         }
     }
@@ -190,7 +195,7 @@ class AddEndInstrumentedTest {
     }
 
     @Test
-    fun testRemainingArrowsIndicatorAndCompleteRound() {
+    fun testRemainingArrowsIndicatorSightMarkAndCompleteRound() {
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -201,22 +206,39 @@ class AddEndInstrumentedTest {
                 clickContinueDropdownMenuItem {
                     waitForRemainingArrows()
 
-                    checkRemainingArrows("12 at 90m", "12 at 70m, 12 at 50m")
+                    checkRemainingArrows("12 at 90m,", "12 at 70m, 12 at 50m")
+                    checkSightMarkIndicator("90m", null)
+                    clickAllSightMarks {
+                        pressBack()
+                    }
+                    clickEditSightMark {
+                        checkDistance(90, true)
+                        pressBack()
+                    }
 
                     completeEnd("1")
-                    checkRemainingArrows("6 at 90m", "12 at 70m, 12 at 50m")
+                    checkRemainingArrows("6 at 90m,", "12 at 70m, 12 at 50m")
+                    checkSightMarkIndicator("90m", null)
 
                     completeEnd("1")
-                    checkRemainingArrows("12 at 70m", "12 at 50m")
+                    checkRemainingArrows("12 at 70m,", "12 at 50m")
+                    checkSightMarkIndicator("70m", "1.1")
+                    clickEditSightMark {
+                        checkInfo(SightMark(SightMarksPreviewHelper.sightMarks[5]), false)
+                        pressBack()
+                    }
 
                     completeEnd("1")
-                    checkRemainingArrows("6 at 70m", "12 at 50m")
+                    checkRemainingArrows("6 at 70m,", "12 at 50m")
+                    checkSightMarkIndicator("70m", "1.1")
 
                     completeEnd("1")
                     checkRemainingArrows("12 at 50m", "")
+                    checkSightMarkIndicator("50m", "1.75")
 
                     completeEnd("1")
                     checkRemainingArrows("6 at 50m", "")
+                    checkSightMarkIndicator("50m", "1.75")
 
                     completeEnd("1")
                     clickRoundCompleteOk { }

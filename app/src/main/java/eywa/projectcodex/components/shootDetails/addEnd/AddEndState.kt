@@ -20,7 +20,9 @@ class AddEndState(
     val errors = extras.errors
     val roundCompleted = extras.roundCompleted
     val isRoundFull = main.fullShootInfo!!.isRoundComplete
-
+    val sightMark = main.sightMark
+    val openFullSightMarks = extras.openFullSightMarks
+    val openEditSightMark = extras.openEditSightMark
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -34,6 +36,9 @@ class AddEndState(
         if (errors != other.errors) return false
         if (roundCompleted != other.roundCompleted) return false
         if (isRoundFull != other.isRoundFull) return false
+        if (sightMark != other.sightMark) return false
+        if (openFullSightMarks != other.openFullSightMarks) return false
+        if (openEditSightMark != other.openEditSightMark) return false
 
         return true
     }
@@ -47,6 +52,9 @@ class AddEndState(
         result = 31 * result + errors.hashCode()
         result = 31 * result + roundCompleted.hashCode()
         result = 31 * result + isRoundFull.hashCode()
+        result = 31 * result + (sightMark?.hashCode() ?: 0)
+        result = 31 * result + openFullSightMarks.hashCode()
+        result = 31 * result + openEditSightMark.hashCode()
         return result
     }
 }
@@ -54,4 +62,6 @@ class AddEndState(
 data class AddEndExtras(
         val errors: Set<ArrowInputsError> = emptySet(),
         val roundCompleted: Boolean = false,
+        val openFullSightMarks: Boolean = false,
+        val openEditSightMark: Boolean = false,
 )

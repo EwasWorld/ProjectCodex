@@ -12,12 +12,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.NavBarClicke
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.SetInputtedArrows
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ArrowInputsAction
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ErrorHandled
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.RoundCompleteDialogOkClicked
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.RoundFullDialogOkClicked
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ShootDetailsAction
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.*
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
 import eywa.projectcodex.components.shootDetails.getData
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,6 +78,10 @@ class AddEndViewModel @Inject constructor(
              *      dialog won't be displayed
              */
             RoundCompleteDialogOkClicked -> repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_STATS), screen)
+            AddEndIntent.EditSightMarkClicked -> extraState.update { it.copy(openEditSightMark = true) }
+            AddEndIntent.EditSightMarkHandled -> extraState.update { it.copy(openEditSightMark = false) }
+            AddEndIntent.FullSightMarksClicked -> extraState.update { it.copy(openFullSightMarks = true) }
+            AddEndIntent.FullSightMarksHandled -> extraState.update { it.copy(openFullSightMarks = false) }
         }
     }
 

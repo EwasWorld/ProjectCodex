@@ -281,8 +281,13 @@ enum class CodexNavRoute : ScreenNavRoute {
         }
     },
     SIGHT_MARK_DETAIL {
+        // Note SIGHT_MARK_ID takes precedence over DISTANCE and IS_METRIC
         override val args: Map<NavArgument, Boolean>
-            get() = mapOf(NavArgument.SIGHT_MARK_ID to false)
+            get() = mapOf(
+                    NavArgument.SIGHT_MARK_ID to false,
+                    NavArgument.DISTANCE to false,
+                    NavArgument.IS_METRIC to false,
+            )
 
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =

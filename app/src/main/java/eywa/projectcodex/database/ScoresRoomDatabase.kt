@@ -14,6 +14,7 @@ import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.database.shootData.*
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
+import eywa.projectcodex.database.sightMarks.SightMarkRepo
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.database.views.TestViewDao
@@ -64,6 +65,7 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     fun archerRepo() = ArcherRepo(archerDao(), archerHandicapDao())
     fun bowRepo() = BowRepo(bowDao())
     fun arrowCounterRepo() = ArrowCounterRepo(arrowCounterDao())
+    fun sightMarkRepo() = SightMarkRepo(sightMarkDao())
 
     suspend fun insertDefaults() {
         bowRepo().insertDefaultBowIfNotExist()

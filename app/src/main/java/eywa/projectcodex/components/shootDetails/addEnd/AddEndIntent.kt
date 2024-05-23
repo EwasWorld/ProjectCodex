@@ -12,4 +12,8 @@ sealed class AddEndIntent {
     data class ErrorHandled(val error: ArrowInputsError) : AddEndIntent()
     object RoundFullDialogOkClicked : AddEndIntent()
     object RoundCompleteDialogOkClicked : AddEndIntent()
+    object FullSightMarksClicked : AddEndIntent()
+    object FullSightMarksHandled : AddEndIntent()
+    object EditSightMarkClicked : AddEndIntent()
+    object EditSightMarkHandled : AddEndIntent()
 }

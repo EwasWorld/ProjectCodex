@@ -6,6 +6,8 @@ import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInput
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.robots.SightMarkDetailRobot
+import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
 
 class AddEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -61,6 +63,33 @@ class AddEndRobot(
     fun clickRoundCompleteOk(block: ShootDetailsStatsRobot.() -> Unit = {}) {
         clickDialogOk(ROUND_COMPLETE_DIALOG_TITLE)
         createRobot(ShootDetailsStatsRobot::class, block)
+    }
+
+    fun checkSightMarkIndicator(distance: String, sightMark: String?) {
+        checkElementText(
+                AddEndTestTag.SIGHT_MARK_DESCRIPTION,
+                if (sightMark == null) "No sight mark for $distance"
+                else "$distance sight mark:",
+        )
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
+            if (sightMark == null) {
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
+            else {
+                +CodexNodeInteraction.AssertTextEquals(sightMark)
+            }
+        }
+    }
+
+    fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {
+        clickElement(AddEndTestTag.EXPAND_SIGHT_MARK)
+        createRobot(SightMarksRobot::class, block)
+    }
+
+    fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
+        clickElement(AddEndTestTag.EDIT_SIGHT_MARK)
+        createRobot(SightMarkDetailRobot::class, block)
     }
 
     companion object {

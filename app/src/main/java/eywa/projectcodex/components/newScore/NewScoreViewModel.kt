@@ -11,18 +11,8 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.components.newScore.NewScoreIntent.CancelEditInfo
-import eywa.projectcodex.components.newScore.NewScoreIntent.DateChanged
-import eywa.projectcodex.components.newScore.NewScoreIntent.HandleNavigate
-import eywa.projectcodex.components.newScore.NewScoreIntent.HandlePopBackstack
-import eywa.projectcodex.components.newScore.NewScoreIntent.HelpShowcaseAction
-import eywa.projectcodex.components.newScore.NewScoreIntent.ResetEditInfo
-import eywa.projectcodex.components.newScore.NewScoreIntent.SelectFaceDialogAction
-import eywa.projectcodex.components.newScore.NewScoreIntent.SelectRoundDialogAction
-import eywa.projectcodex.components.newScore.NewScoreIntent.Submit
-import eywa.projectcodex.components.newScore.NewScoreIntent.TypeChanged
+import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +39,7 @@ class NewScoreViewModel @Inject constructor(
     init {
         initialiseRoundBeingEdited(savedStateHandle.get<Int>(NavArgument.SHOOT_ID))
 
-        val roundRepo = RoundRepo(db)
+        val roundRepo = db.roundsRepo()
         viewModelScope.launch {
             roundRepo.fullRoundsInfo.collect { data ->
                 handle(SelectRoundDialogAction(SelectRoundDialogIntent.SetRounds(data)))

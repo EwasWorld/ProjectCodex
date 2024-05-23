@@ -6,26 +6,19 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archer.ArcherRepo
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
-import eywa.projectcodex.database.arrows.ArrowCounterRepo
-import eywa.projectcodex.database.arrows.ArrowScoreDao
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
-import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.BowRepo
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.rounds.FullRoundInfo
-import eywa.projectcodex.database.rounds.RoundArrowCountDao
 import eywa.projectcodex.database.rounds.RoundDao
-import eywa.projectcodex.database.rounds.RoundDistanceDao
 import eywa.projectcodex.database.rounds.RoundRepo
-import eywa.projectcodex.database.rounds.RoundSubTypeDao
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.database.shootData.ShootDao
-import eywa.projectcodex.database.shootData.ShootDetailDao
 import eywa.projectcodex.database.shootData.ShootFilter
-import eywa.projectcodex.database.shootData.ShootRoundDao
 import eywa.projectcodex.database.shootData.ShootsRepo
-import eywa.projectcodex.database.sightMarks.SightMarkDao
+import eywa.projectcodex.database.sightMarks.SightMarkRepo
+import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.testUtils.TestUtils.Companion.FLOW_EMIT_DELAY
 import eywa.projectcodex.testUtils.TestUtils.Companion.anyMatcher
@@ -42,54 +35,39 @@ import org.mockito.kotlin.mock
 class MockScoresRoomDatabase {
     val shootDao = MockShoot()
     val arrowScoresRepo: ArrowScoresRepo = mock {}
-    val arrowScoreDao: ArrowScoreDao = mock {}
-    val roundArrowCountDao: RoundArrowCountDao = mock {}
-    val roundSubTypeDao: RoundSubTypeDao = mock {}
-    val roundDistanceDao: RoundDistanceDao = mock {}
-    val shootRoundDao: ShootRoundDao = mock {}
-    val shootDetailDao: ShootDetailDao = mock {}
     val sightMarksDao = MockSightMarksDao()
-
     val rounds = MockRounds()
     val archerRepo = MockArcherRepo()
     val bow = MockBow()
-    val arrowCounterRepo = mock<ArrowCounterRepo>()
 
     val mock: ScoresRoomDatabase = mock {
-        on { shootDao() } doReturn shootDao.mock
-        on { arrowScoreDao() } doReturn arrowScoreDao
-        on { roundDao() } doReturn rounds.mock
-        on { roundArrowCountDao() } doReturn roundArrowCountDao
-        on { roundSubTypeDao() } doReturn roundSubTypeDao
-        on { roundDistanceDao() } doReturn roundDistanceDao
-        on { shootRoundDao() } doReturn shootRoundDao
-        on { shootDetailDao() } doReturn shootDetailDao
         on { shootsRepo() } doReturn shootDao.mockRepo
-        on { sightMarkDao() } doReturn sightMarksDao.mock
-        on { bowDao() } doReturn bow.mock
         on { bowRepo() } doReturn bow.mockRepo
         on { archerRepo() } doReturn archerRepo.mock
         on { roundsRepo() } doReturn rounds.mockRepo
         on { arrowScoresRepo() } doReturn arrowScoresRepo
+        on { sightMarkRepo() } doReturn sightMarksDao.mock
     }
 
     class MockShoot {
         var fullShoots: List<DatabaseFullShootInfo> = listOf()
         var secondFullShoots: List<DatabaseFullShootInfo>? = null
+        var mostRecentForRound: List<FullShootInfo>? = null
+        var highestScoreForRound: List<FullShootInfo>? = null
 
         val mock: ShootDao = mock {
-            on { getAllFullShootInfo(any()) } doReturn getShoots()
-            on { getFullShootInfo(anyInt()) } doReturn getShoots().map { it.firstOrNull() }
-            on { getFullShootInfo(anyList()) } doReturn getShoots()
+            on { getAllFullShootInfo(any()) } doAnswer { getShoots() }
+            on { getFullShootInfo(anyInt()) } doAnswer { getShoots().map { it.firstOrNull() } }
+            on { getFullShootInfo(anyList()) } doAnswer { getShoots() }
         }
 
         val mockRepo: ShootsRepo = mock {
-            on { getFullShootInfo(anyMatcher<Filters<ShootFilter>>()) } doReturn getShoots()
-            on { getFullShootInfo(anyInt()) } doReturn getShoots().map { it.firstOrNull() }
-            on { getFullShootInfo(anyList()) } doReturn getShoots()
-            on { getMostRecentShootsForRound(any(), any(), any()) } doReturn getShortShoots()
-            on { getHighestScoreShootsForRound(any(), any(), any()) } doReturn getShortShoots()
-            on { mostRecentRoundShot } doReturn getShoots().map { it.firstOrNull()?.shootRound }
+            on { getFullShootInfo(anyMatcher<Filters<ShootFilter>>()) } doAnswer { getShoots() }
+            on { getFullShootInfo(anyInt()) } doAnswer { getShoots().map { it.firstOrNull() } }
+            on { getFullShootInfo(anyList()) } doAnswer { getShoots() }
+            on { getMostRecentShootsForRound(any(), any(), any()) } doAnswer { getShortShoots(mostRecentForRound) }
+            on { getHighestScoreShootsForRound(any(), any(), any()) } doAnswer { getShortShoots(highestScoreForRound) }
+            on { mostRecentRoundShot } doAnswer { getShoots().map { it.firstOrNull()?.shootRound } }
         }
 
         private fun getShoots() = flow {
@@ -101,8 +79,8 @@ class MockScoresRoomDatabase {
             }
         }
 
-        private fun getShortShoots() = getShoots().map { data ->
-            data.map {
+        private fun getShortShoots(data: List<FullShootInfo>?) = flow {
+            val shoots = data?.map {
                 val roundArrowCount = it.roundArrowCounts?.sumOf { a -> a.arrowCount }
                 val shotCount = it.arrowCounter?.shotCount ?: it.arrows.orEmpty().count()
                 DatabaseShootShortRecord(
@@ -112,6 +90,7 @@ class MockScoresRoomDatabase {
                         isComplete = roundArrowCount == shotCount,
                 )
             }
+            emit(shoots ?: listOf())
         }
     }
 
@@ -120,13 +99,13 @@ class MockScoresRoomDatabase {
         var secondFullRoundsInfo: List<FullRoundInfo>? = null
 
         val mock: RoundDao = mock {
-            on { getAllRoundsFullInfo() } doReturn getRoundsInfo()
+            on { getAllRoundsFullInfo() } doAnswer { getRoundsInfo() }
         }
 
         val mockRepo: RoundRepo = mock {
-            on { fullRoundsInfo(any()) } doReturn getRoundsInfo()
-            on { fullRoundsInfo } doReturn getRoundsInfo()
-            on { wa1440FullRoundInfo } doReturn flow { emit(RoundPreviewHelper.wa1440RoundData) }
+            on { fullRoundsInfo(any()) } doAnswer { getRoundsInfo() }
+            on { fullRoundsInfo } doAnswer { getRoundsInfo() }
+            on { wa1440FullRoundInfo } doAnswer { flow { emit(RoundPreviewHelper.wa1440RoundData) } }
         }
 
         private fun getRoundsInfo() = flow {
@@ -142,17 +121,18 @@ class MockScoresRoomDatabase {
     class MockSightMarksDao {
         var sightMarks: List<SightMark> = listOf()
 
-        val mock: SightMarkDao = mock {
-            on { getAllSightMarks() } doAnswer { flow { emit(sightMarks.map { it.asDatabaseSightMark() }) } }
+        val mock: SightMarkRepo = mock {
+            on { allSightMarks } doAnswer { flow { emit(sightMarks.map { it.asDatabaseSightMark() }) } }
+            on { getSightMarkForDistance(any(), any()) } doAnswer {
+                flow {
+                    emit(sightMarks.first().asDatabaseSightMark())
+                }
+            }
         }
     }
 
     class MockBow {
         var defaultBow = DatabaseBowPreviewHelper.default
-
-        val mock: BowDao = mock {
-            on { getDefaultBow() } doAnswer { getDefaultBow() }
-        }
 
         val mockRepo: BowRepo = mock {
             on { defaultBow } doAnswer { getDefaultBow() }

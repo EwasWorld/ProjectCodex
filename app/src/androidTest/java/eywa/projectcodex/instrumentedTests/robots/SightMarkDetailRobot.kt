@@ -3,19 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.ARCHIVED
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DATE
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DELETE_BUTTON
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE_ERROR_TEXT
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE_UNIT
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.MARKED
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.NOTE
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.RESET_BUTTON
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SAVE_BUTTON
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SCREEN
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT_ERROR_TEXT
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
 import eywa.projectcodex.model.SightMark
@@ -74,13 +62,7 @@ class SightMarkDetailRobot(
             if (hasSightMarkError) checkElementIsDisplayed(it) else checkElementDoesNotExist(it)
         }
 
-        perform {
-            checkInputtedText(DISTANCE, sightMark.distance.toString())
-        }
-        DISTANCE_ERROR_TEXT.let {
-            if (hasDistanceError) checkElementIsDisplayed(it) else checkElementDoesNotExist(it)
-        }
-        checkElementText(DISTANCE_UNIT, if (sightMark.isMetric) "m" else "yd")
+        checkDistance(sightMark.distance, sightMark.isMetric, hasDistanceError)
 
         if (!isNew) {
             checkElementText(DATE, DateTimeFormat.SHORT_DATE.format(sightMark.dateSet), useUnmergedTree = true)
@@ -96,6 +78,21 @@ class SightMarkDetailRobot(
         }
 
         checkButtons(isNew)
+    }
+
+    fun checkDistance(
+            distance: Int?,
+            isMetric: Boolean,
+            hasDistanceError: Boolean = false,
+    ) {
+        perform {
+            checkInputtedText(DISTANCE, distance.toString())
+        }
+        DISTANCE_ERROR_TEXT.let {
+            if (hasDistanceError) checkElementIsDisplayed(it) else checkElementDoesNotExist(it)
+        }
+        checkElementText(DISTANCE_UNIT, if (isMetric) "m" else "yd")
+
     }
 
     fun clickSave() {

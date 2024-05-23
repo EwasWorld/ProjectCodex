@@ -5,7 +5,6 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
-import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -164,7 +163,7 @@ class SightMarksViewModelUnitTest {
                 SightMarksState.Loaded(sightMarks = data),
                 sut,
         )
-        verify(db.bow.mock).setHighestAtTop(DEFAULT_BOW_ID, true)
+        verify(db.bow.mockRepo).updateDefaultBow(true)
     }
 
     @Test

@@ -15,6 +15,9 @@ interface SightMarkDao {
     @Query("SELECT * FROM $TABLE_NAME WHERE sightMarkId = :id")
     fun getSightMark(id: Int): Flow<DatabaseSightMark>
 
+    @Query("SELECT * FROM $TABLE_NAME WHERE distance = :distance AND isMetric = :isMetric")
+    fun getSightMarkForDistance(distance: Int, isMetric: Boolean): Flow<DatabaseSightMark?>
+
     @Query("UPDATE $TABLE_NAME SET isArchived = 1")
     suspend fun archiveAll()
 

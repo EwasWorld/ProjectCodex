@@ -1,6 +1,8 @@
 package eywa.projectcodex.components.shootDetails.addEnd
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -9,13 +11,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -31,30 +39,33 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ArrowInputsAction
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ErrorHandled
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.RoundCompleteDialogOkClicked
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.RoundFullDialogOkClicked
-import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.ShootDetailsAction
+import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.*
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsScaffold
 import eywa.projectcodex.components.shootDetails.getData
+import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.model.SightMark
 
 @Composable
 fun AddEndScreen(
@@ -92,6 +103,23 @@ fun HandleEffects(
             ToastSpamPrevention.displayToast(context, context.resources.getString(it.messageId))
             listener(ErrorHandled(it))
         }
+        if (loadedState.openFullSightMarks) {
+            CodexNavRoute.SIGHT_MARKS.navigate(navController)
+            listener(FullSightMarksHandled)
+        }
+        if (loadedState.openEditSightMark) {
+            val args = if (loadedState.sightMark != null) {
+                mapOf(NavArgument.SIGHT_MARK_ID to loadedState.sightMark.id.toString())
+            }
+            else {
+                val distance = loadedState.fullShootInfo.remainingArrowsAtDistances?.firstOrNull()?.second
+                        ?: DEFAULT_INT_NAV_ARG
+                val isMetric = loadedState.fullShootInfo.round?.isMetric ?: true
+                mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
+            }
+            CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
+            listener(EditSightMarkHandled)
+        }
     }
 }
 
@@ -119,6 +147,13 @@ private fun AddEndScreen(
                 totalScore = state.fullShootInfo.score,
                 arrowsShot = state.fullShootInfo.arrowsShot,
                 helpListener = helpListener,
+        )
+        SightMark(
+                fullShootInfo = state.fullShootInfo,
+                sightMark = state.sightMark,
+                helpListener = helpListener,
+                listener = listener,
+                modifier = Modifier.padding(top = 5.dp)
         )
         RemainingArrowsIndicator(state.fullShootInfo, helpListener)
         Spacer(modifier = Modifier.size(DpSize.Zero))
@@ -152,6 +187,90 @@ private fun AddEndScreen(
 }
 
 @Composable
+private fun SightMark(
+        fullShootInfo: FullShootInfo,
+        sightMark: SightMark?,
+        modifier: Modifier = Modifier,
+        helpListener: (HelpShowcaseIntent) -> Unit,
+        listener: (AddEndIntent) -> Unit,
+) {
+    val distance = fullShootInfo.remainingArrowsAtDistances?.firstOrNull()?.second
+    val isMetric = fullShootInfo.round?.isMetric
+    if (distance == null || isMetric == null) return
+
+    val distanceUnit = stringResource(getDistanceUnitRes(isMetric)!!)
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = CodexTheme.dimens.screenPadding)
+                    .updateHelpDialogPosition(
+                            HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_input_end__sight_mark_title),
+                                    helpBody = stringResource(R.string.help_input_end__sight_mark_body),
+                            ).asHelpState(helpListener)
+                    )
+    ) {
+        CodexIconButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.OpenInFull,
+                        contentDescription = stringResource(R.string.input_end__sight_mark_expand),
+                        tint = Color.White,
+                        modifier = Modifier.scale(-1f, 1f)
+                ),
+                onClick = { listener(FullSightMarksClicked) },
+                modifier = Modifier.testTag(AddEndTestTag.EXPAND_SIGHT_MARK)
+        )
+        if (sightMark != null) {
+            Text(
+                    text = stringResource(
+                            R.string.input_end__sight_mark,
+                            distance,
+                            distanceUnit,
+                    ),
+                    color = Color.White,
+                    style = CodexTypography.NORMAL,
+                    modifier = Modifier
+                            .padding(end = 5.dp)
+                            .testTag(AddEndTestTag.SIGHT_MARK_DESCRIPTION)
+            )
+            Text(
+                    sightMark.sightMark.toString(),
+                    color = Color.White,
+                    style = CodexTypography.LARGE,
+                    modifier = Modifier.testTag(AddEndTestTag.SIGHT_MARK)
+            )
+        }
+        else {
+            Text(
+                    text = stringResource(
+                            R.string.input_end__sight_mark_none,
+                            distance,
+                            distanceUnit,
+                    ),
+                    color = Color.White,
+                    style = CodexTypography.NORMAL,
+                    modifier = Modifier.testTag(AddEndTestTag.SIGHT_MARK_DESCRIPTION)
+            )
+        }
+        CodexIconButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(
+                                if (sightMark != null) R.string.input_end__sight_mark_edit
+                                else R.string.input_end__sight_mark_edit_none,
+                                distance,
+                                distanceUnit,
+                        ),
+                        tint = Color.White,
+                ),
+                onClick = { listener(EditSightMarkClicked) },
+                modifier = Modifier.testTag(AddEndTestTag.EDIT_SIGHT_MARK)
+        )
+    }
+}
+
+@Composable
 private fun ScoreIndicator(
         totalScore: Int,
         arrowsShot: Int,
@@ -160,11 +279,10 @@ private fun ScoreIndicator(
     val resources = LocalContext.current.resources
     Row(
             modifier = Modifier.updateHelpDialogPosition(
-                    HelpState(
-                            helpListener = helpListener,
+                    HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_input_end__summary_table_title),
                             helpBody = stringResource(R.string.help_input_end__summary_table_body),
-                    )
+                    ).asHelpState(helpListener)
             )
     ) {
         Column(
@@ -239,6 +357,7 @@ fun RemainingArrowsIndicator(
         modifier: Modifier = Modifier,
 ) {
     fullShootInfo.remainingArrowsAtDistances?.let {
+        val delim = stringResource(R.string.general_comma_separator)
         val remainingStrings = it.map { (count, distance) ->
             stringResource(
                     R.string.input_end__round_indicator_at,
@@ -250,30 +369,34 @@ fun RemainingArrowsIndicator(
 
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier.updateHelpDialogPosition(
-                        HelpState(
-                                helpListener = helpListener,
-                                helpTitle = stringResource(R.string.help_input_end__remaining_arrows_title),
-                                helpBody = stringResource(R.string.help_input_end__remaining_arrows_body),
+                modifier = modifier
+                        .padding(horizontal = CodexTheme.dimens.screenPadding)
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_input_end__remaining_arrows_title),
+                                        helpBody = stringResource(R.string.help_input_end__remaining_arrows_body),
+                                ).asHelpState(helpListener)
                         )
-                )
         ) {
-            Text(
-                    text = stringResource(R.string.input_end__round_indicator_label),
-                    style = CodexTypography.NORMAL,
-                    color = CodexTheme.colors.onAppBackground,
-            )
-            Text(
-                    text = remainingStrings.first(),
-                    style = CodexTypography.LARGE,
-                    color = CodexTheme.colors.onAppBackground,
-                    modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_CURRENT.getTestTag())
-            )
+            Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                Text(
+                        text = stringResource(R.string.input_end__round_indicator_label),
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                )
+                Text(
+                        text = remainingStrings[0] + if (it.size > 1) delim.trim() else "",
+                        style = CodexTypography.LARGE,
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_CURRENT.getTestTag())
+                )
+            }
             if (it.size > 1) {
                 Text(
-                        text = remainingStrings
-                                .drop(1)
-                                .joinToString(stringResource(R.string.general_comma_separator)),
+                        text = remainingStrings.drop(1).joinToString(delim),
                         style = CodexTypography.NORMAL,
                         color = CodexTheme.colors.onAppBackground,
                         modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_LATER.getTestTag())
@@ -289,6 +412,10 @@ enum class AddEndTestTag : CodexTestTag {
     REMAINING_ARROWS_LATER,
     ROUND_SCORE,
     ROUND_ARROWS,
+    SIGHT_MARK_DESCRIPTION,
+    SIGHT_MARK,
+    EXPAND_SIGHT_MARK,
+    EDIT_SIGHT_MARK,
     ;
 
     override val screenName: String
@@ -317,7 +444,6 @@ fun AddEndScreen_Preview() {
 @Preview(
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-        heightDp = 450,
         widthDp = 330,
 )
 @Composable

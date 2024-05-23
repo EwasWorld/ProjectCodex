@@ -2,7 +2,11 @@ package eywa.projectcodex.components.sightMarks.diagram
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -16,10 +20,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.*
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.*
+import androidx.compose.ui.semantics.CollectionInfo
+import androidx.compose.ui.semantics.CollectionItemInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.collectionItemInfo
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,8 +47,9 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.sightMarks.SightMarksState
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag
+import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.model.SightMark
-import java.util.*
+import java.util.Calendar
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -245,9 +260,7 @@ private fun SightMarkIndicator(
         index: Int,
         onClick: (SightMark) -> Unit,
 ) {
-    val distanceUnit = stringResource(
-            if (sightMark.isMetric) R.string.units_meters_short else R.string.units_yards_short
-    )
+    val distanceUnit = stringResource(getDistanceUnitRes(sightMark.isMetric)!!)
     val colour =
             if (sightMark.isArchived) CodexTheme.colors.sightMarksDisabledIndicator
             else CodexTheme.colors.sightMarksIndicator

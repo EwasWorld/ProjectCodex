@@ -14,7 +14,6 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsSta
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTaskImpl
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.datastore.CodexDatastore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +32,7 @@ class LocalUpdateDefaultRoundsModule {
             logging: CustomLogger,
     ): UpdateDefaultRoundsTask {
         return if (useActual) {
-            UpdateDefaultRoundsTaskImpl(RoundRepo(db), context.resources, datastore, logging)
+            UpdateDefaultRoundsTaskImpl(db.roundsRepo(), context.resources, datastore, logging)
         }
         else {
             FakeUpdateDefaultRoundsTask().apply { mockedTask = this }
