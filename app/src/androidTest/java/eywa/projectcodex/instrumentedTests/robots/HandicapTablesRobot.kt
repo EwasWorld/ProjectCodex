@@ -21,7 +21,7 @@ class HandicapTablesRobot(
     override val group: TabSwitcherGroup
         get() = TabSwitcherGroup.REFERENCES
 
-    val selectFaceBaseRobot = SelectFaceBaseRobot(::perform)
+    val selectFaceBaseRobot = SelectFaceBaseRobot(::performV2)
     val selectRoundBaseRobot = SelectRoundBaseRobot(::performV2)
 
     fun clickHandicapSystem() {

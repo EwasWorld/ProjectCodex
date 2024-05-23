@@ -4,41 +4,47 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkDialogIsDisplayed
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 
 @SelectFaceDsl
-class SingleSelectFaceRobot internal constructor(val perform: PerformFn) {
+class SingleSelectFaceRobot internal constructor(val perform: PerformFnV2) {
     init {
-        perform {
-            checkDialogIsDisplayed("Select a face")
-        }
+        perform.checkDialogIsDisplayed("Select a face")
     }
 
     fun checkSwitchButton(visible: Boolean = true) {
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SWITCH_TO_MULTI_BUTTON)
-            if (visible) +CodexNodeInteraction.AssertIsDisplayed().waitFor()
-            else +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SWITCH_TO_MULTI_BUTTON)
+                if (visible) +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+                else +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+            }
         }
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SWITCH_TO_SINGLE_BUTTON)
-            +CodexNodeInteraction.AssertDoesNotExist()
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SWITCH_TO_SINGLE_BUTTON)
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
         }
     }
 
     fun clickSwitchButton(block: MultiSelectFaceRobot.() -> Unit) {
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SWITCH_TO_MULTI_BUTTON)
-            +CodexNodeInteraction.PerformClick()
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SWITCH_TO_MULTI_BUTTON)
+                +CodexNodeInteraction.PerformClick()
+            }
         }
         MultiSelectFaceRobot(perform).apply(block)
     }
 
     fun clickOption(option: String) {
         perform {
-            +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SINGLE_OPTION)
-            +CodexNodeMatcher.HasText(option)
-            +CodexNodeInteraction.PerformClick()
+            singleNode {
+                +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.SINGLE_OPTION)
+                +CodexNodeMatcher.HasText(option)
+                +CodexNodeInteraction.PerformClick()
+            }
         }
     }
 }

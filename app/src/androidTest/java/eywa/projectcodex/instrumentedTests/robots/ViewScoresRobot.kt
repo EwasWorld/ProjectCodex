@@ -8,10 +8,6 @@ import eywa.projectcodex.components.viewScores.screenUi.ViewScoresRowTestTag
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoresTestTag
 import eywa.projectcodex.components.viewScores.screenUi.viewScoresListItemTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkDialogIsDisplayed
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.click
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogCancel
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogOk
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
@@ -37,12 +33,7 @@ class ViewScoresRobot(
     }
 
     fun clickOkOnEmptyTableDialog() {
-        performV2 {
-            checkDialogIsDisplayed("Table is empty")
-        }
-        performV2 {
-            clickDialogOk()
-        }
+        clickDialogOk("Table is empty")
         createRobot(MainMenuRobot::class) {}
     }
 
@@ -165,9 +156,7 @@ class ViewScoresRobot(
     }
 
     fun chooseConvertDialogOption(convertType: String) {
-        performV2 {
-            checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
-        }
+        checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
         performV2 {
             allNodes {
                 +CodexNodeMatcher.HasTestTag(RadioButtonDialogTestTag.RADIO_BUTTON)
@@ -179,39 +168,19 @@ class ViewScoresRobot(
     }
 
     fun clickConvertDialogOk() {
-        performV2 {
-            checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
-        }
-        performV2 {
-            clickDialogOk()
-        }
+        clickDialogOk(CONVERT_SCORE_DIALOG_TITLE)
     }
 
     fun clickConvertDialogCancel() {
-        performV2 {
-            checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
-        }
-        performV2 {
-            clickDialogCancel()
-        }
+        clickDialogCancel(CONVERT_SCORE_DIALOG_TITLE)
     }
 
     fun clickDeleteDialogOk() {
-        performV2 {
-            checkDialogIsDisplayed(DELETE_ENTRY_DIALOG_TITLE)
-        }
-        performV2 {
-            clickDialogOk()
-        }
+        clickDialogOk(DELETE_ENTRY_DIALOG_TITLE)
     }
 
     fun clickDeleteDialogCancel() {
-        performV2 {
-            checkDialogIsDisplayed(DELETE_ENTRY_DIALOG_TITLE)
-        }
-        performV2 {
-            clickDialogCancel()
-        }
+        clickDialogCancel(DELETE_ENTRY_DIALOG_TITLE)
     }
 
     private fun waitForTextInRow(rowIndex: Int, text: String) {
@@ -300,27 +269,19 @@ class ViewScoresRobot(
     fun checkRows(vararg items: Any) = checkRows(items.toList())
 
     fun clickStartMultiSelectMode() {
-        performV2 {
-            click(ViewScoresTestTag.MULTI_SELECT_START)
-        }
+        clickElement(ViewScoresTestTag.MULTI_SELECT_START)
     }
 
     fun clickMultiSelectSelectAll() {
-        performV2 {
-            click(ViewScoresTestTag.MULTI_SELECT_ALL)
-        }
+        clickElement(ViewScoresTestTag.MULTI_SELECT_ALL)
     }
 
     fun clickCancelMultiSelectMode() {
-        performV2 {
-            click(ViewScoresTestTag.MULTI_SELECT_CANCEL)
-        }
+        clickElement(ViewScoresTestTag.MULTI_SELECT_CANCEL)
     }
 
     fun clickMultiSelectEmail(block: EmailScoreRobot.() -> Unit = {}) {
-        performV2 {
-            click(ViewScoresTestTag.MULTI_SELECT_EMAIL)
-        }
+        clickElement(ViewScoresTestTag.MULTI_SELECT_EMAIL)
         createRobot(EmailScoreRobot::class, block)
     }
 

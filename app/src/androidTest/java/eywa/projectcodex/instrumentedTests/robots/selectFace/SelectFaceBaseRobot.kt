@@ -3,23 +3,27 @@ package eywa.projectcodex.instrumentedTests.robots.selectFace
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 
 @SelectFaceDsl
-class SelectFaceBaseRobot(val perform: PerformFn) {
+class SelectFaceBaseRobot(val perform: PerformFnV2) {
     fun checkFaces(expectedFacesString: String) {
         perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.ROW_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(expectedFacesString)
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.ROW_TEXT)
+                +CodexNodeInteraction.AssertTextEquals(expectedFacesString)
+            }
         }
     }
 
     private fun openDialog() {
         perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.ROW_TEXT)
-            +CodexNodeInteraction.PerformClick()
+            singleNode {
+                useUnmergedTree()
+                +CodexNodeMatcher.HasTestTag(SelectRoundFaceDialogTestTag.ROW_TEXT)
+                +CodexNodeInteraction.PerformClick()
+            }
         }
     }
 

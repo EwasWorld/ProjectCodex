@@ -13,39 +13,39 @@ class AddEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ArrowInputsRobot(composeTestRule, AddEndTestTag.SCREEN) {
     fun waitForLoad() {
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
     fun waitForRemainingArrows() {
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
     fun checkIndicatorTable(score: Int, arrowCount: Int) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.ROUND_SCORE)
             +CodexNodeInteraction.AssertTextEquals(score.toString())
         }
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.ROUND_ARROWS)
             +CodexNodeInteraction.AssertTextEquals(arrowCount.toString())
         }
     }
 
     fun checkRemainingArrows(currentDistance: String, laterDistances: String) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
             +CodexNodeInteraction.AssertTextEquals(currentDistance)
         }
 
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_LATER)
 
             if (laterDistances.isNotBlank()) {

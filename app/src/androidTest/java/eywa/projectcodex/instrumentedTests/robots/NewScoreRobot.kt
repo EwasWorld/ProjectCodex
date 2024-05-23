@@ -26,7 +26,7 @@ import java.util.Calendar
 class NewScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, NewScoreTestTag.SCREEN) {
-    val selectFaceBaseRobot = SelectFaceBaseRobot(::perform)
+    val selectFaceBaseRobot = SelectFaceBaseRobot(::performV2)
     val selectRoundsRobot = SelectRoundBaseRobot(::performV2)
 
     init {

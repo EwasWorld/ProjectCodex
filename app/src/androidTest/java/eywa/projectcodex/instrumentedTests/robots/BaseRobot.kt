@@ -187,28 +187,21 @@ abstract class BaseRobot(
         }
     }
 
-    @Deprecated("Use perform")
     fun checkDialogIsDisplayed(titleText: String) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.TITLE)
             +CodexNodeMatcher.HasText(titleText)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
-    @Deprecated("Use perform")
     fun clickDialogOk(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.POSITIVE_BUTTON)
 
-    @Deprecated("Use perform")
     fun clickDialogCancel(titleText: String) = clickDialog(titleText, SimpleDialogTestTag.NEGATIVE_BUTTON)
 
-    @Deprecated("Use perform")
     private fun clickDialog(titleText: String, buttonTag: CodexTestTag) {
         checkDialogIsDisplayed(titleText)
-        perform {
-            +CodexNodeMatcher.HasTestTag(buttonTag)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(buttonTag)
     }
 
     fun clickHomeIcon() {

@@ -140,7 +140,7 @@ class AddCountE2eTest {
                 clickType(false)
                 clickSubmitNewScoreCount {
                     checkRound("1-1")
-                    checkRemainingArrows("48 at 90m", "36 at 80m, 24 at 70m")
+                    checkRemainingArrows("48 at 90m,", "36 at 80m, 24 at 70m")
                     checkSightersCount(null)
                     checkShotCount(0)
                     checkTotalCount(null)
@@ -157,7 +157,7 @@ class AddCountE2eTest {
                     setInputAmount(6)
                     Espresso.closeSoftKeyboard()
                     clickAdd()
-                    checkRemainingArrows("42 at 90m", "36 at 80m, 24 at 70m")
+                    checkRemainingArrows("42 at 90m,", "36 at 80m, 24 at 70m")
                     checkSightersCount(null)
                     checkShotCount(6)
                     checkTotalCount(null)
