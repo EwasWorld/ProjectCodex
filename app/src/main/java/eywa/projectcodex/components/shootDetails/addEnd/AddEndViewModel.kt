@@ -78,10 +78,10 @@ class AddEndViewModel @Inject constructor(
              *      dialog won't be displayed
              */
             RoundCompleteDialogOkClicked -> repo.handle(NavBarClicked(CodexNavRoute.SHOOT_DETAILS_STATS), screen)
-            AddEndIntent.EditSightMarkClicked -> extraState.update { it.copy(openEditSightMark = true) }
-            AddEndIntent.EditSightMarkHandled -> extraState.update { it.copy(openEditSightMark = false) }
-            AddEndIntent.FullSightMarksClicked -> extraState.update { it.copy(openFullSightMarks = true) }
-            AddEndIntent.FullSightMarksHandled -> extraState.update { it.copy(openFullSightMarks = false) }
+            EditSightMarkClicked -> extraState.update { it.copy(openEditSightMark = true) }
+            EditSightMarkHandled -> extraState.update { it.copy(openEditSightMark = false) }
+            FullSightMarksClicked -> extraState.update { it.copy(openFullSightMarks = true) }
+            FullSightMarksHandled -> extraState.update { it.copy(openFullSightMarks = false) }
         }
     }
 

@@ -11,13 +11,7 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickDecrease
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickEditShootInfo
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickIncrease
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickSubmit
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.EditShootInfoHandled
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.OnValueChanged
+import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.*
 import eywa.projectcodex.components.shootDetails.getData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -91,6 +85,11 @@ class AddArrowCountViewModel @Inject constructor(
                     repo.db.arrowCounterRepo().update(currentCount.copy(shotCount = currentCount.shotCount + toAdd))
                 }
             }
+
+            EditSightMarkClicked -> extraState.update { it.copy(openEditSightMark = true) }
+            EditSightMarkHandled -> extraState.update { it.copy(openEditSightMark = false) }
+            FullSightMarksClicked -> extraState.update { it.copy(openFullSightMarks = true) }
+            FullSightMarksHandled -> extraState.update { it.copy(openFullSightMarks = false) }
         }
     }
 

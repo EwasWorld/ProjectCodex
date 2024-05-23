@@ -10,4 +10,8 @@ sealed class AddArrowCountIntent {
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : AddArrowCountIntent()
     object ClickEditShootInfo : AddArrowCountIntent()
     object EditShootInfoHandled : AddArrowCountIntent()
+    object FullSightMarksClicked : AddArrowCountIntent()
+    object FullSightMarksHandled : AddArrowCountIntent()
+    object EditSightMarkClicked : AddArrowCountIntent()
+    object EditSightMarkHandled : AddArrowCountIntent()
 }

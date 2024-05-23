@@ -35,6 +35,10 @@ class AddArrowCountState(
             )
     )
 
+    val sightMark = main.sightMark
+    val openFullSightMarks = extras.openFullSightMarks
+    val openEditSightMark = extras.openEditSightMark
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AddArrowCountState) return false
@@ -42,6 +46,9 @@ class AddArrowCountState(
         if (fullShootInfo != other.fullShootInfo) return false
         if (editShootInfoClicked != other.editShootInfoClicked) return false
         if (endSize != other.endSize) return false
+        if (sightMark != other.sightMark) return false
+        if (openFullSightMarks != other.openFullSightMarks) return false
+        if (openEditSightMark != other.openEditSightMark) return false
 
         return true
     }
@@ -50,6 +57,9 @@ class AddArrowCountState(
         var result = fullShootInfo.hashCode()
         result = 31 * result + editShootInfoClicked.hashCode()
         result = 31 * result + endSize.hashCode()
+        result = 31 * result + (sightMark?.hashCode() ?: 0)
+        result = 31 * result + openFullSightMarks.hashCode()
+        result = 31 * result + openEditSightMark.hashCode()
         return result
     }
 }
@@ -57,4 +67,6 @@ class AddArrowCountState(
 data class AddArrowCountExtras(
         val endSize: PartialNumberFieldState = PartialNumberFieldState(DEFAULT_END_SIZE.toString()),
         val editShootInfoClicked: Boolean = false,
+        val openFullSightMarks: Boolean = false,
+        val openEditSightMark: Boolean = false,
 )

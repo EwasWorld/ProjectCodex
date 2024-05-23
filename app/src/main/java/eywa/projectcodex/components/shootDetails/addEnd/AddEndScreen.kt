@@ -152,7 +152,8 @@ private fun AddEndScreen(
                 fullShootInfo = state.fullShootInfo,
                 sightMark = state.sightMark,
                 helpListener = helpListener,
-                listener = listener,
+                onExpandClicked = { listener(FullSightMarksClicked) },
+                onEditClicked = { listener(EditSightMarkClicked) },
                 modifier = Modifier.padding(top = 5.dp)
         )
         RemainingArrowsIndicator(state.fullShootInfo, helpListener)
@@ -187,12 +188,13 @@ private fun AddEndScreen(
 }
 
 @Composable
-private fun SightMark(
+fun SightMark(
         fullShootInfo: FullShootInfo,
         sightMark: SightMark?,
         modifier: Modifier = Modifier,
         helpListener: (HelpShowcaseIntent) -> Unit,
-        listener: (AddEndIntent) -> Unit,
+        onEditClicked: () -> Unit,
+        onExpandClicked: () -> Unit,
 ) {
     val distance = fullShootInfo.remainingArrowsAtDistances?.firstOrNull()?.second
     val isMetric = fullShootInfo.round?.isMetric
@@ -218,7 +220,7 @@ private fun SightMark(
                         tint = Color.White,
                         modifier = Modifier.scale(-1f, 1f)
                 ),
-                onClick = { listener(FullSightMarksClicked) },
+                onClick = onExpandClicked,
                 modifier = Modifier.testTag(AddEndTestTag.EXPAND_SIGHT_MARK)
         )
         if (sightMark != null) {
@@ -264,7 +266,7 @@ private fun SightMark(
                         ),
                         tint = Color.White,
                 ),
-                onClick = { listener(EditSightMarkClicked) },
+                onClick = onEditClicked,
                 modifier = Modifier.testTag(AddEndTestTag.EDIT_SIGHT_MARK)
         )
     }

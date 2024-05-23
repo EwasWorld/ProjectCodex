@@ -32,9 +32,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexIconButton
@@ -51,13 +53,9 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickDecrease
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickEditShootInfo
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickIncrease
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.ClickSubmit
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.OnValueChanged
+import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.*
 import eywa.projectcodex.components.shootDetails.addEnd.RemainingArrowsIndicator
+import eywa.projectcodex.components.shootDetails.addEnd.SightMark
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.stats.NewScoreSection
 
@@ -90,7 +88,30 @@ fun AddArrowCountScreen(
                     navController,
                     mapOf(NavArgument.SHOOT_ID to data.fullShootInfo.id.toString()),
             )
-            listener(AddArrowCountIntent.EditShootInfoHandled)
+            listener(EditShootInfoHandled)
+        }
+    }
+
+    LaunchedEffect(data?.openEditSightMark) {
+        if (data?.openEditSightMark == true) {
+            val args = if (data.sightMark != null) {
+                mapOf(NavArgument.SIGHT_MARK_ID to data.sightMark.id.toString())
+            }
+            else {
+                val distance = data.fullShootInfo.remainingArrowsAtDistances?.firstOrNull()?.second
+                        ?: DEFAULT_INT_NAV_ARG
+                val isMetric = data.fullShootInfo.round?.isMetric ?: true
+                mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
+            }
+            CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
+            listener(EditSightMarkHandled)
+        }
+    }
+
+    LaunchedEffect(data?.openFullSightMarks) {
+        if (data?.openFullSightMarks == true) {
+            CodexNavRoute.SIGHT_MARKS.navigate(navController)
+            listener(FullSightMarksHandled)
         }
     }
 }
@@ -104,7 +125,7 @@ fun AddArrowCountScreen(
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
             modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
@@ -118,6 +139,14 @@ fun AddArrowCountScreen(
                     helpListener = helpListener,
             )
 
+            SightMark(
+                    fullShootInfo = state.fullShootInfo,
+                    sightMark = state.sightMark,
+                    helpListener = helpListener,
+                    onExpandClicked = { listener(FullSightMarksClicked) },
+                    onEditClicked = { listener(EditSightMarkClicked) },
+                    modifier = Modifier.padding(top = 5.dp)
+            )
             RemainingArrowsIndicator(state.fullShootInfo, helpListener)
             ShotCount(state, helpListener)
             IncreaseCountInputs(state, listener)
@@ -137,17 +166,16 @@ private fun ShotCount(
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.padding(vertical = 30.dp)
+            modifier = Modifier.padding(vertical = 35.dp)
     ) {
         sighters?.let {
             DataRow(
                     title = stringResource(R.string.add_count__sighters),
                     text = it.toString(),
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_add_count__sighters_title),
                             helpBody = stringResource(R.string.help_add_count__sighters_body),
-                    ),
+                    ).asHelpState(helpListener),
                     textModifier = Modifier.testTag(AddArrowCountTestTag.SIGHTERS_COUNT),
             )
         }
@@ -156,11 +184,10 @@ private fun ShotCount(
                 text = shot.toString(),
                 titleStyle = CodexTypography.LARGE.copy(color = CodexTheme.colors.onAppBackground),
                 textStyle = CodexTypography.X_LARGE.copy(color = CodexTheme.colors.onAppBackground),
-                helpState = HelpState(
-                        helpListener = helpListener,
+                helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_add_count__shot_title),
                         helpBody = stringResource(R.string.help_add_count__shot_body),
-                ),
+                ).asHelpState(helpListener),
                 textModifier = Modifier.testTag(AddArrowCountTestTag.SHOT_COUNT),
                 modifier = Modifier
                         .border(2.dp, color = CodexTheme.colors.onAppBackground)
@@ -170,11 +197,10 @@ private fun ShotCount(
             DataRow(
                     title = stringResource(R.string.add_count__total),
                     text = (it + shot).toString(),
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_add_count__total_title),
                             helpBody = stringResource(R.string.help_add_count__total_body),
-                    ),
+                    ).asHelpState(helpListener),
                     textModifier = Modifier.testTag(AddArrowCountTestTag.TOTAL_COUNT),
             )
         }
@@ -195,11 +221,10 @@ private fun IncreaseCountInputs(
                 modifier = Modifier
                         .testTag(AddArrowCountTestTag.ROUND_COMPLETE)
                         .updateHelpDialogPosition(
-                                HelpState(
-                                        helpListener = helpListener,
+                                helpState = HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__round_complete_title),
                                         helpBody = stringResource(R.string.help_archer_round_stats__round_complete_body),
-                                ),
+                                ).asHelpState(helpListener),
                         )
         )
         return
@@ -211,11 +236,10 @@ private fun IncreaseCountInputs(
         Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.updateHelpDialogPosition(
-                        HelpState(
-                                helpListener = helpListener,
+                        helpState = HelpShowcaseItem(
                                 helpTitle = stringResource(R.string.help_add_count__end_size_title),
                                 helpBody = stringResource(R.string.help_add_count__end_size_body),
-                        ),
+                        ).asHelpState(helpListener),
                 )
         ) {
             CodexIconButton(
@@ -270,11 +294,10 @@ private fun IncreaseCountInputs(
                 text = stringResource(R.string.add_count__submit),
                 onClick = { listener(ClickSubmit) },
                 enabled = state.endSize.error == null,
-                helpState = HelpState(
-                        helpListener = helpListener,
+                helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_add_count__submit_title),
                         helpBody = stringResource(R.string.help_add_count__submit_body),
-                ),
+                ).asHelpState(helpListener),
                 modifier = Modifier
                         .padding(top = 5.dp)
                         .testTag(AddArrowCountTestTag.SUBMIT)

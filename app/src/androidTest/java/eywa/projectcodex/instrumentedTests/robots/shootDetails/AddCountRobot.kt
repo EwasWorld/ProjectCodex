@@ -12,6 +12,8 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
+import eywa.projectcodex.instrumentedTests.robots.SightMarkDetailRobot
+import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
 
 class AddCountRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -150,5 +152,32 @@ class AddCountRobot(
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.ROUND_COMPLETE)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
+    }
+
+    fun checkSightMarkIndicator(distance: String, sightMark: String?) {
+        checkElementText(
+                AddEndTestTag.SIGHT_MARK_DESCRIPTION,
+                if (sightMark == null) "No sight mark for $distance"
+                else "$distance sight mark:",
+        )
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
+            if (sightMark == null) {
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
+            else {
+                +CodexNodeInteraction.AssertTextEquals(sightMark)
+            }
+        }
+    }
+
+    fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {
+        clickElement(AddEndTestTag.EXPAND_SIGHT_MARK)
+        createRobot(SightMarksRobot::class, block)
+    }
+
+    fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
+        clickElement(AddEndTestTag.EDIT_SIGHT_MARK)
+        createRobot(SightMarkDetailRobot::class, block)
     }
 }

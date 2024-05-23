@@ -3,12 +3,14 @@ package eywa.projectcodex.instrumentedTests
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
@@ -36,6 +38,8 @@ class AddCountE2eTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
 
+    private val sightMarks = SightMarksPreviewHelper.sightMarks
+
     private fun setup() {
         CommonSetupTeardownFns.generalSetup()
         hiltRule.inject()
@@ -45,6 +49,7 @@ class AddCountE2eTest {
             db = LocalDatabaseModule.scoresRoomDatabase!!
             runBlocking {
                 TestUtils.ROUNDS.forEach { db.add(it) }
+                sightMarks.forEach { db.sightMarkRepo().insert(it) }
             }
         }
     }
@@ -118,7 +123,7 @@ class AddCountE2eTest {
                      * Edit
                      */
                     clickEditRoundData {
-                        Espresso.pressBack()
+                        pressBack()
                     }
                     checkScreenIsShown()
                 }
@@ -158,6 +163,9 @@ class AddCountE2eTest {
                     Espresso.closeSoftKeyboard()
                     clickAdd()
                     checkRemainingArrows("42 at 90m,", "36 at 80m, 24 at 70m")
+                    checkSightMarkIndicator("90m", null)
+                    clickAllSightMarks { pressBack() }
+                    clickEditSightMark { pressBack() }
                     checkSightersCount(null)
                     checkShotCount(6)
                     checkTotalCount(null)
@@ -189,7 +197,7 @@ class AddCountE2eTest {
 
                         // Changing type opens up the add end screen
                         clickSubmitEditScoreChangeToScore {
-                            Espresso.pressBack()
+                            pressBack()
                         }
                     }
                 }
