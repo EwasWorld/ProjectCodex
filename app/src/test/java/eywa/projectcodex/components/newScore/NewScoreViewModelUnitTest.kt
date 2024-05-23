@@ -105,8 +105,8 @@ class NewScoreViewModelUnitTest {
 
         val shootInitial = create(0)
         val shootSecond = create(12)
-        db.shootDao.fullShoots = listOf(shootInitial)
-        db.shootDao.secondFullShoots = listOf(shootSecond)
+        db.shootRepo.fullShoots = listOf(shootInitial)
+        db.shootRepo.secondFullShoots = listOf(shootSecond)
         val sut = getSut(testScope = this, shootId = 1, updateDefaultRoundsStates = null)
 
         Assert.assertEquals(NewScoreState(), sut.state.value)
@@ -173,8 +173,8 @@ class NewScoreViewModelUnitTest {
                 RoundPreviewHelper.indoorMetricRoundData,
                 RoundPreviewHelper.outdoorImperialRoundData,
         )
-        db.rounds.fullRoundsInfo = data
-        db.rounds.secondFullRoundsInfo = data.take(1)
+        db.roundsRepo.fullRoundsInfo = data
+        db.roundsRepo.secondFullRoundsInfo = data.take(1)
         val sut = getSut(testScope = this, updateDefaultRoundsStates = null)
 
         Assert.assertEquals(NewScoreState(), sut.state.value)

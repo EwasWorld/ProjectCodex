@@ -68,7 +68,7 @@ class ShootDetailsRepoUnitTest {
     private fun TestScope.getSut(
             shoots: FullShootInfo? = shootInfo
     ): ShootDetailsRepo {
-        shoots?.let { db.shootDao.fullShoots = listOf(it.asDatabaseFullShootInfo()) }
+        shoots?.let { db.shootRepo.fullShoots = listOf(it.asDatabaseFullShootInfo()) }
         val sut = ShootDetailsRepo(db.mock, datastore.mock, helpShowcase)
 
         sut.connect { jobs.add(launch { it() }) }
@@ -115,7 +115,7 @@ class ShootDetailsRepoUnitTest {
         val id1CollectedStates = mutableListOf<ShootDetailsResponse<SimpleState>>()
         startCollectingStateForId(1, id1CollectedStates)
         advanceTimeBy(1)
-        verify(db.shootDao.mockRepo).getFullShootInfo(1)
+        verify(db.shootRepo.mock).getFullShootInfo(1)
         assertEquals(
                 listOf(loadingState, shootInfo.asLoadedState()),
                 id1CollectedStates.toList(),
@@ -127,10 +127,10 @@ class ShootDetailsRepoUnitTest {
         id1CollectedStates.clear()
         val id2CollectedStates = mutableListOf<ShootDetailsResponse<SimpleState>>()
         startCollectingStateForId(2, id2CollectedStates)
-        db.shootDao.fullShoots = listOf(shootInfo2.asDatabaseFullShootInfo())
-        db.shootDao.secondFullShoots = listOf()
+        db.shootRepo.fullShoots = listOf(shootInfo2.asDatabaseFullShootInfo())
+        db.shootRepo.secondFullShoots = listOf()
         advanceTimeBy(1)
-        verify(db.shootDao.mockRepo).getFullShootInfo(2)
+        verify(db.shootRepo.mock).getFullShootInfo(2)
         Assert.assertTrue(id1CollectedStates.all { it == loadingState })
         assertEquals(
                 listOf(loadingState, shootInfo2.asLoadedState()),
@@ -188,14 +188,14 @@ class ShootDetailsRepoUnitTest {
         )
         val sightMark = SightMarksPreviewHelper.sightMarks.take(1).map { SightMark(it) }
 
-        db.rounds.fullRoundsInfo = listOf(RoundPreviewHelper.yorkRoundData)
-        db.shootDao.highestScoreForRound = highest
-        db.shootDao.mostRecentForRound = recent
+        db.roundsRepo.fullRoundsInfo = listOf(RoundPreviewHelper.yorkRoundData)
+        db.shootRepo.highestScoreForRound = highest
+        db.shootRepo.mostRecentForRound = recent
         db.archerRepo.handicaps = ArcherHandicapsPreviewHelper.handicaps.take(1)
         db.archerRepo.defaultArcher =
                 DatabaseArcherPreviewHelper.default.copy(isGent = false, age = ClassificationAge.OVER_50)
-        db.bow.defaultBow = DatabaseBowPreviewHelper.default.copy(type = ClassificationBow.COMPOUND)
-        db.sightMarksDao.sightMarks = sightMark
+        db.bowRepo.defaultBow = DatabaseBowPreviewHelper.default.copy(type = ClassificationBow.COMPOUND)
+        db.sightMarksRepo.sightMarks = sightMark
         datastore.values = mapOf(
                 DatastoreKey.Use2023HandicapSystem to false,
                 DatastoreKey.UseBetaFeatures to true,
@@ -215,7 +215,7 @@ class ShootDetailsRepoUnitTest {
                         fullShootInfo = shootInfo.copy(use2023HandicapSystem = false),
                         archerHandicaps = ArcherHandicapsPreviewHelper.handicaps.take(1),
                         archerInfo = db.archerRepo.defaultArcher,
-                        bow = db.bow.defaultBow,
+                        bow = db.bowRepo.defaultBow,
                         wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
                         classification = null,
                         roundPbs = highest.map { it.asShort() },

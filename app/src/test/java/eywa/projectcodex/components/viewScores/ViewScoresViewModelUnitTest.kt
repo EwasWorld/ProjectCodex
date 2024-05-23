@@ -84,8 +84,8 @@ class ViewScoresViewModelUnitTest {
 
         val shootsInitial = listOf(create(1, 5), create(3, 3))
         val shootsSecond = listOf(create(1, 5), create(2, 3))
-        db.shootDao.fullShoots = shootsInitial
-        db.shootDao.secondFullShoots = shootsSecond
+        db.shootRepo.fullShoots = shootsInitial
+        db.shootRepo.secondFullShoots = shootsSecond
         val sut = getSut()
 
         assertEquals(
@@ -122,8 +122,8 @@ class ViewScoresViewModelUnitTest {
 
         val shootsInitial = listOf(create(1, 5), create(3, 3))
         val shootsSecond = listOf(create(1, 5), create(2, 3))
-        db.shootDao.fullShoots = shootsInitial
-        db.shootDao.secondFullShoots = shootsSecond
+        db.shootRepo.fullShoots = shootsInitial
+        db.shootRepo.secondFullShoots = shootsSecond
         val sut = getSut(datastoreUse2023System = false)
 
         assertEquals(
@@ -152,7 +152,7 @@ class ViewScoresViewModelUnitTest {
 
         assertEquals(Filters<ShootFilter>(setOf(ShootFilter.PersonalBests)), sut.state.value.filters)
         assertEquals(listOf<ViewScoresEntry>(), sut.state.value.data)
-        verify(db.shootDao.mockRepo).getFullShootInfo(sut.state.value.filters)
+        verify(db.shootRepo.mock).getFullShootInfo(sut.state.value.filters)
     }
 
     @Test
@@ -166,7 +166,7 @@ class ViewScoresViewModelUnitTest {
                     shoot = shoot.copy(shootId = 3)
                 },
         )
-        db.shootDao.fullShoots = shoots.map { it.asDatabaseFullShootInfo() }
+        db.shootRepo.fullShoots = shoots.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
 
         fun addSelected(isSelected: List<Boolean>): List<ViewScoresEntry> {
@@ -288,7 +288,7 @@ class ViewScoresViewModelUnitTest {
                         ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
                 ) to Filters(),
         )
-        db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
+        db.shootRepo.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
 
         fun checkState() {
@@ -346,7 +346,7 @@ class ViewScoresViewModelUnitTest {
                     ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger)
                 } to Filters(),
         ).reorderDataById()
-        db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
+        db.shootRepo.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
 
         fun checkState() {
@@ -392,7 +392,7 @@ class ViewScoresViewModelUnitTest {
                     ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger)
                 } to Filters(),
         ).reorderDataById()
-        db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
+        db.shootRepo.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
 
         fun checkState() {
@@ -432,7 +432,7 @@ class ViewScoresViewModelUnitTest {
                         ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
                 ) to Filters(),
         )
-        db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
+        db.shootRepo.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
 
         fun checkState() {
@@ -494,7 +494,7 @@ class ViewScoresViewModelUnitTest {
                     ViewScoresEntry(info = it, isSelected = false, customLogger = customLogger)
                 } to Filters(),
         ).reorderDataById()
-        db.shootDao.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
+        db.shootRepo.fullShoots = shoot.map { it.asDatabaseFullShootInfo() }
         val sut = getSut()
 
         fun checkState() {
@@ -540,7 +540,7 @@ class ViewScoresViewModelUnitTest {
                         ViewScoresEntry(info = shoot, isSelected = false, customLogger = customLogger)
                 ) to Filters(),
         )
-        db.shootDao.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
+        db.shootRepo.fullShoots = listOf(shoot.asDatabaseFullShootInfo())
         val sut = getSut()
 
         fun checkState() {
@@ -572,20 +572,20 @@ class ViewScoresViewModelUnitTest {
         checkState()
 
         advanceUntilIdle()
-        verify(db.shootDao.mock, never()).deleteRound(any())
+        verify(db.shootRepo.mock, never()).deleteRound(any())
 
         sut.handle(DeleteDialogOkClicked)
         expectedState = expectedState.copy(deleteDialogOpen = false)
         checkState()
 
         advanceUntilIdle()
-        verify(db.shootDao.mockRepo).deleteRound(1)
+        verify(db.shootRepo.mock).deleteRound(1)
     }
 
     @Test
     fun testNoRoundsDialogOkClicked() = runTest {
         val emptyData = listOf<ViewScoresEntry>() to Filters<ShootFilter>()
-        db.shootDao.fullShoots = listOf()
+        db.shootRepo.fullShoots = listOf()
         val sut = getSut()
         advanceUntilIdle()
         assertEquals(ViewScoresState(rawData = emptyData), sut.state.value.reorderDataById())

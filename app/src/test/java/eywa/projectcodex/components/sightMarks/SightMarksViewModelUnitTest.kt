@@ -31,7 +31,7 @@ class SightMarksViewModelUnitTest {
     private fun getSut(
             sightMarks: List<SightMark> = data
     ): SightMarksViewModel {
-        db.sightMarksDao.sightMarks = sightMarks
+        db.sightMarksRepo.sightMarks = sightMarks
         return SightMarksViewModel(db.mock, helpShowcase)
     }
 
@@ -82,7 +82,7 @@ class SightMarksViewModelUnitTest {
 
     @Test
     fun testInitialise_HighestAtTop() = runTest {
-        db.bow.defaultBow = db.bow.defaultBow.copy(isSightMarkDiagramHighestAtTop = true)
+        db.bowRepo.defaultBow = db.bowRepo.defaultBow.copy(isSightMarkDiagramHighestAtTop = true)
         val sut = getSut()
         assertEquals(
                 SightMarksState.Loading(),
@@ -163,7 +163,7 @@ class SightMarksViewModelUnitTest {
                 SightMarksState.Loaded(sightMarks = data),
                 sut,
         )
-        verify(db.bow.mockRepo).updateDefaultBow(true)
+        verify(db.bowRepo.mock).updateDefaultBow(true)
     }
 
     @Test
@@ -182,7 +182,7 @@ class SightMarksViewModelUnitTest {
                 SightMarksState.Loaded(sightMarks = data),
                 sut,
         )
-        verify(db.sightMarksDao.mock).archiveAll()
+        verify(db.sightMarksRepo.mock).archiveAll()
     }
 
     @Test
@@ -555,7 +555,7 @@ class SightMarksViewModelUnitTest {
                 SightMarksState.Loaded(sightMarks = data),
                 sut,
         )
-        verify(db.sightMarksDao.mock).update(
+        verify(db.sightMarksRepo.mock).update(
                 *(sut.state.value as SightMarksState.Loaded).sightMarks
                         .map { it.copy(sightMark = it.sightMark + 1f).asDatabaseSightMark() }.toTypedArray()
         )

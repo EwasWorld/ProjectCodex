@@ -55,7 +55,7 @@ class HandicapTablesViewModelUnitTest {
     )
 
     private fun getSut(): HandicapTablesViewModel {
-        db.rounds.fullRoundsInfo = initialRounds
+        db.roundsRepo.fullRoundsInfo = initialRounds
         return HandicapTablesViewModel(
                 db = db.mock,
                 helpShowcase = helpShowcase,
@@ -183,7 +183,7 @@ class HandicapTablesViewModelUnitTest {
 
     @Test
     fun testInitFromDefaults() = runTest {
-        db.shootDao.fullShoots = listOf(
+        db.shootRepo.fullShoots = listOf(
                 ShootPreviewHelperDsl.create {
                     round = RoundPreviewHelper.yorkRoundData
                     roundSubTypeId = 2
@@ -208,7 +208,7 @@ class HandicapTablesViewModelUnitTest {
 
     @Test
     fun testInitFromDefaultsAndSavedState() = runTest {
-        db.shootDao.fullShoots = listOf(
+        db.shootRepo.fullShoots = listOf(
                 ShootPreviewHelperDsl.create {
                     round = RoundPreviewHelper.indoorMetricRoundData
                 },

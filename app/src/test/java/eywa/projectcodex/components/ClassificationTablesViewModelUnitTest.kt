@@ -64,7 +64,7 @@ class ClassificationTablesViewModelUnitTest {
     )
 
     private fun getSut(): ClassificationTablesViewModel {
-        db.rounds.fullRoundsInfo = initialRounds
+        db.roundsRepo.fullRoundsInfo = initialRounds
         return ClassificationTablesViewModel(
                 db = db.mock,
                 helpShowcase = helpShowcase,
@@ -231,8 +231,8 @@ class ClassificationTablesViewModelUnitTest {
     @Test
     fun testInitFromDefaults() = runTest {
         db.archerRepo.defaultArcher = DatabaseArcher(10, "test", false, ClassificationAge.OVER_50)
-        db.bow.defaultBow = DatabaseBow(10, "test", type = ClassificationBow.COMPOUND)
-        db.shootDao.fullShoots = listOf(
+        db.bowRepo.defaultBow = DatabaseBow(10, "test", type = ClassificationBow.COMPOUND)
+        db.shootRepo.fullShoots = listOf(
                 ShootPreviewHelperDsl.create {
                     round = RoundPreviewHelper.yorkRoundData
                     roundSubTypeId = 2
@@ -259,8 +259,8 @@ class ClassificationTablesViewModelUnitTest {
     @Test
     fun testInitFromDefaultsAndSavedState() = runTest {
         db.archerRepo.defaultArcher = DatabaseArcher(10, "test", false, ClassificationAge.OVER_50)
-        db.bow.defaultBow = DatabaseBow(10, "test", type = ClassificationBow.COMPOUND)
-        db.shootDao.fullShoots = listOf(
+        db.bowRepo.defaultBow = DatabaseBow(10, "test", type = ClassificationBow.COMPOUND)
+        db.shootRepo.fullShoots = listOf(
                 ShootPreviewHelperDsl.create {
                     round = RoundPreviewHelper.wa1440RoundData
                 },
