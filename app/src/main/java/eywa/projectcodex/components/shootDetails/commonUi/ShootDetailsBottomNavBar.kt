@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.shootDetails.commonUi
 
-import androidx.annotation.StringRes
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -8,7 +7,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.CodexNavRoute
@@ -16,6 +14,7 @@ import eywa.projectcodex.common.sharedUi.CodexBottomNavItem
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ResOrActual
 
 @Composable
 fun ShootDetailsBottomNavBar(
@@ -32,8 +31,8 @@ fun ShootDetailsBottomNavBar(
             CodexBottomNavItem(
                     icon = it.notSelectedIcon,
                     selectedIcon = it.selectedIcon ?: it.notSelectedIcon,
-                    label = stringResource(it.label),
-                    contentDescription = stringResource(it.label),
+                    label = it.label.get(),
+                    contentDescription = it.label.get(),
                     isCurrentDestination = currentScreen == it.navRoute,
                     modifier = Modifier.testTag(it.getTestTag()),
                     onClick = { listener(it.navRoute) },
@@ -46,31 +45,37 @@ enum class ShootDetailsBottomNavBarItem(
         val navRoute: CodexNavRoute,
         val notSelectedIcon: CodexIconInfo,
         val selectedIcon: CodexIconInfo? = null,
-        @StringRes val label: Int,
+        val label: ResOrActual<String>,
 ) : CodexTestTag {
     ADD_END(
             navRoute = CodexNavRoute.SHOOT_DETAILS_ADD_END,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
-            label = R.string.input_end__title,
+            label = ResOrActual.StringResource(R.string.input_end__title),
     ),
     SCORE_PAD(
             navRoute = CodexNavRoute.SHOOT_DETAILS_SCORE_PAD,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_filled),
-            label = R.string.score_pad__title,
+            label = ResOrActual.StringResource(R.string.score_pad__title),
     ),
     STATS(
             navRoute = CodexNavRoute.SHOOT_DETAILS_STATS,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
-            label = R.string.archer_round_stats__title,
+            label = ResOrActual.StringResource(R.string.archer_round_stats__title),
+    ),
+    STATS_V2(
+            navRoute = CodexNavRoute.SHOOT_DETAILS_STATS_V2,
+            notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
+            selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
+            label = ResOrActual.Actual("Stats V2"),
     ),
     SETTINGS(
             navRoute = CodexNavRoute.SHOOT_DETAILS_SETTINGS,
             notSelectedIcon = CodexIconInfo.VectorIcon(Icons.Outlined.Settings),
             selectedIcon = CodexIconInfo.VectorIcon(Icons.Filled.Settings),
-            label = R.string.archer_round_settings__title,
+            label = ResOrActual.StringResource(R.string.archer_round_settings__title),
     ),
     ;
 

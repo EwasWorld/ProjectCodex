@@ -29,7 +29,7 @@ fun DataRow(
         onClickLabel: String? = null,
         accessibilityRole: Role? = null,
         textStyle: TextStyle = LocalTextStyle.current,
-        textClickableStyle: TextStyle = LocalTextStyle.current.asClickableStyle(),
+        textClickableStyle: TextStyle = textStyle.asClickableStyle(),
         titleStyle: TextStyle = textStyle,
 ) = DataRow(
         title = title,

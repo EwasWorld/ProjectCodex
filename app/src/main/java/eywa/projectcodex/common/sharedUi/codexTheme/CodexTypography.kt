@@ -28,6 +28,11 @@ object CodexTypography {
             fontWeight = FontWeight(400),
     )
 
+    val NORMAL_PLUS = TextStyle.Default.copy(
+            fontSize = 25.sp,
+            fontWeight = FontWeight(400),
+    )
+
     val NORMAL = TextStyle.Default.copy(
             fontSize = 20.sp,
             fontWeight = FontWeight(400),

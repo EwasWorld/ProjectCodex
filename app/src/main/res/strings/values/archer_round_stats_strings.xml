@@ -5,9 +5,10 @@
     <string name="archer_round_stats__date">Date:</string>
     <string name="archer_round_stats__round">Round:</string>
     <string name="archer_round_stats__face">Face:</string>
-    <string name="archer_round_stats__hits">Hits:</string>
+    <string name="archer_round_stats__hits">Hits</string>
     <string name="archer_round_stats__hits_of">%1$d (of %2$d)</string> <!-- 44 (of 50) aka 44 arrows hit of 50 shot -->
-    <string name="archer_round_stats__score">Score:</string>
+    <string name="archer_round_stats__hits_of_2">(of %1$d)</string> <!-- (of 50) aka 44 arrows hit of 50 shot -->
+    <string name="archer_round_stats__score">Score</string>
     <string name="archer_round_stats__golds">Golds:</string>
     <string name="archer_round_stats__total_arrows">Total arrows shot:</string>
     <string name="archer_round_stats__remaining_arrows">Remaining arrows:</string>
