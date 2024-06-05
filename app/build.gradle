@@ -240,6 +240,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
     // UI Tests
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
     def compose_nav_version = "2.6.0"
     implementation("androidx.navigation:navigation-compose:$compose_nav_version")

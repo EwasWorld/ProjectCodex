@@ -8,8 +8,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
@@ -85,6 +84,7 @@ import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.model.FullShootInfo
 import java.util.Calendar
+import kotlin.math.abs
 
 @Composable
 private fun style(textAlign: TextAlign = TextAlign.Start) =
@@ -99,7 +99,7 @@ fun StatsScreenV2(
     val listener = { it: StatsIntent -> viewModel.handle(it) }
 
     ShootDetailsMainScreen(
-            currentScreen = CodexNavRoute.SHOOT_DETAILS_STATS,
+            currentScreen = CodexNavRoute.SHOOT_DETAILS_STATS_V2,
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
     ) { it, modifier -> StatsScreenV2(it, modifier, listener) }
@@ -189,8 +189,9 @@ private fun StatsScreenV2(
             )
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                HsgSection(state, helpListener)
+                HsgSectionV2(state, helpListener)
                 if (state.fullShootInfo.isPersonalBest) {
                     val pbStringId =
                             if (state.fullShootInfo.isTiedPersonalBest) R.string.archer_round_stats__is_tied_pb
@@ -198,9 +199,8 @@ private fun StatsScreenV2(
                     Text(
                             text = stringResource(pbStringId),
                             color = CodexTheme.colors.onPersonalBestTag,
-                            style = CodexTypography.NORMAL,
+                            style = CodexTypography.SMALL_PLUS,
                             modifier = Modifier
-                                    .padding(top = 10.dp)
                                     .background(
                                             color = CodexTheme.colors.personalBestTag,
                                             shape = RoundedCornerShape(100)
@@ -215,13 +215,26 @@ private fun StatsScreenV2(
                                     )
                     )
                 }
+                RoundStatsSection(state, helpListener)
             }
-            RoundStatsSection(state, helpListener)
-            Divider(thickness = 1.dp, color = CodexTheme.colors.onAppBackground)
-            NewRoundStatsSection(state, helpListener)
+            if (state.fullShootInfo.round != null) {
+                Divider(
+                        thickness = 1.dp,
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.padding(vertical = 10.dp)
+                )
+            }
+            NewRoundStatsSection(state, helpListener, listener)
             PastRecordsSection(state, listener)
-//            ClassificationSection(state, listener)
             AllowanceSection(state, listener)
+
+            if (state.fullShootInfo.round != null) {
+                Divider(
+                        thickness = 1.dp,
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.padding(vertical = 5.dp)
+                )
+            }
 
             if (state.useBetaFeatures) {
                 NumberBreakdownSection(state)
@@ -334,9 +347,8 @@ fun NewScoreSectionV2(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun HsgSection(
+private fun HsgSectionV2(
         state: StatsState,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
@@ -346,63 +358,111 @@ private fun HsgSection(
     val separator = ":"
 
     ProvideTextStyle(value = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground)) {
-        FlowRow(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+            ConstraintLayout {
+                val (hitsLabel, scoreLabel, goldsLabel, sep1Label, sep2Label) = createRefs()
+                val (hitsRef, score, golds, sep1, sep2) = createRefs()
+                val separatorMargin = 10.dp
+
+                // Hits
                 Text(
                         text = stringResource(R.string.archer_round_stats__hits),
+                        modifier = Modifier.constrainAs(hitsLabel) {
+                            top.linkTo(scoreLabel.top)
+                            bottom.linkTo(scoreLabel.bottom)
+                            end.linkTo(hitsRef.end)
+                        }
                 )
-                Text(
-                        text = hits.toString(),
-                        style = CodexTypography.LARGE,
-                        color = CodexTheme.colors.onAppBackground,
-                )
-                if (hits != arrowsShot) {
+                Column(
+                        horizontalAlignment = Alignment.End,
+                        modifier = Modifier.constrainAs(hitsRef) {
+                            top.linkTo(score.top)
+                            bottom.linkTo(score.bottom)
+                            end.linkTo(sep1.start, margin = separatorMargin)
+                        }
+                ) {
                     Text(
-                            text = stringResource(
-                                    R.string.archer_round_stats__hits_of_2,
-                                    arrowsShot,
-                            ),
+                            text = hits.toString(),
+                            style = CodexTypography.LARGE,
+                            color = CodexTheme.colors.onAppBackground,
                     )
+                    if (hits != arrowsShot) {
+                        Text(
+                                text = stringResource(
+                                        R.string.archer_round_stats__hits_of_2,
+                                        arrowsShot,
+                                ),
+                        )
+                    }
                 }
-            }
-            Text(
-                    text = separator,
-                    style = CodexTypography.NORMAL,
-                    color = CodexTheme.colors.onAppBackground,
-            )
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+
+                // Separators
+                Text(
+                        text = separator,
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.constrainAs(sep1) {
+                            top.linkTo(score.top)
+                            bottom.linkTo(score.bottom)
+                            end.linkTo(score.start, margin = separatorMargin)
+                        }
+                )
+
+                // Score
                 Text(
                         text = stringResource(R.string.archer_round_stats__score),
+                        modifier = Modifier.constrainAs(scoreLabel) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(score.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
                 )
                 Text(
                         text = state.fullShootInfo.score.toString(),
                         style = CodexTypography.X_LARGE,
                         color = CodexTheme.colors.onAppBackground,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.constrainAs(score) {
+                            top.linkTo(scoreLabel.bottom)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
                 )
-            }
-            Text(
-                    text = separator,
-                    style = CodexTypography.NORMAL,
-                    color = CodexTheme.colors.onAppBackground,
-            )
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+
+                // Separators
+                Text(
+                        text = separator,
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.constrainAs(sep2) {
+                            top.linkTo(score.top)
+                            bottom.linkTo(score.bottom)
+                            start.linkTo(score.end, margin = separatorMargin)
+                        }
+                )
+
+                // Golds
                 Text(
                         text = stringResource(state.fullShootInfo.goldsType.longStringId),
+                        modifier = Modifier.constrainAs(goldsLabel) {
+                            top.linkTo(scoreLabel.top)
+                            bottom.linkTo(scoreLabel.bottom)
+                            start.linkTo(golds.start)
+                        }
                 )
                 Text(
                         text = state.fullShootInfo.golds().toString(),
                         style = CodexTypography.LARGE,
                         color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.constrainAs(golds) {
+                            top.linkTo(score.top)
+                            bottom.linkTo(score.bottom)
+                            start.linkTo(sep2.end, margin = separatorMargin)
+                        }
                 )
             }
         }
@@ -413,52 +473,40 @@ private fun HsgSection(
 private fun RoundStatsSection(
         state: StatsState,
         helpListener: (HelpShowcaseIntent) -> Unit,
+        modifier: Modifier = Modifier,
 ) {
-    if (state.fullShootInfo.round == null) return
+    if (state.fullShootInfo.round == null || (state.fullShootInfo.remainingArrows ?: 0) == 0) return
 
     val remaining = state.fullShootInfo.remainingArrows ?: 0
     ProvideTextStyle(value = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground)) {
-        Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically,
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier,
         ) {
             if (remaining != 0) {
-                Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                            text = remaining.toString(),
-                            style = CodexTypography.NORMAL,
-                            color = CodexTheme.colors.onAppBackground,
-                    )
-                    Text(
-                            text = "arrows"
-                    )
-                    Text(
-                            text = if (remaining > 0) "remaining" else "surplus"
-                    )
-                }
+                DataRow(
+                        title = stringResource(
+                                if (remaining >= 0) R.string.archer_round_stats__remaining_arrows
+                                else R.string.archer_round_stats__surplus_arrows
+                        ),
+                        text = abs(remaining).toString(),
+                        helpState = HelpShowcaseItem(
+                                helpTitle = stringResource(R.string.help_archer_round_stats__remaining_arrows_title),
+                                helpBody = stringResource(R.string.help_archer_round_stats__remaining_arrows_body),
+                        ).asHelpState(helpListener),
+                        textModifier = Modifier.testTag(REMAINING_ARROWS_TEXT.getTestTag()),
+                )
             }
             if (state.fullShootInfo.predictedScore != null) {
-                Text(
-                        text = ":",
-                        style = CodexTypography.NORMAL,
-                        color = CodexTheme.colors.onAppBackground,
+                DataRow(
+                        title = stringResource(R.string.archer_round_stats__predicted_score),
+                        text = state.fullShootInfo.predictedScore.toString(),
+                        helpState = HelpShowcaseItem(
+                                helpTitle = stringResource(R.string.help_archer_round_stats__predicted_score_title),
+                                helpBody = stringResource(R.string.help_archer_round_stats__predicted_score_body),
+                        ).asHelpState(helpListener),
+                        textModifier = Modifier.testTag(PREDICTED_SCORE_TEXT.getTestTag()),
                 )
-                Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    if (remaining > 0) {
-                        Text(
-                                text = stringResource(R.string.archer_round_stats__predicted_score)
-                        )
-                    }
-                    Text(
-                            text = state.fullShootInfo.predictedScore.toString(),
-                            style = CodexTypography.NORMAL,
-                            color = CodexTheme.colors.onAppBackground,
-                    )
-                }
             }
         }
     }
@@ -473,142 +521,120 @@ private fun AllowanceSection(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     ProvideTextStyle(value = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground)) {
-        Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+        ConstraintLayout {
+            val (handicapLabel, allowanceLabel, adjustedLabel, sep1Label, sep2Label) = createRefs()
+            val (handicap, allowance, adjusted, sep1, sep2) = createRefs()
+            val separatorMargin = 10.dp
+
+            Text(
+                    text = "Archer\nhandicap",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.constrainAs(handicapLabel) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(handicap.top)
+                        start.linkTo(handicap.start)
+                        end.linkTo(handicap.end)
+                    }
+            )
+            Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.constrainAs(handicap) {
+                        top.linkTo(handicapLabel.bottom)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                    }
             ) {
                 Text(
-                        text = stringResource(R.string.archer_round_stats__archer_handicap),
+                        text = state.archerHandicap.toString(),
+                        style = CodexTypography.LARGE,
+                        color = CodexTheme.colors.onAppBackground,
                 )
-                Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                            text = state.archerHandicap.toString(),
-                            style = CodexTypography.LARGE,
-                            color = CodexTheme.colors.onAppBackground,
-                    )
-                    CodexIconButton(
-                            icon = CodexIconInfo.VectorIcon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                            ),
-                            onClick = { },
-                    )
-                }
+                CodexIconButton(
+                        icon = CodexIconInfo.VectorIcon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                        ),
+                        onClick = { listener(EditHandicapInfoClicked) },
+                )
             }
+
             Text(
                     text = ":",
                     style = CodexTypography.NORMAL,
                     color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.constrainAs(sep1) {
+                        top.linkTo(handicap.top)
+                        bottom.linkTo(handicap.bottom)
+                        start.linkTo(handicap.end, margin = separatorMargin)
+                    }
             )
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                        text = stringResource(R.string.archer_round_stats__allowance),
-                )
-                Text(
-                        text = state.allowance.toString(),
-                        style = CodexTypography.NORMAL,
-                        color = CodexTheme.colors.onAppBackground,
-                )
-            }
+
+            Text(
+                    text = "Round\nallowance",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.constrainAs(allowanceLabel) {
+                        top.linkTo(handicapLabel.top)
+                        bottom.linkTo(handicapLabel.bottom)
+                        start.linkTo(sep1.end, margin = separatorMargin)
+                    }
+            )
+            Text(
+                    text = state.allowance.toString(),
+                    style = CodexTypography.NORMAL,
+                    color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.constrainAs(allowance) {
+                        top.linkTo(handicap.top)
+                        bottom.linkTo(handicap.bottom)
+                        start.linkTo(allowanceLabel.start)
+                        end.linkTo(allowanceLabel.end)
+                    }
+            )
+
             if ((state.adjustedFinalScore ?: state.predictedAdjustedScore) != null) {
                 Text(
                         text = ":",
                         style = CodexTypography.NORMAL,
                         color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.constrainAs(sep2) {
+                            top.linkTo(handicap.top)
+                            bottom.linkTo(handicap.bottom)
+                            start.linkTo(allowanceLabel.end, margin = separatorMargin)
+                        }
                 )
-                Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+                if (state.adjustedFinalScore != null) {
                     Text(
-                            text = "Adjusted score",
+                            text = "Adjusted\nfinal score",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.constrainAs(adjustedLabel) {
+                                top.linkTo(handicapLabel.top)
+                                bottom.linkTo(handicapLabel.bottom)
+                                start.linkTo(sep2.end, margin = separatorMargin)
+                            }
                     )
-                    Text(
-                            text = (state.adjustedFinalScore ?: state.predictedAdjustedScore).toString(),
-                            style = CodexTypography.NORMAL,
-                            color = CodexTheme.colors.onAppBackground,
-                    )
-                    if (state.adjustedFinalScore == null) {
-                        Text(
-                                text = "predicted",
-                        )
-                    }
                 }
+                else {
+                    Text(
+                            text = "Adjusted score\n(predicted)",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.constrainAs(adjustedLabel) {
+                                top.linkTo(handicapLabel.top)
+                                bottom.linkTo(handicapLabel.bottom)
+                                start.linkTo(sep2.end, margin = separatorMargin)
+                            }
+                    )
+                }
+                Text(
+                        text = (state.adjustedFinalScore ?: state.predictedAdjustedScore).toString(),
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.constrainAs(adjusted) {
+                            top.linkTo(handicap.top)
+                            bottom.linkTo(handicap.bottom)
+                            start.linkTo(adjustedLabel.start)
+                            end.linkTo(adjustedLabel.end)
+                        }
+                )
             }
-        }
-    }
-}
-
-@Composable
-private fun ClassificationSection(
-        state: StatsState,
-        listener: (StatsIntent) -> Unit,
-) {
-    if (
-        state.fullShootInfo.round == null
-        || state.fullShootInfo.arrowsShot == 0
-        || state.archerInfo == null
-        || state.bow == null
-    ) return
-    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
-
-    val unofficialSuffix =
-            if (state.classification?.second == true) ""
-            else stringResource(R.string.archer_round_stats__archer_info_classification_unofficial).let { " $it" }
-
-    Section {
-        EditBox(
-                testTag = CLASSIFICATION_SECTION,
-                editContentDescription = stringResource(R.string.archer_round_stats__archer_info_edit),
-                editListener = { listener(EditArcherInfoClicked) },
-                editHelpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_archer_round_stats__edit_archer_info_handicaps_title),
-                        helpBody = stringResource(R.string.help_archer_round_stats__edit_archer_info_handicaps_body),
-                ).asHelpState(helpListener),
-                expandContentDescription = stringResource(R.string.archer_round_stats__archer_info_expand),
-                expandListener = { listener(ExpandClassificationsClicked) },
-                expandHelpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_handicaps_title),
-                        helpBody = stringResource(R.string.help_archer_round_stats__expand_handicaps_body),
-                ).asHelpState(helpListener),
-        ) {
-            DataRow(
-                    title = stringResource(R.string.archer_round_stats__archer_info_category),
-                    text = listOf(
-                            state.archerInfo.age.rawName,
-                            state.archerInfo.genderString.get(),
-                            state.bow.type.rawName,
-                    ).joinToString(" "),
-                    helpState = HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_archer_round_stats__archer_info_title),
-                            helpBody = stringResource(R.string.help_archer_round_stats__archer_info_body),
-                    ).asHelpState(helpListener),
-                    textModifier = Modifier.testTag(CLASSIFICATION_CATEGORY.getTestTag()),
-            )
-            DataRow(
-                    title = stringResource(
-                            if (state.fullShootInfo.isRoundComplete) {
-                                R.string.archer_round_stats__archer_info_classification
-                            }
-                            else {
-                                R.string.archer_round_stats__archer_info_classification_predicted
-                            }
-                    ),
-                    text = state.classification?.first?.fullStringId?.get()
-                            ?.plus(unofficialSuffix)
-                            ?: stringResource(R.string.archer_round_stats__archer_info_classification_none),
-                    helpState = HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_archer_round_stats__archer_info_classification_title),
-                            helpBody = stringResource(R.string.help_archer_round_stats__archer_info_classification_body),
-                    ).asHelpState(helpListener),
-                    textModifier = Modifier.testTag(CLASSIFICATION.getTestTag()),
-            )
         }
     }
 }
@@ -622,19 +648,35 @@ private fun PastRecordsSection(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Section {
-        Text(
-                text = stringResource(R.string.archer_round_stats__past_records),
-                style = style().asClickableStyle(),
-                modifier = Modifier
-                        .clickable { listener(PastRoundRecordsClicked) }
-                        .testTag(PAST_RECORDS_LINK_TEXT.getTestTag())
-                        .updateHelpDialogPosition(
-                                helpState = HelpShowcaseItem(
-                                        helpTitle = stringResource(R.string.help_archer_round_stats__past_records_title),
-                                        helpBody = stringResource(R.string.help_archer_round_stats__past_records_body),
-                                ).asHelpState(helpListener),
-                        )
-        )
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(bottom = 15.dp)
+        ) {
+            Divider(
+                    thickness = 1.dp,
+                    color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.weight(1f),
+            )
+            Text(
+                    text = stringResource(R.string.archer_round_stats__past_records),
+                    style = style().asClickableStyle(),
+                    modifier = Modifier
+                            .clickable { listener(PastRoundRecordsClicked) }
+                            .testTag(PAST_RECORDS_LINK_TEXT.getTestTag())
+                            .updateHelpDialogPosition(
+                                    helpState = HelpShowcaseItem(
+                                            helpTitle = stringResource(R.string.help_archer_round_stats__past_records_title),
+                                            helpBody = stringResource(R.string.help_archer_round_stats__past_records_body),
+                                    ).asHelpState(helpListener),
+                            )
+            )
+            Divider(
+                    thickness = 1.dp,
+                    color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.weight(1f),
+            )
+        }
     }
 
     SimpleDialog(
@@ -833,7 +875,10 @@ private fun Section(
 private fun NewRoundStatsSection(
         state: StatsState,
         helpListener: (HelpShowcaseIntent) -> Unit,
+        listener: (StatsIntent) -> Unit,
 ) {
+    if (state.fullShootInfo.round == null) return
+
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -844,9 +889,10 @@ private fun NewRoundStatsSection(
                     horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                        text = "Round Handicap",
+                        text = "Round\nHandicap",
                         style = CodexTypography.SMALL,
                         color = CodexTheme.colors.onAppBackground,
+                        textAlign = TextAlign.Center,
                 )
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -861,7 +907,7 @@ private fun NewRoundStatsSection(
                                     imageVector = Icons.Default.OpenInFull,
                                     contentDescription = null,
                             ),
-                            onClick = { },
+                            onClick = { listener(ExpandHandicapsClicked) },
                     )
                 }
             }
@@ -877,6 +923,7 @@ private fun NewRoundStatsSection(
                         textAlign = TextAlign.Center,
                         style = CodexTypography.SMALL,
                         color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.clickable { listener(EditArcherInfoClicked) }
                 )
                 Text(
                         text = listOf(
@@ -886,7 +933,6 @@ private fun NewRoundStatsSection(
                         ).joinToString(" "),
                         textAlign = TextAlign.Center,
                         style = CodexTypography.SMALL.asClickableStyle(),
-//                        color = CodexTheme.colors.onAppBackground,
                 )
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -902,7 +948,7 @@ private fun NewRoundStatsSection(
                                     imageVector = Icons.Default.OpenInFull,
                                     contentDescription = null,
                             ),
-                            onClick = { },
+                            onClick = { listener(ExpandClassificationsClicked) },
                     )
                 }
             }
