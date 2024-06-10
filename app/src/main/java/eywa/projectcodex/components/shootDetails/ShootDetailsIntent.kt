@@ -7,6 +7,7 @@ import eywa.projectcodex.model.Arrow
 sealed class ShootDetailsIntent {
     object ReturnToMenuClicked : ShootDetailsIntent()
     object ReturnToMenuHandled : ShootDetailsIntent()
+    object ToggleSimpleView : ShootDetailsIntent()
     data class NavBarClicked(val screen: CodexNavRoute) : ShootDetailsIntent()
     data class NavBarClickHandled(val screen: CodexNavRoute) : ShootDetailsIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : ShootDetailsIntent()

@@ -44,9 +44,22 @@ class ShootPreviewHelperDsl {
         arrows = a.mapIndexed { i, arrow -> arrow.asArrowScore(shoot.shootId, i + 1) }
     }
 
-    fun appendArrows(a: List<DatabaseArrowScore>) {
+    fun appendDbArrows(a: List<DatabaseArrowScore>) {
         val first = (arrows?.maxOf { it.arrowNumber } ?: 0) + 1
         arrows = arrows.orEmpty().plus(a.mapIndexed { index, arrow -> arrow.copy(arrowNumber = first + index) })
+    }
+
+    fun appendArrows(a: List<Arrow>) {
+        val first = arrows?.maxByOrNull { it.arrowNumber }
+        val firstArrowNumber = first?.arrowNumber ?: 1
+        val newArrows = a.mapIndexed { index, arrow ->
+            arrow.asArrowScore(shootId = first?.shootId ?: shoot.shootId, arrowNumber = firstArrowNumber + index)
+        }
+        arrows = arrows.orEmpty().plus(newArrows)
+    }
+
+    fun deleteLastArrow() {
+        arrows = arrows?.dropLast(1)
     }
 
     fun addArrowCounter(count: Int) {

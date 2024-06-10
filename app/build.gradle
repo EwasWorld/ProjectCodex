@@ -62,6 +62,9 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
+        debug {
+            signingConfig signingConfigs.debug
+        }
         create("minified") {
             initWith(getByName("release"))
             applicationIdSuffix = ".minified"

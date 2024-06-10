@@ -20,10 +20,16 @@ open class ExtraStats(
         val scores = arrows.map { it.score }
         val completedEnds = scores.windowed(endSize, endSize)
 
-        averageEnd = completedEnds.flatten().sum().toFloat() / completedEnds.size.toFloat()
-        endStDev = completedEnds
-                .map { end -> end.sumOf { it }.toFloat() }
-                .standardDeviation()
+        if (completedEnds.isEmpty()) {
+            averageEnd = scores.sum().toFloat()
+            endStDev = 0f
+        }
+        else {
+            averageEnd = completedEnds.flatten().sum().toFloat() / completedEnds.size.toFloat()
+            endStDev = completedEnds
+                    .map { end -> end.sumOf { it }.toFloat() }
+                    .standardDeviation()
+        }
         averageArrow = scores.sum().toFloat() / arrows.count().toFloat()
         arrowStdDev = scores.standardDeviation()
     }

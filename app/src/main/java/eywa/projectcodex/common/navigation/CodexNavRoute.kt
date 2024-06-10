@@ -29,7 +29,7 @@ import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
 import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsScreen
 import eywa.projectcodex.components.shootDetails.stats.StatsScreen
-import eywa.projectcodex.components.shootDetails.stats.StatsScreenV2
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenV2
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresBottomSheetFilters

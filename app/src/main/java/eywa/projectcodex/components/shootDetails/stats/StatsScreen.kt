@@ -137,7 +137,7 @@ fun HandleEffects(
         }
         if (loadedState.openEditHandicapInfoScreen) {
             CodexNavRoute.ARCHER_HANDICAPS.navigate(navController)
-            listener(EditArcherInfoHandled)
+            listener(EditHandicapInfoHandled)
         }
         if (loadedState.openEditArcherInfoScreen) {
             CodexNavRoute.ARCHER_INFO.navigate(navController)
@@ -446,8 +446,8 @@ private fun AllowanceSection(
                 expandContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_expand),
                 expandListener = { listener(ExpandHandicapsClicked) },
                 expandHelpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_classification_title),
-                        helpBody = stringResource(R.string.help_archer_round_stats__expand_classification_body),
+                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_handicaps_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__expand_handicaps_body),
                 ).asHelpState(helpListener),
         ) {
             DataRow(
@@ -523,8 +523,8 @@ private fun ClassificationSection(
                 expandContentDescription = stringResource(R.string.archer_round_stats__archer_info_expand),
                 expandListener = { listener(ExpandClassificationsClicked) },
                 expandHelpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_handicaps_title),
-                        helpBody = stringResource(R.string.help_archer_round_stats__expand_handicaps_body),
+                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_classification_title),
+                        helpBody = stringResource(R.string.help_archer_round_stats__expand_classification_body),
                 ).asHelpState(helpListener),
         ) {
             DataRow(
@@ -791,6 +791,7 @@ enum class StatsTestTag : CodexTestTag {
     SCORE_TEXT,
     GOLDS_TEXT,
     REMAINING_ARROWS_TEXT,
+    SURPLUS_ARROWS_TEXT,
     PAST_RECORDS_LINK_TEXT,
     PAST_RECORDS_DIALOG_TAB,
     PAST_RECORDS_DIALOG_ITEM,

@@ -50,6 +50,11 @@ data class ShootDetailsState(
          */
         val addEndArrows: List<Arrow> = emptyList(),
         val addEndSize: Int = DEFAULT_END_SIZE,
+
+        /*
+         * Stats state
+         */
+        val useSimpleView: Boolean = true,
 ) {
     val scorePadData = fullShootInfo?.let {
         ScorePadData(

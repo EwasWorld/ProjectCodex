@@ -25,6 +25,7 @@ class StatsState(
     val archerInfo = main.archerInfo
     val bow = main.bow
     val archerHandicaps = main.archerHandicaps?.sortedByDescending { it.dateSet }
+    val useSimpleView = main.useSimpleView
 
     val archerHandicap
         get() = when {
@@ -145,7 +146,9 @@ class StatsState(
                 arrows = arrows.drop(arrowCount.arrowCount)
                 extrasList.add(DistanceExtra(distances[index], arrowCount, distArrows, endSize, calculateHandicapFn))
             }
-            extrasList.add(GrandTotalExtra(fullShootInfo.arrows, endSize, fullShootInfo.handicapFloat))
+            if (extrasList.size > 1) {
+                extrasList.add(GrandTotalExtra(fullShootInfo.arrows, endSize, fullShootInfo.handicapFloat))
+            }
 
             return extrasList
         }

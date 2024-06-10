@@ -14,15 +14,27 @@
     <string name="archer_round_stats__remaining_arrows">Remaining arrows:</string>
     <string name="archer_round_stats__surplus_arrows">Surplus arrows:</string>
     <string name="archer_round_stats__handicap">Round handicap:</string>
+    <string name="archer_round_stats__round_handicap">Round\nhandicap</string>
     <string name="archer_round_stats__predicted_score">Predicted score:</string>
     <string name="archer_round_stats__archer_handicap">Archer handicap:</string>
+    <string name="archer_round_stats__archer_handicap_v2">Archer\nhandicap</string>
     <string name="archer_round_stats__archer_handicap_edit">Edit archer handicap</string>
     <string name="archer_round_stats__archer_handicap_expand">Open full handicap tables</string>
     <string name="archer_round_stats__allowance">Allowance:</string>
+    <string name="archer_round_stats__round_allowance_two_lines">Round\nallowance</string>
+    <string name="archer_round_stats__round_allowance">Round allowance</string>
+    <string name="archer_round_stats__round_allowance_no_handicap">Add a handicap to see round allowance</string>
     <string name="archer_round_stats__predicted_adjusted_score">Predicted adjusted score:</string>
     <string name="archer_round_stats__adjusted_score">Adjusted score:</string>
+    <string name="archer_round_stats__predicted_adjusted_score_v2">Adjusted score\n(predicted)</string>
+    <string name="archer_round_stats__adjusted_score_v2">Adjusted\nscore</string>
     <string name="archer_round_stats__archer_info_category">Category:</string>
     <string name="archer_round_stats__archer_info_classification">Classification:</string>
+    <string name="archer_round_stats__archer_info_classification_v2">Classification</string>
+    <string name="archer_round_stats__archer_info_classification_v2_unofficial">Classification (unofficial)</string>
+    <string name="archer_round_stats__archer_info_classification_v2_predicted">Classification (predicted)</string>
+    <string name="archer_round_stats__archer_info_classification_v2_predicted_unofficial">Classification (predicted, unofficial)</string>
+    <string name="archer_round_stats__archer_info_classification_v2_none">No classification</string>
     <string name="archer_round_stats__archer_info_classification_predicted">Predicted classification:</string>
     <string name="archer_round_stats__archer_info_classification_none">None</string>
     <string name="archer_round_stats__archer_info_classification_unofficial">(unofficial)</string>
@@ -40,6 +52,8 @@
     <string name="archer_round_stats__no_arrows_dialog_button">Go to input end</string>
     <string name="archer_round_stats__no_round">N/A</string>
     <string name="archer_round_stats__edit_shoot_content_description">Edit round information</string>
+    <string name="archer_round_stats__show_simple_view">Show simple stats</string>
+    <string name="archer_round_stats__show_advanced_view">Show advanced stats</string>
 
     <string name="help_archer_round_stats__hits_title">Hits</string>
     <string name="help_archer_round_stats__hits_body">The number of arrows that have scored at least one point. If there are any misses, it will be in the form 71 (of 72), showing 72 arrows shot: 71 scoring and 1 miss</string>
@@ -58,7 +72,9 @@
     <string name="help_archer_round_stats__allowance_title">Allowance</string>
     <string name="help_archer_round_stats__allowance_body">An allowance based on the archer handicap that is added to the score to compare it with archers of a different skill level. This is often used in ladder or league competitions so that archers of different skill levels can compete more fairly</string>
     <string name="help_archer_round_stats__adjusted_score_title">Adjusted score</string>
-    <string name="help_archer_round_stats__adjusted_score_body">The score plus the allowance (uses predicted score if the round isn\'t finished)</string>
+    <string name="help_archer_round_stats__adjusted_score_body">The final score plus the allowance</string>
+    <string name="help_archer_round_stats__predicted_adjusted_score_title">Predicted adjusted score</string>
+    <string name="help_archer_round_stats__predicted_adjusted_score_body">The predicted score plus the allowance</string>
     <string name="help_archer_round_stats__date_title">Date</string>
     <string name="help_archer_round_stats__date_body">The date the round was shot</string>
     <string name="help_archer_round_stats__round_title">Round</string>
@@ -67,6 +83,8 @@
     <string name="help_archer_round_stats__score_body">The total of all arrows entered</string>
     <string name="help_archer_round_stats__remaining_arrows_title">Remaining arrows</string>
     <string name="help_archer_round_stats__remaining_arrows_body">The number of arrows that still need to be shot to complete the round</string>
+    <string name="help_archer_round_stats__surplus_arrows_title">Surplus arrows</string>
+    <string name="help_archer_round_stats__surplus_arrows_body">The number of extra arrows entered after the round was completed</string>
     <string name="help_archer_round_stats__predicted_score_title">Predicted score</string>
     <string name="help_archer_round_stats__predicted_score_body">Predicts the final score for the round based on the current round handicap</string>
     <string name="help_archer_round_stats__archer_info_title">Category</string>

@@ -12,15 +12,25 @@ import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.datastore.CodexDatastore
-import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
-import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
+import eywa.projectcodex.datastore.DatastoreKey.*
 import eywa.projectcodex.datastore.get
 import eywa.projectcodex.datastore.retrieve
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
-import java.util.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Singleton
 
 private typealias DbShortShoots = List<DatabaseShootShortRecord>
@@ -39,11 +49,16 @@ class ShootDetailsRepo(
 ) {
     private val state: MutableStateFlow<ShootDetailsState> = MutableStateFlow(ShootDetailsState())
 
-    fun handle(action: ShootDetailsIntent, screen: CodexNavRoute) {
+    fun handle(
+            action: ShootDetailsIntent,
+            screen: CodexNavRoute,
+            scope: CoroutineScope? = null,
+    ) {
         when (action) {
             is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
             ReturnToMenuClicked -> state.update { it.copy(mainMenuClicked = true) }
             ReturnToMenuHandled -> state.update { it.copy(mainMenuClicked = false) }
+            ToggleSimpleView -> scope?.launch { datastore.toggle(UseSimpleStatsView) }
             is SelectScorePadEnd -> state.update { it.copy(scorePadSelectedEnd = action.endNumber) }
             is NavBarClicked -> state.update { it.copy(navBarClickedItem = action.screen) }
             is NavBarClickHandled ->
@@ -80,11 +95,13 @@ class ShootDetailsRepo(
             datastore.get(
                     Use2023HandicapSystem,
                     UseBetaFeatures,
+                    UseSimpleStatsView,
             ).collectLatest { result ->
                 state.update {
                     it.copy(
                             useBetaFeatures = result.retrieve(UseBetaFeatures),
                             use2023System = result.retrieve(Use2023HandicapSystem),
+                            useSimpleView = result.retrieve(UseSimpleStatsView),
                     )
                 }
             }
@@ -203,6 +220,7 @@ class ShootDetailsRepo(
             copy(
                     useBetaFeatures = oldState.useBetaFeatures,
                     use2023System = oldState.use2023System,
+                    useSimpleView = oldState.useSimpleView,
                     archerInfo = oldState.archerInfo,
                     archerHandicaps = oldState.archerHandicaps,
                     bow = oldState.bow,

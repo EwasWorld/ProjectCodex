@@ -10,6 +10,7 @@ sealed class DatastoreKey<T : Any>(val key: Preferences.Key<T>, val defaultValue
     object Use2023HandicapSystem : DatastoreKey<Boolean>(booleanPreferencesKey("use_2023_handicaps"), true)
     object DisplayHandicapNotice : DatastoreKey<Boolean>(booleanPreferencesKey("display_handicap_notice"), true)
     object UseBetaFeatures : DatastoreKey<Boolean>(booleanPreferencesKey("use_beta_features"), false)
+    object UseSimpleStatsView : DatastoreKey<Boolean>(booleanPreferencesKey("use_simple_stats_view"), true)
 
     /**
      * The app version of the last time [UpdateDefaultRoundsTask] was successfully run

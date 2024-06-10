@@ -41,7 +41,7 @@ class StatsViewModel @Inject constructor(
     fun handle(action: StatsIntent) {
         when (action) {
             is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
-            is ShootDetailsAction -> repo.handle(action.action, screen)
+            is ShootDetailsAction -> repo.handle(action.action, screen, viewModelScope)
             EditShootClicked -> extraState.update { it.copy(openEditShootScreen = true) }
             EditShootHandled -> extraState.update { it.copy(openEditShootScreen = false) }
             EditArcherInfoClicked -> extraState.update { it.copy(openEditArcherInfoScreen = true) }
