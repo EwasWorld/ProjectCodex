@@ -15,7 +15,8 @@ import kotlin.math.roundToInt
 
 data class CodexGridItem(
         val fillBox: Boolean = false,
-        @IntRange(from = 1) val columnSpan: Int = 1,
+        @IntRange(from = 1) val horizontalSpan: Int = 1,
+        @IntRange(from = 1) val verticalSpan: Int = 1,
         val content: @Composable () -> Unit,
 )
 
@@ -24,10 +25,11 @@ class CodexGridConfig {
 
     fun item(
             fillBox: Boolean = false,
-            columnSpan: Int = 1,
+            horizontalSpan: Int = 1,
+            verticalSpan: Int = 1,
             content: @Composable () -> Unit,
     ) {
-        items.add(CodexGridItem(fillBox, columnSpan, content))
+        items.add(CodexGridItem(fillBox, horizontalSpan, verticalSpan, content))
     }
 }
 
@@ -84,28 +86,46 @@ fun CodexGrid(
     ) { constraints ->
         val columnWidths = MutableList(columns.size) { 0 }
         val rowHeights = mutableListOf<Int>()
-        val columnSpanners = mutableListOf<ColumnSpanner>()
+        val horizontalSpanners = mutableListOf<ColumnSpanner>()
 
         var columnIndex = 0
         var rowIndex = 0
+        val originalDummies = mutableListOf<Pair<Int, Int>>()
 
         val originalPlaceables = subcompose(SlotsEnum.MAIN, content).mapIndexed { index, measurable ->
-            val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
-            val span = items[index].columnSpan
+            while (originalDummies.contains(columnIndex to rowIndex)) {
+                columnIndex++
+                if (columnIndex == columns.size) {
+                    columnIndex = 0
+                    rowIndex++
+                }
+            }
 
-            if (columnIndex == 0) {
+            val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            val horizontalSpan = items[index].horizontalSpan
+            val verticalSpan = items[index].verticalSpan
+
+            if (verticalSpan > 1) {
+                for (j in rowIndex until (rowIndex + verticalSpan - 1)) {
+                    for (i in columnIndex until (columnIndex + horizontalSpan)) {
+                        originalDummies.add(i to j + 1)
+                    }
+                }
+            }
+
+            while (rowHeights.size <= rowIndex) {
                 rowHeights.add(0)
             }
             rowHeights[rowIndex] = maxOf(placeable.height, rowHeights[rowIndex])
 
-            if (span == 1) {
+            if (horizontalSpan == 1) {
                 columnWidths[columnIndex] = maxOf(placeable.width, columnWidths[columnIndex])
             }
             else {
-                columnSpanners.add(ColumnSpanner(columnIndex, rowIndex, span, placeable))
+                horizontalSpanners.add(ColumnSpanner(columnIndex, rowIndex, horizontalSpan, placeable))
             }
 
-            columnIndex += span
+            columnIndex += horizontalSpan
             if (columnIndex > columns.size) throw IllegalStateException("Too many columns")
             else if (columnIndex == columns.size) {
                 columnIndex = 0
@@ -115,13 +135,14 @@ fun CodexGrid(
             placeable
         }
 
-        columnSpanners.forEach { spanner ->
-            val span = spanner.span
-            val columnWidth = columnWidths.drop(spanner.x).take(span).sum() + horizontalSpace * (span - 1)
+        horizontalSpanners.forEach { spanner ->
+            val horizontalSpan = spanner.span
+            val columnWidth =
+                    columnWidths.drop(spanner.x).take(horizontalSpan).sum() + horizontalSpace * (horizontalSpan - 1)
 
-            val excess = (spanner.placeable.width - columnWidth) / span
+            val excess = (spanner.placeable.width - columnWidth) / horizontalSpan
             if (excess > 0) {
-                for (i in spanner.x until (spanner.x + span)) {
+                for (i in spanner.x until (spanner.x + horizontalSpan)) {
                     columnWidths[i] += excess
                 }
             }
@@ -134,25 +155,50 @@ fun CodexGrid(
 
         columnIndex = 0
         rowIndex = 0
+        var dummies = originalDummies.toMutableSet()
         val placeables = subcompose(SlotsEnum.DEPENDANT, content).mapIndexed { index, measurable ->
-            val span = items[index].columnSpan
+            while (dummies.remove(columnIndex to rowIndex)) {
+                columnIndex++
+                if (columnIndex == columns.size) {
+                    columnIndex = 0
+                    rowIndex++
+                }
+            }
+
+            val horizontalSpan = items[index].horizontalSpan
+            val verticalSpan = items[index].verticalSpan
 
             val placeable = if (items[index].fillBox) {
                 val columnWidth =
-                        if (span == 1) {
+                        if (horizontalSpan == 1) {
                             columnWidths[columnIndex]
                         }
                         else {
-                            columnWidths.drop(columnIndex).take(span).sum() + horizontalSpace * (span - 1)
+                            columnWidths.drop(columnIndex).take(horizontalSpan).sum() +
+                                    horizontalSpace * (horizontalSpan - 1)
                         }
-                val rowHeight = rowHeights[rowIndex]
-                measurable.measure(constraints.copy(minWidth = columnWidth, minHeight = rowHeight))
+                val rowHeight =
+                        if (verticalSpan == 1) {
+                            rowHeights[rowIndex]
+                        }
+                        else {
+                            rowHeights.drop(rowIndex).take(verticalSpan).sum() +
+                                    verticalSpace * (verticalSpan - 1)
+                        }
+                measurable.measure(
+                        constraints.copy(
+                                minWidth = columnWidth,
+                                maxWidth = columnWidth,
+                                minHeight = rowHeight,
+                                maxHeight = rowHeight,
+                        )
+                )
             }
             else {
                 originalPlaceables[index]
             }
 
-            columnIndex += span
+            columnIndex += horizontalSpan
             if (columnIndex == columns.size) {
                 columnIndex = 0
                 rowIndex++
@@ -163,6 +209,7 @@ fun CodexGrid(
 
         columnIndex = 0
         rowIndex = 0
+        dummies = originalDummies.toMutableSet()
         layout(
                 columnWidths.sum() + horizontalSpace * (columnWidths.size - 1),
                 rowHeights.sum() + verticalSpace * (rowHeights.size - 1),
@@ -171,9 +218,23 @@ fun CodexGrid(
             var y = 0
 
             placeables.forEachIndexed { index, placeable ->
-                val span = items[index].columnSpan
-                val columnWidth = columnWidths.drop(columnIndex).take(span).sum() + horizontalSpace * (span - 1)
-                val rowHeight = rowHeights[rowIndex]
+                while (dummies.remove(columnIndex to rowIndex)) {
+                    x += columnWidths[columnIndex] + horizontalSpace
+                    columnIndex++
+                    if (columnIndex == columns.size) {
+                        columnIndex = 0
+                        rowIndex++
+                        x = 0
+                        y += rowHeights[rowIndex] + verticalSpace
+                    }
+                }
+
+                val horizontalSpan = items[index].horizontalSpan
+                val verticalSpan = items[index].verticalSpan
+                val columnWidth = columnWidths.drop(columnIndex).take(horizontalSpan)
+                        .sum() + horizontalSpace * (horizontalSpan - 1)
+                val rowHeight =
+                        rowHeights.drop(rowIndex).take(verticalSpan).sum() + verticalSpace * (verticalSpan - 1)
 
                 val offset = alignment.align(
                         IntSize(placeable.width, placeable.height),
@@ -185,15 +246,15 @@ fun CodexGrid(
                         x = x + offset.x,
                         y = y + offset.y,
                 )
-                if (columnIndex < columns.size - span) {
+                if (columnIndex < columns.size - horizontalSpan) {
                     x += columnWidth + horizontalSpace
                 }
                 else {
                     x = 0
-                    y += rowHeight + verticalSpace
+                    y += rowHeights[rowIndex] + verticalSpace
                 }
 
-                columnIndex += items[index].columnSpan
+                columnIndex += items[index].horizontalSpan
                 if (columnIndex == columns.size) {
                     columnIndex = 0
                     rowIndex++
