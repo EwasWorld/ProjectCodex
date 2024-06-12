@@ -1,19 +1,21 @@
 package eywa.projectcodex.common.navigation
 
+import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 
 const val DEFAULT_INT_NAV_ARG = -1
 
-fun String.toNavArgument() =
-        try {
-            NavArgument.valueOf(
-                    Regex("[A-Z]").replace(this) { "_" + it.value }.uppercase()
-            )
-        }
-        catch (e: IllegalArgumentException) {
-            null
-        }
+fun Bundle.toNavArgMap() =
+        keySet()
+                .mapNotNull { NavArgument.fromArgName(it)?.to(it) }
+                .toMap()
+                .mapValues { (arg, keyString) ->
+                    when (arg.type) {
+                        NavType.IntType -> getInt(keyString).toString()
+                        else -> throw IllegalStateException("Unsupported type")
+                    }
+                }
 
 fun <T> SavedStateHandle.get(argument: NavArgument): T? {
     var value = get<T>(argument.toArgName())
@@ -35,4 +37,16 @@ enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     ;
 
     fun toArgName() = Regex("_[a-z]").replace(name.lowercase()) { it.value.drop(1).uppercase() }
+
+    companion object {
+        fun fromArgName(name: String) =
+                try {
+                    NavArgument.valueOf(
+                            Regex("[A-Z]").replace(name) { "_" + it.value }.uppercase()
+                    )
+                }
+                catch (e: IllegalArgumentException) {
+                    null
+                }
+    }
 }

@@ -25,12 +25,18 @@ interface ScreenNavRoute : NavRoute {
         ) {
             Column {
                 if (!tabSwitcherItems.isNullOrEmpty()) {
-                    val shouldSaveState = tabSwitcherItems.first().group.saveState
                     CodexTabSwitcher(
                             items = tabSwitcherItems,
                             selectedItem = tabSwitcherItem!!,
                             itemClickedListener = { item ->
-                                item.navRoute.navigate(navController) {
+                                val args =
+                                        if (!tabSwitcherItems.first().group.passArgs) emptyMap()
+                                        else navController.currentBackStackEntry?.arguments?.toNavArgMap().orEmpty()
+
+                                val shouldSaveState = tabSwitcherItems.first().group.saveState
+                                val shouldRestoreState = shouldSaveState && args.isEmpty()
+
+                                item.navRoute.navigate(navController, args) {
                                     val currentRoute = navController.currentDestination?.route
                                     if (currentRoute != null) {
                                         popUpTo(currentRoute) {
@@ -38,7 +44,7 @@ interface ScreenNavRoute : NavRoute {
                                             if (shouldSaveState) saveState = true
                                         }
                                     }
-                                    if (shouldSaveState) {
+                                    if (shouldRestoreState) {
                                         launchSingleTop = true
                                         restoreState = true
                                     }

@@ -97,6 +97,8 @@ enum class CodexNavRoute : ScreenNavRoute {
             get() = mapOf(
                     NavArgument.ROUND_ID to false,
                     NavArgument.ROUND_SUB_TYPE_ID to false,
+                    // Passing handicap so that it's available when tab switching between reference tables
+                    NavArgument.HANDICAP to false,
             )
 
         override val tabSwitcherItem = TabSwitcherItem(

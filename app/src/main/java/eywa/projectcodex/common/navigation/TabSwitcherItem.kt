@@ -11,10 +11,17 @@ class TabSwitcherItem(
 ) : NamedItem
 
 enum class TabSwitcherGroup(
+        /**
+         * If true, screen state will be saved and restored between navigations
+         */
         val saveState: Boolean = false,
-) {
-    REFERENCES(saveState = true),
-    ARCHER_INFO,
 
-    DEBUG_COACHING,
+        /**
+         * If true, when the tab switcher is clicked, all arguments from the current screen will be passed to the new
+         * screen
+         */
+        val passArgs: Boolean = false,
+) {
+    REFERENCES(saveState = true, passArgs = true),
+    ARCHER_INFO,
 }

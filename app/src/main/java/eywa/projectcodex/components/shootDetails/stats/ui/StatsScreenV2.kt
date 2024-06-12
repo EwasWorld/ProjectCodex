@@ -128,6 +128,8 @@ fun HandleEffectsV2(
                     mapOf(
                             NavArgument.ROUND_ID to loadedState.fullShootInfo.round?.roundId,
                             NavArgument.ROUND_SUB_TYPE_ID to loadedState.fullShootInfo.roundSubType?.subTypeId,
+                            // Passing handicap so that it's available when tab switching between reference tables
+                            NavArgument.HANDICAP to loadedState.fullShootInfo.handicap,
                     ).filter { it.value != null }.mapValues { (_, value) -> value.toString() },
             )
             listener(ExpandClassificationsHandled)
