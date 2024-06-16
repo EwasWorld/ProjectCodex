@@ -55,7 +55,7 @@ import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import java.util.Calendar
 
 @Composable
-fun StatsScreenV2(
+fun StatsScreen(
         navController: NavController,
         viewModel: StatsViewModel = hiltViewModel(),
 ) {
@@ -63,7 +63,7 @@ fun StatsScreenV2(
     val listener = { it: StatsIntent -> viewModel.handle(it) }
 
     ShootDetailsMainScreen(
-            currentScreen = CodexNavRoute.SHOOT_DETAILS_STATS_V2,
+            currentScreen = CodexNavRoute.SHOOT_DETAILS_STATS,
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
     ) { it, modifier ->
@@ -80,11 +80,11 @@ fun StatsScreenV2(
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
     )
-    HandleEffectsV2(navController, state, listener)
+    HandleEffects(navController, state, listener)
 }
 
 @Composable
-fun HandleEffectsV2(
+fun HandleEffects(
         navController: NavController,
         state: ShootDetailsResponse<StatsState>,
         listener: (StatsIntent) -> Unit,
@@ -310,7 +310,7 @@ enum class StatsTestTag : CodexTestTag {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun NoRound_StatsScreenV2_Preview() {
+fun NoRound_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenFull(
                 StatsState(
@@ -332,7 +332,7 @@ fun NoRound_StatsScreenV2_Preview() {
         heightDp = 1000,
 )
 @Composable
-fun RoundIncomplete_StatsScreenV2_Preview() {
+fun RoundIncomplete_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenFull(
                 StatsState(
@@ -368,7 +368,7 @@ fun RoundIncomplete_StatsScreenV2_Preview() {
         heightDp = 1100,
 )
 @Composable
-fun RoundComplete_StatsScreenV2_Preview() {
+fun RoundComplete_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenFull(
                 StatsState(
@@ -403,7 +403,7 @@ fun RoundComplete_StatsScreenV2_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun NoArrows_StatsScreenV2_Preview() {
+fun NoArrows_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenFull(
                 StatsState(
@@ -436,7 +436,7 @@ fun NoArrows_StatsScreenV2_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun SimpleRoundIncomplete_StatsScreenV2_Preview() {
+fun SimpleRoundIncomplete_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenSimple(
                 StatsState(
@@ -471,7 +471,7 @@ fun SimpleRoundIncomplete_StatsScreenV2_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun SimpleRoundComplete_StatsScreenV2_Preview() {
+fun SimpleRoundComplete_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenSimple(
                 StatsState(
@@ -506,7 +506,7 @@ fun SimpleRoundComplete_StatsScreenV2_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun SimpleNoArrows_StatsScreenV2_Preview() {
+fun SimpleNoArrows_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenSimple(
                 StatsState(
@@ -539,7 +539,7 @@ fun SimpleNoArrows_StatsScreenV2_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun PastRecords_StatsScreenV2_Preview() {
+fun PastRecords_StatsScreen_Preview() {
     CodexTheme {
         StatsScreenFull(
                 StatsState(

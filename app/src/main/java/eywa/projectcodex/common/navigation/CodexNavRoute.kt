@@ -28,8 +28,7 @@ import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
 import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsScreen
-import eywa.projectcodex.components.shootDetails.stats.StatsScreen
-import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenV2
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreen
 import eywa.projectcodex.components.sightMarks.SightMarksScreen
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailScreen
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresBottomSheetFilters
@@ -272,21 +271,6 @@ enum class CodexNavRoute : ScreenNavRoute {
         @Composable
         override fun Screen(navController: NavController) {
             StatsScreen(navController)
-        }
-    },
-
-    // TODO_CURRENT Remove
-    SHOOT_DETAILS_STATS_V2 {
-        override val args: Map<NavArgument, Boolean>
-            get() = mapOf(NavArgument.SHOOT_ID to true)
-
-        @Composable
-        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-                "Test stats"
-
-        @Composable
-        override fun Screen(navController: NavController) {
-            StatsScreenV2(navController)
         }
     },
     SIGHT_MARKS {

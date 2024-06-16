@@ -65,12 +65,6 @@ enum class ShootDetailsBottomNavBarItem(
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
             label = ResOrActual.StringResource(R.string.archer_round_stats__title),
     ),
-    STATS_V2(
-            navRoute = CodexNavRoute.SHOOT_DETAILS_STATS_V2,
-            notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
-            selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
-            label = ResOrActual.Actual("Stats V2"),
-    ),
     SETTINGS(
             navRoute = CodexNavRoute.SHOOT_DETAILS_SETTINGS,
             notSelectedIcon = CodexIconInfo.VectorIcon(Icons.Outlined.Settings),

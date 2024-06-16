@@ -57,7 +57,7 @@ import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountInte
 import eywa.projectcodex.components.shootDetails.addEnd.RemainingArrowsIndicator
 import eywa.projectcodex.components.shootDetails.addEnd.SightMark
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.stats.NewScoreSection
+import eywa.projectcodex.components.shootDetails.stats.ui.DateAndRoundSection
 
 @Composable
 fun AddArrowCountScreen(
@@ -133,7 +133,7 @@ fun AddArrowCountScreen(
                     .testTag(AddArrowCountTestTag.SCREEN)
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
-            NewScoreSection(
+            DateAndRoundSection(
                     fullShootInfo = state.fullShootInfo,
                     editClickedListener = { listener(ClickEditShootInfo) },
                     helpListener = helpListener,
