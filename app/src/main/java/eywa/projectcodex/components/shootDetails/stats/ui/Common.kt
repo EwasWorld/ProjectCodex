@@ -26,7 +26,6 @@ import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 
 @Composable
 internal fun StatsDivider(

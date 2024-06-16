@@ -1,7 +1,6 @@
 package eywa.projectcodex.components.shootDetails.stats.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -11,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,7 +19,6 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -37,7 +34,6 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent
 import eywa.projectcodex.components.shootDetails.stats.StatsState
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBow
@@ -65,83 +61,12 @@ internal fun HandicapAndClassificationSection(
                 Delimiter(modifier = Modifier.padding(horizontal = 20.dp))
 
                 ClassificationSection(
-                        archerInfo = state.archerInfo,
-                        bow = state.bow,
+                        archerInfo = state.archerInfo!!,
+                        bow = state.bow!!,
                         classification = classification,
-                        isPredicted = !state.fullShootInfo.isRoundComplete,
                         isOfficial = isOfficialClassification,
                         helpListener = helpListener,
                         listener = listener,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SimpleClassificationSection(
-        state: StatsState,
-        modifier: Modifier = Modifier,
-        listener: (StatsIntent) -> Unit,
-) {
-    val handicap = state.fullShootInfo.handicap ?: return
-    val helpListener = { it: HelpShowcaseIntent -> listener(StatsIntent.HelpShowcaseAction(it)) }
-
-    Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = modifier,
-    ) {
-        DataRow(
-                title = stringResource(R.string.archer_round_stats__handicap),
-                text = handicap.toString(),
-                helpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_archer_round_stats__round_handicap_title),
-                        helpBody = stringResource(R.string.help_archer_round_stats__round_handicap_body),
-                ).asHelpState(helpListener),
-                textModifier = Modifier.testTag(StatsTestTag.HANDICAP_TEXT.getTestTag()),
-        )
-
-
-        if (
-            state.fullShootInfo.round == null
-            || state.fullShootInfo.arrowsShot == 0
-            || state.archerInfo == null
-            || state.bow == null
-        ) return
-
-        val unofficialSuffix =
-                if (state.classification?.second == true) ""
-                else stringResource(R.string.archer_round_stats__archer_info_classification_unofficial).let { " $it" }
-
-        if (state.fullShootInfo.isRoundComplete) {
-            Section(modifier = Modifier.testTag(StatsTestTag.CLASSIFICATION_SECTION)) {
-                DataRow(
-                        title = stringResource(R.string.archer_round_stats__archer_info_category),
-                        text = listOf(
-                                state.archerInfo.age.rawName,
-                                state.archerInfo.genderString.get(),
-                                state.bow.type.rawName,
-                        ).joinToString(" "),
-                        helpState = HelpShowcaseItem(
-                                helpTitle = stringResource(R.string.help_archer_round_stats__archer_info_title),
-                                helpBody = stringResource(R.string.help_archer_round_stats__archer_info_body),
-                        ).asHelpState(helpListener),
-                        textModifier = Modifier.testTag(StatsTestTag.CLASSIFICATION_CATEGORY.getTestTag()),
-                        onClick = { listener(StatsIntent.EditArcherInfoClicked) },
-                )
-                DataRow(
-                        title = stringResource(
-                                R.string.archer_round_stats__archer_info_classification
-                        ),
-                        text = state.classification?.first?.fullStringId?.get()
-                                ?.plus(unofficialSuffix)
-                                ?: stringResource(R.string.archer_round_stats__archer_info_classification_none),
-                        helpState = HelpShowcaseItem(
-                                helpTitle = stringResource(R.string.help_archer_round_stats__archer_info_classification_title),
-                                helpBody = stringResource(R.string.help_archer_round_stats__archer_info_classification_body),
-                        ).asHelpState(helpListener),
-                        textModifier = Modifier.testTag(StatsTestTag.CLASSIFICATION.getTestTag()),
                 )
             }
         }
@@ -164,7 +89,7 @@ private fun HandicapSection(
                 textAlign = TextAlign.Center,
         )
         Text(
-                text = handicap?.toString() ?: "--",
+                text = handicap?.toString() ?: stringResource(R.string.archer_round_stats__round_handicap_placeholder),
                 style = CodexTypography.LARGE,
                 color = CodexTheme.colors.onAppBackground,
                 modifier = Modifier
@@ -175,16 +100,17 @@ private fun HandicapSection(
                                 ).asHelpState(helpListener),
                         )
                         .padding(vertical = 5.dp)
+                        .testTag(StatsTestTag.HANDICAP_TEXT),
         )
         Text(
-                text = "Handicap tables",
+                text = stringResource(R.string.archer_round_stats__handicap_tables_link),
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL.asClickableStyle(),
                 modifier = Modifier
                         .updateHelpDialogPosition(
                                 helpState = HelpShowcaseItem(
-                                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_classification_title),
-                                        helpBody = stringResource(R.string.help_archer_round_stats__expand_classification_body),
+                                        helpTitle = stringResource(R.string.help_archer_round_stats__expand_handicaps_title),
+                                        helpBody = stringResource(R.string.help_archer_round_stats__expand_handicaps_body),
                                 ).asHelpState(helpListener),
                         )
                         .clickable { listener(StatsIntent.ExpandHandicapsClicked) }
@@ -194,10 +120,9 @@ private fun HandicapSection(
 
 @Composable
 private fun ClassificationSection(
-        archerInfo: DatabaseArcher?,
-        bow: DatabaseBow?,
+        archerInfo: DatabaseArcher,
+        bow: DatabaseBow,
         classification: Classification?,
-        isPredicted: Boolean,
         isOfficial: Boolean,
         helpListener: (HelpShowcaseIntent) -> Unit,
         listener: (StatsIntent) -> Unit,
@@ -217,11 +142,12 @@ private fun ClassificationSection(
                 color = CodexTheme.colors.onAppBackground,
         )
         Text(
-                text = listOf(
-                        archerInfo?.age?.rawName,
-                        archerInfo?.genderString?.get(),
-                        bow?.type?.rawName,
-                ).joinToString(" "),
+                text = stringResource(
+                        R.string.archer_round_stats__category,
+                        archerInfo.age.rawName,
+                        archerInfo.genderString.get(),
+                        bow.type.rawName,
+                ),
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL.asClickableStyle(),
                 modifier = Modifier
@@ -232,6 +158,7 @@ private fun ClassificationSection(
                                 ).asHelpState(helpListener),
                         )
                         .clickable { listener(StatsIntent.EditArcherInfoClicked) }
+                        .testTag(StatsTestTag.CLASSIFICATION_CATEGORY)
         )
         Text(
                 text = classification?.shortStringId?.get()
@@ -247,9 +174,10 @@ private fun ClassificationSection(
                                 ).asHelpState(helpListener),
                         )
                         .padding(vertical = 5.dp)
+                        .testTag(StatsTestTag.CLASSIFICATION),
         )
         Text(
-                text = "Classification tables",
+                text = stringResource(R.string.archer_round_stats__classification_tables_link),
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL.asClickableStyle(),
                 modifier = Modifier

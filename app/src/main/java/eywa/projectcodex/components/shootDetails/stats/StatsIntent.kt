@@ -2,6 +2,7 @@ package eywa.projectcodex.components.shootDetails.stats
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenPastRecordsTabs
 
 sealed class StatsIntent {
     object EditShootClicked : StatsIntent()

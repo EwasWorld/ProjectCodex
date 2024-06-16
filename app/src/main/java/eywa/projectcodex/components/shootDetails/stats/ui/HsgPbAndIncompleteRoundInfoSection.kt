@@ -11,7 +11,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +27,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.GoldsType
@@ -92,7 +91,7 @@ private fun PbRow(
                                 shape = RoundedCornerShape(100)
                         )
                         .padding(horizontal = 10.dp)
-                        .testTag(StatsTestTag.PB_TEXT.getTestTag())
+                        .testTag(StatsTestTag.PB_TEXT)
                         .updateHelpDialogPosition(
                                 helpState = HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__personal_best_title),
@@ -123,7 +122,7 @@ private fun IncompleteRoundInfoSection(
                                 helpTitle = stringResource(R.string.help_archer_round_stats__remaining_arrows_title),
                                 helpBody = stringResource(R.string.help_archer_round_stats__remaining_arrows_body),
                         ).asHelpState(helpListener),
-                        textModifier = Modifier.testTag(StatsTestTag.REMAINING_ARROWS_TEXT.getTestTag()),
+                        textModifier = Modifier.testTag(StatsTestTag.REMAINING_ARROWS_TEXT),
                 )
             }
             else {
@@ -134,7 +133,7 @@ private fun IncompleteRoundInfoSection(
                                 helpTitle = stringResource(R.string.help_archer_round_stats__surplus_arrows_title),
                                 helpBody = stringResource(R.string.help_archer_round_stats__surplus_arrows_body),
                         ).asHelpState(helpListener),
-                        textModifier = Modifier.testTag(StatsTestTag.SURPLUS_ARROWS_TEXT.getTestTag()),
+                        textModifier = Modifier.testTag(StatsTestTag.SURPLUS_ARROWS_TEXT),
                 )
             }
             if (predictedScore != null) {
@@ -145,7 +144,7 @@ private fun IncompleteRoundInfoSection(
                                 helpTitle = stringResource(R.string.help_archer_round_stats__predicted_score_title),
                                 helpBody = stringResource(R.string.help_archer_round_stats__predicted_score_body),
                         ).asHelpState(helpListener),
-                        textModifier = Modifier.testTag(StatsTestTag.PREDICTED_SCORE_TEXT.getTestTag()),
+                        textModifier = Modifier.testTag(StatsTestTag.PREDICTED_SCORE_TEXT),
                 )
             }
         }
@@ -201,6 +200,7 @@ private fun HsgSection(
                                         helpBody = stringResource(R.string.help_archer_round_stats__hits_body),
                                 ).asHelpState(helpListener)
                         )
+                        .testTag(StatsTestTag.HITS_TEXT)
         ) {
             Text(
                     text = hits.toString(),
@@ -229,12 +229,14 @@ private fun HsgSection(
         // Score
         Text(
                 text = stringResource(R.string.archer_round_stats__score),
-                modifier = Modifier.constrainAs(scoreLabel) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(scoreRef.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+                modifier = Modifier
+                        .constrainAs(scoreLabel) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(scoreRef.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        .testTag(StatsTestTag.SCORE_TEXT)
         )
         Text(
                 text = score.toString(),
@@ -268,11 +270,13 @@ private fun HsgSection(
         // Golds
         Text(
                 text = stringResource(goldsType.longStringId),
-                modifier = Modifier.constrainAs(goldsLabel) {
-                    top.linkTo(scoreLabel.top)
-                    bottom.linkTo(scoreLabel.bottom)
-                    start.linkTo(goldsRef.start)
-                }
+                modifier = Modifier
+                        .constrainAs(goldsLabel) {
+                            top.linkTo(scoreLabel.top)
+                            bottom.linkTo(scoreLabel.bottom)
+                            start.linkTo(goldsRef.start)
+                        }
+                        .testTag(StatsTestTag.GOLDS_TEXT)
         )
         Text(
                 text = golds.toString(),

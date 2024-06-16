@@ -15,6 +15,10 @@
     <string name="archer_round_stats__surplus_arrows">Surplus arrows:</string>
     <string name="archer_round_stats__handicap">Round handicap:</string>
     <string name="archer_round_stats__round_handicap">Round\nhandicap</string>
+    <string name="archer_round_stats__round_handicap_placeholder">--</string>
+    <string name="archer_round_stats__handicap_tables_link">Handicap tables</string>
+    <string name="archer_round_stats__classification_tables_link">Classification tables</string>
+    <string name="archer_round_stats__category">%1$s %2$s %3$s</string> <!-- Senior Lady Recurve -->
     <string name="archer_round_stats__predicted_score">Predicted score:</string>
     <string name="archer_round_stats__archer_handicap">Archer handicap:</string>
     <string name="archer_round_stats__archer_handicap_v2">Archer\nhandicap</string>
@@ -54,6 +58,15 @@
     <string name="archer_round_stats__edit_shoot_content_description">Edit round information</string>
     <string name="archer_round_stats__show_simple_view">Show simple stats</string>
     <string name="archer_round_stats__show_advanced_view">Show advanced stats</string>
+    <string name="archer_round_stats__breakdown_distance_heading">Dist</string>
+    <string name="archer_round_stats__breakdown_handicap_heading">HC</string>
+    <string name="archer_round_stats__breakdown_average_heading">Average score</string>
+    <string name="archer_round_stats__breakdown_st_dev_heading">Std dev</string>
+    <string name="archer_round_stats__breakdown_arrow_heading">Arrow</string>
+    <string name="archer_round_stats__breakdown_end_heading">End</string>
+    <string name="archer_round_stats__breakdown_total_heading">Total</string>
+    <string name="archer_round_stats__breakdown_placeholder">-</string>
+    <string name="archer_round_stats__past_scores_row">%1$s - %2$d</string> <!-- 12/01/24 - 512 (date to score shot) -->
 
     <string name="help_archer_round_stats__hits_title">Hits</string>
     <string name="help_archer_round_stats__hits_body">The number of arrows that have scored at least one point. If there are any misses, it will be in the form 71 (of 72), showing 72 arrows shot: 71 scoring and 1 miss</string>

@@ -19,6 +19,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
@@ -30,16 +32,20 @@ import eywa.projectcodex.common.sharedUi.CodexTabSwitcher
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
+import eywa.projectcodex.components.shootDetails.ShootDetailsState
+import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent
-import eywa.projectcodex.components.shootDetails.stats.StatsScreenPastRecordsTabs
 import eywa.projectcodex.components.shootDetails.stats.StatsState
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
+import java.util.Calendar
 
 @Composable
 internal fun PastRecordsSection(
@@ -56,7 +62,7 @@ internal fun PastRecordsSection(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                         .clickable { listener(StatsIntent.PastRoundRecordsClicked) }
-                        .testTag(StatsTestTag.PAST_RECORDS_LINK_TEXT.getTestTag())
+                        .testTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
                         .updateHelpDialogPosition(
                                 helpState = HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__past_records_title),
@@ -113,12 +119,10 @@ private fun PastScore(
         state: StatsState,
         shootRecord: DatabaseShootShortRecord,
 ) {
-    val delim = stringResource(R.string.archer_round_stats__past_record_item_delim).let { " $it " }
-
     val isPb = shootRecord.score == state.pastRoundScoresPb
     val isCurrentShoot = shootRecord.shootId == state.fullShootInfo.id
 
-    val text = listOfNotNull(
+    val text = listOf(
             DateTimeFormat.SHORT_DATE.format(shootRecord.dateShot),
             shootRecord.score.toString(),
     )
@@ -145,7 +149,11 @@ private fun PastScore(
     val extraSemanticText = extraSemanticTextIds.map { stringResource(it) }
 
     Text(
-            text = text.joinToString(delim),
+            text = stringResource(
+                    R.string.archer_round_stats__past_scores_row,
+                    DateTimeFormat.SHORT_DATE.format(shootRecord.dateShot),
+                    shootRecord.score,
+            ),
             style = CodexTypography.SMALL_PLUS.asClickableStyle(),
             color = CodexTheme.colors.onDialogBackground,
             textAlign = TextAlign.Center,
@@ -166,7 +174,109 @@ private fun PastScore(
                     .semantics {
                         contentDescription = text
                                 .plus(extraSemanticText)
-                                .joinToString(delim)
+                                .joinToString()
                     }
     )
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        device = Devices.PIXEL_4_XL,
+)
+@Composable
+fun Closed_PastRecordsSection_Preview() {
+    val scores =
+            List(2) {
+                DatabaseShootShortRecord(
+                        shootId = it + 1,
+                        dateShot = Calendar.getInstance(),
+                        score = 100,
+                        isComplete = true,
+                )
+            }
+    CodexTheme {
+        PastRecordsSection(
+                StatsState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    shoot = shoot.copy(shootId = 18)
+                                },
+                                pastRoundRecords = scores,
+                                roundPbs = scores,
+                        ),
+                        extras = StatsExtras(),
+                        classificationTablesUseCase = ClassificationTablesPreviewHelper.get(),
+                ),
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        device = Devices.PIXEL_4_XL,
+)
+@Composable
+fun Best_PastRecordsSection_Preview() {
+    val scores =
+            List(20) {
+                DatabaseShootShortRecord(
+                        shootId = it + 1,
+                        dateShot = Calendar.getInstance().apply { add(Calendar.DATE, -it) },
+                        score = if (it == 19) 100 else (it + 1) * 100,
+                        isComplete = true,
+                )
+            }
+    CodexTheme {
+        PastRecordsSection(
+                StatsState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    shoot = shoot.copy(shootId = 18)
+                                },
+                                pastRoundRecords = scores,
+                                roundPbs = scores,
+                        ),
+                        extras = StatsExtras(isPastRoundRecordsDialogOpen = true),
+                        classificationTablesUseCase = ClassificationTablesPreviewHelper.get(),
+                ),
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        device = Devices.PIXEL_4_XL,
+)
+@Composable
+fun Recent_PastRecordsSection_Preview() {
+    val scores =
+            List(20) {
+                DatabaseShootShortRecord(
+                        shootId = it + 1,
+                        dateShot = Calendar.getInstance().apply { add(Calendar.DATE, -it) },
+                        score = if (it == 5) 5000 else (it + 1) * 100,
+                        isComplete = true,
+                )
+            }
+    CodexTheme {
+        PastRecordsSection(
+                StatsState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    shoot = shoot.copy(shootId = 3)
+                                },
+                                pastRoundRecords = scores,
+                                roundPbs = scores,
+                        ),
+                        extras = StatsExtras(
+                                isPastRoundRecordsDialogOpen = true,
+                                pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT,
+                        ),
+                        classificationTablesUseCase = ClassificationTablesPreviewHelper.get(),
+                ),
+        ) {}
+    }
 }

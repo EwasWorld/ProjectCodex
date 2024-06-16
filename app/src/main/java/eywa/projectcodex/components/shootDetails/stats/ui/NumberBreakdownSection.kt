@@ -13,12 +13,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexGrid
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.common.utils.ResOrActual.StringResource
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -43,14 +46,14 @@ internal fun NumberBreakdownSection(
                     modifier = modifier,
             ) {
                 BreakdownColumn.values().forEach { column ->
-                    if (!column.mainTitle.isNullOrBlank()) {
+                    if (column.mainTitle != null) {
                         item(
                                 fillBox = true,
                                 horizontalSpan = column.mainTitleHorizontalSpan,
                                 verticalSpan = column.mainTitleVerticalSpan,
                         ) {
                             Text(
-                                    text = column.mainTitle,
+                                    text = column.mainTitle.get(),
                                     fontWeight = FontWeight.Bold,
                                     color = CodexTheme.colors.onListItemAppOnBackground,
                                     textAlign = TextAlign.Center,
@@ -63,10 +66,10 @@ internal fun NumberBreakdownSection(
                     }
                 }
                 BreakdownColumn.values().forEach { column ->
-                    if (!column.secondaryTitle.isNullOrBlank()) {
+                    if (column.secondaryTitle != null) {
                         item(fillBox = true) {
                             Text(
-                                    text = column.secondaryTitle,
+                                    text = column.secondaryTitle.get(),
                                     fontWeight = FontWeight.Bold,
                                     color = CodexTheme.colors.onListItemAppOnBackground,
                                     textAlign = TextAlign.Center,
@@ -81,7 +84,7 @@ internal fun NumberBreakdownSection(
                     BreakdownColumn.values().forEach { column ->
                         item(fillBox = true) {
                             Text(
-                                    text = column.mapping(extra),
+                                    text = column.mapping(extra).get(),
                                     fontWeight = if (extra is GrandTotalExtra) FontWeight.Bold else FontWeight.Normal,
                                     color = CodexTheme.colors.onListItemAppOnBackground,
                                     textAlign = TextAlign.Center,
@@ -101,28 +104,68 @@ internal fun NumberBreakdownSection(
 }
 
 enum class BreakdownColumn(
-        val mainTitle: String?,
-        val secondaryTitle: String?,
+        val mainTitle: ResOrActual<String>?,
+        val secondaryTitle: ResOrActual<String>?,
         val mainTitleHorizontalSpan: Int,
         val mainTitleVerticalSpan: Int,
-        val mapping: (ExtraStats) -> String,
+        val mapping: (ExtraStats) -> ResOrActual<String>,
 ) {
-    Distance("Dist", null, 1, 2, {
-        when (it) {
-            is DistanceExtra -> it.distance.distance.toString()
-            is GrandTotalExtra -> "Total"
-            else -> throw NotImplementedError()
-        }
-    }),
-    Handicap("HC", null, 1, 2, { it.handicap.format() }),
-    AverageEnd("Average Score", "End", 2, 1, { it.averageEnd.format() }),
-    AverageArrow("", "Arrow", 1, 1, { it.averageArrow.format() }),
-    EndStDev("Std Dev", "End", 2, 1, { it.endStDev.format(2) }),
-    ArrowStDev("", "Arrow", 1, 1, { it.arrowStdDev.format(2) }),
+    Distance(
+            mainTitle = StringResource(R.string.archer_round_stats__breakdown_distance_heading),
+            secondaryTitle = null,
+            mainTitleHorizontalSpan = 1,
+            mainTitleVerticalSpan = 2,
+            mapping = {
+                when (it) {
+                    is DistanceExtra -> ResOrActual.Actual(it.distance.distance.toString())
+
+                    is GrandTotalExtra ->
+                        StringResource(R.string.archer_round_stats__breakdown_total_heading)
+
+                    else -> throw NotImplementedError()
+                }
+            },
+    ),
+    Handicap(
+            mainTitle = StringResource(R.string.archer_round_stats__breakdown_handicap_heading),
+            secondaryTitle = null,
+            mainTitleHorizontalSpan = 1,
+            mainTitleVerticalSpan = 2,
+            mapping = { it.handicap.asDecimalFormat() },
+    ),
+    AverageEnd(
+            mainTitle = StringResource(R.string.archer_round_stats__breakdown_average_heading),
+            secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_end_heading),
+            mainTitleHorizontalSpan = 2,
+            mainTitleVerticalSpan = 1,
+            mapping = { it.averageEnd.asDecimalFormat() },
+    ),
+    AverageArrow(
+            mainTitle = null,
+            secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_arrow_heading),
+            mainTitleHorizontalSpan = 1,
+            mainTitleVerticalSpan = 1,
+            mapping = { it.averageArrow.asDecimalFormat() },
+    ),
+    EndStDev(
+            mainTitle = StringResource(R.string.archer_round_stats__breakdown_st_dev_heading),
+            secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_end_heading),
+            mainTitleHorizontalSpan = 2,
+            mainTitleVerticalSpan = 1,
+            mapping = { it.endStDev.asDecimalFormat(2) },
+    ),
+    ArrowStDev(
+            mainTitle = null,
+            secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_arrow_heading),
+            mainTitleHorizontalSpan = 1,
+            mainTitleVerticalSpan = 1,
+            mapping = { it.arrowStdDev.asDecimalFormat(2) },
+    ),
 }
 
-private fun Float?.format(decimalPlaces: Int = 1) = this?.let { "%.${decimalPlaces}f".format(this) } ?: "-"
-private fun Double?.format(decimalPlaces: Int = 1) = this?.let { "%.${decimalPlaces}f".format(this) } ?: "-"
+private fun Any?.asDecimalFormat(decimalPlaces: Int = 1) =
+        this?.let { ResOrActual.Actual("%.${decimalPlaces}f".format(this)) }
+                ?: StringResource(R.string.archer_round_stats__breakdown_placeholder)
 
 @Preview(
         showBackground = true,

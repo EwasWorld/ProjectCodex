@@ -14,7 +14,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,8 +27,12 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.testTag
+import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEntry
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
@@ -42,10 +45,9 @@ import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
-import eywa.projectcodex.components.shootDetails.stats.StatsScreenPastRecordsTabs
 import eywa.projectcodex.components.shootDetails.stats.StatsState
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.SCREEN
 import eywa.projectcodex.components.shootDetails.stats.StatsViewModel
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag.SCREEN
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
@@ -150,7 +152,7 @@ private fun StatsScreenFull(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
                     .padding(vertical = CodexTheme.dimens.screenPadding)
-                    .testTag(SCREEN.getTestTag())
+                    .testTag(SCREEN)
     ) {
         DateAndRoundSection(
                 fullShootInfo = state.fullShootInfo,
@@ -223,7 +225,7 @@ private fun StatsScreenSimple(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
                     .padding(vertical = CodexTheme.dimens.screenPadding)
-                    .testTag(SCREEN.getTestTag())
+                    .testTag(SCREEN)
     ) {
         DateAndRoundSection(
                 fullShootInfo = state.fullShootInfo,
@@ -265,6 +267,42 @@ private fun StatsScreenSimple(
                 modifier = Modifier.clickable { listener(ShootDetailsAction(ShootDetailsIntent.ToggleSimpleView)) }
         )
     }
+}
+
+enum class StatsScreenPastRecordsTabs(override val label: ResOrActual<String>) : NamedItem {
+    BEST(ResOrActual.StringResource(R.string.archer_round_stats__past_records_best_tab)),
+    RECENT(ResOrActual.StringResource(R.string.archer_round_stats__past_records_recent_tab)),
+}
+
+enum class StatsTestTag : CodexTestTag {
+    SCREEN,
+    DATE_TEXT,
+    ROUND_TEXT,
+    HITS_TEXT,
+    SCORE_TEXT,
+    GOLDS_TEXT,
+    REMAINING_ARROWS_TEXT,
+    SURPLUS_ARROWS_TEXT,
+    PAST_RECORDS_LINK_TEXT,
+    PAST_RECORDS_DIALOG_TAB,
+    PAST_RECORDS_DIALOG_ITEM,
+    PB_TEXT,
+    HANDICAP_TEXT,
+    PREDICTED_SCORE_TEXT,
+    ARCHER_HANDICAP_TEXT,
+    ALLOWANCE_TEXT,
+    ADJUSTED_SCORE_TEXT,
+    EDIT_SHOOT_INFO,
+    EXPAND_SHOOT_INFO,
+    CLASSIFICATION_CATEGORY,
+    CLASSIFICATION,
+    SHOOT_DETAIL_SECTION,
+    ;
+
+    override val screenName: String
+        get() = "SHOOT_DETAILS_STATS"
+
+    override fun getElement(): String = name
 }
 
 @Preview(

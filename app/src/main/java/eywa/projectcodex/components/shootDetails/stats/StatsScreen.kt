@@ -61,14 +61,11 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
-import eywa.projectcodex.common.sharedUi.helperInterfaces.NamedItem
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
 import eywa.projectcodex.common.sharedUi.testTag
-import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEntry
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
@@ -78,7 +75,9 @@ import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent.*
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag.*
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenPastRecordsTabs
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag.*
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
@@ -436,7 +435,7 @@ private fun AllowanceSection(
 
     Section {
         EditBox(
-                testTag = HANDICAP_SECTION,
+                testTag = SHOOT_DETAIL_SECTION,
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_handicap_edit),
                 editListener = { listener(EditHandicapInfoClicked) },
                 editHelpState = HelpShowcaseItem(
@@ -513,7 +512,7 @@ private fun ClassificationSection(
 
     Section {
         EditBox(
-                testTag = CLASSIFICATION_SECTION,
+                testTag = SHOOT_DETAIL_SECTION,
                 editContentDescription = stringResource(R.string.archer_round_stats__archer_info_edit),
                 editListener = { listener(EditArcherInfoClicked) },
                 editHelpState = HelpShowcaseItem(
@@ -776,44 +775,6 @@ private fun Section(
     ) {
         content()
     }
-}
-
-enum class StatsScreenPastRecordsTabs(override val label: ResOrActual<String>) : NamedItem {
-    BEST(ResOrActual.StringResource(R.string.archer_round_stats__past_records_best_tab)),
-    RECENT(ResOrActual.StringResource(R.string.archer_round_stats__past_records_recent_tab)),
-}
-
-enum class StatsTestTag : CodexTestTag {
-    SCREEN,
-    DATE_TEXT,
-    ROUND_TEXT,
-    HITS_TEXT,
-    SCORE_TEXT,
-    GOLDS_TEXT,
-    REMAINING_ARROWS_TEXT,
-    SURPLUS_ARROWS_TEXT,
-    PAST_RECORDS_LINK_TEXT,
-    PAST_RECORDS_DIALOG_TAB,
-    PAST_RECORDS_DIALOG_ITEM,
-    PB_TEXT,
-    HANDICAP_TEXT,
-    PREDICTED_SCORE_TEXT,
-    ARCHER_HANDICAP_TEXT,
-    ALLOWANCE_TEXT,
-    ADJUSTED_SCORE_TEXT,
-    EDIT_SHOOT_INFO,
-    EXPAND_SHOOT_INFO,
-    CLASSIFICATION_CATEGORY,
-    CLASSIFICATION,
-    SHOOT_DETAIL_SECTION,
-    CLASSIFICATION_SECTION,
-    HANDICAP_SECTION,
-    ;
-
-    override val screenName: String
-        get() = "SHOOT_DETAILS_STATS"
-
-    override fun getElement(): String = name
 }
 
 @Preview(

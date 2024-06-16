@@ -20,7 +20,6 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.model.FullShootInfo
 

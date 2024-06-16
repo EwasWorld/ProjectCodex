@@ -29,6 +29,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -172,6 +173,7 @@ private fun ConstraintLayoutScope.Handicap(
                                     helpBody = stringResource(R.string.help_archer_round_stats__archer_handicap_body),
                             ).asHelpState(helpListener)
                     )
+                    .testTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
     )
 }
 
@@ -188,11 +190,13 @@ private fun ConstraintLayoutScope.RoundAllowance(
     Text(
             text = stringResource(R.string.archer_round_stats__round_allowance_two_lines),
             textAlign = TextAlign.Center,
-            modifier = Modifier.constrainAs(allowanceLabel) {
-                top.linkTo(handicapLabel.top)
-                bottom.linkTo(handicapLabel.bottom)
-                start.linkTo(delim1Ref.end, margin = separatorMargin)
-            }
+            modifier = Modifier
+                    .constrainAs(allowanceLabel) {
+                        top.linkTo(handicapLabel.top)
+                        bottom.linkTo(handicapLabel.bottom)
+                        start.linkTo(delim1Ref.end, margin = separatorMargin)
+                    }
+                    .testTag(StatsTestTag.ALLOWANCE_TEXT)
     )
     Text(
             text = allowance.toString(),
@@ -269,6 +273,7 @@ private fun ConstraintLayoutScope.AdjustedScore(
                         start.linkTo(adjustedLabel.start)
                         end.linkTo(adjustedLabel.end)
                     }
+                    .testTag(StatsTestTag.ADJUSTED_SCORE_TEXT)
     )
 }
 

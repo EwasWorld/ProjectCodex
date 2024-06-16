@@ -3,6 +3,7 @@ package eywa.projectcodex.components.shootDetails.stats
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenPastRecordsTabs
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -168,7 +169,6 @@ class StatsState(
     val pastRoundScoresPbIsTied
         get() = bestPastRoundScores?.getOrNull(1)?.score?.let { it == pastRoundScoresPb } ?: false
     val isPastRoundRecordsDialogOpen = extras.isPastRoundRecordsDialogOpen
-
 }
 
 data class StatsExtras(
