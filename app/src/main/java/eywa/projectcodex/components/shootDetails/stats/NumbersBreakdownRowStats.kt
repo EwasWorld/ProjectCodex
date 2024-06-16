@@ -6,7 +6,7 @@ import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.model.roundHandicap
 
-open class ExtraStats(
+open class NumbersBreakdownRowStats(
         arrows: List<DatabaseArrowScore>,
         endSize: Int,
         val handicap: Double?
@@ -36,7 +36,7 @@ open class ExtraStats(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ExtraStats) return false
+        if (other !is NumbersBreakdownRowStats) return false
 
         if (handicap?.roundHandicap() != other.handicap?.roundHandicap()) return false
         if (averageEnd != other.averageEnd) return false
@@ -57,16 +57,16 @@ open class ExtraStats(
     }
 }
 
-class DistanceExtra(
+class DistanceBreakdownRow(
         val distance: RoundDistance,
         roundArrowCount: RoundArrowCount,
         arrows: List<DatabaseArrowScore>,
         endSize: Int,
         calculateHandicap: (arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance) -> Double?,
-) : ExtraStats(arrows, endSize, calculateHandicap(arrows, roundArrowCount, distance))
+) : NumbersBreakdownRowStats(arrows, endSize, calculateHandicap(arrows, roundArrowCount, distance))
 
-class GrandTotalExtra(
+class GrandTotalBreakdownRow(
         arrows: List<DatabaseArrowScore>,
         endSize: Int,
         handicap: Double?,
-) : ExtraStats(arrows, endSize, handicap)
+) : NumbersBreakdownRowStats(arrows, endSize, handicap)

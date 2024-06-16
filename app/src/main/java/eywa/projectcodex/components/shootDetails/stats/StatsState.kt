@@ -131,27 +131,29 @@ class StatsState(
         }
     }
 
-    val extras: List<ExtraStats>?
+    val numbersBreakdownRowStats: List<NumbersBreakdownRowStats>?
         get() {
             val distances = fullShootInfo.roundDistances ?: return null
             val arrowCounts = fullShootInfo.roundArrowCounts ?: return null
             var arrows = fullShootInfo.arrows ?: return null
             check(distances.size == arrowCounts.size)
 
-            val extrasList = mutableListOf<ExtraStats>()
+            val statsList = mutableListOf<NumbersBreakdownRowStats>()
             for (index in distances.indices) {
                 val arrowCount = arrowCounts[index]
                 val distArrows = arrows.take(arrowCount.arrowCount)
                         .takeIf { it.isNotEmpty() }
                         ?: break
                 arrows = arrows.drop(arrowCount.arrowCount)
-                extrasList.add(DistanceExtra(distances[index], arrowCount, distArrows, endSize, calculateHandicapFn))
+                statsList.add(
+                        DistanceBreakdownRow(distances[index], arrowCount, distArrows, endSize, calculateHandicapFn)
+                )
             }
-            if (extrasList.size > 1) {
-                extrasList.add(GrandTotalExtra(fullShootInfo.arrows, endSize, fullShootInfo.handicapFloat))
+            if (statsList.size > 1) {
+                statsList.add(GrandTotalBreakdownRow(fullShootInfo.arrows, endSize, fullShootInfo.handicapFloat))
             }
 
-            return extrasList
+            return statsList
         }
 
     /*

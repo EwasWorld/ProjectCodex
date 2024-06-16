@@ -196,6 +196,7 @@ private fun StatsScreenFull(
 
                 NumberBreakdownSection(
                         state = state,
+                        listener = listener,
                         modifier = Modifier
                                 .horizontalScroll(rememberScrollState())
                                 .padding(horizontal = CodexTheme.dimens.screenPadding)

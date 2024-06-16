@@ -3,8 +3,8 @@ package eywa.projectcodex.components.shootDetails
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
-import eywa.projectcodex.components.shootDetails.stats.DistanceExtra
-import eywa.projectcodex.components.shootDetails.stats.GrandTotalExtra
+import eywa.projectcodex.components.shootDetails.stats.DistanceBreakdownRow
+import eywa.projectcodex.components.shootDetails.stats.GrandTotalBreakdownRow
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsState
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
@@ -28,32 +28,32 @@ class StatsStateUnitTest {
         val state = StatsState(detailsState, StatsExtras(), classificationTablesUseCase)
 
         assertEquals(
-                DistanceExtra(
+                DistanceBreakdownRow(
                         round.roundDistances!![0],
                         round.roundArrowCounts!![0],
                         state.fullShootInfo.arrows!!.take(36),
                         6,
                         calculateHandicap = { _, _, _ -> 29.0 },
                 ),
-                state.extras!![0] as DistanceExtra,
+                state.numbersBreakdownRowStats!![0] as DistanceBreakdownRow,
         )
         assertEquals(
-                DistanceExtra(
+                DistanceBreakdownRow(
                         round.roundDistances!![1],
                         round.roundArrowCounts!![1],
                         state.fullShootInfo.arrows!!.take(24),
                         6,
                         calculateHandicap = { _, _, _ -> 37.0 },
                 ),
-                state.extras!![1] as DistanceExtra,
+                state.numbersBreakdownRowStats!![1] as DistanceBreakdownRow,
         )
         assertEquals(
-                GrandTotalExtra(
+                GrandTotalBreakdownRow(
                         state.fullShootInfo.arrows!!,
                         6,
                         handicap = 32.0,
                 ),
-                state.extras!![2] as GrandTotalExtra,
+                state.numbersBreakdownRowStats!![2] as GrandTotalBreakdownRow,
         )
     }
 

@@ -14,6 +14,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexGrid
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -25,18 +29,23 @@ import eywa.projectcodex.common.utils.ResOrActual.StringResource
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
-import eywa.projectcodex.components.shootDetails.stats.DistanceExtra
-import eywa.projectcodex.components.shootDetails.stats.ExtraStats
-import eywa.projectcodex.components.shootDetails.stats.GrandTotalExtra
+import eywa.projectcodex.components.shootDetails.stats.DistanceBreakdownRow
+import eywa.projectcodex.components.shootDetails.stats.GrandTotalBreakdownRow
+import eywa.projectcodex.components.shootDetails.stats.NumbersBreakdownRowStats
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
+import eywa.projectcodex.components.shootDetails.stats.StatsIntent
 import eywa.projectcodex.components.shootDetails.stats.StatsState
 
 @Composable
 internal fun NumberBreakdownSection(
         state: StatsState,
         modifier: Modifier = Modifier,
+        listener: (StatsIntent) -> Unit = { },
 ) {
-    state.extras?.let { extras ->
+    val helpListener = { it: HelpShowcaseIntent -> listener(StatsIntent.HelpShowcaseAction(it)) }
+    val resource = LocalContext.current.resources
+
+    state.numbersBreakdownRowStats?.let { statRows ->
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
             CodexGrid(
                     columns = 6,
@@ -47,6 +56,14 @@ internal fun NumberBreakdownSection(
             ) {
                 BreakdownColumn.values().forEach { column ->
                     if (column.mainTitle != null) {
+                        val helpState =
+                                if (column.mainTitleHorizontalSpan > 1) null
+                                else {
+                                    HelpShowcaseItem(
+                                            helpTitle = column.helpTitle.get(resource),
+                                            helpBody = column.helpBody.get(resource),
+                                    ).asHelpState(helpListener)
+                                }
                         item(
                                 fillBox = true,
                                 horizontalSpan = column.mainTitleHorizontalSpan,
@@ -61,12 +78,21 @@ internal fun NumberBreakdownSection(
                                             .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
                                             .wrapContentHeight(Alignment.CenterVertically)
+                                            .updateHelpDialogPosition(helpState)
                             )
                         }
                     }
                 }
                 BreakdownColumn.values().forEach { column ->
                     if (column.secondaryTitle != null) {
+                        val helpState =
+                                if (column.mainTitleHorizontalSpan == 1 && column.mainTitle != null) null
+                                else {
+                                    HelpShowcaseItem(
+                                            helpTitle = column.helpTitle.get(resource),
+                                            helpBody = column.helpBody.get(resource),
+                                    ).asHelpState(helpListener)
+                                }
                         item(fillBox = true) {
                             Text(
                                     text = column.secondaryTitle.get(),
@@ -76,21 +102,22 @@ internal fun NumberBreakdownSection(
                                     modifier = Modifier
                                             .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
+                                            .updateHelpDialogPosition(helpState)
                             )
                         }
                     }
                 }
-                extras.forEach { extra ->
+                statRows.forEach { row ->
                     BreakdownColumn.values().forEach { column ->
                         item(fillBox = true) {
                             Text(
-                                    text = column.mapping(extra).get(),
-                                    fontWeight = if (extra is GrandTotalExtra) FontWeight.Bold else FontWeight.Normal,
+                                    text = column.mapping(row).get(),
+                                    fontWeight = if (row is GrandTotalBreakdownRow) FontWeight.Bold else FontWeight.Normal,
                                     color = CodexTheme.colors.onListItemAppOnBackground,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier
                                             .background(
-                                                    if (extra is GrandTotalExtra) CodexTheme.colors.listAccentRowItemOnAppBackground
+                                                    if (row is GrandTotalBreakdownRow) CodexTheme.colors.listAccentRowItemOnAppBackground
                                                     else CodexTheme.colors.listItemOnAppBackground
                                             )
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
@@ -108,18 +135,22 @@ enum class BreakdownColumn(
         val secondaryTitle: ResOrActual<String>?,
         val mainTitleHorizontalSpan: Int,
         val mainTitleVerticalSpan: Int,
-        val mapping: (ExtraStats) -> ResOrActual<String>,
+        val helpTitle: ResOrActual<String>,
+        val helpBody: ResOrActual<String>,
+        val mapping: (NumbersBreakdownRowStats) -> ResOrActual<String>,
 ) {
     Distance(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_distance_heading),
             secondaryTitle = null,
             mainTitleHorizontalSpan = 1,
             mainTitleVerticalSpan = 2,
+            helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_distance_title),
+            helpBody = StringResource(R.string.help_archer_round_stats__breakdown_distance_body),
             mapping = {
                 when (it) {
-                    is DistanceExtra -> ResOrActual.Actual(it.distance.distance.toString())
+                    is DistanceBreakdownRow -> ResOrActual.Actual(it.distance.distance.toString())
 
-                    is GrandTotalExtra ->
+                    is GrandTotalBreakdownRow ->
                         StringResource(R.string.archer_round_stats__breakdown_total_heading)
 
                     else -> throw NotImplementedError()
@@ -131,6 +162,8 @@ enum class BreakdownColumn(
             secondaryTitle = null,
             mainTitleHorizontalSpan = 1,
             mainTitleVerticalSpan = 2,
+            helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_handicap_title),
+            helpBody = StringResource(R.string.help_archer_round_stats__breakdown_handicap_body),
             mapping = { it.handicap.asDecimalFormat() },
     ),
     AverageEnd(
@@ -138,6 +171,8 @@ enum class BreakdownColumn(
             secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_end_heading),
             mainTitleHorizontalSpan = 2,
             mainTitleVerticalSpan = 1,
+            helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_end_score_title),
+            helpBody = StringResource(R.string.help_archer_round_stats__breakdown_end_score_body),
             mapping = { it.averageEnd.asDecimalFormat() },
     ),
     AverageArrow(
@@ -145,6 +180,8 @@ enum class BreakdownColumn(
             secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_arrow_heading),
             mainTitleHorizontalSpan = 1,
             mainTitleVerticalSpan = 1,
+            helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_arrow_score_title),
+            helpBody = StringResource(R.string.help_archer_round_stats__breakdown_arrow_score_body),
             mapping = { it.averageArrow.asDecimalFormat() },
     ),
     EndStDev(
@@ -152,6 +189,8 @@ enum class BreakdownColumn(
             secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_end_heading),
             mainTitleHorizontalSpan = 2,
             mainTitleVerticalSpan = 1,
+            helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_end_standard_dev_title),
+            helpBody = StringResource(R.string.help_archer_round_stats__breakdown_end_standard_dev_body),
             mapping = { it.endStDev.asDecimalFormat(2) },
     ),
     ArrowStDev(
@@ -159,6 +198,8 @@ enum class BreakdownColumn(
             secondaryTitle = StringResource(R.string.archer_round_stats__breakdown_arrow_heading),
             mainTitleHorizontalSpan = 1,
             mainTitleVerticalSpan = 1,
+            helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_arrow_standard_dev_title),
+            helpBody = StringResource(R.string.help_archer_round_stats__breakdown_arrow_standard_dev_body),
             mapping = { it.arrowStdDev.asDecimalFormat(2) },
     ),
 }

@@ -123,7 +123,13 @@ private fun NoAllowance(
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier,
+            modifier = modifier
+                    .updateHelpDialogPosition(
+                            HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_archer_round_stats__no_round_allowance_title),
+                                    helpBody = stringResource(R.string.help_archer_round_stats__no_round_allowance_body),
+                            ).asHelpState { listener(StatsIntent.HelpShowcaseAction(it)) },
+                    )
     ) {
         Text(
                 text = stringResource(R.string.archer_round_stats__round_allowance),
