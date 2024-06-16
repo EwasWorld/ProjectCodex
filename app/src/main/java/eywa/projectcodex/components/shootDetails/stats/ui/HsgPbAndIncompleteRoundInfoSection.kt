@@ -200,12 +200,12 @@ private fun HsgSection(
                                         helpBody = stringResource(R.string.help_archer_round_stats__hits_body),
                                 ).asHelpState(helpListener)
                         )
-                        .testTag(StatsTestTag.HITS_TEXT)
         ) {
             Text(
                     text = hits.toString(),
                     style = CodexTypography.LARGE,
                     color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.testTag(StatsTestTag.HITS_TEXT)
             )
             if (hits != arrowsShot) {
                 Text(
@@ -213,6 +213,7 @@ private fun HsgSection(
                                 R.string.archer_round_stats__hits_of_2,
                                 arrowsShot,
                         ),
+                        modifier = Modifier.testTag(StatsTestTag.HITS_OF_TEXT)
                 )
             }
         }
@@ -236,7 +237,6 @@ private fun HsgSection(
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
                         }
-                        .testTag(StatsTestTag.SCORE_TEXT)
         )
         Text(
                 text = score.toString(),
@@ -256,6 +256,7 @@ private fun HsgSection(
                                         helpBody = stringResource(R.string.help_archer_round_stats__score_body),
                                 ).asHelpState(helpListener)
                         )
+                        .testTag(StatsTestTag.SCORE_TEXT)
         )
 
         // Separators
@@ -276,7 +277,6 @@ private fun HsgSection(
                             bottom.linkTo(scoreLabel.bottom)
                             start.linkTo(goldsRef.start)
                         }
-                        .testTag(StatsTestTag.GOLDS_TEXT)
         )
         Text(
                 text = golds.toString(),
@@ -294,6 +294,7 @@ private fun HsgSection(
                                         helpBody = stringResource(R.string.help_archer_round_stats__golds_body),
                                 ).asHelpState(helpListener)
                         )
+                        .testTag(StatsTestTag.GOLDS_TEXT)
         )
     }
 }

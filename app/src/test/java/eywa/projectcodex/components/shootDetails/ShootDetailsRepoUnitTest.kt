@@ -14,7 +14,7 @@ import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
-import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.datastore.DatastoreKey.*
 import eywa.projectcodex.datastore.get
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
@@ -34,7 +34,6 @@ import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-import java.util.*
 
 typealias SimpleState = Pair<Int?, FullShootInfo?>
 typealias SimpleLoaded = ShootDetailsResponse.Loaded<SimpleState>
@@ -52,8 +51,8 @@ class ShootDetailsRepoUnitTest {
     private val initialState = ShootDetailsState(
             shootId = 1,
             fullShootInfo = shootInfo,
-            use2023System = DatastoreKey.Use2023HandicapSystem.defaultValue,
-            useBetaFeatures = DatastoreKey.UseBetaFeatures.defaultValue,
+            use2023System = Use2023HandicapSystem.defaultValue,
+            useBetaFeatures = UseBetaFeatures.defaultValue,
             archerHandicaps = listOf(),
             bow = DatabaseBowPreviewHelper.default,
             archerInfo = DatabaseArcherPreviewHelper.default,
@@ -91,7 +90,7 @@ class ShootDetailsRepoUnitTest {
          * Initial
          */
         val sut = getSut(shootInfo)
-        verify(datastore.mock).get(DatastoreKey.Use2023HandicapSystem, DatastoreKey.UseBetaFeatures)
+        verify(datastore.mock).get(Use2023HandicapSystem, UseBetaFeatures, UseSimpleStatsView)
         verify(db.mock, never()).shootsRepo()
 
         fun startCollectingStateForId(shootId: Int, collection: MutableList<ShootDetailsResponse<SimpleState>>) =
@@ -197,8 +196,8 @@ class ShootDetailsRepoUnitTest {
         db.bowRepo.defaultBow = DatabaseBowPreviewHelper.default.copy(type = ClassificationBow.COMPOUND)
         db.sightMarksRepo.sightMarks = sightMark
         datastore.values = mapOf(
-                DatastoreKey.Use2023HandicapSystem to false,
-                DatastoreKey.UseBetaFeatures to true,
+                Use2023HandicapSystem to false,
+                UseBetaFeatures to true,
         )
 
         val sut = getSut(shootInfo)

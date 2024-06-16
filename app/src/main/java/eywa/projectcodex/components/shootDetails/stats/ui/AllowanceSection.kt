@@ -202,7 +202,6 @@ private fun ConstraintLayoutScope.RoundAllowance(
                         bottom.linkTo(handicapLabel.bottom)
                         start.linkTo(delim1Ref.end, margin = separatorMargin)
                     }
-                    .testTag(StatsTestTag.ALLOWANCE_TEXT)
     )
     Text(
             text = allowance.toString(),
@@ -220,7 +219,8 @@ private fun ConstraintLayoutScope.RoundAllowance(
                                     helpTitle = stringResource(R.string.help_archer_round_stats__allowance_title),
                                     helpBody = stringResource(R.string.help_archer_round_stats__allowance_body),
                             ).asHelpState(helpListener)
-                    ),
+                    )
+                    .testTag(StatsTestTag.ALLOWANCE_TEXT)
     )
 }
 

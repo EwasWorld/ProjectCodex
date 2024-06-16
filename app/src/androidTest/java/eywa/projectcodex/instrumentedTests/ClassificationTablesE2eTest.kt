@@ -6,7 +6,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
@@ -14,6 +16,7 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -36,6 +39,8 @@ class ClassificationTablesE2eTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
 
+    private var shoots: List<FullShootInfo>? = null
+
     private fun setup() {
         hiltRule.inject()
 
@@ -49,6 +54,7 @@ class ClassificationTablesE2eTest {
                         RoundPreviewHelper.wa25RoundData,
                         RoundPreviewHelper.wa1440RoundData,
                 ).forEach { db.add(it) }
+                shoots?.forEach { db.add(it) }
             }
         }
     }
@@ -163,6 +169,37 @@ class ClassificationTablesE2eTest {
                     checkGender(false)
                     checkAge("U15")
                     checkBowStyle("Compound")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testScreenStartsWithMostRecentRound() {
+        shoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = "10/12/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.wa1440RoundData
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = "11/12/2020 10:00".parseDate())
+                    round = RoundPreviewHelper.yorkRoundData
+                },
+        )
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickHandicapTables {
+                clickTab(ClassificationTablesRobot::class) {
+                    selectRoundsRobot.checkSelectedRound("York")
+
+                    selectRoundsRobot.clickSelectedRound {
+                        clickRound("WA 25")
+                    }
+                    clickTab(HandicapTablesRobot::class) {
+                        clickTab(ClassificationTablesRobot::class) {}
+                    }
+                    selectRoundsRobot.checkSelectedRound("WA 25")
                 }
             }
         }

@@ -2,7 +2,6 @@ package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.pressBack
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
@@ -224,24 +223,6 @@ class SightMarksInstrumentedTest {
                 checkSightMarkDisplayed(sightMarks[1].copy(sightMark = 10.8f))
 
             }
-        }
-    }
-
-    /**
-     * Example of using the back button
-     */
-    @Test
-    fun testBack() {
-        composeTestRule.mainMenuRobot {
-            clickSightMarks {
-                checkEmptyMessage()
-
-                clickAdd {
-                    pressBack()
-                }
-                pressBack()
-            }
-            clickSightMarks { }
         }
     }
 

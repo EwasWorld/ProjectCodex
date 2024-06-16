@@ -21,7 +21,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.*
+import java.util.Calendar
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -131,7 +131,7 @@ class ViewsTest {
                     shoot = shoot.copy(shootId = 4)
                     round = RoundPreviewHelper.indoorMetricRoundData
                     completeRoundWithFinalScore(20)
-                    appendArrows(ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId))
+                    appendDbArrows(ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId))
                 }
         )
         db.add(

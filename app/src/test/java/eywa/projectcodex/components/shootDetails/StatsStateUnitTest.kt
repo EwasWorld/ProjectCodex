@@ -3,11 +3,14 @@ package eywa.projectcodex.components.shootDetails
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
+import eywa.projectcodex.common.utils.standardDeviation
 import eywa.projectcodex.components.shootDetails.stats.DistanceBreakdownRow
 import eywa.projectcodex.components.shootDetails.stats.GrandTotalBreakdownRow
+import eywa.projectcodex.components.shootDetails.stats.NumbersBreakdownRowStats
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsState
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.testUtils.RawResourcesHelper
 import junit.framework.TestCase.assertEquals
@@ -17,7 +20,7 @@ class StatsStateUnitTest {
     private val classificationTablesUseCase = RawResourcesHelper.classificationTables
 
     @Test
-    fun testExtras() {
+    fun testNumbersBreakdownRows() {
         val round = RoundPreviewHelper.outdoorImperialRoundData
         val detailsState = ShootDetailsState(
                 fullShootInfo = ShootPreviewHelperDsl.create {
@@ -29,32 +32,58 @@ class StatsStateUnitTest {
 
         assertEquals(
                 DistanceBreakdownRow(
-                        round.roundDistances!![0],
-                        round.roundArrowCounts!![0],
-                        state.fullShootInfo.arrows!!.take(36),
-                        6,
+                        distance = round.roundDistances!![0],
+                        roundArrowCount = round.roundArrowCounts!![0],
+                        arrows = state.fullShootInfo.arrows!!.take(36),
+                        endSize = 6,
                         calculateHandicap = { _, _, _ -> 29.0 },
                 ),
                 state.numbersBreakdownRowStats!![0] as DistanceBreakdownRow,
         )
         assertEquals(
                 DistanceBreakdownRow(
-                        round.roundDistances!![1],
-                        round.roundArrowCounts!![1],
-                        state.fullShootInfo.arrows!!.take(24),
-                        6,
+                        distance = round.roundDistances!![1],
+                        roundArrowCount = round.roundArrowCounts!![1],
+                        arrows = state.fullShootInfo.arrows!!.take(24),
+                        endSize = 6,
                         calculateHandicap = { _, _, _ -> 37.0 },
                 ),
                 state.numbersBreakdownRowStats!![1] as DistanceBreakdownRow,
         )
         assertEquals(
                 GrandTotalBreakdownRow(
-                        state.fullShootInfo.arrows!!,
-                        6,
+                        arrows = state.fullShootInfo.arrows!!,
+                        endSize = 6,
                         handicap = 32.0,
                 ),
                 state.numbersBreakdownRowStats!![2] as GrandTotalBreakdownRow,
         )
+    }
+
+    @Test
+    fun testNumbersBreakdownClasses() {
+        val arrows = (0..10).plus(0)
+        val stats = NumbersBreakdownRowStats(
+                arrows.mapIndexed { index, score ->
+                    DatabaseArrowScore(
+                            shootId = 1,
+                            arrowNumber = index + 1,
+                            score = score,
+                    )
+                },
+                endSize = 6,
+                handicap = 32.0,
+        )
+        val ends = arrows.chunked(6).map { it.sum() }
+
+        assertEquals(32.0, stats.handicap)
+
+        assertEquals(12, arrows.size)
+        assertEquals(arrows.sum().toFloat().div(12), stats.averageArrow)
+        assertEquals(ends.sum().toFloat().div(2), stats.averageEnd)
+
+        assertEquals(arrows.standardDeviation(), stats.arrowStdDev)
+        assertEquals(ends.standardDeviation(), stats.endStDev)
     }
 
     @Test

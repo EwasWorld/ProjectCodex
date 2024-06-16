@@ -4,7 +4,7 @@ import androidx.test.espresso.Espresso
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountTestTag
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText

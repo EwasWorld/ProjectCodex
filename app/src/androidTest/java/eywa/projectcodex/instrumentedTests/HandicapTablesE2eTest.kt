@@ -7,6 +7,8 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.TestUtils.parseDate
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
@@ -14,6 +16,7 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -36,6 +39,8 @@ class HandicapTablesE2eTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
 
+    private var shoots: List<FullShootInfo>? = null
+
     /**
      * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
      */
@@ -52,6 +57,7 @@ class HandicapTablesE2eTest {
              */
             runBlocking {
                 TestUtils.ROUNDS.forEach { db.add(it) }
+                shoots?.forEach { db.add(it) }
             }
         }
     }
@@ -76,7 +82,7 @@ class HandicapTablesE2eTest {
                 checkInputMethod(true)
                 setInputText("120")
 
-                selectRoundBaseRobot.clickSelectedRound {
+                selectRoundsRobot.clickSelectedRound {
                     clickRound("WA 25")
                 }
                 selectFaceBaseRobot.openSingleSelectDialog {
@@ -128,8 +134,37 @@ class HandicapTablesE2eTest {
                 }
                 checkInputMethod(false)
                 checkInputText("10")
-                selectRoundBaseRobot.checkSelectedRound("WA 25")
+                selectRoundsRobot.checkSelectedRound("WA 25")
                 selectFaceBaseRobot.checkFaces("Triple")
+            }
+        }
+    }
+
+    @Test
+    fun testScreenStartsWithMostRecentRound() {
+        shoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = "10/12/2020 10:00".parseDate())
+                    round = TestUtils.ROUNDS[0]
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = "11/12/2020 10:00".parseDate())
+                    round = TestUtils.ROUNDS[1]
+                },
+        )
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickHandicapTables {
+                selectRoundsRobot.checkSelectedRound("St. George")
+
+                selectRoundsRobot.clickSelectedRound {
+                    clickRound("WA 25")
+                }
+                clickTab(ClassificationTablesRobot::class) {
+                    clickTab(HandicapTablesRobot::class) {}
+                }
+                selectRoundsRobot.checkSelectedRound("WA 25")
             }
         }
     }

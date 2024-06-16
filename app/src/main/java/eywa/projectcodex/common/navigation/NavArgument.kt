@@ -8,14 +8,15 @@ const val DEFAULT_INT_NAV_ARG = -1
 
 fun Bundle.toNavArgMap() =
         keySet()
-                .mapNotNull { NavArgument.fromArgName(it)?.to(it) }
-                .toMap()
-                .mapValues { (arg, keyString) ->
-                    when (arg.type) {
-                        NavType.IntType -> getInt(keyString).toString()
+                .mapNotNull { keyString ->
+                    val arg = NavArgument.fromArgName(keyString) ?: return@mapNotNull null
+                    val value = when (arg.type) {
+                        NavType.IntType -> getInt(keyString).takeIf { it != DEFAULT_INT_NAV_ARG }?.toString()
                         else -> throw IllegalStateException("Unsupported type")
-                    }
+                    } ?: return@mapNotNull null
+                    return@mapNotNull arg to value
                 }
+                .toMap()
 
 fun <T> SavedStateHandle.get(argument: NavArgument): T? {
     var value = get<T>(argument.toArgName())

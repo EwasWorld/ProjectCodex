@@ -100,7 +100,7 @@ private fun HandicapSection(
                                 ).asHelpState(helpListener),
                         )
                         .padding(vertical = 5.dp)
-                        .testTag(StatsTestTag.HANDICAP_TEXT),
+                        .testTag(StatsTestTag.HANDICAP_TEXT)
         )
         Text(
                 text = stringResource(R.string.archer_round_stats__handicap_tables_link),
@@ -114,6 +114,7 @@ private fun HandicapSection(
                                 ).asHelpState(helpListener),
                         )
                         .clickable { listener(StatsIntent.ExpandHandicapsClicked) }
+                        .testTag(StatsTestTag.HANDICAP_TABLES)
         )
     }
 }
@@ -140,6 +141,8 @@ private fun ClassificationSection(
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL,
                 color = CodexTheme.colors.onAppBackground,
+                modifier = Modifier
+                        .testTag(StatsTestTag.CLASSIFICATION_TITLE)
         )
         Text(
                 text = stringResource(
@@ -174,7 +177,7 @@ private fun ClassificationSection(
                                 ).asHelpState(helpListener),
                         )
                         .padding(vertical = 5.dp)
-                        .testTag(StatsTestTag.CLASSIFICATION),
+                        .testTag(StatsTestTag.CLASSIFICATION)
         )
         Text(
                 text = stringResource(R.string.archer_round_stats__classification_tables_link),
@@ -188,6 +191,7 @@ private fun ClassificationSection(
                                 ).asHelpState(helpListener),
                         )
                         .clickable { listener(StatsIntent.ExpandClassificationsClicked) }
+                        .testTag(StatsTestTag.CLASSIFICATION_TABLES)
         )
     }
 }

@@ -40,7 +40,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
-import java.util.*
+import java.util.Calendar
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -162,7 +162,10 @@ class ShootDetailsStatsInstrumentedTest {
      * Set up [scenario] with desired fragment in the resumed state, and [db]
      * with all desired information
      */
-    private fun setup() {
+    private fun setup(
+            datastoreValues: Map<DatastoreKey<*>, Any> = mapOf()
+    ) {
+        LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.UseSimpleStatsView to false).plus(datastoreValues))
         hiltRule.inject()
 
         // Start initialised so we can add to the database before the onCreate methods are called
@@ -201,12 +204,13 @@ class ShootDetailsStatsInstrumentedTest {
                     waitForLoad()
                     clickNavBarStats {
                         checkDate("17 Jul 14 15:21")
-                        checkHits("44 (of 48)")
+                        checkHits(44, 48)
                         checkScore(expectedScore)
                         checkGolds(6)
                         checkRound(null)
                         checkRemainingArrows(null)
-                        checkHandicap(null)
+                        checkHandicapDoesNotExist()
+                        checkClassificationDoesNotExist()
                         checkPredictedScore(null)
                         checkPb(isPb = false)
                         checkAllowance(null)
@@ -253,8 +257,7 @@ class ShootDetailsStatsInstrumentedTest {
 
     @Test
     fun testOldHandicapSystem() {
-        LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
-        setup()
+        setup(mapOf(DatastoreKey.Use2023HandicapSystem to false))
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
@@ -314,7 +317,7 @@ class ShootDetailsStatsInstrumentedTest {
                         clickPastRecordsText()
                         checkPastRecordsDialogItems(
                                 listOf(
-                                        PastRecordsDialogItem("20/12/11", 1264, "Personal best! - Current"),
+                                        PastRecordsDialogItem("20/12/11", 1264, "Personal best!, Current"),
                                         PastRecordsDialogItem("18/12/11", 1250),
                                         PastRecordsDialogItem("19/12/11", 1239),
                                 )
@@ -322,7 +325,7 @@ class ShootDetailsStatsInstrumentedTest {
                         clickPastRecordsRecentTab()
                         checkPastRecordsDialogItems(
                                 listOf(
-                                        PastRecordsDialogItem("20/12/11", 1264, "Personal best! - Current"),
+                                        PastRecordsDialogItem("20/12/11", 1264, "Personal best!, Current"),
                                         PastRecordsDialogItem("19/12/11", 1239),
                                         PastRecordsDialogItem("18/12/11", 1250),
                                 )
@@ -334,7 +337,7 @@ class ShootDetailsStatsInstrumentedTest {
     }
 
     @Test
-    fun testEditAndSwapToCount() {
+    fun testEditRoundInfoAndSwapToCount() {
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -492,7 +495,7 @@ class ShootDetailsStatsInstrumentedTest {
 
                         openHandicapTablesInFull {
                             checkInputText("55")
-                            with(selectRoundBaseRobot) {
+                            with(selectRoundsRobot) {
                                 checkSelectedSubtype("Hereford")
                             }
                             pressBack()

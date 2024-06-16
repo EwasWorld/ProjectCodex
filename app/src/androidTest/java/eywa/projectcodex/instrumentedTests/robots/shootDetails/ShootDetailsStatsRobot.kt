@@ -4,7 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.TabSwitcherTestTag
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.Classification.*
-import eywa.projectcodex.components.shootDetails.stats.StatsTestTag
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
@@ -48,11 +48,17 @@ class ShootDetailsStatsRobot(
         createRobot(NewScoreRobot::class, block)
     }
 
-    fun checkHits(text: String) {
+    fun checkHits(hits: Int, totalShot: Int?) {
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text)
+            +CodexNodeInteraction.AssertTextEquals(hits.toString())
+        }
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_OF_TEXT)
+            if (totalShot != null) +CodexNodeInteraction.AssertTextEquals("(of $totalShot)")
+            else +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
@@ -84,7 +90,20 @@ class ShootDetailsStatsRobot(
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
-            assertTextEqualsOrNotExist(text?.toString())
+            +CodexNodeInteraction.AssertTextEquals(text?.toString() ?: "--")
+        }
+    }
+
+    fun checkHandicapDoesNotExist() {
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
+            +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
@@ -188,23 +207,36 @@ class ShootDetailsStatsRobot(
         performV2 {
             singleNode {
                 useUnmergedTree()
-                +CodexNodeMatcher.HasAnySibling(CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION))
+                +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TITLE)
                 +CodexNodeInteraction.AssertTextEquals(
-                        if (isPredicted) "Predicted classification:"
-                        else "Classification:"
-                ).waitFor()
+                        if (isOfficial) "Classification"
+                        else "Classification (unofficial)"
+                )
             }
         }
 
-        val expectedValue = classification?.classificationString()?.plus(if (isOfficial) "" else " (unofficial)")
-                ?: "None"
+        val expectedValue = classification?.classificationString() ?: "No classification"
         checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, useUnmergedTree = true)
+    }
+
+    fun checkClassificationDoesNotExist() {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION)
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_CATEGORY)
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TABLES)
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
     }
 
     fun openHandicapTablesInFull(block: HandicapTablesRobot.() -> Unit) {
         performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.EXPAND_SHOOT_INFO)
-            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_SECTION))
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
         }
@@ -213,8 +245,7 @@ class ShootDetailsStatsRobot(
 
     fun openClassificationTablesInFull(block: ClassificationTablesRobot.() -> Unit) {
         performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.EXPAND_SHOOT_INFO)
-            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_SECTION))
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TABLES)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
         }
@@ -223,8 +254,7 @@ class ShootDetailsStatsRobot(
 
     fun openEditArcherInfo(block: ArcherInfoRobot.() -> Unit) {
         performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
-            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_SECTION))
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_CATEGORY)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
         }
@@ -233,8 +263,7 @@ class ShootDetailsStatsRobot(
 
     fun openEditArcherHandicaps(block: ArcherHandicapRobot.() -> Unit) {
         performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
-            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_SECTION))
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
         }
@@ -242,15 +271,15 @@ class ShootDetailsStatsRobot(
     }
 
     private fun Classification.classificationString() = when (this) {
-        ARCHER_3RD_CLASS -> "Archer 3rd Class"
-        ARCHER_2ND_CLASS -> "Archer 2nd Class"
-        ARCHER_1ST_CLASS -> "Archer 1st Class"
-        BOWMAN_3RD_CLASS -> "Bowman 3rd Class"
-        BOWMAN_2ND_CLASS -> "Bowman 2nd Class"
-        BOWMAN_1ST_CLASS -> "Bowman 1st Class"
+        ARCHER_3RD_CLASS -> "Archer 3rd"
+        ARCHER_2ND_CLASS -> "Archer 2nd"
+        ARCHER_1ST_CLASS -> "Archer 1st"
+        BOWMAN_3RD_CLASS -> "Bowman 3rd"
+        BOWMAN_2ND_CLASS -> "Bowman 2nd"
+        BOWMAN_1ST_CLASS -> "Bowman 1st"
         MASTER_BOWMAN -> "Master Bowman"
-        GRAND_MASTER_BOWMAN -> "Grand Master Bowman"
-        ELITE_MASTER_BOWMAN -> "Elite Grand Master Bowman"
+        GRAND_MASTER_BOWMAN -> "Grand MB"
+        ELITE_MASTER_BOWMAN -> "Elite GMB"
     }
 
     @JvmInline
@@ -268,9 +297,9 @@ class ShootDetailsStatsRobot(
          * - Is current round
          */
         private val semanticTextExtra
-            get() = data.third?.let { " - $it" } ?: ""
+            get() = data.third?.let { ", $it" } ?: ""
 
         val semanticText
-            get() = "$date - $score$semanticTextExtra"
+            get() = "$date, $score$semanticTextExtra"
     }
 }
