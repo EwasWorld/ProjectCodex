@@ -12,8 +12,8 @@ abstract class ArrowInputsRobot(
         screenTestTag: CodexTestTag,
 ) : ShootDetailsRobot(composeTestRule, screenTestTag) {
     fun checkScoreButtonNotDisplayed(text: String) {
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasText(text)
             +CodexNodeInteraction.AssertDoesNotExist()
@@ -21,8 +21,8 @@ abstract class ArrowInputsRobot(
     }
 
     fun clickScoreButton(text: String) {
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasContentDescription("$text arrow input")
             +CodexNodeInteraction.PerformClick()
@@ -43,7 +43,7 @@ abstract class ArrowInputsRobot(
     }
 
     fun checkInputtedArrows(expectedArrows: List<String>, endSize: Int = 6) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.END_ARROWS_TEXT)
             +CodexNodeInteraction.AssertTextEquals(
                     expectedArrows.plus(List(endSize - expectedArrows.size) { "." }).joinToString("-")
@@ -52,42 +52,23 @@ abstract class ArrowInputsRobot(
     }
 
     fun checkEndTotal(total: Int) {
-        perform {
-            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.END_TOTAL_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(total.toString())
-        }
+        checkElementText(ArrowInputsTestTag.END_TOTAL_TEXT, total.toString())
     }
 
     fun clickClear() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(ArrowInputsTestTag.CLEAR_BUTTON, true)
     }
 
     fun clickBackspace() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(ArrowInputsTestTag.BACKSPACE_BUTTON, true)
     }
 
     protected fun clickArrowInputsSubmit() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.SUBMIT_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(ArrowInputsTestTag.SUBMIT_BUTTON, true)
     }
 
     protected fun clickArrowInputsCancel() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CANCEL_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(ArrowInputsTestTag.CANCEL_BUTTON, true)
     }
 
     /**

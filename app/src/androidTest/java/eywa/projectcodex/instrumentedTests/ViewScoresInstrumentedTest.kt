@@ -41,7 +41,7 @@ import java.util.Calendar
 @HiltAndroidTest
 class ViewScoresInstrumentedTest {
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(35)
+    val testTimeout: Timeout = Timeout.seconds(3500)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)

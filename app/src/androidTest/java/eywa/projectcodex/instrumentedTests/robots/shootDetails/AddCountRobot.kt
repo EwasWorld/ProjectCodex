@@ -6,8 +6,7 @@ import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountTest
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchTextBox
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
@@ -19,100 +18,60 @@ class AddCountRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, AddArrowCountTestTag.SCREEN) {
     fun checkDate(date: String) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.DATE_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(date)
-        }
+        checkElementText(StatsTestTag.DATE_TEXT, date, true)
     }
 
     fun checkRound(round: String?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.ROUND_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(round ?: "N/A")
-        }
+        checkElementText(StatsTestTag.ROUND_TEXT, round ?: "N/A", true)
     }
 
     fun clickEditRoundData(block: NewScoreRobot.() -> Unit) {
-        perform {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
-            +CodexNodeInteraction.PerformClick()
-        }
-
+        clickElement(StatsTestTag.EDIT_SHOOT_INFO)
         createRobot(NewScoreRobot::class, block)
     }
 
     fun checkRemainingArrowsNotShown() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
+        checkElementDoesNotExist(AddEndTestTag.REMAINING_ARROWS_CURRENT)
     }
 
     fun checkRemainingArrows(currentDistance: String, laterDistances: String?) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
             +CodexNodeInteraction.AssertTextEquals(currentDistance).waitFor()
         }
 
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_LATER)
-
-            if (!laterDistances.isNullOrBlank()) {
-                +CodexNodeInteraction.AssertTextEquals(laterDistances)
-            }
-            else {
-                +CodexNodeInteraction.AssertDoesNotExist()
-            }
-        }
+        checkElementTextOrDoesNotExist(AddEndTestTag.REMAINING_ARROWS_LATER, laterDistances?.takeIf { it.isNotBlank() })
     }
 
     fun checkSightersCount(count: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.SIGHTERS_COUNT)
-            if (count == null) +CodexNodeInteraction.AssertDoesNotExist()
-            else +CodexNodeInteraction.AssertTextEquals(count.toString())
-        }
+        checkElementTextOrDoesNotExist(AddArrowCountTestTag.SIGHTERS_COUNT, count?.toString(), true)
     }
 
     fun checkShotCount(count: Int) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.SHOT_COUNT)
-            +CodexNodeInteraction.AssertTextEquals(count.toString())
-        }
+        checkElementText(AddArrowCountTestTag.SHOT_COUNT, count.toString(), true)
     }
 
     fun checkTotalCount(count: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.TOTAL_COUNT)
-            if (count == null) +CodexNodeInteraction.AssertDoesNotExist()
-            else +CodexNodeInteraction.AssertTextEquals(count.toString())
-        }
+        checkElementTextOrDoesNotExist(AddArrowCountTestTag.TOTAL_COUNT, count?.toString(), true)
     }
 
     fun checkInput(amount: Int, error: String? = null) {
-        perform {
-            checkInputtedText(AddArrowCountTestTag.ADD_COUNT_INPUT, amount.toString())
+        performV2Single {
+            matchTextBox(AddArrowCountTestTag.ADD_COUNT_INPUT)
+            +CodexNodeInteraction.AssertTextEquals(amount.toString())
             +CodexNodeInteraction.AssertHasError(error)
         }
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR)
-            if (error == null) +CodexNodeInteraction.AssertDoesNotExist()
-            else +CodexNodeInteraction.AssertIsDisplayed()
-        }
+        checkElementIsDisplayedOrDoesNotExist(AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR, error != null)
     }
 
     fun setInputAmount(amount: Int, error: String? = null) {
-        perform {
-            setText(AddArrowCountTestTag.ADD_COUNT_INPUT, amount.toString())
+        performV2Single {
+            matchTextBox(AddArrowCountTestTag.ADD_COUNT_INPUT)
+            +CodexNodeInteraction.SetText(amount.toString())
             +CodexNodeInteraction.AssertHasError(error)
         }
         Espresso.closeSoftKeyboard()
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR)
             if (error == null) +CodexNodeInteraction.AssertDoesNotExist()
             else +CodexNodeInteraction.AssertIsDisplayed().waitFor()
@@ -120,38 +79,23 @@ class AddCountRobot(
     }
 
     fun clickIncreaseInput() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.INPUT_PLUS_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(AddArrowCountTestTag.INPUT_PLUS_BUTTON)
     }
 
     fun clickDecreaseInput() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.INPUT_MINUS_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(AddArrowCountTestTag.INPUT_MINUS_BUTTON)
     }
 
     fun checkAddNotExist() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.SUBMIT)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
+        checkElementDoesNotExist(AddArrowCountTestTag.SUBMIT)
     }
 
     fun clickAdd() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.SUBMIT)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(AddArrowCountTestTag.SUBMIT)
     }
 
     fun checkRoundComplete() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.ROUND_COMPLETE)
-            +CodexNodeInteraction.AssertIsDisplayed()
-        }
+        checkElementIsDisplayed(AddArrowCountTestTag.ROUND_COMPLETE)
     }
 
     fun checkSightMarkIndicator(distance: String, sightMark: String?) {
@@ -160,15 +104,7 @@ class AddCountRobot(
                 if (sightMark == null) "No sight mark for $distance"
                 else "$distance sight mark:",
         )
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
-            if (sightMark == null) {
-                +CodexNodeInteraction.AssertDoesNotExist()
-            }
-            else {
-                +CodexNodeInteraction.AssertTextEquals(sightMark)
-            }
-        }
+        checkElementTextOrDoesNotExist(AddEndTestTag.SIGHT_MARK, sightMark)
     }
 
     fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {

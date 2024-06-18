@@ -49,7 +49,7 @@ import kotlin.math.roundToInt
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ShootDetailsStatsInstrumentedTest {
+class ShootDetailsStatsE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -406,7 +406,6 @@ class ShootDetailsStatsInstrumentedTest {
                         checkClassification(
                                 classification = Classification.BOWMAN_3RD_CLASS,
                                 isOfficial = true,
-                                isPredicted = false,
                         )
                         checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
@@ -420,7 +419,6 @@ class ShootDetailsStatsInstrumentedTest {
                         checkClassification(
                                 classification = Classification.BOWMAN_3RD_CLASS,
                                 isOfficial = true,
-                                isPredicted = true,
                         )
                         checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
@@ -434,7 +432,6 @@ class ShootDetailsStatsInstrumentedTest {
                         checkClassification(
                                 classification = Classification.BOWMAN_1ST_CLASS,
                                 isOfficial = false,
-                                isPredicted = false,
                         )
                         checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
@@ -448,7 +445,6 @@ class ShootDetailsStatsInstrumentedTest {
                         checkClassification(
                                 classification = null,
                                 isOfficial = true,
-                                isPredicted = false,
                         )
                         checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
@@ -462,7 +458,6 @@ class ShootDetailsStatsInstrumentedTest {
                         checkClassification(
                                 classification = Classification.ELITE_MASTER_BOWMAN,
                                 isOfficial = false,
-                                isPredicted = false,
                         )
                         checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()

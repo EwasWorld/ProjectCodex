@@ -50,7 +50,7 @@ abstract class BaseRobot(
      * Checks that the node with the tag [screenTestTag] is shown,
      */
     fun checkScreenIsShown(): Boolean {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(this@BaseRobot.screenTestTag)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
@@ -86,15 +86,9 @@ abstract class BaseRobot(
     }
 
     fun setDateAndTime(calendar: Calendar) {
-        perform {
-            +CodexNodeMatcher.HasTestTag(DateSelectorRowTestTag.DATE_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(DateSelectorRowTestTag.DATE_BUTTON)
         performDatePickerDateSelection(calendar)
-        perform {
-            +CodexNodeMatcher.HasTestTag(DateSelectorRowTestTag.TIME_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(DateSelectorRowTestTag.TIME_BUTTON)
         performTimePickerTimeSelection(calendar)
     }
 
@@ -115,10 +109,7 @@ abstract class BaseRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
-    fun clickElement(
-            testTag: CodexTestTag,
-            useUnmergedTree: Boolean = false
-    ) {
+    fun clickElement(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
         performV2Single {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
@@ -126,62 +117,72 @@ abstract class BaseRobot(
         }
     }
 
-
     fun checkElementText(testTag: CodexTestTag, text: String, useUnmergedTree: Boolean = false) {
         performV2 {
             singleNode {
-                if (useUnmergedTree) {
-                    useUnmergedTree()
-                }
+                useUnmergedTree(useUnmergedTree)
                 +CodexNodeMatcher.HasTestTag(testTag)
                 +CodexNodeInteraction.AssertTextEquals(text)
             }
         }
     }
 
+    fun checkElementTextOrDoesNotExist(testTag: CodexTestTag, text: String?, useUnmergedTree: Boolean = false) {
+        if (text == null) {
+            checkElementDoesNotExist(testTag, useUnmergedTree)
+        }
+        else {
+            checkElementText(testTag, text, useUnmergedTree)
+        }
+    }
 
-    @Deprecated("Use perform")
-    fun checkElementIsDisplayed(testTag: CodexTestTag, text: String? = null, useUnmergedTree: Boolean = false) {
-        perform {
-            this.useUnmergedTree = useUnmergedTree
+    fun checkElementIsDisplayedOrDoesNotExist(
+            testTag: CodexTestTag,
+            displayed: Boolean,
+            useUnmergedTree: Boolean = false,
+    ) {
+        if (displayed) {
+            checkElementIsDisplayed(testTag, useUnmergedTree)
+        }
+        else {
+            checkElementDoesNotExist(testTag, useUnmergedTree)
+        }
+    }
+
+    fun checkElementIsDisplayed(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
+        performV2Single {
+            useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
-            if (text != null) {
-                +CodexNodeMatcher.HasText(text)
-            }
             +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
-    @Deprecated("Use perform")
     fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
-        perform {
-            this.useUnmergedTree = useUnmergedTree
+        performV2Single {
+            useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
-    @Deprecated("Use perform")
     fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean, useUnmergedTree: Boolean = false) {
-        perform {
-            this.useUnmergedTree = useUnmergedTree
+        performV2Single {
+            useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.AssertIsSelected(isChecked)
         }
     }
 
-    @Deprecated("Use perform")
     fun setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
-        perform {
+        performV2 {
             setText(testTag, text, append)
         }
     }
 
-    @Deprecated("Use perform")
     fun setChip(testTag: CodexTestTag, value: Boolean, currentValue: Boolean) {
         if (value == currentValue) return
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.PerformClick()
         }
@@ -205,18 +206,12 @@ abstract class BaseRobot(
     }
 
     fun clickHomeIcon() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(MainActivity.MainActivityTestTag.HOME_ICON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(MainActivity.MainActivityTestTag.HOME_ICON)
     }
 
     fun clickHelpIcon() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(MainActivity.MainActivityTestTag.HELP_ICON)
-            +CodexNodeInteraction.PerformClick()
-        }
-        perform {
+        clickElement(MainActivity.MainActivityTestTag.HELP_ICON)
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
@@ -237,31 +232,22 @@ abstract class BaseRobot(
     }
 
     fun clickHelpShowcaseNext() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
 
         CustomConditionWaiter.waitFor(400)
         checkHelpShowcaseIsDisplayed()
     }
 
     fun clickHelpShowcaseClose() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-            +CodexNodeInteraction.PerformClick()
-        }
-        perform {
+        clickElement(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
             +CodexNodeInteraction.AssertDoesNotExist().waitFor()
         }
     }
 
     fun checkHelpShowcaseIsDisplayed() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-            +CodexNodeInteraction.AssertIsDisplayed()
-        }
+        checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
     }
 
     override fun <R : BaseRobot> createRobot(clazz: KClass<R>, block: R.() -> Unit) {

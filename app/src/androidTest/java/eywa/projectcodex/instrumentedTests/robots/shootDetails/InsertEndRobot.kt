@@ -15,7 +15,7 @@ class InsertEndRobot(
     fun clickComplete() = clickArrowInputsSubmit()
 
     fun checkInsertEndBefore(endNumber: Int) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CONTENT_TEXT)
             +CodexNodeInteraction.AssertTextEquals(
                     if (endNumber == 1) "Inserting end\nat the beginning"

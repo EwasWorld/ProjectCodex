@@ -15,7 +15,7 @@ class EditEndRobot(
     fun clickComplete() = clickArrowInputsSubmit()
 
     fun checkEditEnd(endNumber: Int) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CONTENT_TEXT)
             +CodexNodeInteraction.AssertTextEquals("Editing end $endNumber")
         }

@@ -4,8 +4,6 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsBottomNavBarItem
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 
 abstract class ShootDetailsRobot(
@@ -17,10 +15,7 @@ abstract class ShootDetailsRobot(
     fun clickNavBarAddEnd(block: AddEndRobot.() -> Unit = {}) = clickNavBarItem(block)
 
     fun clickNavBarAddEndWhileRoundComplete() {
-        perform {
-            +CodexNodeMatcher.HasTestTag(ShootDetailsBottomNavBarItem.ADD_END)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(ShootDetailsBottomNavBarItem.ADD_END)
         clickCannotInputMoreEndsOk()
     }
 
@@ -29,7 +24,7 @@ abstract class ShootDetailsRobot(
     fun clickNavBarSettings(block: ShootDetailsSettingsRobot.() -> Unit = {}) = clickNavBarItem(block)
 
     private inline fun <reified R : ShootDetailsRobot> clickNavBarItem(noinline block: R.() -> Unit = {}) {
-        val screen = when (R::class) {
+        val screenItem = when (R::class) {
             ShootDetailsStatsRobot::class -> ShootDetailsBottomNavBarItem.STATS
             ShootDetailsSettingsRobot::class -> ShootDetailsBottomNavBarItem.SETTINGS
             AddEndRobot::class -> ShootDetailsBottomNavBarItem.ADD_END
@@ -37,10 +32,7 @@ abstract class ShootDetailsRobot(
             else -> throw NotImplementedError()
         }
 
-        perform {
-            +CodexNodeMatcher.HasTestTag(screen)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(screenItem)
         createRobot(R::class, block)
     }
 

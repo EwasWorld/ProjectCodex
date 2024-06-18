@@ -15,10 +15,11 @@ class ScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, ScorePadTestTag.SCREEN) {
     fun waitForLoad() {
-        perform {
-            allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
-            +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertIsDisplayed()
+        performV2Group {
+            +CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL)
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
         }
     }
 
@@ -26,7 +27,7 @@ class ScorePadRobot(
      * Checks all cells including headers
      */
     fun checkScorePadData(list: List<ExpectedRowData>) {
-        perform {
+        performV2Group {
             val allCells = list
                     .drop(1)
                     .map { it.asList() }
@@ -40,8 +41,8 @@ class ScorePadRobot(
                             CodexNodeInteraction.AssertTextEquals(it).waitFor()
                         }
                     }
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL)
             +CodexNodeGroupInteraction.ForEach(allCells.map { listOf(it) })
             +CodexNodeGroupInteraction.AssertCount(allCells.size)
         }
@@ -56,18 +57,19 @@ class ScorePadRobot(
      * @param endNumber 1-indexed
      */
     fun clickEnd(endNumber: Int) {
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL))
-            +CodexNodeGroupToOne.HasContentDescription("End $endNumber")
-            +CodexNodeInteraction.PerformScrollTo()
-            +CodexNodeInteraction.PerformClick()
+        performV2Group {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL)
+            toSingle(CodexNodeGroupToOne.HasContentDescription("End $endNumber")) {
+                +CodexNodeInteraction.PerformScrollTo()
+                +CodexNodeInteraction.PerformClick()
+            }
         }
     }
 
     private fun clickDropdownMenuItem(menuItem: String) {
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
             +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
             +CodexNodeInteraction.PerformClick()

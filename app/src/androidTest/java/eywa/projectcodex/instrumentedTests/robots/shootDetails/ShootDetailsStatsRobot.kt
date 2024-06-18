@@ -6,7 +6,6 @@ import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.Classification.*
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.assertTextEqualsOrNotExist
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -23,23 +22,15 @@ class ShootDetailsStatsRobot(
     val facesRobot = SelectFaceBaseRobot(::performV2)
 
     fun checkDate(text: String) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.DATE_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text)
-        }
+        checkElementText(StatsTestTag.DATE_TEXT, text, true)
     }
 
     fun checkRound(text: String?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.ROUND_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text ?: "N/A")
-        }
+        checkElementText(StatsTestTag.ROUND_TEXT, text ?: "N/A", true)
     }
 
     fun clickEditRoundData(block: NewScoreRobot.() -> Unit) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
             +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.SHOOT_DETAIL_SECTION))
             +CodexNodeInteraction.PerformClick()
@@ -49,13 +40,9 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkHits(hits: Int, totalShot: Int? = null) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(hits.toString())
-        }
-        perform {
-            useUnmergedTree = true
+        checkElementText(StatsTestTag.HITS_TEXT, hits.toString(), true)
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_OF_TEXT)
             if (totalShot != null) +CodexNodeInteraction.AssertTextEquals("(of $totalShot)")
             else +CodexNodeInteraction.AssertDoesNotExist()
@@ -63,56 +50,28 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkScore(text: Int) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.SCORE_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text.toString())
-        }
+        checkElementText(StatsTestTag.SCORE_TEXT, text.toString(), true)
     }
 
     fun checkGolds(text: Int) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.GOLDS_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text.toString())
-        }
+        checkElementText(StatsTestTag.GOLDS_TEXT, text.toString(), true)
     }
 
     fun checkRemainingArrows(text: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.REMAINING_ARROWS_TEXT)
-            assertTextEqualsOrNotExist(text?.toString())
-        }
+        checkElementTextOrDoesNotExist(StatsTestTag.REMAINING_ARROWS_TEXT, text?.toString(), true)
     }
 
     fun checkHandicap(text: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
-            +CodexNodeInteraction.AssertTextEquals(text?.toString() ?: "--")
-        }
+        checkElementText(StatsTestTag.HANDICAP_TEXT, text?.toString() ?: "--", true)
     }
 
     fun checkHandicapDoesNotExist() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TEXT)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
+        checkElementDoesNotExist(StatsTestTag.HANDICAP_TEXT, true)
+        checkElementDoesNotExist(StatsTestTag.HANDICAP_TABLES, true)
     }
 
     fun checkPredictedScore(text: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.PREDICTED_SCORE_TEXT)
-            assertTextEqualsOrNotExist(text?.toString())
-        }
+        checkElementTextOrDoesNotExist(StatsTestTag.PREDICTED_SCORE_TEXT, text?.toString(), true)
     }
 
     fun checkPb(isPb: Boolean = true, isTiedPb: Boolean = false) {
@@ -121,64 +80,31 @@ class ShootDetailsStatsRobot(
             isTiedPb -> "Tied personal best"
             else -> "Personal best!"
         }
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.PB_TEXT)
-            assertTextEqualsOrNotExist(text)
-        }
+        checkElementTextOrDoesNotExist(StatsTestTag.PB_TEXT, text, true)
     }
 
     fun checkAllowance(text: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.ALLOWANCE_TEXT)
-            assertTextEqualsOrNotExist(text?.toString())
-        }
+        checkElementTextOrDoesNotExist(StatsTestTag.ALLOWANCE_TEXT, text?.toString(), true)
     }
 
     fun checkArcherHandicap(text: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
-            assertTextEqualsOrNotExist(text?.toString())
-        }
+        checkElementTextOrDoesNotExist(StatsTestTag.ARCHER_HANDICAP_TEXT, text?.toString(), true)
     }
 
     fun checkArcherHandicapDoesNotExist() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
+        checkElementDoesNotExist(StatsTestTag.ARCHER_HANDICAP_TEXT, true)
     }
 
     fun checkAdjustedScore(text: Int?) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.ADJUSTED_SCORE_TEXT)
-            assertTextEqualsOrNotExist(text?.toString())
-        }
+        checkElementTextOrDoesNotExist(StatsTestTag.ADJUSTED_SCORE_TEXT, text?.toString(), true)
     }
 
     fun checkPastRecordsTextShown(isShown: Boolean = true) {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
-            if (isShown) {
-                +CodexNodeInteraction.AssertIsDisplayed()
-            }
-            else {
-                +CodexNodeInteraction.AssertDoesNotExist()
-            }
-        }
+        checkElementIsDisplayedOrDoesNotExist(StatsTestTag.PAST_RECORDS_LINK_TEXT, isShown)
     }
 
     fun clickPastRecordsText() {
-        perform {
-            useUnmergedTree = true
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
-            +CodexNodeInteraction.PerformClick()
-        }
+        clickElement(StatsTestTag.PAST_RECORDS_LINK_TEXT)
     }
 
     fun clickPastRecordsBestTab() {
@@ -190,7 +116,7 @@ class ShootDetailsStatsRobot(
     }
 
     private fun clickPastRecordsTab(tab: String) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_TAB))
             +CodexNodeMatcher.HasTestTag(TabSwitcherTestTag.ITEM)
             +CodexNodeMatcher.HasText(tab)
@@ -199,9 +125,9 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkPastRecordsDialogItems(items: List<PastRecordsDialogItem>) {
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_ITEM))
+        performV2Group {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_ITEM)
             +CodexNodeGroupInteraction.ForEach(
                     items.map { listOf(CodexNodeInteraction.AssertContentDescriptionEquals(it.semanticText)) }
             )
@@ -209,13 +135,12 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkClassificationCategory(value: String) {
-        checkElementText(StatsTestTag.CLASSIFICATION_CATEGORY, value, useUnmergedTree = true)
+        checkElementText(StatsTestTag.CLASSIFICATION_CATEGORY, value, true)
     }
 
     fun checkClassification(
             classification: Classification?,
             isOfficial: Boolean,
-            isPredicted: Boolean,
     ) {
         performV2 {
             singleNode {
@@ -229,22 +154,13 @@ class ShootDetailsStatsRobot(
         }
 
         val expectedValue = classification?.classificationString() ?: "No classification"
-        checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, useUnmergedTree = true)
+        checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, true)
     }
 
     fun checkClassificationDoesNotExist() {
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_CATEGORY)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TABLES)
-            +CodexNodeInteraction.AssertDoesNotExist()
-        }
+        checkElementDoesNotExist(StatsTestTag.CLASSIFICATION)
+        checkElementDoesNotExist(StatsTestTag.CLASSIFICATION_CATEGORY)
+        checkElementDoesNotExist(StatsTestTag.CLASSIFICATION_TABLES)
     }
 
     fun clickSwitchToSimpleOrAdvanced() {
