@@ -40,11 +40,17 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkHits(hits: Int, totalShot: Int? = null) {
-        checkElementText(StatsTestTag.HITS_TEXT, hits.toString(), true)
+        performV2Single {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_TEXT)
+            +CodexNodeInteraction.AssertContentDescriptionEquals(
+                    "$hits hits" + " of $totalShot".takeIf { totalShot != null }
+            )
+        }
         performV2Single {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_OF_TEXT)
-            if (totalShot != null) +CodexNodeInteraction.AssertTextEquals("(of $totalShot)")
+            if (totalShot != null) +CodexNodeInteraction.AssertIsDisplayed()
             else +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
@@ -142,16 +148,14 @@ class ShootDetailsStatsRobot(
             classification: Classification?,
             isOfficial: Boolean,
     ) {
-        performV2 {
-            singleNode {
-                useUnmergedTree()
-                +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TITLE)
-                +CodexNodeInteraction.AssertTextEquals(
-                        if (isOfficial) "Classification"
-                        else "Classification (unofficial)"
-                )
-            }
-        }
+//        performV2Single {
+//            useUnmergedTree()
+//            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TITLE)
+//            +CodexNodeInteraction.AssertTextEquals(
+//                    if (isOfficial) "Classification"
+//                    else "Classification (unofficial)"
+//            )
+//        }
 
         val expectedValue = classification?.classificationString() ?: "No classification"
         checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, true)

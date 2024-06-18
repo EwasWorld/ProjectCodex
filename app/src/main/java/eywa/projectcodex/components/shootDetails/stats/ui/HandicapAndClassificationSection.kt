@@ -11,6 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -19,6 +22,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.sharedUi.ComposeUtils.semanticsWithContext
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -83,10 +87,11 @@ private fun HandicapSection(
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-                text = stringResource(R.string.archer_round_stats__round_handicap),
+                text = stringResource(R.string.archer_round_stats__round_handicap_two_lines),
                 style = CodexTypography.SMALL,
                 color = CodexTheme.colors.onAppBackground,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.clearAndSetSemantics { }
         )
         Text(
                 text = handicap?.toString() ?: stringResource(R.string.archer_round_stats__round_handicap_placeholder),
@@ -101,12 +106,30 @@ private fun HandicapSection(
                         )
                         .padding(vertical = 5.dp)
                         .testTag(StatsTestTag.HANDICAP_TEXT)
+                        .semanticsWithContext {
+                            contentDescription =
+                                    if (handicap == null) {
+                                        it.getString(R.string.archer_round_stats__round_handicap_placeholder_cont_desc)
+                                    }
+                                    else {
+                                        it.getString(
+                                                R.string.archer_round_stats__simple_content_description,
+                                                handicap,
+                                                it.getString(R.string.archer_round_stats__round_handicap),
+                                        )
+                                    }
+                            onClick(
+                                    it.getString(R.string.archer_round_stats__handicap_tables_link_cont_desc)
+                            ) { listener(StatsIntent.ExpandHandicapsClicked); true }
+                        }
         )
         Text(
                 text = stringResource(R.string.archer_round_stats__handicap_tables_link),
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL.asClickableStyle(),
                 modifier = Modifier
+                        .testTag(StatsTestTag.HANDICAP_TABLES)
+                        .clearAndSetSemantics { }
                         .updateHelpDialogPosition(
                                 helpState = HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__expand_handicaps_title),
@@ -114,7 +137,6 @@ private fun HandicapSection(
                                 ).asHelpState(helpListener),
                         )
                         .clickable { listener(StatsIntent.ExpandHandicapsClicked) }
-                        .testTag(StatsTestTag.HANDICAP_TABLES)
         )
     }
 }
@@ -128,29 +150,33 @@ private fun ClassificationSection(
         helpListener: (HelpShowcaseIntent) -> Unit,
         listener: (StatsIntent) -> Unit,
 ) {
-    val labelResId = when {
-        classification == null || isOfficial -> R.string.archer_round_stats__archer_info_classification_v2
-        else -> R.string.archer_round_stats__archer_info_classification_v2_unofficial
-    }
+    val title = stringResource(
+            when {
+                classification == null || isOfficial -> R.string.archer_round_stats__archer_info_classification_v2
+                else -> R.string.archer_round_stats__archer_info_classification_v2_unofficial
+            }
+    )
+    val category = stringResource(
+            R.string.archer_round_stats__category,
+            archerInfo.age.rawName,
+            archerInfo.genderString.get(),
+            bow.type.rawName,
+    )
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-                text = stringResource(labelResId),
+                text = title,
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL,
                 color = CodexTheme.colors.onAppBackground,
                 modifier = Modifier
                         .testTag(StatsTestTag.CLASSIFICATION_TITLE)
+                        .clearAndSetSemantics { }
         )
         Text(
-                text = stringResource(
-                        R.string.archer_round_stats__category,
-                        archerInfo.age.rawName,
-                        archerInfo.genderString.get(),
-                        bow.type.rawName,
-                ),
+                text = category,
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL.asClickableStyle(),
                 modifier = Modifier
@@ -162,6 +188,12 @@ private fun ClassificationSection(
                         )
                         .clickable { listener(StatsIntent.EditArcherInfoClicked) }
                         .testTag(StatsTestTag.CLASSIFICATION_CATEGORY)
+                        .semanticsWithContext {
+                            contentDescription = it.getString(
+                                    R.string.archer_round_stats__archer_info_classification_category_cont_desc,
+                                    category,
+                            )
+                        }
         )
         Text(
                 text = classification?.shortStringId?.get()
@@ -178,12 +210,26 @@ private fun ClassificationSection(
                         )
                         .padding(vertical = 5.dp)
                         .testTag(StatsTestTag.CLASSIFICATION)
+                        .semanticsWithContext {
+                            contentDescription =
+                                    it.getString(
+                                            R.string.archer_round_stats__classification_content_description,
+                                            classification?.shortStringId?.get(it.resources)
+                                                    ?: it.getString(R.string.archer_round_stats__archer_info_classification_v2_none),
+                                            title,
+                                    )
+                            onClick(
+                                    it.getString(R.string.archer_round_stats__classification_tables_link_cont_desc)
+                            ) { listener(StatsIntent.ExpandClassificationsClicked); true }
+                        }
         )
         Text(
                 text = stringResource(R.string.archer_round_stats__classification_tables_link),
                 textAlign = TextAlign.Center,
                 style = CodexTypography.SMALL.asClickableStyle(),
                 modifier = Modifier
+                        .testTag(StatsTestTag.CLASSIFICATION_TABLES)
+                        .clearAndSetSemantics { }
                         .updateHelpDialogPosition(
                                 helpState = HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__expand_classification_title),
@@ -191,7 +237,6 @@ private fun ClassificationSection(
                                 ).asHelpState(helpListener),
                         )
                         .clickable { listener(StatsIntent.ExpandClassificationsClicked) }
-                        .testTag(StatsTestTag.CLASSIFICATION_TABLES)
         )
     }
 }

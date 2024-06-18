@@ -1,13 +1,17 @@
 package eywa.projectcodex.common.sharedUi
 
+import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
 import eywa.projectcodex.common.utils.CodexTestTag
 
@@ -37,6 +41,16 @@ object ComposeUtils {
                 placeable.place(0, 0)
             }
         }
+    }
+
+    fun Modifier.semanticsWithContext(
+            mergeDescendants: Boolean = false,
+            properties: (SemanticsPropertyReceiver.(Context) -> Unit)
+    ): Modifier = composed {
+        val context = LocalContext.current
+        this.then(Modifier.semantics(mergeDescendants) {
+            properties(context)
+        })
     }
 
     /**

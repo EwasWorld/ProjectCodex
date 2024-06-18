@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +23,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.sharedUi.ComposeUtils.semanticsWithContext
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -180,11 +183,13 @@ private fun HsgSection(
         // Hits
         Text(
                 text = stringResource(R.string.archer_round_stats__hits),
-                modifier = Modifier.constrainAs(hitsLabel) {
-                    top.linkTo(scoreLabel.top)
-                    bottom.linkTo(scoreLabel.bottom)
-                    end.linkTo(hitsRef.end)
-                }
+                modifier = Modifier
+                        .constrainAs(hitsLabel) {
+                            top.linkTo(scoreLabel.top)
+                            bottom.linkTo(scoreLabel.bottom)
+                            end.linkTo(hitsRef.end)
+                        }
+                        .clearAndSetSemantics { }
         )
         Column(
                 horizontalAlignment = Alignment.End,
@@ -205,7 +210,21 @@ private fun HsgSection(
                     text = hits.toString(),
                     style = CodexTypography.LARGE,
                     color = CodexTheme.colors.onAppBackground,
-                    modifier = Modifier.testTag(StatsTestTag.HITS_TEXT)
+                    modifier = Modifier
+                            .testTag(StatsTestTag.HITS_TEXT)
+                            .semanticsWithContext {
+                                contentDescription =
+                                        if (hits == arrowsShot) {
+                                            it.getString(R.string.archer_round_stats__hits_content_description, hits)
+                                        }
+                                        else {
+                                            it.getString(
+                                                    R.string.archer_round_stats__hits_content_description_with_misses,
+                                                    hits,
+                                                    arrowsShot,
+                                            )
+                                        }
+                            }
             )
             if (hits != arrowsShot) {
                 Text(
@@ -213,7 +232,9 @@ private fun HsgSection(
                                 R.string.archer_round_stats__hits_of_2,
                                 arrowsShot,
                         ),
-                        modifier = Modifier.testTag(StatsTestTag.HITS_OF_TEXT)
+                        modifier = Modifier
+                                .testTag(StatsTestTag.HITS_OF_TEXT)
+                                .clearAndSetSemantics { }
                 )
             }
         }
@@ -237,6 +258,7 @@ private fun HsgSection(
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
                         }
+                        .clearAndSetSemantics { }
         )
         Text(
                 text = score.toString(),
@@ -257,6 +279,10 @@ private fun HsgSection(
                                 ).asHelpState(helpListener)
                         )
                         .testTag(StatsTestTag.SCORE_TEXT)
+                        .semanticsWithContext {
+                            contentDescription =
+                                    it.getString(R.string.archer_round_stats__score_content_description, score)
+                        }
         )
 
         // Separators
@@ -277,6 +303,7 @@ private fun HsgSection(
                             bottom.linkTo(scoreLabel.bottom)
                             start.linkTo(goldsRef.start)
                         }
+                        .clearAndSetSemantics { }
         )
         Text(
                 text = golds.toString(),
@@ -295,6 +322,13 @@ private fun HsgSection(
                                 ).asHelpState(helpListener)
                         )
                         .testTag(StatsTestTag.GOLDS_TEXT)
+                        .semanticsWithContext {
+                            contentDescription = it.getString(
+                                    R.string.archer_round_stats__simple_content_description,
+                                    golds,
+                                    it.getString(goldsType.longStringId),
+                            )
+                        }
         )
     }
 }

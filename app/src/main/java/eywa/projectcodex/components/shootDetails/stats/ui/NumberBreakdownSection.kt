@@ -9,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,6 +83,7 @@ internal fun NumberBreakdownSection(
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
                                             .wrapContentHeight(Alignment.CenterVertically)
                                             .updateHelpDialogPosition(helpState)
+                                            .clearAndSetSemantics { }
                             )
                         }
                     }
@@ -104,17 +108,24 @@ internal fun NumberBreakdownSection(
                                             .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
                                             .updateHelpDialogPosition(helpState)
+                                            .clearAndSetSemantics { }
                             )
                         }
                     }
                 }
+
+                val roundDistanceUnit = state.fullShootInfo.distanceUnit?.let { resource.getString(it) }
                 statRows.forEach { row ->
+                    val distance = BreakdownColumn.Distance.mapping(row).get(resource)
+                    val rowDistanceUnit = roundDistanceUnit?.takeIf { row !is GrandTotalBreakdownRow } ?: ""
+
                     BreakdownColumn.values().forEach { column ->
                         val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
+                        val value = column.mapping(row).get(resource)
 
                         item(fillBox = true) {
                             Text(
-                                    text = column.mapping(row).get(),
+                                    text = value,
                                     fontWeight = if (row is GrandTotalBreakdownRow) FontWeight.Bold else FontWeight.Normal,
                                     color = CodexTheme.colors.onListItemAppOnBackground,
                                     textAlign = TextAlign.Center,
@@ -124,6 +135,11 @@ internal fun NumberBreakdownSection(
                                                     else CodexTheme.colors.listItemOnAppBackground
                                             )
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
+                                            .semantics {
+                                                contentDescription = column
+                                                        .cellContentDescription(value, distance, rowDistanceUnit)
+                                                        .get(resource)
+                                            }
                             )
                         }
                     }
@@ -142,6 +158,7 @@ enum class BreakdownColumn(
         val helpBody: ResOrActual<String>,
         val mapping: (NumbersBreakdownRowStats) -> ResOrActual<String>,
         val testTag: StatsTestTag? = null,
+        val cellContentDescription: (value: String, distance: String, distanceUnit: String) -> ResOrActual<String>,
 ) {
     Distance(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_distance_heading),
@@ -161,6 +178,12 @@ enum class BreakdownColumn(
                 }
             },
             testTag = StatsTestTag.NUMBERS_BREAKDOWN_DISTANCE,
+            cellContentDescription = { value, _, distanceUnit ->
+                StringResource(
+                        R.string.archer_round_stats__breakdown_distance_cont_desc,
+                        listOf(value, distanceUnit),
+                )
+            }
     ),
     Handicap(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_handicap_heading),
@@ -171,6 +194,12 @@ enum class BreakdownColumn(
             helpBody = StringResource(R.string.help_archer_round_stats__breakdown_handicap_body),
             mapping = { it.handicap.asDecimalFormat() },
             testTag = StatsTestTag.NUMBERS_BREAKDOWN_HANDICAP,
+            cellContentDescription = { value, distance, distanceUnit ->
+                StringResource(
+                        R.string.archer_round_stats__breakdown_handicap_cont_desc,
+                        listOf(value, distance, distanceUnit),
+                )
+            }
     ),
     AverageEnd(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_average_heading),
@@ -180,6 +209,12 @@ enum class BreakdownColumn(
             helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_end_score_title),
             helpBody = StringResource(R.string.help_archer_round_stats__breakdown_end_score_body),
             mapping = { it.averageEnd.asDecimalFormat() },
+            cellContentDescription = { value, distance, distanceUnit ->
+                StringResource(
+                        R.string.archer_round_stats__breakdown_end_score_cont_desc,
+                        listOf(value, distance, distanceUnit),
+                )
+            }
     ),
     AverageArrow(
             mainTitle = null,
@@ -189,6 +224,12 @@ enum class BreakdownColumn(
             helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_arrow_score_title),
             helpBody = StringResource(R.string.help_archer_round_stats__breakdown_arrow_score_body),
             mapping = { it.averageArrow.asDecimalFormat() },
+            cellContentDescription = { value, distance, distanceUnit ->
+                StringResource(
+                        R.string.archer_round_stats__breakdown_arrow_score_cont_desc,
+                        listOf(value, distance, distanceUnit),
+                )
+            }
     ),
     EndStDev(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_st_dev_heading),
@@ -198,6 +239,12 @@ enum class BreakdownColumn(
             helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_end_standard_dev_title),
             helpBody = StringResource(R.string.help_archer_round_stats__breakdown_end_standard_dev_body),
             mapping = { it.endStDev.asDecimalFormat(2) },
+            cellContentDescription = { value, distance, distanceUnit ->
+                StringResource(
+                        R.string.archer_round_stats__breakdown_end_standard_dev_cont_desc,
+                        listOf(value, distance, distanceUnit),
+                )
+            }
     ),
     ArrowStDev(
             mainTitle = null,
@@ -207,6 +254,12 @@ enum class BreakdownColumn(
             helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_arrow_standard_dev_title),
             helpBody = StringResource(R.string.help_archer_round_stats__breakdown_arrow_standard_dev_body),
             mapping = { it.arrowStdDev.asDecimalFormat(2) },
+            cellContentDescription = { value, distance, distanceUnit ->
+                StringResource(
+                        R.string.archer_round_stats__breakdown_arrow_standard_dev_cont_desc,
+                        listOf(value, distance, distanceUnit),
+                )
+            }
     ),
 }
 

@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,6 +25,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
+import eywa.projectcodex.common.sharedUi.ComposeUtils.semanticsWithContext
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -134,7 +137,7 @@ private fun NoAllowance(
         Text(
                 text = stringResource(R.string.archer_round_stats__round_allowance),
                 textAlign = TextAlign.Center,
-                modifier = Modifier
+                modifier = Modifier.clearAndSetSemantics { }
         )
         Text(
                 text = stringResource(R.string.archer_round_stats__round_allowance_no_handicap),
@@ -154,13 +157,15 @@ private fun ConstraintLayoutScope.Handicap(
         listener: (StatsIntent) -> Unit,
 ) {
     Text(
-            text = stringResource(R.string.archer_round_stats__archer_handicap_v2),
+            text = stringResource(R.string.archer_round_stats__archer_handicap_two_lines),
             textAlign = TextAlign.Center,
-            modifier = Modifier.constrainAs(handicapLabel) {
-                top.linkTo(parent.top)
-                bottom.linkTo(handicapRef.top)
-                start.linkTo(parent.start)
-            }
+            modifier = Modifier
+                    .constrainAs(handicapLabel) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(handicapRef.top)
+                        start.linkTo(parent.start)
+                    }
+                    .clearAndSetSemantics { }
     )
     Text(
             text = archerHandicap.toString(),
@@ -180,6 +185,13 @@ private fun ConstraintLayoutScope.Handicap(
                             ).asHelpState(helpListener)
                     )
                     .testTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
+                    .semanticsWithContext {
+                        contentDescription = it.getString(
+                                R.string.archer_round_stats__simple_content_description,
+                                archerHandicap,
+                                it.getString(R.string.archer_round_stats__archer_handicap),
+                        )
+                    }
     )
 }
 
@@ -202,6 +214,7 @@ private fun ConstraintLayoutScope.RoundAllowance(
                         bottom.linkTo(handicapLabel.bottom)
                         start.linkTo(delim1Ref.end, margin = separatorMargin)
                     }
+                    .clearAndSetSemantics { }
     )
     Text(
             text = allowance.toString(),
@@ -221,6 +234,13 @@ private fun ConstraintLayoutScope.RoundAllowance(
                             ).asHelpState(helpListener)
                     )
                     .testTag(StatsTestTag.ALLOWANCE_TEXT)
+                    .semanticsWithContext {
+                        contentDescription = it.getString(
+                                R.string.archer_round_stats__simple_content_description,
+                                allowance,
+                                it.getString(R.string.archer_round_stats__round_allowance),
+                        )
+                    }
     )
 }
 
@@ -236,36 +256,37 @@ private fun ConstraintLayoutScope.AdjustedScore(
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val adjustedScoreHelpState: HelpState
+    val title: String
+    val description: String
+
     if (adjustedFinalScore != null) {
-        Text(
-                text = stringResource(R.string.archer_round_stats__adjusted_score_v2),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.constrainAs(adjustedLabel) {
-                    top.linkTo(handicapLabel.top)
-                    bottom.linkTo(handicapLabel.bottom)
-                    start.linkTo(delim2Ref.end, margin = separatorMargin)
-                }
-        )
+        title = stringResource(R.string.archer_round_stats__adjusted_score_two_lines)
+        description = stringResource(R.string.archer_round_stats__adjusted_score)
         adjustedScoreHelpState = HelpShowcaseItem(
                 helpTitle = stringResource(R.string.help_archer_round_stats__adjusted_score_title),
                 helpBody = stringResource(R.string.help_archer_round_stats__adjusted_score_body),
         ).asHelpState(helpListener)
     }
     else {
-        Text(
-                text = stringResource(R.string.archer_round_stats__predicted_adjusted_score_v2),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.constrainAs(adjustedLabel) {
-                    top.linkTo(handicapLabel.top)
-                    bottom.linkTo(handicapLabel.bottom)
-                    start.linkTo(delim2Ref.end, margin = separatorMargin)
-                }
-        )
+        title = stringResource(R.string.archer_round_stats__predicted_adjusted_score_two_lines)
+        description = stringResource(R.string.archer_round_stats__predicted_adjusted_score)
         adjustedScoreHelpState = HelpShowcaseItem(
                 helpTitle = stringResource(R.string.help_archer_round_stats__predicted_adjusted_score_title),
                 helpBody = stringResource(R.string.help_archer_round_stats__predicted_adjusted_score_body),
         ).asHelpState(helpListener)
     }
+
+    Text(
+            text = title,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                    .constrainAs(adjustedLabel) {
+                        top.linkTo(handicapLabel.top)
+                        bottom.linkTo(handicapLabel.bottom)
+                        start.linkTo(delim2Ref.end, margin = separatorMargin)
+                    }
+                    .clearAndSetSemantics { }
+    )
 
     Text(
             text = (adjustedFinalScore ?: predictedAdjustedScore).toString(),
@@ -280,6 +301,13 @@ private fun ConstraintLayoutScope.AdjustedScore(
                         end.linkTo(adjustedLabel.end)
                     }
                     .testTag(StatsTestTag.ADJUSTED_SCORE_TEXT)
+                    .semanticsWithContext {
+                        contentDescription = it.getString(
+                                R.string.archer_round_stats__simple_content_description,
+                                adjustedFinalScore ?: predictedAdjustedScore,
+                                description,
+                        )
+                    }
     )
 }
 
