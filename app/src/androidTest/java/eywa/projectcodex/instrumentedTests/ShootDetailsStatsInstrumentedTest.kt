@@ -32,6 +32,8 @@ import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
+import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
+import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot.PastRecordsDialogItem
 import kotlinx.coroutines.runBlocking
@@ -214,7 +216,7 @@ class ShootDetailsStatsInstrumentedTest {
                         checkPredictedScore(null)
                         checkPb(isPb = false)
                         checkAllowance(null)
-                        checkPastRecordsTextNotShown()
+                        checkPastRecordsTextShown(false)
                         checkAdjustedScore(null)
                         facesRobot.checkFaces("Half")
                     }
@@ -236,6 +238,7 @@ class ShootDetailsStatsInstrumentedTest {
                         val predictedScore = ceil((192 + 201) / 2f).roundToInt()
                         val allowance = 1250
 
+                        checkHits(arrowsPerArrowCount)
                         checkRound(shoots[1].round!!.displayName)
                         checkRemainingArrows(arrowsPerArrowCount)
                         // Checked these values in the handicap tables (2023) - double and use score for 2 doz as only
@@ -246,7 +249,7 @@ class ShootDetailsStatsInstrumentedTest {
                         facesRobot.checkFaces("Full")
                         checkPb(isPb = false)
                         checkAllowance(allowance)
-                        checkPastRecordsTextNotShown()
+                        checkPastRecordsTextShown(false)
                         checkArcherHandicap(40)
                         checkAdjustedScore(allowance + predictedScore)
                     }
@@ -470,7 +473,7 @@ class ShootDetailsStatsInstrumentedTest {
     }
 
     @Test
-    fun testOpenReferenceTables() {
+    fun testOpenReferenceTablesAndEditScreens() {
         defaultArcherIsGent = false
         shoots = listOf(
                 ShootPreviewHelperDsl.create {
@@ -495,17 +498,32 @@ class ShootDetailsStatsInstrumentedTest {
 
                         openHandicapTablesInFull {
                             checkInputText("55")
-                            with(selectRoundsRobot) {
-                                checkSelectedSubtype("Hereford")
+                            selectRoundsRobot.checkSelectedSubtype("Hereford")
+                            clickTab(ClassificationTablesRobot::class) {
+                                selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                selectRoundsRobot.clickSelectedRound {
+                                    clickRound("WA 1440")
+                                }
+                            }
+                            clickTab(HandicapTablesRobot::class) {
+                                selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                selectRoundsRobot.clickSelectedRound {
+                                    clickRound("Round1")
+                                }
+                            }
+                            clickTab(ClassificationTablesRobot::class) {
+                                selectRoundsRobot.checkSelectedSubtype("Hereford")
                             }
                             pressBack()
                         }
 
                         openClassificationTablesInFull {
-                            with(selectRoundsRobot) {
-                                checkSelectedSubtype("Hereford")
-                            }
+                            selectRoundsRobot.checkSelectedSubtype("Hereford")
                             checkGender(false)
+                            clickTab(HandicapTablesRobot::class) {
+                                selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                checkInputText("55")
+                            }
                             pressBack()
                         }
 
@@ -517,6 +535,91 @@ class ShootDetailsStatsInstrumentedTest {
                         openEditArcherHandicaps {
                             checkHandicap(0, archerHandicap.dateSet, archerHandicap.handicap)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testSimpleView() {
+        shoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1)
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(1264)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2)
+                    round = RoundPreviewHelper.yorkRoundData
+                    completeRoundWithFinalScore(1264)
+                },
+        )
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(2)
+                clickRow(0) {
+                    clickNavBarStats {
+                        checkRound("York")
+                        checkScore(1264)
+                        checkHandicap(6)
+                        checkPb(isTiedPb = true)
+                        checkArcherHandicap(40)
+                        checkAllowance(535)
+                        checkPastRecordsTextShown()
+                        checkNumbersBreakdownShown()
+
+                        clickSwitchToSimpleOrAdvanced()
+
+                        checkRound("York")
+                        checkScore(1264)
+                        checkHandicap(6)
+                        checkPb(isTiedPb = true)
+                        checkArcherHandicapDoesNotExist()
+                        checkAllowance(null)
+                        checkPastRecordsTextShown()
+                        checkNumbersBreakdownShown(false)
+
+                        clickSwitchToSimpleOrAdvanced()
+
+                        checkRound("York")
+                        checkScore(1264)
+                        checkHandicap(6)
+                        checkPb(isTiedPb = true)
+                        checkArcherHandicap(40)
+                        checkAllowance(535)
+                        checkPastRecordsTextShown()
+                        checkNumbersBreakdownShown()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testNumbersBreakdown() {
+        shoots = listOf(
+                ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.yorkRoundData
+                    addIdenticalArrows(126, 7)
+                }
+        )
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForRowCount(1)
+                clickRow(0) {
+                    clickNavBarStats {
+                        checkRound("York")
+                        checkNumbersBreakdown(
+                                100 to 28.7f,
+                                80 to 37.0f,
+                                60 to 48.0f,
+                                null to 32.3f,
+                        )
                     }
                 }
             }

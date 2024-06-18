@@ -72,6 +72,8 @@ object TestUtils {
                     ),
                     roundDistances = listOf(
                             RoundDistance(2, 1, 1, 100),
+                            RoundDistance(2, 2, 1, 80),
+                            RoundDistance(2, 3, 1, 60),
                     ),
             ),
             FullRoundInfo(

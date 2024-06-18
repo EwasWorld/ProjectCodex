@@ -29,11 +29,11 @@ class ClassificationTablesRobot(
         }
     }
 
-    fun checkGender(expectedNewGenderIsGent: Boolean = true) {
-        val expectedNewGender = if (expectedNewGenderIsGent) "Gents" else "Ladies"
+    fun checkGender(isGent: Boolean = true) {
+        val expectedGender = if (isGent) "Gents" else "Ladies"
         perform {
             matchDataRowValue(ClassificationTablesTestTag.GENDER_SELECTOR)
-            +CodexNodeInteraction.AssertTextEquals(expectedNewGender).waitFor()
+            +CodexNodeInteraction.AssertTextEquals(expectedGender).waitFor()
         }
     }
 

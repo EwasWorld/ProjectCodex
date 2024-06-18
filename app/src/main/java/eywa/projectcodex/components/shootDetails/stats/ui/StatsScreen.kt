@@ -208,7 +208,9 @@ private fun StatsScreenFull(
         Text(
                 text = stringResource(R.string.archer_round_stats__show_simple_view),
                 style = CodexTypography.SMALL_PLUS.asClickableStyle(),
-                modifier = Modifier.clickable { listener(ShootDetailsAction(ShootDetailsIntent.ToggleSimpleView)) }
+                modifier = Modifier
+                        .clickable { listener(ShootDetailsAction(ShootDetailsIntent.ToggleSimpleView)) }
+                        .testTag(StatsTestTag.SIMPLE_ADVANCED_SWITCH)
         )
     }
 }
@@ -265,7 +267,9 @@ private fun StatsScreenSimple(
         Text(
                 text = stringResource(R.string.archer_round_stats__show_advanced_view),
                 style = LocalTextStyle.current.asClickableStyle(),
-                modifier = Modifier.clickable { listener(ShootDetailsAction(ShootDetailsIntent.ToggleSimpleView)) }
+                modifier = Modifier
+                        .clickable { listener(ShootDetailsAction(ShootDetailsIntent.ToggleSimpleView)) }
+                        .testTag(StatsTestTag.SIMPLE_ADVANCED_SWITCH)
         )
     }
 }
@@ -302,6 +306,10 @@ enum class StatsTestTag : CodexTestTag {
     CLASSIFICATION,
     CLASSIFICATION_TABLES,
     SHOOT_DETAIL_SECTION,
+    SIMPLE_ADVANCED_SWITCH,
+    NUMBERS_BREAKDOWN,
+    NUMBERS_BREAKDOWN_DISTANCE,
+    NUMBERS_BREAKDOWN_HANDICAP,
     ;
 
     override val screenName: String

@@ -9,8 +9,10 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
@@ -40,6 +42,7 @@ class HandicapTablesE2eTest {
     private lateinit var db: ScoresRoomDatabase
 
     private var shoots: List<FullShootInfo>? = null
+    private var archerHandicap: DatabaseArcherHandicap? = null
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
@@ -58,6 +61,7 @@ class HandicapTablesE2eTest {
             runBlocking {
                 TestUtils.ROUNDS.forEach { db.add(it) }
                 shoots?.forEach { db.add(it) }
+                archerHandicap?.let { db.archerRepo().insert(it) }
             }
         }
     }
@@ -78,6 +82,7 @@ class HandicapTablesE2eTest {
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
                 checkNoDataInTable()
+                checkInputText("")
 
                 checkInputMethod(true)
                 setInputText("120")
@@ -152,11 +157,14 @@ class HandicapTablesE2eTest {
                     round = TestUtils.ROUNDS[1]
                 },
         )
+        archerHandicap = ArcherHandicapsPreviewHelper.handicaps.first()
         setup()
 
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
                 selectRoundsRobot.checkSelectedRound("St. George")
+                checkInputText("46")
+                checkInputMethod(true)
 
                 selectRoundsRobot.clickSelectedRound {
                     clickRound("WA 25")

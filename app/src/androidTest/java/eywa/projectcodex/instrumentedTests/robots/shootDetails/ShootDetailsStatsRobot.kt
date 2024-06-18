@@ -48,7 +48,7 @@ class ShootDetailsStatsRobot(
         createRobot(NewScoreRobot::class, block)
     }
 
-    fun checkHits(hits: Int, totalShot: Int?) {
+    fun checkHits(hits: Int, totalShot: Int? = null) {
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_TEXT)
@@ -144,6 +144,14 @@ class ShootDetailsStatsRobot(
         }
     }
 
+    fun checkArcherHandicapDoesNotExist() {
+        perform {
+            useUnmergedTree = true
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
+    }
+
     fun checkAdjustedScore(text: Int?) {
         perform {
             useUnmergedTree = true
@@ -152,11 +160,16 @@ class ShootDetailsStatsRobot(
         }
     }
 
-    fun checkPastRecordsTextNotShown() {
+    fun checkPastRecordsTextShown(isShown: Boolean = true) {
         perform {
             useUnmergedTree = true
             +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_LINK_TEXT)
-            +CodexNodeInteraction.AssertDoesNotExist()
+            if (isShown) {
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
+            else {
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
         }
     }
 
@@ -231,6 +244,47 @@ class ShootDetailsStatsRobot(
         performV2Single {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TABLES)
             +CodexNodeInteraction.AssertDoesNotExist()
+        }
+    }
+
+    fun clickSwitchToSimpleOrAdvanced() {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.SIMPLE_ADVANCED_SWITCH)
+            +CodexNodeInteraction.PerformScrollTo()
+            +CodexNodeInteraction.PerformClick()
+        }
+    }
+
+    fun checkNumbersBreakdownShown(isShown: Boolean = true) {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.NUMBERS_BREAKDOWN)
+            if (isShown) {
+                +CodexNodeInteraction.PerformScrollTo()
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
+            else {
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
+        }
+    }
+
+    fun checkNumbersBreakdown(vararg distancesToHandicaps: Pair<Int?, Float>) {
+        performV2Group {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.NUMBERS_BREAKDOWN_DISTANCE)
+            +CodexNodeGroupInteraction.ForEach(
+                    distancesToHandicaps.map {
+                        val distance = it.first
+                        listOf(CodexNodeInteraction.AssertTextEquals(distance?.toString() ?: "Round"))
+                    }
+            )
+        }
+        performV2Group {
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.NUMBERS_BREAKDOWN_HANDICAP)
+            +CodexNodeGroupInteraction.ForEach(
+                    distancesToHandicaps.map {
+                        listOf(CodexNodeInteraction.AssertTextEquals("%.1f".format(it.second)))
+                    }
+            )
         }
     }
 

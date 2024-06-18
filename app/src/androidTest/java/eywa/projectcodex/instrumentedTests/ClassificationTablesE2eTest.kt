@@ -9,8 +9,12 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.archer.DatabaseArcher
+import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
@@ -40,6 +44,8 @@ class ClassificationTablesE2eTest {
     private lateinit var db: ScoresRoomDatabase
 
     private var shoots: List<FullShootInfo>? = null
+    private var archerInfo: DatabaseArcher? = null
+    private var bow: ClassificationBow? = null
 
     private fun setup() {
         hiltRule.inject()
@@ -55,6 +61,11 @@ class ClassificationTablesE2eTest {
                         RoundPreviewHelper.wa1440RoundData,
                 ).forEach { db.add(it) }
                 shoots?.forEach { db.add(it) }
+                archerInfo?.let {
+                    db.archerRepo().updateDefaultArcher(it.isGent)
+                    db.archerRepo().updateDefaultArcher(it.age)
+                }
+                bow?.let { db.bowRepo().updateDefaultBow(it) }
             }
         }
     }
@@ -75,6 +86,10 @@ class ClassificationTablesE2eTest {
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
                 clickTab(ClassificationTablesRobot::class) {
+                    checkAge("Senior")
+                    checkGender()
+                    checkBowStyle("Recurve")
+
                     checkClassifications(
                             listOf(
                                     ClassificationTablesRobot.TableRow("Archer 3rd", null, 72, false),
@@ -186,11 +201,17 @@ class ClassificationTablesE2eTest {
                     round = RoundPreviewHelper.yorkRoundData
                 },
         )
+        archerInfo = DatabaseArcherPreviewHelper.default.copy(isGent = false, age = ClassificationAge.U15)
+        bow = ClassificationBow.BAREBOW
         setup()
 
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
                 clickTab(ClassificationTablesRobot::class) {
+                    checkAge("U15")
+                    checkGender(false)
+                    checkBowStyle("Barebow")
+
                     selectRoundsRobot.checkSelectedRound("York")
 
                     selectRoundsRobot.clickSelectedRound {

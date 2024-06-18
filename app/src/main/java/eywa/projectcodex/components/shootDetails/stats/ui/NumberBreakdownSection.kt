@@ -24,6 +24,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.ResOrActual.StringResource
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
@@ -52,7 +53,7 @@ internal fun NumberBreakdownSection(
                     alignment = Alignment.Center,
                     verticalSpacing = 4.dp,
                     horizontalSpacing = 4.dp,
-                    modifier = modifier,
+                    modifier = modifier.testTag(StatsTestTag.NUMBERS_BREAKDOWN),
             ) {
                 BreakdownColumn.values().forEach { column ->
                     if (column.mainTitle != null) {
@@ -109,13 +110,15 @@ internal fun NumberBreakdownSection(
                 }
                 statRows.forEach { row ->
                     BreakdownColumn.values().forEach { column ->
+                        val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
+
                         item(fillBox = true) {
                             Text(
                                     text = column.mapping(row).get(),
                                     fontWeight = if (row is GrandTotalBreakdownRow) FontWeight.Bold else FontWeight.Normal,
                                     color = CodexTheme.colors.onListItemAppOnBackground,
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier
+                                    modifier = cellModifier
                                             .background(
                                                     if (row is GrandTotalBreakdownRow) CodexTheme.colors.listAccentRowItemOnAppBackground
                                                     else CodexTheme.colors.listItemOnAppBackground
@@ -138,6 +141,7 @@ enum class BreakdownColumn(
         val helpTitle: ResOrActual<String>,
         val helpBody: ResOrActual<String>,
         val mapping: (NumbersBreakdownRowStats) -> ResOrActual<String>,
+        val testTag: StatsTestTag? = null,
 ) {
     Distance(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_distance_heading),
@@ -156,6 +160,7 @@ enum class BreakdownColumn(
                     else -> throw NotImplementedError()
                 }
             },
+            testTag = StatsTestTag.NUMBERS_BREAKDOWN_DISTANCE,
     ),
     Handicap(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_handicap_heading),
@@ -165,6 +170,7 @@ enum class BreakdownColumn(
             helpTitle = StringResource(R.string.help_archer_round_stats__breakdown_handicap_title),
             helpBody = StringResource(R.string.help_archer_round_stats__breakdown_handicap_body),
             mapping = { it.handicap.asDecimalFormat() },
+            testTag = StatsTestTag.NUMBERS_BREAKDOWN_HANDICAP,
     ),
     AverageEnd(
             mainTitle = StringResource(R.string.archer_round_stats__breakdown_average_heading),
