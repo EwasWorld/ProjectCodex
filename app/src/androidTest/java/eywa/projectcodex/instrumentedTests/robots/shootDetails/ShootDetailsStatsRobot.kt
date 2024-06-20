@@ -44,7 +44,7 @@ class ShootDetailsStatsRobot(
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_TEXT)
             +CodexNodeInteraction.AssertContentDescriptionEquals(
-                    "$hits hits" + " of $totalShot".takeIf { totalShot != null }
+                    "$hits hits" + (" of $totalShot".takeIf { totalShot != null } ?: "")
             )
         }
         performV2Single {
@@ -148,17 +148,18 @@ class ShootDetailsStatsRobot(
             classification: Classification?,
             isOfficial: Boolean,
     ) {
-//        performV2Single {
-//            useUnmergedTree()
-//            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TITLE)
-//            +CodexNodeInteraction.AssertTextEquals(
-//                    if (isOfficial) "Classification"
-//                    else "Classification (unofficial)"
-//            )
-//        }
-
         val expectedValue = classification?.classificationString() ?: "No classification"
         checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, true)
+
+        performV2Single {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION)
+            +CodexNodeInteraction.AssertContentDescriptionEquals(
+                    "$expectedValue " +
+                            if (isOfficial) "Classification" else "Classification (unofficial)"
+            )
+        }
+
     }
 
     fun checkClassificationDoesNotExist() {
