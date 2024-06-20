@@ -56,12 +56,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.InputChanged
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectFaceDialogAction
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.SelectRoundDialogAction
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleHandicapSystem
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleInput
+import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 
 @Composable
 fun HandicapTablesScreen(
@@ -128,7 +123,7 @@ fun Selections(
     ) {
         FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.Center,
         ) {
             Text(
                     text = stringResource(state.inputType.labelId),

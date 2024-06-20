@@ -3,7 +3,6 @@ package eywa.projectcodex.database.sightMarks
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark.Companion.TABLE_NAME
@@ -16,7 +15,7 @@ import java.util.Calendar
                     entity = DatabaseBow::class,
                     parentColumns = ["bowId"],
                     childColumns = ["bowId"],
-                    onDelete = CASCADE,
+                    onDelete = ForeignKey.CASCADE,
             ),
         ],
 )

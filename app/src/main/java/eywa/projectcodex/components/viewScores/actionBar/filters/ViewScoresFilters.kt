@@ -363,7 +363,7 @@ private fun ColumnScope.DateFilters(
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     FlowRow(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.Center,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             modifier = Modifier.updateHelpDialogPosition(
                     HelpShowcaseItem(
@@ -495,7 +495,7 @@ private fun ColumnScope.ScoreFilters(
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     FlowRow(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.Center,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             modifier = Modifier.updateHelpDialogPosition(
                     helpState = HelpShowcaseItem(
@@ -616,7 +616,7 @@ private fun RoundsFilter(
             spacing = 3.dp,
     ) {
         FlowRow(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.Center,
                 horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally),
                 modifier = Modifier.updateHelpDialogPosition(
                         helpState = HelpShowcaseItem(
@@ -683,7 +683,7 @@ private fun SubTypeFilter(
             ?.takeIf { selectRoundDialogState.selectedSubTypeId != null }
 
     FlowRow(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.Center,
             horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally),
             modifier = Modifier.updateHelpDialogPosition(
                     helpState = HelpShowcaseItem(
