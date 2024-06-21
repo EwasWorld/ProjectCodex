@@ -66,19 +66,10 @@ class AddEndRobot(
     }
 
     fun checkSightMarkIndicator(distance: String, sightMark: String?) {
-        checkElementText(
-                AddEndTestTag.SIGHT_MARK_DESCRIPTION,
-                if (sightMark == null) "No sight mark for $distance"
-                else "$distance sight mark:",
-        )
+        checkElementText(AddEndTestTag.SIGHT_MARK_DESCRIPTION, "$distance sight mark:")
         performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
-            if (sightMark == null) {
-                +CodexNodeInteraction.AssertDoesNotExist()
-            }
-            else {
-                +CodexNodeInteraction.AssertTextEquals(sightMark)
-            }
+            +CodexNodeInteraction.AssertTextEquals(sightMark ?: "None")
         }
     }
 
@@ -88,7 +79,7 @@ class AddEndRobot(
     }
 
     fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
-        clickElement(AddEndTestTag.EDIT_SIGHT_MARK)
+        clickElement(AddEndTestTag.SIGHT_MARK)
         createRobot(SightMarkDetailRobot::class, block)
     }
 

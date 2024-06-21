@@ -99,12 +99,11 @@ class AddCountRobot(
     }
 
     fun checkSightMarkIndicator(distance: String, sightMark: String?) {
-        checkElementText(
-                AddEndTestTag.SIGHT_MARK_DESCRIPTION,
-                if (sightMark == null) "No sight mark for $distance"
-                else "$distance sight mark:",
-        )
-        checkElementTextOrDoesNotExist(AddEndTestTag.SIGHT_MARK, sightMark)
+        checkElementText(AddEndTestTag.SIGHT_MARK_DESCRIPTION, "$distance sight mark:")
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
+            +CodexNodeInteraction.AssertTextEquals(sightMark ?: "None")
+        }
     }
 
     fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {
@@ -113,7 +112,7 @@ class AddCountRobot(
     }
 
     fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
-        clickElement(AddEndTestTag.EDIT_SIGHT_MARK)
+        clickElement(AddEndTestTag.SIGHT_MARK)
         createRobot(SightMarkDetailRobot::class, block)
     }
 }

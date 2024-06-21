@@ -25,7 +25,7 @@
 
     <!-- Sight marks -->
     <string name="input_end__sight_mark">%1$d%2$s sight mark:</string> <!-- 100yd sight mark -->
-    <string name="input_end__sight_mark_none">No sight mark for %1$d%2$s</string> <!-- No sight mark for 100yd -->
+    <string name="input_end__sight_mark_none_placeholder">None</string>
     <string name="input_end__sight_mark_edit">Edit sight mark for %1$d%2$s</string> <!-- Edit sight mark for 100yd -->
     <string name="input_end__sight_mark_edit_none">Add sight mark for %1$d%2$s</string> <!-- Add sight mark for 100yd -->
     <string name="input_end__sight_mark_expand">View all sight marks</string>

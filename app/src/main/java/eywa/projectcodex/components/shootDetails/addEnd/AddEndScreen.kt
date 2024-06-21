@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.shootDetails.addEnd
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,19 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -46,13 +41,12 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
-import eywa.projectcodex.common.sharedUi.CodexIconButton
-import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
@@ -63,6 +57,7 @@ import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsStatePreviewHelper
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsScaffold
 import eywa.projectcodex.components.shootDetails.getData
+import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
@@ -154,7 +149,7 @@ private fun AddEndScreen(
                 helpListener = helpListener,
                 onExpandClicked = { listener(FullSightMarksClicked) },
                 onEditClicked = { listener(EditSightMarkClicked) },
-                modifier = Modifier.padding(top = 5.dp)
+                modifier = Modifier
         )
         RemainingArrowsIndicator(state.fullShootInfo, helpListener)
         Spacer(modifier = Modifier.size(DpSize.Zero))
@@ -201,10 +196,13 @@ fun SightMark(
     if (distance == null || isMetric == null) return
 
     val distanceUnit = stringResource(getDistanceUnitRes(isMetric)!!)
-    Row(
-            verticalAlignment = Alignment.CenterVertically,
+
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(5.dp),
             modifier = modifier
                     .horizontalScroll(rememberScrollState())
+                    .padding(vertical = 15.dp)
                     .padding(horizontal = CodexTheme.dimens.screenPadding)
                     .updateHelpDialogPosition(
                             HelpShowcaseItem(
@@ -213,61 +211,43 @@ fun SightMark(
                             ).asHelpState(helpListener)
                     )
     ) {
-        CodexIconButton(
-                icon = CodexIconInfo.VectorIcon(
-                        imageVector = Icons.Default.OpenInFull,
-                        contentDescription = stringResource(R.string.input_end__sight_mark_expand),
-                        tint = Color.White,
-                        modifier = Modifier.scale(-1f, 1f)
-                ),
-                onClick = onExpandClicked,
-                modifier = Modifier.testTag(AddEndTestTag.EXPAND_SIGHT_MARK)
-        )
-        if (sightMark != null) {
+        Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
                     text = stringResource(
                             R.string.input_end__sight_mark,
                             distance,
                             distanceUnit,
                     ),
-                    color = Color.White,
-                    style = CodexTypography.NORMAL,
-                    modifier = Modifier
-                            .padding(end = 5.dp)
-                            .testTag(AddEndTestTag.SIGHT_MARK_DESCRIPTION)
-            )
-            Text(
-                    sightMark.sightMark.toString(),
-                    color = Color.White,
-                    style = CodexTypography.LARGE,
-                    modifier = Modifier.testTag(AddEndTestTag.SIGHT_MARK)
-            )
-        }
-        else {
-            Text(
-                    text = stringResource(
-                            R.string.input_end__sight_mark_none,
-                            distance,
-                            distanceUnit,
-                    ),
-                    color = Color.White,
+                    color = CodexTheme.colors.onAppBackground,
                     style = CodexTypography.NORMAL,
                     modifier = Modifier.testTag(AddEndTestTag.SIGHT_MARK_DESCRIPTION)
             )
+            Text(
+                    sightMark?.sightMark?.toString()
+                            ?: stringResource(R.string.input_end__sight_mark_none_placeholder),
+                    style = (if (sightMark == null) CodexTypography.NORMAL else CodexTypography.LARGE)
+                            .asClickableStyle(),
+                    modifier = Modifier
+                            .testTag(AddEndTestTag.SIGHT_MARK)
+                            .clickable(
+                                    onClickLabel = stringResource(
+                                            if (sightMark != null) R.string.input_end__sight_mark_edit
+                                            else R.string.input_end__sight_mark_edit_none,
+                                            distance,
+                                            distanceUnit,
+                                    ),
+                            ) { onEditClicked() }
+            )
         }
-        CodexIconButton(
-                icon = CodexIconInfo.VectorIcon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(
-                                if (sightMark != null) R.string.input_end__sight_mark_edit
-                                else R.string.input_end__sight_mark_edit_none,
-                                distance,
-                                distanceUnit,
-                        ),
-                        tint = Color.White,
-                ),
-                onClick = onEditClicked,
-                modifier = Modifier.testTag(AddEndTestTag.EDIT_SIGHT_MARK)
+        Text(
+                text = stringResource(R.string.input_end__sight_mark_expand),
+                style = CodexTypography.SMALL.asClickableStyle(),
+                modifier = Modifier
+                        .testTag(AddEndTestTag.EXPAND_SIGHT_MARK)
+                        .clickable { onExpandClicked() }
         )
     }
 }
@@ -299,7 +279,7 @@ private fun ScoreIndicator(
                     text = totalScore.toString(),
                     isHeader = false,
                     modifier = Modifier
-                            .testTag(AddEndTestTag.ROUND_SCORE.getTestTag())
+                            .testTag(AddEndTestTag.ROUND_SCORE)
                             .semantics {
                                 contentDescription = resources.getString(
                                         R.string.input_end__archer_score_accessibility_text,
@@ -320,7 +300,7 @@ private fun ScoreIndicator(
                     text = arrowsShot.toString(),
                     isHeader = false,
                     modifier = Modifier
-                            .testTag(AddEndTestTag.ROUND_ARROWS.getTestTag())
+                            .testTag(AddEndTestTag.ROUND_ARROWS)
                             .semantics {
                                 contentDescription = resources.getString(
                                         R.string.input_end__archer_arrow_count_accessibility_text,
@@ -393,7 +373,7 @@ fun RemainingArrowsIndicator(
                         text = remainingStrings[0] + if (it.size > 1) delim.trim() else "",
                         style = CodexTypography.LARGE,
                         color = CodexTheme.colors.onAppBackground,
-                        modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_CURRENT.getTestTag())
+                        modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
                 )
             }
             if (it.size > 1) {
@@ -401,7 +381,7 @@ fun RemainingArrowsIndicator(
                         text = remainingStrings.drop(1).joinToString(delim),
                         style = CodexTypography.NORMAL,
                         color = CodexTheme.colors.onAppBackground,
-                        modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_LATER.getTestTag())
+                        modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_LATER)
                 )
             }
         }
@@ -417,7 +397,6 @@ enum class AddEndTestTag : CodexTestTag {
     SIGHT_MARK_DESCRIPTION,
     SIGHT_MARK,
     EXPAND_SIGHT_MARK,
-    EDIT_SIGHT_MARK,
     ;
 
     override val screenName: String
@@ -436,7 +415,8 @@ fun AddEndScreen_Preview() {
     CodexTheme {
         AddEndScreen(
                 AddEndState(
-                        main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS,
+                        main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS
+                                .copy(sightMark = SightMark(SightMarksPreviewHelper.sightMarks[0])),
                         extras = AddEndExtras(),
                 )
         ) {}

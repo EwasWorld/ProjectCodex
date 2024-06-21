@@ -145,7 +145,7 @@ fun AddArrowCountScreen(
                     helpListener = helpListener,
                     onExpandClicked = { listener(FullSightMarksClicked) },
                     onEditClicked = { listener(EditSightMarkClicked) },
-                    modifier = Modifier.padding(top = 5.dp)
+                    modifier = Modifier
             )
             RemainingArrowsIndicator(state.fullShootInfo, helpListener)
             ShotCount(state, helpListener)
