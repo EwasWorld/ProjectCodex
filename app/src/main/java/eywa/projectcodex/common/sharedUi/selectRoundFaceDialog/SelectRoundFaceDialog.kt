@@ -2,6 +2,7 @@ package eywa.projectcodex.common.sharedUi.selectRoundFaceDialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -203,6 +204,7 @@ private fun Selectors(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun IndividualSelectors(
         availableFaces: List<RoundFace>,
@@ -237,7 +239,9 @@ private fun IndividualSelectors(
             Text(
                     text = face,
                     style = LocalTextStyle.current.asClickableStyle(),
-                    modifier = Modifier.clickable { listener(OpenDropdown(index)) }
+                    modifier = Modifier
+                            .clickable { listener(OpenDropdown(index)) }
+                            .align(Alignment.CenterVertically)
             )
             DropdownMenu(
                     expanded = dropdownExpandedFor == index,

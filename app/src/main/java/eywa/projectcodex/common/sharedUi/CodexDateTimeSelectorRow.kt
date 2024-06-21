@@ -4,12 +4,13 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import eywa.projectcodex.R
@@ -19,6 +20,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import java.util.Calendar
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CodexDateTimeSelectorRow(
         date: Calendar,
@@ -41,14 +43,16 @@ fun CodexDateTimeSelectorRow(
                 style = textClickableStyle,
                 modifier = Modifier
                         .clickable { timePicker.show() }
-                        .testTag(DateSelectorRowTestTag.TIME_BUTTON.getTestTag())
+                        .testTag(DateSelectorRowTestTag.TIME_BUTTON)
+                        .align(Alignment.CenterVertically)
         )
         Text(
                 text = DateTimeFormat.LONG_DATE.format(date),
                 style = textClickableStyle,
                 modifier = Modifier
                         .clickable { datePicker.show() }
-                        .testTag(DateSelectorRowTestTag.DATE_BUTTON.getTestTag())
+                        .testTag(DateSelectorRowTestTag.DATE_BUTTON)
+                        .align(Alignment.CenterVertically)
         )
     }
 }

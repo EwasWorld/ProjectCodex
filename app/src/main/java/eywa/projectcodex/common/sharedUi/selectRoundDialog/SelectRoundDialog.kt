@@ -3,7 +3,6 @@ package eywa.projectcodex.common.sharedUi.selectRoundDialog
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -355,11 +354,12 @@ fun SelectSubtypeDialog(
             ItemSelector(
                     displayItems = subTypes.sortedByDescending { getDistance(it) },
                     onItemClicked = { listener(SubTypeSelected(it)) },
-            ) { item ->
+            ) { item, contentModifier ->
                 val distanceString = getDistance(item).toString() + distanceUnit!!
                 Text(
                         text = "($distanceString)",
                         style = CodexTypography.SMALL,
+                        modifier = contentModifier
                 )
             }
         }
@@ -372,33 +372,30 @@ private fun <T : NamedItem> ItemSelector(
         displayItems: Iterable<T>,
         onItemClicked: (T) -> Unit,
         modifier: Modifier = Modifier,
-        extraContent: (@Composable (T) -> Unit)? = null,
+        extraContent: (@Composable (T, Modifier) -> Unit)? = null,
 ) {
     LazyColumn(
             horizontalAlignment = Alignment.Start,
             modifier = modifier,
     ) {
         items(displayItems.toList()) { item ->
-            Box(
-                    contentAlignment = Alignment.CenterStart,
+            FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                     modifier = Modifier
+                            .testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
                             .clickable { onItemClicked(item) }
                             .fillMaxWidth()
                             .padding(10.dp)
             ) {
-                FlowRow(
-                        verticalArrangement = Arrangement.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
-                        modifier = Modifier.testTag(SelectRoundDialogTestTag.ROUND_DIALOG_ITEM.getTestTag())
-                ) {
-                    item.label.get().split(" ").forEach { itemLabelWord ->
-                        Text(
-                                text = itemLabelWord,
-                                style = CodexTypography.NORMAL,
-                        )
-                    }
-                    extraContent?.invoke(item)
+                val contentModifier = Modifier.align(Alignment.Bottom)
+                item.label.get().split(" ").forEach { itemLabelWord ->
+                    Text(
+                            text = itemLabelWord,
+                            style = CodexTypography.NORMAL,
+                            modifier = contentModifier
+                    )
                 }
+                extraContent?.invoke(item, contentModifier)
             }
         }
     }
@@ -429,6 +426,23 @@ fun SelectRoundDialog_Preview() {
                 displayedRounds = List(20) { RoundPreviewHelper.outdoorImperialRoundData.round },
                 enabledFilters = SelectRoundEnabledFilters(),
                 listener = { },
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SelectSubtypeDialog_Preview() {
+    DialogPreviewHelper {
+        SelectSubtypeDialog(
+                isShown = true,
+                subTypes = RoundPreviewHelper.wa1440RoundData.roundSubTypes!!,
+                getDistance = { subType ->
+                    RoundPreviewHelper.wa1440RoundData.roundDistances!!
+                            .find { it.subTypeId == subType.subTypeId }!!.distance
+                },
+                distanceUnit = "m",
+                listener = {},
         )
     }
 }

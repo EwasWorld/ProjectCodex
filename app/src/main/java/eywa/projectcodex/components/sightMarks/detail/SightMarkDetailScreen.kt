@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -35,11 +36,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.accompanist.flowlayout.FlowMainAxisAlignment
-import com.google.accompanist.flowlayout.FlowRow
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CODEX_CHIP_SPACING
@@ -58,33 +58,11 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.CloseHandled
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.DeleteClicked
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.DistanceUpdated
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.HelpShowcaseAction
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.NoteUpdated
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ResetClicked
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.SaveClicked
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.SightMarkUpdated
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleIsArchived
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleIsMarked
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleIsMetric
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.ToggleUpdateDateSet
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.ARCHIVED
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DATE
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DELETE_BUTTON
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE_ERROR_TEXT
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.DISTANCE_UNIT
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.MARKED
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.NOTE
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.RESET_BUTTON
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SAVE_BUTTON
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SCREEN
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT
-import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.SIGHT_ERROR_TEXT
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailIntent.*
+import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.model.SightMark
 import java.util.Calendar
@@ -125,7 +103,7 @@ fun SightMarkDetailScreen(
                     .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
                     .verticalScroll(rememberScrollState())
-                    .testTag(SCREEN.getTestTag())
+                    .testTag(SCREEN)
     ) {
         if (state == null) {
             Text(
@@ -139,6 +117,7 @@ fun SightMarkDetailScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SightMarkDetail(
         state: SightMarkDetailState,
@@ -186,11 +165,10 @@ fun SightMarkDetail(
                         selectAllOnFocus = false,
                         testTag = SIGHT,
                         onValueChanged = { listener(SightMarkUpdated(it ?: "")) },
-                        helpState = HelpState(
-                                helpListener = helpListener,
+                        helpState = HelpShowcaseItem(
                                 helpTitle = stringResource(R.string.help_sight_marks__sight_title),
                                 helpBody = stringResource(R.string.help_sight_marks__sight_body),
-                        ),
+                        ).asHelpState(helpListener)
                 )
                 CodexNumberFieldErrorText(
                         errorText = state.sightMarkValidatorError,
@@ -213,11 +191,10 @@ fun SightMarkDetail(
                             selectAllOnFocus = false,
                             testTag = DISTANCE,
                             onValueChanged = { listener(DistanceUpdated(it ?: "")) },
-                            helpState = HelpState(
-                                    helpListener = helpListener,
+                            helpState = HelpShowcaseItem(
                                     helpTitle = stringResource(R.string.help_sight_marks__distance_title),
                                     helpBody = stringResource(R.string.help_sight_marks__distance_body),
-                            ),
+                            ).asHelpState(helpListener)
                     )
 
                     val unitContentDescription = stringResource(
@@ -230,7 +207,7 @@ fun SightMarkDetail(
                             textDecoration = TextDecoration.Underline,
                             modifier = Modifier
                                     .clickable { listener(ToggleIsMetric) }
-                                    .testTag(DISTANCE_UNIT.getTestTag())
+                                    .testTag(DISTANCE_UNIT)
                                     .semantics {
                                         contentDescription = unitContentDescription
                                     }
@@ -249,14 +226,13 @@ fun SightMarkDetail(
                     DataRow(
                             title = stringResource(R.string.sight_marks__date_set),
                             text = DateTimeFormat.SHORT_DATE.format(dateSet),
-                            helpState = HelpState(
-                                    helpListener = helpListener,
+                            helpState = HelpShowcaseItem(
                                     helpTitle = stringResource(R.string.help_sight_marks__date_title),
                                     helpBody = stringResource(R.string.help_sight_marks__date_body),
-                            ),
+                            ).asHelpState(helpListener),
                             textModifier = Modifier
                                     .clickable { listener(ToggleUpdateDateSet) }
-                                    .testTag(DATE.getTestTag())
+                                    .testTag(DATE)
                     )
                 }
                 if (state.originalSightMark != null) {
@@ -271,18 +247,16 @@ fun SightMarkDetail(
                             modifier = Modifier
                                     .clickable { listener(ToggleUpdateDateSet) }
                                     .updateHelpDialogPosition(
-                                            HelpState(
-                                                    helpListener,
-                                                    stringResource(R.string.help_sight_marks__update_date_set_title),
-                                                    stringResource(R.string.help_sight_marks__update_date_set_body),
-                                            )
+                                            HelpShowcaseItem(
+                                                    helpTitle = stringResource(R.string.help_sight_marks__update_date_set_title),
+                                                    helpBody = stringResource(R.string.help_sight_marks__update_date_set_body),
+                                            ).asHelpState(helpListener),
                                     )
                     )
                 }
             }
             FlowRow(
-                    mainAxisSpacing = CODEX_CHIP_SPACING,
-                    mainAxisAlignment = FlowMainAxisAlignment.Center,
+                    horizontalArrangement = Arrangement.spacedBy(CODEX_CHIP_SPACING),
                     modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)
@@ -292,22 +266,22 @@ fun SightMarkDetail(
                         selected = state.isMarked,
                         testTag = MARKED,
                         onToggle = { listener(ToggleIsMarked) },
-                        helpState = HelpState(
-                                helpListener,
-                                stringResource(R.string.help_sight_marks__marked_title),
-                                stringResource(R.string.help_sight_marks__marked_body),
-                        ),
+                        helpState = HelpShowcaseItem(
+                                helpTitle = stringResource(R.string.help_sight_marks__marked_title),
+                                helpBody = stringResource(R.string.help_sight_marks__marked_body),
+                        ).asHelpState(helpListener),
+                        modifier = Modifier.align(Alignment.CenterVertically)
                 )
                 CodexChip(
                         text = stringResource(R.string.sight_marks__archived),
                         selected = state.isArchived,
                         testTag = ARCHIVED,
                         onToggle = { listener(ToggleIsArchived) },
-                        helpState = HelpState(
-                                helpListener,
-                                stringResource(R.string.help_sight_marks__archived_title),
-                                stringResource(R.string.help_sight_marks__archived_body),
-                        ),
+                        helpState = HelpShowcaseItem(
+                                helpTitle = stringResource(R.string.help_sight_marks__archived_title),
+                                helpBody = stringResource(R.string.help_sight_marks__archived_body),
+                        ).asHelpState(helpListener),
+                        modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
             CodexTextFieldRoundedSurface {
@@ -319,17 +293,15 @@ fun SightMarkDetail(
                         ),
                         placeholderText = stringResource(R.string.sight_marks__note_placeholder),
                         labelText = stringResource(R.string.sight_marks__note),
-                        helpState = HelpState(
-                                helpListener,
-                                stringResource(R.string.help_sight_marks__note_title),
-                                stringResource(R.string.help_sight_marks__note_body),
-                        ),
+                        helpState = HelpShowcaseItem(
+                                helpTitle = stringResource(R.string.help_sight_marks__note_title),
+                                helpBody = stringResource(R.string.help_sight_marks__note_body),
+                        ).asHelpState(helpListener),
                         modifier = Modifier.padding(5.dp)
                 )
             }
             FlowRow(
-                    mainAxisSpacing = 5.dp,
-                    mainAxisAlignment = FlowMainAxisAlignment.Center,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                     modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)
@@ -342,12 +314,13 @@ fun SightMarkDetail(
                             ),
                             captionBelow = stringResource(R.string.general_delete),
                             onClick = { isDeleteConfirmationShown = true },
-                            helpState = HelpState(
-                                    helpListener,
-                                    stringResource(R.string.help_sight_marks__delete_title),
-                                    stringResource(R.string.help_sight_marks__delete_body),
-                            ),
-                            modifier = Modifier.testTag(DELETE_BUTTON.getTestTag())
+                            helpState = HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_sight_marks__delete_title),
+                                    helpBody = stringResource(R.string.help_sight_marks__delete_body),
+                            ).asHelpState(helpListener),
+                            modifier = Modifier
+                                    .testTag(DELETE_BUTTON)
+                                    .align(Alignment.CenterVertically)
                     )
                     CodexIconButton(
                             icon = CodexIconInfo.VectorIcon(
@@ -356,12 +329,13 @@ fun SightMarkDetail(
                             ),
                             captionBelow = stringResource(R.string.general__reset_edits),
                             onClick = { listener(ResetClicked) },
-                            helpState = HelpState(
-                                    helpListener,
-                                    stringResource(R.string.help_sight_marks__reset_title),
-                                    stringResource(R.string.help_sight_marks__reset_body),
-                            ),
-                            modifier = Modifier.testTag(RESET_BUTTON.getTestTag())
+                            helpState = HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_sight_marks__reset_title),
+                                    helpBody = stringResource(R.string.help_sight_marks__reset_body),
+                            ).asHelpState(helpListener),
+                            modifier = Modifier
+                                    .testTag(RESET_BUTTON)
+                                    .align(Alignment.CenterVertically)
                     )
                 }
                 CodexIconButton(
@@ -372,12 +346,13 @@ fun SightMarkDetail(
                         captionBelow = stringResource(R.string.general_save),
                         onClick = { listener(SaveClicked) },
                         enabled = state.isFormValid,
-                        helpState = HelpState(
-                                helpListener,
-                                stringResource(R.string.help_sight_marks__save_title),
-                                stringResource(R.string.help_sight_marks__save_body),
-                        ),
-                        modifier = Modifier.testTag(SAVE_BUTTON.getTestTag())
+                        helpState = HelpShowcaseItem(
+                                helpTitle = stringResource(R.string.help_sight_marks__save_title),
+                                helpBody = stringResource(R.string.help_sight_marks__save_body),
+                        ).asHelpState(helpListener),
+                        modifier = Modifier
+                                .testTag(SAVE_BUTTON)
+                                .align(Alignment.CenterVertically)
                 )
             }
         }

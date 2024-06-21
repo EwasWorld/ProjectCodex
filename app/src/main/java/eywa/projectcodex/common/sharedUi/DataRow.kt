@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +23,7 @@ import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DataRow(
         title: String,
@@ -49,10 +51,9 @@ fun DataRow(
             text = text,
             style = if (onClick == null) textStyle else textClickableStyle,
             textAlign = TextAlign.Center,
-            modifier = textModifier.modifierIf(
-                    onClick != null,
-                    Modifier.clickable { onClick!!.invoke() }
-            ),
+            modifier = textModifier
+                    .modifierIf(onClick != null, Modifier.clickable { onClick!!.invoke() })
+                    .align(Alignment.CenterVertically)
     )
 }
 
@@ -64,7 +65,7 @@ fun DataRow(
         modifier: Modifier = Modifier,
         titleModifier: Modifier = Modifier,
         style: TextStyle = LocalTextStyle.current,
-        content: @Composable () -> Unit,
+        content: @Composable FlowRowScope.() -> Unit,
 ) {
     FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
@@ -74,7 +75,7 @@ fun DataRow(
         Text(
                 text = title,
                 style = style,
-                modifier = titleModifier
+                modifier = titleModifier.align(Alignment.CenterVertically)
         )
         content()
     }

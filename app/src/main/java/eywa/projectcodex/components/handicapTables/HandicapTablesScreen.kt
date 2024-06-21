@@ -38,6 +38,7 @@ import eywa.projectcodex.common.helpShowcase.DEFAULT_HELP_PRIORITY
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexGrid
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
@@ -53,6 +54,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
@@ -106,14 +108,13 @@ fun Selections(
                     if (state.use2023System) R.string.handicap_tables__handicap_system_agb_2023
                     else R.string.handicap_tables__handicap_system_david_lane
             ),
-            helpState = HelpState(
-                    helpListener = helpListener,
+            helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_handicap_tables__2023_system_title),
                     helpBody = stringResource(R.string.help_handicap_tables__2023_system_body),
-            ),
+            ).asHelpState(helpListener),
             onClick = { listener(ToggleHandicapSystem) },
             accessibilityRole = Role.Switch,
-            modifier = Modifier.testTag(HandicapTablesTestTag.SYSTEM_SELECTOR.getTestTag())
+            modifier = Modifier.testTag(HandicapTablesTestTag.SYSTEM_SELECTOR)
     )
 
     Column(
@@ -123,25 +124,24 @@ fun Selections(
     ) {
         FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                verticalArrangement = Arrangement.Center,
         ) {
             Text(
                     text = stringResource(state.inputType.labelId),
                     style = LocalTextStyle.current.asClickableStyle(),
                     modifier = Modifier
-                            .testTag(HandicapTablesTestTag.INPUT_SELECTOR.getTestTag())
+                            .testTag(HandicapTablesTestTag.INPUT_SELECTOR)
                             .clickable(
                                     onClickLabel = stringResource(R.string.handicap_tables__input_selector_click_label),
                                     onClick = { listener(ToggleInput) },
                                     role = Role.Switch,
                             )
                             .updateHelpDialogPosition(
-                                    HelpState(
-                                            helpListener = helpListener,
+                                    HelpShowcaseItem(
                                             helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
                                             helpBody = stringResource(state.inputType.typeHelpId),
-                                    ),
+                                    ).asHelpState(helpListener)
                             )
+                            .align(Alignment.CenterVertically)
             )
             CodexNumberField(
                     currentValue = state.inputFull.text,
@@ -150,13 +150,14 @@ fun Selections(
                     errorMessage = state.inputFull.error,
                     testTag = HandicapTablesTestTag.INPUT_TEXT,
                     onValueChanged = { listener(InputChanged(it)) },
-                    modifier = Modifier.updateHelpDialogPosition(
-                            HelpState(
-                                    helpListener = helpListener,
-                                    helpTitle = stringResource(R.string.help_handicap_tables__input_title),
-                                    helpBody = stringResource(state.inputType.inputHelpId),
-                            ),
-                    )
+                    modifier = Modifier
+                            .updateHelpDialogPosition(
+                                    HelpShowcaseItem(
+                                            helpTitle = stringResource(R.string.help_handicap_tables__input_title),
+                                            helpBody = stringResource(state.inputType.inputHelpId),
+                                    ).asHelpState(helpListener)
+                            )
+                            .align(Alignment.CenterVertically)
             )
         }
         CodexNumberFieldErrorText(
@@ -238,7 +239,7 @@ fun HandicapDisplay(
                         text = stringResource(R.string.handicap_tables__no_tables),
                         modifier = Modifier
                                 .updateHelpDialogPosition(helpState)
-                                .testTag(HandicapTablesTestTag.TABLE_EMPTY_TEXT.getTestTag())
+                                .testTag(HandicapTablesTestTag.TABLE_EMPTY_TEXT)
                                 .padding(10.dp)
                 )
             }
@@ -264,7 +265,7 @@ private fun Table(
                     .updateHelpDialogPosition(helpState)
                     .padding(horizontal = 10.dp, vertical = 8.dp)
     ) {
-        HandicapTableColumn.values().forEach {
+        HandicapTableColumn.entries.forEach {
             item {
                 Text(
                         text = it.label.get(),
@@ -277,7 +278,7 @@ private fun Table(
         handicaps.forEach {
             val isHighlighted = it == highlighted
 
-            HandicapTableColumn.values().forEach { column ->
+            HandicapTableColumn.entries.forEach { column ->
                 item(fillBox = isHighlighted) {
                     Text(
                             text = column.data(it).get(),
@@ -288,7 +289,7 @@ private fun Table(
                                             modifier = Modifier.background(CodexTheme.colors.appBackground)
                                     )
                                     .padding(3.dp)
-                                    .testTag(column.testTag.getTestTag())
+                                    .testTag(column.testTag)
                                     .semantics {
                                         contentDescription = column
                                                 .semanticData(it)

@@ -363,7 +363,6 @@ private fun ColumnScope.DateFilters(
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     FlowRow(
-            verticalArrangement = Arrangement.Center,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             modifier = Modifier.updateHelpDialogPosition(
                     HelpShowcaseItem(
@@ -375,7 +374,9 @@ private fun ColumnScope.DateFilters(
     ) {
         Text(
                 text = stringResource(R.string.view_scores__filters_date),
-                modifier = Modifier.clearAndSetSemantics { }
+                modifier = Modifier
+                        .clearAndSetSemantics { }
+                        .align(Alignment.CenterVertically)
         )
         DateFilter(
                 title = stringResource(R.string.view_scores__filters_from_date),
@@ -385,10 +386,13 @@ private fun ColumnScope.DateFilters(
                 clearTestTag = ViewScoresFiltersTestTag.CLEAR_DATE_FROM_FILTER_BUTTON,
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateFromFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearFromFilter) },
+                modifier = Modifier.align(Alignment.CenterVertically)
         )
         Text(
                 text = stringResource(R.string.view_scores__filters_range_separator),
-                modifier = Modifier.clearAndSetSemantics { }
+                modifier = Modifier
+                        .clearAndSetSemantics { }
+                        .align(Alignment.CenterVertically)
         )
         DateFilter(
                 title = stringResource(R.string.view_scores__filters_until_date),
@@ -399,6 +403,7 @@ private fun ColumnScope.DateFilters(
                 error = stringResource(R.string.view_scores__filters_invalid_dates).takeIf { !state.dateRangeIsValid },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateUntilFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearUntilFilter) },
+                modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
     if (!state.dateRangeIsValid) {
