@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.shootDetails.addArrowCount
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +41,6 @@ import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
-import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -68,10 +67,23 @@ fun AddArrowCountScreen(
     val data = state.getData()
     val listener = { it: AddArrowCountIntent -> viewModel.handle(it) }
 
-    if (data == null) CircularProgressIndicator(color = CodexTheme.colors.onAppBackground)
-    else AddArrowCountScreen(data, listener)
+    if (data == null) {
+        Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+        ) {
+            CircularProgressIndicator(color = CodexTheme.colors.onAppBackground)
+        }
+    }
+    else {
+        AddArrowCountScreen(data, listener)
+    }
 
-    val isScoring = data?.fullShootInfo != null && data.fullShootInfo.arrowCounter == null
+    // Has a round, no arrow counts, and is not sighters
+    val isScoring =
+            data?.fullShootInfo != null
+                    && data.fullShootInfo.arrowCounter == null
+                    && !data.isEditingSighters
     LaunchedEffect(isScoring) {
         if (isScoring) {
             CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
@@ -114,6 +126,19 @@ fun AddArrowCountScreen(
             listener(FullSightMarksHandled)
         }
     }
+
+    LaunchedEffect(data?.openEditSighters) {
+        if (data?.openEditSighters == true) {
+            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.SHOOT_ID to data.fullShootInfo.id.toString(),
+                            NavArgument.IS_SIGHTERS to true.toString(),
+                    ),
+            )
+            listener(EditSightersHandled)
+        }
+    }
 }
 
 @Composable
@@ -125,7 +150,7 @@ fun AddArrowCountScreen(
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(30.dp, Alignment.CenterVertically),
             modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
@@ -148,61 +173,13 @@ fun AddArrowCountScreen(
                     modifier = Modifier
             )
             RemainingArrowsIndicator(state.fullShootInfo, helpListener)
-            ShotCount(state, helpListener)
+            ShotCount(
+                    state = state,
+                    helpListener = helpListener,
+                    onSightersClicked = { listener(EditSightersClicked) },
+                    modifier = Modifier.padding(vertical = 15.dp)
+            )
             IncreaseCountInputs(state, listener)
-        }
-    }
-}
-
-@Composable
-private fun ShotCount(
-        state: AddArrowCountState,
-        helpListener: (HelpShowcaseIntent) -> Unit,
-) {
-    // TODO Swap to allow 0 once sighters have been implemented
-    val sighters = state.fullShootInfo.shootRound?.sightersCount?.takeIf { it != 0 }
-    val shot = state.fullShootInfo.arrowsShot
-
-    Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.padding(vertical = 35.dp)
-    ) {
-        sighters?.let {
-            DataRow(
-                    title = stringResource(R.string.add_count__sighters),
-                    text = it.toString(),
-                    helpState = HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_add_count__sighters_title),
-                            helpBody = stringResource(R.string.help_add_count__sighters_body),
-                    ).asHelpState(helpListener),
-                    textModifier = Modifier.testTag(AddArrowCountTestTag.SIGHTERS_COUNT),
-            )
-        }
-        DataRow(
-                title = stringResource(R.string.add_count__shot),
-                text = shot.toString(),
-                titleStyle = CodexTypography.LARGE.copy(color = CodexTheme.colors.onAppBackground),
-                textStyle = CodexTypography.X_LARGE.copy(color = CodexTheme.colors.onAppBackground),
-                helpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_add_count__shot_title),
-                        helpBody = stringResource(R.string.help_add_count__shot_body),
-                ).asHelpState(helpListener),
-                textModifier = Modifier.testTag(AddArrowCountTestTag.SHOT_COUNT),
-                modifier = Modifier
-                        .border(2.dp, color = CodexTheme.colors.onAppBackground)
-                        .padding(horizontal = 20.dp, vertical = 10.dp)
-        )
-        sighters?.let {
-            DataRow(
-                    title = stringResource(R.string.add_count__total),
-                    text = (it + shot).toString(),
-                    helpState = HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_add_count__total_title),
-                            helpBody = stringResource(R.string.help_add_count__total_body),
-                    ).asHelpState(helpListener),
-                    textModifier = Modifier.testTag(AddArrowCountTestTag.TOTAL_COUNT),
-            )
         }
     }
 }
@@ -340,6 +317,7 @@ fun AddArrowCountScreen_Preview() {
                                 },
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("6")),
+                        isEditingSighters = false,
                 )
         ) {}
     }
@@ -360,6 +338,7 @@ fun NoRound_AddArrowCountScreen_Preview() {
                                 },
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("6")),
+                        isEditingSighters = false,
                 )
         ) {}
     }
@@ -381,6 +360,7 @@ fun RoundComplete_AddArrowCountScreen_Preview() {
                                 },
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("0")),
+                        isEditingSighters = false,
                 )
         ) {}
     }
@@ -402,6 +382,29 @@ fun Error_AddArrowCountScreen_Preview() {
                                 },
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("hi")),
+                        isEditingSighters = false,
+                )
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun Sighters_AddArrowCountScreen_Preview() {
+    CodexTheme {
+        AddArrowCountScreen(
+                AddArrowCountState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    addRound(RoundPreviewHelper.yorkRoundData, 12)
+                                    addArrowCounter(30)
+                                },
+                        ),
+                        extras = AddArrowCountExtras(PartialNumberFieldState("6")),
+                        isEditingSighters = true,
                 )
         ) {}
     }

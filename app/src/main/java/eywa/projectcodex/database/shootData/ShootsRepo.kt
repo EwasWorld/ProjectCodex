@@ -173,6 +173,10 @@ class ShootsRepo(
         shootDao.deleteRound(shootId)
     }
 
+    suspend fun updateShootRound(shootRound: DatabaseShootRound) {
+        shootRoundDao.update(shootRound)
+    }
+
     @Transaction
     suspend fun update(
             original: FullShootInfo,

@@ -82,6 +82,8 @@ class AddEndViewModel @Inject constructor(
             EditSightMarkHandled -> extraState.update { it.copy(openEditSightMark = false) }
             FullSightMarksClicked -> extraState.update { it.copy(openFullSightMarks = true) }
             FullSightMarksHandled -> extraState.update { it.copy(openFullSightMarks = false) }
+            SightersClicked -> extraState.update { it.copy(openSighters = true) }
+            SightersHandled -> extraState.update { it.copy(openSighters = false) }
         }
     }
 

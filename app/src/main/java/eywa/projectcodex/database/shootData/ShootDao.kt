@@ -1,6 +1,13 @@
 package eywa.projectcodex.database.shootData
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.Transaction
+import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -9,7 +16,7 @@ import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.util.*
+import java.util.Calendar
 
 @Dao
 interface ShootDao {
@@ -144,9 +151,13 @@ interface ShootDao {
             """
                 SELECT
                         strftime("%d-%m", shoot.dateShot / 1000, 'unixepoch') as dateString,
-                        (COUNT(scores.rowId) + TOTAL(counts.shotCount) + TOTAL(rounds.sightersCount)) as count
+                        (TOTAL(scores.count) + TOTAL(counts.shotCount) + TOTAL(rounds.sightersCount)) as count
                 FROM $TABLE_NAME as shoot
-                LEFT JOIN ${DatabaseArrowScore.TABLE_NAME} as scores ON shoot.shootId = scores.shootId
+                LEFT JOIN (
+                    SELECT s.shootId, COUNT(s.rowId) as count
+                    FROM ${DatabaseArrowScore.TABLE_NAME} as s
+                    GROUP BY s.shootId 
+                ) as scores ON shoot.shootId = scores.shootId
                 LEFT JOIN ${DatabaseArrowCounter.TABLE_NAME} as counts ON shoot.shootId = counts.shootId
                 LEFT JOIN ${DatabaseShootRound.TABLE_NAME} as rounds ON shoot.shootId = rounds.shootId
                 WHERE shoot.dateShot >= :fromDate AND shoot.dateShot <= :toDate

@@ -10,6 +10,8 @@ sealed class AddEndIntent {
     data class ArrowInputsAction(val action: ArrowInputsIntent) : AddEndIntent()
     data class ShootDetailsAction(val action: ShootDetailsIntent) : AddEndIntent()
     data class ErrorHandled(val error: ArrowInputsError) : AddEndIntent()
+    object SightersClicked : AddEndIntent()
+    object SightersHandled : AddEndIntent()
     object RoundFullDialogOkClicked : AddEndIntent()
     object RoundCompleteDialogOkClicked : AddEndIntent()
     object FullSightMarksClicked : AddEndIntent()

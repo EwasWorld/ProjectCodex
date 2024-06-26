@@ -95,6 +95,9 @@ data class FullShootInfo(
             else -> null
         }
 
+    /**
+     * Does not include sighters
+     */
     val arrowsShot by lazy { arrowCounter?.shotCount ?: arrows?.size ?: 0 }
 
     val remainingArrows by lazy {

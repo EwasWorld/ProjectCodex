@@ -14,4 +14,6 @@ sealed class AddArrowCountIntent {
     object FullSightMarksHandled : AddArrowCountIntent()
     object EditSightMarkClicked : AddArrowCountIntent()
     object EditSightMarkHandled : AddArrowCountIntent()
+    object EditSightersClicked : AddArrowCountIntent()
+    object EditSightersHandled : AddArrowCountIntent()
 }

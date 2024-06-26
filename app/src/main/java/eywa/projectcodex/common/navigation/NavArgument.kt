@@ -35,6 +35,7 @@ enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     HANDICAP(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     ROUND_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     ROUND_SUB_TYPE_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
+    IS_SIGHTERS(type = NavType.BoolType, defaultValue = false),
     ;
 
     fun toArgName() = Regex("_[a-z]").replace(name.lowercase()) { it.value.drop(1).uppercase() }

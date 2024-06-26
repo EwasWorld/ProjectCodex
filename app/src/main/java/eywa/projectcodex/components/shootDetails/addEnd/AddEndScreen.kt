@@ -5,13 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -25,10 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -41,6 +34,7 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
@@ -98,10 +92,12 @@ fun HandleEffects(
             ToastSpamPrevention.displayToast(context, context.resources.getString(it.messageId))
             listener(ErrorHandled(it))
         }
+
         if (loadedState.openFullSightMarks) {
             CodexNavRoute.SIGHT_MARKS.navigate(navController)
             listener(FullSightMarksHandled)
         }
+
         if (loadedState.openEditSightMark) {
             val args = if (loadedState.sightMark != null) {
                 mapOf(NavArgument.SIGHT_MARK_ID to loadedState.sightMark.id.toString())
@@ -114,6 +110,17 @@ fun HandleEffects(
             }
             CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
             listener(EditSightMarkHandled)
+        }
+
+        if (loadedState.openSighters) {
+            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.SHOOT_ID to loadedState.fullShootInfo.id.toString(),
+                            NavArgument.IS_SIGHTERS to true.toString(),
+                    ),
+            )
+            listener(SightersHandled)
         }
     }
 }
@@ -138,21 +145,30 @@ private fun AddEndScreen(
             testTag = AddEndTestTag.SCREEN.getTestTag(),
             listener = { listener(ArrowInputsAction(it)) },
     ) {
-        ScoreIndicator(
-                totalScore = state.fullShootInfo.score,
-                arrowsShot = state.fullShootInfo.arrowsShot,
-                helpListener = helpListener,
-        )
-        SightMark(
-                fullShootInfo = state.fullShootInfo,
-                sightMark = state.sightMark,
-                helpListener = helpListener,
-                onExpandClicked = { listener(FullSightMarksClicked) },
-                onEditClicked = { listener(EditSightMarkClicked) },
-                modifier = Modifier
-        )
-        RemainingArrowsIndicator(state.fullShootInfo, helpListener)
-        Spacer(modifier = Modifier.size(DpSize.Zero))
+        Column(
+                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            ArrowsShot(
+                    sighters = state.fullShootInfo.shootRound?.sightersCount ?: 0,
+                    arrowsShot = state.fullShootInfo.arrowsShot,
+                    onClickSighters = { listener(SightersClicked) },
+                    helpListener = helpListener
+            )
+            ScoreIndicator(
+                    totalScore = state.fullShootInfo.score,
+                    helpListener = helpListener,
+            )
+            SightMark(
+                    fullShootInfo = state.fullShootInfo,
+                    sightMark = state.sightMark,
+                    helpListener = helpListener,
+                    onExpandClicked = { listener(FullSightMarksClicked) },
+                    onEditClicked = { listener(EditSightMarkClicked) },
+                    modifier = Modifier.padding(vertical = 10.dp)
+            )
+            RemainingArrowsIndicator(state.fullShootInfo, helpListener)
+        }
     }
 
     SimpleDialog(
@@ -183,6 +199,51 @@ private fun AddEndScreen(
 }
 
 @Composable
+fun ArrowsShot(
+        arrowsShot: Int,
+        sighters: Int,
+        onClickSighters: () -> Unit,
+        modifier: Modifier = Modifier,
+        helpListener: (HelpShowcaseIntent) -> Unit,
+) {
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+    ) {
+        DataRow(
+                title = stringResource(R.string.input_end__sighters_header),
+                text = sighters.toString(),
+                titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
+                textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)
+                        .asClickableStyle(),
+                modifier = Modifier
+                        .testTag(AddEndTestTag.SIGHTERS)
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_input_end__sighters_title),
+                                        helpBody = stringResource(R.string.help_input_end__sighters_body),
+                                ).asHelpState(helpListener)
+                        )
+                        .clickable { onClickSighters() }
+        )
+        DataRow(
+                title = stringResource(R.string.input_end__archer_arrows_count_header),
+                text = arrowsShot.toString(),
+                titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
+                textStyle = CodexTypography.NORMAL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
+                modifier = Modifier
+                        .testTag(AddEndTestTag.ROUND_ARROWS)
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_input_end__arrows_shot_title),
+                                        helpBody = stringResource(R.string.help_input_end__arrows_shot_body),
+                                ).asHelpState(helpListener)
+                        )
+        )
+    }
+}
+
+@Composable
 fun SightMark(
         fullShootInfo: FullShootInfo,
         sightMark: SightMark?,
@@ -202,46 +263,35 @@ fun SightMark(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             modifier = modifier
                     .horizontalScroll(rememberScrollState())
-                    .padding(vertical = 15.dp)
                     .padding(horizontal = CodexTheme.dimens.screenPadding)
-                    .updateHelpDialogPosition(
-                            HelpShowcaseItem(
-                                    helpTitle = stringResource(R.string.help_input_end__sight_mark_title),
-                                    helpBody = stringResource(R.string.help_input_end__sight_mark_body),
-                            ).asHelpState(helpListener)
-                    )
     ) {
-        Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                    text = stringResource(
-                            R.string.input_end__sight_mark,
-                            distance,
-                            distanceUnit,
-                    ),
-                    color = CodexTheme.colors.onAppBackground,
-                    style = CodexTypography.NORMAL,
-                    modifier = Modifier.testTag(AddEndTestTag.SIGHT_MARK_DESCRIPTION)
-            )
-            Text(
-                    sightMark?.sightMark?.toString()
-                            ?: stringResource(R.string.input_end__sight_mark_none_placeholder),
-                    style = (if (sightMark == null) CodexTypography.NORMAL else CodexTypography.LARGE)
-                            .asClickableStyle(),
-                    modifier = Modifier
-                            .testTag(AddEndTestTag.SIGHT_MARK)
-                            .clickable(
-                                    onClickLabel = stringResource(
-                                            if (sightMark != null) R.string.input_end__sight_mark_edit
-                                            else R.string.input_end__sight_mark_edit_none,
-                                            distance,
-                                            distanceUnit,
-                                    ),
-                            ) { onEditClicked() }
-            )
-        }
+        DataRow(
+                title = stringResource(
+                        R.string.input_end__sight_mark,
+                        distance,
+                        distanceUnit,
+                ),
+                text = sightMark?.sightMark?.toString()
+                        ?: stringResource(R.string.input_end__sight_mark_none_placeholder),
+                titleStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+                textStyle = ((if (sightMark == null) CodexTypography.NORMAL else CodexTypography.LARGE))
+                        .copy(color = CodexTheme.colors.onAppBackground),
+                onClick = { onEditClicked() },
+                onClickLabel = stringResource(
+                        if (sightMark != null) R.string.input_end__sight_mark_edit
+                        else R.string.input_end__sight_mark_edit_none,
+                        distance,
+                        distanceUnit,
+                ),
+                modifier = Modifier
+                        .testTag(AddEndTestTag.SIGHT_MARK)
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_input_end__sight_mark_title),
+                                        helpBody = stringResource(R.string.help_input_end__sight_mark_body),
+                                ).asHelpState(helpListener)
+                        )
+        )
         Text(
                 text = stringResource(R.string.input_end__sight_mark_expand),
                 style = CodexTypography.SMALL.asClickableStyle(),
@@ -255,81 +305,45 @@ fun SightMark(
 @Composable
 private fun ScoreIndicator(
         totalScore: Int,
-        arrowsShot: Int,
+        modifier: Modifier = Modifier,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
-    Row(
-            modifier = Modifier.updateHelpDialogPosition(
-                    HelpShowcaseItem(
-                            helpTitle = stringResource(R.string.help_input_end__summary_table_title),
-                            helpBody = stringResource(R.string.help_input_end__summary_table_body),
-                    ).asHelpState(helpListener)
-            )
-    ) {
-        Column(
-                modifier = Modifier.width(IntrinsicSize.Max)
-        ) {
-            ScoreIndicatorCell(
-                    text = stringResource(R.string.input_end__archer_score_header),
-                    isHeader = true,
-                    modifier = Modifier.clearAndSetSemantics { }
-            )
-            ScoreIndicatorCell(
-                    text = totalScore.toString(),
-                    isHeader = false,
-                    modifier = Modifier
-                            .testTag(AddEndTestTag.ROUND_SCORE)
-                            .semantics {
-                                contentDescription = resources.getString(
-                                        R.string.input_end__archer_score_accessibility_text,
-                                        totalScore.toString(),
-                                )
-                            }
-            )
-        }
-        Column(
-                modifier = Modifier.width(IntrinsicSize.Max)
-        ) {
-            ScoreIndicatorCell(
-                    text = stringResource(R.string.input_end__archer_arrows_count_header),
-                    isHeader = true,
-                    modifier = Modifier.clearAndSetSemantics { }
-            )
-            ScoreIndicatorCell(
-                    text = arrowsShot.toString(),
-                    isHeader = false,
-                    modifier = Modifier
-                            .testTag(AddEndTestTag.ROUND_ARROWS)
-                            .semantics {
-                                contentDescription = resources.getString(
-                                        R.string.input_end__archer_arrow_count_accessibility_text,
-                                        arrowsShot.toString(),
-                                )
-                            }
-            )
-        }
-    }
-}
 
-@Composable
-private fun ScoreIndicatorCell(
-        text: String,
-        isHeader: Boolean,
-        modifier: Modifier = Modifier,
-) {
-    Text(
-            text = text,
-            style = CodexTypography.LARGE,
-            color = CodexTheme.colors.onAppBackground,
-            textAlign = TextAlign.Center,
-            fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
-            fontSize = if (isHeader) CodexTypography.NORMAL.fontSize else CodexTypography.LARGE.fontSize,
+    Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
-                    .fillMaxWidth()
-                    .border(1.dp, CodexTheme.colors.onAppBackground)
-                    .padding(vertical = 5.dp, horizontal = 10.dp)
-    )
+                    .border(width = 1.dp, color = CodexTheme.colors.onAppBackground)
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                    .updateHelpDialogPosition(
+                            HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_input_end__score_title),
+                                    helpBody = stringResource(R.string.help_input_end__score_body),
+                            ).asHelpState(helpListener)
+                    )
+    ) {
+        Text(
+                text = stringResource(R.string.input_end__archer_score_header),
+                style = CodexTypography.NORMAL,
+                color = CodexTheme.colors.onAppBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.clearAndSetSemantics { }
+        )
+        Text(
+                text = totalScore.toString(),
+                style = CodexTypography.X_LARGE,
+                color = CodexTheme.colors.onAppBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                        .testTag(AddEndTestTag.ROUND_SCORE)
+                        .semantics {
+                            contentDescription = resources.getString(
+                                    R.string.input_end__archer_score_accessibility_text,
+                                    totalScore,
+                            )
+                        }
+        )
+    }
 }
 
 @Composable
@@ -371,7 +385,7 @@ fun RemainingArrowsIndicator(
                 )
                 Text(
                         text = remainingStrings[0] + if (it.size > 1) delim.trim() else "",
-                        style = CodexTypography.LARGE,
+                        style = CodexTypography.NORMAL_PLUS,
                         color = CodexTheme.colors.onAppBackground,
                         modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
                 )
@@ -397,6 +411,7 @@ enum class AddEndTestTag : CodexTestTag {
     SIGHT_MARK_DESCRIPTION,
     SIGHT_MARK,
     EXPAND_SIGHT_MARK,
+    SIGHTERS,
     ;
 
     override val screenName: String

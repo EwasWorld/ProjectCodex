@@ -28,11 +28,12 @@ class AddArrowCountViewModel @Inject constructor(
 ) : ViewModel() {
     private val screen = CodexNavRoute.SHOOT_DETAILS_ADD_COUNT
     private val extraState = MutableStateFlow(AddArrowCountExtras())
+    private val isEditingSighters = savedStateHandle.get<Boolean>(NavArgument.IS_SIGHTERS) ?: false
 
     val state = repo.getState(
             savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
             extraState,
-    ) { main, extras -> AddArrowCountState(main, extras) }
+    ) { main, extras -> AddArrowCountState(main, extras, isEditingSighters) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
@@ -72,17 +73,26 @@ class AddArrowCountViewModel @Inject constructor(
 
             ClickSubmit -> {
                 val currentState = state.value.getData() ?: return
-                val currentCount = currentState.fullShootInfo.arrowCounter ?: return
                 val toAdd = currentState.endSize.parsed
 
                 if (toAdd == null) {
-                    // Can only happen i
                     extraState.update { it.copy(endSize = it.endSize.markDirty()) }
                     return
                 }
 
-                viewModelScope.launch {
-                    repo.db.arrowCounterRepo().update(currentCount.copy(shotCount = currentCount.shotCount + toAdd))
+                if (isEditingSighters) {
+                    val currentCount = currentState.fullShootInfo.shootRound?.sightersCount ?: return
+                    viewModelScope.launch {
+                        repo.db.shootsRepo().updateShootRound(
+                                currentState.fullShootInfo.shootRound.copy(sightersCount = currentCount + toAdd)
+                        )
+                    }
+                }
+                else {
+                    val currentCount = currentState.fullShootInfo.arrowCounter ?: return
+                    viewModelScope.launch {
+                        repo.db.arrowCounterRepo().update(currentCount.copy(shotCount = currentCount.shotCount + toAdd))
+                    }
                 }
             }
 
@@ -90,6 +100,8 @@ class AddArrowCountViewModel @Inject constructor(
             EditSightMarkHandled -> extraState.update { it.copy(openEditSightMark = false) }
             FullSightMarksClicked -> extraState.update { it.copy(openFullSightMarks = true) }
             FullSightMarksHandled -> extraState.update { it.copy(openFullSightMarks = false) }
+            EditSightersClicked -> extraState.update { it.copy(openEditSighters = true) }
+            EditSightersHandled -> extraState.update { it.copy(openEditSighters = false) }
         }
     }
 

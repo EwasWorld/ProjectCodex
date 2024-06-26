@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_count__title">Add arrow count</string>
+    <string name="add_count__sighters_title">Add sighters</string>
     <string name="add_count__sighters">Sighters:</string>
     <string name="add_count__shot">Shot:</string>
     <string name="add_count__total">Total:</string>

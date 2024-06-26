@@ -10,6 +10,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsState
 class AddArrowCountState(
         main: ShootDetailsState,
         extras: AddArrowCountExtras,
+        val isEditingSighters: Boolean,
 ) {
     val fullShootInfo = main.fullShootInfo!!
     val editShootInfoClicked = extras.editShootInfoClicked
@@ -38,6 +39,7 @@ class AddArrowCountState(
     val sightMark = main.sightMark
     val openFullSightMarks = extras.openFullSightMarks
     val openEditSightMark = extras.openEditSightMark
+    val openEditSighters = extras.openEditSighters
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -49,6 +51,7 @@ class AddArrowCountState(
         if (sightMark != other.sightMark) return false
         if (openFullSightMarks != other.openFullSightMarks) return false
         if (openEditSightMark != other.openEditSightMark) return false
+        if (openEditSighters != other.openEditSighters) return false
 
         return true
     }
@@ -60,6 +63,7 @@ class AddArrowCountState(
         result = 31 * result + (sightMark?.hashCode() ?: 0)
         result = 31 * result + openFullSightMarks.hashCode()
         result = 31 * result + openEditSightMark.hashCode()
+        result = 31 * result + openEditSighters.hashCode()
         return result
     }
 }
@@ -69,4 +73,5 @@ data class AddArrowCountExtras(
         val editShootInfoClicked: Boolean = false,
         val openFullSightMarks: Boolean = false,
         val openEditSightMark: Boolean = false,
+        val openEditSighters: Boolean = false,
 )

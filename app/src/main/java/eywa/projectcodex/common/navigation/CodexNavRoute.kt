@@ -189,10 +189,21 @@ enum class CodexNavRoute : ScreenNavRoute {
     },
     SHOOT_DETAILS_ADD_COUNT {
         override val args: Map<NavArgument, Boolean>
-            get() = mapOf(NavArgument.SHOOT_ID to true)
+            get() = mapOf(
+                    NavArgument.SHOOT_ID to true,
+                    NavArgument.IS_SIGHTERS to false,
+            )
 
         @Composable
-        override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.add_count__title)
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String {
+            val isSighters = entry?.arguments
+                    ?.getBoolean(NavArgument.IS_SIGHTERS.toArgName())
+                    ?: false
+            return stringResource(
+                    if (!isSighters) R.string.add_count__title
+                    else R.string.add_count__sighters_title
+            )
+        }
 
         @Composable
         override fun Screen(navController: NavController) {

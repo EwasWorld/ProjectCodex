@@ -23,6 +23,7 @@ class AddEndState(
     val sightMark = main.sightMark
     val openFullSightMarks = extras.openFullSightMarks
     val openEditSightMark = extras.openEditSightMark
+    val openSighters = extras.openSighters
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -39,6 +40,7 @@ class AddEndState(
         if (sightMark != other.sightMark) return false
         if (openFullSightMarks != other.openFullSightMarks) return false
         if (openEditSightMark != other.openEditSightMark) return false
+        if (openSighters != other.openSighters) return false
 
         return true
     }
@@ -55,6 +57,7 @@ class AddEndState(
         result = 31 * result + (sightMark?.hashCode() ?: 0)
         result = 31 * result + openFullSightMarks.hashCode()
         result = 31 * result + openEditSightMark.hashCode()
+        result = 31 * result + openSighters.hashCode()
         return result
     }
 }
@@ -64,4 +67,5 @@ data class AddEndExtras(
         val roundCompleted: Boolean = false,
         val openFullSightMarks: Boolean = false,
         val openEditSightMark: Boolean = false,
+        val openSighters: Boolean = false,
 )

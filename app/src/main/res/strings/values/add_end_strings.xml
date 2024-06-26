@@ -18,8 +18,9 @@
     <string name="input_end__cannot_open_input_end_body">Cannot add more arrows to a completed round</string>
     <string name="input_end__archer_name_header">Archer</string>
     <string name="input_end__archer_score_header">Score</string>
-    <string name="input_end__archer_score_accessibility_text">%s score</string>
-    <string name="input_end__archer_arrows_count_header">Arrows</string>
+    <string name="input_end__archer_score_accessibility_text">%d score</string>
+    <string name="input_end__archer_arrows_count_header">Arrows shot:</string>
+    <string name="input_end__sighters_header">Sighters:</string>
     <string name="input_end__archer_arrow_count_accessibility_text">%s arrows shot</string>
     <string name="input_end__go_to_summary">Go to summary</string>
 
@@ -60,14 +61,18 @@
     <string name="help_input_end__end_inputs_backspace_body">Deletes the last arrow inputted on the current end</string>
     <string name="help_input_end__end_inputs_reset_title">Reset</string>
     <string name="help_input_end__end_inputs_reset_body">Resets all edits to the current end</string>
-    <string name="help_input_end__summary_table_title">Summary</string>
-    <string name="help_input_end__summary_table_body">Indicates the current score and number of arrows shot. Does not include the end currently being entered</string>
+    <string name="help_input_end__score_title">Score</string>
+    <string name="help_input_end__score_body">The current total score (does not include the end currently being entered)</string>
+    <string name="help_input_end__arrows_shot_title">Arrows shot</string>
+    <string name="help_input_end__arrows_shot_body">The number of arrows shot (does not include sighters or the end currently being entered)</string>
+    <string name="help_input_end__sighters_title">Sighters count</string>
+    <string name="help_input_end__sighters_body">The number of arrows shot as sighters or practice. These are warm-up arrows shot at the start of a round (there are no sighters or practice arrows between distances). Imperial rounds usually have 6 arrows of sighters. Metric rounds usually have up to 45 minutes of practice where any number of arrows can be shot</string>
     <string name="help_input_end__remaining_arrows_title">Remaining arrows</string>
     <string name="help_input_end__remaining_arrows_body">Indicates the number of arrows remaining at each distance. The first distance is the one currently being shot at</string>
     <string name="help_input_end__next_end_title">Next end</string>
     <string name="help_input_end__next_end_body">Saves the currently inputted end and moves on to the next end</string>
     <string name="help_input_end__sight_mark_title">Sight mark</string>
-    <string name="help_input_end__sight_mark_body">Shows the sight mark for the current distance. Click the pencil to edit or add a sight mark for the current distance. Click the arrows to view all sight marks.</string>
+    <string name="help_input_end__sight_mark_body">Shows the sight mark for the current distance. Click to edit or add a sight mark for the current distance</string>
 
     <!-- Note: used for both insert and edit -->
     <string name="help_edit_end__complete_title">Complete</string>
