@@ -207,13 +207,14 @@ fun CodexGrid(
             placeable
         }
 
-        columnIndex = 0
-        rowIndex = 0
-        dummies = originalDummies.toMutableSet()
         layout(
                 columnWidths.sum() + horizontalSpace * (columnWidths.size - 1),
                 rowHeights.sum() + verticalSpace * (rowHeights.size - 1),
         ) {
+            columnIndex = 0
+            rowIndex = 0
+            dummies = originalDummies.toMutableSet()
+
             var x = 0
             var y = 0
 
@@ -242,10 +243,7 @@ fun CodexGrid(
                         layoutDirection,
                 )
 
-                placeable.place(
-                        x = x + offset.x,
-                        y = y + offset.y,
-                )
+                placeable.place(x = x + offset.x, y = y + offset.y)
                 if (columnIndex < columns.size - horizontalSpan) {
                     x += columnWidth + horizontalSpace
                 }
@@ -254,7 +252,7 @@ fun CodexGrid(
                     y += rowHeights[rowIndex] + verticalSpace
                 }
 
-                columnIndex += items[index].horizontalSpan
+                columnIndex += horizontalSpan
                 if (columnIndex == columns.size) {
                     columnIndex = 0
                     rowIndex++
