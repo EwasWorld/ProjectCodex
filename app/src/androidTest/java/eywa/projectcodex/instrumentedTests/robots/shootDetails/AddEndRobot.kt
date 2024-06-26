@@ -4,6 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.SightMarkDetailRobot
@@ -34,6 +35,7 @@ class AddEndRobot(
             +CodexNodeInteraction.AssertTextEquals(score.toString())
         }
         performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.ROUND_ARROWS)
             +CodexNodeInteraction.AssertTextEquals(arrowCount.toString())
         }
@@ -42,7 +44,7 @@ class AddEndRobot(
     fun checkRemainingArrows(currentDistance: String, laterDistances: String) {
         performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
-            +CodexNodeInteraction.AssertTextEquals(currentDistance)
+            +CodexNodeInteraction.AssertTextEquals(currentDistance).waitFor()
         }
 
         performV2Single {
@@ -66,10 +68,9 @@ class AddEndRobot(
     }
 
     fun checkSightMarkIndicator(distance: String, sightMark: String?) {
-        checkElementText(AddEndTestTag.SIGHT_MARK_DESCRIPTION, "$distance sight mark:")
         performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
-            +CodexNodeInteraction.AssertTextEquals(sightMark ?: "None")
+            +CodexNodeInteraction.AssertContentDescriptionEquals((sightMark ?: "None") + " $distance sight mark:")
         }
     }
 
@@ -79,8 +80,19 @@ class AddEndRobot(
     }
 
     fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
-        clickElement(AddEndTestTag.SIGHT_MARK)
+        performV2 {
+            clickDataRow(AddEndTestTag.SIGHT_MARK)
+        }
         createRobot(SightMarkDetailRobot::class, block)
+    }
+
+    fun checkSightersCount(count: Int?) {
+        checkElementTextOrDoesNotExist(AddEndTestTag.SIGHTERS, count?.toString(), true)
+    }
+
+    fun clickSighters(block: AddCountRobot.() -> Unit) {
+        clickElement(AddEndTestTag.SIGHTERS, true)
+        createRobot(AddCountRobot::class, block)
     }
 
     companion object {

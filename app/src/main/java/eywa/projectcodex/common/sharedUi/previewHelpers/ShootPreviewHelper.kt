@@ -25,7 +25,7 @@ class ShootPreviewHelperDsl {
     var use2023HandicapSystem = true
     var faces: List<RoundFace>? = null
     var counter: DatabaseArrowCounter? = null
-    private var sightersCount: Int = 0
+    var sightersCount: Int = 0
 
     fun addRound(round: FullRoundInfo, sightersCount: Int = 0) {
         this.round = round

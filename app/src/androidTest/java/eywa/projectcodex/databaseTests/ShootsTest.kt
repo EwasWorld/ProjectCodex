@@ -7,7 +7,12 @@ import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.shootData.*
+import eywa.projectcodex.database.shootData.DatabaseArrowCountCalendarData
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.database.shootData.ShootDao
+import eywa.projectcodex.database.shootData.ShootFilter
+import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -18,7 +23,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.*
+import java.util.Calendar
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -380,13 +385,22 @@ class ShootsTest {
                     addArrowCounter(24)
                     addRound(TestUtils.ROUNDS[0], 6)
                 }
+        ).plus(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(
+                            shootId = 14,
+                            dateShot = "9/3/20 10:00".parseDate(),
+                    )
+                    addIdenticalArrows(24, 1)
+                    addRound(TestUtils.ROUNDS[0], 6)
+                }
         ).forEach { db.add(it) }
 
         assertEquals(
                 listOf(
                         DatabaseArrowCountCalendarData("07-03", 3),
                         DatabaseArrowCountCalendarData("08-03", 33),
-                        DatabaseArrowCountCalendarData("09-03", 3),
+                        DatabaseArrowCountCalendarData("09-03", 33),
                         DatabaseArrowCountCalendarData("10-03", 3),
                         DatabaseArrowCountCalendarData("11-03", 12),
                         DatabaseArrowCountCalendarData("12-03", 12),

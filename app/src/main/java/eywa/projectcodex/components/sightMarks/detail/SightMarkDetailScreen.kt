@@ -256,7 +256,7 @@ fun SightMarkDetail(
                 }
             }
             FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(CODEX_CHIP_SPACING),
+                    horizontalArrangement = Arrangement.spacedBy(CODEX_CHIP_SPACING, Alignment.CenterHorizontally),
                     modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)
@@ -301,7 +301,7 @@ fun SightMarkDetail(
                 )
             }
             FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                     modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)

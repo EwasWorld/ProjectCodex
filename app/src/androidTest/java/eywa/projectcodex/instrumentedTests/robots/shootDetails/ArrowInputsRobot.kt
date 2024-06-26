@@ -64,7 +64,12 @@ abstract class ArrowInputsRobot(
     }
 
     protected fun clickArrowInputsSubmit() {
-        clickElement(ArrowInputsTestTag.SUBMIT_BUTTON, true)
+        performV2Single {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.SUBMIT_BUTTON)
+            +CodexNodeInteraction.PerformScrollTo()
+            +CodexNodeInteraction.PerformClick()
+        }
     }
 
     protected fun clickArrowInputsCancel() {

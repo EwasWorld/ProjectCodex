@@ -6,6 +6,7 @@ import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountTest
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchTextBox
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -45,6 +46,11 @@ class AddCountRobot(
 
     fun checkSightersCount(count: Int?) {
         checkElementTextOrDoesNotExist(AddArrowCountTestTag.SIGHTERS_COUNT, count?.toString(), true)
+    }
+
+    fun clickSighters(block: AddCountRobot.() -> Unit) {
+        clickElement(AddArrowCountTestTag.SIGHTERS_COUNT, true)
+        createRobot(AddCountRobot::class, block)
     }
 
     fun checkShotCount(count: Int) {
@@ -99,10 +105,9 @@ class AddCountRobot(
     }
 
     fun checkSightMarkIndicator(distance: String, sightMark: String?) {
-        checkElementText(AddEndTestTag.SIGHT_MARK_DESCRIPTION, "$distance sight mark:")
         performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
-            +CodexNodeInteraction.AssertTextEquals(sightMark ?: "None")
+            +CodexNodeInteraction.AssertContentDescriptionEquals((sightMark ?: "None") + " $distance sight mark:")
         }
     }
 
@@ -112,7 +117,9 @@ class AddCountRobot(
     }
 
     fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
-        clickElement(AddEndTestTag.SIGHT_MARK)
+        performV2 {
+            clickDataRow(AddEndTestTag.SIGHT_MARK)
+        }
         createRobot(SightMarkDetailRobot::class, block)
     }
 }

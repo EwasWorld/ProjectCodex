@@ -195,7 +195,7 @@ class AddEndE2eTest {
     }
 
     @Test
-    fun testRemainingArrowsIndicatorSightMarkAndCompleteRound() {
+    fun testRemainingArrowsIndicator_SightMark_Sighters_AndCompleteRound() {
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -208,6 +208,7 @@ class AddEndE2eTest {
 
                     checkRemainingArrows("12 at 90m,", "12 at 70m, 12 at 50m")
                     checkSightMarkIndicator("90m", null)
+                    checkIndicatorTable(0, 0)
                     clickAllSightMarks {
                         pressBack()
                     }
@@ -216,9 +217,20 @@ class AddEndE2eTest {
                         pressBack()
                     }
 
+                    checkSightersCount(0)
+                    clickSighters {
+                        setInputAmount(8)
+                        clickAdd()
+                        pressBack()
+                    }
+                    checkScreenIsShown()
+                    checkSightersCount(8)
+                    checkIndicatorTable(0, 0)
+
                     completeEnd("1")
                     checkRemainingArrows("6 at 90m,", "12 at 70m, 12 at 50m")
                     checkSightMarkIndicator("90m", null)
+                    checkIndicatorTable(6, 6)
 
                     completeEnd("1")
                     checkRemainingArrows("12 at 70m,", "12 at 50m")
@@ -240,6 +252,7 @@ class AddEndE2eTest {
                     checkRemainingArrows("6 at 50m", "")
                     checkSightMarkIndicator("50m", "1.75")
 
+                    checkIndicatorTable(30, 30)
                     completeEnd("1")
                     clickRoundCompleteOk { }
 

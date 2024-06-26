@@ -216,8 +216,8 @@ fun ArrowsShot(
                 titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
                 textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)
                         .asClickableStyle(),
+                textModifier = Modifier.testTag(AddEndTestTag.SIGHTERS),
                 modifier = Modifier
-                        .testTag(AddEndTestTag.SIGHTERS)
                         .updateHelpDialogPosition(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_input_end__sighters_title),
@@ -231,8 +231,8 @@ fun ArrowsShot(
                 text = arrowsShot.toString(),
                 titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
                 textStyle = CodexTypography.NORMAL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
+                textModifier = Modifier.testTag(AddEndTestTag.ROUND_ARROWS),
                 modifier = Modifier
-                        .testTag(AddEndTestTag.ROUND_ARROWS)
                         .updateHelpDialogPosition(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_input_end__arrows_shot_title),
@@ -283,6 +283,7 @@ fun SightMark(
                         distance,
                         distanceUnit,
                 ),
+                textModifier = Modifier,
                 modifier = Modifier
                         .testTag(AddEndTestTag.SIGHT_MARK)
                         .updateHelpDialogPosition(
@@ -408,7 +409,6 @@ enum class AddEndTestTag : CodexTestTag {
     REMAINING_ARROWS_LATER,
     ROUND_SCORE,
     ROUND_ARROWS,
-    SIGHT_MARK_DESCRIPTION,
     SIGHT_MARK,
     EXPAND_SIGHT_MARK,
     SIGHTERS,

@@ -123,7 +123,7 @@ private fun SightersShotCount(
                         helpTitle = stringResource(R.string.help_add_count__sighters_title),
                         helpBody = stringResource(R.string.help_input_end__sighters_body),
                 ).asHelpState(helpListener),
-                textModifier = Modifier.testTag(AddArrowCountTestTag.SHOT_COUNT),
+                textModifier = Modifier.testTag(AddArrowCountTestTag.SIGHTERS_COUNT),
                 modifier = Modifier
                         .border(2.dp, color = CodexTheme.colors.onAppBackground)
                         .padding(horizontal = 20.dp, vertical = 10.dp)
@@ -135,7 +135,7 @@ private fun SightersShotCount(
                         helpTitle = stringResource(R.string.help_add_count__shot_title),
                         helpBody = stringResource(R.string.help_add_count__shot_body),
                 ).asHelpState(helpListener),
-                textModifier = Modifier.testTag(AddArrowCountTestTag.SIGHTERS_COUNT),
+                textModifier = Modifier.testTag(AddArrowCountTestTag.SHOT_COUNT),
                 textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
         )
         DataRow(

@@ -155,7 +155,7 @@ class EmailScoresInstrumentedTest {
 
     private fun EmailScoreRobot.typeInfo() {
         typeText(EmailScoresTextField.TO, "${EmailTestData.EMAIL_1};${EmailTestData.EMAIL_2}")
-        typeText(EmailScoresTextField.SUBJECT, EmailTestData.APPEND_SUBJECT, true)
+        typeText(EmailScoresTextField.SUBJECT, EmailTestData.FINAL_SUBJECT)
         typeText(EmailScoresTextField.MESSAGE_HEADER, EmailTestData.START_TEXT)
         typeText(EmailScoresTextField.MESSAGE_FOOTER, EmailTestData.END_TEXT)
         Espresso.closeSoftKeyboard()
@@ -201,8 +201,9 @@ class EmailScoresInstrumentedTest {
 
                     intending(expected).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
                     clickSend()
-                    intended(expected)
                 }
+                checkScreenIsShown()
+                intended(expected)
             }
         }
     }

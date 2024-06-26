@@ -18,12 +18,14 @@ class AddArrowCountState(
     /**
      * Cannot go below 0
      */
-    private val minArrows = -fullShootInfo.arrowsShot
+    private val minArrows = if (isEditingSighters) 0 else (-fullShootInfo.arrowsShot)
 
     /**
      * Cannot go above the number of arrows in the round or 3000 if there is no round
      */
-    private val maxArrows = fullShootInfo.remainingArrows ?: (3000 - fullShootInfo.arrowsShot)
+    private val maxArrows =
+            if (isEditingSighters) MAX_ARROW_COUNT
+            else (fullShootInfo.remainingArrows ?: (MAX_ARROW_COUNT - fullShootInfo.arrowsShot))
 
     /**
      * The amount displayed on the counter. The amount that will be added to [fullShootInfo] when 'Add' is pressed.
@@ -65,6 +67,10 @@ class AddArrowCountState(
         result = 31 * result + openEditSightMark.hashCode()
         result = 31 * result + openEditSighters.hashCode()
         return result
+    }
+
+    companion object {
+        private const val MAX_ARROW_COUNT = 3000
     }
 }
 

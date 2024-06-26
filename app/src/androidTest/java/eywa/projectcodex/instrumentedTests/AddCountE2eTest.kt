@@ -146,9 +146,9 @@ class AddCountE2eTest {
                 clickSubmitNewScoreCount {
                     checkRound("1-1")
                     checkRemainingArrows("48 at 90m,", "36 at 80m, 24 at 70m")
-                    checkSightersCount(null)
+                    checkSightersCount(0)
                     checkShotCount(0)
-                    checkTotalCount(null)
+                    checkTotalCount(0)
 
                     /*
                      * Input bounds
@@ -166,16 +166,16 @@ class AddCountE2eTest {
                     checkSightMarkIndicator("90m", null)
                     clickAllSightMarks { pressBack() }
                     clickEditSightMark { pressBack() }
-                    checkSightersCount(null)
+                    checkSightersCount(0)
                     checkShotCount(6)
-                    checkTotalCount(null)
+                    checkTotalCount(6)
 
                     setInputAmount(maxArrowCount - 6)
                     Espresso.closeSoftKeyboard()
                     clickAdd()
-                    checkSightersCount(null)
+                    checkSightersCount(0)
                     checkShotCount(maxArrowCount)
-                    checkTotalCount(null)
+                    checkTotalCount(maxArrowCount)
                     checkRoundComplete()
                     checkAddNotExist()
                 }
@@ -214,9 +214,9 @@ class AddCountE2eTest {
     fun testAlmostCompleteRoundWithSighters() {
         val maxArrowCount = 108
         val shotCount = maxArrowCount - 3
-        val sightersCount = 6
+        val sightersCount = 8
         val shoot = ShootPreviewHelperDsl.create {
-            addRound(TestUtils.ROUNDS[0], sightersCount)
+            addRound(TestUtils.ROUNDS[0], 0)
             addArrowCounter(shotCount)
         }
 
@@ -233,6 +233,17 @@ class AddCountE2eTest {
                     checkRound("1-1")
                     checkRemainingArrows("3 at 70m", null)
 
+                    clickSighters {
+                        setInputAmount(sightersCount)
+                        clickAdd()
+                        checkSightersCount(sightersCount)
+                        checkShotCount(shotCount)
+                        checkTotalCount(sightersCount + shotCount)
+                        pressBack()
+                    }
+                    checkScreenIsShown()
+
+                    checkRemainingArrows("3 at 70m", null)
                     checkSightersCount(sightersCount)
                     checkShotCount(shotCount)
                     checkTotalCount(shotCount + sightersCount)
