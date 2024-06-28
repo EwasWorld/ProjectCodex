@@ -173,7 +173,14 @@ class HandicapTablesViewModel @Inject constructor(
             val handicapScore = getHandicapScore(checkHandicap)
 
             // Ensure we have the worst handicap for the found score
-            val newItem = HandicapScore(getHandicapForScore(handicapScore.score), handicapScore.score)
+            val newItem = HandicapScore(
+                    getHandicapForScore(handicapScore.score),
+                    handicapScore.score,
+                    // Temp 1, will be replaced with actual
+                    1,
+                    // Temp 1, will be replaced with actual
+                    1,
+            )
             handicaps.add(newItem)
 
             checkHandicap = newItem.handicap + 1
@@ -181,9 +188,17 @@ class HandicapTablesViewModel @Inject constructor(
         }
 
         handicaps.sortBy { it.handicap }
+        val finalHandicaps = handicaps.map {
+            HandicapScore(
+                    it.handicap,
+                    it.score,
+                    round.roundArrowCounts.sumOf { count -> count.arrowCount },
+                    if (round.round.isOutdoor) 6 else 3,
+            )
+        }
         return copy(
-                handicaps = handicaps,
-                highlightedHandicap = handicaps.first { it.handicap >= initial.handicap },
+                handicaps = finalHandicaps,
+                highlightedHandicap = finalHandicaps.first { it.handicap >= initial.handicap },
         )
     }
 
@@ -209,5 +224,9 @@ class HandicapTablesViewModel @Inject constructor(
                     use2023Handicaps = use2023System,
                     faces = selectFaceDialogState.selectedFaces,
             )!!,
+            // Temp 1, will be replaced with actual
+            1,
+            // Temp 1, will be replaced with actual
+            1,
     )
 }

@@ -57,6 +57,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.common.utils.asDecimalFormat
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 
@@ -259,7 +260,7 @@ private fun Table(
     val resources = LocalContext.current.resources
 
     CodexGrid(
-            columns = 3,
+            columns = HandicapTableColumn.entries.size,
             alignment = Alignment.Center,
             modifier = Modifier
                     .updateHelpDialogPosition(helpState)
@@ -270,7 +271,7 @@ private fun Table(
                 Text(
                         text = it.label.get(),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)
                 )
             }
         }
@@ -325,6 +326,28 @@ enum class HandicapTableColumn(
             data = { ResOrActual.Actual(it.score.toString()) },
             semanticData = { ResOrActual.StringResource(R.string.handicap_tables__score_semantics, listOf(it.score)) },
     ),
+    SCORE_PER_END(
+            label = ResOrActual.StringResource(R.string.handicap_tables__average_end_field),
+            testTag = HandicapTablesTestTag.TABLE_AVERAGE_END,
+            data = { it.averageEnd.asDecimalFormat() },
+            semanticData = {
+                ResOrActual.StringResource(
+                        R.string.handicap_tables__average_end_semantics,
+                        listOf(it.averageEnd.asDecimalFormat()),
+                )
+            },
+    ),
+    SCORE_PER_ARROW(
+            label = ResOrActual.StringResource(R.string.handicap_tables__average_arrow_field),
+            testTag = HandicapTablesTestTag.TABLE_AVERAGE_ARROW,
+            data = { it.averageArrow.asDecimalFormat() },
+            semanticData = {
+                ResOrActual.StringResource(
+                        R.string.handicap_tables__average_arrow_semantics,
+                        listOf(it.averageArrow.asDecimalFormat()),
+                )
+            },
+    ),
     ALLOWANCE(
             label = ResOrActual.StringResource(R.string.handicap_tables__allowance_field),
             testTag = HandicapTablesTestTag.TABLE_ALLOWANCE,
@@ -347,6 +370,8 @@ enum class HandicapTablesTestTag : CodexTestTag {
     TABLE_EMPTY_TEXT,
     TABLE_HANDICAP,
     TABLE_SCORE,
+    TABLE_AVERAGE_ARROW,
+    TABLE_AVERAGE_END,
     TABLE_ALLOWANCE,
     ;
 
@@ -369,19 +394,19 @@ fun HandicapTablesScreen_Preview() {
                             allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
                     ),
                     handicaps = listOf(
-                            HandicapScore(26, 333),
-                            HandicapScore(27, 331),
-                            HandicapScore(28, 330),
-                            HandicapScore(29, 328),
-                            HandicapScore(30, 326),
-                            HandicapScore(31, 324),
-                            HandicapScore(32, 322),
-                            HandicapScore(33, 319),
-                            HandicapScore(34, 317),
-                            HandicapScore(35, 315),
-                            HandicapScore(36, 312),
+                            HandicapScore(26, 333, 60, 3),
+                            HandicapScore(27, 331, 60, 3),
+                            HandicapScore(28, 330, 60, 3),
+                            HandicapScore(29, 328, 60, 3),
+                            HandicapScore(30, 326, 60, 3),
+                            HandicapScore(31, 324, 60, 3),
+                            HandicapScore(32, 322, 60, 3),
+                            HandicapScore(33, 319, 60, 3),
+                            HandicapScore(34, 317, 60, 3),
+                            HandicapScore(35, 315, 60, 3),
+                            HandicapScore(36, 312, 60, 3),
                     ),
-                    highlightedHandicap = HandicapScore(31, 324),
+                    highlightedHandicap = HandicapScore(31, 324, 60, 3),
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
             )
     ) {}

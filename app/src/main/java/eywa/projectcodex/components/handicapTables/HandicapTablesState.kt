@@ -31,16 +31,33 @@ data class HandicapTablesState(
         )
 }
 
-@JvmInline
-value class HandicapScore private constructor(val data: Pair<Int, Int>) {
-    constructor(handicap: Int, score: Int) : this(handicap to score)
-
-    val handicap
-        get() = data.first
-    val score
-        get() = data.second
+class HandicapScore(
+        val handicap: Int,
+        val score: Int,
+        arrowsInRound: Int,
+        arrowsPerEnd: Int,
+) {
     val allowance
         get() = Handicap.fullRoundScoreToAllowance(score)
+
+    val averageArrow = score.toFloat() / arrowsInRound
+    val averageEnd = score.toFloat() / (arrowsInRound.toFloat() / arrowsPerEnd)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HandicapScore) return false
+
+        if (handicap != other.handicap) return false
+        if (score != other.score) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = handicap
+        result = 31 * result + score
+        return result
+    }
 }
 
 enum class InputType(

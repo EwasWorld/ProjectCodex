@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import eywa.projectcodex.R
 
 
 /**
@@ -42,3 +43,7 @@ fun Context.openWebPage(url: String, onFail: () -> Unit) {
         onFail()
     }
 }
+
+fun Any?.asDecimalFormat(decimalPlaces: Int = 1) =
+        this?.let { ResOrActual.Actual("%.${decimalPlaces}f".format(this)) }
+                ?: ResOrActual.StringResource(R.string.archer_round_stats__breakdown_placeholder)

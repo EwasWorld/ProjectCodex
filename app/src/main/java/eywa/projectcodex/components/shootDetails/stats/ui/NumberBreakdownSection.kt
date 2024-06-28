@@ -30,6 +30,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.ResOrActual.StringResource
+import eywa.projectcodex.common.utils.asDecimalFormat
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -262,10 +263,6 @@ enum class BreakdownColumn(
             }
     ),
 }
-
-private fun Any?.asDecimalFormat(decimalPlaces: Int = 1) =
-        this?.let { ResOrActual.Actual("%.${decimalPlaces}f".format(this)) }
-                ?: StringResource(R.string.archer_round_stats__breakdown_placeholder)
 
 @Preview(
         showBackground = true,
