@@ -63,7 +63,7 @@ class AddEndRobot(
 
 
     fun clickRoundCompleteOk(block: ShootDetailsStatsRobot.() -> Unit = {}) {
-        clickDialogOk(ROUND_COMPLETE_DIALOG_TITLE)
+        clickElement(AddEndTestTag.ROUND_COMPLETE_BUTTON)
         createRobot(ShootDetailsStatsRobot::class, block)
     }
 

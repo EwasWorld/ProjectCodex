@@ -255,8 +255,6 @@ class AddEndE2eTest {
                     checkIndicatorTable(30, 30)
                     completeEnd("1")
                     clickRoundCompleteOk { }
-
-                    clickNavBarAddEndWhileRoundComplete()
                 }
             }
         }

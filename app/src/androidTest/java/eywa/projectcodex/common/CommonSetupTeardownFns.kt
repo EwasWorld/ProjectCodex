@@ -10,7 +10,7 @@ import eywa.projectcodex.hiltModules.LocalDatastoreModule
 
 class CommonSetupTeardownFns {
     companion object {
-        fun generalSetup(timeout: Int = 10_000) {
+        fun generalSetup(timeout: Int = 6_000) {
             ConditionWatcher.setTimeoutLimit(timeout)
         }
 

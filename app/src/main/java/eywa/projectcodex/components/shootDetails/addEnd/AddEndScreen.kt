@@ -6,6 +6,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
@@ -33,18 +34,19 @@ import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.DataRow
-import eywa.projectcodex.common.sharedUi.SimpleDialog
-import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
+import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndIntent.*
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
@@ -131,70 +133,102 @@ private fun AddEndScreen(
         modifier: Modifier = Modifier,
         listener: (AddEndIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
-
-    ArrowInputsScaffold(
-            state = state,
-            showCancelButton = false,
-            showResetButton = false,
-            submitButtonText = stringResource(R.string.input_end__next_end),
-            modifier = modifier,
-            helpListener = { listener(HelpShowcaseAction(it)) },
-            submitHelpInfoTitle = stringResource(R.string.help_input_end__next_end_title),
-            submitHelpInfoBody = stringResource(R.string.help_input_end__next_end_body),
-            testTag = AddEndTestTag.SCREEN.getTestTag(),
-            listener = { listener(ArrowInputsAction(it)) },
-    ) {
+    if (state.isRoundFull) {
         Column(
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = modifier
+                        .padding(vertical = CodexTheme.dimens.screenPadding)
+                        .testTag(AddEndTestTag.SCREEN)
         ) {
-            ArrowsShot(
-                    sighters = state.fullShootInfo.shootRound?.sightersCount ?: 0,
-                    arrowsShot = state.fullShootInfo.arrowsShot,
-                    onClickSighters = { listener(SightersClicked) },
-                    helpListener = helpListener
-            )
-            ScoreIndicator(
-                    totalScore = state.fullShootInfo.score,
-                    helpListener = helpListener,
-            )
-            SightMark(
-                    fullShootInfo = state.fullShootInfo,
-                    sightMark = state.sightMark,
-                    helpListener = helpListener,
-                    onExpandClicked = { listener(FullSightMarksClicked) },
-                    onEditClicked = { listener(EditSightMarkClicked) },
+            AddEndContent(
+                    state = state,
+                    listener = listener,
                     modifier = Modifier.padding(vertical = 10.dp)
             )
-            RemainingArrowsIndicator(state.fullShootInfo, helpListener)
+
+            Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.padding(
+                            vertical = 10.dp,
+                            horizontal = CodexTheme.dimens.screenPadding,
+                    )
+            ) {
+                Text(
+                        text = stringResource(R.string.input_end__cannot_open_input_end_title),
+                        style = CodexTypography.LARGE,
+                        color = CodexTheme.colors.onAppBackground,
+                        textAlign = TextAlign.Center,
+                )
+                Text(
+                        text = stringResource(R.string.input_end__cannot_open_input_end_body),
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                        textAlign = TextAlign.Center,
+                )
+                CodexButton(
+                        text = stringResource(R.string.input_end__go_to_summary),
+                        onClick = { listener(RoundFullDialogOkClicked) },
+                        modifier = Modifier
+                                .padding(top = 10.dp)
+                                .testTag(AddEndTestTag.ROUND_COMPLETE_BUTTON),
+                )
+            }
         }
     }
-
-    SimpleDialog(
-            isShown = state.roundCompleted,
-            onDismissListener = { listener(RoundCompleteDialogOkClicked) },
-    ) {
-        SimpleDialogContent(
-                title = stringResource(R.string.input_end__round_complete),
-                positiveButton = ButtonState(
-                        text = stringResource(R.string.input_end__go_to_summary),
-                        onClick = { listener(RoundCompleteDialogOkClicked) }
+    else {
+        ArrowInputsScaffold(
+                state = state,
+                showCancelButton = false,
+                showResetButton = false,
+                submitButtonText = stringResource(R.string.input_end__next_end),
+                modifier = modifier,
+                helpListener = { listener(HelpShowcaseAction(it)) },
+                submitHelpInfo = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_input_end__next_end_title),
+                        helpBody = stringResource(R.string.help_input_end__next_end_body),
                 ),
-        )
+                testTag = AddEndTestTag.SCREEN,
+                listener = { listener(ArrowInputsAction(it)) },
+        ) {
+            AddEndContent(state, Modifier, listener)
+        }
     }
-    SimpleDialog(
-            isShown = state.isRoundFull && !state.roundCompleted,
-            onDismissListener = { listener(RoundFullDialogOkClicked) },
+}
+
+@Composable
+private fun AddEndContent(
+        state: AddEndState,
+        modifier: Modifier = Modifier,
+        listener: (AddEndIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    Column(
+            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
     ) {
-        SimpleDialogContent(
-                title = stringResource(R.string.input_end__cannot_open_input_end_title),
-                message = stringResource(R.string.input_end__cannot_open_input_end_body),
-                positiveButton = ButtonState(
-                        text = stringResource(R.string.input_end__go_to_summary),
-                        onClick = { listener(RoundFullDialogOkClicked) }
-                ),
+        ArrowsShot(
+                sighters = state.fullShootInfo.shootRound?.sightersCount ?: 0,
+                arrowsShot = state.fullShootInfo.arrowsShot,
+                onClickSighters = { listener(SightersClicked) },
+                helpListener = helpListener,
         )
+        ScoreIndicator(
+                totalScore = state.fullShootInfo.score,
+                helpListener = helpListener,
+        )
+        SightMark(
+                fullShootInfo = state.fullShootInfo,
+                sightMark = state.sightMark,
+                helpListener = helpListener,
+                onExpandClicked = { listener(FullSightMarksClicked) },
+                onEditClicked = { listener(EditSightMarkClicked) },
+                modifier = Modifier.padding(vertical = 10.dp)
+        )
+        RemainingArrowsIndicator(state.fullShootInfo, helpListener)
     }
 }
 
@@ -411,6 +445,7 @@ enum class AddEndTestTag : CodexTestTag {
     ROUND_ARROWS,
     SIGHT_MARK,
     EXPAND_SIGHT_MARK,
+    ROUND_COMPLETE_BUTTON,
     SIGHTERS,
     ;
 
@@ -433,7 +468,31 @@ fun AddEndScreen_Preview() {
                         main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS
                                 .copy(sightMark = SightMark(SightMarksPreviewHelper.sightMarks[0])),
                         extras = AddEndExtras(),
-                )
+                ),
+                modifier = Modifier.fillMaxSize()
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun CompleteAddEndScreen_Preview() {
+    CodexTheme {
+        AddEndScreen(
+                AddEndState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create {
+                                    round = RoundPreviewHelper.yorkRoundData
+                                    completeRoundWithFinalScore(1200)
+                                },
+                                sightMark = SightMark(SightMarksPreviewHelper.sightMarks[0]),
+                        ),
+                        extras = AddEndExtras(),
+                ),
+                modifier = Modifier.fillMaxSize()
         ) {}
     }
 }
@@ -450,7 +509,8 @@ fun Mini_AddEndScreen_Preview() {
                 AddEndState(
                         main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS,
                         extras = AddEndExtras(),
-                )
+                ),
+                modifier = Modifier.fillMaxSize()
         ) {}
     }
 }

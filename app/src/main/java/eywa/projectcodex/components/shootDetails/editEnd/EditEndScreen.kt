@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -80,11 +81,15 @@ private fun EditEndScreen(
             contentText = stringResource(R.string.edit_end__edit_info, state.endNumber),
             modifier = modifier,
             helpListener = { listener(HelpShowcaseAction(it)) },
-            submitHelpInfoTitle = stringResource(R.string.help_edit_end__complete_title),
-            submitHelpInfoBody = stringResource(R.string.help_edit_end__complete_body),
-            cancelHelpInfoTitle = stringResource(R.string.help_edit_end__cancel_title),
-            cancelHelpInfoBody = stringResource(R.string.help_edit_end__cancel_body),
-            testTag = EditEndTestTag.SCREEN.getTestTag(),
+            submitHelpInfo = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_edit_end__complete_title),
+                    helpBody = stringResource(R.string.help_edit_end__complete_body),
+            ),
+            cancelHelpInfo = HelpShowcaseItem(
+                    helpTitle = stringResource(R.string.help_edit_end__cancel_title),
+                    helpBody = stringResource(R.string.help_edit_end__cancel_body),
+            ),
+            testTag = EditEndTestTag.SCREEN,
             listener = { listener(ArrowInputsAction(it)) },
     )
 }

@@ -10,14 +10,7 @@ abstract class ShootDetailsRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
         screenTestTag: CodexTestTag,
 ) : BaseRobot(composeTestRule, screenTestTag) {
-    private fun clickCannotInputMoreEndsOk() = clickDialogOk(CANNOT_INPUT_END_DIALOG_TITLE)
-
     fun clickNavBarAddEnd(block: AddEndRobot.() -> Unit = {}) = clickNavBarItem(block)
-
-    fun clickNavBarAddEndWhileRoundComplete() {
-        clickElement(ShootDetailsBottomNavBarItem.ADD_END)
-        clickCannotInputMoreEndsOk()
-    }
 
     fun clickNavBarScorePad(block: ScorePadRobot.() -> Unit = {}) = clickNavBarItem(block)
     fun clickNavBarStats(block: ShootDetailsStatsRobot.() -> Unit = {}) = clickNavBarItem(block)
@@ -34,9 +27,5 @@ abstract class ShootDetailsRobot(
 
         clickElement(screenItem)
         createRobot(R::class, block)
-    }
-
-    companion object {
-        private const val CANNOT_INPUT_END_DIALOG_TITLE = "Round is complete"
     }
 }

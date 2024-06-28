@@ -14,7 +14,7 @@
     <string name="input_end__round_indicator_label">Remaining:</string>
     <string name="input_end__round_indicator_at">%1$d at %2$d%3$s</string> <!-- "60 at 100yd" i.e. 60 arrows remaining to be shot at 100 yards -->
     <string name="input_end__round_complete">Round Complete</string>
-    <string name="input_end__cannot_open_input_end_title">Round is complete</string>
+    <string name="input_end__cannot_open_input_end_title">Round complete</string>
     <string name="input_end__cannot_open_input_end_body">Cannot add more arrows to a completed round</string>
     <string name="input_end__archer_name_header">Archer</string>
     <string name="input_end__archer_score_header">Score</string>

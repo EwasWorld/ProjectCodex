@@ -9,7 +9,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,6 +21,7 @@ import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.CancelClicked
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.SubmitClicked
 
@@ -34,11 +34,9 @@ fun ArrowInputsScaffold(
         modifier: Modifier = Modifier,
         submitButtonText: String = stringResource(R.string.general_complete),
         helpListener: (HelpShowcaseIntent) -> Unit,
-        cancelHelpInfoTitle: String? = null,
-        cancelHelpInfoBody: String? = null,
-        submitHelpInfoTitle: String,
-        submitHelpInfoBody: String,
-        testTag: String,
+        cancelHelpInfo: HelpShowcaseItem? = null,
+        submitHelpInfo: HelpShowcaseItem,
+        testTag: CodexTestTag,
         listener: (ArrowInputsIntent) -> Unit,
 ) = ArrowInputsScaffold(
         state = state,
@@ -47,10 +45,8 @@ fun ArrowInputsScaffold(
         submitButtonText = submitButtonText,
         modifier = modifier,
         helpListener = helpListener,
-        cancelHelpInfoTitle = cancelHelpInfoTitle,
-        cancelHelpInfoBody = cancelHelpInfoBody,
-        submitHelpInfoTitle = submitHelpInfoTitle,
-        submitHelpInfoBody = submitHelpInfoBody,
+        cancelHelpInfo = cancelHelpInfo,
+        submitHelpInfo = submitHelpInfo,
         testTag = testTag,
         listener = listener,
 ) {
@@ -73,11 +69,9 @@ fun ArrowInputsScaffold(
         modifier: Modifier = Modifier,
         submitButtonText: String = stringResource(R.string.general_complete),
         helpListener: (HelpShowcaseIntent) -> Unit,
-        cancelHelpInfoTitle: String? = null,
-        cancelHelpInfoBody: String? = null,
-        submitHelpInfoTitle: String,
-        submitHelpInfoBody: String,
-        testTag: String,
+        cancelHelpInfo: HelpShowcaseItem? = null,
+        submitHelpInfo: HelpShowcaseItem,
+        testTag: CodexTestTag,
         listener: (ArrowInputsIntent) -> Unit,
         content: @Composable () -> Unit,
 ) {
@@ -110,12 +104,7 @@ fun ArrowInputsScaffold(
                         onClick = { listener(CancelClicked) },
                         modifier = Modifier
                                 .testTag(ArrowInputsTestTag.CANCEL_BUTTON)
-                                .updateHelpDialogPosition(
-                                        HelpShowcaseItem(
-                                                helpTitle = cancelHelpInfoTitle!!,
-                                                helpBody = cancelHelpInfoBody!!,
-                                        ).asHelpState(helpListener),
-                                )
+                                .updateHelpDialogPosition(cancelHelpInfo!!.asHelpState(helpListener))
                 )
             }
 
@@ -124,12 +113,7 @@ fun ArrowInputsScaffold(
                     onClick = { listener(SubmitClicked) },
                     modifier = Modifier
                             .testTag(ArrowInputsTestTag.SUBMIT_BUTTON)
-                            .updateHelpDialogPosition(
-                                    HelpShowcaseItem(
-                                            helpTitle = submitHelpInfoTitle,
-                                            helpBody = submitHelpInfoBody,
-                                    ).asHelpState(helpListener),
-                            )
+                            .updateHelpDialogPosition(submitHelpInfo.asHelpState(helpListener))
             )
         }
     }
