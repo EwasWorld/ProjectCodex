@@ -192,7 +192,7 @@ private fun IncreaseCountInputs(
     val resources = LocalContext.current.resources
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-    if (state.fullShootInfo.isRoundComplete) {
+    if (state.fullShootInfo.isRoundComplete && !state.isEditingSighters) {
         Text(
                 text = stringResource(R.string.add_count__round_complete),
                 modifier = Modifier
@@ -400,7 +400,7 @@ fun Sighters_AddArrowCountScreen_Preview() {
                         main = ShootDetailsState(
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addRound(RoundPreviewHelper.yorkRoundData, 12)
-                                    addArrowCounter(30)
+                                    completeRoundWithCounter()
                                 },
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("6")),
