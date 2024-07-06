@@ -287,10 +287,10 @@ fun SightMark(
         onExpandClicked: () -> Unit,
 ) {
     val distance = fullShootInfo.remainingArrowsAtDistances?.firstOrNull()?.second
+            ?: fullShootInfo.roundDistances?.minOfOrNull { it.distance }
     val isMetric = fullShootInfo.round?.isMetric
-    if (distance == null || isMetric == null) return
 
-    val distanceUnit = stringResource(getDistanceUnitRes(isMetric)!!)
+    val distanceUnit = isMetric?.let { stringResource(getDistanceUnitRes(it)!!) }
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -299,34 +299,36 @@ fun SightMark(
                     .horizontalScroll(rememberScrollState())
                     .padding(horizontal = CodexTheme.dimens.screenPadding)
     ) {
-        DataRow(
-                title = stringResource(
-                        R.string.input_end__sight_mark,
-                        distance,
-                        distanceUnit,
-                ),
-                text = sightMark?.sightMark?.toString()
-                        ?: stringResource(R.string.input_end__sight_mark_none_placeholder),
-                titleStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                textStyle = ((if (sightMark == null) CodexTypography.NORMAL else CodexTypography.LARGE))
-                        .copy(color = CodexTheme.colors.onAppBackground),
-                onClick = { onEditClicked() },
-                onClickLabel = stringResource(
-                        if (sightMark != null) R.string.input_end__sight_mark_edit
-                        else R.string.input_end__sight_mark_edit_none,
-                        distance,
-                        distanceUnit,
-                ),
-                textModifier = Modifier,
-                modifier = Modifier
-                        .testTag(AddEndTestTag.SIGHT_MARK)
-                        .updateHelpDialogPosition(
-                                HelpShowcaseItem(
-                                        helpTitle = stringResource(R.string.help_input_end__sight_mark_title),
-                                        helpBody = stringResource(R.string.help_input_end__sight_mark_body),
-                                ).asHelpState(helpListener)
-                        )
-        )
+        if (distance != null && distanceUnit != null) {
+            DataRow(
+                    title = stringResource(
+                            R.string.input_end__sight_mark,
+                            distance,
+                            distanceUnit,
+                    ),
+                    text = sightMark?.sightMark?.toString()
+                            ?: stringResource(R.string.input_end__sight_mark_none_placeholder),
+                    titleStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+                    textStyle = ((if (sightMark == null) CodexTypography.NORMAL else CodexTypography.LARGE))
+                            .copy(color = CodexTheme.colors.onAppBackground),
+                    onClick = { onEditClicked() },
+                    onClickLabel = stringResource(
+                            if (sightMark != null) R.string.input_end__sight_mark_edit
+                            else R.string.input_end__sight_mark_edit_none,
+                            distance,
+                            distanceUnit,
+                    ),
+                    textModifier = Modifier,
+                    modifier = Modifier
+                            .testTag(AddEndTestTag.SIGHT_MARK)
+                            .updateHelpDialogPosition(
+                                    HelpShowcaseItem(
+                                            helpTitle = stringResource(R.string.help_input_end__sight_mark_title),
+                                            helpBody = stringResource(R.string.help_input_end__sight_mark_body),
+                                    ).asHelpState(helpListener)
+                            )
+            )
+        }
         Text(
                 text = stringResource(R.string.input_end__sight_mark_expand),
                 style = CodexTypography.SMALL.asClickableStyle(),
@@ -508,6 +510,25 @@ fun Mini_AddEndScreen_Preview() {
         AddEndScreen(
                 AddEndState(
                         main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS,
+                        extras = AddEndExtras(),
+                ),
+                modifier = Modifier.fillMaxSize()
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun NoRound_AddEndScreen_Preview() {
+    CodexTheme {
+        AddEndScreen(
+                AddEndState(
+                        main = ShootDetailsState(
+                                fullShootInfo = ShootPreviewHelperDsl.create { },
+                        ),
                         extras = AddEndExtras(),
                 ),
                 modifier = Modifier.fillMaxSize()

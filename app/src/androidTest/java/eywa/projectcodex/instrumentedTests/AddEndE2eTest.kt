@@ -138,6 +138,7 @@ class AddEndE2eTest {
             clickNewScore {
                 clickSubmitNewScore {
                     checkIndicatorTable(0, 0)
+                    checkAllSightMarkOnly()
 
                     // End 1
                     clickScoreButton(3)
@@ -254,6 +255,14 @@ class AddEndE2eTest {
 
                     checkIndicatorTable(30, 30)
                     completeEnd("1")
+
+                    checkSightMarkIndicator("50m", "1.75")
+                    clickSighters {
+                        setInputAmount(8)
+                        clickAdd()
+                        pressBack()
+                    }
+                    checkSightersCount(16)
                     clickRoundCompleteOk { }
                 }
             }

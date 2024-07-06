@@ -74,6 +74,11 @@ class AddEndRobot(
         }
     }
 
+    fun checkAllSightMarkOnly() {
+        checkElementIsDisplayed(AddEndTestTag.EXPAND_SIGHT_MARK)
+        checkElementDoesNotExist(AddEndTestTag.SIGHT_MARK)
+    }
+
     fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {
         clickElement(AddEndTestTag.EXPAND_SIGHT_MARK)
         createRobot(SightMarksRobot::class, block)
