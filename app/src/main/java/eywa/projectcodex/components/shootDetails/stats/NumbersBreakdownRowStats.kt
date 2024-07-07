@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.shootDetails.stats
 
+import eywa.projectcodex.common.sharedUi.grid.CodexGridRowMetadata
 import eywa.projectcodex.common.utils.standardDeviation
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -9,8 +10,9 @@ import eywa.projectcodex.model.roundHandicap
 open class NumbersBreakdownRowStats(
         arrows: List<DatabaseArrowScore>,
         endSize: Int,
-        val handicap: Double?
-) {
+        val handicap: Double?,
+        override val isTotalRow: Boolean = false,
+) : CodexGridRowMetadata {
     val averageEnd: Float
     val endStDev: Float
     val averageArrow: Float
@@ -63,10 +65,10 @@ class DistanceBreakdownRow(
         arrows: List<DatabaseArrowScore>,
         endSize: Int,
         calculateHandicap: (arrows: List<DatabaseArrowScore>, arrowCount: RoundArrowCount, distance: RoundDistance) -> Double?,
-) : NumbersBreakdownRowStats(arrows, endSize, calculateHandicap(arrows, roundArrowCount, distance))
+) : NumbersBreakdownRowStats(arrows, endSize, calculateHandicap(arrows, roundArrowCount, distance), false)
 
 class GrandTotalBreakdownRow(
         arrows: List<DatabaseArrowScore>,
         endSize: Int,
         handicap: Double?,
-) : NumbersBreakdownRowStats(arrows, endSize, handicap)
+) : NumbersBreakdownRowStats(arrows, endSize, handicap, true)

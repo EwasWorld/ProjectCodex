@@ -15,14 +15,15 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTas
 import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
-import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
+import eywa.projectcodex.datastore.DatastoreKey.UseSimpleHandicapView
+import eywa.projectcodex.datastore.retrieve
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.model.roundHandicap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -46,8 +47,13 @@ class HandicapTablesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            datastore.get(DatastoreKey.Use2023HandicapSystem).firstOrNull()?.let { use2023 ->
-                _state.update { it.copy(use2023System = use2023) }
+            datastore.get(listOf(Use2023HandicapSystem, UseSimpleHandicapView)).collect { values ->
+                _state.update {
+                    it.copy(
+                            use2023System = values.retrieve(Use2023HandicapSystem),
+                            useSimpleHandicapView = values.retrieve(UseSimpleHandicapView),
+                    )
+                }
             }
         }
         viewModelScope.launch {
@@ -126,6 +132,7 @@ class HandicapTablesViewModel @Inject constructor(
                 }
 
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
+            ToggleSimpleView -> viewModelScope.launch { datastore.toggle(UseSimpleHandicapView) }
         }
     }
 
@@ -188,12 +195,14 @@ class HandicapTablesViewModel @Inject constructor(
         }
 
         handicaps.sortBy { it.handicap }
+        val highlighted = handicaps.first { it.handicap >= initial.handicap }
         val finalHandicaps = handicaps.map {
             HandicapScore(
-                    it.handicap,
-                    it.score,
-                    round.roundArrowCounts.sumOf { count -> count.arrowCount },
-                    if (round.round.isOutdoor) 6 else 3,
+                    handicap = it.handicap,
+                    score = it.score,
+                    arrowsInRound = round.roundArrowCounts.sumOf { count -> count.arrowCount },
+                    arrowsPerEnd = if (round.round.isOutdoor) 6 else 3,
+                    isHighlightedRow = it.handicap == highlighted.handicap
             )
         }
         return copy(

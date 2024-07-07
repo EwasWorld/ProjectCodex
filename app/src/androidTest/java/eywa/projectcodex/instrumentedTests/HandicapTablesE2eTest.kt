@@ -134,6 +134,10 @@ class HandicapTablesE2eTest {
                         )
                 )
 
+                checkIsSimpleView()
+                clickToggleSimple()
+                checkIsAdvancedView()
+
                 clickTab(ClassificationTablesRobot::class) {
                     clickTab(HandicapTablesRobot::class) {}
                 }

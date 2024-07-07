@@ -5,10 +5,11 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 
 sealed class HandicapTablesIntent {
-    object ToggleInput : HandicapTablesIntent()
-    object ToggleHandicapSystem : HandicapTablesIntent()
+    data object ToggleInput : HandicapTablesIntent()
+    data object ToggleHandicapSystem : HandicapTablesIntent()
     data class InputChanged(val newSize: String?) : HandicapTablesIntent()
     data class SelectRoundDialogAction(val action: SelectRoundDialogIntent) : HandicapTablesIntent()
     data class SelectFaceDialogAction(val action: SelectRoundFaceDialogIntent) : HandicapTablesIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : HandicapTablesIntent()
+    data object ToggleSimpleView : HandicapTablesIntent()
 }

@@ -5,11 +5,14 @@
     <string name="handicap_tables__input_selector_click_label">Change search type between handicap and score</string>
     <string name="handicap_tables__handicap_input_header">Handicap:</string>
     <string name="handicap_tables__score_input_header">Score:</string>
-    <string name="handicap_tables__handicap_field">HC</string>
+    <string name="handicap_tables__handicap_field">Handicap</string>
+    <string name="handicap_tables__handicap_field_short">HC</string>
     <string name="handicap_tables__score_field">Score</string>
+    <string name="handicap_tables__total_score_field">Total</string>
     <string name="handicap_tables__average_arrow_field">Arrow</string>
     <string name="handicap_tables__average_end_field">End</string>
     <string name="handicap_tables__allowance_field">Allowance</string>
+    <string name="handicap_tables__allowance_field_two_lines">Allow\nance</string>
     <string name="handicap_tables__handicap_semantics">%d Handicap</string>
     <string name="handicap_tables__score_semantics">%d Score</string>
     <string name="handicap_tables__average_arrow_semantics">%s Average Arrow</string>
@@ -30,7 +33,17 @@
     <string name="help_handicap_tables__input_body_score">Enter a score to calculate the corresponding handicap</string>
     <string name="help_handicap_tables__round_title">Round</string>
     <string name="help_handicap_tables__round_body">Specify the round to get a handicap/score for</string>
-    <string name="help_handicap_tables__table_title">Data</string>
-    <string name="help_handicap_tables__table_body">Lists handicaps and their corresponding scores. The result of the search is highlighted</string>
+    <string name="help_handicap_tables__table_title">Handicap data</string>
+    <string name="help_handicap_tables__table_body">Enter a valid round and handicap or score to see the handicap data</string>
+    <string name="help_handicap_tables__table_handicap_title">Handicap</string>
+    <string name="help_handicap_tables__table_handicap_body">The handicap the row represents</string>
+    <string name="help_handicap_tables__table_score_total_title">Total score</string>
+    <string name="help_handicap_tables__table_score_total_body">The total score for the round required to achieve the given handicap. If your score falls between two handicaps the worst handicap (higher number) is used</string>
+    <string name="help_handicap_tables__table_score_end_title">End score</string>
+    <string name="help_handicap_tables__table_score_end_body">The score for each 6-arrow (outdoor) or 3-arrow (indoor) end needed to achieve the given handicap</string>
+    <string name="help_handicap_tables__table_score_arrow_title">Arrow score</string>
+    <string name="help_handicap_tables__table_score_arrow_body">The score needed for each arrow to achieve the given handicap</string>
+    <string name="help_handicap_tables__table_allowance_title">Allowance</string>
+    <string name="help_handicap_tables__table_allowance_body">An amount that can be added to your score to compare with other archers of a different skill level. For example, if your handicap (calculated using past rounds shot) is 40, when you shoot a round, the allowance for a 40 handicap is added to your score. This can then be compared to another archer who will add the allowance for their own handicap to their score</string>
 
 </resources>

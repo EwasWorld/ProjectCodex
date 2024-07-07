@@ -38,13 +38,13 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
-import eywa.projectcodex.common.sharedUi.CodexGrid
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.grid.CodexGrid
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
@@ -57,14 +57,7 @@ import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEn
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeClicked
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.AgeSelected
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowClicked
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.BowSelected
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.CloseDropdown
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.HelpShowcaseAction
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.SelectRoundDialogAction
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.ToggleIsGent
+import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.*
 
 @Composable
 fun ClassificationTablesScreen(

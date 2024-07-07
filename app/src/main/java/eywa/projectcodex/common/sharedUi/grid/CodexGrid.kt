@@ -1,4 +1,4 @@
-package eywa.projectcodex.common.sharedUi
+package eywa.projectcodex.common.sharedUi.grid
 
 import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
@@ -34,7 +34,7 @@ class CodexGridConfig {
 }
 
 sealed class CodexGridColumn {
-    object WrapContent : CodexGridColumn()
+    data object WrapContent : CodexGridColumn()
     data class Match(val group: Int) : CodexGridColumn()
 }
 
@@ -87,6 +87,7 @@ fun CodexGrid(
         val columnWidths = MutableList(columns.size) { 0 }
         val rowHeights = mutableListOf<Int>()
         val horizontalSpanners = mutableListOf<ColumnSpanner>()
+        val verticalSpanners = mutableListOf<ColumnSpanner>()
 
         var columnIndex = 0
         var rowIndex = 0
@@ -116,7 +117,12 @@ fun CodexGrid(
             while (rowHeights.size <= rowIndex) {
                 rowHeights.add(0)
             }
-            rowHeights[rowIndex] = maxOf(placeable.height, rowHeights[rowIndex])
+            if (verticalSpan == 1) {
+                rowHeights[rowIndex] = maxOf(placeable.height, rowHeights[rowIndex])
+            }
+            else {
+                verticalSpanners.add(ColumnSpanner(columnIndex, rowIndex, verticalSpan, placeable))
+            }
 
             if (horizontalSpan == 1) {
                 columnWidths[columnIndex] = maxOf(placeable.width, columnWidths[columnIndex])
@@ -135,6 +141,18 @@ fun CodexGrid(
             placeable
         }
 
+        verticalSpanners.forEach { spanner ->
+            val verticalSpan = spanner.span
+            val rowWidth =
+                    rowHeights.drop(spanner.y).take(verticalSpan).sum() + verticalSpace * (verticalSpan - 1)
+
+            val excess = (spanner.placeable.height - rowWidth) / verticalSpan
+            if (excess > 0) {
+                for (i in spanner.y until (spanner.y + verticalSpan)) {
+                    rowHeights[i] += excess
+                }
+            }
+        }
         horizontalSpanners.forEach { spanner ->
             val horizontalSpan = spanner.span
             val columnWidth =
@@ -262,7 +280,7 @@ fun CodexGrid(
     }
 }
 
-data class ColumnSpanner(
+private data class ColumnSpanner(
         val x: Int,
         val y: Int,
         val span: Int,

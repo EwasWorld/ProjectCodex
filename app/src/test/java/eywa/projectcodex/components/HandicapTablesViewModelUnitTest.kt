@@ -6,7 +6,7 @@ import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.previewHelpers.asDatabaseFullShootInfo
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.RoundIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.SubTypeIntent.CloseSubTypeDialog
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.SubTypeIntent.OpenSubTypeDialog
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
@@ -76,8 +76,8 @@ class HandicapTablesViewModelUnitTest {
 
         val round = RoundPreviewHelper.yorkRoundData
         sut.handle(InputChanged(handicap.toString()))
-        sut.handle(SelectRoundDialogAction(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog))
-        sut.handle(SelectRoundDialogAction(SelectRoundDialogIntent.RoundIntent.RoundSelected(round.round)))
+        sut.handle(SelectRoundDialogAction(RoundIntent.OpenRoundDialog))
+        sut.handle(SelectRoundDialogAction(RoundIntent.RoundSelected(round.round)))
 
         assertEquals(
                 HandicapTablesState(
@@ -96,7 +96,7 @@ class HandicapTablesViewModelUnitTest {
     }
 
     @Test
-    fun testGetHandicaps_Standard() = runTest {
+    fun testGetHandicaps_StandardOutdoor() = runTest {
         val sut = setUpGetHandicapsTest(50)
 
         assertEquals(
@@ -107,6 +107,50 @@ class HandicapTablesViewModelUnitTest {
                 50,
                 sut.state.value.highlightedHandicap!!.handicap,
         )
+        sut.state.value.handicaps.forEach {
+            assertEquals(
+                    "Check ${it.handicap}",
+                    it.score.toDouble() * 6 / 144,
+                    it.averageEnd.toDouble(),
+                    0.01,
+            )
+            assertEquals(
+                    "Check ${it.handicap}",
+                    it.score.toDouble() / 144,
+                    it.averageArrow.toDouble(),
+                    0.01,
+            )
+        }
+    }
+
+    @Test
+    fun testGetHandicaps_StandardIndoor() = runTest {
+        val sut = setUpGetHandicapsTest(50)
+        sut.handle(SelectRoundDialogAction(RoundIntent.OpenRoundDialog))
+        sut.handle(SelectRoundDialogAction(RoundIntent.RoundSelected(RoundPreviewHelper.wa25RoundData.round)))
+
+        assertEquals(
+                (45..55).toList(),
+                sut.state.value.handicaps.map { it.handicap },
+        )
+        assertEquals(
+                50,
+                sut.state.value.highlightedHandicap!!.handicap,
+        )
+        sut.state.value.handicaps.forEach {
+            assertEquals(
+                    "Check ${it.handicap}",
+                    it.score.toDouble() * 3 / 60,
+                    it.averageEnd.toDouble(),
+                    0.01,
+            )
+            assertEquals(
+                    "Check ${it.handicap}",
+                    it.score.toDouble() / 60,
+                    it.averageArrow.toDouble(),
+                    0.01,
+            )
+        }
     }
 
     @Test
@@ -141,8 +185,8 @@ class HandicapTablesViewModelUnitTest {
     fun extraTest() = runTest {
         val sut = setUpGetHandicapsTest(120)
 
-        sut.handle(SelectRoundDialogAction(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog))
-        sut.handle(SelectRoundDialogAction(SelectRoundDialogIntent.RoundIntent.RoundSelected(RoundPreviewHelper.wa25RoundData.round)))
+        sut.handle(SelectRoundDialogAction(RoundIntent.OpenRoundDialog))
+        sut.handle(SelectRoundDialogAction(RoundIntent.RoundSelected(RoundPreviewHelper.wa25RoundData.round)))
         sut.handle(SelectFaceDialogAction(SelectRoundFaceDialogIntent.Open))
         sut.handle(SelectFaceDialogAction(SelectRoundFaceDialogIntent.SingleFaceClicked(RoundFace.TRIPLE)))
 

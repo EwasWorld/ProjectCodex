@@ -2,6 +2,7 @@ package eywa.projectcodex.components.handicapTables
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.grid.CodexGridRowMetadata
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
 import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
@@ -24,6 +25,7 @@ data class HandicapTablesState(
                 distances = selectRoundDialogState.roundSubTypeDistances?.map { it.distance },
         ),
         val updateDefaultRoundsState: UpdateDefaultRoundsState = UpdateDefaultRoundsState.NotStarted,
+        val useSimpleHandicapView: Boolean = true,
 ) {
     val inputFull
         get() = input.asNumberFieldState(
@@ -36,12 +38,16 @@ class HandicapScore(
         val score: Int,
         arrowsInRound: Int,
         arrowsPerEnd: Int,
-) {
+        val isHighlightedRow: Boolean = false,
+) : CodexGridRowMetadata {
     val allowance
         get() = Handicap.fullRoundScoreToAllowance(score)
 
     val averageArrow = score.toFloat() / arrowsInRound
     val averageEnd = score.toFloat() / (arrowsInRound.toFloat() / arrowsPerEnd)
+
+    override val isTotalRow: Boolean
+        get() = isHighlightedRow
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

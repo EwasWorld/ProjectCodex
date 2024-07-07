@@ -22,14 +22,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,15 +31,15 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.DEFAULT_HELP_PRIORITY
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
-import eywa.projectcodex.common.sharedUi.CodexGrid
-import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.grid.CodexGridColumn
+import eywa.projectcodex.common.sharedUi.grid.CodexGridColumnMetadata
+import eywa.projectcodex.common.sharedUi.grid.CodexGridWithHeaders
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
@@ -85,12 +79,22 @@ fun HandicapTablesScreen(
                     .background(CodexTheme.colors.appBackground)
                     .verticalScroll(rememberScrollState())
                     .padding(vertical = 20.dp)
-                    .testTag(HandicapTablesTestTag.SCREEN.getTestTag())
+                    .testTag(HandicapTablesTestTag.SCREEN)
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
             Selections(state, listener)
             RoundSelector(state, listener)
-            HandicapDisplay(state, listener)
+            HandicapDisplay(state, state.useSimpleHandicapView, listener)
+            Text(
+                    text = stringResource(
+                            if (state.useSimpleHandicapView) R.string.archer_round_stats__show_advanced_view
+                            else R.string.archer_round_stats__show_simple_view
+                    ),
+                    style = LocalTextStyle.current.asClickableStyle(),
+                    modifier = Modifier
+                            .clickable { listener(ToggleSimpleView) }
+                            .testTag(HandicapTablesTestTag.SIMPLE_TOGGLE)
+            )
         }
     }
 }
@@ -214,28 +218,22 @@ fun RoundSelector(
 @Composable
 fun HandicapDisplay(
         state: HandicapTablesState,
+        simpleView: Boolean,
         listener: (HandicapTablesIntent) -> Unit,
 ) {
-    Surface(
-            shape = RoundedCornerShape(
-                    if (state.handicaps.isEmpty()) CodexTheme.dimens.smallCornerRounding
-                    else CodexTheme.dimens.cornerRounding
-            ),
-            color = CodexTheme.colors.listItemOnAppBackground,
-            modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(20.dp)
-    ) {
-        val helpState = HelpState(
-                helpListener = { listener(HelpShowcaseAction(it)) },
-                helpShowcaseItem = HelpShowcaseItem(
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
+        if (state.handicaps.isEmpty()) {
+            Surface(
+                    shape = RoundedCornerShape(CodexTheme.dimens.smallCornerRounding),
+                    color = CodexTheme.colors.listItemOnAppBackground,
+                    modifier = Modifier.padding(20.dp)
+            ) {
+                val helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_handicap_tables__table_title),
                         helpBody = stringResource(R.string.help_handicap_tables__table_body),
                         priority = DEFAULT_HELP_PRIORITY + 1,
-                ),
-        )
-        ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
-            if (state.handicaps.isEmpty()) {
+                ).asHelpState(helpListener)
                 Text(
                         text = stringResource(R.string.handicap_tables__no_tables),
                         modifier = Modifier
@@ -244,93 +242,127 @@ fun HandicapDisplay(
                                 .padding(10.dp)
                 )
             }
-            else {
-                Table(state.handicaps, state.highlightedHandicap, helpState)
+        }
+        else {
+            val columnMetadata =
+                    if (simpleView) SimpleHandicapTableColumn.entries else HandicapTableColumn.entries
+            val columns = List(columnMetadata.size) {
+                if (simpleView) CodexGridColumn.Match(1) else CodexGridColumn.WrapContent
             }
+
+            CodexGridWithHeaders(
+                    data = state.handicaps,
+                    columnMetadata = columnMetadata.toList(),
+                    columns = columns,
+                    extraData = Unit,
+                    helpListener = helpListener,
+                    modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(20.dp)
+            )
         }
     }
 }
 
-@Composable
-private fun Table(
-        handicaps: List<HandicapScore>,
-        highlighted: HandicapScore?,
-        helpState: HelpState,
-) {
-    val resources = LocalContext.current.resources
+enum class SimpleHandicapTableColumn(
+        val title: ResOrActual<String>,
+        val metadata: HandicapTableColumn,
+) : CodexGridColumnMetadata<HandicapScore, Unit> {
+    HANDICAP(
+            title = ResOrActual.StringResource(R.string.handicap_tables__handicap_field),
+            metadata = HandicapTableColumn.HANDICAP,
+    ),
+    SCORE(
+            title = ResOrActual.StringResource(R.string.handicap_tables__score_field),
+            metadata = HandicapTableColumn.SCORE,
+    ),
+    ALLOWANCE(
+            title = ResOrActual.StringResource(R.string.handicap_tables__allowance_field),
+            metadata = HandicapTableColumn.ALLOWANCE,
+    ),
+    ;
 
-    CodexGrid(
-            columns = HandicapTableColumn.entries.size,
-            alignment = Alignment.Center,
-            modifier = Modifier
-                    .updateHelpDialogPosition(helpState)
-                    .padding(horizontal = 10.dp, vertical = 8.dp)
-    ) {
-        HandicapTableColumn.entries.forEach {
-            item {
-                Text(
-                        text = it.label.get(),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)
-                )
-            }
-        }
+    override val primaryTitle: ResOrActual<String>?
+        get() = title
 
-        handicaps.forEach {
-            val isHighlighted = it == highlighted
+    override val primaryTitleHorizontalSpan: Int
+        get() = 1
 
-            HandicapTableColumn.entries.forEach { column ->
-                item(fillBox = isHighlighted) {
-                    Text(
-                            text = column.data(it).get(),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                    .modifierIf(
-                                            predicate = isHighlighted,
-                                            modifier = Modifier.background(CodexTheme.colors.appBackground)
-                                    )
-                                    .padding(3.dp)
-                                    .testTag(column.testTag)
-                                    .semantics {
-                                        contentDescription = column
-                                                .semanticData(it)
-                                                .get(resources)
-                                    }
-                    )
-                }
-            }
-        }
-    }
+    override val primaryTitleVerticalSpan: Int
+        get() = 1
+
+    override val secondaryTitle: ResOrActual<String>?
+        get() = null
+
+    override val helpTitle: ResOrActual<String>
+        get() = metadata.helpTitle
+
+    override val helpBody: ResOrActual<String>
+        get() = metadata.helpBody
+
+    override val testTag: CodexTestTag?
+        get() = metadata.testTag
+
+    override val mapping: (HandicapScore) -> ResOrActual<String>
+        get() = metadata.mapping
+
+    override val cellContentDescription: (HandicapScore, Unit) -> ResOrActual<String>
+        get() = metadata.cellContentDescription
 }
 
 enum class HandicapTableColumn(
-        val label: ResOrActual<String>,
-        val testTag: HandicapTablesTestTag,
-        val data: (HandicapScore) -> ResOrActual<String>,
-        val semanticData: (HandicapScore) -> ResOrActual<String>,
-) {
+        override val primaryTitle: ResOrActual<String>?,
+        override val primaryTitleHorizontalSpan: Int,
+        override val primaryTitleVerticalSpan: Int,
+        override val secondaryTitle: ResOrActual<String>?,
+        override val testTag: HandicapTablesTestTag,
+        override val helpTitle: ResOrActual<String>,
+        override val helpBody: ResOrActual<String>,
+        override val mapping: (HandicapScore) -> ResOrActual<String>,
+        override val cellContentDescription: (HandicapScore, Unit) -> ResOrActual<String>,
+) : CodexGridColumnMetadata<HandicapScore, Unit> {
     HANDICAP(
-            label = ResOrActual.StringResource(R.string.handicap_tables__handicap_field),
+            primaryTitle = ResOrActual.StringResource(R.string.handicap_tables__handicap_field_short),
+            primaryTitleHorizontalSpan = 1,
+            primaryTitleVerticalSpan = 2,
+            secondaryTitle = null,
             testTag = HandicapTablesTestTag.TABLE_HANDICAP,
-            data = { ResOrActual.Actual(it.handicap.toString()) },
-            semanticData = {
+            helpTitle = ResOrActual.StringResource(R.string.help_handicap_tables__table_handicap_title),
+            helpBody = ResOrActual.StringResource(R.string.help_handicap_tables__table_handicap_body),
+            mapping = { ResOrActual.Actual(it.handicap.toString()) },
+            cellContentDescription = { it, _ ->
                 ResOrActual.StringResource(
                         R.string.handicap_tables__handicap_semantics,
-                        listOf(it.handicap)
+                        listOf(it.handicap),
                 )
             },
     ),
     SCORE(
-            label = ResOrActual.StringResource(R.string.handicap_tables__score_field),
+            primaryTitle = ResOrActual.StringResource(R.string.handicap_tables__score_field),
+            primaryTitleHorizontalSpan = 3,
+            primaryTitleVerticalSpan = 1,
+            secondaryTitle = ResOrActual.StringResource(R.string.handicap_tables__total_score_field),
             testTag = HandicapTablesTestTag.TABLE_SCORE,
-            data = { ResOrActual.Actual(it.score.toString()) },
-            semanticData = { ResOrActual.StringResource(R.string.handicap_tables__score_semantics, listOf(it.score)) },
+            helpTitle = ResOrActual.StringResource(R.string.help_handicap_tables__table_score_total_title),
+            helpBody = ResOrActual.StringResource(R.string.help_handicap_tables__table_score_total_body),
+            mapping = { ResOrActual.Actual(it.score.toString()) },
+            cellContentDescription = { it, _ ->
+                ResOrActual.StringResource(
+                        R.string.handicap_tables__score_semantics,
+                        listOf(it.score),
+                )
+            },
     ),
     SCORE_PER_END(
-            label = ResOrActual.StringResource(R.string.handicap_tables__average_end_field),
+            primaryTitle = null,
+            primaryTitleHorizontalSpan = 1,
+            primaryTitleVerticalSpan = 1,
+            secondaryTitle = ResOrActual.StringResource(R.string.handicap_tables__average_end_field),
             testTag = HandicapTablesTestTag.TABLE_AVERAGE_END,
-            data = { it.averageEnd.asDecimalFormat() },
-            semanticData = {
+            helpTitle = ResOrActual.StringResource(R.string.help_handicap_tables__table_score_end_title),
+            helpBody = ResOrActual.StringResource(R.string.help_handicap_tables__table_score_end_body),
+            mapping = { it.averageEnd.asDecimalFormat() },
+            cellContentDescription = { it, _ ->
                 ResOrActual.StringResource(
                         R.string.handicap_tables__average_end_semantics,
                         listOf(it.averageEnd.asDecimalFormat()),
@@ -338,10 +370,15 @@ enum class HandicapTableColumn(
             },
     ),
     SCORE_PER_ARROW(
-            label = ResOrActual.StringResource(R.string.handicap_tables__average_arrow_field),
+            primaryTitle = null,
+            primaryTitleHorizontalSpan = 1,
+            primaryTitleVerticalSpan = 1,
+            secondaryTitle = ResOrActual.StringResource(R.string.handicap_tables__average_arrow_field),
             testTag = HandicapTablesTestTag.TABLE_AVERAGE_ARROW,
-            data = { it.averageArrow.asDecimalFormat() },
-            semanticData = {
+            helpTitle = ResOrActual.StringResource(R.string.help_handicap_tables__table_score_arrow_title),
+            helpBody = ResOrActual.StringResource(R.string.help_handicap_tables__table_score_arrow_body),
+            mapping = { it.averageArrow.asDecimalFormat() },
+            cellContentDescription = { it, _ ->
                 ResOrActual.StringResource(
                         R.string.handicap_tables__average_arrow_semantics,
                         listOf(it.averageArrow.asDecimalFormat()),
@@ -349,13 +386,18 @@ enum class HandicapTableColumn(
             },
     ),
     ALLOWANCE(
-            label = ResOrActual.StringResource(R.string.handicap_tables__allowance_field),
+            primaryTitle = ResOrActual.StringResource(R.string.handicap_tables__allowance_field_two_lines),
+            primaryTitleHorizontalSpan = 1,
+            primaryTitleVerticalSpan = 2,
+            secondaryTitle = null,
             testTag = HandicapTablesTestTag.TABLE_ALLOWANCE,
-            data = { ResOrActual.Actual(it.allowance.toString()) },
-            semanticData = {
+            helpTitle = ResOrActual.StringResource(R.string.help_handicap_tables__table_allowance_title),
+            helpBody = ResOrActual.StringResource(R.string.help_handicap_tables__table_allowance_body),
+            mapping = { ResOrActual.Actual(it.allowance.toString()) },
+            cellContentDescription = { it, _ ->
                 ResOrActual.StringResource(
                         R.string.handicap_tables__allowance_semantics,
-                        listOf(it.allowance)
+                        listOf(it.allowance),
                 )
             },
     ),
@@ -373,12 +415,44 @@ enum class HandicapTablesTestTag : CodexTestTag {
     TABLE_AVERAGE_ARROW,
     TABLE_AVERAGE_END,
     TABLE_ALLOWANCE,
+    SIMPLE_TOGGLE,
     ;
 
     override val screenName: String
         get() = "HANDICAP_TABLES"
 
     override fun getElement(): String = name
+}
+
+@Preview
+@Composable
+fun Simple_HandicapTablesScreen_Preview() {
+    HandicapTablesScreen(
+            HandicapTablesState(
+                    input = PartialNumberFieldState().onTextChanged("31"),
+                    inputType = InputType.HANDICAP,
+                    use2023System = false,
+                    selectRoundDialogState = SelectRoundDialogState(
+                            selectedRoundId = RoundPreviewHelper.indoorMetricRoundData.round.roundId,
+                            allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
+                    ),
+                    handicaps = listOf(
+                            HandicapScore(26, 333, 60, 3),
+                            HandicapScore(27, 331, 60, 3),
+                            HandicapScore(28, 330, 60, 3),
+                            HandicapScore(29, 328, 60, 3),
+                            HandicapScore(30, 326, 60, 3),
+                            HandicapScore(31, 324, 60, 3, true),
+                            HandicapScore(32, 322, 60, 3),
+                            HandicapScore(33, 319, 60, 3),
+                            HandicapScore(34, 317, 60, 3),
+                            HandicapScore(35, 315, 60, 3),
+                            HandicapScore(36, 312, 60, 3),
+                    ),
+                    highlightedHandicap = HandicapScore(31, 324, 60, 3),
+                    updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
+            )
+    ) {}
 }
 
 @Preview
@@ -399,7 +473,7 @@ fun HandicapTablesScreen_Preview() {
                             HandicapScore(28, 330, 60, 3),
                             HandicapScore(29, 328, 60, 3),
                             HandicapScore(30, 326, 60, 3),
-                            HandicapScore(31, 324, 60, 3),
+                            HandicapScore(31, 324, 60, 3, true),
                             HandicapScore(32, 322, 60, 3),
                             HandicapScore(33, 319, 60, 3),
                             HandicapScore(34, 317, 60, 3),
@@ -408,6 +482,7 @@ fun HandicapTablesScreen_Preview() {
                     ),
                     highlightedHandicap = HandicapScore(31, 324, 60, 3),
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
+                    useSimpleHandicapView = false,
             )
     ) {}
 }
