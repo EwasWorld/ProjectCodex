@@ -135,8 +135,10 @@ class HandicapTablesE2eTest {
                 )
 
                 checkIsSimpleView()
+                checkDetailedBreakdownHidden()
                 clickToggleSimple()
                 checkIsAdvancedView()
+                checkDetailedBreakdownHidden()
 
                 clickTab(ClassificationTablesRobot::class) {
                     clickTab(HandicapTablesRobot::class) {}
@@ -145,6 +147,13 @@ class HandicapTablesE2eTest {
                 checkInputText("10")
                 selectRoundsRobot.checkSelectedRound("WA 25")
                 selectFaceBaseRobot.checkFaces("Triple")
+
+                scrollTo(1)
+                selectRoundsRobot.clickSelectedRound {
+                    clickRound("WA 1440")
+                }
+                scrollTo(4)
+                checkDetailedBreakdownVisible()
             }
         }
     }

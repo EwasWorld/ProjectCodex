@@ -254,6 +254,25 @@ object Handicap {
         return score.roundToInt()
     }
 
+    fun getExactScoreForHandicap(
+            handicap: Int,
+            arrowCount: Int,
+            distance: Int,
+            isMetric: Boolean,
+            faceSizeInCm: Double,
+            scoringType: ScoringType,
+            innerTenScoring: Boolean,
+            isOutdoor: Boolean,
+            use2023Handicaps: Boolean,
+    ) = arrowCount * scoringType.averageScorePerArrow(
+            rangeInM = if (isMetric) distance.toDouble() else distance * 0.9144,
+            faceSizeInCm = faceSizeInCm,
+            handicap = handicap.toDouble(),
+            innerTenScoring = innerTenScoring,
+            isOutdoor = isOutdoor,
+            use2023Handicaps = use2023Handicaps,
+    )
+
     data class HandicapPair(
             val handicap: Double,
             val score: Int,
@@ -269,7 +288,7 @@ object Handicap {
      * How arrows on a face are scored e.g. 10-zone metric or 5-zone imperial
      * Used for calculating average arrow score for a given handicap
      */
-    private enum class ScoringType(
+    enum class ScoringType(
             // Constants used in averageScorePerArrow
             private var initial: Int,
             private var sumMultiplier: Int,
@@ -282,10 +301,14 @@ object Handicap {
         IMPERIAL(9, 2, 1, 4, 10, 2.0, 1),
         METRIC(10, 1, 1, 10, 20, 0.0, 0),
 
-        // Half face - cut off after the 6 ring (3 separate targets in a vertical line)
+        /**
+         * Half face - cut off after the 6 ring (3 separate targets in a vertical line)
+         */
         TRIPLE(10, 1, 1, 4, 20, 20.0 / 5.0, 6),
 
-        // Cut off after 5 ring (6 total zones, shows entire blue)
+        /**
+         * Cut off after 5 ring (6 total zones, shows entire blue)
+         */
         FITA_SIX_ZONE(10, 1, 1, 5, 20, 20.0 / 6.0, 5),
 
         WORCESTER(5, 1, 1, 5, 10, 0.0, 0),
@@ -293,7 +316,7 @@ object Handicap {
         ;
 
         companion object {
-            fun getDefaultArrowRadiusInCm(isOutdoor: Boolean, use2023Handicaps: Boolean) =
+            internal fun getDefaultArrowRadiusInCm(isOutdoor: Boolean, use2023Handicaps: Boolean) =
                     when {
                         // Radius of an 18/64" diameter arrow
                         !use2023Handicaps -> 0.357
@@ -330,7 +353,7 @@ object Handicap {
          *
          * @param innerTenScoring true if only the inner ten ring should be counted as 10
          */
-        fun averageScorePerArrow(
+        internal fun averageScorePerArrow(
                 rangeInM: Double,
                 faceSizeInCm: Double,
                 handicap: Double,

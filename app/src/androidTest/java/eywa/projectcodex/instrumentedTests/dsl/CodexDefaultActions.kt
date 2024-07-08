@@ -103,4 +103,11 @@ object CodexDefaultActions {
             +CodexNodeInteraction.SetText(text, append)
         }
     }
+
+    fun TestActionDslV2.checkInputtedText(testTag: CodexTestTag, text: String) {
+        singleNode {
+            matchTextBox(testTag)
+            +CodexNodeInteraction.AssertTextEquals(text)
+        }
+    }
 }

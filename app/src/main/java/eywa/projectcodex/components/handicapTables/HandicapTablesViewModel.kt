@@ -145,7 +145,7 @@ class HandicapTablesViewModel @Inject constructor(
             || round.roundArrowCounts.isNullOrEmpty()
             || selectRoundDialogState.roundSubTypeDistances.isNullOrEmpty()
         ) {
-            return copy(handicaps = emptyList(), highlightedHandicap = null)
+            return copy(handicaps = emptyList())
         }
 
         val initial =
@@ -196,18 +196,16 @@ class HandicapTablesViewModel @Inject constructor(
 
         handicaps.sortBy { it.handicap }
         val highlighted = handicaps.first { it.handicap >= initial.handicap }
-        val finalHandicaps = handicaps.map {
-            HandicapScore(
-                    handicap = it.handicap,
-                    score = it.score,
-                    arrowsInRound = round.roundArrowCounts.sumOf { count -> count.arrowCount },
-                    arrowsPerEnd = if (round.round.isOutdoor) 6 else 3,
-                    isHighlightedRow = it.handicap == highlighted.handicap
-            )
-        }
         return copy(
-                handicaps = finalHandicaps,
-                highlightedHandicap = finalHandicaps.first { it.handicap >= initial.handicap },
+                handicaps = handicaps.map {
+                    HandicapScore(
+                            handicap = it.handicap,
+                            score = it.score,
+                            arrowsInRound = round.roundArrowCounts.sumOf { count -> count.arrowCount },
+                            arrowsPerEnd = if (round.round.isOutdoor) 6 else 3,
+                            isHighlightedRow = it.handicap == highlighted.handicap
+                    )
+                }
         )
     }
 

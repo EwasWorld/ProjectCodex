@@ -2,11 +2,10 @@ package eywa.projectcodex.instrumentedTests.robots
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.navigation.TabSwitcherGroup
-import eywa.projectcodex.components.handicapTables.HandicapTablesTestTag
+import eywa.projectcodex.components.handicapTables.ui.HandicapTablesTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
@@ -25,40 +24,47 @@ class HandicapTablesRobot(
     val selectFaceBaseRobot = SelectFaceBaseRobot(::performV2)
     val selectRoundsRobot = SelectRoundBaseRobot(::performV2)
 
+    fun scrollTo(index: Int) {
+        performV2Group {
+            +CodexNodeMatcher.HasParent(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.SCREEN))
+            toSingle(CodexNodeGroupToOne.Index(index)) {
+                +CodexNodeInteraction.PerformScrollTo()
+            }
+        }
+    }
+
     fun clickHandicapSystem() {
-        perform {
+        performV2 {
             clickDataRow(HandicapTablesTestTag.SYSTEM_SELECTOR)
         }
     }
 
     fun clickInputMethod() {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.INPUT_SELECTOR)
             +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun checkInputMethod(isHandicap: Boolean) {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.INPUT_SELECTOR)
             +CodexNodeInteraction.AssertTextEquals(if (isHandicap) "Handicap:" else "Score:")
         }
     }
 
     fun setInputText(text: String) {
-        perform {
-            setText(HandicapTablesTestTag.INPUT_TEXT, text)
-        }
+        setText(HandicapTablesTestTag.INPUT_TEXT, text)
     }
 
     fun checkInputText(text: String) {
-        perform {
+        performV2 {
             checkInputtedText(HandicapTablesTestTag.INPUT_TEXT, text)
         }
     }
 
     fun checkNoDataInTable() {
-        perform {
+        performV2Single {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_EMPTY_TEXT)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
@@ -71,16 +77,16 @@ class HandicapTablesRobot(
                         CodexNodeInteraction.AssertTextEquals(value.toString()),
                 )
 
-        perform {
-            allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_HANDICAP))
+        performV2Group {
+            +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_HANDICAP)
             +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.handicap, "Handicap") })
         }
-        perform {
-            allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_SCORE))
+        performV2Group {
+            +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_SCORE)
             +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.score, "Score") })
         }
-        perform {
-            allNodes(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_ALLOWANCE))
+        performV2Group {
+            +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_ALLOWANCE)
             +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.allowance, "Allowance") })
         }
     }
@@ -106,6 +112,22 @@ class HandicapTablesRobot(
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertIsDisplayed()
             }
+        }
+    }
+
+    fun checkDetailedBreakdownVisible() {
+        performV2Group {
+            +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.DETAIL_TABLE_DISTANCE)
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
+        }
+    }
+
+    fun checkDetailedBreakdownHidden() {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.DETAIL_TABLE_DISTANCE)
+            +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 

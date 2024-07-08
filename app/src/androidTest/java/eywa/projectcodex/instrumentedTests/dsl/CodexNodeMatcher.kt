@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -80,6 +81,12 @@ sealed class CodexNodeMatcher {
         constructor(matcher: CodexNodeMatcher) : this(listOf(matcher))
 
         override fun getMatcher(): SemanticsMatcher = hasAnyAncestor(matchers.getMatcher())
+    }
+
+    data class HasParent(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {
+        constructor(matcher: CodexNodeMatcher) : this(listOf(matcher))
+
+        override fun getMatcher(): SemanticsMatcher = hasParent(matchers.getMatcher())
     }
 
     data class HasAnySibling(val matchers: List<CodexNodeMatcher>) : CodexNodeMatcher() {

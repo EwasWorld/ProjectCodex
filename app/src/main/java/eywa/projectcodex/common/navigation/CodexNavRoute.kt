@@ -18,7 +18,7 @@ import eywa.projectcodex.components.archerInfo.ArcherInfoScreen
 import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarScreen
 import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
-import eywa.projectcodex.components.handicapTables.HandicapTablesScreen
+import eywa.projectcodex.components.handicapTables.ui.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.newScore.NewScoreScreen
 import eywa.projectcodex.components.settings.SettingsScreen

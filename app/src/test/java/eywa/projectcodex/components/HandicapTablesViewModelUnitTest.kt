@@ -30,6 +30,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.mock
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HandicapTablesViewModelUnitTest {
@@ -89,7 +90,7 @@ class HandicapTablesViewModelUnitTest {
                         input = PartialNumberFieldState().onTextChanged(handicap.toString()),
                         updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                 ),
-                sut.state.value.copy(handicaps = emptyList(), highlightedHandicap = null),
+                sut.state.value.copy(handicaps = emptyList()),
         )
 
         return sut
@@ -98,16 +99,17 @@ class HandicapTablesViewModelUnitTest {
     @Test
     fun testGetHandicaps_StandardOutdoor() = runTest {
         val sut = setUpGetHandicapsTest(50)
+        val state = sut.state.value
 
         assertEquals(
                 (45..55).toList(),
-                sut.state.value.handicaps.map { it.handicap },
+                state.handicaps.map { it.handicap },
         )
         assertEquals(
                 50,
-                sut.state.value.highlightedHandicap!!.handicap,
+                state.highlightedHandicap!!.handicap,
         )
-        sut.state.value.handicaps.forEach {
+        state.handicaps.forEach {
             assertEquals(
                     "Check ${it.handicap}",
                     it.score.toDouble() * 6 / 144,
@@ -121,6 +123,25 @@ class HandicapTablesViewModelUnitTest {
                     0.01,
             )
         }
+
+        assertEquals(
+                3,
+                state.detailedHandicaps?.size,
+        )
+        assertEquals(
+                state.highlightedHandicap!!.score,
+                state.detailedHandicaps?.sumOf { it.score }?.roundToInt(),
+        )
+        assertEquals(
+                state.detailedHandicaps!![0].score,
+                state.detailedHandicaps!![0].averageArrow * 72,
+                0.01,
+        )
+        assertEquals(
+                state.detailedHandicaps!![0].averageEnd,
+                state.detailedHandicaps!![0].averageArrow * 6,
+                0.01,
+        )
     }
 
     @Test
@@ -294,7 +315,7 @@ class HandicapTablesViewModelUnitTest {
     ) {
         assertEquals(
                 expectedState,
-                state.value.copy(handicaps = emptyList(), highlightedHandicap = null),
+                state.value.copy(handicaps = emptyList()),
         )
         assertEquals(
                 highlightedHc,
