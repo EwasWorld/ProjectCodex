@@ -6,13 +6,13 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.CodexBottomNavItem
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 
@@ -27,14 +27,14 @@ fun ShootDetailsBottomNavBar(
             contentColor = CodexTheme.colors.onBottomNavBar,
             modifier = modifier
     ) {
-        ShootDetailsBottomNavBarItem.values().forEach {
+        ShootDetailsBottomNavBarItem.entries.forEach {
             CodexBottomNavItem(
                     icon = it.notSelectedIcon,
                     selectedIcon = it.selectedIcon ?: it.notSelectedIcon,
                     label = it.label.get(),
                     contentDescription = it.label.get(),
                     isCurrentDestination = currentScreen == it.navRoute,
-                    modifier = Modifier.testTag(it.getTestTag()),
+                    modifier = Modifier.testTag(it),
                     onClick = { listener(it.navRoute) },
             )
         }
@@ -63,7 +63,7 @@ enum class ShootDetailsBottomNavBarItem(
             navRoute = CodexNavRoute.SHOOT_DETAILS_STATS,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
-            label = ResOrActual.StringResource(R.string.archer_round_stats__title),
+            label = ResOrActual.StringResource(R.string.archer_round_stats__nav_bar_title),
     ),
     SETTINGS(
             navRoute = CodexNavRoute.SHOOT_DETAILS_SETTINGS,
@@ -79,7 +79,7 @@ enum class ShootDetailsBottomNavBarItem(
     override fun getElement(): String = name
 
     companion object {
-        private val backwards = values().associateBy { it.navRoute }
+        private val backwards = entries.associateBy { it.navRoute }
 
         fun isItem(navRoute: CodexNavRoute) = backwards.containsKey(navRoute)
     }

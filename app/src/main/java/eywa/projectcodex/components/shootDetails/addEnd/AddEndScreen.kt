@@ -208,8 +208,21 @@ private fun AddEndContent(
     Column(
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
+            modifier = modifier.padding(bottom = 20.dp)
     ) {
+        SightMark(
+                fullShootInfo = state.fullShootInfo,
+                sightMark = state.sightMark,
+                helpListener = helpListener,
+                onExpandClicked = { listener(FullSightMarksClicked) },
+                onEditClicked = { listener(EditSightMarkClicked) },
+                modifier = Modifier.padding(vertical = 10.dp)
+        )
+        RemainingArrowsIndicator(
+                state.fullShootInfo,
+                helpListener,
+                modifier = Modifier.padding(bottom = 10.dp)
+        )
         ArrowsShot(
                 sighters = state.fullShootInfo.shootRound?.sightersCount ?: 0,
                 arrowsShot = state.fullShootInfo.arrowsShot,
@@ -220,15 +233,6 @@ private fun AddEndContent(
                 totalScore = state.fullShootInfo.score,
                 helpListener = helpListener,
         )
-        SightMark(
-                fullShootInfo = state.fullShootInfo,
-                sightMark = state.sightMark,
-                helpListener = helpListener,
-                onExpandClicked = { listener(FullSightMarksClicked) },
-                onEditClicked = { listener(EditSightMarkClicked) },
-                modifier = Modifier.padding(vertical = 10.dp)
-        )
-        RemainingArrowsIndicator(state.fullShootInfo, helpListener)
     }
 }
 
@@ -503,6 +507,7 @@ fun CompleteAddEndScreen_Preview() {
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
         widthDp = 330,
+        heightDp = 600,
 )
 @Composable
 fun Mini_AddEndScreen_Preview() {

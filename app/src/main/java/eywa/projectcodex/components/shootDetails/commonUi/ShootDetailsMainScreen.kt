@@ -27,7 +27,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 
 @Composable
-fun <T: Any> ShootDetailsMainScreen(
+fun <T : Any> ShootDetailsMainScreen(
         currentScreen: CodexNavRoute,
         state: ShootDetailsResponse<T>,
         listener: (ShootDetailsIntent) -> Unit,
@@ -48,7 +48,7 @@ fun <T: Any> ShootDetailsMainScreen(
 }
 
 @Composable
-fun <T: Any> HandleMainEffects(
+fun <T : Any> HandleMainEffects(
         navController: NavController,
         state: ShootDetailsResponse<T>,
         listener: (ShootDetailsIntent) -> Unit,
@@ -66,8 +66,17 @@ fun <T: Any> HandleMainEffects(
             navBarClickedItem.navigate(
                     navController,
                     mapOf(NavArgument.SHOOT_ID to state.shootId.toString()),
-                    popCurrentRoute = true,
-            )
+            ) {
+                val currentRoute = navController.currentDestination?.route
+                if (currentRoute != null) {
+                    popUpTo(currentRoute) {
+                        inclusive = true
+                        saveState = true
+                    }
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
             listener(ShootDetailsIntent.NavBarClickHandled(navBarClickedItem))
         }
         if (countingShootId != null) {

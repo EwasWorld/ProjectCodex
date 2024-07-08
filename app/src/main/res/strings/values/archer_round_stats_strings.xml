@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="archer_round_stats__title">Round Stats</string>
+    <string name="archer_round_stats__nav_bar_title">Stats</string>
 
     <string name="archer_round_stats__round">Round:</string>
     <string name="archer_round_stats__hits">Hits</string>
