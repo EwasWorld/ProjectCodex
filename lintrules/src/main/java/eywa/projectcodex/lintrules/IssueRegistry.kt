@@ -11,5 +11,8 @@ class IssueRegistry : IssueRegistry() {
     override val issues: List<Issue>
         get() = listOf(
                 DataClassCopyCallWithPrivateConstructor.ISSUE,
+                TrailingCommas.ISSUE_REQUIRED,
+                TrailingCommas.ISSUE_FORBIDDEN,
+                ModifierIsLastParam.ISSUE,
         )
 }
