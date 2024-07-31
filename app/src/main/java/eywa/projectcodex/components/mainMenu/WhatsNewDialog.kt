@@ -27,7 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
@@ -47,7 +48,7 @@ val SEEN_HANDICAP_NOTICE_LATEST_APP_VERSION
  * @return true if there have been [WhatsNewInfo.importantUpdates] since [lastShownAppVersion]
  */
 fun hasUpdates(lastShownAppVersion: AppVersion? = null, importantOnly: Boolean = true) =
-        WhatsNewInfo.values()
+        WhatsNewInfo.entries
                 .sortedByDescending { it.releaseDate }
                 .takeWhile { lastShownAppVersion == null || it.appVersion > lastShownAppVersion }
                 .any { it.importantUpdates != null || (!importantOnly && it.updates != null) }
@@ -65,11 +66,10 @@ private fun WhatsNewButton(
     CodexIconButton(
             onClick = onClick,
             captionBelow = stringResource(R.string.whats_new__button_text),
-            helpState = HelpState(
-                    helpListener = helpListener,
+            helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_whats_new__title),
                     helpBody = stringResource(R.string.help_whats_new__body),
-            ),
+            ).asHelpState(helpListener = helpListener),
             icon = CodexIconInfo.VectorIcon(
                     imageVector = icon,
                     tint = CodexTheme.colors.onFilledButton,
@@ -86,7 +86,7 @@ fun WhatsNewButtonAndDialog(
         buttonOnClick: () -> Unit,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    val onDismiss = { onDialogDismiss(WhatsNewInfo.values().first().appVersion) }
+    val onDismiss = { onDialogDismiss(WhatsNewInfo.entries.first().appVersion) }
 
     WhatsNewButton(
             lastShownAppVersion = lastShownAppVersion,
@@ -110,7 +110,7 @@ fun WhatsNewButtonAndDialog(
                     modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
 
-                val allInfo = WhatsNewInfo.values().sortedByDescending { it.releaseDate }
+                val allInfo = WhatsNewInfo.entries.sortedByDescending { it.releaseDate }
                 val firstSeen =
                         if (lastShownAppVersion == null) null
                         else allInfo.firstOrNull { it.appVersion <= lastShownAppVersion }
@@ -187,11 +187,16 @@ private enum class WhatsNewInfo(
         val importantUpdates: Int? = null,
         val updates: Int? = null,
 ) {
-    V2_4_0(
-            appVersion = AppVersion("2.4.0"),
+    V2_4_3(
+            appVersion = AppVersion("2.4.3"),
+            releaseDate = DateTimeFormat.SHORT_DATE.parse("05/08/24"),
+            updates = R.string.whats_new__2_4_3_update,
+    ),
+    V2_4_2(
+            appVersion = AppVersion("2.4.2"),
             releaseDate = DateTimeFormat.SHORT_DATE.parse("25/04/24"),
-            importantUpdates = R.string.whats_new__2_4_0_important_update,
-            updates = R.string.whats_new__2_4_0_update,
+            importantUpdates = R.string.whats_new__2_4_2_important_update,
+            updates = R.string.whats_new__2_4_2_update,
     ),
     V2_3_0(
             appVersion = AppVersion("2.3.0"),
@@ -210,13 +215,13 @@ private enum class WhatsNewInfo(
     companion object {
         init {
             check(
-                    values().sortedByDescending { it.releaseDate } == values().sortedByDescending { it.appVersion }
+                    entries.sortedByDescending { it.releaseDate } == entries.sortedByDescending { it.appVersion }
             ) { "Version/release date sorting discrepancy" }
             check(
-                    values().distinctBy { it.releaseDate }.size == values().size
+                    entries.distinctBy { it.releaseDate }.size == entries.size
             ) { "Duplicate release dates" }
             check(
-                    values().distinctBy { it.appVersion }.size == values().size
+                    entries.distinctBy { it.appVersion }.size == entries.size
             ) { "Duplicate version codes" }
         }
     }
@@ -244,7 +249,7 @@ fun Unseen_WhatsNewButton_Preview() {
 fun Seen_WhatsNewButton_Preview() {
     CodexTheme {
         WhatsNewButton(
-                lastShownAppVersion = WhatsNewInfo.values().first().appVersion,
+                lastShownAppVersion = WhatsNewInfo.entries.first().appVersion,
                 helpListener = {},
         ) {}
     }
@@ -256,7 +261,7 @@ fun WhatsNewDialog_Preview() {
     DialogPreviewHelper {
         WhatsNewButtonAndDialog(
                 isDialogShown = true,
-                lastShownAppVersion = WhatsNewInfo.values()[1].appVersion,
+                lastShownAppVersion = WhatsNewInfo.entries[1].appVersion,
                 onDialogDismiss = {},
                 helpListener = {},
                 buttonOnClick = {},
