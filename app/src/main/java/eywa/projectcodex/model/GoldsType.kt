@@ -1,5 +1,6 @@
 package eywa.projectcodex.model
 
+import androidx.annotation.StringRes
 import eywa.projectcodex.R
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
@@ -14,9 +15,9 @@ import eywa.projectcodex.database.rounds.Round
 enum class GoldsType(
         private val score: Int,
         private val isX: Boolean,
-        val shortStringId: Int,
-        val longStringId: Int,
-        val helpString: Int,
+        @StringRes val shortStringId: Int,
+        @StringRes val longStringId: Int,
+        @StringRes val helpString: Int,
 ) {
     NINES(
             9,

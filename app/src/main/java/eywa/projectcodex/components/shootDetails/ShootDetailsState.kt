@@ -9,8 +9,9 @@ import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
-import eywa.projectcodex.model.ScorePadData
 import eywa.projectcodex.model.SightMark
+import eywa.projectcodex.model.scorePadData.ScorePadData
+import eywa.projectcodex.model.scorePadData.ScorePadRow
 
 const val DEFAULT_END_SIZE = 6
 
@@ -69,7 +70,7 @@ data class ShootDetailsState(
             if (scorePadSelectedEnd == null || scorePadData == null) return null
 
             val all = scorePadData.data
-                    .filterIsInstance<ScorePadData.ScorePadRow.End>()
+                    .filterIsInstance<ScorePadRow.End>()
                     .sortedBy { it.endNumber }
             if (all.isEmpty()) return null
 

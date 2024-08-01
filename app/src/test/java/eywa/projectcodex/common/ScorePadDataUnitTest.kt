@@ -4,20 +4,18 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowScoresPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.common.utils.ResOrActual.StringResource
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.model.GoldsType
-import eywa.projectcodex.model.ScorePadData
-import eywa.projectcodex.model.ScorePadData.ColumnHeader
-import eywa.projectcodex.model.ScorePadData.ScorePadRow
-import eywa.projectcodex.model.ScorePadData.ScorePadRow.*
+import eywa.projectcodex.model.scorePadData.ScorePadData
+import eywa.projectcodex.model.scorePadData.ScorePadData.ScorePadColumnType
+import eywa.projectcodex.model.scorePadData.ScorePadRow
+import eywa.projectcodex.model.scorePadData.ScorePadRow.*
 import eywa.projectcodex.testUtils.TestData
 import eywa.projectcodex.testUtils.TestUtils
 import org.junit.Assert
@@ -64,6 +62,8 @@ class ScorePadDataUnitTest {
                     R.string.score_pad__surplus_total -> SURPLUS_TOTAL
                     R.string.score_pad__grand_total -> GRAND_TOTAL
                     R.string.score_pad__distance_total -> DISTANCE_TOTAL_STRING
+                    R.string.score_pad__distance_total_row_header -> TOTAL_ROW_HEADER_STRING
+                    R.string.score_pad__grand_total_row_header -> GRAND_TOTAL_ROW_HEADER_STRING
                     else -> throw IllegalStateException()
                 }
             }
@@ -75,6 +75,7 @@ class ScorePadDataUnitTest {
                 else {
                     when (res) {
                         R.string.score_pad__distance_total -> DISTANCE_TOTAL_STRING
+                        R.string.score_pad__arrow_string_accessibility -> ARROWS_ACCESSIBILITY
                         else -> throw IllegalStateException()
                     }
                 }
@@ -84,7 +85,13 @@ class ScorePadDataUnitTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testZeroEndSize() {
-        ScorePadData(ShootPreviewHelper.newFullShootInfo().addIdenticalArrows(5, 3), 0, GoldsType.NINES)
+        ScorePadData(
+                info = ShootPreviewHelperDsl.create {
+                    addIdenticalArrows(5, 3)
+                },
+                endSize = 0,
+                goldsType = GoldsType.NINES,
+        )
         Assert.fail("Created ScorePadData with 0 endSize")
     }
 
@@ -92,7 +99,7 @@ class ScorePadDataUnitTest {
     fun testGeneral_NoArrows() {
         assertEquals(
                 listOf<ScorePadRow>(),
-                ScorePadData(ShootPreviewHelper.newFullShootInfo(), 6, GoldsType.NINES).data
+                ScorePadData(ShootPreviewHelperDsl.create {}, 6, GoldsType.NINES).data
         )
     }
 
@@ -111,9 +118,11 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadData(
-                ShootPreviewHelper.newFullShootInfo().addIdenticalArrows(totalArrows, arrowScore),
-                endSize,
-                GoldsType.NINES,
+                info = ShootPreviewHelperDsl.create {
+                    addIdenticalArrows(totalArrows, arrowScore)
+                },
+                endSize = endSize,
+                goldsType = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -135,7 +144,7 @@ class ScorePadDataUnitTest {
                 .plus(
                         DistanceTotal(
                                 distance = 100,
-                                distanceUnit = R.string.units_yards_short,
+                                distanceUnit = StringResource(R.string.units_yards_short),
                                 hits = firstDistanceSize,
                                 score = firstDistanceSize * arrowScore,
                                 golds = 0,
@@ -153,7 +162,7 @@ class ScorePadDataUnitTest {
                 .plus(
                         DistanceTotal(
                                 distance = 80,
-                                distanceUnit = R.string.units_yards_short,
+                                distanceUnit = StringResource(R.string.units_yards_short),
                                 hits = lastDistanceSize,
                                 score = lastDistanceSize * arrowScore,
                                 golds = 0,
@@ -167,12 +176,12 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadData(
-                ShootPreviewHelper
-                        .newFullShootInfo()
-                        .addRound(RoundPreviewHelper.outdoorImperialRoundData)
-                        .addIdenticalArrows(totalArrows, arrowScore),
-                endSize,
-                GoldsType.NINES,
+                info = ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.outdoorImperialRoundData
+                    addIdenticalArrows(totalArrows, arrowScore)
+                },
+                endSize = endSize,
+                goldsType = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -194,7 +203,7 @@ class ScorePadDataUnitTest {
                 .plus(
                         HalfDistanceTotal(
                                 distance = 70,
-                                distanceUnit = R.string.units_meters_short,
+                                distanceUnit = StringResource(R.string.units_meters_short),
                                 hits = firstDistanceSize,
                                 score = firstDistanceSize * arrowScore,
                                 golds = 0,
@@ -214,7 +223,7 @@ class ScorePadDataUnitTest {
                         listOf(
                                 HalfDistanceTotal(
                                         distance = 70,
-                                        distanceUnit = R.string.units_meters_short,
+                                        distanceUnit = StringResource(R.string.units_meters_short),
                                         hits = firstDistanceSize,
                                         score = firstDistanceSize * arrowScore,
                                         golds = 0,
@@ -228,12 +237,12 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadData(
-                ShootPreviewHelper
-                        .newFullShootInfo()
-                        .addRound(RoundPreviewHelper.wa70RoundData)
-                        .addIdenticalArrows(totalArrows, arrowScore),
-                endSize,
-                GoldsType.NINES,
+                info = ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.wa70RoundData
+                    addIdenticalArrows(totalArrows, arrowScore)
+                },
+                endSize = endSize,
+                goldsType = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -255,7 +264,7 @@ class ScorePadDataUnitTest {
                 .plus(
                         DistanceTotal(
                                 distance = 18,
-                                distanceUnit = R.string.units_meters_short,
+                                distanceUnit = StringResource(R.string.units_meters_short),
                                 hits = distanceSize,
                                 score = distanceSize * arrowScore,
                                 golds = 0,
@@ -285,12 +294,12 @@ class ScorePadDataUnitTest {
                         )
                 )
         val actualRows = ScorePadData(
-                ShootPreviewHelper
-                        .newFullShootInfo()
-                        .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                        .addIdenticalArrows(totalArrows, arrowScore),
-                endSize,
-                GoldsType.NINES,
+                info = ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.indoorMetricRoundData
+                    addIdenticalArrows(totalArrows, arrowScore)
+                },
+                endSize = endSize,
+                goldsType = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -301,14 +310,10 @@ class ScorePadDataUnitTest {
 
     @Test
     fun testAllTargetArrowScores() {
-        val info = ShootPreviewHelper
-                .newFullShootInfo()
-                .let { info ->
-                    info.copy(
-                            arrows = List(11) { DatabaseArrowScore(info.id, it, it, false) }
-                                    .plus(DatabaseArrowScore(info.id, 11, 10, true))
-                    )
-                }
+        val info = ShootPreviewHelperDsl.create {
+            arrows = List(11) { DatabaseArrowScore(shoot.shootId, it, it, false) }
+                    .plus(DatabaseArrowScore(shoot.shootId, 11, 10, true))
+        }
 
         val expectedRows = listOf(
                 End(
@@ -363,14 +368,10 @@ class ScorePadDataUnitTest {
                 ),
         )
 
-        val info = ShootPreviewHelper
-                .newFullShootInfo()
-                .let { info ->
-                    info.copy(
-                            arrows = List(11) { DatabaseArrowScore(info.id, it, it, false) }
-                                    .plus(DatabaseArrowScore(info.id, 11, 10, true))
-                    )
-                }
+        val info = ShootPreviewHelperDsl.create {
+            arrows = List(11) { DatabaseArrowScore(shoot.shootId, it, it, false) }
+                    .plus(DatabaseArrowScore(shoot.shootId, 11, 10, true))
+        }
 
         assertEquals(
                 getExpectedRows(3),
@@ -401,15 +402,15 @@ class ScorePadDataUnitTest {
         assertEquals(ResOrActual.Actual("2"), end.copy(endNumber = 2).getRowHeader())
 
         assertEquals(
-                ResOrActual.StringResource(R.string.score_pad__distance_total_row_header),
-                DistanceTotal(1, 1, 1, 1, 1).getRowHeader()
+                StringResource(R.string.score_pad__distance_total_row_header),
+                DistanceTotal(1, ResOrActual.Actual("1"), 1, 1, 1).getRowHeader()
         )
         assertEquals(
-                ResOrActual.StringResource(R.string.score_pad__distance_total_row_header),
+                StringResource(R.string.score_pad__distance_total_row_header),
                 SurplusTotal(1, 1, 1).getRowHeader()
         )
         assertEquals(
-                ResOrActual.StringResource(R.string.score_pad__grand_total_row_header),
+                StringResource(R.string.score_pad__grand_total_row_header),
                 GrandTotal(1, 1, 1).getRowHeader()
         )
     }
@@ -425,19 +426,21 @@ class ScorePadDataUnitTest {
                 runningTotal = 65,
         )
 
-        ColumnHeader.values().forEach { column ->
+        ScorePadColumnType.entries.forEach { column ->
+            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
             val expected = when (column) {
-                ColumnHeader.ARROWS -> listOf(M_ARROW)
+                ScorePadColumnType.ARROWS -> listOf(M_ARROW)
                         .plus((1..10).map { it.toString() })
                         .plus(X_ARROW)
                         .joinToString(ARROW_DELIMITER)
 
-                ColumnHeader.HITS -> "11"
-                ColumnHeader.SCORE -> "65"
-                ColumnHeader.GOLDS -> "3"
-                ColumnHeader.RUNNING_TOTAL -> "65"
+                ScorePadColumnType.HITS -> "11"
+                ScorePadColumnType.SCORE -> "65"
+                ScorePadColumnType.GOLDS -> "3"
+                ScorePadColumnType.RUNNING_TOTAL -> "65"
+                ScorePadColumnType.HEADER -> "1"
             }
-            assertEquals(column.name, expected, row.getContent(column, resources))
+            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
         }
     }
 
@@ -445,21 +448,23 @@ class ScorePadDataUnitTest {
     fun testGetContent_DistanceTotal() {
         val row = DistanceTotal(
                 distance = 100,
-                distanceUnit = R.string.units_yards_short,
+                distanceUnit = StringResource(R.string.units_yards_short),
                 hits = 11,
                 score = 65,
                 golds = 3,
         )
 
-        ColumnHeader.values().forEach { column ->
+        ScorePadColumnType.entries.forEach { column ->
+            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
             val expected = when (column) {
-                ColumnHeader.ARROWS -> DISTANCE_TOTAL_STRING
-                ColumnHeader.HITS -> "11"
-                ColumnHeader.SCORE -> "65"
-                ColumnHeader.GOLDS -> "3"
-                ColumnHeader.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
+                ScorePadColumnType.ARROWS -> DISTANCE_TOTAL_STRING
+                ScorePadColumnType.HITS -> "11"
+                ScorePadColumnType.SCORE -> "65"
+                ScorePadColumnType.GOLDS -> "3"
+                ScorePadColumnType.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
+                ScorePadColumnType.HEADER -> TOTAL_ROW_HEADER_STRING
             }
-            assertEquals(column.name, expected, row.getContent(column, resources))
+            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
         }
 
         verify(resources).getString(R.string.score_pad__distance_total, 100, YARDS_UNIT)
@@ -473,15 +478,17 @@ class ScorePadDataUnitTest {
                 golds = 3,
         )
 
-        ColumnHeader.values().forEach { column ->
+        ScorePadColumnType.entries.forEach { column ->
+            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
             val expected = when (column) {
-                ColumnHeader.ARROWS -> SURPLUS_TOTAL
-                ColumnHeader.HITS -> "11"
-                ColumnHeader.SCORE -> "65"
-                ColumnHeader.GOLDS -> "3"
-                ColumnHeader.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
+                ScorePadColumnType.ARROWS -> SURPLUS_TOTAL
+                ScorePadColumnType.HITS -> "11"
+                ScorePadColumnType.SCORE -> "65"
+                ScorePadColumnType.GOLDS -> "3"
+                ScorePadColumnType.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
+                ScorePadColumnType.HEADER -> TOTAL_ROW_HEADER_STRING
             }
-            assertEquals(column.name, expected, row.getContent(column, resources))
+            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
         }
     }
 
@@ -493,15 +500,199 @@ class ScorePadDataUnitTest {
                 golds = 3,
         )
 
-        ColumnHeader.values().forEach { column ->
+        ScorePadColumnType.entries.forEach { column ->
+            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
             val expected = when (column) {
-                ColumnHeader.ARROWS -> GRAND_TOTAL
-                ColumnHeader.HITS -> "11"
-                ColumnHeader.SCORE -> "65"
-                ColumnHeader.GOLDS -> "3"
-                ColumnHeader.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
+                ScorePadColumnType.ARROWS -> GRAND_TOTAL
+                ScorePadColumnType.HITS -> "11"
+                ScorePadColumnType.SCORE -> "65"
+                ScorePadColumnType.GOLDS -> "3"
+                ScorePadColumnType.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
+                ScorePadColumnType.HEADER -> GRAND_TOTAL_ROW_HEADER_STRING
             }
-            assertEquals(column.name, expected, row.getContent(column, resources))
+            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
+        }
+    }
+
+    @Test
+    fun testGetContentDescription_End() {
+        val row = End(
+                endNumber = 1,
+                arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
+                hits = 11,
+                score = 65,
+                golds = 3,
+                runningTotal = 65,
+        )
+
+        ScorePadColumnType.entries.forEach { column ->
+            val expected = when (column) {
+                ScorePadColumnType.ARROWS -> null // Not used
+
+                ScorePadColumnType.HITS -> StringResource(
+                        R.string.score_pad__hits_accessibility,
+                        listOf(ResOrActual.Actual("11")),
+                )
+
+                ScorePadColumnType.SCORE -> StringResource(
+                        R.string.score_pad__score_accessibility,
+                        listOf(ResOrActual.Actual("65")),
+                )
+
+                ScorePadColumnType.GOLDS -> StringResource(
+                        R.string.score_pad__golds_accessibility,
+                        listOf("3", StringResource(R.string.table_golds_nines_full)),
+                )
+
+                ScorePadColumnType.RUNNING_TOTAL -> StringResource(
+                        R.string.score_pad__running_total_accessibility,
+                        listOf(ResOrActual.Actual("65")),
+                )
+
+                ScorePadColumnType.HEADER -> StringResource(
+                        R.string.score_pad__end_row_header_accessibility,
+                        listOf(1),
+                )
+            }
+            if (column == ScorePadColumnType.ARROWS) {
+                assertEquals(
+                        column.name,
+                        ARROWS_ACCESSIBILITY,
+                        ScorePadData
+                                .toColumnMetadata(column, GoldsType.NINES)
+                                .cellContentDescription(row, Unit)
+                                ?.get(resources),
+                )
+
+                verify(resources).getString(
+                        R.string.score_pad__arrow_string_accessibility,
+                        "M_ARROW 1 2. 3 4 5. 6 7 8. 9 10 X_ARROW",
+                )
+            }
+            else {
+                assertEquals(
+                        column.name,
+                        expected,
+                        ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testGetContentDescription_DistanceTotal() {
+        val row = DistanceTotal(
+                distance = 100,
+                distanceUnit = StringResource(R.string.units_yards_short),
+                hits = 11,
+                score = 65,
+                golds = 3,
+        )
+
+        ScorePadColumnType.entries.forEach { column ->
+            val expected = when (column) {
+                ScorePadColumnType.ARROWS -> StringResource(
+                        R.string.score_pad__distance_total,
+                        listOf(100, StringResource(R.string.units_yards_short))
+                )
+
+                ScorePadColumnType.HITS -> StringResource(
+                        R.string.score_pad__hits_accessibility,
+                        listOf(ResOrActual.Actual("11")),
+                )
+
+                ScorePadColumnType.SCORE -> StringResource(
+                        R.string.score_pad__score_accessibility,
+                        listOf(ResOrActual.Actual("65")),
+                )
+
+                ScorePadColumnType.GOLDS -> StringResource(
+                        R.string.score_pad__golds_accessibility,
+                        listOf("3", StringResource(R.string.table_golds_nines_full)),
+                )
+
+                ScorePadColumnType.RUNNING_TOTAL -> null
+                ScorePadColumnType.HEADER -> null
+            }
+            assertEquals(
+                    column.name,
+                    expected,
+                    ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+            )
+        }
+    }
+
+    @Test
+    fun testGetContentDescription_SurplusTotal() {
+        val row = SurplusTotal(
+                hits = 11,
+                score = 65,
+                golds = 3,
+        )
+
+        ScorePadColumnType.entries.forEach { column ->
+            val expected = when (column) {
+                ScorePadColumnType.ARROWS -> StringResource(R.string.score_pad__surplus_total)
+                ScorePadColumnType.HITS -> StringResource(
+                        R.string.score_pad__hits_accessibility,
+                        listOf(ResOrActual.Actual("11")),
+                )
+
+                ScorePadColumnType.SCORE -> StringResource(
+                        R.string.score_pad__score_accessibility,
+                        listOf(ResOrActual.Actual("65")),
+                )
+
+                ScorePadColumnType.GOLDS -> StringResource(
+                        R.string.score_pad__golds_accessibility,
+                        listOf("3", StringResource(R.string.table_golds_nines_full)),
+                )
+
+                ScorePadColumnType.RUNNING_TOTAL -> null
+                ScorePadColumnType.HEADER -> null
+            }
+            assertEquals(
+                    column.name,
+                    expected,
+                    ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+            )
+        }
+    }
+
+    @Test
+    fun testGetContentDescription_GrandTotal() {
+        val row = GrandTotal(
+                hits = 11,
+                score = 65,
+                golds = 3,
+        )
+
+        ScorePadColumnType.entries.forEach { column ->
+            val expected = when (column) {
+                ScorePadColumnType.ARROWS -> StringResource(R.string.score_pad__grand_total)
+                ScorePadColumnType.HITS -> StringResource(
+                        R.string.score_pad__hits_accessibility,
+                        listOf(ResOrActual.Actual("11")),
+                )
+
+                ScorePadColumnType.SCORE -> StringResource(
+                        R.string.score_pad__score_accessibility,
+                        listOf(ResOrActual.Actual("65")),
+                )
+
+                ScorePadColumnType.GOLDS -> StringResource(
+                        R.string.score_pad__golds_accessibility,
+                        listOf("3", StringResource(R.string.table_golds_nines_full)),
+                )
+
+                ScorePadColumnType.RUNNING_TOTAL -> null
+                ScorePadColumnType.HEADER -> null
+            }
+            assertEquals(
+                    column.name,
+                    expected,
+                    ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+            )
         }
     }
 
@@ -509,7 +700,9 @@ class ScorePadDataUnitTest {
     fun testToCsv_NoRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ShootPreviewHelper.newFullShootInfo().addArrows(arrows),
+                info = ShootPreviewHelperDsl.create {
+                    addArrows(this@ScorePadDataUnitTest.arrows)
+                },
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -533,7 +726,10 @@ class ScorePadDataUnitTest {
     fun testToCsv_WithRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelperDsl.create {
+                    round = fullRoundInfo
+                    addArrows(this@ScorePadDataUnitTest.arrows)
+                },
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -559,7 +755,10 @@ class ScorePadDataUnitTest {
     fun testToCsv_WithRoundNoDistanceTotals() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelperDsl.create {
+                    round = fullRoundInfo
+                    addArrows(this@ScorePadDataUnitTest.arrows)
+                },
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -583,7 +782,9 @@ class ScorePadDataUnitTest {
     fun testToString_NoRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ShootPreviewHelper.newFullShootInfo().addArrows(arrows),
+                info = ShootPreviewHelperDsl.create {
+                    addArrows(this@ScorePadDataUnitTest.arrows)
+                },
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -610,7 +811,10 @@ class ScorePadDataUnitTest {
     fun testToString_WithRound() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelperDsl.create {
+                    round = fullRoundInfo
+                    addArrows(this@ScorePadDataUnitTest.arrows)
+                },
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -639,7 +843,10 @@ class ScorePadDataUnitTest {
     fun testToString_WithRoundNoDistanceTotals() {
         resources = setUpResources()
         val data = ScorePadData(
-                info = ShootPreviewHelper.newFullShootInfo().addRound(fullRoundInfo).addArrows(arrows),
+                info = ShootPreviewHelperDsl.create {
+                    round = fullRoundInfo
+                    addArrows(this@ScorePadDataUnitTest.arrows)
+                },
                 endSize = 6,
                 goldsType = GoldsType.TENS,
         )
@@ -743,12 +950,15 @@ class ScorePadDataUnitTest {
         private const val M_ARROW = "M_ARROW"
         private const val X_ARROW = "X_ARROW"
         private const val YARDS_UNIT = "YARDS_UNIT"
+        private const val TOTAL_ROW_HEADER_STRING = "TOTAL_ROW_HEADER_STRING"
+        private const val GRAND_TOTAL_ROW_HEADER_STRING = "GRAND_TOTAL_ROW_HEADER_STRING"
+        private const val ARROWS_ACCESSIBILITY = "ARROWS_ACCESSIBILITY"
         private const val DISTANCE_TOTAL_STRING = "DISTANCE_TOTAL_STRING"
         private const val SURPLUS_TOTAL = "SURPLUS_TOTAL"
         private const val GRAND_TOTAL = "GRAND_TOTAL"
 
         private val ALL_ARROW_VALUE_RES_OR_ACTUAL = listOf(
-                ResOrActual.StringResource(R.string.arrow_value_m),
+                StringResource(R.string.arrow_value_m),
                 ResOrActual.Actual("1"),
                 ResOrActual.Actual("2"),
                 ResOrActual.Actual("3"),
@@ -759,7 +969,7 @@ class ScorePadDataUnitTest {
                 ResOrActual.Actual("8"),
                 ResOrActual.Actual("9"),
                 ResOrActual.Actual("10"),
-                ResOrActual.StringResource(R.string.arrow_value_x),
+                StringResource(R.string.arrow_value_x),
         )
     }
 }

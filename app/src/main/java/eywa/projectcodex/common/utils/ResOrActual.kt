@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
-sealed class ResOrActual<T> {
+abstract class ResOrActual<T> {
     data class Actual<T>(val actual: T) : ResOrActual<T>() {
         @Composable
         override fun get(): T = actual

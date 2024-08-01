@@ -5,12 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -19,10 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -39,8 +33,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseShape
-import eywa.projectcodex.common.helpShowcase.HelpState
-import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
@@ -49,6 +41,7 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.grid.CodexGridWithHeaders
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
@@ -59,17 +52,18 @@ import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
-import eywa.projectcodex.model.GoldsType
-import eywa.projectcodex.model.ScorePadData.ColumnHeader
-import eywa.projectcodex.model.ScorePadData.ScorePadRow
+import eywa.projectcodex.model.scorePadData.ScorePadColumn
+import eywa.projectcodex.model.scorePadData.ScorePadData.ScorePadColumnType
+import eywa.projectcodex.model.scorePadData.ScorePadRow
 
 
-private val COLUMN_HEADER_ORDER = listOf(
-        ColumnHeader.ARROWS,
-        ColumnHeader.HITS,
-        ColumnHeader.SCORE,
-        ColumnHeader.GOLDS,
-        ColumnHeader.RUNNING_TOTAL,
+private val COLUMN_ORDER = listOf(
+        ScorePadColumnType.HEADER,
+        ScorePadColumnType.ARROWS,
+        ScorePadColumnType.HITS,
+        ScorePadColumnType.SCORE,
+        ScorePadColumnType.GOLDS,
+        ScorePadColumnType.RUNNING_TOTAL,
 )
 
 @Composable
@@ -179,58 +173,23 @@ private fun ScorePadScreen(
         return
     }
 
-    Row(
-            verticalAlignment = Alignment.Top,
+    val columnMetadata = COLUMN_ORDER.map { state.scorePadData.toColumnMetadata(it) }
+    CodexGridWithHeaders(
+            columnMetadata = columnMetadata,
             modifier = modifier
                     .horizontalScroll(rememberScrollState())
                     .padding(5.dp)
                     .testTag(ScorePadTestTag.SCREEN)
     ) {
-        Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.width(IntrinsicSize.Max)
-        ) {
-            // Placeholder for the first row which is the column header for other columns
-            Cell(
-                    text = "",
-                    listener = listener,
-            )
-            state.scorePadData.data.forEach { rowData ->
-                Cell(
-                        rowData = rowData,
-                        goldsType = state.scorePadData.goldsType,
-                        listener = listener,
-                )
-            }
-        }
+        state.scorePadData.data.forEach { row ->
+            columnMetadata.forEach { column ->
+                item(fillBox = true) {
+                    val endNumber = (row as? ScorePadRow.End)?.endNumber
 
-        COLUMN_HEADER_ORDER.forEach { columnHeader ->
-            val helpState = HelpState(
-                    helpListener = helpListener,
-                    helpShowcaseItem = HelpShowcaseItem(
-                            helpTitle = columnHeader.getHelpTitle(),
-                            helpBody = columnHeader.getHelpBody(state.scorePadData.goldsType),
-                    ),
-            )
-
-            Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(IntrinsicSize.Max)
-            ) {
-                Cell(
-                        columnType = columnHeader,
-                        goldsType = state.scorePadData.goldsType,
-                        listener = listener,
-                        modifier = Modifier.updateHelpDialogPosition(helpState)
-                )
-
-                state.scorePadData.data.forEach { rowData ->
-                    val endNumber = (rowData as? ScorePadRow.End)?.endNumber
                     Box {
                         Cell(
-                                rowData = rowData,
-                                columnType = columnHeader,
-                                goldsType = state.scorePadData.goldsType,
+                                rowData = row,
+                                scorePadColumn = column,
                                 listener = listener,
                         )
                         DropdownMenu(
@@ -238,7 +197,7 @@ private fun ScorePadScreen(
                                 endNumber = endNumber ?: -1,
                                 expanded = state.dropdownMenuOpenForEndNumber != null
                                         && state.isDropdownMenuOpen
-                                        && columnHeader == ColumnHeader.ARROWS
+                                        && column == ScorePadColumn.FixedData.ARROWS
                                         && endNumber == state.dropdownMenuOpenForEndNumber,
                                 listener = listener,
                         )
@@ -250,29 +209,21 @@ private fun ScorePadScreen(
 }
 
 /**
- * @param text override the default text for [columnType] or [rowData] (required if neither is provided)
  * @param rowData null for the column headers
- * @param columnType null for the row headers
+ * @param scorePadColumn null for the row headers
  */
 @Composable
 private fun Cell(
         modifier: Modifier = Modifier,
-        text: String? = null,
-        rowData: ScorePadRow? = null,
-        columnType: ColumnHeader? = null,
-        goldsType: GoldsType = GoldsType.defaultGoldsType,
+        rowData: ScorePadRow,
+        scorePadColumn: ScorePadColumn,
         listener: (ScorePadIntent) -> Unit,
 ) {
-    val isTotalRow = rowData != null && rowData !is ScorePadRow.End
-    val isHeader = rowData == null || columnType == null
-
-    val backgroundColour = when {
-        isTotalRow -> CodexTheme.colors.listAccentRowItemOnAppBackground
-        rowData == null && columnType == null -> null
-        rowData != null && columnType != null -> CodexTheme.colors.listItemOnAppBackground
-        else -> CodexTheme.colors.listAccentRowItemOnAppBackground
-    }
-    val backgroundModifier = backgroundColour?.let { Modifier.background(it) } ?: Modifier
+    val isHeader = rowData !is ScorePadRow.End || scorePadColumn is ScorePadColumn.Header
+    val backgroundModifier = Modifier.background(
+            if (isHeader) CodexTheme.colors.listAccentRowItemOnAppBackground
+            else CodexTheme.colors.listItemOnAppBackground,
+    )
 
     val clickModifier = if (rowData !is ScorePadRow.End) Modifier
     else Modifier.pointerInput(rowData) {
@@ -282,22 +233,7 @@ private fun Cell(
         )
     }
 
-    val goldsTypeString = stringResource(goldsType.longStringId)
-    val finalText = when {
-        text != null -> text
-        rowData == null -> stringResource(columnType!!.getShortResourceId(goldsType))
-        columnType != null -> columnType.let { rowData.getContent(it, LocalContext.current.resources) }
-        else -> rowData.getRowHeader().get()
-    }
-    val contentDescription = when {
-        isHeader && rowData is ScorePadRow.End -> rowData.getRowHeaderAccessibilityText()
-        isHeader -> null
-        columnType == ColumnHeader.RUNNING_TOTAL && rowData !is ScorePadRow.End -> null
-        columnType == ColumnHeader.ARROWS && rowData is ScorePadRow.End ->
-            columnType.getCellAccessibilityText(rowData.arrowScores.map { it.get() }, goldsTypeString)
-
-        else -> columnType!!.getCellAccessibilityText(finalText, goldsTypeString)
-    }?.get()
+    val contentDescription = scorePadColumn.cellContentDescription(rowData, Unit)?.get()
 
     val customActions =
             if (rowData is ScorePadRow.End) {
@@ -316,14 +252,13 @@ private fun Cell(
             }
 
     Text(
-            text = finalText,
+            text = scorePadColumn.mapping(rowData).get(),
             style = CodexTypography.NORMAL,
             textAlign = TextAlign.Center,
-            fontWeight = if (isTotalRow || isHeader) FontWeight.Bold else FontWeight.Normal,
+            fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
             color = CodexTheme.colors.onListItemAppOnBackground,
             modifier = modifier
                     .fillMaxWidth()
-                    .padding(2.dp)
                     .then(backgroundModifier)
                     .padding(vertical = 5.dp, horizontal = 10.dp)
                     .then(clickModifier)

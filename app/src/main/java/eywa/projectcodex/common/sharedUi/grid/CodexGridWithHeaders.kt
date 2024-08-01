@@ -1,6 +1,8 @@
 package eywa.projectcodex.common.sharedUi.grid
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.ProvideTextStyle
@@ -39,8 +41,8 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
     CodexGridWithHeaders(
             columnMetadata = columnMetadata,
             columns = columns,
-            modifier = modifier,
             helpListener = helpListener,
+            modifier = modifier
     ) {
         data.forEach { row ->
             columnMetadata.forEach { column ->
@@ -56,13 +58,16 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
                             modifier = cellModifier
                                     .background(
                                             if (row.isTotalRow) CodexTheme.colors.listAccentRowItemOnAppBackground
-                                            else CodexTheme.colors.listItemOnAppBackground
+                                            else CodexTheme.colors.listItemOnAppBackground,
                                     )
                                     .padding(horizontal = 8.dp, vertical = 3.dp)
                                     .semantics {
-                                        contentDescription = column
+                                        column
                                                 .cellContentDescription(row, extraData)
-                                                .get(resource)
+                                                ?.get(resource)
+                                                ?.let {
+                                                    contentDescription = it
+                                                }
                                     }
                     )
                 }
@@ -72,7 +77,7 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
 }
 
 @Composable
-fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
+fun <RowData : Any, ExtraData> CodexGridWithHeaders(
         columnMetadata: List<CodexGridColumnMetadata<RowData, ExtraData>>,
         modifier: Modifier = Modifier,
         columns: List<CodexGridColumn> = List(columnMetadata.size) { CodexGridColumn.WrapContent },
@@ -87,18 +92,13 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
                 alignment = Alignment.Center,
                 verticalSpacing = 4.dp,
                 horizontalSpacing = 4.dp,
-                modifier = modifier,
+                modifier = modifier
         ) {
             columnMetadata.forEach { column ->
                 column.primaryTitle?.let { primaryTitle ->
                     val helpState =
                             if (column.primaryTitleHorizontalSpan > 1) null
-                            else {
-                                HelpShowcaseItem(
-                                        helpTitle = column.helpTitle.get(resource),
-                                        helpBody = column.helpBody.get(resource),
-                                ).asHelpState(helpListener)
-                            }
+                            else column.getHelpState(resource)?.asHelpState(helpListener)
                     item(
                             fillBox = true,
                             horizontalSpan = column.primaryTitleHorizontalSpan,
@@ -118,17 +118,17 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
                         )
                     }
                 }
+                if (column.primaryTitle == null && column.secondaryTitle == null) {
+                    item(fillBox = true) {
+                        Box {}
+                    }
+                }
             }
             columnMetadata.forEach { column ->
                 column.secondaryTitle?.let { secondaryTitle ->
                     val helpState =
                             if (column.primaryTitleHorizontalSpan == 1 && column.primaryTitle != null) null
-                            else {
-                                HelpShowcaseItem(
-                                        helpTitle = column.helpTitle.get(resource),
-                                        helpBody = column.helpBody.get(resource),
-                                ).asHelpState(helpListener)
-                            }
+                            else column.getHelpState(resource)?.asHelpState(helpListener)
                     item(fillBox = true) {
                         Text(
                                 text = secondaryTitle.get(),
@@ -178,10 +178,18 @@ interface CodexGridColumnMetadata<RowData, ExtraData> {
      */
     val secondaryTitle: ResOrActual<String>?
 
-    val helpTitle: ResOrActual<String>
-    val helpBody: ResOrActual<String>
+    val helpTitle: ResOrActual<String>?
+    val helpBody: ResOrActual<String>?
     val testTag: CodexTestTag?
 
     val mapping: (RowData) -> ResOrActual<String>
-    val cellContentDescription: (RowData, ExtraData) -> ResOrActual<String>
+    val cellContentDescription: (RowData, ExtraData) -> ResOrActual<String>?
+
+    fun getHelpState(resources: Resources): HelpShowcaseItem? {
+        if (helpTitle == null || helpBody == null) return null
+        return HelpShowcaseItem(
+                helpTitle = helpTitle!!.get(resources),
+                helpBody = helpBody!!.get(resources),
+        )
+    }
 }

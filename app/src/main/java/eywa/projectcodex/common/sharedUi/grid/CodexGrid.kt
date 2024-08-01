@@ -49,10 +49,10 @@ fun CodexGrid(
 ) = CodexGrid(
         columns = List(columns) { CodexGridColumn.WrapContent },
         alignment = alignment,
-        modifier = modifier,
         verticalSpacing = verticalSpacing,
         horizontalSpacing = horizontalSpacing,
-        config = config
+        config = config,
+        modifier = modifier
 )
 
 /**
@@ -82,7 +82,7 @@ fun CodexGrid(
             .map { list -> list.map { it.index } }
 
     SubcomposeLayout(
-            modifier = modifier,
+            modifier = modifier
     ) { constraints ->
         val columnWidths = MutableList(columns.size) { 0 }
         val rowHeights = mutableListOf<Int>()
@@ -209,7 +209,7 @@ fun CodexGrid(
                                 maxWidth = columnWidth,
                                 minHeight = rowHeight,
                                 maxHeight = rowHeight,
-                        )
+                        ),
                 )
             }
             else {
@@ -226,8 +226,8 @@ fun CodexGrid(
         }
 
         layout(
-                columnWidths.sum() + horizontalSpace * (columnWidths.size - 1),
-                rowHeights.sum() + verticalSpace * (rowHeights.size - 1),
+                maxOf(constraints.minWidth, columnWidths.sum() + horizontalSpace * (columnWidths.size - 1)),
+                maxOf(constraints.minHeight, rowHeights.sum() + verticalSpace * (rowHeights.size - 1)),
         ) {
             columnIndex = 0
             rowIndex = 0

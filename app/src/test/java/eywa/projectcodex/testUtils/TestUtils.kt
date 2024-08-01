@@ -1,7 +1,7 @@
 package eywa.projectcodex.testUtils
 
 import android.content.res.Resources
-import eywa.projectcodex.model.ScorePadData
+import eywa.projectcodex.model.scorePadData.ScorePadData
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import org.mockito.kotlin.anyVararg
@@ -11,11 +11,11 @@ class TestUtils {
         const val FLOW_EMIT_DELAY = 50L
 
         val defaultColumnHeaderOrder = listOf(
-                ScorePadData.ColumnHeader.ARROWS,
-                ScorePadData.ColumnHeader.HITS,
-                ScorePadData.ColumnHeader.SCORE,
-                ScorePadData.ColumnHeader.GOLDS,
-                ScorePadData.ColumnHeader.RUNNING_TOTAL
+                ScorePadData.ScorePadColumnType.ARROWS,
+                ScorePadData.ScorePadColumnType.HITS,
+                ScorePadData.ScorePadColumnType.SCORE,
+                ScorePadData.ScorePadColumnType.GOLDS,
+                ScorePadData.ScorePadColumnType.RUNNING_TOTAL
         )
 
         /**

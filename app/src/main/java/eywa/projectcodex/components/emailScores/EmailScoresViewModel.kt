@@ -20,9 +20,15 @@ import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.model.FullShootInfo
-import eywa.projectcodex.model.ScorePadData
+import eywa.projectcodex.model.scorePadData.ScorePadData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileWriter
@@ -75,22 +81,28 @@ class EmailScoresViewModel @Inject constructor(
                 _state.update {
                     it.copy(textFields = it.textFields.plus(action.type to action.value))
                 }
+
             is UpdateBoolean ->
                 _state.update {
-                    it.copy(booleanFields = it.booleanFields.let { field ->
-                        if (action.value) field.plus(action.type) else field.minus(action.type)
-                    })
+                    it.copy(
+                            booleanFields = it.booleanFields.let { field ->
+                                if (action.value) field.plus(action.type) else field.minus(action.type)
+                            },
+                    )
                 }
+
             DismissNoEntriesError -> {
                 if (state.value.error == EmailScoresError.NO_SELECTED_ENTRIES) {
                     shootIdsUseCase.clear()
                     _state.update { it.copy(error = null, navigateUpTriggered = true) }
                 }
             }
+
             is IntentHandledSuccessfully -> {
                 shootIdsUseCase.clear()
                 _state.update { it.copy(intentWithoutTextExtra = null) }
             }
+
             is OpenError ->
                 _state.update {
                     it.copy(
@@ -99,6 +111,7 @@ class EmailScoresViewModel @Inject constructor(
                             intentWithoutTextExtra = it.intentWithoutTextExtra?.takeIf { action.error != EmailScoresError.NO_EMAIL_APP_FOUND },
                     )
                 }
+
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.EMAIL_SCORE::class)
             is SubmitClicked -> sendButtonListener(state.value)
             NavigateUpHandled -> _state.update { it.copy(navigateUpTriggered = false) }
@@ -134,9 +147,9 @@ class EmailScoresViewModel @Inject constructor(
          */
         val fileWriter = FileWriter(attachment)
         for (entry in state.rounds) {
-            val detailedScorePad = entry.getScorePadData(endSize)
+            val detailedScorePad = entry.getScorePadData(END_SIZE)
                     ?.getDetailsAsCsv(
-                            columnHeaderOrder,
+                            columnOrder,
                             context.resources,
                             state.isChecked(EmailScoresCheckbox.DISTANCE_TOTAL),
                     )
@@ -205,13 +218,13 @@ class EmailScoresViewModel @Inject constructor(
     companion object {
         private const val LOG_TAG = "EmailScores"
         private const val EMAIL_ATTACHMENT_FILENAME = "emailAttachment.csv"
-        private const val endSize = 6
-        private val columnHeaderOrder = listOf(
-                ScorePadData.ColumnHeader.ARROWS,
-                ScorePadData.ColumnHeader.HITS,
-                ScorePadData.ColumnHeader.SCORE,
-                ScorePadData.ColumnHeader.GOLDS,
-                ScorePadData.ColumnHeader.RUNNING_TOTAL
+        private const val END_SIZE = 6
+        private val columnOrder = listOf(
+                ScorePadData.ScorePadColumnType.ARROWS,
+                ScorePadData.ScorePadColumnType.HITS,
+                ScorePadData.ScorePadColumnType.SCORE,
+                ScorePadData.ScorePadColumnType.GOLDS,
+                ScorePadData.ScorePadColumnType.RUNNING_TOTAL,
         )
     }
 }
