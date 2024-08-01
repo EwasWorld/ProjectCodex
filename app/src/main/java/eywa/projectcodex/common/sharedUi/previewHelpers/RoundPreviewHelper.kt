@@ -466,4 +466,31 @@ object RoundPreviewHelper {
                         ),
                 ),
         )
+
+        val wa70RoundData = FullRoundInfo(
+                round = Round(
+                        roundId = 7,
+                        name = "wa70",
+                        displayName = "WA 70",
+                        isOutdoor = true,
+                        isMetric = true,
+                        defaultRoundId = 13,
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 7,
+                                distanceNumber = 1,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 72,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 7,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 70,
+                        ),
+                ),
+        )
 }

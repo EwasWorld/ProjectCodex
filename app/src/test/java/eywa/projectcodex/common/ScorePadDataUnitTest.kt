@@ -182,6 +182,67 @@ class ScorePadDataUnitTest {
     }
 
     @Test
+    fun testGeneral_WithHalfDistanceTotals() {
+        val totalArrows = 72
+        val endSize = 6
+        val arrowScore = 7
+
+        val firstDistanceSize = 36
+        val lastDistanceSize = totalArrows - firstDistanceSize
+
+        val expectedRows = getExpectedRows(firstDistanceSize, endSize, arrowScore)
+                .plus(
+                        HalfDistanceTotal(
+                                distance = 70,
+                                distanceUnit = R.string.units_meters_short,
+                                hits = firstDistanceSize,
+                                score = firstDistanceSize * arrowScore,
+                                golds = 0,
+                                isFirstHalf = true,
+                        )
+                )
+                .plus(
+                        getExpectedRows(
+                                totalArrows = lastDistanceSize,
+                                endSize = endSize,
+                                arrowScore = arrowScore,
+                                firstEndNumber = 7,
+                                currentRunningTotal = firstDistanceSize * arrowScore,
+                        )
+                )
+                .plus(
+                        listOf(
+                                HalfDistanceTotal(
+                                        distance = 70,
+                                        distanceUnit = R.string.units_meters_short,
+                                        hits = firstDistanceSize,
+                                        score = firstDistanceSize * arrowScore,
+                                        golds = 0,
+                                        isFirstHalf = false,
+                                ),
+                                GrandTotal(
+                                        hits = totalArrows,
+                                        score = totalArrows * arrowScore,
+                                        golds = 0,
+                                ),
+                        )
+                )
+        val actualRows = ScorePadData(
+                ShootPreviewHelper
+                        .newFullShootInfo()
+                        .addRound(RoundPreviewHelper.wa70RoundData)
+                        .addIdenticalArrows(totalArrows, arrowScore),
+                endSize,
+                GoldsType.NINES,
+        ).data
+
+        expectedRows.forEachIndexed { index, expected ->
+            assertEquals("Row $index different", expected, actualRows[index])
+        }
+        assertEquals(expectedRows.size, actualRows.size)
+    }
+
+    @Test
     fun testGeneral_WithRoundAndSurplus() {
         val totalArrows = 70
         val endSize = 5
@@ -370,6 +431,7 @@ class ScorePadDataUnitTest {
                         .plus((1..10).map { it.toString() })
                         .plus(X_ARROW)
                         .joinToString(ARROW_DELIMITER)
+
                 ColumnHeader.HITS -> "11"
                 ColumnHeader.SCORE -> "65"
                 ColumnHeader.GOLDS -> "3"

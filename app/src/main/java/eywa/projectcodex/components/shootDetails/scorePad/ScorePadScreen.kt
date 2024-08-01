@@ -4,7 +4,13 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -17,9 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.*
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,7 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseShape
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
@@ -36,8 +49,9 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addFullSetOfArrows
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
@@ -120,7 +134,7 @@ private fun ScorePadScreen(
                             helpBody = stringResource(R.string.help_score_pad__main_body),
                             shape = HelpShowcaseShape.NO_SHAPE,
                     )
-            )
+            ),
     )
 
     SimpleDialog(
@@ -143,7 +157,7 @@ private fun ScorePadScreen(
                 title = stringResource(R.string.score_pad_menu__delete_dialog_title),
                 message = stringResource(
                         R.string.score_pad_menu__delete_dialog_body,
-                        state.dropdownMenuOpenForEndNumber ?: -1
+                        state.dropdownMenuOpenForEndNumber ?: -1,
                 ),
                 positiveButton = ButtonState(
                         text = stringResource(R.string.general_delete),
@@ -160,7 +174,7 @@ private fun ScorePadScreen(
     // TODO Make the row and column headers stick
     if (state.scorePadData.isNullOrEmpty()) {
         Box(
-                modifier = modifier.testTag(ScorePadTestTag.SCREEN.getTestTag())
+                modifier = modifier.testTag(ScorePadTestTag.SCREEN)
         )
         return
     }
@@ -170,7 +184,7 @@ private fun ScorePadScreen(
             modifier = modifier
                     .horizontalScroll(rememberScrollState())
                     .padding(5.dp)
-                    .testTag(ScorePadTestTag.SCREEN.getTestTag())
+                    .testTag(ScorePadTestTag.SCREEN)
     ) {
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -281,12 +295,13 @@ private fun Cell(
         columnType == ColumnHeader.RUNNING_TOTAL && rowData !is ScorePadRow.End -> null
         columnType == ColumnHeader.ARROWS && rowData is ScorePadRow.End ->
             columnType.getCellAccessibilityText(rowData.arrowScores.map { it.get() }, goldsTypeString)
+
         else -> columnType!!.getCellAccessibilityText(finalText, goldsTypeString)
     }?.get()
 
     val customActions =
             if (rowData is ScorePadRow.End) {
-                DropdownMenuItem.values().map {
+                DropdownMenuItem.entries.map {
                     CustomAccessibilityAction(stringResource(it.title)) { listener(it.action(rowData.endNumber)); true }
                 }
             }
@@ -313,7 +328,7 @@ private fun Cell(
                     .padding(vertical = 5.dp, horizontal = 10.dp)
                     .then(clickModifier)
                     .then(semanticsModifier)
-                    .testTag(ScorePadTestTag.CELL.getTestTag())
+                    .testTag(ScorePadTestTag.CELL)
     )
 }
 
@@ -326,9 +341,9 @@ private fun DropdownMenu(
 ) {
     DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { listener(CloseDropdownMenu) }
+            onDismissRequest = { listener(CloseDropdownMenu) },
     ) {
-        DropdownMenuItem.values().forEach { item ->
+        DropdownMenuItem.entries.forEach { item ->
             if (isRoundFull && item == DropdownMenuItem.INSERT_END) return@forEach
 
             DropdownMenuItem(
@@ -336,7 +351,7 @@ private fun DropdownMenu(
                         check(endNumber > 0) { "Invalid end number" }
                         listener(item.action(endNumber))
                     },
-                    modifier = Modifier.testTag(ScorePadTestTag.DROPDOWN_MENU_ITEM.getTestTag())
+                    modifier = Modifier.testTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
             ) {
                 Text(
                         text = stringResource(id = item.title),
@@ -368,18 +383,42 @@ enum class ScorePadTestTag : CodexTestTag {
 @Preview(
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        heightDp = 1200,
+        widthDp = 450,
 )
 @Composable
-fun ScorePadScreen_Preview() {
-    val data = ShootPreviewHelper
-            .newFullShootInfo()
-            .addFullSetOfArrows()
+fun York_ScorePadScreen_Preview() {
+    val data = ShootPreviewHelperDsl.create {
+        round = RoundPreviewHelper.yorkRoundData
+        completeRoundWithFullSet()
+    }
     CodexTheme {
         ScorePadScreen(
                 ScorePadState(
                         main = ShootDetailsState(fullShootInfo = data),
                         extras = ScorePadExtras(),
-                )
+                ),
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        widthDp = 450,
+)
+@Composable
+fun WA70_ScorePadScreen_Preview() {
+    val data = ShootPreviewHelperDsl.create {
+        round = RoundPreviewHelper.wa70RoundData
+        completeRoundWithFullSet()
+    }
+    CodexTheme {
+        ScorePadScreen(
+                ScorePadState(
+                        main = ShootDetailsState(fullShootInfo = data),
+                        extras = ScorePadExtras(),
+                ),
         ) {}
     }
 }

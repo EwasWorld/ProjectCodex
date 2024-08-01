@@ -13,6 +13,8 @@
     <string name="score_pad__grand_total_row_header">GT</string>
     <string name="score_pad__surplus_total">Surplus Total</string>
     <string name="score_pad__distance_total">Total at %1$d%2$s</string> <!-- Total at 90m -->
+    <string name="score_pad__half_way_first_total">Total for half</string>
+    <string name="score_pad__half_way_second_total">Total for half</string>
     <string name="score_pad__distance_total_row_header">T</string>
     <string name="err_score_pad__no_arrows">There are no arrows to show</string>
     <string name="score_pad_menu__edit">Edit end</string>

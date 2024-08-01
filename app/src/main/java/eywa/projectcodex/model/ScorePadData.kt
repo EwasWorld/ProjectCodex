@@ -6,10 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.database.arrows.*
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.arrows.asString
+import eywa.projectcodex.database.arrows.getGolds
+import eywa.projectcodex.database.arrows.getHits
+import eywa.projectcodex.database.arrows.getScore
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
+import kotlin.math.ceil
 
 class ScorePadData(
         info: FullShootInfo,
@@ -46,7 +51,7 @@ class ScorePadData(
                             arrows = remainingArrows,
                             endSize = endSize,
                             goldsType = goldsType,
-                    )
+                    ),
             )
         }
         else {
@@ -59,14 +64,14 @@ class ScorePadData(
                                 arrowCount = info.roundArrowCounts!!
                                         .find { it.distanceNumber == distance.distanceNumber },
                                 distanceUnit = distanceUnit,
-                                addDistanceTotal = info.roundDistances.size > 1 || info.hasSurplusArrows!!,
+                                addDistanceTotal = info.roundDistances.size > 1 || info.hasSurplusArrows,
                                 runningTotal = tableData.mapNotNull { it.runningTotal }.maxOrNull(),
                                 endSize = endSize,
                                 goldsType = goldsType,
                                 endNumber = tableData
                                         .filterIsInstance<ScorePadRow.End>()
                                         .maxOfOrNull { it.endNumber },
-                        )
+                        ),
                 )
                 if (remainingArrows.isEmpty()) break
             }
@@ -82,8 +87,8 @@ class ScorePadData(
                                 goldsType = goldsType,
                                 endNumber = tableData
                                         .filterIsInstance<ScorePadRow.End>()
-                                        .maxOfOrNull { it.endNumber }
-                        )
+                                        .maxOfOrNull { it.endNumber },
+                        ),
                 )
             }
         }
@@ -118,14 +123,46 @@ class ScorePadData(
 
         val distanceArrows = arrowCount?.arrowCount?.let { arrows.take(it) } ?: arrows.toList()
         arrows.removeAll(distanceArrows)
+        val allEndArrows = distanceArrows.chunked(endSize)
 
         val tableData = mutableListOf<ScorePadRow>()
         var currentRunningTotal = runningTotal ?: 0
         var currentEndNumber = endNumber ?: 0
-        for (endArrows in distanceArrows.chunked(endSize)) {
+
+        val hasHalfWayTotal = distance != null && distanceArrows.size >= HALF_DISTANCE_TOTAL_ARROW_THRESHOLD
+        // How many ends does the half-way total come after
+        val halfWayEndCount = ceil(allEndArrows.size.toDouble() / 2).toInt()
+        // Which end number the half-way total should be shown after
+        val halfTimeEndNumber = currentEndNumber + halfWayEndCount
+
+        for (endArrows in allEndArrows) {
             currentRunningTotal += endArrows.getScore()
             tableData.add(
-                    ScorePadRow.End(++currentEndNumber, endArrows, goldsType, currentRunningTotal)
+                    ScorePadRow.End(++currentEndNumber, endArrows, goldsType, currentRunningTotal),
+            )
+
+            if (hasHalfWayTotal && currentEndNumber == halfTimeEndNumber) {
+                tableData.add(
+                        ScorePadRow.HalfDistanceTotal(
+                                arrows = allEndArrows.take(halfWayEndCount).flatten(),
+                                goldsType = goldsType,
+                                distance = distance!!.distance,
+                                distanceUnit = distanceUnit!!,
+                                isFirstHalf = true,
+                        ),
+                )
+            }
+        }
+
+        if (hasHalfWayTotal) {
+            tableData.add(
+                    ScorePadRow.HalfDistanceTotal(
+                            arrows = allEndArrows.drop(halfWayEndCount).flatten(),
+                            goldsType = goldsType,
+                            distance = distance!!.distance,
+                            distanceUnit = distanceUnit!!,
+                            isFirstHalf = false,
+                    ),
             )
         }
 
@@ -136,7 +173,7 @@ class ScorePadData(
                     }
                     else {
                         ScorePadRow.SurplusTotal(distanceArrows, goldsType)
-                    }
+                    },
             )
         }
 
@@ -269,13 +306,44 @@ class ScorePadData(
                     arrows: List<DatabaseArrowScore>,
                     goldsType: GoldsType,
                     distance: Int,
-                    @StringRes distanceUnit: Int
+                    @StringRes distanceUnit: Int,
             ) : this(distance, distanceUnit, arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
 
             override fun getArrowsString(resources: Resources): String = resources.getString(
                     R.string.score_pad__distance_total,
                     distance,
                     resources.getString(distanceUnit),
+            )
+
+            override fun getRowHeader() = ResOrActual.StringResource(R.string.score_pad__distance_total_row_header)
+        }
+
+        data class HalfDistanceTotal(
+                private val distance: Int,
+                @StringRes private val distanceUnit: Int,
+                private val isFirstHalf: Boolean,
+                override val hits: Int,
+                override val score: Int,
+                override val golds: Int,
+        ) : ScorePadRow() {
+            internal constructor(
+                    arrows: List<DatabaseArrowScore>,
+                    goldsType: GoldsType,
+                    distance: Int,
+                    @StringRes distanceUnit: Int,
+                    isFirstHalf: Boolean,
+            ) : this(
+                    distance,
+                    distanceUnit,
+                    isFirstHalf,
+                    arrows.getHits(),
+                    arrows.getScore(),
+                    arrows.getGolds(goldsType)
+            )
+
+            override fun getArrowsString(resources: Resources): String = resources.getString(
+                    if (isFirstHalf) R.string.score_pad__half_way_first_total
+                    else R.string.score_pad__half_way_second_total,
             )
 
             override fun getRowHeader() = ResOrActual.StringResource(R.string.score_pad__distance_total_row_header)
@@ -393,4 +461,11 @@ class ScorePadData(
     }
 
     data class ScorePadDetailsString(val headerRow: String?, val details: String)
+
+    companion object {
+        /**
+         * How many arrows need to be shot at a distance before it qualifies to have a half-way total
+         */
+        private const val HALF_DISTANCE_TOTAL_ARROW_THRESHOLD = 6 * 12
+    }
 }
