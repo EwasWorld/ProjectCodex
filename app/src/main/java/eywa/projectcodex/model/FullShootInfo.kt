@@ -60,7 +60,7 @@ data class FullShootInfo(
         require(
                 roundDistances?.all {
                     it.roundId == round?.roundId && it.subTypeId == (shootRound?.roundSubTypeId ?: 1)
-                } != false
+                } != false,
         ) { "Distances mismatched id" }
         require(shootRound == null || shootDetail == null) { "Cannot have a round and detail" }
     }
@@ -86,8 +86,9 @@ data class FullShootInfo(
 
     val score by lazy { arrows?.getScore() ?: 0 }
 
-    val goldsType = if (round == null) GoldsType.defaultGoldsType else GoldsType.getGoldsType(round)
-    fun golds(type: GoldsType? = null) = arrows?.getGolds(type ?: goldsType) ?: 0
+    val goldsTypes = if (round == null) listOf(GoldsType.defaultGoldsType) else GoldsType.getGoldsType(round)
+    fun golds(type: List<GoldsType>? = null) = (type ?: goldsTypes).map { arrows?.getGolds(it) ?: 0 }
+    fun golds(type: GoldsType? = null) = arrows?.getGolds(type ?: goldsTypes[0]) ?: 0
 
     val pbType
         get() = when {
@@ -207,7 +208,7 @@ data class FullShootInfo(
         if (arrows.isNullOrEmpty()) {
             return null
         }
-        return ScorePadData(this, endSize, goldsType)
+        return ScorePadData(this, endSize, goldsTypes)
     }
 
     fun getScoreSummary(resources: Resources): String =
@@ -226,9 +227,13 @@ data class FullShootInfo(
                         DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
                         hits,
                         score,
-                        resources.getString(goldsType.longStringId),
-                        golds(),
-                )
+                ) + goldsTypes.joinToString("") {
+                    resources.getString(
+                            R.string.email_round_summary_golds,
+                            resources.getString(it.longStringId),
+                            golds(it),
+                    )
+                }
             }
             else {
                 resources.getString(

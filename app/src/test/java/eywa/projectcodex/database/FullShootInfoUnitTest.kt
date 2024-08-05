@@ -37,12 +37,12 @@ class FullShootInfoUnitTest {
     fun testScoreSummary_HasRoundWithArrows() {
         val entry = ShootPreviewHelperDsl.create {
             shoot = shoot.copy(dateShot = date)
-            round = fullRoundInfo
+            round = RoundPreviewHelper.wa70RoundData
             addFullSetOfArrows()
         }
 
         Assert.assertEquals(
-                "WA - 20/06/22\nHits: 11, Score: 65, Golds (ten_long): 2",
+                "WA 70 - 20/06/22\nHits: 11, Score: 65, ten_long: 2, x_long: 1",
                 entry.getScoreSummary(resources)
         )
     }
@@ -55,7 +55,7 @@ class FullShootInfoUnitTest {
         }
 
         Assert.assertEquals(
-                "No Round - 20/06/22\nHits: 11, Score: 65, Golds (nine_long): 3",
+                "No Round - 20/06/22\nHits: 11, Score: 65, ten_long: 2",
                 entry.getScoreSummary(resources)
         )
     }
@@ -119,10 +119,8 @@ class FullShootInfoUnitTest {
                     Pair(R.string.score_pad__grand_total, "Grand Total"),
                     Pair(R.string.score_pad__running_total_placeholder, "-"),
                     Pair(R.string.score_pad__distance_total, "Total at %1\$d%2\$s"),
-                    Pair(
-                            R.string.email_round_summary,
-                            "%1\$s - %2\$s\nHits: %3\$d, Score: %4\$d, Golds (%5\$s): %6\$d",
-                    ),
+                    Pair(R.string.email_round_summary, "%1\$s - %2\$s\nHits: %3\$d, Score: %4\$d"),
+                    Pair(R.string.email_round_summary_golds, ", %1\$s: %2\$d"),
                     Pair(R.string.email_round_summary_no_arrows, "%1\$s - %2\$s\nNo arrows entered"),
                     Pair(R.string.email_round_summary_count, "%1\$s - %2\$s\n%3\$s arrows shot"),
                     Pair(R.string.table_golds_nines_full, "nine_long"),

@@ -24,8 +24,9 @@ data class ViewScoresEntry(
     val id = info.shoot.shootId
 
     fun golds(type: GoldsType? = null) = info.golds(type)
+    fun golds(types: List<GoldsType>? = null) = info.golds(types)
 
-    val hitsScoreGolds = listOf(info.hits, info.score, golds())
+    val hitsScoreGolds = listOf(info.hits, info.score, golds(type = null))
             .takeIf { info.arrowsShot > 0 }
             ?.joinToString("/")
 
@@ -38,7 +39,7 @@ data class ViewScoresEntry(
                         LOG_TAG,
                         "Failed to get handicap for round with id $id (date shot: %s), reason: "
                                 .format(DateTimeFormat.SHORT_DATE_TIME.format(info.shoot.dateShot))
-                                + e.message
+                                + e.message,
                 )
                 null
             }

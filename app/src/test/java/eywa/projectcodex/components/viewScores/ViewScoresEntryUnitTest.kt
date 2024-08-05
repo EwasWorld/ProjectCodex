@@ -47,7 +47,8 @@ class ViewScoresEntryUnitTest {
     @Test
     fun testGolds_Nines() {
         val entry = ViewScoresEntry(
-                info = ShootPreviewHelper.newFullShootInfo().addFullSetOfArrows(),
+                info = ShootPreviewHelper.newFullShootInfo()
+                        .addRound(RoundPreviewHelper.yorkRoundData).addFullSetOfArrows(),
                 customLogger = customLogger,
         )
         assertEquals("3", entry.hitsScoreGolds?.split("/")?.last())

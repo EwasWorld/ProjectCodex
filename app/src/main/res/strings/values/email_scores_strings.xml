@@ -8,14 +8,16 @@
     <string name="email_default_message_header">Hi,\n\nHere are my scores</string>
     <string name="email_default_message_footer">From</string>
     <string name="email_default_message_signature">Sent from Codex Archery Aide app</string>
-    <!-- {1: roundName} - {2: date}\nHits: {3: hits}, Score: {4: score}, Golds ({5: goldsType}): {6: golds} -->
-    <!-- Frostbite - 06/3/23\nHits: 36, Score: 360, Golds (10s): 36 -->
-    <string name="email_round_summary">%1$s - %2$s\nHits: %3$d, Score: %4$d, Golds (%5$s): %6$d</string>
+    <!-- {1: roundName} - {2: date}\nHits: {3: hits}, Score: {4: score}
+        e.g. Frostbite - 06/3/23\nHits: 36, Score: 360 -->
+    <string name="email_round_summary">%1$s - %2$s\nHits: %3$d, Score: %4$d</string>
+    <!-- {1: goldsType}: {2: golds} -->
+    <string name="email_round_summary_golds">, %1$s: %2$d</string>
     <!-- {1: roundName} - {2: date}\nNo arrows entered -->
     <!-- Frostbite - 06/3/23\nNo arrows entered -->
     <string name="email_round_summary_no_arrows">%1$s - %2$s\nNo arrows entered</string>
-    <!-- {1: roundName} - {2: date}\n{3: count} arrows shot -->
-    <!-- Frostbite - 06/3/23\n36 arrows shot -->
+    <!-- {1: roundName} - {2: date}\n{3: count} arrows shot
+        e.g. Frostbite - 06/3/23\n36 arrows shot -->
     <string name="email_round_summary_count">%1$s - %2$s\n%3$s arrows shot</string>
     <string name="email_scores__no_entries_dialog_title">Internal error</string>
     <string name="email_scores__no_entries_dialog_body">Could not find any selected entries to email. Please select at least one score and try again</string>

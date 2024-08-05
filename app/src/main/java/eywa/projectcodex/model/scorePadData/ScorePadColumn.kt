@@ -22,7 +22,7 @@ interface ScorePadColumn : CodexGridColumnMetadata<ScorePadRow, Unit> {
     override val testTag: CodexTestTag?
         get() = ScorePadTestTag.CELL
 
-    class Golds(val goldsType: GoldsType) : ScorePadColumn {
+    class Golds(private val goldsType: GoldsType) : ScorePadColumn {
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.StringResource(goldsType.shortStringId)
         override val helpTitle: ResOrActual<String>
@@ -33,12 +33,12 @@ interface ScorePadColumn : CodexGridColumnMetadata<ScorePadRow, Unit> {
                     listOf(ResOrActual.StringResource(goldsType.helpString)),
             )
         override val mapping: (ScorePadRow) -> ResOrActual<String>
-            get() = { ResOrActual.Actual(it.golds.toString()) }
+            get() = { ResOrActual.Actual(it.golds[goldsType].toString()) }
         override val cellContentDescription: (ScorePadRow, Unit) -> ResOrActual<String>
             get() = { row, _ ->
                 ResOrActual.StringResource(
                         R.string.score_pad__golds_accessibility,
-                        listOf(row.golds.toString(), ResOrActual.StringResource(goldsType.longStringId))
+                        listOf(row.golds[goldsType].toString(), ResOrActual.StringResource(goldsType.longStringId))
                 )
             }
     }

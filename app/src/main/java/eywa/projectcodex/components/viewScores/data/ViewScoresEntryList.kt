@@ -16,7 +16,7 @@ data class ViewScoresEntryList(
     init {
         check(entries.isNotEmpty()) { "Cannot create an empty list" }
         check(
-                entries.distinctBy { it.info.use2023HandicapSystem }.size == 1
+                entries.distinctBy { it.info.use2023HandicapSystem }.size == 1,
         ) { "Must all use the same scoring system" }
     }
 
@@ -47,14 +47,13 @@ data class ViewScoresEntryList(
     val golds
         get() = entries.sumOf { it.golds(goldsType) }
     val goldsType
-        get() = entries.first().info.goldsType
+        get() = entries.first().info.goldsTypes[0]
 
-    val handicapFloat
+    private val handicapFloat
         get() = entries
                 .mapNotNull { it.info.handicapFloat }
                 .takeIf { it.size == entries.size }
                 ?.average()
-                ?.toDouble()
 
     val handicap
         get() = handicapFloat?.roundHandicap()

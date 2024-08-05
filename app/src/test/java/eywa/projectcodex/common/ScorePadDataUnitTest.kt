@@ -90,7 +90,7 @@ class ScorePadDataUnitTest {
                     addIdenticalArrows(5, 3)
                 },
                 endSize = 0,
-                goldsType = GoldsType.NINES,
+                goldsTypes = GoldsType.NINES,
         )
         Assert.fail("Created ScorePadData with 0 endSize")
     }
@@ -114,7 +114,7 @@ class ScorePadDataUnitTest {
                         GrandTotal(
                                 hits = totalArrows,
                                 score = totalArrows * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                         )
                 )
         val actualRows = ScorePadData(
@@ -122,7 +122,7 @@ class ScorePadDataUnitTest {
                     addIdenticalArrows(totalArrows, arrowScore)
                 },
                 endSize = endSize,
-                goldsType = GoldsType.NINES,
+                goldsTypes = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -147,7 +147,7 @@ class ScorePadDataUnitTest {
                                 distanceUnit = StringResource(R.string.units_yards_short),
                                 hits = firstDistanceSize,
                                 score = firstDistanceSize * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                         )
                 )
                 .plus(
@@ -165,14 +165,14 @@ class ScorePadDataUnitTest {
                                 distanceUnit = StringResource(R.string.units_yards_short),
                                 hits = lastDistanceSize,
                                 score = lastDistanceSize * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                         )
                 )
                 .plus(
                         GrandTotal(
                                 hits = totalArrows,
                                 score = totalArrows * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                         )
                 )
         val actualRows = ScorePadData(
@@ -181,7 +181,7 @@ class ScorePadDataUnitTest {
                     addIdenticalArrows(totalArrows, arrowScore)
                 },
                 endSize = endSize,
-                goldsType = GoldsType.NINES,
+                goldsTypes = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -206,7 +206,7 @@ class ScorePadDataUnitTest {
                                 distanceUnit = StringResource(R.string.units_meters_short),
                                 hits = firstDistanceSize,
                                 score = firstDistanceSize * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                                 isFirstHalf = true,
                         )
                 )
@@ -226,13 +226,13 @@ class ScorePadDataUnitTest {
                                         distanceUnit = StringResource(R.string.units_meters_short),
                                         hits = firstDistanceSize,
                                         score = firstDistanceSize * arrowScore,
-                                        golds = 0,
+                                        golds = mapOf(GoldsType.NINES to 0),
                                         isFirstHalf = false,
                                 ),
                                 GrandTotal(
                                         hits = totalArrows,
                                         score = totalArrows * arrowScore,
-                                        golds = 0,
+                                        golds = mapOf(GoldsType.NINES to 0),
                                 ),
                         )
                 )
@@ -242,7 +242,7 @@ class ScorePadDataUnitTest {
                     addIdenticalArrows(totalArrows, arrowScore)
                 },
                 endSize = endSize,
-                goldsType = GoldsType.NINES,
+                goldsTypes = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -267,7 +267,7 @@ class ScorePadDataUnitTest {
                                 distanceUnit = StringResource(R.string.units_meters_short),
                                 hits = distanceSize,
                                 score = distanceSize * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                         )
                 )
                 .plus(
@@ -283,14 +283,14 @@ class ScorePadDataUnitTest {
                         SurplusTotal(
                                 hits = surplusSize,
                                 score = surplusSize * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                         )
                 )
                 .plus(
                         GrandTotal(
                                 hits = totalArrows,
                                 score = totalArrows * arrowScore,
-                                golds = 0,
+                                golds = mapOf(GoldsType.NINES to 0),
                         )
                 )
         val actualRows = ScorePadData(
@@ -299,7 +299,7 @@ class ScorePadDataUnitTest {
                     addIdenticalArrows(totalArrows, arrowScore)
                 },
                 endSize = endSize,
-                goldsType = GoldsType.NINES,
+                goldsTypes = GoldsType.NINES,
         ).data
 
         expectedRows.forEachIndexed { index, expected ->
@@ -321,7 +321,7 @@ class ScorePadDataUnitTest {
                         arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL.take(6),
                         hits = 5,
                         score = 15,
-                        golds = 0,
+                        golds = mapOf(GoldsType.NINES to 0),
                         runningTotal = 15,
                 ),
                 End(
@@ -329,13 +329,13 @@ class ScorePadDataUnitTest {
                         arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL.drop(6),
                         hits = 6,
                         score = 50,
-                        golds = 3,
+                        golds = mapOf(GoldsType.NINES to 3),
                         runningTotal = 65,
                 ),
                 GrandTotal(
                         hits = 11,
                         score = 65,
-                        golds = 3,
+                        golds = mapOf(GoldsType.NINES to 3),
                 ),
         )
         val actualRows = ScorePadData(
@@ -352,19 +352,19 @@ class ScorePadDataUnitTest {
 
     @Test
     fun testGolds() {
-        fun getExpectedRows(expectedGolds: Int) = listOf(
+        fun getExpectedRows(expectedGolds: Int, type: GoldsType) = listOf(
                 End(
                         endNumber = 1,
                         arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
                         hits = 11,
                         score = 65,
-                        golds = expectedGolds,
+                        golds = mapOf(type to expectedGolds),
                         runningTotal = 65,
                 ),
                 GrandTotal(
                         hits = 11,
                         score = 65,
-                        golds = expectedGolds,
+                        golds = mapOf(type to expectedGolds),
                 ),
         )
 
@@ -374,15 +374,15 @@ class ScorePadDataUnitTest {
         }
 
         assertEquals(
-                getExpectedRows(3),
+                getExpectedRows(3, GoldsType.NINES),
                 ScorePadData(info, 100, GoldsType.NINES).data,
         )
         assertEquals(
-                getExpectedRows(2),
+                getExpectedRows(2, GoldsType.TENS),
                 ScorePadData(info, 100, GoldsType.TENS).data,
         )
         assertEquals(
-                getExpectedRows(1),
+                getExpectedRows(1, GoldsType.XS),
                 ScorePadData(info, 100, GoldsType.XS).data,
         )
     }
@@ -394,7 +394,7 @@ class ScorePadDataUnitTest {
                 arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
                 runningTotal = 65,
         )
 
@@ -403,15 +403,15 @@ class ScorePadDataUnitTest {
 
         assertEquals(
                 StringResource(R.string.score_pad__distance_total_row_header),
-                DistanceTotal(1, ResOrActual.Actual("1"), 1, 1, 1).getRowHeader()
+                DistanceTotal(1, ResOrActual.Actual("1"), 1, 1, mapOf(GoldsType.NINES to 0)).getRowHeader()
         )
         assertEquals(
                 StringResource(R.string.score_pad__distance_total_row_header),
-                SurplusTotal(1, 1, 1).getRowHeader()
+                SurplusTotal(1, 1, mapOf(GoldsType.NINES to 0)).getRowHeader()
         )
         assertEquals(
                 StringResource(R.string.score_pad__grand_total_row_header),
-                GrandTotal(1, 1, 1).getRowHeader()
+                GrandTotal(1, 1, mapOf(GoldsType.NINES to 0)).getRowHeader()
         )
     }
 
@@ -422,12 +422,12 @@ class ScorePadDataUnitTest {
                 arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
                 runningTotal = 65,
         )
 
         ScorePadColumnType.entries.forEach { column ->
-            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
+            val metadata = ScorePadData.toColumnMetadata(column, listOf(GoldsType.NINES))[0]
             val expected = when (column) {
                 ScorePadColumnType.ARROWS -> listOf(M_ARROW)
                         .plus((1..10).map { it.toString() })
@@ -451,11 +451,11 @@ class ScorePadDataUnitTest {
                 distanceUnit = StringResource(R.string.units_yards_short),
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
         )
 
         ScorePadColumnType.entries.forEach { column ->
-            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
+            val metadata = ScorePadData.toColumnMetadata(column, listOf(GoldsType.NINES))[0]
             val expected = when (column) {
                 ScorePadColumnType.ARROWS -> DISTANCE_TOTAL_STRING
                 ScorePadColumnType.HITS -> "11"
@@ -475,11 +475,11 @@ class ScorePadDataUnitTest {
         val row = SurplusTotal(
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
         )
 
         ScorePadColumnType.entries.forEach { column ->
-            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
+            val metadata = ScorePadData.toColumnMetadata(column, listOf(GoldsType.NINES))[0]
             val expected = when (column) {
                 ScorePadColumnType.ARROWS -> SURPLUS_TOTAL
                 ScorePadColumnType.HITS -> "11"
@@ -497,11 +497,11 @@ class ScorePadDataUnitTest {
         val row = GrandTotal(
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
         )
 
         ScorePadColumnType.entries.forEach { column ->
-            val metadata = ScorePadData.toColumnMetadata(column, GoldsType.NINES)
+            val metadata = ScorePadData.toColumnMetadata(column, listOf(GoldsType.NINES))[0]
             val expected = when (column) {
                 ScorePadColumnType.ARROWS -> GRAND_TOTAL
                 ScorePadColumnType.HITS -> "11"
@@ -521,7 +521,7 @@ class ScorePadDataUnitTest {
                 arrowScores = ALL_ARROW_VALUE_RES_OR_ACTUAL,
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
                 runningTotal = 65,
         )
 
@@ -559,7 +559,7 @@ class ScorePadDataUnitTest {
                         column.name,
                         ARROWS_ACCESSIBILITY,
                         ScorePadData
-                                .toColumnMetadata(column, GoldsType.NINES)
+                                .toColumnMetadata(column, listOf(GoldsType.NINES))[0]
                                 .cellContentDescription(row, Unit)
                                 ?.get(resources),
                 )
@@ -573,7 +573,9 @@ class ScorePadDataUnitTest {
                 assertEquals(
                         column.name,
                         expected,
-                        ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+                        ScorePadData
+                                .toColumnMetadata(column, listOf(GoldsType.NINES))[0]
+                                .cellContentDescription(row, Unit),
                 )
             }
         }
@@ -586,7 +588,7 @@ class ScorePadDataUnitTest {
                 distanceUnit = StringResource(R.string.units_yards_short),
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
         )
 
         ScorePadColumnType.entries.forEach { column ->
@@ -617,7 +619,9 @@ class ScorePadDataUnitTest {
             assertEquals(
                     column.name,
                     expected,
-                    ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+                    ScorePadData
+                            .toColumnMetadata(column, listOf(GoldsType.NINES))[0]
+                            .cellContentDescription(row, Unit),
             )
         }
     }
@@ -627,7 +631,7 @@ class ScorePadDataUnitTest {
         val row = SurplusTotal(
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
         )
 
         ScorePadColumnType.entries.forEach { column ->
@@ -654,7 +658,9 @@ class ScorePadDataUnitTest {
             assertEquals(
                     column.name,
                     expected,
-                    ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+                    ScorePadData
+                            .toColumnMetadata(column, listOf(GoldsType.NINES))[0]
+                            .cellContentDescription(row, Unit),
             )
         }
     }
@@ -664,7 +670,7 @@ class ScorePadDataUnitTest {
         val row = GrandTotal(
                 hits = 11,
                 score = 65,
-                golds = 3,
+                golds = mapOf(GoldsType.NINES to 3),
         )
 
         ScorePadColumnType.entries.forEach { column ->
@@ -691,7 +697,9 @@ class ScorePadDataUnitTest {
             assertEquals(
                     column.name,
                     expected,
-                    ScorePadData.toColumnMetadata(column, GoldsType.NINES).cellContentDescription(row, Unit),
+                    ScorePadData
+                            .toColumnMetadata(column, listOf(GoldsType.NINES))[0]
+                            .cellContentDescription(row, Unit),
             )
         }
     }
@@ -704,7 +712,7 @@ class ScorePadDataUnitTest {
                     addArrows(this@ScorePadDataUnitTest.arrows)
                 },
                 endSize = 6,
-                goldsType = GoldsType.TENS,
+                goldsTypes = GoldsType.TENS,
         )
         val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
 
@@ -731,7 +739,7 @@ class ScorePadDataUnitTest {
                     addArrows(this@ScorePadDataUnitTest.arrows)
                 },
                 endSize = 6,
-                goldsType = GoldsType.TENS,
+                goldsTypes = GoldsType.TENS,
         )
         val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, true)
 
@@ -760,7 +768,7 @@ class ScorePadDataUnitTest {
                     addArrows(this@ScorePadDataUnitTest.arrows)
                 },
                 endSize = 6,
-                goldsType = GoldsType.TENS,
+                goldsTypes = GoldsType.TENS,
         )
         val csv = data.getDetailsAsCsv(TestUtils.defaultColumnHeaderOrder, resources, false)
 
@@ -786,7 +794,7 @@ class ScorePadDataUnitTest {
                     addArrows(this@ScorePadDataUnitTest.arrows)
                 },
                 endSize = 6,
-                goldsType = GoldsType.TENS,
+                goldsTypes = GoldsType.TENS,
         )
         val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
 
@@ -816,7 +824,7 @@ class ScorePadDataUnitTest {
                     addArrows(this@ScorePadDataUnitTest.arrows)
                 },
                 endSize = 6,
-                goldsType = GoldsType.TENS,
+                goldsTypes = GoldsType.TENS,
         )
         val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, true)
 
@@ -848,7 +856,7 @@ class ScorePadDataUnitTest {
                     addArrows(this@ScorePadDataUnitTest.arrows)
                 },
                 endSize = 6,
-                goldsType = GoldsType.TENS,
+                goldsTypes = GoldsType.TENS,
         )
         val csv = data.getDetailsAsString(TestUtils.defaultColumnHeaderOrder, resources, false)
 
@@ -885,7 +893,7 @@ class ScorePadDataUnitTest {
                     arrowScores = List(endSize) { ResOrActual.Actual(arrowScore.toString()) },
                     hits = endSize,
                     score = endSize * arrowScore,
-                    golds = 0,
+                    golds = mapOf(GoldsType.NINES to 0),
                     runningTotal = currentRunningTotal + endSize * arrowScore * (endIndex + 1),
             )
         }
@@ -896,7 +904,7 @@ class ScorePadDataUnitTest {
                             arrowScores = List(lastEndSize) { ResOrActual.Actual(arrowScore.toString()) },
                             hits = lastEndSize,
                             score = lastEndSize * arrowScore,
-                            golds = 0,
+                            golds = mapOf(GoldsType.NINES to 0),
                             runningTotal = currentRunningTotal + totalArrows * arrowScore,
                     )
             )

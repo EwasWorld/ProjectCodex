@@ -15,9 +15,15 @@ import kotlin.math.ceil
 class ScorePadData(
         info: FullShootInfo,
         endSize: Int,
-        val goldsType: GoldsType,
+        val goldsTypes: List<GoldsType>,
 ) {
-    val data = generateData(info, endSize, goldsType)
+    constructor(
+            info: FullShootInfo,
+            endSize: Int,
+            goldsTypes: GoldsType,
+    ) : this(info, endSize, listOf(goldsTypes))
+
+    val data = generateData(info, endSize, goldsTypes)
 
     /**
      * Calculates totals for each end, distance, and the round
@@ -30,7 +36,7 @@ class ScorePadData(
     private fun generateData(
             info: FullShootInfo,
             endSize: Int,
-            goldsType: GoldsType,
+            goldsType: List<GoldsType>,
     ): List<ScorePadRow> {
         require(endSize > 0) { "endSize must be >0" }
         if (info.arrows.isNullOrEmpty()) return mutableListOf()
@@ -108,7 +114,7 @@ class ScorePadData(
             endNumber: Int? = null,
             runningTotal: Int? = null,
             endSize: Int,
-            goldsType: GoldsType,
+            goldsType: List<GoldsType>,
     ): List<ScorePadRow> {
         require(arrows.isNotEmpty()) { "Arrows cannot be empty" }
         require(distance?.roundId == arrowCount?.roundId) { "Round ids differ" }
@@ -141,7 +147,7 @@ class ScorePadData(
                 tableData.add(
                         ScorePadRow.HalfDistanceTotal(
                                 arrows = allEndArrows.take(halfWayEndCount).flatten(),
-                                goldsType = goldsType,
+                                goldsTypes = goldsType,
                                 distance = distance!!.distance,
                                 distanceUnit = distanceUnit!!,
                                 isFirstHalf = true,
@@ -154,7 +160,7 @@ class ScorePadData(
             tableData.add(
                     ScorePadRow.HalfDistanceTotal(
                             arrows = allEndArrows.drop(halfWayEndCount).flatten(),
-                            goldsType = goldsType,
+                            goldsTypes = goldsType,
                             distance = distance!!.distance,
                             distanceUnit = distanceUnit!!,
                             isFirstHalf = false,
@@ -192,7 +198,7 @@ class ScorePadData(
             resources: Resources,
             includeDistanceRows: Boolean
     ): ScorePadDetailsString {
-        val internalColumns = columnOrder.filter { it != ScorePadColumnType.HEADER }.map { toColumnMetadata(it) }
+        val internalColumns = columnOrder.filter { it != ScorePadColumnType.HEADER }.flatMap { toColumnMetadata(it) }
         val headers = internalColumns.associateWith { it.primaryTitle!!.get(resources) }
 
         var outputData: List<ScorePadRow> = data
@@ -226,7 +232,7 @@ class ScorePadData(
             resources: Resources,
             includeDistanceTotals: Boolean
     ): ScorePadDetailsString {
-        val internalColumns = columnOrder.filter { it != ScorePadColumnType.HEADER }.map { toColumnMetadata(it) }
+        val internalColumns = columnOrder.filter { it != ScorePadColumnType.HEADER }.flatMap { toColumnMetadata(it) }
         val header = internalColumns.joinToString(",") { it.primaryTitle!!.get(resources) }
         var outputData: List<ScorePadRow> = data
         if (!includeDistanceTotals) {
@@ -238,7 +244,7 @@ class ScorePadData(
         return ScorePadDetailsString(header, details)
     }
 
-    fun toColumnMetadata(columnType: ScorePadColumnType) = toColumnMetadata(columnType, goldsType)
+    fun toColumnMetadata(columnType: ScorePadColumnType) = toColumnMetadata(columnType, goldsTypes)
 
     data class ScorePadDetailsString(val headerRow: String?, val details: String)
 
@@ -260,13 +266,13 @@ class ScorePadData(
          */
         private const val HALF_DISTANCE_TOTAL_ARROW_THRESHOLD = 6 * 12
 
-        fun toColumnMetadata(columnType: ScorePadColumnType, goldsType: GoldsType) = when (columnType) {
-            ScorePadColumnType.HEADER -> ScorePadColumn.Header
-            ScorePadColumnType.ARROWS -> ScorePadColumn.FixedData.ARROWS
-            ScorePadColumnType.HITS -> ScorePadColumn.FixedData.HITS
-            ScorePadColumnType.SCORE -> ScorePadColumn.FixedData.SCORE
-            ScorePadColumnType.GOLDS -> ScorePadColumn.Golds(goldsType)
-            ScorePadColumnType.RUNNING_TOTAL -> ScorePadColumn.FixedData.RUNNING_TOTAL
+        fun toColumnMetadata(columnType: ScorePadColumnType, goldsTypes: List<GoldsType>) = when (columnType) {
+            ScorePadColumnType.HEADER -> listOf(ScorePadColumn.Header)
+            ScorePadColumnType.ARROWS -> listOf(ScorePadColumn.FixedData.ARROWS)
+            ScorePadColumnType.HITS -> listOf(ScorePadColumn.FixedData.HITS)
+            ScorePadColumnType.SCORE -> listOf(ScorePadColumn.FixedData.SCORE)
+            ScorePadColumnType.GOLDS -> goldsTypes.map { ScorePadColumn.Golds(it) }
+            ScorePadColumnType.RUNNING_TOTAL -> listOf(ScorePadColumn.FixedData.RUNNING_TOTAL)
         }
     }
 }

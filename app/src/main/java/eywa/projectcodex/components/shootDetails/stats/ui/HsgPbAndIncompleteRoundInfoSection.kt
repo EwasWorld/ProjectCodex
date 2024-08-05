@@ -47,16 +47,17 @@ internal fun HsgPbAndIncompleteRoundInfoSection(
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = modifier,
+                modifier = modifier
         ) {
             val extraPadding = if (fullShootInfo.hits != fullShootInfo.arrowsShot) 10.dp else 0.dp
+            val goldsType = fullShootInfo.goldsTypes[0]
 
             HsgSection(
                     hits = fullShootInfo.hits,
                     score = fullShootInfo.score,
-                    golds = fullShootInfo.golds(),
+                    golds = fullShootInfo.golds(goldsType),
                     arrowsShot = fullShootInfo.arrowsShot,
-                    goldsType = fullShootInfo.goldsType,
+                    goldsType = goldsType,
                     helpListener = helpListener,
             )
             PbRow(
@@ -91,7 +92,7 @@ private fun PbRow(
                 modifier = modifier
                         .background(
                                 color = CodexTheme.colors.personalBestTag,
-                                shape = RoundedCornerShape(100)
+                                shape = RoundedCornerShape(100),
                         )
                         .padding(horizontal = 10.dp)
                         .testTag(StatsTestTag.PB_TEXT)
@@ -115,7 +116,7 @@ private fun IncompleteRoundInfoSection(
     if (remaining != null && remaining != 0) {
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier,
+                modifier = modifier
         ) {
             if (remaining > 0) {
                 DataRow(
@@ -203,7 +204,7 @@ private fun HsgSection(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__hits_title),
                                         helpBody = stringResource(R.string.help_archer_round_stats__hits_body),
-                                ).asHelpState(helpListener)
+                                ).asHelpState(helpListener),
                         )
         ) {
             Text(
@@ -276,7 +277,7 @@ private fun HsgSection(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__score_title),
                                         helpBody = stringResource(R.string.help_archer_round_stats__score_body),
-                                ).asHelpState(helpListener)
+                                ).asHelpState(helpListener),
                         )
                         .testTag(StatsTestTag.SCORE_TEXT)
                         .semanticsWithContext {
@@ -319,7 +320,7 @@ private fun HsgSection(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_archer_round_stats__golds_title),
                                         helpBody = stringResource(R.string.help_archer_round_stats__golds_body),
-                                ).asHelpState(helpListener)
+                                ).asHelpState(helpListener),
                         )
                         .testTag(StatsTestTag.GOLDS_TEXT)
                         .semanticsWithContext {

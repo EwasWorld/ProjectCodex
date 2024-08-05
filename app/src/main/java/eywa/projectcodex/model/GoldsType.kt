@@ -20,38 +20,39 @@ enum class GoldsType(
         @StringRes val helpString: Int,
 ) {
     NINES(
-            9,
-            false,
-            R.string.table_golds_nines_header,
-            R.string.table_golds_nines_full,
-            R.string.help_score_pad__golds_column_body_nines,
+            score = 9,
+            isX = false,
+            shortStringId = R.string.table_golds_nines_header,
+            longStringId = R.string.table_golds_nines_full,
+            helpString = R.string.help_score_pad__golds_column_body_nines,
     ),
     TENS(
-            10,
-            false,
-            R.string.table_golds_tens_header,
-            R.string.table_golds_tens_full,
-            R.string.help_score_pad__golds_column_body_tens,
+            score = 10,
+            isX = false,
+            shortStringId = R.string.table_golds_tens_header,
+            longStringId = R.string.table_golds_tens_full,
+            helpString = R.string.help_score_pad__golds_column_body_tens,
     ),
     XS(
-            10,
-            true,
-            R.string.table_golds_xs_header,
-            R.string.table_golds_xs_full,
-            R.string.help_score_pad__golds_column_body_xs,
+            score = 10,
+            isX = true,
+            shortStringId = R.string.table_golds_xs_header,
+            longStringId = R.string.table_golds_xs_full,
+            helpString = R.string.help_score_pad__golds_column_body_xs,
     ),
     ;
 
     companion object {
-        val defaultGoldsType = NINES
+        val defaultGoldsType = TENS
 
         /**
          * @return which golds type should be used based on [round]
          */
-        fun getGoldsType(round: Round): GoldsType {
+        fun getGoldsType(round: Round): List<GoldsType> {
             return when {
-                !round.isMetric && round.isOutdoor -> NINES
-                else -> TENS
+                !round.isOutdoor -> listOf(TENS)
+                !round.isMetric -> listOf(NINES)
+                else -> listOf(TENS, XS)
             }
         }
     }

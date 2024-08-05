@@ -15,7 +15,7 @@ import eywa.projectcodex.model.GoldsType
 sealed class ScorePadRow {
     internal abstract val hits: Int
     internal abstract val score: Int
-    internal abstract val golds: Int
+    internal abstract val golds: Map<GoldsType, Int>
     internal open val runningTotal: Int? = null
 
     abstract fun getRowHeader(): ResOrActual<String>
@@ -30,21 +30,21 @@ sealed class ScorePadRow {
             val arrowScores: List<ResOrActual<String>>,
             override val hits: Int,
             override val score: Int,
-            override val golds: Int,
+            override val golds: Map<GoldsType, Int>,
             override val runningTotal: Int,
     ) : ScorePadRow() {
         internal constructor(
                 endNumber: Int,
                 arrows: List<DatabaseArrowScore>,
-                goldsType: GoldsType,
+                goldsTypes: List<GoldsType>,
                 runningTotal: Int,
         ) : this(
-                endNumber,
-                arrows.map { it.asString() },
-                arrows.getHits(),
-                arrows.getScore(),
-                arrows.getGolds(goldsType),
-                runningTotal
+                endNumber = endNumber,
+                arrowScores = arrows.map { it.asString() },
+                hits = arrows.getHits(),
+                score = arrows.getScore(),
+                golds = goldsTypes.associateWith { arrows.getGolds(it) },
+                runningTotal = runningTotal,
         )
 
         override fun getArrowsString(): ResOrActual<String> =
@@ -72,14 +72,20 @@ sealed class ScorePadRow {
             private val distanceUnit: ResOrActual<String>,
             override val hits: Int,
             override val score: Int,
-            override val golds: Int,
+            override val golds: Map<GoldsType, Int>,
     ) : ScorePadRow() {
         internal constructor(
                 arrows: List<DatabaseArrowScore>,
-                goldsType: GoldsType,
+                goldsTypes: List<GoldsType>,
                 distance: Int,
                 distanceUnit: ResOrActual<String>,
-        ) : this(distance, distanceUnit, arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
+        ) : this(
+                distance = distance,
+                distanceUnit = distanceUnit,
+                hits = arrows.getHits(),
+                score = arrows.getScore(),
+                golds = goldsTypes.associateWith { arrows.getGolds(it) },
+        )
 
         override fun getArrowsString(): ResOrActual<String> = ResOrActual.StringResource(
                 R.string.score_pad__distance_total,
@@ -95,21 +101,21 @@ sealed class ScorePadRow {
             private val isFirstHalf: Boolean,
             override val hits: Int,
             override val score: Int,
-            override val golds: Int,
+            override val golds: Map<GoldsType, Int>,
     ) : ScorePadRow() {
         internal constructor(
                 arrows: List<DatabaseArrowScore>,
-                goldsType: GoldsType,
+                goldsTypes: List<GoldsType>,
                 distance: Int,
                 distanceUnit: ResOrActual<String>,
                 isFirstHalf: Boolean,
         ) : this(
-                distance,
-                distanceUnit,
-                isFirstHalf,
-                arrows.getHits(),
-                arrows.getScore(),
-                arrows.getGolds(goldsType)
+                distance = distance,
+                distanceUnit = distanceUnit,
+                isFirstHalf = isFirstHalf,
+                hits = arrows.getHits(),
+                score = arrows.getScore(),
+                golds = goldsTypes.associateWith { arrows.getGolds(it) },
         )
 
         override fun getArrowsString(): ResOrActual<String> = ResOrActual.StringResource(
@@ -123,10 +129,16 @@ sealed class ScorePadRow {
     data class SurplusTotal(
             override val hits: Int,
             override val score: Int,
-            override val golds: Int,
+            override val golds: Map<GoldsType, Int>,
     ) : ScorePadRow() {
-        constructor(arrows: List<DatabaseArrowScore>, goldsType: GoldsType)
-                : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
+        constructor(
+                arrows: List<DatabaseArrowScore>,
+                goldsTypes: List<GoldsType>,
+        ) : this(
+                hits = arrows.getHits(),
+                score = arrows.getScore(),
+                golds = goldsTypes.associateWith { arrows.getGolds(it) },
+        )
 
         override fun getArrowsString(): ResOrActual<String> =
                 ResOrActual.StringResource(R.string.score_pad__surplus_total)
@@ -137,10 +149,16 @@ sealed class ScorePadRow {
     data class GrandTotal(
             override val hits: Int,
             override val score: Int,
-            override val golds: Int,
+            override val golds: Map<GoldsType, Int>,
     ) : ScorePadRow() {
-        constructor(arrows: List<DatabaseArrowScore>, goldsType: GoldsType)
-                : this(arrows.getHits(), arrows.getScore(), arrows.getGolds(goldsType))
+        constructor(
+                arrows: List<DatabaseArrowScore>,
+                goldsTypes: List<GoldsType>,
+        ) : this(
+                hits = arrows.getHits(),
+                score = arrows.getScore(),
+                golds = goldsTypes.associateWith { arrows.getGolds(it) },
+        )
 
         override fun getArrowsString(): ResOrActual<String> =
                 ResOrActual.StringResource(R.string.score_pad__grand_total)

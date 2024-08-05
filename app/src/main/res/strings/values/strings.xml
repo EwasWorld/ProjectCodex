@@ -54,7 +54,7 @@
     <string name="table_golds_header">G</string>
     <string name="table_golds_nines_header">G</string>
     <string name="table_golds_nines_full">Golds</string>
-    <string name="table_golds_tens_header">10</string>
+    <string name="table_golds_tens_header">10+</string>
     <string name="table_golds_tens_full">10s+</string>
     <string name="table_golds_xs_header">X</string>
     <string name="table_golds_xs_full">Xs</string>

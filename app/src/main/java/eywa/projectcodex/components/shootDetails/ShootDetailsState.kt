@@ -61,7 +61,7 @@ data class ShootDetailsState(
         ScorePadData(
                 info = fullShootInfo,
                 endSize = scorePadEndSize,
-                goldsType = fullShootInfo.goldsType
+                goldsTypes = fullShootInfo.goldsTypes
         )
     }
 

@@ -173,7 +173,7 @@ private fun ScorePadScreen(
         return
     }
 
-    val columnMetadata = COLUMN_ORDER.map { state.scorePadData.toColumnMetadata(it) }
+    val columnMetadata = COLUMN_ORDER.flatMap { state.scorePadData.toColumnMetadata(it) }
     CodexGridWithHeaders(
             columnMetadata = columnMetadata,
             modifier = modifier
