@@ -36,7 +36,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyVararg
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ViewScoresViewModelUnitTest {
@@ -253,15 +259,15 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_ConvertXS_TO_TENS() = testConvertScore(
-            originalArrows = List(12) { DatabaseArrowScore(1, it, if (it < 6) 10 else 5, it < 6) },
-            changedArrows = List(6) { DatabaseArrowScore(1, it, 10, false) },
+            originalArrows = List(12) { DatabaseArrowScore(1, it + 1, if (it < 6) 10 else 5, it < 6) },
+            changedArrows = List(6) { DatabaseArrowScore(1, it + 1, 10, false) },
             type = ConvertScoreType.XS_TO_TENS,
     )
 
     @Test
     fun testDropdownMenu_ConvertTO_FIVE_ZONE() = testConvertScore(
-            originalArrows = List(12) { DatabaseArrowScore(1, it, if (it < 6) 10 else 5, it < 6) },
-            changedArrows = List(6) { DatabaseArrowScore(1, it, 9, false) },
+            originalArrows = List(12) { DatabaseArrowScore(1, it + 1, if (it < 6) 10 else 5, it < 6) },
+            changedArrows = List(6) { DatabaseArrowScore(1, it + 1, 9, false) },
             type = ConvertScoreType.TO_FIVE_ZONE,
     )
 
@@ -270,7 +276,7 @@ class ViewScoresViewModelUnitTest {
 
     @Test
     fun testDropdownMenu_ConvertClose() = testConvertScore(
-            originalArrows = List(12) { DatabaseArrowScore(1, it, if (it < 6) 10 else 5, it < 6) },
+            originalArrows = List(12) { DatabaseArrowScore(1, it + 1, if (it < 6) 10 else 5, it < 6) },
             testClose = true,
     )
 

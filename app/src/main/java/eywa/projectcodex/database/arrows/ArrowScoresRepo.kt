@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.arrows
 
 import androidx.room.Transaction
+import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.database.shootData.DatabaseShoot
 
 /**
@@ -114,6 +115,8 @@ class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
         val currentArrowNumbers = allArrowsInRound.map { it.arrowNumber }
         val (updateArrows, insertArrows) = (toInsert + shiftedCurrentArrows)
                 .partition { currentArrowNumbers.contains(it.arrowNumber) }
+        debugLog("Updated: " + updateArrows.joinToString { it.toString() })
+        debugLog("Inserted: " + insertArrows.joinToString { it.toString() })
         update(*updateArrows.toTypedArray())
         insert(*insertArrows.toTypedArray())
     }

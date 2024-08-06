@@ -176,6 +176,7 @@ private fun ScorePadScreen(
     val columnMetadata = COLUMN_ORDER.flatMap { state.scorePadData.toColumnMetadata(it) }
     CodexGridWithHeaders(
             columnMetadata = columnMetadata,
+            helpListener = helpListener,
             modifier = modifier
                     .horizontalScroll(rememberScrollState())
                     .padding(5.dp)

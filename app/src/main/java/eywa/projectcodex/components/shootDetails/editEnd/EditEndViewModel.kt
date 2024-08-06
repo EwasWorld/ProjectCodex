@@ -11,11 +11,7 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
-import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.ArrowInputsAction
-import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.CloseHandled
-import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.ErrorHandled
-import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.ShootDetailsAction
+import eywa.projectcodex.components.shootDetails.editEnd.EditEndIntent.*
 import eywa.projectcodex.components.shootDetails.getData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -85,8 +81,10 @@ class EditEndViewModel @Inject constructor(
                     }
                     check(arrows.size == currentState.endSize) { "Incorrect number of arrows inputted" }
 
-                    viewModelScope.launch { repo.db.arrowScoresRepo().update(*arrows.toTypedArray()) }
-                    handleArrowInputIntent(ArrowInputsIntent.CancelClicked)
+                    viewModelScope.launch {
+                        repo.db.arrowScoresRepo().update(*arrows.toTypedArray())
+                        handleArrowInputIntent(ArrowInputsIntent.CancelClicked)
+                    }
                 },
                 helpListener = { handle(HelpShowcaseAction(it)) },
         )

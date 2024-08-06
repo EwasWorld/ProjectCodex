@@ -41,7 +41,7 @@ import java.util.Calendar
 @HiltAndroidTest
 class ViewScoresInstrumentedTest {
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(3500)
+    val testTimeout: Timeout = Timeout.seconds(35)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -177,7 +177,7 @@ class ViewScoresInstrumentedTest {
                 waitForRoundName(0, null)
                 val expectedYear = currentYear.toString().takeLast(2)
                 waitForDate(0, "01/01/$expectedYear 10:00")
-                checkContentDescription(0, "1 Jan", "Score 1, Golds 0, Hits 1")
+                checkContentDescription(0, "1 Jan", "Score 1, 10s+ 0, Hits 1")
 
                 waitForHsg(1, "1/2/0")
                 waitForHandicap(1, 88)
@@ -201,7 +201,7 @@ class ViewScoresInstrumentedTest {
                 waitForHandicap(4, null)
                 waitForRoundName(4, null)
                 waitForDate(4, "05/05/09 00:00")
-                checkContentDescription(4, "5 May 2009", "Score 5, Golds 0, Hits 1")
+                checkContentDescription(4, "5 May 2009", "Score 5, 10s+ 0, Hits 1")
 
                 waitForArrowCount(5, 6)
                 waitForRoundName(1, "Metric Round")
@@ -231,7 +231,6 @@ class ViewScoresInstrumentedTest {
         rounds = TestUtils.ROUNDS.take(1)
 
         shootsNew = listOf(
-
                 // No round
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 1, dateShot = Calendar.getInstance().apply { set(2020, 8, 28) })
@@ -292,7 +291,7 @@ class ViewScoresInstrumentedTest {
                 // Long click - email score
                 longClickRow(rowId)
                 clickEmailDropdownMenuItem {
-                    checkScoreText("No Round - 28/09/20\nHits: 11, Score: 65, Golds (Golds): 3")
+                    checkScoreText("No Round - 28/09/20\nHits: 11, Score: 65, 10s+: 2")
                 }
                 pressBack()
 
@@ -328,13 +327,15 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testViewScoresEntry_Delete() {
-        shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(2020)),
-                DatabaseShoot(2, TestUtils.generateDate(2019)),
-        )
-        arrows = listOf(
-                List(36) { TestUtils.ARROWS[1].asArrowScore(1, it) },
-                List(36) { TestUtils.ARROWS[10].asArrowScore(2, it) },
+        shootsNew = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
+                    addIdenticalArrows(36, 1)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = TestUtils.generateDate(2019))
+                    addIdenticalArrows(36, 10)
+                },
         )
         populateDb()
 
@@ -362,21 +363,23 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testViewScoresEntry_Convert() {
-        shoots = listOf(
-                DatabaseShoot(1, TestUtils.generateDate(2020)),
-                DatabaseShoot(2, TestUtils.generateDate(2019)),
-        )
-        arrows = listOf(
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(1, i) },
-                TestUtils.ARROWS.mapIndexed { i, arrow -> arrow.asArrowScore(2, i) },
+        shootsNew = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
+                    addFullSetOfArrows()
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = TestUtils.generateDate(2019))
+                    addFullSetOfArrows()
+                },
         )
         populateDb()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 waitForRowCount(2)
-                waitForHsg(0, "11/65/3")
-                waitForHsg(1, "11/65/3")
+                waitForHsg(0, "11/65/2")
+                waitForHsg(1, "11/65/2")
                 // TODO Add checks of the score pad
 
                 /*
@@ -386,8 +389,8 @@ class ViewScoresInstrumentedTest {
                 clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONVERT_MENU_ITEM)
                 chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_TEN_ZONE_TO_FIVE_ZONE_OPTION)
                 clickConvertDialogCancel()
-                waitForHsg(0, "11/65/3")
-                waitForHsg(1, "11/65/3")
+                waitForHsg(0, "11/65/2")
+                waitForHsg(1, "11/65/2")
 
                 /*
                  * Xs to 10s
@@ -396,8 +399,8 @@ class ViewScoresInstrumentedTest {
                 clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONVERT_MENU_ITEM)
                 chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_XS_TO_TENS_OPTION)
                 clickConvertDialogOk()
-                waitForHsg(0, "11/65/3")
-                waitForHsg(1, "11/65/3")
+                waitForHsg(0, "11/65/2")
+                waitForHsg(1, "11/65/2")
 
 
                 /*
@@ -407,8 +410,8 @@ class ViewScoresInstrumentedTest {
                 clickDropdownMenuItem(ViewScoresRobot.CommonStrings.CONVERT_MENU_ITEM)
                 chooseConvertDialogOption(ViewScoresRobot.CommonStrings.CONVERT_TEN_ZONE_TO_FIVE_ZONE_OPTION)
                 clickConvertDialogOk()
-                waitForHsg(0, "11/65/3")
-                waitForHsg(1, "11/59/3")
+                waitForHsg(0, "11/65/2")
+                waitForHsg(1, "11/59/0")
             }
         }
     }
@@ -418,12 +421,24 @@ class ViewScoresInstrumentedTest {
      */
     @Test
     fun testMultiSelect_Selections() {
-        val size = 4
-        shoots = TestUtils.generateShoots(size)
-        arrows = List(size) { i ->
-            val roundId = shoots[i].shootId
-            TestUtils.generateArrowScores(roundId, 36, roundId)
-        }
+        shootsNew = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
+                    setArrowsWithFinalScore(1, 36)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = TestUtils.generateDate(2019))
+                    setArrowsWithFinalScore(2, 36)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3, dateShot = TestUtils.generateDate(2018))
+                    setArrowsWithFinalScore(3, 36)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4, dateShot = TestUtils.generateDate(2017))
+                    setArrowsWithFinalScore(4, 36)
+                },
+        )
         populateDb()
 
         composeTestRule.mainMenuRobot {
@@ -481,12 +496,24 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testMultiSelect_Email() {
-        val size = 4
-        shoots = TestUtils.generateShoots(size)
-        arrows = List(size) { i ->
-            val roundId = shoots[i].shootId
-            TestUtils.generateArrowScores(roundId, 36, roundId)
-        }
+        shootsNew = listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
+                    setArrowsWithFinalScore(1, 36)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = TestUtils.generateDate(2019))
+                    setArrowsWithFinalScore(2, 36)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3, dateShot = TestUtils.generateDate(2018))
+                    setArrowsWithFinalScore(3, 36)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4, dateShot = TestUtils.generateDate(2017))
+                    setArrowsWithFinalScore(4, 36)
+                },
+        )
         populateDb()
 
         composeTestRule.mainMenuRobot {
@@ -505,9 +532,9 @@ class ViewScoresInstrumentedTest {
 
                 clickMultiSelectEmail {
                     checkScoreText(
-                            shoots.withIndex().joinToString("\n\n") { (index, round) ->
-                                val date = DateTimeFormat.SHORT_DATE.format(round.dateShot)
-                                "No Round - $date\nHits: 1, Score: ${index + 1}, Golds (Golds): 0"
+                            shootsNew.withIndex().joinToString("\n\n") { (index, round) ->
+                                val date = DateTimeFormat.SHORT_DATE.format(round.shoot.dateShot)
+                                "No Round - $date\nHits: 1, Score: ${index + 1}, 10s+: 0"
                             }
                     )
                 }
@@ -517,7 +544,11 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withMultiselect() {
-        shoots = TestUtils.generateShoots(20)
+        shootsNew = List(20) {
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(shootId = it + 1, dateShot = TestUtils.generateDate())
+            }
+        }
         populateDb()
 
         composeTestRule.mainMenuRobot {
@@ -531,7 +562,11 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withScroll() {
-        shoots = TestUtils.generateShoots(20)
+        shootsNew = List(20) {
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(shootId = it + 1, dateShot = TestUtils.generateDate())
+            }
+        }
         populateDb()
 
         composeTestRule.mainMenuRobot {
@@ -560,7 +595,7 @@ class ViewScoresInstrumentedTest {
                     shoot = shoot.copy(shootId = 3, dateShot = "28/10/2020 10:00".parseDate())
                     round = RoundPreviewHelper.wa1440RoundData
                     completeRoundWithFinalScore(3)
-                    arrows = arrows!!.dropLast(1)
+                    deleteLastArrow()
                 },
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 4, dateShot = "27/10/2020 10:00".parseDate())

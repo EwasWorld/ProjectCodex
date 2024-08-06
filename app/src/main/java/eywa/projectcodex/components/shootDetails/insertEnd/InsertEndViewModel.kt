@@ -12,11 +12,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.ArrowInputsAction
-import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.CloseHandled
-import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.ErrorHandled
-import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.ShootDetailsAction
+import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -77,8 +73,8 @@ class InsertEndViewModel @Inject constructor(
 
                     viewModelScope.launch {
                         repo.db.arrowScoresRepo().insertEnd(currentState.fullShootInfo.arrows!!, arrows)
+                        handleArrowInputIntent(ArrowInputsIntent.CancelClicked)
                     }
-                    handleArrowInputIntent(ArrowInputsIntent.CancelClicked)
                 },
                 helpListener = { handle(HelpShowcaseAction(it)) },
         )

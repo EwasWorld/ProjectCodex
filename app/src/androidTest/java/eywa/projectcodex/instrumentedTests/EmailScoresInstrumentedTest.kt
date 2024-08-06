@@ -17,11 +17,13 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.emailScores.EmailScoresCheckbox
 import eywa.projectcodex.components.emailScores.EmailScoresTextField
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -29,6 +31,7 @@ import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
+import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
@@ -58,62 +61,69 @@ class EmailScoresInstrumentedTest {
 
     private val arrowsPerArrowCount = 12
     private val rounds = listOf(
-            Round(1, "round1", "Round1", true, false),
-            Round(2, "round2", "Round2", true, false),
+            FullRoundInfo(
+                    round = Round(1, "round1", "Round1", true, false),
+                    roundSubTypes = listOf(),
+                    roundArrowCounts = listOf(
+                            RoundArrowCount(1, 1, 122.0, arrowsPerArrowCount),
+                            RoundArrowCount(1, 2, 122.0, arrowsPerArrowCount),
+                    ),
+                    roundDistances = listOf(
+                            RoundDistance(1, 1, 1, 60),
+                            RoundDistance(1, 2, 1, 50),
+                    ),
+            ),
+            FullRoundInfo(
+                    round = Round(2, "round2", "Round2", true, false),
+                    roundSubTypes = listOf(
+                            RoundSubType(2, 1, "Sub Type 1"),
+                            RoundSubType(2, 2, "Sub Type 2"),
+                    ),
+                    roundArrowCounts = listOf(
+                            RoundArrowCount(2, 1, 122.0, arrowsPerArrowCount),
+                            RoundArrowCount(2, 2, 122.0, arrowsPerArrowCount),
+                    ),
+                    roundDistances = listOf(
+                            RoundDistance(2, 1, 1, 60),
+                            RoundDistance(2, 2, 1, 50),
+                            RoundDistance(2, 1, 2, 30),
+                            RoundDistance(2, 2, 2, 20),
+                    ),
+            ),
     )
-    private val arrowCounts = listOf(
-            RoundArrowCount(1, 1, 122.0, arrowsPerArrowCount),
-            RoundArrowCount(1, 2, 122.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 1, 122.0, arrowsPerArrowCount),
-            RoundArrowCount(2, 2, 122.0, arrowsPerArrowCount),
-    )
-    private val distances = listOf(
-            RoundDistance(1, 1, 1, 60),
-            RoundDistance(1, 2, 1, 50),
-            RoundDistance(2, 1, 1, 60),
-            RoundDistance(2, 2, 1, 50),
-            RoundDistance(2, 1, 2, 30),
-            RoundDistance(2, 2, 2, 20),
-    )
-    private val subTypes = listOf(
-            RoundSubType(2, 1, "Sub Type 1"),
-            RoundSubType(2, 2, "Sub Type 2")
-    )
+
     private val shoots = listOf(
-            DatabaseShoot(1, TestUtils.generateDate(2024)),
-            DatabaseShoot(2, TestUtils.generateDate(2023)),
-            DatabaseShoot(3, TestUtils.generateDate(2022)),
-            DatabaseShoot(4, TestUtils.generateDate(2021)),
-            DatabaseShoot(5, TestUtils.generateDate(2020)),
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(1, TestUtils.generateDate(2024))
+                addFullSetOfArrows()
+                addFullSetOfArrows()
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(2, TestUtils.generateDate(2023))
+                round = rounds[0]
+                addFullSetOfArrows()
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(3, TestUtils.generateDate(2022))
+                round = rounds[1]
+                roundSubTypeId = 1
+                addFullSetOfArrows()
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(4, TestUtils.generateDate(2021))
+                addFullSetOfArrows()
+            },
+            ShootPreviewHelperDsl.create {
+                shoot = shoot.copy(5, TestUtils.generateDate(2020))
+                addFullSetOfArrows()
+            },
     )
-    private val shootRounds = listOf(
-            DatabaseShootRound(2, roundId = 1),
-            DatabaseShootRound(3, roundId = 2, roundSubTypeId = 1),
-    )
-    private val arrows = shoots.mapIndexed { i, shoot ->
-        val shootRound = shootRounds.find { it.shootId == shoot.shootId }
-        val round = rounds.find { it.roundId == shootRound?.roundId }
-        val arrowsInRound = arrowCounts.sumOf { if (it.roundId == round?.roundId) it.roundId else 0 }
-        val desiredCount = if (arrowsInRound == 0) (arrowsPerArrowCount * 2 - i * 6) else (arrowsInRound + i * 6)
-        val testDataSize = TestUtils.ARROWS.size
-        List(desiredCount) {
-            TestUtils.ARROWS[testDataSize - 1 - it % testDataSize].asArrowScore(
-                    shoot.shootId,
-                    it
-            )
-        }
-    }.flatten()
 
     private fun addSimpleTestDataToDb() {
         scenario.onActivity {
             runBlocking {
-                rounds.forEach { item -> db.roundDao().insert(item) }
-                arrowCounts.forEach { item -> db.roundArrowCountDao().insert(item) }
-                distances.forEach { item -> db.roundDistanceDao().insert(item) }
-                subTypes.forEach { item -> db.roundSubTypeDao().insert(item) }
-                shoots.forEach { item -> db.shootDao().insert(item) }
-                arrows.forEach { item -> db.arrowScoreDao().insert(item) }
-                shootRounds.forEach { item -> db.shootRoundDao().insert(item) }
+                rounds.forEach { item -> db.add(item) }
+                shoots.forEach { item -> db.add(item) }
             }
         }
     }
@@ -163,8 +173,8 @@ class EmailScoresInstrumentedTest {
 
     @Test
     fun testEmailScoreWithAttachment() {
-        val roundDate = DateTimeFormat.SHORT_DATE.format(shoots[0].dateShot)
-        val scoresString = "No Round - $roundDate\nHits: 22, Score: 130, Golds (Golds): 6"
+        val roundDate = DateTimeFormat.SHORT_DATE.format(shoots[0].shoot.dateShot)
+        val scoresString = "No Round - $roundDate\nHits: 22, Score: 130, 10s+: 4"
         val expected = allOf(
                 hasAction(Intent.ACTION_SEND),
                 hasData(Uri.parse("mailto:")),
@@ -190,7 +200,7 @@ class EmailScoresInstrumentedTest {
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForDate(0, DateTimeFormat.SHORT_DATE_TIME.format(shoots[0].dateShot))
+                waitForDate(0, DateTimeFormat.SHORT_DATE_TIME.format(shoots[0].shoot.dateShot))
                 longClickRow(0)
                 clickEmailDropdownMenuItem {
                     checkTextFieldText(EmailScoresTextField.SUBJECT, EmailTestData.INITIAL_SUBJECT)

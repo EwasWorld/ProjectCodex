@@ -33,20 +33,28 @@ class ShootPreviewHelperDsl {
     }
 
     fun addIdenticalArrows(size: Int, score: Int, isX: Boolean = false) {
-        arrows = ArrowScoresPreviewHelper.getArrows(shoot.shootId, size, 1, score, isX)
+        arrows = arrows.orEmpty().plus(
+                ArrowScoresPreviewHelper.getArrows(shoot.shootId, size, 1, score, isX),
+        )
     }
 
     fun addFullSetOfArrows() {
-        arrows = ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId)
+        arrows = arrows.orEmpty().plus(
+                ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId),
+        )
     }
 
     fun addArrows(a: List<Arrow>) {
-        arrows = a.mapIndexed { i, arrow -> arrow.asArrowScore(shoot.shootId, i + 1) }
+        arrows = arrows.orEmpty().plus(
+                a.mapIndexed { i, arrow -> arrow.asArrowScore(shoot.shootId, i + 1) },
+        )
     }
 
-    fun appendDbArrows(a: List<DatabaseArrowScore>) {
+    fun addDbArrows(a: List<DatabaseArrowScore>) {
         val first = (arrows?.maxOf { it.arrowNumber } ?: 0) + 1
-        arrows = arrows.orEmpty().plus(a.mapIndexed { index, arrow -> arrow.copy(arrowNumber = first + index) })
+        arrows = arrows.orEmpty().plus(
+                a.mapIndexed { index, arrow -> arrow.copy(arrowNumber = first + index) },
+        )
     }
 
     fun appendArrows(a: List<Arrow>) {
@@ -87,11 +95,18 @@ class ShootPreviewHelperDsl {
 
     fun completeRoundWithFinalScore(finalScore: Int) {
         val arrowCount = round!!.roundArrowCounts!!.sumOf { it.arrowCount }
+        setArrowsWithFinalScore(finalScore, arrowCount)
+    }
+
+    fun setArrowsWithFinalScore(finalScore: Int, arrowsShot: Int? = null) {
         val tens = finalScore.floorDiv(10)
+
+        val missesCount = arrowsShot?.let { it - tens - 1 } ?: 0
+        require(missesCount >= 0) { "Cannot achieve a score of $finalScore with $arrowsShot arrows" }
 
         val newArrows = List(tens) { Arrow(10) } +
                 Arrow(finalScore % 10) +
-                List(arrowCount - tens - 1) { Arrow(0) }
+                List(missesCount) { Arrow(0) }
 
         arrows = newArrows.mapIndexed { index, arrow -> arrow.asArrowScore(shoot.shootId, index) }
     }
@@ -122,7 +137,8 @@ class ShootPreviewHelperDsl {
             roundArrowCounts = round?.roundArrowCounts,
             allRoundSubTypes = round?.roundSubTypes,
             allRoundDistances = round?.roundDistances,
-            arrows = arrows?.map { it.copy(shootId = shoot.shootId) },
+            arrows = arrows
+                    ?.mapIndexed { index, arrow -> arrow.copy(shootId = shoot.shootId, arrowNumber = index + 1) },
             isPersonalBest = isPersonalBest,
             isTiedPersonalBest = isTiedPersonalBest,
             shootRound = asDatabaseShootRound(),

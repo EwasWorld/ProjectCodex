@@ -30,11 +30,9 @@ class ScorePadRobot(
         performV2Group {
             val allCells = list
                     .drop(1)
-                    .map { it.asList() }
-                    .transpose()
-                    .flatten()
+                    .flatMap { it.asList() }
                     .mapNotNull {
-                        if (it == null || it == "T" || it == "GT") {
+                        if (it == "T" || it == "GT") {
                             null
                         }
                         else {
@@ -43,6 +41,7 @@ class ScorePadRobot(
                     }
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL)
+            +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.ForEach(allCells.map { listOf(it) })
             +CodexNodeGroupInteraction.AssertCount(allCells.size)
         }
@@ -60,6 +59,7 @@ class ScorePadRobot(
         performV2Group {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL)
+            +CodexNodeMatcher.IsNotCached
             toSingle(CodexNodeGroupToOne.HasContentDescription("End $endNumber")) {
                 +CodexNodeInteraction.PerformScrollTo()
                 +CodexNodeInteraction.PerformClick()
@@ -68,11 +68,15 @@ class ScorePadRobot(
     }
 
     private fun clickDropdownMenuItem(menuItem: String) {
-        performV2Single {
+        performV2Group {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
             +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
-            +CodexNodeInteraction.PerformClick()
+            +CodexNodeMatcher.IsNotCached
+            // TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of these
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.PerformClick()
+            }
         }
     }
 
@@ -106,7 +110,7 @@ class ScorePadRobot(
             val main: String,
             val hits: String,
             val score: String,
-            val golds: String,
+            val golds: List<String>,
             val runningTotal: String?,
     ) {
         constructor(
@@ -121,16 +125,32 @@ class ScorePadRobot(
                 main,
                 hits.toString(),
                 score.toString(),
-                golds.toString(),
+                listOf(golds.toString()),
                 runningTotal?.toString(),
         )
 
-        fun asList() = listOf(
+        constructor(
+                header: String?,
+                main: String,
+                hits: Int,
+                score: Int,
+                golds: List<Int>,
+                runningTotal: Int?,
+        ) : this(
+                header,
+                main,
+                hits.toString(),
+                score.toString(),
+                golds.map { it.toString() },
+                runningTotal?.toString(),
+        )
+
+        fun asList() = listOfNotNull(
                 header,
                 main.takeIf { it != "Arrows" },
                 hits.takeIf { it.isDigitsOnly() },
                 score.takeIf { it.isDigitsOnly() },
-                golds.takeIf { it.isDigitsOnly() },
+                *golds.filter { it.isDigitsOnly() }.toTypedArray(),
                 runningTotal,
         )
     }

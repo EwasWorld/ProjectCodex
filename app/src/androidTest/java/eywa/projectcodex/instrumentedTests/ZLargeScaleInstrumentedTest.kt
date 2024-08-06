@@ -172,12 +172,12 @@ class ZLargeScaleInstrumentedTest {
                     clickNavBarScorePad {
                         checkScorePadData(
                                 listOf(
-                                        ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                        ExpectedRowData("2", "2-2-2-2-2-2", 6, 12, 0, 18),
-                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 36),
-                                        ExpectedRowData("T", "Total at 60m", 18, 36, 0, null),
-                                        ExpectedRowData("GT", "Grand Total", 18, 36, 0, null),
+                                        ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                        ExpectedRowData("2", "2-2-2-2-2-2", 6, 12, listOf(0, 0), 18),
+                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 36),
+                                        ExpectedRowData("T", "Total at 60m", 18, 36, listOf(0, 0), null),
+                                        ExpectedRowData("GT", "Grand Total", 18, 36, listOf(0, 0), null),
                                 )
                         )
 
@@ -190,14 +190,14 @@ class ZLargeScaleInstrumentedTest {
 
                         checkScorePadData(
                                 listOf(
-                                        ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                        ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, 0, 30),
-                                        ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, 0, 42),
-                                        ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
-                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 60),
-                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
-                                        ExpectedRowData("GT", "Grand Total", 24, 60, 0, null),
+                                        ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                        ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, listOf(0, 0), 30),
+                                        ExpectedRowData("3", "2-2-2-2-2-2", 6, 12, listOf(0, 0), 42),
+                                        ExpectedRowData("T", "Total at 60m", 18, 42, listOf(0, 0), null),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 60),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, listOf(0, 0), null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 60, listOf(0, 0), null),
                                 )
                         )
 
@@ -214,14 +214,14 @@ class ZLargeScaleInstrumentedTest {
 
                         checkScorePadData(
                                 listOf(
-                                        ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                        ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, 0, 30),
-                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 54),
-                                        ExpectedRowData("T", "Total at 60m", 18, 54, 0, null),
-                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 72),
-                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
-                                        ExpectedRowData("GT", "Grand Total", 24, 72, 0, null),
+                                        ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                        ExpectedRowData("2", "4-4-4-4-4-4", 6, 24, listOf(0, 0), 30),
+                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 54),
+                                        ExpectedRowData("T", "Total at 60m", 18, 54, listOf(0, 0), null),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 72),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, listOf(0, 0), null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 72, listOf(0, 0), null),
                                 )
                         )
 
@@ -231,12 +231,12 @@ class ZLargeScaleInstrumentedTest {
 
                         checkScorePadData(
                                 listOf(
-                                        ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                        ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
-                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
-                                        ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
-                                        ExpectedRowData("GT", "Grand Total", 18, 48, 0, null),
+                                        ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                        ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 30),
+                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 48),
+                                        ExpectedRowData("T", "Total at 60m", 18, 48, listOf(0, 0), null),
+                                        ExpectedRowData("GT", "Grand Total", 18, 48, listOf(0, 0), null),
                                 )
                         )
 
@@ -249,14 +249,14 @@ class ZLargeScaleInstrumentedTest {
 
                         checkScorePadData(
                                 listOf(
-                                        ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                        ExpectedRowData("2", "6-6-6-6-6-6", 6, 36, 0, 42),
-                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 66),
-                                        ExpectedRowData("T", "Total at 60m", 18, 66, 0, null),
-                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 84),
-                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
-                                        ExpectedRowData("GT", "Grand Total", 24, 84, 0, null),
+                                        ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                        ExpectedRowData("2", "6-6-6-6-6-6", 6, 36, listOf(0, 0), 42),
+                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 66),
+                                        ExpectedRowData("T", "Total at 60m", 18, 66, listOf(0, 0), null),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 84),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, listOf(0, 0), null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 84, listOf(0, 0), null),
                                 )
                         )
 
@@ -271,14 +271,14 @@ class ZLargeScaleInstrumentedTest {
 
                         checkScorePadData(
                                 listOf(
-                                        ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                        ExpectedRowData("2", "7-7-7-7-7-7", 6, 42, 0, 48),
-                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, 0, 72),
-                                        ExpectedRowData("T", "Total at 60m", 18, 72, 0, null),
-                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, 0, 90),
-                                        ExpectedRowData("T", "Total at 50m", 6, 18, 0, null),
-                                        ExpectedRowData("GT", "Grand Total", 24, 90, 0, null),
+                                        ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                        ExpectedRowData("2", "7-7-7-7-7-7", 6, 42, listOf(0, 0), 48),
+                                        ExpectedRowData("3", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 72),
+                                        ExpectedRowData("T", "Total at 60m", 18, 72, listOf(0, 0), null),
+                                        ExpectedRowData("4", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 90),
+                                        ExpectedRowData("T", "Total at 50m", 6, 18, listOf(0, 0), null),
+                                        ExpectedRowData("GT", "Grand Total", 24, 90, listOf(0, 0), null),
                                 )
                         )
 
@@ -292,12 +292,12 @@ class ZLargeScaleInstrumentedTest {
 
                         checkScorePadData(
                                 listOf(
-                                        ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                        ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
-                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
-                                        ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
-                                        ExpectedRowData("GT", "Grand Total", 18, 48, 0, null),
+                                        ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                        ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                        ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 30),
+                                        ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 48),
+                                        ExpectedRowData("T", "Total at 60m", 18, 48, listOf(0, 0), null),
+                                        ExpectedRowData("GT", "Grand Total", 18, 48, listOf(0, 0), null),
                                 )
                         )
 
@@ -320,12 +320,12 @@ class ZLargeScaleInstrumentedTest {
                 clickRow(0) {
                     checkScorePadData(
                             listOf(
-                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                    ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
-                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
-                                    ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
-                                    ExpectedRowData("GT", "Grand Total", 18, 48, 0, null),
+                                    ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                    ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 30),
+                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 48),
+                                    ExpectedRowData("T", "Total at 60m", 18, 48, listOf(0, 0), null),
+                                    ExpectedRowData("GT", "Grand Total", 18, 48, listOf(0, 0), null),
                             )
                     )
 
@@ -339,14 +339,14 @@ class ZLargeScaleInstrumentedTest {
 
                     checkScorePadData(
                             listOf(
-                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                    ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, 0, 6),
-                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 30),
-                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 48),
-                                    ExpectedRowData("T", "Total at 60m", 18, 48, 0, null),
-                                    ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, 0, 54),
-                                    ExpectedRowData("T", "Total at 50m", 6, 6, 0, null),
-                                    ExpectedRowData("GT", "Grand Total", 24, 54, 0, null),
+                                    ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                    ExpectedRowData("1", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 6),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 30),
+                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 48),
+                                    ExpectedRowData("T", "Total at 60m", 18, 48, listOf(0, 0), null),
+                                    ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 54),
+                                    ExpectedRowData("T", "Total at 50m", 6, 6, listOf(0, 0), null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 54, listOf(0, 0), null),
                             )
                     )
 
@@ -363,14 +363,14 @@ class ZLargeScaleInstrumentedTest {
 
                     checkScorePadData(
                             listOf(
-                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
-                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
-                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, 0, 54),
-                                    ExpectedRowData("T", "Total at 60m", 18, 54, 0, null),
-                                    ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, 0, 60),
-                                    ExpectedRowData("T", "Total at 50m", 6, 6, 0, null),
-                                    ExpectedRowData("GT", "Grand Total", 24, 60, 0, null),
+                                    ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, listOf(0, 0), 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 36),
+                                    ExpectedRowData("3", "3-3-3-3-3-3", 6, 18, listOf(0, 0), 54),
+                                    ExpectedRowData("T", "Total at 60m", 18, 54, listOf(0, 0), null),
+                                    ExpectedRowData("4", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 60),
+                                    ExpectedRowData("T", "Total at 50m", 6, 6, listOf(0, 0), null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 60, listOf(0, 0), null),
                             )
                     )
 
@@ -380,12 +380,12 @@ class ZLargeScaleInstrumentedTest {
 
                     checkScorePadData(
                             listOf(
-                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
-                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
-                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
-                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
-                                    ExpectedRowData("GT", "Grand Total", 18, 42, 0, null),
+                                    ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, listOf(0, 0), 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, listOf(0, 0), null),
+                                    ExpectedRowData("GT", "Grand Total", 18, 42, listOf(0, 0), null),
                             )
                     )
 
@@ -399,14 +399,14 @@ class ZLargeScaleInstrumentedTest {
 
                     checkScorePadData(
                             listOf(
-                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
-                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
-                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
-                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
-                                    ExpectedRowData("4", "8-8-8-8-8-8", 6, 48, 0, 90),
-                                    ExpectedRowData("T", "Total at 50m", 6, 48, 0, null),
-                                    ExpectedRowData("GT", "Grand Total", 24, 90, 0, null),
+                                    ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, listOf(0, 0), 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, listOf(0, 0), null),
+                                    ExpectedRowData("4", "8-8-8-8-8-8", 6, 48, listOf(0, 0), 90),
+                                    ExpectedRowData("T", "Total at 50m", 6, 48, listOf(0, 0), null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 90, listOf(0, 0), null),
                             )
                     )
 
@@ -421,14 +421,14 @@ class ZLargeScaleInstrumentedTest {
 
                     checkScorePadData(
                             listOf(
-                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
-                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
-                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
-                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
-                                    ExpectedRowData("4", "10-10-10-10-10-10", 6, 60, 6, 102),
-                                    ExpectedRowData("T", "Total at 50m", 6, 60, 6, null),
-                                    ExpectedRowData("GT", "Grand Total", 24, 102, 6, null),
+                                    ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, listOf(0, 0), 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, listOf(0, 0), null),
+                                    ExpectedRowData("4", "10-10-10-10-10-10", 6, 60, listOf(6, 0), 102),
+                                    ExpectedRowData("T", "Total at 50m", 6, 60, listOf(6, 0), null),
+                                    ExpectedRowData("GT", "Grand Total", 24, 102, listOf(6, 0), null),
                             )
                     )
 
@@ -438,12 +438,12 @@ class ZLargeScaleInstrumentedTest {
 
                     checkScorePadData(
                             listOf(
-                                    ExpectedRowData(null, "Arrows", "H", "S", "10", "R/T"),
-                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, 0, 12),
-                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, 0, 36),
-                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, 0, 42),
-                                    ExpectedRowData("T", "Total at 60m", 18, 42, 0, null),
-                                    ExpectedRowData("GT", "Grand Total", 18, 42, 0, null),
+                                    ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
+                                    ExpectedRowData("1", "2-2-2-2-2-2", 6, 12, listOf(0, 0), 12),
+                                    ExpectedRowData("2", "2-2-5-5-5-5", 6, 24, listOf(0, 0), 36),
+                                    ExpectedRowData("3", "1-1-1-1-1-1", 6, 6, listOf(0, 0), 42),
+                                    ExpectedRowData("T", "Total at 60m", 18, 42, listOf(0, 0), null),
+                                    ExpectedRowData("GT", "Grand Total", 18, 42, listOf(0, 0), null),
                             )
                     )
 

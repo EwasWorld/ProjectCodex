@@ -131,7 +131,7 @@ class ViewsTest {
                     shoot = shoot.copy(shootId = 4)
                     round = RoundPreviewHelper.indoorMetricRoundData
                     completeRoundWithFinalScore(20)
-                    appendDbArrows(ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId))
+                    addDbArrows(ArrowScoresPreviewHelper.getArrowsInOrderFullSet(shoot.shootId))
                 }
         )
         db.add(

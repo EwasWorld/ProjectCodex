@@ -115,7 +115,7 @@ class NewScoreViewModelUnitTest {
                 NewScoreState(
                         roundBeingEdited = ShootPreviewHelperDsl.create {
                             shoot = shootInitial.shoot
-                            arrows = shootInitial.arrows
+                            arrows = shootInitial.arrows.orEmpty()
                         },
                         dateShot = shootInitial.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
@@ -128,7 +128,7 @@ class NewScoreViewModelUnitTest {
                 NewScoreState(
                         roundBeingEdited = ShootPreviewHelperDsl.create {
                             shoot = shootSecond.shoot
-                            arrows = shootSecond.arrows
+                            arrows = shootSecond.arrows.orEmpty()
                         },
                         dateShot = shootSecond.shoot.dateShot,
                         selectRoundDialogState = emptyRoundsData,
