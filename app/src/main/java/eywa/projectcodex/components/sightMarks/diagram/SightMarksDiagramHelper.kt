@@ -1,7 +1,13 @@
 package eywa.projectcodex.components.sightMarks.diagram
 
 import eywa.projectcodex.model.SightMark
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.pow
+import kotlin.math.round
+import kotlin.math.roundToInt
 
 class SightMarksDiagramHelper(
         sightMarks: List<SightMark>,
@@ -22,10 +28,13 @@ class SightMarksDiagramHelper(
                 ?.zipWithNext { a, b -> abs(a - b) }
                 ?.max()
                 ?: return@let diff
-        // Increase the major difference if the gap is large
+
+        val totalSpread = highestSightMark - lowestSightMark
+
+        // Increase the major difference if the max gap or total spread is large
         // This will decrease tape size and thus less scrolling is required
         // Less scrolling also works better for talkback
-        if (maxGap < diff * 4) diff else (diff * 2f)
+        if (maxGap < diff * 4 && totalSpread <= diff * 5) diff else (diff * 2f)
     }
     val maxMajorTick = roundMajorDiff(highestSightMark, ::ceil).addMajorTick(1)
     val minMajorTick = roundMajorDiff(lowestSightMark, ::floor).addMajorTick(-1)
