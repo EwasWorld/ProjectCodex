@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
+import eywa.projectcodex.api.ApiScreen
 import eywa.projectcodex.coaching.CoachingCrossHairTestScreen
 import eywa.projectcodex.coaching.CoachingScreen
 import eywa.projectcodex.common.navigation.BottomSheetNavRoute
@@ -44,7 +45,14 @@ enum class DebugNavRoute : ScreenNavRoute {
         @Composable override fun Screen(navController: NavController) {
             CoachingCrossHairTestScreen()
         }
-    }
+    },
+    API {
+        @Composable override fun getMenuBarTitle(entry: NavBackStackEntry?): String = "Api"
+
+        @Composable override fun Screen(navController: NavController) {
+            ApiScreen()
+        }
+    },
     ;
 
     override val routeBase = "debug_" + name.lowercase()
@@ -59,5 +67,5 @@ class DebugNavRouteModule {
     @Singleton
     @Provides
     @ElementsIntoSet
-    fun providesLocalNavRoute(): Set<ScreenNavRoute> = DebugNavRoute.values().toSet()
+    fun providesLocalNavRoute(): Set<ScreenNavRoute> = DebugNavRoute.entries.toSet()
 }

@@ -26,7 +26,13 @@ enum class DebugMainMenuOptions(
             DebugNavRoute.COACHING,
             ResOrActual.Actual("Coaching Title"),
             ResOrActual.Actual("Coaching Body"),
-    )
+    ),
+    API(
+            ResOrActual.Actual("Api"),
+            DebugNavRoute.API,
+            ResOrActual.Actual("Api Title"),
+            ResOrActual.Actual("Api Body"),
+    ),
     ;
 
     override val testTag: CodexTestTag
