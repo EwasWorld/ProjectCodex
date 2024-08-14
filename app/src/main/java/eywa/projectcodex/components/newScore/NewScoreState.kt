@@ -88,6 +88,7 @@ data class NewScoreState(
                     roundId = selectRoundDialogState.selectedRoundId,
                     roundSubTypeId = selectRoundDialogState.selectedSubTypeId,
                     faces = selectFaceDialogState.selectedFaces,
+                    sightersCount = roundBeingEdited?.shootRound?.sightersCount ?: 0,
             )
 
     fun asShootDetail() =

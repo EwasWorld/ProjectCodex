@@ -131,11 +131,15 @@ class ScorePadData(
         var currentRunningTotal = runningTotal ?: 0
         var currentEndNumber = endNumber ?: 0
 
-        val hasHalfWayTotal = distance != null && distanceArrows.size >= HALF_DISTANCE_TOTAL_ARROW_THRESHOLD
+        val arrowCountForDistance = arrowCount?.arrowCount
         // How many ends does the half-way total come after
-        val halfWayEndCount = ceil(allEndArrows.size.toDouble() / 2).toInt()
+        val halfWayEndCount = ceil((arrowCountForDistance ?: 0).toDouble() / (2 * endSize)).toInt()
         // Which end number the half-way total should be shown after
         val halfTimeEndNumber = currentEndNumber + halfWayEndCount
+        // Are there enough arrows in the distance and enough arrows shot to have a half-way count
+        val hasHalfWayTotal = allEndArrows.size > halfWayEndCount
+                && arrowCountForDistance != null
+                && arrowCountForDistance >= HALF_DISTANCE_TOTAL_ARROW_THRESHOLD
 
         for (endArrows in allEndArrows) {
             currentRunningTotal += endArrows.getScore()
@@ -156,7 +160,7 @@ class ScorePadData(
             }
         }
 
-        if (hasHalfWayTotal) {
+        if (hasHalfWayTotal && currentEndNumber > halfTimeEndNumber) {
             tableData.add(
                     ScorePadRow.HalfDistanceTotal(
                             arrows = allEndArrows.drop(halfWayEndCount).flatten(),
