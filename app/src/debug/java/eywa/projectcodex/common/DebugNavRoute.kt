@@ -15,6 +15,7 @@ import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.navigation.TabSwitcherItem
+import eywa.projectcodex.plotting.PlottingScreen
 import javax.inject.Singleton
 
 enum class DebugNavRoute : ScreenNavRoute {
@@ -51,6 +52,13 @@ enum class DebugNavRoute : ScreenNavRoute {
 
         @Composable override fun Screen(navController: NavController) {
             ApiScreen()
+        }
+    },
+    PLOTTING {
+        @Composable override fun getMenuBarTitle(entry: NavBackStackEntry?): String = "Plotting"
+
+        @Composable override fun Screen(navController: NavController) {
+            PlottingScreen()
         }
     },
     ;

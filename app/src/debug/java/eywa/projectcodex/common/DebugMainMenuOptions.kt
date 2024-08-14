@@ -26,12 +26,20 @@ enum class DebugMainMenuOptions(
             DebugNavRoute.COACHING,
             ResOrActual.Actual("Coaching Title"),
             ResOrActual.Actual("Coaching Body"),
+            shouldShow = { false },
     ),
     API(
             ResOrActual.Actual("Api"),
             DebugNavRoute.API,
             ResOrActual.Actual("Api Title"),
             ResOrActual.Actual("Api Body"),
+            shouldShow = { false },
+    ),
+    PLOTTING(
+            ResOrActual.Actual("Plotting"),
+            DebugNavRoute.PLOTTING,
+            ResOrActual.Actual("Plotting Title"),
+            ResOrActual.Actual("Plotting Body"),
     ),
     ;
 
@@ -53,5 +61,5 @@ class DebugMainMenuOptionsModule {
     @Singleton
     @Provides
     @ElementsIntoSet
-    fun providesOptions(): Set<MainMenuOption> = DebugMainMenuOptions.values().toSet()
+    fun providesOptions(): Set<MainMenuOption> = DebugMainMenuOptions.entries.toSet()
 }
