@@ -1,7 +1,13 @@
 package eywa.projectcodex.common.sharedUi.codexTheme
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,7 +22,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
+import eywa.projectcodex.common.sharedUi.CodexChip
+import eywa.projectcodex.common.sharedUi.RadioButtonDialogContent
+import eywa.projectcodex.common.sharedUi.rememberRadioButtonDialogState
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.viewScores.actionBar.multiSelectBar.MultiSelectBar
@@ -114,7 +125,21 @@ data class CodexThemeColors(
 
         val personalBestTag: Color = CodexColors.TARGET_FACE_GOLD,
         val onPersonalBestTag: Color = Color.Black,
-)
+) {
+    fun getColourForArrowValue(value: Int): Color = when (value) {
+        1, 2 -> targetFaceWhite
+        3, 4 -> targetFaceBlack
+        5, 6 -> targetFaceBlue
+        7, 8 -> targetFaceRed
+        9, 10 -> targetFaceGold
+        else -> targetFaceGreen
+    }
+
+    fun getTextColourForArrowValue(value: Int): Color = when (value) {
+        3, 4 -> targetFaceWhite
+        else -> targetFaceBlack
+    }
+}
 
 object CodexColors {
     val COLOR_PRIMARY = Color(Raw.COLOR_PRIMARY)
@@ -240,6 +265,7 @@ fun CodexTheme_Preview(@PreviewParameter(CodexThemePreviewProvider::class) theme
                             val color = when {
                                 rowIndex in listOf(0, 3, 5) || columnIndex == 0 ->
                                     CodexTheme.colors.listAccentRowItemOnAppBackground
+
                                 else -> CodexTheme.colors.listItemOnAppBackground
                             }
                             Text(
