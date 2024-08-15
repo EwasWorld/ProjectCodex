@@ -1,7 +1,7 @@
 package eywa.projectcodex.plotting
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -99,7 +99,7 @@ sealed class PlottingEvent {
 fun PlottingScreen() {
     var state by remember { mutableStateOf(PlottingState()) }
 
-    PlottingScreen(state) {
+    PlottingScreen({ state }) {
         when (it) {
             is PlottingEvent.MoveArrow -> state = state.copy(movingArrow = it.arrow)
             PlottingEvent.CompleteArrow ->
@@ -110,19 +110,19 @@ fun PlottingScreen() {
 
 @Composable
 fun PlottingScreen(
-        state: PlottingState,
+        state: () -> PlottingState,
         listener: (PlottingEvent) -> Unit,
 ) {
     BoxWithConstraints {
         DrawTargetAndPlotArrows(state, listener)
 
-        Text(text = state.movingArrow.score.toString())
+        Text(text = state().movingArrow.score.toString())
     }
 }
 
 @Composable
 fun BoxWithConstraintsScope.DrawTargetAndPlotArrows(
-        state: PlottingState,
+        state: () -> PlottingState,
         listener: (PlottingEvent) -> Unit,
 ) {
     val colors = CodexTheme.colors
@@ -134,30 +134,45 @@ fun BoxWithConstraintsScope.DrawTargetAndPlotArrows(
             modifier = Modifier
                     .fillMaxSize()
                     .pointerInput(Unit) {
-                        detectTapGestures {
-                            val arrow = ArrowWithLocation.fromOffset(it.minus(translation), maxRadius, false)
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            val newOffset = state().movingArrow
+                                    .getOffset(maxRadius)
+                                    .plus(dragAmount)
+                            val arrow = ArrowWithLocation.fromOffset(newOffset, maxRadius, false)
                             listener(PlottingEvent.MoveArrow(arrow))
                         }
                     }
     ) {
-        translate(size.width / 2, size.height / 2) {
-            drawTarget(maxRadius, colors)
+        val current = state().movingArrow.getOffset(maxRadius)
+        translate(translation.x, translation.y) {
+            translate(current.x, current.y) {
+                drawTarget(maxRadius, colors)
 
-            for (arrow in arrows.plus(state.movingArrow)) {
-                drawCircle(
-                        color = colors.targetFaceGreen,
-                        center = arrow.getOffset(maxRadius),
-                        radius = 10f,
-                )
-                drawCircle(
-                        color = colors.targetFaceBlack,
-                        center = arrow.getOffset(maxRadius),
-                        radius = 10f,
-                        style = Stroke(width = 2f),
-                )
+                for (arrow in arrows) {
+                    drawArrow(arrow.getOffset(maxRadius), colors)
+                }
             }
+            drawArrow(Offset.Zero, colors)
         }
     }
+}
+
+fun DrawScope.drawArrow(
+        centre: Offset,
+        colors: CodexThemeColors,
+) {
+    drawCircle(
+            color = colors.targetFaceGreen,
+            center = centre,
+            radius = 10f,
+    )
+    drawCircle(
+            color = colors.targetFaceBlack,
+            center = centre,
+            radius = 10f,
+            style = Stroke(width = 2f),
+    )
 }
 
 fun DrawScope.drawTarget(
