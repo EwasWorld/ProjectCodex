@@ -7,6 +7,7 @@
     <string name="input_end__clear">Clear</string>
     <string name="input_end__backspace">Backspace</string>
     <string name="input_end__next_end">Next end</string>
+    <string name="input_end__section_delimiter">:</string>
 
     <!-- Extra info -->
     <string name="input_end__end_total_accessibility">%s end total</string>
@@ -25,11 +26,13 @@
     <string name="input_end__go_to_summary">Go to summary</string>
 
     <!-- Sight marks -->
-    <string name="input_end__sight_mark">%1$d%2$s sight mark:</string> <!-- 100yd sight mark -->
+    <string name="input_end__sight_mark_title">Sight mark:</string>
+    <string name="input_end__sight_mark">%1$d%2$s:</string> <!-- 100yd -->
     <string name="input_end__sight_mark_none_placeholder">None</string>
     <string name="input_end__sight_mark_edit">Edit sight mark for %1$d%2$s</string> <!-- Edit sight mark for 100yd -->
     <string name="input_end__sight_mark_edit_none">Add sight mark for %1$d%2$s</string> <!-- Add sight mark for 100yd -->
-    <string name="input_end__sight_mark_expand">View all sight marks</string>
+    <string name="input_end__sight_mark_expand">View all</string>
+    <string name="input_end__sight_mark_expand_no_distances">View all sight marks</string>
 
     <!-- Edit end -->
     <string name="edit_end__title">Edit End</string>

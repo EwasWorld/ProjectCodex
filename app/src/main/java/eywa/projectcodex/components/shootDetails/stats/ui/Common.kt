@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.CodexIconButton
@@ -46,7 +48,7 @@ internal fun Delimiter(
         color: Color = CodexTheme.colors.onAppBackground,
 ) {
     Text(
-            text = ":",
+            text = stringResource(R.string.input_end__section_delimiter),
             style = style,
             color = color,
             modifier = modifier.clearAndSetSemantics { },

@@ -55,6 +55,7 @@ import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInput
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
+import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
 
@@ -172,7 +173,7 @@ private fun AddEndScreen(
                         onClick = { listener(RoundFullDialogOkClicked) },
                         modifier = Modifier
                                 .padding(top = 10.dp)
-                                .testTag(AddEndTestTag.ROUND_COMPLETE_BUTTON),
+                                .testTag(AddEndTestTag.ROUND_COMPLETE_BUTTON)
                 )
             }
         }
@@ -183,7 +184,6 @@ private fun AddEndScreen(
                 showCancelButton = false,
                 showResetButton = false,
                 submitButtonText = stringResource(R.string.input_end__next_end),
-                modifier = modifier,
                 helpListener = { listener(HelpShowcaseAction(it)) },
                 submitHelpInfo = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_input_end__next_end_title),
@@ -191,6 +191,7 @@ private fun AddEndScreen(
                 ),
                 testTag = AddEndTestTag.SCREEN,
                 listener = { listener(ArrowInputsAction(it)) },
+                modifier = modifier
         ) {
             AddEndContent(state, Modifier, listener)
         }
@@ -206,23 +207,37 @@ private fun AddEndContent(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.padding(bottom = 20.dp)
+            modifier = modifier.padding(bottom = 10.dp)
     ) {
-        SightMark(
-                fullShootInfo = state.fullShootInfo,
-                sightMark = state.sightMark,
-                helpListener = helpListener,
-                onExpandClicked = { listener(FullSightMarksClicked) },
-                onEditClicked = { listener(EditSightMarkClicked) },
-                modifier = Modifier.padding(vertical = 10.dp)
-        )
-        RemainingArrowsIndicator(
-                state.fullShootInfo,
-                helpListener,
-                modifier = Modifier.padding(bottom = 10.dp)
-        )
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = CodexTheme.dimens.screenPadding)
+        ) {
+            SightMark(
+                    fullShootInfo = state.fullShootInfo,
+                    sightMark = state.sightMark,
+                    helpListener = helpListener,
+                    onExpandClicked = { listener(FullSightMarksClicked) },
+                    onEditClicked = { listener(EditSightMarkClicked) },
+            )
+            state.fullShootInfo.remainingArrowsAtDistances?.let {
+                Text(
+                        text = stringResource(R.string.input_end__section_delimiter),
+                        style = CodexTypography.NORMAL,
+                        color = CodexTheme.colors.onAppBackground,
+                )
+            }
+            RemainingArrowsIndicator(
+                    state.fullShootInfo,
+                    helpListener,
+            )
+        }
         ArrowsShot(
                 sighters = state.fullShootInfo.shootRound?.sightersCount ?: 0,
                 arrowsShot = state.fullShootInfo.arrowsShot,
@@ -260,7 +275,7 @@ fun ArrowsShot(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_input_end__sighters_title),
                                         helpBody = stringResource(R.string.help_input_end__sighters_body),
-                                ).asHelpState(helpListener)
+                                ).asHelpState(helpListener),
                         )
                         .clickable { onClickSighters() }
         )
@@ -275,7 +290,7 @@ fun ArrowsShot(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_input_end__arrows_shot_title),
                                         helpBody = stringResource(R.string.help_input_end__arrows_shot_body),
-                                ).asHelpState(helpListener)
+                                ).asHelpState(helpListener),
                         )
         )
     }
@@ -300,10 +315,13 @@ fun SightMark(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(5.dp),
             modifier = modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = CodexTheme.dimens.screenPadding)
     ) {
         if (distance != null && distanceUnit != null) {
+            Text(
+                    text = stringResource(R.string.input_end__sight_mark_title),
+                    style = CodexTypography.SMALL_PLUS,
+                    color = CodexTheme.colors.onAppBackground,
+            )
             DataRow(
                     title = stringResource(
                             R.string.input_end__sight_mark,
@@ -313,8 +331,7 @@ fun SightMark(
                     text = sightMark?.sightMark?.toString()
                             ?: stringResource(R.string.input_end__sight_mark_none_placeholder),
                     titleStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                    textStyle = ((if (sightMark == null) CodexTypography.NORMAL else CodexTypography.LARGE))
-                            .copy(color = CodexTheme.colors.onAppBackground),
+                    textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
                     onClick = { onEditClicked() },
                     onClickLabel = stringResource(
                             if (sightMark != null) R.string.input_end__sight_mark_edit
@@ -329,12 +346,15 @@ fun SightMark(
                                     HelpShowcaseItem(
                                             helpTitle = stringResource(R.string.help_input_end__sight_mark_title),
                                             helpBody = stringResource(R.string.help_input_end__sight_mark_body),
-                                    ).asHelpState(helpListener)
+                                    ).asHelpState(helpListener),
                             )
             )
         }
         Text(
-                text = stringResource(R.string.input_end__sight_mark_expand),
+                text = stringResource(
+                        if (distance != null && distanceUnit != null) R.string.input_end__sight_mark_expand
+                        else R.string.input_end__sight_mark_expand_no_distances,
+                ),
                 style = CodexTypography.SMALL.asClickableStyle(),
                 modifier = Modifier
                         .testTag(AddEndTestTag.EXPAND_SIGHT_MARK)
@@ -360,19 +380,19 @@ private fun ScoreIndicator(
                             HelpShowcaseItem(
                                     helpTitle = stringResource(R.string.help_input_end__score_title),
                                     helpBody = stringResource(R.string.help_input_end__score_body),
-                            ).asHelpState(helpListener)
+                            ).asHelpState(helpListener),
                     )
     ) {
         Text(
                 text = stringResource(R.string.input_end__archer_score_header),
-                style = CodexTypography.NORMAL,
+                style = CodexTypography.SMALL_PLUS,
                 color = CodexTheme.colors.onAppBackground,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.clearAndSetSemantics { }
         )
         Text(
                 text = totalScore.toString(),
-                style = CodexTypography.X_LARGE,
+                style = CodexTypography.LARGE,
                 color = CodexTheme.colors.onAppBackground,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -394,47 +414,41 @@ fun RemainingArrowsIndicator(
         modifier: Modifier = Modifier,
 ) {
     fullShootInfo.remainingArrowsAtDistances?.let {
-        val delim = stringResource(R.string.general_comma_separator)
+        val delimiter = stringResource(R.string.general_comma_separator)
         val remainingStrings = it.map { (count, distance) ->
             stringResource(
                     R.string.input_end__round_indicator_at,
                     count,
                     distance,
-                    stringResource(fullShootInfo.distanceUnit!!)
+                    stringResource(fullShootInfo.distanceUnit!!),
             )
         }
 
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = modifier
-                        .padding(horizontal = CodexTheme.dimens.screenPadding)
                         .updateHelpDialogPosition(
                                 HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_input_end__remaining_arrows_title),
                                         helpBody = stringResource(R.string.help_input_end__remaining_arrows_body),
-                                ).asHelpState(helpListener)
+                                ).asHelpState(helpListener),
                         )
         ) {
-            Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-            ) {
-                Text(
-                        text = stringResource(R.string.input_end__round_indicator_label),
-                        style = CodexTypography.NORMAL,
-                        color = CodexTheme.colors.onAppBackground,
-                )
-                Text(
-                        text = remainingStrings[0] + if (it.size > 1) delim.trim() else "",
-                        style = CodexTypography.NORMAL_PLUS,
-                        color = CodexTheme.colors.onAppBackground,
-                        modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
-                )
-            }
+            Text(
+                    text = stringResource(R.string.input_end__round_indicator_label),
+                    style = CodexTypography.SMALL_PLUS,
+                    color = CodexTheme.colors.onAppBackground,
+            )
+            Text(
+                    text = remainingStrings[0] + if (it.size > 1) delimiter.trim() else "",
+                    style = CodexTypography.NORMAL,
+                    color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
+            )
             if (it.size > 1) {
                 Text(
-                        text = remainingStrings.drop(1).joinToString(delim),
-                        style = CodexTypography.NORMAL,
+                        text = remainingStrings.drop(1).joinToString(delimiter),
+                        style = CodexTypography.SMALL,
                         color = CodexTheme.colors.onAppBackground,
                         modifier = Modifier.testTag(AddEndTestTag.REMAINING_ARROWS_LATER)
                 )
@@ -514,7 +528,8 @@ fun Mini_AddEndScreen_Preview() {
     CodexTheme {
         AddEndScreen(
                 AddEndState(
-                        main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS,
+                        main = ShootDetailsStatePreviewHelper.WITH_SHOT_ARROWS
+                                .copy(addEndArrows = List(6) { Arrow(10) }),
                         extras = AddEndExtras(),
                 ),
                 modifier = Modifier.fillMaxSize()
@@ -533,7 +548,7 @@ fun NoRound_AddEndScreen_Preview() {
                 AddEndState(
                         main = ShootDetailsState(
                                 fullShootInfo = ShootPreviewHelperDsl.create { },
-                        ),
+                        ).copy(addEndArrows = List(6) { Arrow(10) }),
                         extras = AddEndExtras(),
                 ),
                 modifier = Modifier.fillMaxSize()
