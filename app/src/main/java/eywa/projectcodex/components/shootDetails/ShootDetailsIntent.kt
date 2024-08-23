@@ -16,4 +16,5 @@ sealed class ShootDetailsIntent {
     data class SetInputtedArrows(val arrows: List<Arrow>) : ShootDetailsIntent()
     data class SetScorePadEndSize(val size: Int) : ShootDetailsIntent()
     data class SetAddEndEndSize(val size: Int) : ShootDetailsIntent()
+    data object ClearState : ShootDetailsIntent()
 }

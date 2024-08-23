@@ -70,6 +70,7 @@ class ShootDetailsRepo(
             is SetInputtedArrows -> state.update { it.copy(addEndArrows = action.arrows) }
             is SetAddEndEndSize -> state.update { it.copy(addEndArrows = emptyList(), addEndSize = action.size) }
             is SetScorePadEndSize -> state.update { it.copy(scorePadEndSize = action.size) }
+            ClearState -> setupState(null)
         }
     }
 
@@ -109,6 +110,7 @@ class ShootDetailsRepo(
         launch {
             state
                     .map { it.shootId }
+                    .distinctUntilChanged()
                     .flatMapLatest { shootId ->
                         if (shootId == null) {
                             return@flatMapLatest flow<Pair<Int?, DatabaseFullShootInfo?>> { emit(null to null) }
@@ -136,6 +138,7 @@ class ShootDetailsRepo(
         launch {
             state
                     .map { it.fullShootInfo?.shootRound?.let { sr -> sr.roundId to sr.roundSubTypeId } }
+                    .distinctUntilChanged()
                     .flatMapLatest {
                         if (it == null) {
                             return@flatMapLatest flow<Pair<DbShortShoots?, DbShortShoots?>> { emit(null to null) }
@@ -144,7 +147,7 @@ class ShootDetailsRepo(
                         db.shootsRepo()
                                 .getMostRecentShootsForRound(10, roundId, subTypeId ?: 1)
                                 .combine(
-                                        db.shootsRepo().getHighestScoreShootsForRound(10, roundId, subTypeId ?: 1),
+                                        db.shootsRepo().getHighestScoreShootsForRound(10, roundId, subTypeId ?: 1)
                                 ) { latest, pbs -> latest to pbs }
                     }.collect { (latest, pbs) ->
                         state.update { it.copy(roundPbs = pbs, pastRoundRecords = latest) }
@@ -154,9 +157,10 @@ class ShootDetailsRepo(
             state
                     .map {
                         val distance = it.fullShootInfo?.remainingArrowsAtDistances?.firstOrNull()?.second
-                                ?: it.fullShootInfo?.fullRoundInfo?.roundDistances?.maxOfOrNull { d -> d.distance }
+                                ?: it.fullShootInfo?.fullRoundInfo?.roundDistances?.minOfOrNull { d -> d.distance }
                         distance to it.fullShootInfo?.round?.isMetric
                     }
+                    .distinctUntilChanged()
                     .flatMapLatest { (distance, isMetric) ->
                         if (distance == null || isMetric == null) return@flatMapLatest emptyFlow()
                         db.sightMarkRepo().getSightMarkForDistance(distance, isMetric)
@@ -188,7 +192,9 @@ class ShootDetailsRepo(
     private fun setupState(shootId: Int?) {
         when {
             shootId == null -> state.update { ShootDetailsState(isError = true).preserveFixedInfo(it) }
-            else -> state.update { ShootDetailsState(shootId = shootId).preserveFixedInfo(it) }
+
+            state.value.shootId != shootId ->
+                state.update { ShootDetailsState(shootId = shootId).preserveFixedInfo(it) }
         }
     }
 
