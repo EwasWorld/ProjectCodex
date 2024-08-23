@@ -23,6 +23,7 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
+import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundRobot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,7 +39,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -483,6 +485,48 @@ class NewScoreInstrumentedTest {
                     checkRoundOptions(listOf("WA 25"))
                     checkRoundOptionsNotExist(listOf("WA 1440", "St. George", "Portsmouth"))
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testCreateAfterDeletion() {
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                clickRow(0) {
+                    clickNavBarAddEnd {
+                        completeEnd("2")
+                    }
+                }
+                pressBack()
+
+                longClickRow(0)
+                clickDropdownMenuItem(ViewScoresRobot.CommonStrings.DELETE_MENU_ITEM)
+                clickDeleteDialogOk()
+                clickOkOnEmptyTableDialog()
+            }
+
+            clickNewScore {
+                pressBack()
+            }
+
+            // For some reason in the local database it doesn't reuse keys
+            // So re-adding the same entry directly will simulate creating a new score
+            scenario.onActivity {
+                runBlocking {
+                    db.add(shootInput)
+                }
+            }
+
+            clickViewScores {
+                clickRow(0) {
+                    clickNavBarAddEnd {
+                        completeEnd("2")
+                    }
+                }
+                pressBack()
             }
         }
     }

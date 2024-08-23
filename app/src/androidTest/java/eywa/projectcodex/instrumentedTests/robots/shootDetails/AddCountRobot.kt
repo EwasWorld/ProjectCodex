@@ -107,7 +107,7 @@ class AddCountRobot(
     fun checkSightMarkIndicator(distance: String, sightMark: String?) {
         performV2Single {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
-            +CodexNodeInteraction.AssertContentDescriptionEquals((sightMark ?: "None") + " $distance sight mark:")
+            +CodexNodeInteraction.AssertContentDescriptionEquals((sightMark ?: "None") + " $distance:")
         }
     }
 

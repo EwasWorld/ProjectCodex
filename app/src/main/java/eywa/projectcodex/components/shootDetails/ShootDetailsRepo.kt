@@ -70,7 +70,7 @@ class ShootDetailsRepo(
             is SetInputtedArrows -> state.update { it.copy(addEndArrows = action.arrows) }
             is SetAddEndEndSize -> state.update { it.copy(addEndArrows = emptyList(), addEndSize = action.size) }
             is SetScorePadEndSize -> state.update { it.copy(scorePadEndSize = action.size) }
-            ClearState -> setupState(null)
+            ClearState -> state.update { ShootDetailsState(shootId = null).preserveFixedInfo(it) }
         }
     }
 
