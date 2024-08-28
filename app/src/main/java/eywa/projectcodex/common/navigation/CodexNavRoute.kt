@@ -16,11 +16,11 @@ import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsScreen
 import eywa.projectcodex.components.archerHandicaps.add.ArcherHandicapsBottomSheetAdd
 import eywa.projectcodex.components.archerInfo.ArcherInfoScreen
 import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarScreen
-import eywa.projectcodex.components.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
-import eywa.projectcodex.components.handicapTables.ui.HandicapTablesScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.newScore.NewScoreScreen
+import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesScreen
+import eywa.projectcodex.components.referenceTables.handicapTables.ui.HandicapTablesScreen
 import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountScreen
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen

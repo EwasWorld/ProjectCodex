@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.handicapTables.ui
+package eywa.projectcodex.components.referenceTables.handicapTables.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -27,11 +27,11 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.asDecimalFormat
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
-import eywa.projectcodex.components.handicapTables.DetailedHandicapBreakdown
-import eywa.projectcodex.components.handicapTables.HandicapScore
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent
-import eywa.projectcodex.components.handicapTables.HandicapTablesState
-import eywa.projectcodex.components.handicapTables.InputType
+import eywa.projectcodex.components.referenceTables.handicapTables.DetailedHandicapBreakdown
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapScore
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesState
+import eywa.projectcodex.components.referenceTables.handicapTables.InputType
 
 @Composable
 fun DetailedHandicapDisplay(

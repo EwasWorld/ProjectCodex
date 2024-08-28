@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.handicapTables.ui
+package eywa.projectcodex.components.referenceTables.handicapTables.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
@@ -17,8 +17,8 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialog
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent
-import eywa.projectcodex.components.handicapTables.HandicapTablesState
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesState
 
 @Composable
 internal fun RoundSelector(

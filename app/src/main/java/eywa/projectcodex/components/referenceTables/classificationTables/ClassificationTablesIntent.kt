@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.classificationTables
+package eywa.projectcodex.components.referenceTables.classificationTables
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.handicapTables.ui
+package eywa.projectcodex.components.referenceTables.handicapTables.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -27,8 +27,8 @@ import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberFieldErrorText
 import eywa.projectcodex.common.sharedUi.testTag
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent
-import eywa.projectcodex.components.handicapTables.HandicapTablesState
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesState
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

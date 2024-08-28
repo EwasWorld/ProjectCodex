@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.handicapTables.ui
+package eywa.projectcodex.components.referenceTables.handicapTables.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,13 +31,13 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
-import eywa.projectcodex.components.handicapTables.HandicapScore
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.HelpShowcaseAction
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.ToggleSimpleView
-import eywa.projectcodex.components.handicapTables.HandicapTablesState
-import eywa.projectcodex.components.handicapTables.HandicapTablesViewModel
-import eywa.projectcodex.components.handicapTables.InputType
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapScore
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent.HelpShowcaseAction
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent.ToggleSimpleView
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesState
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesViewModel
+import eywa.projectcodex.components.referenceTables.handicapTables.InputType
 
 @Composable
 fun HandicapTablesScreen(

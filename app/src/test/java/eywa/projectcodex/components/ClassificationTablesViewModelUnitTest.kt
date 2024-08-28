@@ -12,9 +12,9 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.*
-import eywa.projectcodex.components.classificationTables.ClassificationTablesState
-import eywa.projectcodex.components.classificationTables.ClassificationTablesViewModel
+import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesIntent.SelectRoundDialogAction
+import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesState
+import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesViewModel
 import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.model.Handicap

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.handicapTables
+package eywa.projectcodex.components.referenceTables.handicapTables
 
 import androidx.annotation.StringRes
 import eywa.projectcodex.R

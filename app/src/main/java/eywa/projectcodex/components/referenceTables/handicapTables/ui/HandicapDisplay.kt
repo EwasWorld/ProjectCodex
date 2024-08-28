@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.handicapTables.ui
+package eywa.projectcodex.components.referenceTables.handicapTables.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.padding
@@ -26,9 +26,9 @@ import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.asDecimalFormat
-import eywa.projectcodex.components.handicapTables.HandicapScore
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent
-import eywa.projectcodex.components.handicapTables.HandicapTablesState
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapScore
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesState
 
 @Composable
 internal fun HandicapDisplay(

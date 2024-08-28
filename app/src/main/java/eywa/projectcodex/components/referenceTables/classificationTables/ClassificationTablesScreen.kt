@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.classificationTables
+package eywa.projectcodex.components.referenceTables.classificationTables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -57,7 +57,7 @@ import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEn
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
-import eywa.projectcodex.components.classificationTables.ClassificationTablesIntent.*
+import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesIntent.*
 
 @Composable
 fun ClassificationTablesScreen(

@@ -1,4 +1,4 @@
-package eywa.projectcodex.components.handicapTables
+package eywa.projectcodex.components.referenceTables.handicapTables
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent

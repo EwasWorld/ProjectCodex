@@ -13,9 +13,9 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
-import eywa.projectcodex.components.handicapTables.HandicapTablesIntent.*
-import eywa.projectcodex.components.handicapTables.HandicapTablesState
-import eywa.projectcodex.components.handicapTables.HandicapTablesViewModel
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesIntent.*
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesState
+import eywa.projectcodex.components.referenceTables.handicapTables.HandicapTablesViewModel
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
