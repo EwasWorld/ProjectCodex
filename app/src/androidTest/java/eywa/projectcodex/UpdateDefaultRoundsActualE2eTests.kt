@@ -2,20 +2,20 @@ package eywa.projectcodex
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.pressBack
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
-import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.hiltModules.LocalUpdateDefaultRoundsModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import org.junit.*
+import org.junit.After
+import org.junit.AfterClass
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
@@ -27,15 +27,17 @@ class UpdateDefaultRoundsActualE2eTests {
             LocalUpdateDefaultRoundsModule.useActual = true
         }
 
+        @JvmStatic
         @Suppress("unused")
         @BeforeClass
-        fun classSetup() {
+        fun classSetup(): Unit {
             LocalUpdateDefaultRoundsModule.useActual = true
         }
 
+        @JvmStatic
         @Suppress("unused")
         @AfterClass
-        fun classTeardown() {
+        fun classTeardown(): Unit {
             LocalUpdateDefaultRoundsModule.useActual = false
         }
     }

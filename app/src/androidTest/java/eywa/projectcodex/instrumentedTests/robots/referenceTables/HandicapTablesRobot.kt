@@ -1,8 +1,8 @@
-package eywa.projectcodex.instrumentedTests.robots
+package eywa.projectcodex.instrumentedTests.robots.referenceTables
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.navigation.TabSwitcherGroup
-import eywa.projectcodex.components.handicapTables.ui.HandicapTablesTestTag
+import eywa.projectcodex.components.referenceTables.handicapTables.ui.HandicapTablesTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
@@ -10,6 +10,7 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import eywa.projectcodex.instrumentedTests.robots.common.TabSwitcherRobot
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot

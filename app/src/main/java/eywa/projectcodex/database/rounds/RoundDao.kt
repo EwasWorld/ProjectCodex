@@ -1,6 +1,12 @@
 package eywa.projectcodex.database.rounds
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import eywa.projectcodex.database.rounds.Round.Companion.TABLE_NAME
 import kotlinx.coroutines.flow.Flow
 
@@ -8,6 +14,9 @@ import kotlinx.coroutines.flow.Flow
 interface RoundDao : RoundTypeDao<Round> {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     override suspend fun insert(insertItem: Round)
+
+    @Query("SELECT * FROM $TABLE_NAME")
+    fun getAllRounds(): Flow<List<Round>>
 
     @Transaction
     @Query("SELECT * FROM $TABLE_NAME")

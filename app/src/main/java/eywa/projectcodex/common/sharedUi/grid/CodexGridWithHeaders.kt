@@ -34,7 +34,7 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
         extraData: ExtraData,
         modifier: Modifier = Modifier,
         columns: List<CodexGridColumn> = List(columnMetadata.size) { CodexGridColumn.WrapContent },
-        helpListener: (HelpShowcaseIntent) -> Unit = { },
+        helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resource = LocalContext.current.resources
 

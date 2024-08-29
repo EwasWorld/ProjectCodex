@@ -8,6 +8,6 @@ enum class ClassificationBow(val rawName: String) {
     ;
 
     companion object {
-        val backwardsMap = values().associateBy { it.rawName }
+        val backwardsMap = entries.associateBy { it.rawName }
     }
 }

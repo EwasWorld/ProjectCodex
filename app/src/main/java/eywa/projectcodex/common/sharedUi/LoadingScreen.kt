@@ -1,5 +1,6 @@
 package eywa.projectcodex.common.sharedUi
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
@@ -15,7 +16,9 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 fun LoadingScreen() {
     Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                    .fillMaxSize()
+                    .background(CodexTheme.colors.appBackground)
     ) {
         Text(
                 text = stringResource(R.string.general_loading),

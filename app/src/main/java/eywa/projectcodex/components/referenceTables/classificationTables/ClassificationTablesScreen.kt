@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -35,7 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
@@ -83,7 +83,7 @@ fun ClassificationTablesScreen(
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
                         .padding(vertical = 20.dp)
-                        .testTag(ClassificationTablesTestTag.SCREEN.getTestTag())
+                        .testTag(ClassificationTablesTestTag.SCREEN)
         ) {
             CategorySelectors(state, listener, Modifier.padding(bottom = 4.dp))
 
@@ -91,7 +91,7 @@ fun ClassificationTablesScreen(
                     shape = RoundedCornerShape(
                             if (!state.updateDefaultRoundsState.hasTaskFinished) CodexTheme.dimens.cornerRounding
                             else if (state.selectRoundDialogState.selectedRound == null) CodexTheme.dimens.smallCornerRounding
-                            else CodexTheme.dimens.cornerRounding
+                            else CodexTheme.dimens.cornerRounding,
                     ),
                     border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
                     color = CodexTheme.colors.appBackground,
@@ -99,7 +99,7 @@ fun ClassificationTablesScreen(
             ) {
                 RoundsUpdatingWrapper(
                         state = state.updateDefaultRoundsState,
-                        warningModifier = Modifier.padding(10.dp)
+                        warningModifier = Modifier.padding(10.dp),
                 ) {
                     Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -131,43 +131,42 @@ private fun CategorySelectors(
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.updateHelpDialogPosition(
-                    HelpState(
-                            helpListener = helpListener,
+                    HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_classification_tables__categories_title),
                             helpBody = stringResource(R.string.help_classification_tables__categories_body),
-                    ),
+                    ).asHelpState(helpListener),
             )
     ) {
         DataRow(
                 title = stringResource(R.string.classification_tables__gender_title),
                 text = stringResource(
                         if (state.isGent) R.string.classification_tables__gender_male
-                        else R.string.classification_tables__gender_female
+                        else R.string.classification_tables__gender_female,
                 ),
                 helpState = null,
                 onClick = { listener(ToggleIsGent) },
                 accessibilityRole = Role.Switch,
                 modifier = Modifier
                         .padding(vertical = 7.dp)
-                        .testTag(ClassificationTablesTestTag.GENDER_SELECTOR.getTestTag())
+                        .testTag(ClassificationTablesTestTag.GENDER_SELECTOR)
         )
-        Input(
+        CategoryInput(
                 label = stringResource(R.string.classification_tables__age_title),
                 currentValue = state.age.rawName,
-                values = ClassificationAge.values().map { it.rawName },
+                values = ClassificationAge.entries.map { it.rawName },
                 testTag = ClassificationTablesTestTag.AGE_SELECTOR,
                 onClick = { listener(AgeClicked) },
-                onItemClick = { listener(AgeSelected(ClassificationAge.values()[it])) },
+                onItemClick = { listener(AgeSelected(ClassificationAge.entries[it])) },
                 onDismiss = { listener(CloseDropdown) },
                 expanded = state.expanded == ClassificationTablesState.Dropdown.AGE,
         )
-        Input(
+        CategoryInput(
                 label = stringResource(R.string.classification_tables__bow_title),
                 currentValue = state.bow.rawName,
-                values = ClassificationBow.values().map { it.rawName },
+                values = ClassificationBow.entries.map { it.rawName },
                 testTag = ClassificationTablesTestTag.BOW_SELECTOR,
                 onClick = { listener(BowClicked) },
-                onItemClick = { listener(BowSelected(ClassificationBow.values()[it])) },
+                onItemClick = { listener(BowSelected(ClassificationBow.entries[it])) },
                 onDismiss = { listener(CloseDropdown) },
                 expanded = state.expanded == ClassificationTablesState.Dropdown.BOW,
                 modifier = Modifier.padding(top = 5.dp)
@@ -176,12 +175,12 @@ private fun CategorySelectors(
 }
 
 @Composable
-private fun Input(
+fun CategoryInput(
         label: String,
         currentValue: String,
         expanded: Boolean,
         values: List<String>,
-        testTag: ClassificationTablesTestTag,
+        testTag: CodexTestTag,
         onClick: () -> Unit,
         onItemClick: (Int) -> Unit,
         onDismiss: () -> Unit,
@@ -194,7 +193,7 @@ private fun Input(
             onClick = onClick,
             modifier = modifier
                     .padding(vertical = 7.dp)
-                    .testTag(testTag.getTestTag())
+                    .testTag(testTag)
     )
     SimpleDialog(
             isShown = expanded,
@@ -205,7 +204,7 @@ private fun Input(
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
                         onClick = onDismiss,
-                )
+                ),
         ) {
             Column {
                 values.forEachIndexed { index, value ->
@@ -217,7 +216,7 @@ private fun Input(
                                     .clickable { onItemClick(index) }
                                     .fillMaxWidth()
                                     .padding(10.dp)
-                                    .testTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM.getTestTag())
+                                    .testTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM)
                     )
                 }
             }
@@ -234,16 +233,15 @@ private fun Table(
         Surface(
                 shape = RoundedCornerShape(
                         if (entries.isEmpty()) CodexTheme.dimens.smallCornerRounding
-                        else CodexTheme.dimens.cornerRounding
+                        else CodexTheme.dimens.cornerRounding,
                 ),
                 color = CodexTheme.colors.listItemOnAppBackground,
                 modifier = Modifier
                         .updateHelpDialogPosition(
-                                HelpState(
-                                        helpListener = helpListener,
+                                HelpShowcaseItem(
                                         helpTitle = stringResource(R.string.help_classification_tables__table_title),
                                         helpBody = stringResource(R.string.help_classification_tables__table_body),
-                                )
+                                ).asHelpState(helpListener),
                         )
                         .horizontalScroll(rememberScrollState())
                         .padding(horizontal = 20.dp)
@@ -253,7 +251,7 @@ private fun Table(
                 Text(
                         text = stringResource(R.string.classification_tables__no_tables),
                         modifier = Modifier
-                                .testTag(ClassificationTablesTestTag.TABLE_NO_DATA.getTestTag())
+                                .testTag(ClassificationTablesTestTag.TABLE_NO_DATA)
                                 .padding(10.dp)
                 )
             }
@@ -266,7 +264,7 @@ private fun Table(
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
 
-                    ClassificationTableColumn.values().forEach {
+                    ClassificationTableColumn.entries.forEach {
                         item {
                             Text(
                                     text = it.header.get(),
@@ -276,7 +274,7 @@ private fun Table(
                         }
                     }
                     entries.forEach { (entry, isActual) ->
-                        ClassificationTableColumn.values().forEach {
+                        ClassificationTableColumn.entries.forEach {
                             item {
                                 Text(
                                         text = it.data(entry).get(),
@@ -407,7 +405,7 @@ fun ClassificationTablesScreen_Preview() {
                             "9,Women,Recurve,Senior,WA 1440 (90m),1162",
                     ).mapNotNull { ClassificationTableEntry.fromString(it) },
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
-            )
+            ),
     ) {}
 }
 
@@ -433,6 +431,6 @@ fun Empty_ClassificationTablesScreen_Preview() {
                             "9,Women,Recurve,Senior,WA 1440 (90m),1283",
                     ).mapNotNull { ClassificationTableEntry.fromString(it)?.copy(score = null, handicap = 55) },
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
-            )
+            ),
     ) {}
 }

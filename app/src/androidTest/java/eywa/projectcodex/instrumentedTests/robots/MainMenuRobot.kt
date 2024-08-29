@@ -3,6 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.mainMenu.MainMenuTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 
 class MainMenuRobot(
         composeTestRule: ComposeTestRule<MainActivity>

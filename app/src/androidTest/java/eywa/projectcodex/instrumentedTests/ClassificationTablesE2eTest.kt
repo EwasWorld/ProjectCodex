@@ -17,9 +17,8 @@ import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
-import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
-import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -85,22 +84,67 @@ class ClassificationTablesE2eTest {
 
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
-                clickTab(ClassificationTablesRobot::class) {
+                clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                     checkAge("Senior")
                     checkGender()
                     checkBowStyle("Recurve")
 
                     checkClassifications(
                             listOf(
-                                    ClassificationTablesRobot.TableRow("Archer 3rd", null, 72, false),
-                                    ClassificationTablesRobot.TableRow("Archer 2nd", null, 65, false),
-                                    ClassificationTablesRobot.TableRow("Archer 1st", null, 58, false),
-                                    ClassificationTablesRobot.TableRow("Bowman 3rd", null, 51, false),
-                                    ClassificationTablesRobot.TableRow("Bowman 2nd", null, 44, false),
-                                    ClassificationTablesRobot.TableRow("Bowman 1st", null, 37, false),
-                                    ClassificationTablesRobot.TableRow("Master Bowman", null, 30, false),
-                                    ClassificationTablesRobot.TableRow("Grand MB", null, 23, false),
-                                    ClassificationTablesRobot.TableRow("Elite GMB", null, 16, false),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 3rd",
+                                            null,
+                                            72,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 2nd",
+                                            null,
+                                            65,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 1st",
+                                            null,
+                                            58,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 3rd",
+                                            null,
+                                            51,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 2nd",
+                                            null,
+                                            44,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 1st",
+                                            null,
+                                            37,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Master Bowman",
+                                            null,
+                                            30,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Grand MB",
+                                            null,
+                                            23,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Elite GMB",
+                                            null,
+                                            16,
+                                            false
+                                    ),
                             )
                     )
 
@@ -110,15 +154,51 @@ class ClassificationTablesE2eTest {
                     selectRoundsRobot.checkSelectedRound("York")
                     checkClassifications(
                             listOf(
-                                    ClassificationTablesRobot.TableRow("Archer 3rd", 278, 72),
-                                    ClassificationTablesRobot.TableRow("Archer 2nd", 394, 65),
-                                    ClassificationTablesRobot.TableRow("Archer 1st", 534, 58),
-                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 684, 51),
-                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 829, 44),
-                                    ClassificationTablesRobot.TableRow("Bowman 1st", 957, 37),
-                                    ClassificationTablesRobot.TableRow("Master Bowman", 1061, 30),
-                                    ClassificationTablesRobot.TableRow("Grand MB", 1142, 23),
-                                    ClassificationTablesRobot.TableRow("Elite GMB", 1205, 16),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 3rd",
+                                            278,
+                                            72
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 2nd",
+                                            394,
+                                            65
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 1st",
+                                            534,
+                                            58
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 3rd",
+                                            684,
+                                            51
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 2nd",
+                                            829,
+                                            44
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 1st",
+                                            957,
+                                            37
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Master Bowman",
+                                            1061,
+                                            30
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Grand MB",
+                                            1142,
+                                            23
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Elite GMB",
+                                            1205,
+                                            16
+                                    ),
                             )
                     )
 
@@ -127,15 +207,55 @@ class ClassificationTablesE2eTest {
                     }
                     checkClassifications(
                             listOf(
-                                    ClassificationTablesRobot.TableRow("Archer 3rd", 427, 72),
-                                    ClassificationTablesRobot.TableRow("Archer 2nd", 571, 65),
-                                    ClassificationTablesRobot.TableRow("Archer 1st", 721, 58),
-                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 863, 51),
-                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 985, 44),
-                                    ClassificationTablesRobot.TableRow("Bowman 1st", 1083, 37, false),
-                                    ClassificationTablesRobot.TableRow("Master Bowman", 1160, 30, false),
-                                    ClassificationTablesRobot.TableRow("Grand MB", 1218, 23, false),
-                                    ClassificationTablesRobot.TableRow("Elite GMB", 1259, 16, false),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 3rd",
+                                            427,
+                                            72
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 2nd",
+                                            571,
+                                            65
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 1st",
+                                            721,
+                                            58
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 3rd",
+                                            863,
+                                            51
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 2nd",
+                                            985,
+                                            44
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 1st",
+                                            1083,
+                                            37,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Master Bowman",
+                                            1160,
+                                            30,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Grand MB",
+                                            1218,
+                                            23,
+                                            false
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Elite GMB",
+                                            1259,
+                                            16,
+                                            false
+                                    ),
                             )
                     )
 
@@ -147,15 +267,51 @@ class ClassificationTablesE2eTest {
                     setBowStyle("Compound")
                     checkClassifications(
                             listOf(
-                                    ClassificationTablesRobot.TableRow("Archer 3rd", 236, 75),
-                                    ClassificationTablesRobot.TableRow("Archer 2nd", 325, 69),
-                                    ClassificationTablesRobot.TableRow("Archer 1st", 432, 63),
-                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 555, 57),
-                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 684, 51),
-                                    ClassificationTablesRobot.TableRow("Bowman 1st", 809, 45),
-                                    ClassificationTablesRobot.TableRow("Master Bowman", 923, 39),
-                                    ClassificationTablesRobot.TableRow("Grand MB", 1019, 33),
-                                    ClassificationTablesRobot.TableRow("Elite GMB", 1098, 27),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 3rd",
+                                            236,
+                                            75
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 2nd",
+                                            325,
+                                            69
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 1st",
+                                            432,
+                                            63
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 3rd",
+                                            555,
+                                            57
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 2nd",
+                                            684,
+                                            51
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 1st",
+                                            809,
+                                            45
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Master Bowman",
+                                            923,
+                                            39
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Grand MB",
+                                            1019,
+                                            33
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Elite GMB",
+                                            1098,
+                                            27
+                                    ),
                             )
                     )
 
@@ -164,21 +320,57 @@ class ClassificationTablesE2eTest {
                     }
                     checkClassifications(
                             listOf(
-                                    ClassificationTablesRobot.TableRow("Archer 3rd", 370, 75),
-                                    ClassificationTablesRobot.TableRow("Archer 2nd", 487, 69),
-                                    ClassificationTablesRobot.TableRow("Archer 1st", 614, 63),
-                                    ClassificationTablesRobot.TableRow("Bowman 3rd", 742, 57),
-                                    ClassificationTablesRobot.TableRow("Bowman 2nd", 863, 51),
-                                    ClassificationTablesRobot.TableRow("Bowman 1st", 969, 45),
-                                    ClassificationTablesRobot.TableRow("Master Bowman", 1057, 39),
-                                    ClassificationTablesRobot.TableRow("Grand MB", 1129, 33),
-                                    ClassificationTablesRobot.TableRow("Elite GMB", 1187, 27),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 3rd",
+                                            370,
+                                            75
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 2nd",
+                                            487,
+                                            69
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Archer 1st",
+                                            614,
+                                            63
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 3rd",
+                                            742,
+                                            57
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 2nd",
+                                            863,
+                                            51
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Bowman 1st",
+                                            969,
+                                            45
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Master Bowman",
+                                            1057,
+                                            39
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Grand MB",
+                                            1129,
+                                            33
+                                    ),
+                                    eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot.TableRow(
+                                            "Elite GMB",
+                                            1187,
+                                            27
+                                    ),
                             )
                     )
 
                     clickTab(HandicapTablesRobot::class) {}
                 }
-                clickTab(ClassificationTablesRobot::class) {
+                clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                     selectRoundsRobot.checkSelectedRound("York")
                     selectRoundsRobot.checkSelectedSubtype("Hereford")
                     checkGender(false)
@@ -207,7 +399,7 @@ class ClassificationTablesE2eTest {
 
         composeTestRule.mainMenuRobot {
             clickHandicapTables {
-                clickTab(ClassificationTablesRobot::class) {
+                clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                     checkAge("U15")
                     checkGender(false)
                     checkBowStyle("Barebow")
@@ -218,7 +410,7 @@ class ClassificationTablesE2eTest {
                         clickRound("WA 25")
                     }
                     clickTab(HandicapTablesRobot::class) {
-                        clickTab(ClassificationTablesRobot::class) {}
+                        clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {}
                     }
                     selectRoundsRobot.checkSelectedRound("WA 25")
                 }

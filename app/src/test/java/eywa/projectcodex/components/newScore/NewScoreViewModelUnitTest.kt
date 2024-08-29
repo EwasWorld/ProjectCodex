@@ -26,7 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import java.util.*
+import java.util.Calendar
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NewScoreViewModelUnitTest {
@@ -67,6 +67,7 @@ class NewScoreViewModelUnitTest {
                 updateDefaultRoundsTask = updateDefaultRoundsTask,
                 helpShowcase = helpShowcaseUseCase,
                 savedStateHandle = savedStateHandle.mock,
+                repo = mock { },
         )
     }
 

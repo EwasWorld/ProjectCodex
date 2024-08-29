@@ -32,9 +32,8 @@ import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
-import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
-import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot.PastRecordsDialogItem
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -494,7 +493,7 @@ class ShootDetailsStatsE2eTest {
                         openHandicapTablesInFull {
                             checkInputText("55")
                             selectRoundsRobot.checkSelectedSubtype("Hereford")
-                            clickTab(ClassificationTablesRobot::class) {
+                            clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                                 selectRoundsRobot.checkSelectedSubtype("Hereford")
                                 selectRoundsRobot.clickSelectedRound {
                                     clickRound("WA 1440")
@@ -506,7 +505,7 @@ class ShootDetailsStatsE2eTest {
                                     clickRound("Round1")
                                 }
                             }
-                            clickTab(ClassificationTablesRobot::class) {
+                            clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                                 selectRoundsRobot.checkSelectedSubtype("Hereford")
                             }
                             pressBack()

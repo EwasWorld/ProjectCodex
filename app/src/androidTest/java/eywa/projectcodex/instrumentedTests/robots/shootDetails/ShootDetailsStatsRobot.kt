@@ -11,9 +11,9 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.ArcherHandicapRobot
 import eywa.projectcodex.instrumentedTests.robots.ArcherInfoRobot
-import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
-import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 
 class ShootDetailsStatsRobot(

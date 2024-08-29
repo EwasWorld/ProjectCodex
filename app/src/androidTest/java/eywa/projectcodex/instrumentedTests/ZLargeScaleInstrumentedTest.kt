@@ -25,13 +25,13 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.AboutRobot
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
-import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.MainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.SightMarkDetailRobot
 import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.EditEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.InsertEndRobot

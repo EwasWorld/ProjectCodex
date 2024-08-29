@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awards__title">Awards and Badges</string>
+    <string name="awards__tab_switcher_title">Awards</string>
+
+    <string name="awards__agb_section_title">AGB Awards</string>
+    <string name="awards__agb_section_subtitle">Awards given out by Archery GB which must be requested in person at the end of a record status shoot</string>
+    <string name="awards__agb_disclaimer">Note: awards can only be achieved by completing the category-appropriate round. For example, a lady can claim a rose award for a Hereford where a gentleman must shoot a York</string>
+    <string name="awards__club_section_title">Club Awards</string>
+    <string name="awards__club_section_subtitle">Common awards given out by a club\'s records officer. Not all clubs offer these badges or use the same system</string>
+    <string name="awards__club_round_title">Round: %s</string>
+    <string name="awards__club_252_disclaimer">Note: colours may vary</string>
+
+    <string name="awards__name_title">Award</string>
+    <string name="awards__round_title">Round</string>
+    <string name="awards__score_title">Score</string>
+
+    <string name="awards__score_orange_title">Orange</string>
+    <string name="awards__score_green_title">Green</string>
+    <string name="awards__score_white_title">White</string>
+    <string name="awards__score_black_title">Black</string>
+    <string name="awards__score_blue_title">Blue</string>
+    <string name="awards__score_red_title">Red</string>
+    <string name="awards__score_gold_title">Gold</string>
+    <string name="awards__score_purple_title">Purple</string>
+    <string name="awards__score_content_description">%1$s %2$s badge</string> <!-- 1000 white badge -->
+    <string name="awards__club_252_distance_title">%1$d yds</string> <!-- 10 yds -->
+
+    <string name="help_awards__name_title">Award</string>
+    <string name="help_awards__name_body">Archery GB gives out badges for certain scores at certain rounds.</string>
+    <string name="help_awards__round_title">Round</string>
+    <string name="help_awards__round_body">Round for which the award is given</string>
+    <string name="help_awards__score_title">Score</string>
+    <string name="help_awards__score_body">Score required to achieve a certain level of badge</string>
+
+</resources>

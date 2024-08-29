@@ -19,6 +19,7 @@ import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarScreen
 import eywa.projectcodex.components.emailScores.EmailScoresScreen
 import eywa.projectcodex.components.mainMenu.MainMenuScreen
 import eywa.projectcodex.components.newScore.NewScoreScreen
+import eywa.projectcodex.components.referenceTables.awards.ui.AwardsScreen
 import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.referenceTables.handicapTables.ui.HandicapTablesScreen
 import eywa.projectcodex.components.settings.SettingsScreen
@@ -91,6 +92,23 @@ enum class CodexNavRoute : ScreenNavRoute {
             ArcherInfoScreen(navController)
         }
     },
+    AWARDS {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.awards__tab_switcher_title),
+                group = TabSwitcherGroup.REFERENCES,
+                navRoute = this,
+                position = 2,
+        )
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.awards__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            AwardsScreen()
+        }
+    },
     CLASSIFICATION_TABLES {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(
@@ -109,7 +127,7 @@ enum class CodexNavRoute : ScreenNavRoute {
 
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-                stringResource(R.string.main_menu__reference_tables)
+                stringResource(R.string.classification_tables__title)
 
         @Composable
         override fun Screen(navController: NavController) {
@@ -142,7 +160,7 @@ enum class CodexNavRoute : ScreenNavRoute {
 
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-                stringResource(R.string.main_menu__reference_tables)
+                stringResource(R.string.handicap_tables__title)
 
         @Composable
         override fun Screen(navController: NavController) {
@@ -169,7 +187,7 @@ enum class CodexNavRoute : ScreenNavRoute {
                     ?.takeIf { it != DEFAULT_INT_NAV_ARG }
             return stringResource(
                     if (id == null) R.string.create_round__title
-                    else R.string.create_round__edit_title
+                    else R.string.create_round__edit_title,
             )
         }
 
@@ -201,7 +219,7 @@ enum class CodexNavRoute : ScreenNavRoute {
                     ?: false
             return stringResource(
                     if (!isSighters) R.string.add_count__title
-                    else R.string.add_count__sighters_title
+                    else R.string.add_count__sighters_title,
             )
         }
 
@@ -331,7 +349,7 @@ enum class CodexNavRoute : ScreenNavRoute {
     override val bottomSheets: List<BottomSheetNavRoute>? = null
 
     companion object {
-        private val baseRouteMapping = values()
+        private val baseRouteMapping = entries
                 .flatMap { it.bottomSheets.orEmpty().plus(it) }
                 .associateBy { it.routeBase }
 
@@ -347,5 +365,5 @@ class CodexNavRouteModule {
     @Singleton
     @Provides
     @ElementsIntoSet
-    fun providesCodexNavRoutes(): Set<ScreenNavRoute> = CodexNavRoute.values().toSet()
+    fun providesCodexNavRoutes(): Set<ScreenNavRoute> = CodexNavRoute.entries.toSet()
 }

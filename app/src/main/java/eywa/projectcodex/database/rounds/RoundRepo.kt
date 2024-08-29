@@ -2,6 +2,7 @@ package eywa.projectcodex.database.rounds
 
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundFilter
+import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsDbRepo
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import kotlinx.coroutines.flow.Flow
@@ -14,8 +15,9 @@ class RoundRepo(
         private val roundArrowCountDao: RoundArrowCountDao,
         private val roundSubTypeDao: RoundSubTypeDao,
         private val roundDistanceDao: RoundDistanceDao,
-) {
-    val fullRoundsInfo = roundDao.getAllRoundsFullInfo()
+) : UpdateDefaultRoundsDbRepo {
+    val allRounds = roundDao.getAllRounds()
+    override val fullRoundsInfo = roundDao.getAllRoundsFullInfo()
     val wa1440FullRoundInfo = roundDao.getFullRoundInfo(WA_1440_DEFAULT_ROUND_ID)
 
     fun fullRoundsInfo(filters: SelectRoundEnabledFilters): Flow<List<FullRoundInfo>> =
@@ -34,7 +36,7 @@ class RoundRepo(
      * but [updateItems] contains either no [UpdateType.NEW] [RoundArrowCount] or no [UpdateType.NEW] [RoundDistance]
      * with the same [Round.roundId]
      */
-    suspend fun updateRounds(updateItems: Map<Any, UpdateType>) {
+    override suspend fun updateRounds(updateItems: Map<Any, UpdateType>) {
         val newRounds = updateItems.filter { it.value == UpdateType.NEW && it.key is Round }
         newRounds.forEach { newRound ->
             require(
@@ -65,6 +67,8 @@ class RoundRepo(
 
     companion object {
         const val WA_1440_DEFAULT_ROUND_ID = 8
+        const val CLUB_252_DEFAULT_ROUND_ID = 28
+        const val FROSTBITE_DEFAULT_ROUND_ID = 27
 
         /**
          * Sort [Round]s to be at the start

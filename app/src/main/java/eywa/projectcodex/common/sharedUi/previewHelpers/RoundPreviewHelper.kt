@@ -7,6 +7,70 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 
 object RoundPreviewHelper {
+        // TODO Can it load the rounds automatically?
+//    suspend fun getFullRoundInfo(context: Context): List<FullRoundInfo> {
+//        val allItems = mutableListOf<Any>()
+//
+//        val repo = object : UpdateDefaultRoundsDbRepo {
+//            override val fullRoundsInfo: Flow<List<FullRoundInfo>>
+//                get() = flow { emit(emptyList()) }
+//
+//            override suspend fun updateRounds(updateItems: Map<Any, UpdateType>) {
+//                allItems.addAll(updateItems.keys)
+//            }
+//        }
+//
+//        val datastore = object : CodexDatastore {
+//            override fun <T : Any> get(key: DatastoreKey<T>): Flow<T> {
+//                return flow { emit(key.defaultValue) }
+//            }
+//
+//            override fun get(keys: Collection<DatastoreKey<*>>): Flow<Map<DatastoreKey<*>, *>> {
+//                return flow { emit(keys.associateWith { it.defaultValue }) }
+//            }
+//
+//            override suspend fun <T : Any> set(key: DatastoreKey<T>, value: T) {}
+//            override suspend fun toggle(key: DatastoreKey<Boolean>) {}
+//        }
+//
+//        val resources = context.resources
+//
+//        UpdateDefaultRoundsTaskImpl(
+//                repository = repo,
+//                resources = resources,
+//                datastore = datastore,
+//                logger = CustomLogger(),
+//        ).runTask()
+//
+//        return allItems.asFullRoundInfo()
+//    }
+//
+//    private fun List<Any>.asFullRoundInfo(): List<FullRoundInfo> {
+//        val groupedByClass = groupBy { it::class }
+//        val info = mutableListOf<FullRoundInfo>()
+//
+//        for (round in groupedByClass[Round::class]!!) {
+//            val roundId = (round as Round).roundId
+//
+//            info.add(
+//                    FullRoundInfo(
+//                            round = round,
+//                            roundSubTypes = groupedByClass[RoundSubType::class]!!
+//                                    .map { it as RoundSubType }
+//                                    .filter { it.roundId == roundId },
+//                            roundArrowCounts = groupedByClass[RoundArrowCount::class]!!
+//                                    .map { it as RoundArrowCount }
+//                                    .filter { it.roundId == roundId },
+//                            roundDistances = groupedByClass[RoundDistance::class]!!
+//                                    .map { it as RoundDistance }
+//                                    .filter { it.roundId == roundId },
+//                    ),
+//            )
+//        }
+//
+//        return info
+//    }
+
     val outdoorImperialRoundData = FullRoundInfo(
             round = Round(
                     roundId = 1,
@@ -226,6 +290,7 @@ object RoundPreviewHelper {
                         ),
                 ),
         )
+
         val wa25RoundData = FullRoundInfo(
                 round = Round(
                         roundId = 5,
@@ -252,6 +317,7 @@ object RoundPreviewHelper {
                         ),
                 ),
         )
+
         val wa1440RoundData = FullRoundInfo(
                 round = Round(
                         roundId = 6,
@@ -492,5 +558,124 @@ object RoundPreviewHelper {
                                 distance = 70,
                         ),
                 ),
+        )
+
+        val frostbite = FullRoundInfo(
+                round = Round(
+                        roundId = 8,
+                        name = "frostbite",
+                        displayName = "Frostbite",
+                        isOutdoor = true,
+                        isMetric = true,
+                        defaultRoundId = 27,
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 8,
+                                distanceNumber = 1,
+                                faceSizeInCm = 80.0,
+                                arrowCount = 36,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 8,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 30,
+                        ),
+                ),
+        )
+
+        val club252 = FullRoundInfo(
+                round = Round(
+                        roundId = 9,
+                        name = "club252",
+                        displayName = "Club 252",
+                        isOutdoor = true,
+                        isMetric = false,
+                        defaultRoundId = 28,
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 9,
+                                distanceNumber = 1,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 36,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 9,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 100,
+                        ),
+                ),
+        )
+
+        val wa18RoundData = FullRoundInfo(
+                round = Round(
+                        roundId = 10,
+                        name = "wa18",
+                        displayName = "WA 18",
+                        isOutdoor = false,
+                        isMetric = true,
+                        defaultRoundId = 24,
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 10,
+                                distanceNumber = 1,
+                                faceSizeInCm = 40.0,
+                                arrowCount = 60,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 10,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 18,
+                        ),
+                ),
+        )
+
+        val wa900RoundData = FullRoundInfo(
+                round = Round(
+                        roundId = 11,
+                        name = "wa900",
+                        displayName = "WA 900",
+                        isOutdoor = true,
+                        isMetric = true,
+                        defaultRoundId = 12,
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 11,
+                                distanceNumber = 1,
+                                faceSizeInCm = 122.0,
+                                arrowCount = 30,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 11,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 18,
+                        ),
+                ),
+        )
+
+        val allRounds = listOf(
+                yorkRoundData,
+                wa70RoundData,
+                wa18RoundData,
+                wa25RoundData,
+                wa1440RoundData,
+                wa900RoundData,
+                club252,
+                frostbite,
         )
 }

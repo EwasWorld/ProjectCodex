@@ -15,9 +15,8 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archer.DatabaseArcherHandicap
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
-import eywa.projectcodex.instrumentedTests.robots.ClassificationTablesRobot
-import eywa.projectcodex.instrumentedTests.robots.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -140,7 +139,7 @@ class HandicapTablesE2eTest {
                 checkIsAdvancedView()
                 checkDetailedBreakdownHidden()
 
-                clickTab(ClassificationTablesRobot::class) {
+                clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                     clickTab(HandicapTablesRobot::class) {}
                 }
                 checkInputMethod(false)
@@ -182,7 +181,7 @@ class HandicapTablesE2eTest {
                 selectRoundsRobot.clickSelectedRound {
                     clickRound("WA 25")
                 }
-                clickTab(ClassificationTablesRobot::class) {
+                clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                     clickTab(HandicapTablesRobot::class) {}
                 }
                 selectRoundsRobot.checkSelectedRound("WA 25")
