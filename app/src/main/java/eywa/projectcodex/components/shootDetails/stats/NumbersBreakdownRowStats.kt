@@ -11,12 +11,14 @@ open class NumbersBreakdownRowStats(
         arrows: List<DatabaseArrowScore>,
         endSize: Int,
         val handicap: Double?,
-        override val isTotalRow: Boolean = false,
+        private val isTotal: Boolean = false,
 ) : CodexGridRowMetadata {
     val averageEnd: Float
     val endStDev: Float
     val averageArrow: Float
     val arrowStdDev: Float
+
+    override fun isTotal(): Boolean = isTotal
 
     init {
         val scores = arrows.map { it.score }

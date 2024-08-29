@@ -22,6 +22,7 @@ import eywa.projectcodex.components.newScore.NewScoreScreen
 import eywa.projectcodex.components.referenceTables.awards.ui.AwardsScreen
 import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.referenceTables.handicapTables.ui.HandicapTablesScreen
+import eywa.projectcodex.components.referenceTables.rankingPoints.RankingPointsScreen
 import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountScreen
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
@@ -194,6 +195,23 @@ enum class CodexNavRoute : ScreenNavRoute {
         @Composable
         override fun Screen(navController: NavController) {
             NewScoreScreen(navController)
+        }
+    },
+    RANKING_POINTS {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.ranking_points__tab_switcher_title),
+                group = TabSwitcherGroup.REFERENCES,
+                navRoute = this,
+                position = 3,
+        )
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.ranking_points__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            RankingPointsScreen()
         }
     },
     SETTINGS {

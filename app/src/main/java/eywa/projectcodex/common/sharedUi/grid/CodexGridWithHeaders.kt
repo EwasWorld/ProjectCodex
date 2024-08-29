@@ -50,16 +50,24 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
                 val value = column.mapping(row).get(resource)
 
                 item(fillBox = true) {
+                    val weight =
+                            if (row.useBoldText() || column.useBoldText()) FontWeight.Bold
+                            else FontWeight.Normal
+                    val background =
+                            if (row.useAccentColor() || column.useAccentColor()) {
+                                CodexTheme.colors.listAccentRowItemOnAppBackground
+                            }
+                            else {
+                                CodexTheme.colors.listItemOnAppBackground
+                            }
+
                     Text(
                             text = value,
-                            fontWeight = if (row.isTotalRow) FontWeight.Bold else FontWeight.Normal,
+                            fontWeight = weight,
                             color = CodexTheme.colors.onListItemAppOnBackground,
                             textAlign = TextAlign.Center,
                             modifier = cellModifier
-                                    .background(
-                                            if (row.isTotalRow) CodexTheme.colors.listAccentRowItemOnAppBackground
-                                            else CodexTheme.colors.listItemOnAppBackground,
-                                    )
+                                    .background(background)
                                     .padding(horizontal = 8.dp, vertical = 3.dp)
                                     .semantics {
                                         column
@@ -150,8 +158,15 @@ fun <RowData : Any, ExtraData> CodexGridWithHeaders(
     }
 }
 
+internal fun CodexGridRowMetadata.useAccentColor() = isTotal() || isAccentColor()
+internal fun CodexGridRowMetadata.useBoldText() = isTotal() || isBoldText()
+internal fun CodexGridColumnMetadata<*, *>.useAccentColor() = isTotal() || isAccentColor()
+internal fun CodexGridColumnMetadata<*, *>.useBoldText() = isTotal() || isBoldText()
+
 interface CodexGridRowMetadata {
-    val isTotalRow: Boolean
+    fun isTotal(): Boolean = false
+    fun isAccentColor(): Boolean = false
+    fun isBoldText(): Boolean = false
 }
 
 /**
@@ -184,6 +199,10 @@ interface CodexGridColumnMetadata<RowData, ExtraData> {
 
     val mapping: (RowData) -> ResOrActual<String>
     val cellContentDescription: (RowData, ExtraData) -> ResOrActual<String>?
+
+    fun isTotal(): Boolean = false
+    fun isAccentColor(): Boolean = false
+    fun isBoldText(): Boolean = false
 
     fun getHelpState(resources: Resources): HelpShowcaseItem? {
         if (helpTitle == null || helpBody == null) return null

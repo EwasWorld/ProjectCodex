@@ -86,10 +86,7 @@ data class DetailedHandicapBreakdown(
         val score: Double,
         val averageEnd: Double,
         val averageArrow: Double,
-) : CodexGridRowMetadata {
-    override val isTotalRow: Boolean
-        get() = false
-}
+) : CodexGridRowMetadata
 
 class HandicapScore(
         val handicap: Int,
@@ -104,8 +101,7 @@ class HandicapScore(
     val averageArrow = score.toFloat() / arrowsInRound
     val averageEnd = score.toFloat() / (arrowsInRound.toFloat() / arrowsPerEnd)
 
-    override val isTotalRow: Boolean
-        get() = isHighlightedRow
+    override fun isTotal(): Boolean = isHighlightedRow
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

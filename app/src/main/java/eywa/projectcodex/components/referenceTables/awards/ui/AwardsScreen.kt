@@ -114,7 +114,7 @@ enum class AwardsTestTag : CodexTestTag {
     ;
 
     override val screenName: String
-        get() = "CLASSIFICATION_TABLES"
+        get() = "AWARDS"
 
     override fun getElement(): String = name
 }

@@ -119,10 +119,7 @@ data class AgbAwardsRow(
         val awardName: String,
         val roundName: String,
         val scores: List<Int>,
-) : CodexGridRowMetadata {
-    override val isTotalRow: Boolean
-        get() = false
-}
+) : CodexGridRowMetadata
 
 private sealed class AgbAwardsColumn : CodexGridColumnMetadata<AgbAwardsRow, Unit> {
     data object AwardName : AgbAwardsColumn() {

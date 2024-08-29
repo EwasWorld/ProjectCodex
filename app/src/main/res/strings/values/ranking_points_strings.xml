@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ranking_points__title">National Ranking Points</string>
+    <string name="ranking_points__tab_switcher_title">Ranking Points</string>
+
+    <string name="ranking_points__subtitle">National ranking points are awarded automatically at any qualifying competitions. Standings can be found on the Archery GB website</string>
+    <string name="ranking_points__tiers">- Tier 1: Specific National Tour shoots\n- Tier 2+: Any WA 1440 or Double 720 taking place the day before or after a Tier 1 event at the same venue\n- Tier 2: All open WRS head to heads\n- Tier 3: All WRS WA 1440s and single or double 720s</string>
+
+    <string name="ranking_points__ranking_round_title">Quali</string>
+    <string name="ranking_points__h2h_title">H2H</string>
+
+    <string name="ranking_points__rank_title">Rank</string>
+    <string name="ranking_points__tier_1_title">Tier 1</string>
+    <string name="ranking_points__tier_2_plus_title">Tier 2+</string>
+    <string name="ranking_points__tier_2_title">Tier 2</string>
+    <string name="ranking_points__tier_3_title">Tier 3</string>
+
+    <string name="ranking_points__content_description">%.2f points. %s. Rank %d</string> <!-- 300 points. Tier 1. Rank 5 -->
+</resources>

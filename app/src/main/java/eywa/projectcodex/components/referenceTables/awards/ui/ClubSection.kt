@@ -184,10 +184,7 @@ private fun FrostbiteTable(
 data class ClubAwardsRow(
         val roundName: String,
         val scores: List<Int>
-) : CodexGridRowMetadata {
-    override val isTotalRow: Boolean
-        get() = false
-}
+) : CodexGridRowMetadata
 
 private sealed class Club252AwardsColumn : CodexGridColumnMetadata<ClubAwardsRow, Unit> {
     data object Header : Club252AwardsColumn() {
