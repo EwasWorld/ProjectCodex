@@ -1,6 +1,7 @@
 package eywa.projectcodex.common.sharedUi.previewHelpers
 
 import eywa.projectcodex.common.utils.CodexPreviewHelperDsl
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -144,6 +145,7 @@ class ShootPreviewHelperDsl {
             shootRound = asDatabaseShootRound(),
             shootDetail = asDatabaseShootDetail(),
             arrowCounter = counter,
+            bow = ClassificationBow.RECURVE,
     )
 
     fun asFullShootInfo() = FullShootInfo(asDatabaseFullShootInfo(), use2023HandicapSystem)
@@ -163,6 +165,7 @@ fun FullShootInfo.asDatabaseFullShootInfo() = DatabaseFullShootInfo(
         allRoundDistances = roundDistances,
         shootRound = shootRound,
         shootDetail = shootDetail,
+        bow = bow,
 )
 
 @Deprecated("Use Dsl")
@@ -202,7 +205,7 @@ object ShootPreviewHelper {
             copy(
                     arrows = List(roundArrowCounts!!.sumOf { it.arrowCount }) {
                         DatabaseArrowScore(shoot.shootId, it, arrowScore, isX)
-                    }
+                    },
             )
 
     fun FullShootInfo.completeRound(finalScore: Int): FullShootInfo {

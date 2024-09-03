@@ -50,7 +50,7 @@ internal fun Selections(
                 title = stringResource(R.string.handicap_tables__handicap_system_title),
                 text = stringResource(
                         if (state.use2023System) R.string.handicap_tables__handicap_system_agb_2023
-                        else R.string.handicap_tables__handicap_system_david_lane
+                        else R.string.handicap_tables__handicap_system_david_lane,
                 ),
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_handicap_tables__2023_system_title),
@@ -80,7 +80,7 @@ internal fun Selections(
                                     HelpShowcaseItem(
                                             helpTitle = stringResource(R.string.help_handicap_tables__input_type_title),
                                             helpBody = stringResource(state.inputType.typeHelpId),
-                                    ).asHelpState(helpListener)
+                                    ).asHelpState(helpListener),
                             )
                             .align(Alignment.CenterVertically)
             )
@@ -96,7 +96,7 @@ internal fun Selections(
                                     HelpShowcaseItem(
                                             helpTitle = stringResource(R.string.help_handicap_tables__input_title),
                                             helpBody = stringResource(state.inputType.inputHelpId),
-                                    ).asHelpState(helpListener)
+                                    ).asHelpState(helpListener),
                             )
                             .align(Alignment.CenterVertically)
             )
@@ -104,6 +104,22 @@ internal fun Selections(
         CodexNumberFieldErrorText(
                 errorText = state.inputFull.error,
                 testTag = HandicapTablesTestTag.INPUT_ERROR,
+        )
+        DataRow(
+                title = stringResource(R.string.handicap_tables__is_compound_title),
+                text = stringResource(
+                        if (state.isCompound) R.string.general_on
+                        else R.string.general_off,
+                ),
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_handicap_tables__is_compound_title),
+                        helpBody = stringResource(R.string.help_handicap_tables__is_compound_body),
+                ).asHelpState(helpListener),
+                onClick = { listener(HandicapTablesIntent.ToggleIsCompound) },
+                accessibilityRole = Role.Switch,
+                modifier = Modifier
+                        .testTag(HandicapTablesTestTag.COMPOUND_SELECTOR)
+                        .padding(vertical = 10.dp)
         )
     }
 }

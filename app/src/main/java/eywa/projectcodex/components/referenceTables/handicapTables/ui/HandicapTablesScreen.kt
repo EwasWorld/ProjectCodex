@@ -75,7 +75,7 @@ fun HandicapTablesScreen(
             Text(
                     text = stringResource(
                             if (state.useSimpleHandicapView) R.string.archer_round_stats__show_advanced_view
-                            else R.string.archer_round_stats__show_simple_view
+                            else R.string.archer_round_stats__show_simple_view,
                     ),
                     style = LocalTextStyle.current.asClickableStyle(),
                     modifier = Modifier
@@ -90,6 +90,7 @@ fun HandicapTablesScreen(
 enum class HandicapTablesTestTag : CodexTestTag {
     SCREEN,
     SYSTEM_SELECTOR,
+    COMPOUND_SELECTOR,
     INPUT_SELECTOR,
     INPUT_TEXT,
     INPUT_ERROR,
@@ -138,7 +139,7 @@ fun Simple_HandicapTablesScreen_Preview() {
                             HandicapScore(36, 312, 60, 3),
                     ),
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
-            )
+            ),
     ) {}
 }
 
@@ -171,7 +172,7 @@ fun HandicapTablesScreen_Preview() {
                     ),
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
                     useSimpleHandicapView = false,
-            )
+            ),
     ) {}
 }
 
@@ -186,6 +187,6 @@ fun Error_HandicapTablesScreen_Preview() {
                             allRounds = listOf(RoundPreviewHelper.indoorMetricRoundData),
                     ),
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
-            )
+            ),
     ) {}
 }

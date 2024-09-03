@@ -65,9 +65,12 @@ class HandicapTablesViewModel @Inject constructor(
         }
         viewModelScope.launch {
             updateDefaultRoundsTask.state.collect { updateState ->
-                _state.update {
-                    it.copy(updateDefaultRoundsState = updateState)
-                }
+                _state.update { it.copy(updateDefaultRoundsState = updateState) }
+            }
+        }
+        viewModelScope.launch {
+            db.bowRepo().defaultBow.collect { bow ->
+                _state.update { it.copy(isCompound = bow?.type == ClassificationBow.COMPOUND) }
             }
         }
         if (argRoundId == null) {
@@ -80,7 +83,7 @@ class HandicapTablesViewModel @Inject constructor(
                             it.copy(
                                     selectRoundDialogState = it.selectRoundDialogState
                                             .copy(selectedRoundId = argRoundId, selectedSubTypeId = argRoundSubTypeId)
-                                            .clearSelectedIfInvalid()
+                                            .clearSelectedIfInvalid(),
                             ).addHandicaps()
                         }
                     }
@@ -133,6 +136,7 @@ class HandicapTablesViewModel @Inject constructor(
 
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.HANDICAP_TABLES::class)
             ToggleSimpleView -> viewModelScope.launch { datastore.toggle(UseSimpleHandicapView) }
+            ToggleIsCompound -> _state.update { it.copy(isCompound = !it.isCompound).addHandicaps() }
         }
     }
 
@@ -205,7 +209,7 @@ class HandicapTablesViewModel @Inject constructor(
                             arrowsPerEnd = if (round.round.isOutdoor) 6 else 3,
                             isHighlightedRow = it.handicap == highlighted.handicap
                     )
-                }
+                },
         )
     }
 
@@ -214,7 +218,7 @@ class HandicapTablesViewModel @Inject constructor(
                     round = selectRoundDialogState.selectedRound!!,
                     subType = selectRoundDialogState.selectedSubTypeId,
                     score = score,
-                    innerTenArcher = false,
+                    innerTenArcher = isCompound,
                     arrows = null,
                     use2023Handicaps = use2023System,
                     faces = selectFaceDialogState.selectedFaces,
@@ -226,7 +230,7 @@ class HandicapTablesViewModel @Inject constructor(
                     round = selectRoundDialogState.selectedRound!!,
                     subType = selectRoundDialogState.selectedSubTypeId,
                     handicap = handicap.toDouble(),
-                    innerTenArcher = false,
+                    innerTenArcher = isCompound,
                     arrows = null,
                     use2023Handicaps = use2023System,
                     faces = selectFaceDialogState.selectedFaces,

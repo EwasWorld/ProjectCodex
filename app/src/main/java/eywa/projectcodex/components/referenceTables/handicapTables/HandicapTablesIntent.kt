@@ -6,6 +6,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 
 sealed class HandicapTablesIntent {
     data object ToggleInput : HandicapTablesIntent()
+    data object ToggleIsCompound : HandicapTablesIntent()
     data object ToggleHandicapSystem : HandicapTablesIntent()
     data class InputChanged(val newSize: String?) : HandicapTablesIntent()
     data class SelectRoundDialogAction(val action: SelectRoundDialogIntent) : HandicapTablesIntent()

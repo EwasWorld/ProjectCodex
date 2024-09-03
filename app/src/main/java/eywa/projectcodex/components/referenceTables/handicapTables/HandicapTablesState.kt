@@ -16,6 +16,7 @@ import eywa.projectcodex.model.Handicap
 data class HandicapTablesState(
         val input: PartialNumberFieldState = PartialNumberFieldState(),
         val inputType: InputType = InputType.HANDICAP,
+        val isCompound: Boolean = false,
         val use2023System: Boolean = DatastoreKey.Use2023HandicapSystem.defaultValue,
         val handicaps: List<HandicapScore> = emptyList(),
         val selectRoundDialogState: SelectRoundDialogState = SelectRoundDialogState(),
@@ -65,7 +66,7 @@ data class HandicapTablesState(
                         isMetric = round.round.isMetric,
                         faceSizeInCm = arrowCount.faceSizeInCm,
                         scoringType = Handicap.ScoringType.getScoringType(round.round, face),
-                        innerTenScoring = false,
+                        innerTenArcher = isCompound,
                         isOutdoor = round.round.isOutdoor,
                         use2023Handicaps = use2023System,
                 )

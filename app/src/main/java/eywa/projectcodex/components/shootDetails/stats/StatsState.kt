@@ -2,6 +2,7 @@ package eywa.projectcodex.components.shootDetails.stats
 
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenPastRecordsTabs
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -43,7 +44,7 @@ class StatsState(
                     round = roundInfo,
                     subType = null,
                     handicap = handicap.toDouble(),
-                    innerTenArcher = false,
+                    innerTenArcher = bow != null && bow.type == ClassificationBow.COMPOUND,
                     use2023Handicaps = fullShootInfo.use2023HandicapSystem,
                     faces = fullShootInfo.faces,
             )
@@ -63,7 +64,7 @@ class StatsState(
                         roundArrowCounts = listOf(arrowCount.copy(arrowCount = arrows.count())),
                         roundDistances = listOf(distance),
                         score = arrows.sumOf { it.score },
-                        innerTenArcher = fullShootInfo.isInnerTenArcher,
+                        innerTenArcher = bow != null && bow.type == ClassificationBow.COMPOUND,
                         arrows = null,
                         use2023Handicaps = fullShootInfo.use2023HandicapSystem,
                         faces = fullShootInfo.getFaceForDistance(distance)?.let { listOf(it) },
@@ -146,7 +147,7 @@ class StatsState(
                         ?: break
                 arrows = arrows.drop(arrowCount.arrowCount)
                 statsList.add(
-                        DistanceBreakdownRow(distances[index], arrowCount, distArrows, endSize, calculateHandicapFn)
+                        DistanceBreakdownRow(distances[index], arrowCount, distArrows, endSize, calculateHandicapFn),
                 )
             }
             if (statsList.size > 1) {

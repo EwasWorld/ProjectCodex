@@ -11,6 +11,8 @@ import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
+import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
+import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
@@ -39,10 +41,12 @@ interface ShootDao {
                         shoot.shootStatus,
                         shoot.joinWithPrevious,
                         (shoot.scoringArrowCount = shoot.roundCount AND shoot.score = personalBest.score) as isPersonalBest,
-                        (personalBest.isTiedPb) as isTiedPersonalBest
+                        (personalBest.isTiedPb) as isTiedPersonalBest,
+                        bow.type as bow
                 FROM ${ShootWithScore.TABLE_NAME} as shoot
                 LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
                         ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
+                LEFT JOIN ${DatabaseBow.TABLE_NAME} as bow ON bow.bowId = $DEFAULT_BOW_ID
                 WHERE shootId IN (:shootIds)
             """
     )
@@ -121,8 +125,10 @@ interface ShootDao {
                                     AND dateShot <= (
                                         SELECT dateShot FROM $TABLE_NAME WHERE shootId == :shootId
                                     ) 
-                        ) as joinedDate
+                        ) as joinedDate,
+                        bow.type as bow
                 FROM $TABLE_NAME
+                LEFT JOIN ${DatabaseBow.TABLE_NAME} as bow ON bow.bowId = $DEFAULT_BOW_ID
                 WHERE dateShot >= joinedDate
                 AND (
                     -- Find the earliest date late than this one that doesn't join with previous

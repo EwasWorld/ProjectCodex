@@ -23,6 +23,7 @@
     <string name="handicap_tables__handicap_system_title">System:</string>
     <string name="handicap_tables__handicap_system_david_lane">David Lane</string>
     <string name="handicap_tables__handicap_system_agb_2023">2023 ArcheryGB</string>
+    <string name="handicap_tables__is_compound_title">Inner ten scoring:</string>
     <string name="handicap_tables__no_tables">No data</string>
     <string name="handicap_tables__breakdown_header">%d handicap breakdown:</string>
 
@@ -50,5 +51,6 @@
     <string name="help_handicap_tables__table_score_arrow_body">The score needed for each arrow to achieve the given handicap</string>
     <string name="help_handicap_tables__table_allowance_title">Allowance</string>
     <string name="help_handicap_tables__table_allowance_body">An amount that can be added to your score to compare with other archers of a different skill level. For example, if your handicap (calculated using past rounds shot) is 40, when you shoot a round, the allowance for a 40 handicap is added to your score. This can then be compared to another archer who will add the allowance for their own handicap to their score</string>
-
+    <string name="help_handicap_tables__is_compound_title">Inner ten scoring</string>
+    <string name="help_handicap_tables__is_compound_body">Use this to toggle between compound\'s inner ten ring scoring and the normal ten ring scoring of other bowstyles. Note this only affects indoor rounds</string>
 </resources>

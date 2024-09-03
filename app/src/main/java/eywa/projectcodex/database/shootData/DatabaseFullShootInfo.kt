@@ -3,6 +3,7 @@ package eywa.projectcodex.database.shootData
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.Round
@@ -101,6 +102,8 @@ data class DatabaseFullShootInfo(
         val isTiedPersonalBest: Boolean? = null,
 
         val joinedDate: Calendar? = null,
+
+        val bow: ClassificationBow
 ) {
     val roundSubType
         get() = allRoundSubTypes

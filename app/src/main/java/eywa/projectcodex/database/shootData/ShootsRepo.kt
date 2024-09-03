@@ -6,6 +6,8 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
+import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
+import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.model.FullShootInfo
@@ -113,11 +115,13 @@ class ShootsRepo(
                     SELECT 
                             shoot.*,
                             (shoot.scoringArrowCount = shoot.roundCount AND shoot.score = personalBest.score) as isPersonalBest,
-                            (personalBest.isTiedPb) as isTiedPersonalBest
+                            (personalBest.isTiedPb) as isTiedPersonalBest,
+                            bow.type as bow
                     FROM ${ShootWithScore.TABLE_NAME} as shoot
                     LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
                             ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
                     $wheresString
+                    LEFT JOIN ${DatabaseBow.TABLE_NAME} as bow ON bow.bowId = $DEFAULT_BOW_ID
                 """,
                 params.toTypedArray()
         )

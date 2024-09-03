@@ -33,8 +33,8 @@ object Handicap {
             round: FullRoundInfo,
             subType: Int?,
             handicap: Double,
-            innerTenArcher: Boolean = false,
-            use2023Handicaps: Boolean = false,
+            innerTenArcher: Boolean,
+            use2023Handicaps: Boolean,
             faces: List<RoundFace>? = null,
             logger: CustomLogger? = null,
     ) = getScoreForRound(round, subType, handicap, innerTenArcher, null, use2023Handicaps, faces, logger)
@@ -44,9 +44,9 @@ object Handicap {
             round: FullRoundInfo,
             subType: Int?,
             score: Int,
-            innerTenArcher: Boolean = false,
+            innerTenArcher: Boolean,
+            use2023Handicaps: Boolean,
             arrows: Int? = null,
-            use2023Handicaps: Boolean = false,
             faces: List<RoundFace>? = null,
             logger: CustomLogger? = null,
     ): Double? {
@@ -80,9 +80,9 @@ object Handicap {
             roundArrowCounts: List<RoundArrowCount>,
             roundDistances: List<RoundDistance>,
             score: Int,
-            innerTenArcher: Boolean = false,
+            innerTenArcher: Boolean,
             arrows: Int? = null,
-            use2023Handicaps: Boolean = false,
+            use2023Handicaps: Boolean,
             faces: List<RoundFace>? = null,
             logger: CustomLogger? = null,
     ): Double? {
@@ -155,9 +155,9 @@ object Handicap {
             round: FullRoundInfo,
             subType: Int?,
             handicap: Double,
-            innerTenArcher: Boolean = false,
+            innerTenArcher: Boolean,
             arrows: Int? = null,
-            use2023Handicaps: Boolean = true,
+            use2023Handicaps: Boolean,
             faces: List<RoundFace>? = null,
             logger: CustomLogger? = null,
     ): Int? {
@@ -193,23 +193,23 @@ object Handicap {
             roundArrowCounts: List<RoundArrowCount>,
             roundDistances: List<RoundDistance>,
             handicap: Double,
-            innerTenArcher: Boolean = false,
+            innerTenArcher: Boolean,
             arrows: Int? = null,
-            use2023Handicaps: Boolean = false,
+            use2023Handicaps: Boolean,
             faces: List<RoundFace>? = null,
             logger: CustomLogger? = null,
     ): Int? {
         try {
             require(arrows == null || arrows > 0) { "Arrows must be greater than 0" }
             require(
-                    arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount }
+                    arrows == null || arrows <= roundArrowCounts.sumOf { it.arrowCount },
             ) { "Arrows must be at most arrowCounts total" }
             require(roundArrowCounts.size == roundDistances.size) { "Arrow counts and distances size not equal" }
             require(roundArrowCounts.all { it.roundId == round.roundId }) { "Arrow count round ID incorrect" }
             require(roundDistances.all { it.roundId == round.roundId }) { "Distance round ID incorrect" }
             require(roundDistances.distinctBy { it.subTypeId }.size == 1) { "Multiple subtypes given" }
             require(
-                    faces.isNullOrEmpty() || faces.size == 1 || faces.size == roundDistances.size
+                    faces.isNullOrEmpty() || faces.size == 1 || faces.size == roundDistances.size,
             ) { "Must provide 0, 1, or distances.size faces" }
         }
         catch (e: IllegalStateException) {
@@ -240,7 +240,7 @@ object Handicap {
                         rangeInM = if (round.isMetric) distance.toDouble() else distance * 0.9144,
                         faceSizeInCm = faceSizeInCm,
                         handicap = handicap,
-                        innerTenScoring = innerTenArcher && !round.isOutdoor,
+                        innerTenArcher = innerTenArcher,
                         isOutdoor = round.isOutdoor,
                         use2023Handicaps = use2023Handicaps,
                 )
@@ -261,14 +261,14 @@ object Handicap {
             isMetric: Boolean,
             faceSizeInCm: Double,
             scoringType: ScoringType,
-            innerTenScoring: Boolean,
+            innerTenArcher: Boolean,
             isOutdoor: Boolean,
             use2023Handicaps: Boolean,
     ) = arrowCount * scoringType.averageScorePerArrow(
             rangeInM = if (isMetric) distance.toDouble() else distance * 0.9144,
             faceSizeInCm = faceSizeInCm,
             handicap = handicap.toDouble(),
-            innerTenScoring = innerTenScoring,
+            innerTenArcher = innerTenArcher,
             isOutdoor = isOutdoor,
             use2023Handicaps = use2023Handicaps,
     )
@@ -350,17 +350,17 @@ object Handicap {
 
         /**
          * Formulas found in The Construction of the Graduated Handicap Tables for Target Archery by David Lane
-         *
-         * @param innerTenScoring true if only the inner ten ring should be counted as 10
          */
         internal fun averageScorePerArrow(
                 rangeInM: Double,
                 faceSizeInCm: Double,
                 handicap: Double,
-                innerTenScoring: Boolean,
+                innerTenArcher: Boolean,
                 isOutdoor: Boolean,
                 use2023Handicaps: Boolean,
         ): Double {
+            val innerTenScoring = innerTenArcher && !isOutdoor
+
             val sigma = if (use2023Handicaps) {
                 (rangeInM * 1.035.pow(handicap + 6.0)
                         * 0.05
@@ -378,7 +378,7 @@ object Handicap {
                     (
                             faceSizeInCm / denominator
                                     + getDefaultArrowRadiusInCm(isOutdoor, use2023Handicaps)
-                            ).pow(2.0) / (-sigma)
+                            ).pow(2.0) / (-sigma),
             )
 
             val sumStart = sumStart + if (innerTenScoring) 1 else 0

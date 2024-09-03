@@ -3,6 +3,7 @@ package eywa.projectcodex.model
 import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -38,6 +39,7 @@ data class FullShootInfo(
          * When this is null, the arrows are being scored, otherwise they're being counted
          */
         val arrowCounter: DatabaseArrowCounter? = null,
+        val bow: ClassificationBow = ClassificationBow.RECURVE,
 ) {
     constructor(full: DatabaseFullShootInfo, use2023HandicapSystem: Boolean) : this(
             shoot = full.shoot,
@@ -52,6 +54,7 @@ data class FullShootInfo(
             shootRound = full.shootRound,
             shootDetail = full.shootDetail,
             arrowCounter = full.arrowCounter,
+            bow = full.bow,
     )
 
     init {
@@ -166,7 +169,7 @@ data class FullShootInfo(
 
     val hasSurplusArrows by lazy { remainingArrows.let { it != null && it < 0 } }
 
-    val isInnerTenArcher = false
+    val isInnerTenArcher = bow == ClassificationBow.COMPOUND
 
     val handicapFloat by lazy {
         if (
