@@ -3,13 +3,7 @@ package eywa.projectcodex.common.helpShowcase
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Add
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Clear
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Remove
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.SetScreen
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.SetScreenSize
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.SetVisibleScreenSize
-import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.UpdateCoordinates
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.*
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIfNotNull
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,7 +70,7 @@ class HelpShowcaseUseCase(startScreen: KClass<out ActionBarHelp> = CodexNavRoute
         _state.update { it.copy(startedButNoItems = false) }
     }
 
-    fun handle(action: HelpShowcaseIntent, screen: KClass<out ActionBarHelp>? = null) {
+    fun handle(action: HelpShowcaseIntent, screen: KClass<out ActionBarHelp>?) {
         when (action) {
             is Add ->
                 _state.update {

@@ -47,7 +47,7 @@ data class SightMarkDetailState(
     )
 
     companion object {
-        private val distanceValidators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.IsPositive)
+        private val distanceValidators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.IsPositive())
         private val sightMarkValidators = NumberValidatorGroup(TypeValidator.FloatValidator)
 
         fun fromOriginalSightMark(originalSightMark: SightMark) =

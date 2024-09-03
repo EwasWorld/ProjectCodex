@@ -7,12 +7,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.utils.GlobalTouchDetector
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.ClearNoHelpShowcaseFlag
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.CloseHelpShowcase
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.GoToNextHelpShowcaseItem
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.PressDetected
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.SetScreenSize
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.StartHelpShowcase
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,7 +43,7 @@ class MainActivityViewModel @Inject constructor(
             CloseHelpShowcase -> helpShowcase.endShowcase()
             ClearNoHelpShowcaseFlag -> helpShowcase.clearNoShowcaseFlag()
             PressDetected -> viewModelScope.launch { GlobalTouchDetector.pressDetected() }
-            is SetScreenSize -> helpShowcase.handle(HelpShowcaseIntent.SetScreenSize(action.size))
+            is SetScreenSize -> helpShowcase.handle(HelpShowcaseIntent.SetScreenSize(action.size), null)
         }
     }
 }

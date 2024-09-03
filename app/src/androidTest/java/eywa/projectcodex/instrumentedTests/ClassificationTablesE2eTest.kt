@@ -83,7 +83,7 @@ class ClassificationTablesE2eTest {
         setup()
 
         composeTestRule.mainMenuRobot {
-            clickHandicapTables {
+            clickReferenceTables {
                 clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                     checkAge("Senior")
                     checkGender()
@@ -398,7 +398,7 @@ class ClassificationTablesE2eTest {
         setup()
 
         composeTestRule.mainMenuRobot {
-            clickHandicapTables {
+            clickReferenceTables {
                 clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
                     checkAge("U15")
                     checkGender(false)

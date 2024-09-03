@@ -3,6 +3,7 @@ package eywa.projectcodex.components.referenceTables.rankingPoints
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
@@ -17,7 +18,10 @@ class RankingPointsViewModel @Inject constructor(
 
     fun handleEvent(action: RankingPointsIntent) {
         when (action) {
-            is RankingPointsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action)
+            is RankingPointsIntent.HelpShowcaseAction -> helpShowcase.handle(
+                    action.action,
+                    CodexNavRoute.RANKING_POINTS::class
+            )
         }
     }
 }

@@ -5,6 +5,8 @@ import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
@@ -15,9 +17,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.input.ImeAction
@@ -32,6 +32,44 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ResOrActual
+
+@Composable
+fun CodexLabelledNumberFieldWithErrorMessage(
+        title: String,
+        currentValue: String?,
+        fieldTestTag: CodexTestTag,
+        errorMessageTestTag: CodexTestTag,
+        placeholder: String,
+        modifier: Modifier = Modifier,
+        errorMessage: ResOrActual<String>? = null,
+        selectAllOnFocus: Boolean = true,
+        colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
+        helpState: HelpState? = null,
+        onValueChanged: (String?) -> Unit,
+) {
+    Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+    ) {
+        CodexLabelledNumberField(
+                title = title,
+                currentValue = currentValue,
+                testTag = fieldTestTag,
+                placeholder = placeholder,
+                errorMessage = errorMessage,
+                selectAllOnFocus = selectAllOnFocus,
+                colors = colors,
+                helpState = helpState,
+                onValueChanged = onValueChanged,
+        )
+        CodexNumberFieldErrorText(
+                errorText = errorMessage,
+                testTag = errorMessageTestTag,
+        )
+    }
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -41,7 +79,7 @@ fun CodexLabelledNumberField(
         testTag: CodexTestTag,
         placeholder: String,
         modifier: Modifier = Modifier,
-        errorMessage: DisplayableError? = null,
+        errorMessage: ResOrActual<String>? = null,
         selectAllOnFocus: Boolean = true,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
         helpState: HelpState? = null,
@@ -51,7 +89,7 @@ fun CodexLabelledNumberField(
             title = title,
             helpState = helpState,
             titleModifier = Modifier.clearAndSetSemantics { },
-            modifier = modifier,
+            modifier = modifier
     ) {
         CodexNumberField(
                 contentDescription = title,
@@ -67,7 +105,6 @@ fun CodexLabelledNumberField(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CodexNumberField(
         contentDescription: String,
@@ -75,7 +112,7 @@ fun CodexNumberField(
         testTag: CodexTestTag,
         placeholder: String,
         modifier: Modifier = Modifier,
-        errorMessage: DisplayableError?,
+        errorMessage: ResOrActual<String>?,
         selectAllOnFocus: Boolean = true,
         trailingIcon: (@Composable () -> Unit)? = null,
         colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
@@ -83,7 +120,7 @@ fun CodexNumberField(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val displayValue = currentValue ?: ""
-    val error = errorMessage?.toErrorString(LocalContext.current.resources)
+    val error = errorMessage?.get()
 
     CodexTextField(
             state = CodexTextFieldState(
@@ -100,7 +137,7 @@ fun CodexNumberField(
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
             ),
             keyboardActions = KeyboardActions(
                     onDone = { keyboardController?.hide() },
@@ -116,7 +153,7 @@ fun CodexNumberField(
 
 @Composable
 fun CodexNumberFieldErrorText(
-        errorText: DisplayableError?,
+        errorText: ResOrActual<String>?,
         testTag: CodexTestTag,
         modifier: Modifier = Modifier,
         textAlign: TextAlign? = null,
@@ -127,7 +164,7 @@ fun CodexNumberFieldErrorText(
             exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.TopCenter),
     ) {
         Text(
-                text = errorText?.toErrorString(LocalContext.current.resources) ?: "",
+                text = errorText?.get() ?: "",
                 style = CodexTypography.SMALL,
                 color = CodexTheme.colors.errorOnAppBackground,
                 textAlign = textAlign,

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="head_to_head_ref__title">Head to Head Reference</string>
+    <string name="head_to_head_ref__tab_switcher_title">H2H</string>
+
+    <string name="head_to_head_ref__archer_a">Archer A rank</string>
+    <string name="head_to_head_ref__archer_a_placeholder">6</string>
+    <string name="head_to_head_ref__archer_b">Archer B rank</string>
+    <string name="head_to_head_ref__archer_b_placeholder">12</string>
+    <string name="head_to_head_ref__total_archers">Total archers</string>
+    <string name="head_to_head_ref__total_archers_placeholder">20</string>
+
+    <string name="head_to_head_ref__rank">Rank</string>
+    <string name="head_to_head_ref__rank_content_desc">%d rank</string>
+    <string name="head_to_head_ref__round_content_desc">Rank %s in the %s is the opponent for rank %s</string>
+
+    <string name="head_to_head_ref__meet_in_start">Rank %1$s will face rank %2$s in the\u0020</string>
+    <string name="head_to_head_ref__meet_in_end">\u0020round</string>
+
+    <string name="help_head_to_head_ref__opponents_table_heading">Opponent\'s ranks</string>
+
+    <string name="head_to_head_ref__bye">Bye</string>
+    <string name="head_to_head_ref__final">final</string>
+    <string name="head_to_head_ref__final_short">Final</string>
+    <string name="head_to_head_ref__semi_final" tools:ignore="TypographyFractions">semi-final (1/2)</string>
+    <string name="head_to_head_ref__semi_final_short">Semi</string>
+    <string name="head_to_head_ref__quarter_final" tools:ignore="TypographyFractions">quarter-final (1/4)</string>
+    <string name="head_to_head_ref__round_name">1/%d</string>
+
+    <string name="help_head_to_head_ref__rank_title">Rank</string>
+    <string name="help_head_to_head_ref__rank_body">The qualifying rank of the archer</string>
+    <string name="help_head_to_head_ref__round_title">Round</string>
+    <string name="help_head_to_head_ref__round_body">Shows which rank the archer will face in a particular round</string>
+
+    <string name="help_head_to_head_ref__archer_a_title">Archer A rank</string>
+    <string name="help_head_to_head_ref__archer_a_body">The qualifying rank of the first archer</string>
+    <string name="help_head_to_head_ref__archer_b_title">Archer B rank</string>
+    <string name="help_head_to_head_ref__archer_b_body">The qualifying rank of the second archer</string>
+    <string name="help_head_to_head_ref__total_archers_title">Total archers</string>
+    <string name="help_head_to_head_ref__total_archers_body">The number of archers who participated in the qualifying round</string>
+    <string name="help_head_to_head_ref__meet_in_title">Facing in</string>
+    <string name="help_head_to_head_ref__meet_in_body">Denotes the round in which archer A and archer B will face each other (assuming they both win all their matches)</string>
+    <string name="help_head_to_head_ref__opponents_table_title">Opponent\'s ranks</string>
+    <string name="help_head_to_head_ref__opponents_table_body">The table shows the ranks of the archers who archer A and archer B will face each round. A \'bye\' is a win by default</string>
+</resources>

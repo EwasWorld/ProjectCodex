@@ -6,13 +6,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.hiltModules.LocalUpdateDefaultRoundsModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
-import eywa.projectcodex.instrumentedTests.robots.referenceTables.AwardsRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.HeadToHeadReferenceRobot
 import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
@@ -20,26 +18,12 @@ import org.junit.runner.RunWith
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class AwardsE2eTest {
-    companion object {
-        @JvmStatic
-        @BeforeClass
-        fun classSetup() {
-            LocalUpdateDefaultRoundsModule.useActual = true
-        }
-
-        @JvmStatic
-        @AfterClass
-        fun classTeardown() {
-            LocalUpdateDefaultRoundsModule.useActual = false
-        }
-    }
-
+class HeadToHeadReferenceE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(20)
+    val testTimeout: Timeout = Timeout.seconds(30)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -47,7 +31,7 @@ class AwardsE2eTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
 
     private fun setup() {
-        LocalUpdateDefaultRoundsModule.useActual = true
+        CommonSetupTeardownFns.generalSetup()
         hiltRule.inject()
 
         scenario = composeTestRule.activityRule.scenario
@@ -59,21 +43,22 @@ class AwardsE2eTest {
     }
 
     @Test
-    fun testAwards() {
+    fun testNoRound() {
         setup()
 
         composeTestRule.mainMenuRobot {
             clickReferenceTables {
-                clickTab(AwardsRobot::class) {
-                    checkBowStyle("Recurve")
-                    checkClub252(252, 252)
-                    checkFrostbite(200, 355)
-                    checkAwards(6, 800)
-
-                    setBowStyle("Longbow")
-                    checkClub252(164, 101)
-                    checkFrostbite(101, 351)
-                    checkAwards(6, 225)
+                clickTab(HeadToHeadReferenceRobot::class) {
+                    setArcherARank(7)
+                    setArcherBRank(10)
+                    setTotalArchers(20)
+                    checkMeetInString(7, 10, "1/8")
+                    checkTable(
+                            mapOf(
+                                    7 to HeadToHeadUseCase.getOpponents(7, 20).reversed(),
+                                    10 to HeadToHeadUseCase.getOpponents(10, 20).reversed(),
+                            ),
+                    )
                 }
             }
         }

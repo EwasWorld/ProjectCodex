@@ -64,11 +64,9 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
-import eywa.projectcodex.common.sharedUi.numberField.DisplayableError
 import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
-import eywa.projectcodex.common.sharedUi.numberField.StringResError
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
@@ -80,6 +78,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectSubtypeDialog
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
@@ -534,18 +533,17 @@ private fun ColumnScope.ScoreFilters(
                 clearTestTag = ViewScoresFiltersTestTag.CLEAR_SCORE_MAX_FILTER_BUTTON,
                 placeholder = stringResource(R.string.view_scores__filters_scores_max),
                 contentDescription = stringResource(R.string.view_scores__filters_scores_max_content_description),
-                error = StringResError(R.string.view_scores__filters_invalid_scores)
+                error = ResOrActual.StringResource(R.string.view_scores__filters_invalid_scores)
                         .takeIf { !state.scoreRangeIsValid },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMaxFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearScoreMaxFilter) },
         )
     }
 
-    val resources = LocalContext.current.resources
     when {
         !state.scoreRangeIsValid -> stringResource(R.string.view_scores__filters_invalid_scores)
-        state.minScore.error != null -> state.minScore.error.toErrorString(resources)
-        state.maxScore.error != null -> state.maxScore.error.toErrorString(resources)
+        state.minScore.error != null -> state.minScore.error.get()
+        state.maxScore.error != null -> state.maxScore.error.get()
         else -> null
     }?.let { error ->
         Text(
@@ -568,7 +566,7 @@ private fun ScoreFilters(
         clearTestTag: ViewScoresFiltersTestTag,
         placeholder: String,
         contentDescription: String,
-        error: DisplayableError? = null,
+        error: ResOrActual<String>? = null,
         onUpdate: (String?) -> Unit,
         onClear: () -> Unit,
 ) {
@@ -772,7 +770,7 @@ private fun ClearIcon(
 @Preview(showBackground = true)
 @Composable
 fun ViewScoresFilters_Preview() {
-    val validatorGroup = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.IsPositive)
+    val validatorGroup = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.IsPositive())
 
     CodexTheme {
         Box(

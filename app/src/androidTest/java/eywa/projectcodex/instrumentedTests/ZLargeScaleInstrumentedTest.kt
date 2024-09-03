@@ -609,7 +609,7 @@ class ZLargeScaleInstrumentedTest {
                 }
             }
 
-            clickHandicapTables {
+            clickReferenceTables {
                 performAction(HandicapTablesRobot::class)
 
                 logMessage(this::class, "Navigating to: Sight marks")
@@ -794,7 +794,7 @@ class ZLargeScaleInstrumentedTest {
 
 
             logMessage(this::class, "Handicap tables")
-            clickHandicapTables {
+            clickReferenceTables {
                 logMessage(this::class, " -> press back")
                 pressBack()
             }
@@ -971,7 +971,7 @@ class ZLargeScaleInstrumentedTest {
 
 
             logMessage(this::class, "Handicap tables")
-            clickHandicapTables {
+            clickReferenceTables {
                 logMessage(this::class, " -> press home")
                 clickHomeIcon()
             }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +49,7 @@ class AwardsViewModel @Inject constructor(
             AwardsIntent.BowClicked -> _state.update { it.copy(bowDropdownExpanded = true) }
             is AwardsIntent.BowSelected -> _state.update { it.copy(bow = action.bow, bowDropdownExpanded = false) }
             AwardsIntent.CloseDropdown -> _state.update { it.copy(bowDropdownExpanded = false) }
-            is AwardsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action)
+            is AwardsIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.AWARDS::class)
         }
     }
 }

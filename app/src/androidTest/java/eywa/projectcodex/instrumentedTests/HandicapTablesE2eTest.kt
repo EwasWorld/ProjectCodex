@@ -79,7 +79,7 @@ class HandicapTablesE2eTest {
         setup()
 
         composeTestRule.mainMenuRobot {
-            clickHandicapTables {
+            clickReferenceTables {
                 checkNoDataInTable()
                 checkInputText("")
 
@@ -173,7 +173,7 @@ class HandicapTablesE2eTest {
         setup()
 
         composeTestRule.mainMenuRobot {
-            clickHandicapTables {
+            clickReferenceTables {
                 selectRoundsRobot.checkSelectedRound("St. George")
                 checkInputText("46")
                 checkInputMethod(true)

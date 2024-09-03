@@ -60,7 +60,7 @@ fun RankingPointsScreen(
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
-                        .padding(vertical = 20.dp)
+                        .padding(vertical = CodexTheme.dimens.screenPadding)
                         .testTag(RankingPointsTestTag.SCREEN)
         ) {
             Text(

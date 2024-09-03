@@ -22,6 +22,7 @@ import eywa.projectcodex.components.newScore.NewScoreScreen
 import eywa.projectcodex.components.referenceTables.awards.ui.AwardsScreen
 import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesScreen
 import eywa.projectcodex.components.referenceTables.handicapTables.ui.HandicapTablesScreen
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadReferenceScreen
 import eywa.projectcodex.components.referenceTables.rankingPoints.RankingPointsScreen
 import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountScreen
@@ -168,6 +169,23 @@ enum class CodexNavRoute : ScreenNavRoute {
             HandicapTablesScreen()
         }
     },
+    HEAD_TO_HEAD_REF {
+        override val tabSwitcherItem = TabSwitcherItem(
+                label = ResOrActual.StringResource(R.string.head_to_head_ref__tab_switcher_title),
+                group = TabSwitcherGroup.REFERENCES,
+                navRoute = this,
+                position = 3,
+        )
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.head_to_head_ref__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            HeadToHeadReferenceScreen()
+        }
+    },
     MAIN_MENU {
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String = stringResource(R.string.main_menu__title)
@@ -202,7 +220,7 @@ enum class CodexNavRoute : ScreenNavRoute {
                 label = ResOrActual.StringResource(R.string.ranking_points__tab_switcher_title),
                 group = TabSwitcherGroup.REFERENCES,
                 navRoute = this,
-                position = 3,
+                position = 4,
         )
 
         @Composable

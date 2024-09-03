@@ -1,4 +1,4 @@
-package eywa.projectcodex.components
+package eywa.projectcodex.components.referenceTables
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.NavArgument

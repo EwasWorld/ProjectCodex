@@ -18,7 +18,7 @@ class MainMenuRobot(
         createRobot(ViewScoresRobot::class, block)
     }
 
-    fun clickHandicapTables(block: HandicapTablesRobot.() -> Unit) {
+    fun clickReferenceTables(block: HandicapTablesRobot.() -> Unit) {
         clickElement(MainMenuTestTag.REFERENCE_TABLES_BUTTON)
         createRobot(HandicapTablesRobot::class, block)
     }

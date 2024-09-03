@@ -1,4 +1,4 @@
-package eywa.projectcodex.common
+package eywa.projectcodex.components.referenceTables
 
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.referenceTables.awards.AwardsUseCase
