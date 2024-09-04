@@ -69,6 +69,7 @@ class RoundRepo(
         const val WA_1440_DEFAULT_ROUND_ID = 8
         const val CLUB_252_DEFAULT_ROUND_ID = 28
         const val FROSTBITE_DEFAULT_ROUND_ID = 27
+        const val VEGAS_DEFAULT_ROUND_ID = 23
 
         /**
          * Sort [Round]s to be at the start

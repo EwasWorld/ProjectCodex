@@ -8,7 +8,7 @@ enum class ClassificationRound(val rawName: String, val rounds: DbRoundRef) {
     BRISTOL_IV("Bristol IV", 1, 5),
     BRISTOL_V("Bristol V", 1, 6),
     ST_GEORGE("St. George", 2, 1),
-    ALBION("Albion", 2, 2),
+    ALBION_LONG_WINDSOR("Albion / Long Windsor", 2, 2),
     WINDSOR("Windsor", 2, 3),
     WINDSOR_50("Windsor 50", 2, 4),
     WINDSOR_40("Windsor 40", 2, 5),
@@ -40,12 +40,12 @@ enum class ClassificationRound(val rawName: String, val rounds: DbRoundRef) {
     METRIC_IV("Metric IV", 8, 5),
     METRIC_V("Metric V", 8, 6),
     LONG_METRIC_MEN("Long Metric (Men)", 9, 1),
-    LONG_METRIC_WOMEN_I("Long Metric (Women) / I", 9, 2),
+    LONG_METRIC_WOMEN_LONG_METRIC_I("Long Metric (Women) / Long Metric I", 9, 2),
     LONG_METRIC_II("Long Metric II", 9, 3),
     LONG_METRIC_III("Long Metric III", 9, 4),
     LONG_METRIC_IV("Long Metric IV", 9, 5),
     LONG_METRIC_V("Long Metric V", 9, 6),
-    SHORT_METRIC_I("Short Metric I", 10, 1),
+    SHORT_METRIC_SHORT_METRIC_I("Short Metric / Short Metric I", 10, 1),
     SHORT_METRIC_II("Short Metric II", 10, 2),
     SHORT_METRIC_III("Short Metric III", 10, 3),
     SHORT_METRIC_IV("Short Metric IV", 10, 4),
@@ -60,10 +60,31 @@ enum class ClassificationRound(val rawName: String, val rounds: DbRoundRef) {
     WA_50M_COMPOUND("WA 50m (Compound)", 15),
     METRIC_80_40("Metric 80-40", 17, 1),
     METRIC_80_30("Metric 80-30", 17, 2),
+    BRAY_I("Bray I", 18),
+    BRAY_II("Bray II", 19),
+    PORTSMOUTH("Portsmouth", 21),
+    STAFFORD("Stafford", 20),
+    WORCESTER("Worcester", 22),
+    VEGAS_TRIPLE_FACE("Vegas (Triple Face)", 23),
+    VEGAS_300("Vegas 300", 29),
+    WA_18M("WA 18m", 24),
+    WA_25M("WA 25m", 25),
+    BRAY_I_COMPOUND("Bray I Compound", 18),
+    BRAY_II_COMPOUND("Bray II Compound", 19),
+    PORTSMOUTH_COMPOUND("Portsmouth Compound", 21),
+    STAFFORD_COMPOUND("Stafford Compound", 20),
+    VEGAS_TRIPLE_FACE_COMPOUND("Vegas (Triple Face) Compound", 23),
+    WA_18M_COMPOUND("WA 18m Compound", 24),
+    WA_25M_COMPOUND("WA 25m Compound", 25),
     ;
 
     constructor(rawName: String, defaultRoundId: Int, defaultRoundSubtypeId: Int? = null) :
             this(rawName, DbRoundRef(defaultRoundId, defaultRoundSubtypeId))
+
+    val isCompound
+        get() = rawName.contains("Compound")
+    val isTriple
+        get() = rawName.contains("(Triple Face)")
 
     data class DbRoundRef(
             val defaultRoundId: Int,
@@ -88,6 +109,6 @@ enum class ClassificationRound(val rawName: String, val rounds: DbRoundRef) {
     }
 
     companion object {
-        val backwardsMap = values().associateBy { it.rawName }
+        val backwardsMap = entries.associateBy { it.rawName }
     }
 }

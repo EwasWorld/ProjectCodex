@@ -100,6 +100,7 @@ class ClassificationTablesViewModelUnitTest {
                 bow = ClassificationBow.RECURVE,
                 fullRoundInfo = RoundPreviewHelper.yorkRoundData,
                 roundSubTypeId = 1,
+                isTripleFace = false,
         )!!
         var rough = classificationTables.getRoughHandicaps(
                 isGent = true,
@@ -111,7 +112,9 @@ class ClassificationTablesViewModelUnitTest {
                     score = Handicap.getScoreForRound(
                             round = RoundPreviewHelper.yorkRoundData,
                             subType = 1,
-                            handicap = it.handicap!!.toDouble()
+                            handicap = it.handicap!!.toDouble(),
+                            innerTenArcher = false,
+                            use2023Handicaps = true,
                     )
             )
         }
@@ -146,13 +149,16 @@ class ClassificationTablesViewModelUnitTest {
                 bow = ClassificationBow.RECURVE,
                 fullRoundInfo = RoundPreviewHelper.yorkRoundData,
                 roundSubTypeId = 2,
+                isTripleFace = false,
         )!!
         rough = rough.map {
             it.copy(
                     score = Handicap.getScoreForRound(
                             round = RoundPreviewHelper.yorkRoundData,
                             subType = 2,
-                            handicap = it.handicap!!.toDouble()
+                            handicap = it.handicap!!.toDouble(),
+                            innerTenArcher = false,
+                            use2023Handicaps = true,
                     )
             )
         }
@@ -321,6 +327,7 @@ class ClassificationTablesViewModelUnitTest {
                             bow = bow,
                             fullRoundInfo = it,
                             roundSubTypeId = selectRoundDialogState.selectedSubTypeId,
+                            isTripleFace = false,
                     )
                 }!!,
         )

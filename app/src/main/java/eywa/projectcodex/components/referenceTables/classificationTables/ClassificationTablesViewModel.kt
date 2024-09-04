@@ -141,8 +141,15 @@ class ClassificationTablesViewModel @Inject constructor(
 
         val round = selectRoundDialogState.selectedRound
                 ?: return clearScores()
-        val scores = tables.get(isGent, age, bow, round, selectRoundDialogState.selectedSubTypeId, use2023Handicaps)
-                ?: return clearScores()
+        val scores = tables.get(
+                isGent = isGent,
+                age = age,
+                bow = bow,
+                fullRoundInfo = round,
+                roundSubTypeId = selectRoundDialogState.selectedSubTypeId,
+                isTripleFace = false,
+                use2023Handicaps = use2023Handicaps,
+        ) ?: return clearScores()
         return copy(officialClassifications = scores, roughHandicaps = rough)
     }
 }

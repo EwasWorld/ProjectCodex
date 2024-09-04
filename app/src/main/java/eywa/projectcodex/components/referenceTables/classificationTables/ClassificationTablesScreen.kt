@@ -58,6 +58,7 @@ import eywa.projectcodex.common.utils.classificationTables.model.ClassificationA
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsStatePreviewHelper
 import eywa.projectcodex.components.referenceTables.classificationTables.ClassificationTablesIntent.*
+import eywa.projectcodex.database.rounds.RoundRepo
 
 @Composable
 fun ClassificationTablesScreen(
@@ -82,7 +83,7 @@ fun ClassificationTablesScreen(
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
-                        .padding(vertical = 20.dp)
+                        .padding(vertical = CodexTheme.dimens.screenPadding)
                         .testTag(ClassificationTablesTestTag.SCREEN)
         ) {
             CategorySelectors(state, listener, Modifier.padding(bottom = 4.dp))
@@ -95,7 +96,7 @@ fun ClassificationTablesScreen(
                     ),
                     border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
                     color = CodexTheme.colors.appBackground,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding, vertical = 8.dp)
             ) {
                 RoundsUpdatingWrapper(
                         state = state.updateDefaultRoundsState,
@@ -113,6 +114,18 @@ fun ClassificationTablesScreen(
                         )
                     }
                 }
+            }
+
+            if (state.selectRoundDialogState.selectedRound?.round?.defaultRoundId == RoundRepo.VEGAS_DEFAULT_ROUND_ID) {
+                Text(
+                        text = stringResource(R.string.classification_tables__vegas_note),
+                        style = CodexTypography.SMALL_PLUS,
+                        color = CodexTheme.colors.onAppBackground,
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier
+                                .padding(horizontal = CodexTheme.dimens.screenPadding)
+                                .padding(top = 10.dp)
+                )
             }
 
             Table(state.scores, helpListener)
@@ -244,7 +257,7 @@ private fun Table(
                                 ).asHelpState(helpListener),
                         )
                         .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp)
+                        .padding(horizontal = CodexTheme.dimens.screenPadding)
                         .padding(top = 20.dp)
         ) {
             if (entries.isEmpty()) {
@@ -261,7 +274,7 @@ private fun Table(
                 CodexGrid(
                         columns = 3,
                         alignment = Alignment.Center,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                        modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding, vertical = 10.dp)
                 ) {
 
                     ClassificationTableColumn.entries.forEach {
@@ -299,7 +312,7 @@ private fun Table(
                 style = CodexTypography.SMALL,
                 color = CodexTheme.colors.onAppBackground,
                 fontStyle = FontStyle.Italic,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
         )
     }
 }
@@ -430,6 +443,32 @@ fun Empty_ClassificationTablesScreen_Preview() {
                             "8,Women,Recurve,Senior,WA 1440 (90m),1219",
                             "9,Women,Recurve,Senior,WA 1440 (90m),1283",
                     ).mapNotNull { ClassificationTableEntry.fromString(it)?.copy(score = null, handicap = 55) },
+                    updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
+            ),
+    ) {}
+}
+
+@Preview
+@Composable
+fun Vegas_ClassificationTablesScreen_Preview() {
+    ClassificationTablesScreen(
+            ClassificationTablesState(
+                    selectRoundDialogState = SelectRoundDialogState(
+                            selectedRoundId = RoundPreviewHelper.vegasRoundData.round.roundId,
+                            filters = SelectRoundEnabledFilters(),
+                            allRounds = listOf(RoundPreviewHelper.vegasRoundData),
+                    ),
+                    officialClassifications = listOf(
+                            "1,Women,Recurve,Senior,Vegas (Triple Face),137",
+                            "2,Women,Recurve,Senior,Vegas (Triple Face),206",
+                            "3,Women,Recurve,Senior,Vegas (Triple Face),294",
+                            "4,Women,Recurve,Senior,Vegas (Triple Face),387",
+                            "5,Women,Recurve,Senior,Vegas (Triple Face),465",
+                            "6,Women,Recurve,Senior,Vegas (Triple Face),515",
+                            "7,Women,Recurve,Senior,Vegas (Triple Face),545",
+                            "8,Women,Recurve,Senior,Vegas (Triple Face),567",
+                    ).mapNotNull { ClassificationTableEntry.fromString(it) },
+                    roughHandicaps = listOf(),
                     updateDefaultRoundsState = UpdateDefaultRoundsStatePreviewHelper.complete,
             ),
     ) {}

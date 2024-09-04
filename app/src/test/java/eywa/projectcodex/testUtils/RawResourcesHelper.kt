@@ -19,11 +19,20 @@ import java.io.FileInputStream
 import kotlin.reflect.KClass
 
 object RawResourcesHelper {
-    val classificationTables = ClassificationTablesUseCase(
-            FileInputStream("src\\main\\res\\general\\raw\\classification_round_scores_2023.csv")
-                    .bufferedReader()
-                    .use { it.readText() }
-    )
+    val rawClassificationData
+        get() = FileInputStream("src\\main\\res\\general\\raw\\classification_round_scores_2023.csv")
+                .bufferedReader()
+                .use { it.readText() }
+                .trimIndent()
+
+    val classificationTables
+        get() = ClassificationTablesUseCase(rawClassificationData)
+
+    val rawAgbHandicapData
+        get() = FileInputStream("src\\test\\resources\\raw\\handicaps.csv")
+                .bufferedReader()
+                .use { it.readText() }
+                .trimIndent()
 
     suspend fun getDefaultRounds(): List<FullRoundInfo> {
         val allItems = mutableListOf<Any>()

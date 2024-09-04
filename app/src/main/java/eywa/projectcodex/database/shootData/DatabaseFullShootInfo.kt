@@ -103,7 +103,7 @@ data class DatabaseFullShootInfo(
 
         val joinedDate: Calendar? = null,
 
-        val bow: ClassificationBow
+        val bow: ClassificationBow = ClassificationBow.RECURVE,
 ) {
     val roundSubType
         get() = allRoundSubTypes

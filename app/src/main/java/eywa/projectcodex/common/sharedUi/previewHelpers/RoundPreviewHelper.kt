@@ -668,6 +668,33 @@ object RoundPreviewHelper {
                 ),
         )
 
+        val vegasRoundData = FullRoundInfo(
+                round = Round(
+                        roundId = 12,
+                        name = "vegas",
+                        displayName = "Vegas",
+                        isOutdoor = false,
+                        isMetric = true,
+                        defaultRoundId = 23,
+                ),
+                roundArrowCounts = listOf(
+                        RoundArrowCount(
+                                roundId = 12,
+                                distanceNumber = 1,
+                                faceSizeInCm = 40.0,
+                                arrowCount = 60,
+                        ),
+                ),
+                roundDistances = listOf(
+                        RoundDistance(
+                                roundId = 12,
+                                distanceNumber = 1,
+                                subTypeId = 1,
+                                distance = 18,
+                        ),
+                ),
+        )
+
         val allRounds = listOf(
                 yorkRoundData,
                 wa70RoundData,

@@ -5,6 +5,7 @@ import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenPastRecordsTabs
+import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -97,12 +98,13 @@ class StatsState(
                 ?: return null
 
         val trueClassification = classificationTables.get(
-                archerInfo.isGent,
-                archerInfo.age,
-                bow.type,
-                fullShootInfo.fullRoundInfo!!,
-                fullShootInfo.roundSubType?.subTypeId,
-                use2023System,
+                isGent = archerInfo.isGent,
+                age = archerInfo.age,
+                bow = bow.type,
+                fullRoundInfo = fullShootInfo.fullRoundInfo!!,
+                roundSubTypeId = fullShootInfo.roundSubType?.subTypeId,
+                isTripleFace = fullShootInfo.faces == listOf(RoundFace.TRIPLE),
+                use2023Handicaps = use2023System,
         )
                 ?.takeIf { it.isNotEmpty() }
                 ?.filter { it.score!! <= currentScore }
@@ -111,11 +113,11 @@ class StatsState(
                 ?.to(true)
         val roughClassification = wa1440FullRoundInfo?.let {
             classificationTables.getRoughHandicaps(
-                    archerInfo.isGent,
-                    archerInfo.age,
-                    bow.type,
-                    wa1440FullRoundInfo,
-                    use2023System,
+                    isGent = archerInfo.isGent,
+                    age = archerInfo.age,
+                    bow = bow.type,
+                    wa1440RoundInfo = wa1440FullRoundInfo,
+                    use2023Handicaps = use2023System,
             )
         }
                 ?.takeIf { it.isNotEmpty() }

@@ -25,6 +25,7 @@ data class ClassificationTablesUseCase(
             bow: ClassificationBow,
             fullRoundInfo: FullRoundInfo,
             roundSubTypeId: Int?,
+            isTripleFace: Boolean,
             use2023Handicaps: Boolean = true,
     ) = fullRoundInfo.round.defaultRoundId?.let { defaultRoundId ->
         data.filter {
@@ -32,6 +33,7 @@ data class ClassificationTablesUseCase(
                     && it.age == age
                     && bow == it.bowStyle
                     && it.round == DbRoundRef(defaultRoundId, roundSubTypeId)
+                    && (it.round.defaultRoundId != RoundRepo.VEGAS_DEFAULT_ROUND_ID || isTripleFace)
         }.map {
             it.copy(
                     handicap = Handicap.getHandicapForRound(
@@ -40,7 +42,7 @@ data class ClassificationTablesUseCase(
                             score = it.score!!,
                             innerTenArcher = bow == ClassificationBow.COMPOUND,
                             use2023Handicaps = use2023Handicaps,
-                    )?.roundHandicap()
+                    )?.roundHandicap(),
             )
         }.sortedBy { it.classification.ordinal }
     }
@@ -53,7 +55,7 @@ data class ClassificationTablesUseCase(
             use2023Handicaps: Boolean = true,
     ): List<ClassificationTableEntry>? {
         check(
-                wa1440RoundInfo.round.defaultRoundId == RoundRepo.WA_1440_DEFAULT_ROUND_ID
+                wa1440RoundInfo.round.defaultRoundId == RoundRepo.WA_1440_DEFAULT_ROUND_ID,
         ) { "Incorrect round provided" }
 
         val gents1440 = get(isGent, age, bow, wa1440RoundInfo, 1, use2023Handicaps)?.toMutableList()

@@ -18,6 +18,8 @@
     <string name="classification_tables__unofficial_semantics">unofficial</string>
     <string name="classification_tables__no_tables">No data</string>
 
+    <string name="classification_tables__vegas_note">Note: Vegas classifications are for a triple face</string>
+
     <string name="classification_tables__archer_3_short">Archer 3rd</string>
     <string name="classification_tables__archer_2_short">Archer 2nd</string>
     <string name="classification_tables__archer_1_short">Archer 1st</string>

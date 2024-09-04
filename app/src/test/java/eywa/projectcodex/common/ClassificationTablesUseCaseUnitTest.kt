@@ -9,26 +9,55 @@ import eywa.projectcodex.common.utils.classificationTables.model.ClassificationB
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationRound
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.testUtils.RawResourcesHelper
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ClassificationTablesUseCaseUnitTest {
-    private val classificationTables = RawResourcesHelper.classificationTables
+    @Test
+    fun testRows() {
+        val classificationData = RawResourcesHelper.rawClassificationData.split("\n")
+
+        val failed = mutableListOf<String>()
+        classificationData.forEach {
+            try {
+                ClassificationTableEntry.fromString(it)
+            }
+            catch (e: NullPointerException) {
+                failed.add(it)
+            }
+        }
+
+        println(failed.map { it.split(",")[4] }.distinct())
+        assertEquals(mutableListOf<String>(), failed)
+    }
 
     @Test
     fun testNoDuplicateRoundRefs() {
+        fun ClassificationRound.DbRoundRef.toSort() = "$defaultRoundId-$defaultRoundSubtypeId"
+
+        val duplicates = ClassificationRound
+                .entries
+                .sortedBy { it.rounds.toSort() }
+                .fold<ClassificationRound, Pair<ClassificationRound?, List<ClassificationRound>>>(
+                        null to listOf(),
+                ) { (prev, acc), it ->
+                    it to if (it.rounds == prev?.rounds && it.isCompound == prev.isCompound) (acc + it + prev) else acc
+                }
+                .second
+                .distinct()
+
+        println(duplicates)
         assertEquals(
-                ClassificationRound.values().size,
-                ClassificationRound.values().distinctBy { it.rounds }.size,
+                0,
+                duplicates.size,
         )
     }
 
     @Test
     fun testMensYork() = runTest {
+        val classificationTables = RawResourcesHelper.classificationTables
         val round = RawResourcesHelper.getDefaultRounds().find { it.round.displayName == "York / Hereford" }!!
 
         val entries = classificationTables.get(
@@ -37,6 +66,7 @@ class ClassificationTablesUseCaseUnitTest {
                 bow = RECURVE,
                 fullRoundInfo = round,
                 roundSubTypeId = 1,
+                isTripleFace = false,
         )!!
 
         assertEquals(
@@ -67,6 +97,7 @@ class ClassificationTablesUseCaseUnitTest {
 
     @Test
     fun testWomensHereford() = runTest {
+        val classificationTables = RawResourcesHelper.classificationTables
         val round = RawResourcesHelper.getDefaultRounds().find { it.round.displayName == "York / Hereford" }!!
 
         val entries = classificationTables.get(
@@ -75,6 +106,7 @@ class ClassificationTablesUseCaseUnitTest {
                 bow = RECURVE,
                 fullRoundInfo = round,
                 roundSubTypeId = 2,
+                isTripleFace = false,
         )!!
 
         assertEquals(
@@ -105,6 +137,7 @@ class ClassificationTablesUseCaseUnitTest {
 
     @Test
     fun testMensU15CompoundGents1440() = runTest {
+        val classificationTables = RawResourcesHelper.classificationTables
         val round = RawResourcesHelper.getDefaultRounds().find { it.round.displayName == "WA 1440 / FITA" }!!
 
         val entries = classificationTables.get(
@@ -113,6 +146,7 @@ class ClassificationTablesUseCaseUnitTest {
                 bow = COMPOUND,
                 fullRoundInfo = round,
                 roundSubTypeId = 1,
+                isTripleFace = false,
         )!!
 
         assertEquals(
@@ -153,11 +187,12 @@ class ClassificationTablesUseCaseUnitTest {
      */
     @Test
     fun testHandicapsAreSameAs1440() = runTest {
+        val classificationTables = RawResourcesHelper.classificationTables
         val rounds = RawResourcesHelper.getDefaultRounds().associateBy { it.round.defaultRoundId }
         val gents1440 = rounds[8]!!
 
-        ClassificationBow.values().forEach { bow ->
-            ClassificationAge.values().forEach { age ->
+        ClassificationBow.entries.forEach { bow ->
+            ClassificationAge.entries.forEach { age ->
                 listOf(true, false).forEach { isGent ->
                     rounds.forEach { (_, round) ->
                         (round.roundSubTypes?.map { it.subTypeId } ?: listOf(1)).forEach loop@{ subTypeId ->
@@ -172,6 +207,7 @@ class ClassificationTablesUseCaseUnitTest {
                                             bow = bow,
                                             fullRoundInfo = round,
                                             roundSubTypeId = subTypeId,
+                                            isTripleFace = false,
                                     )!!.sortedByDescending { it.handicap }
                             if (actualEntries.isEmpty()) return@loop
 
