@@ -41,6 +41,12 @@ enum class DebugMainMenuOptions(
             ResOrActual.Actual("Plotting Title"),
             ResOrActual.Actual("Plotting Body"),
     ),
+    AUTH(
+            ResOrActual.Actual("Auth"),
+            DebugNavRoute.AUTH,
+            ResOrActual.Actual("Auth Title"),
+            ResOrActual.Actual("Auth Body"),
+    ),
     ;
 
     override val testTag: CodexTestTag

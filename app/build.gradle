@@ -61,6 +61,8 @@ android {
         ksp {
             arg('room.schemaLocation', "$projectDir/schemas")
         }
+
+        manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "demo"]
     }
     buildTypes {
         release {
@@ -125,6 +127,9 @@ android {
     testBuildType 'uiTests'
 
     sourceSets {
+        release.java.srcDirs += "src/nonDebug/java"
+        minified.java.srcDirs += "src/nonDebug/java"
+
         main {
             res {
                 srcDirs 'src/main/res/general',
@@ -264,6 +269,8 @@ dependencies {
     debugImplementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     debugImplementation("com.squareup.okhttp3:okhttp:4.11.0")
     debugImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+
+    debugImplementation("com.auth0.android:auth0:2.+")
 
     lintChecks project(path: ':lintrules')
 }

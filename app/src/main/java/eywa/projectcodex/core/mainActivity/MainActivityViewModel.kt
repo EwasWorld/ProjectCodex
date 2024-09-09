@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.utils.GlobalTouchDetector
+import eywa.projectcodex.common.utils.auth.AuthUseCase
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -20,6 +21,7 @@ class MainActivityViewModel @Inject constructor(
         val db: ScoresRoomDatabase,
         private val updateDefaultRoundsTask: UpdateDefaultRoundsTask,
         val helpShowcase: HelpShowcaseUseCase,
+        val authUseCase: AuthUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainActivityState())
     val state = _state.asStateFlow()

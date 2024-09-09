@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- domain and client ID are public domain therefore do not need to be kept secret -->
+    <string name="com_auth0_domain">dev-435v0nmivkf37bhp.uk.auth0.com</string>
+    <string name="com_auth0_client_id">2GgGKs0621BIswutUTzcTx9yKB0rWCBc</string>
+</resources>

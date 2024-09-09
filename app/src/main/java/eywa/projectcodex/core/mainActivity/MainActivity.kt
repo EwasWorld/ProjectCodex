@@ -37,7 +37,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -61,13 +60,11 @@ import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.ClearNoHelpShowcaseFlag
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.CloseHelpShowcase
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.GoToNextHelpShowcaseItem
-import eywa.projectcodex.core.mainActivity.MainActivityIntent.StartHelpShowcase
+import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -111,6 +108,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                Auth(viewModel)
+
                 window.statusBarColor = CodexTheme.colors.statusBar.toArgb()
                 WindowCompat.getInsetsController(window, LocalView.current).isAppearanceLightStatusBars = false
                 window.navigationBarColor = CodexTheme.colors.androidNavButtons.toArgb()
@@ -138,18 +137,30 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                                 backgroundColor = CodexTheme.colors.appBackground,
                                 contentColor = CodexTheme.colors.onAppBackground,
-                                topBar = { TopBar(navController) }
+                                topBar = { TopBar(navController) },
                         ) { padding ->
                             CodexNavHost(
                                     navRoutes = navRoutes,
                                     navHostController = navController,
-                                    modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
+                                    modifier = Modifier.padding(bottom = padding.calculateBottomPadding())
                             )
                         }
                     }
 
                     HelpItem()
                 }
+            }
+        }
+    }
+
+    @Composable
+    fun Auth(viewModel: MainActivityViewModel) {
+        val state by viewModel.authUseCase.state.collectAsState()
+
+        LaunchedEffect(state.intents) {
+            if (state.intents.isNotEmpty()) {
+                // Because this launches an activity, it needs to be called from an activity context
+                viewModel.authUseCase.handleEvent(state.intents[0], this@MainActivity)
             }
         }
     }
@@ -165,7 +176,7 @@ class MainActivity : ComponentActivity() {
                             text = currentRoute?.getMenuBarTitle(currentEntry)
                                     ?: stringResource(R.string.app_name),
                             style = MaterialTheme.typography.h6,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                     )
                 },
                 backgroundColor = CodexTheme.colors.appBackground,
@@ -175,7 +186,7 @@ class MainActivity : ComponentActivity() {
                                     imageVector = CodexTheme.icons.helpInfo,
                                     contentDescription = stringResource(R.string.action_bar__help),
                             ),
-                            modifier = Modifier.testTag(MainActivityTestTag.HELP_ICON.getTestTag())
+                            modifier = Modifier.testTag(MainActivityTestTag.HELP_ICON)
                     ) { viewModel.handle(StartHelpShowcase(currentRoute)) }
 
                     CodexIconButton(
@@ -183,7 +194,7 @@ class MainActivity : ComponentActivity() {
                                     imageVector = Icons.Default.Home,
                                     contentDescription = stringResource(R.string.action_bar__home),
                             ),
-                            modifier = Modifier.testTag(MainActivityTestTag.HOME_ICON.getTestTag())
+                            modifier = Modifier.testTag(MainActivityTestTag.HOME_ICON)
                     ) {
                         with(navController) {
                             if (currentRoute == CodexNavRoute.MAIN_MENU) {
@@ -196,7 +207,7 @@ class MainActivity : ComponentActivity() {
                             popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
                         }
                     }
-                }
+                },
         )
     }
 
@@ -265,8 +276,8 @@ class MainActivity : ComponentActivity() {
                         targetValue = 0f,
                         animationSpec = tween(
                                 durationMillis = animationDuration,
-                                easing = FastOutLinearInEasing
-                        )
+                                easing = FastOutLinearInEasing,
+                        ),
                 )
             }
             else if (displayedHelpItemAnimationState.targetValue != 0f) {
@@ -282,8 +293,8 @@ class MainActivity : ComponentActivity() {
                         targetValue = 1f,
                         animationSpec = tween(
                                 durationMillis = animationDuration,
-                                easing = LinearOutSlowInEasing
-                        )
+                                easing = LinearOutSlowInEasing,
+                        ),
                 )
             }
         }
