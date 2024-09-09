@@ -1,9 +1,7 @@
 package eywa.projectcodex.components.newScore
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -15,7 +13,7 @@ class NewScoreStateUnitTest {
     fun testIsEditing() {
         assertEquals(
                 true,
-                NewScoreState(roundBeingEdited = ShootPreviewHelper.newFullShootInfo()).isEditing
+                NewScoreState(roundBeingEdited = ShootPreviewHelperDsl.create {}).isEditing
         )
         assertEquals(
                 false,
@@ -45,45 +43,48 @@ class NewScoreStateUnitTest {
 
     @Test
     fun testTooManyArrowsWarningShown() {
-        with(paramProvider) {
-            val state = NewScoreState(selectRoundDialogState = SelectRoundDialogState(allRounds = roundsData))
+        val state = NewScoreState(
+                selectRoundDialogState = SelectRoundDialogState(allRounds = paramProvider.roundsData),
+        )
 
-            assertEquals(
-                    false,
-                    state.tooManyArrowsWarningShown,
-            )
-            assertEquals(
-                    false,
-                    state.copy(
-                            roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
-                                    .addRound(round)
-                                    .addIdenticalArrows(1000, 1),
-                    ).tooManyArrowsWarningShown,
-            )
-            assertEquals(
-                    false,
-                    state.copy(
-                            roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
-                                    .addRound(round)
-                                    .addIdenticalArrows(2, 1),
-                            selectRoundDialogState = SelectRoundDialogState(
-                                    allRounds = roundsData,
-                                    selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,
-                            ),
-                    ).tooManyArrowsWarningShown,
-            )
-            assertEquals(
-                    true,
-                    state.copy(
-                            roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
-                                    .addRound(round)
-                                    .addIdenticalArrows(1000, 1),
-                            selectRoundDialogState = SelectRoundDialogState(
-                                    allRounds = roundsData,
-                                    selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,
-                            ),
-                    ).tooManyArrowsWarningShown,
-            )
-        }
+        assertEquals(
+                false,
+                state.tooManyArrowsWarningShown,
+        )
+        assertEquals(
+                false,
+                state.copy(
+                        roundBeingEdited = ShootPreviewHelperDsl.create {
+                            this.round = paramProvider.round
+                            addIdenticalArrows(1000, 1)
+                        },
+                ).tooManyArrowsWarningShown,
+        )
+        assertEquals(
+                false,
+                state.copy(
+                        roundBeingEdited = ShootPreviewHelperDsl.create {
+                            this.round = paramProvider.round
+                            addIdenticalArrows(2, 1)
+                        },
+                        selectRoundDialogState = SelectRoundDialogState(
+                                allRounds = paramProvider.roundsData,
+                                selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,
+                        ),
+                ).tooManyArrowsWarningShown,
+        )
+        assertEquals(
+                true,
+                state.copy(
+                        roundBeingEdited = ShootPreviewHelperDsl.create {
+                            this.round = paramProvider.round
+                            addIdenticalArrows(1000, 1)
+                        },
+                        selectRoundDialogState = SelectRoundDialogState(
+                                allRounds = paramProvider.roundsData,
+                                selectedRoundId = RoundPreviewHelper.outdoorImperialRoundData.round.roundId,
+                        ),
+                ).tooManyArrowsWarningShown,
+        )
     }
 }

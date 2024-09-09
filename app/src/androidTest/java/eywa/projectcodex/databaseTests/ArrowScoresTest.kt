@@ -6,6 +6,7 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.ListUtils.plusAtIndex
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.model.Arrow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,7 +21,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class ArrowScoresTest {
     @get:Rule
@@ -43,7 +43,7 @@ class ArrowScoresTest {
     @After
     @Throws(IOException::class)
     fun closeDb() {
-        db.close()
+        db.closeDb()
     }
 
     @Test
@@ -54,7 +54,7 @@ class ArrowScoresTest {
         arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 1, 3)
         assertEquals(
                 arrowSet.drop(3).asArrowScores().toSet(),
-                db.arrowScoreDao().getAllArrows().first().toSet(),
+                db.arrowScoresRepo().allArrows.first().toSet(),
         )
     }
 
@@ -66,7 +66,7 @@ class ArrowScoresTest {
         arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 7, 3)
         assertEquals(
                 arrowSet.filterIndexed { index, _ -> index !in listOf(6, 7, 8) }.asArrowScores().toSet(),
-                db.arrowScoreDao().getAllArrows().first().toSet(),
+                db.arrowScoresRepo().allArrows.first().toSet(),
         )
     }
 
@@ -78,7 +78,7 @@ class ArrowScoresTest {
         arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 22, 3)
         assertEquals(
                 arrowSet.dropLast(3).asArrowScores().toSet(),
-                db.arrowScoreDao().getAllArrows().first().toSet(),
+                db.arrowScoresRepo().allArrows.first().toSet(),
         )
     }
 
@@ -90,7 +90,7 @@ class ArrowScoresTest {
         arrowScoresRepo.deleteEnd(arrowSet.asArrowScores(), 22, 6)
         assertEquals(
                 arrowSet.dropLast(3).asArrowScores().toSet(),
-                db.arrowScoreDao().getAllArrows().first().toSet(),
+                db.arrowScoresRepo().allArrows.first().toSet(),
         )
     }
 
@@ -105,7 +105,7 @@ class ArrowScoresTest {
         )
         assertEquals(
                 (TestUtils.ARROWS + arrowSet).asArrowScores().toSet(),
-                db.arrowScoreDao().getAllArrows().first().toSet(),
+                db.arrowScoresRepo().allArrows.first().toSet(),
         )
     }
 
@@ -120,7 +120,7 @@ class ArrowScoresTest {
         )
         assertEquals(
                 arrowSet.plusAtIndex(TestUtils.ARROWS, 6).asArrowScores().toSet(),
-                db.arrowScoreDao().getAllArrows().first().toSet(),
+                db.arrowScoresRepo().allArrows.first().toSet(),
         )
     }
 

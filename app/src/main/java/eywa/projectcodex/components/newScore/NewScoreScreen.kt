@@ -2,7 +2,12 @@ package eywa.projectcodex.components.newScore
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,7 +31,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
@@ -36,9 +42,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addIdenticalArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundRows
@@ -47,7 +51,6 @@ import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
-import java.util.*
 
 
 @Composable
@@ -112,11 +115,10 @@ fun NewScoreScreen(
         ) {
             CodexDateTimeSelectorRow(
                     date = state.dateShot,
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_create_round__date_title),
                             helpBody = stringResource(R.string.help_create_round__date_body),
-                    ),
+                    ).asHelpState(helpListener),
                     updateDateListener = { listener(DateChanged(it)) },
             )
             RoundSelectionSection(state, listener)
@@ -139,11 +141,10 @@ private fun ScoringTypeSection(
                         if (state.isScoringNotCounting) R.string.create_round__score_type_score
                         else R.string.create_round__score_type_count
                 ),
-                helpState = HelpState(
-                        helpListener = { listener(HelpShowcaseAction(it)) },
+                helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_create_round__score_type_title),
                         helpBody = stringResource(R.string.help_create_round__score_type_body),
-                ),
+                ).asHelpState { listener(HelpShowcaseAction(it)) },
                 onClick = { listener(TypeChanged) },
                 modifier = Modifier.testTag(NewScoreTestTag.TYPE_SWITCH)
         )
@@ -222,14 +223,13 @@ private fun NewScoreEndButtons(
     CodexButton(
             text = stringResource(R.string.create_round__submit),
             onClick = { listener(Submit) },
-            helpState = HelpState(
-                    helpListener = helpListener,
+            helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_create_round__new_submit_title),
                     helpBody = stringResource(R.string.help_create_round__new_submit_body),
-            ),
+            ).asHelpState(helpListener),
             modifier = Modifier
                     .padding(top = 10.dp)
-                    .testTag(NewScoreTestTag.SUBMIT_BUTTON.getTestTag())
+                    .testTag(NewScoreTestTag.SUBMIT_BUTTON)
     )
 }
 
@@ -250,34 +250,31 @@ private fun EditingEndButtons(
         CodexButton(
                 text = stringResource(R.string.general_cancel),
                 onClick = { listener(CancelEditInfo) },
-                helpState = HelpState(
-                        helpListener = helpListener,
+                helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_create_round__edit_cancel_title),
                         helpBody = stringResource(R.string.help_create_round__edit_cancel_body),
-                ),
-                modifier = Modifier.testTag(NewScoreTestTag.CANCEL_BUTTON.getTestTag())
+                ).asHelpState(helpListener),
+                modifier = Modifier.testTag(NewScoreTestTag.CANCEL_BUTTON)
         )
         CodexButton(
                 text = stringResource(R.string.general__reset_edits),
                 onClick = { listener(ResetEditInfo) },
-                helpState = HelpState(
-                        helpListener = helpListener,
+                helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_create_round__edit_reset_title),
                         helpBody = stringResource(R.string.help_create_round__edit_reset_body),
-                ),
-                modifier = Modifier.testTag(NewScoreTestTag.RESET_BUTTON.getTestTag())
+                ).asHelpState(helpListener),
+                modifier = Modifier.testTag(NewScoreTestTag.RESET_BUTTON)
         )
     }
     CodexButton(
             text = stringResource(R.string.general_save),
             enabled = !state.tooManyArrowsWarningShown,
             onClick = { listener(Submit) },
-            helpState = HelpState(
-                    helpListener = helpListener,
+            helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_create_round__edit_submit_title),
                     helpBody = stringResource(R.string.help_create_round__edit_submit_body),
-            ),
-            modifier = Modifier.testTag(NewScoreTestTag.SUBMIT_BUTTON.getTestTag())
+            ).asHelpState(helpListener),
+            modifier = Modifier.testTag(NewScoreTestTag.SUBMIT_BUTTON)
     )
 }
 
@@ -345,7 +342,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
 
             // Editing
             initialState.copy(
-                    roundBeingEdited = ShootPreviewHelper.newFullShootInfo(),
+                    roundBeingEdited = ShootPreviewHelperDsl.create {},
             ),
 
             // DbInProgress
@@ -360,9 +357,10 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             selectedRoundId = round.round.roundId,
                             selectedSubTypeId = round.roundSubTypes.first().subTypeId,
                     ),
-                    roundBeingEdited = ShootPreviewHelper.newFullShootInfo()
-                            .addRound(round)
-                            .addIdenticalArrows(1000, 1),
+                    roundBeingEdited = ShootPreviewHelperDsl.create {
+                        this.round = this@NewScoreStatePreviewProvider.round
+                        addIdenticalArrows(1000, 1)
+                    }
             ),
 
             // Select Round Dialog

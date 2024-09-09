@@ -6,6 +6,7 @@ const val DEFAULT_BOW_ID = -1
 
 class BowRepo(private val bowDao: BowDao) {
     val defaultBow = bowDao.getDefaultBow()
+    val allBows = bowDao.getAllBows()
 
     suspend fun insertDefaultBowIfNotExist() {
         bowDao.insertOrIgnore(DatabaseBow(bowId = DEFAULT_BOW_ID, name = "Default"))

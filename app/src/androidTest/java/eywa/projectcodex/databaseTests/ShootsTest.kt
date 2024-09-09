@@ -6,7 +6,7 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.database.Filters
-import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.shootData.DatabaseArrowCountCalendarData
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
@@ -14,7 +14,6 @@ import eywa.projectcodex.database.shootData.ShootDao
 import eywa.projectcodex.database.shootData.ShootFilter
 import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -25,20 +24,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.Calendar
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class ShootsTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var db: ScoresRoomDatabase
-    private lateinit var shootDao: ShootDao
+    private lateinit var db: ScoresRoomDatabaseImpl
     private lateinit var shootsRepo: ShootsRepo
 
     @Before
     fun createDb() {
         db = DatabaseTestUtils.createDatabase()
-        shootDao = db.shootDao()
         shootsRepo = db.shootsRepo()
     }
 
@@ -91,7 +87,7 @@ class ShootsTest {
         val rawQueryActuals = shootsRepo.getFullShootInfo(Filters()).first()
         for (shoot in shoots) {
             val expectedShootRound = shoot.shootRound
-            val daoCompiledActual = shootDao.getFullShootInfo(shoot.id).first()!!
+            val daoCompiledActual = shootsRepo.getFullShootInfo(shoot.id).first()!!
             val rawQueryActual = rawQueryActuals.find { it.shoot.shootId == shoot.id }!!
 
             assertEquals(expectedShootRound?.roundId, daoCompiledActual.round?.roundId)
@@ -174,7 +170,7 @@ class ShootsTest {
         // Compiled query
         assertEquals(
                 setOf(2 to false, 3 to true, 4 to true, 8 to false),
-                shootDao
+                shootsRepo
                         .getFullShootInfo((1..8).toList())
                         .first()
                         .filter { it.isPersonalBest ?: false }
@@ -254,6 +250,7 @@ class ShootsTest {
 
         rounds.forEach { db.add(it) }
         shoots.forEach { db.add(it) }
+        db.insertDefaults()
 
         suspend fun check(expectedIds: Set<Int>, filters: List<ShootFilter>) {
             assertEquals(
@@ -327,12 +324,12 @@ class ShootsTest {
                     joinWithPrevious = (it + 1) in 3..5
             )
         }
-        shoots.forEach { shootDao.insert(it) }
+        shoots.forEach { shootsRepo.insert(it) }
 
         shoots.forEach {
             assertEquals(
                     if (it.shootId in 2..5) (2..5).toList() else listOf(it.shootId),
-                    shootDao
+                    shootsRepo
                             .getJoinedFullShoots(it.shootId)
                             .first()
                             .map { dbFar -> dbFar.shoot.shootId }
@@ -351,7 +348,7 @@ class ShootsTest {
 
         assertEquals(
                 count,
-                shootDao
+                shootsRepo
                         .getFullShootInfo(1)
                         .first()!!
                         .arrowCounter!!
@@ -406,7 +403,7 @@ class ShootsTest {
                         DatabaseArrowCountCalendarData("12-03", 12),
                         DatabaseArrowCountCalendarData("13-03", 12),
                 ),
-                shootDao.getCountsForCalendar(
+                db.shootDao().getCountsForCalendar(
                         fromDate = "7/3/20 02:00".parseDate(),
                         toDate = "13/3/20 13:00".parseDate(),
                 ).first()
@@ -500,13 +497,13 @@ class ShootsTest {
 
         assertEquals(
                 listOf(4, 5, 6),
-                shootDao.getHighestScoreShootsForRound(3, rounds[0].round.roundId, 1)
+                shootsRepo.getHighestScoreShootsForRound(3, rounds[0].round.roundId, 1)
                         .first()
                         .map { it.shootId }
         )
         assertEquals(
                 listOf(9, 8, 7),
-                shootDao.getMostRecentShootsForRound(3, rounds[0].round.roundId, 1)
+                shootsRepo.getMostRecentShootsForRound(3, rounds[0].round.roundId, 1)
                         .first()
                         .map { it.shootId }
         )

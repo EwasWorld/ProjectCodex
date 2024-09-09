@@ -1,7 +1,6 @@
 package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntry
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider
@@ -10,10 +9,9 @@ import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvid
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.model.PbType
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Test
 
 class ViewScoresEntryListUnitTest {
@@ -242,14 +240,23 @@ class ViewScoresEntryListUnitTest {
     // TODO Why is null round causing test to not respond?
     private fun List<ViewScoresEntry>.setAllRoundsIdentical() = filter { it.info.round != null }
             .map {
+                val fullRoundInfo = RoundPreviewHelper.outdoorImperialRoundData.copy(
+                        roundArrowCounts = listOf(
+                                RoundArrowCount(1, 1, 120.0, 72),
+                                RoundArrowCount(1, 2, 120.0, 72),
+                        )
+                )
                 it.copy(
-                        info = it.info.addRound(
-                                RoundPreviewHelper.outdoorImperialRoundData.copy(
-                                        roundArrowCounts = listOf(
-                                                RoundArrowCount(1, 1, 120.0, 72),
-                                                RoundArrowCount(1, 2, 120.0, 72),
-                                        )
-                                )
+                        info = it.info.copy(
+                                round = fullRoundInfo.round,
+                                roundArrowCounts = fullRoundInfo.roundArrowCounts,
+                                roundSubType = fullRoundInfo.roundSubTypes?.find { it.subTypeId == 1 },
+                                roundDistances = fullRoundInfo.getDistances(subTypeId = 1),
+                                shootRound = DatabaseShootRound(
+                                        shootId = it.info.shoot.shootId,
+                                        roundId = fullRoundInfo.round.roundId,
+                                        roundSubTypeId = 1,
+                                ),
                         )
                 )
             }

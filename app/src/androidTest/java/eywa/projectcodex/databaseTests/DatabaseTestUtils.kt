@@ -4,16 +4,14 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import eywa.projectcodex.common.testDatabaseName
-import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.rounds.FullRoundInfo
-import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 
 object DatabaseTestUtils {
-    fun createDatabase(): ScoresRoomDatabase {
+    fun createDatabase(): ScoresRoomDatabaseImpl {
         val context = ApplicationProvider.getApplicationContext<Context>()
         context.deleteDatabase(testDatabaseName)
         return Room
-                .inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java)
+                .inMemoryDatabaseBuilder(context, ScoresRoomDatabaseImpl::class.java)
                 .allowMainThreadQueries()
                 .build()
     }

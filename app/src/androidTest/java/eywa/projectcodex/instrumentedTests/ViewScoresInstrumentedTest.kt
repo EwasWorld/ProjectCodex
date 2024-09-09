@@ -14,14 +14,11 @@ import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersTypes
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.shootData.DatabaseShoot
-import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
@@ -51,20 +48,15 @@ class ViewScoresInstrumentedTest {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var db: ScoresRoomDatabase
-    private var shootsNew: List<FullShootInfo> = listOf()
-    private var shoots: List<DatabaseShoot> = listOf()
+    private var shoots: List<FullShootInfo> = listOf()
     private var rounds = listOf<FullRoundInfo>()
-    private var arrows: List<List<DatabaseArrowScore>> = listOf()
-    private var shootRound: List<DatabaseShootRound> = listOf()
 
     @Before
     fun beforeEach() {
         CommonSetupTeardownFns.generalSetup()
 
         hiltRule.inject()
-        shoots = listOf()
         rounds = listOf()
-        arrows = listOf()
 
         scenario = composeTestRule.activityRule.scenario
 
@@ -82,10 +74,7 @@ class ViewScoresInstrumentedTest {
         scenario.onActivity {
             runBlocking {
                 rounds.forEach { db.add(it) }
-                shoots.forEach { db.shootDao().insert(it) }
-                arrows.flatten().forEach { db.arrowScoreDao().insert(it) }
-                shootRound.forEach { db.shootRoundDao().insert(it) }
-                shootsNew.forEach { db.add(it) }
+                shoots.forEach { db.add(it) }
             }
         }
     }
@@ -129,7 +118,7 @@ class ViewScoresInstrumentedTest {
         )
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        shootsNew = listOf(
+        shoots = listOf(
                 ShootPreviewHelperDsl.create {
                     val firstOfThisYear = DateTimeFormat.SHORT_DATE_TIME.parse("1/1/$currentYear 10:00")
                     shoot = shoot.copy(shootId = 1, dateShot = firstOfThisYear)
@@ -230,7 +219,7 @@ class ViewScoresInstrumentedTest {
     fun testViewScoresEntry_NonDestructiveActions() {
         rounds = TestUtils.ROUNDS.take(1)
 
-        shootsNew = listOf(
+        shoots = listOf(
                 // No round
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 1, dateShot = Calendar.getInstance().apply { set(2020, 8, 28) })
@@ -327,7 +316,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testViewScoresEntry_Delete() {
-        shootsNew = listOf(
+        shoots = listOf(
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
                     addIdenticalArrows(36, 1)
@@ -363,7 +352,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testViewScoresEntry_Convert() {
-        shootsNew = listOf(
+        shoots = listOf(
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
                     addFullSetOfArrows()
@@ -421,7 +410,7 @@ class ViewScoresInstrumentedTest {
      */
     @Test
     fun testMultiSelect_Selections() {
-        shootsNew = listOf(
+        shoots = listOf(
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
                     setArrowsWithFinalScore(1, 36)
@@ -496,7 +485,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testMultiSelect_Email() {
-        shootsNew = listOf(
+        shoots = listOf(
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 1, dateShot = TestUtils.generateDate(2020))
                     setArrowsWithFinalScore(1, 36)
@@ -532,7 +521,7 @@ class ViewScoresInstrumentedTest {
 
                 clickMultiSelectEmail {
                     checkScoreText(
-                            shootsNew.withIndex().joinToString("\n\n") { (index, round) ->
+                            shoots.withIndex().joinToString("\n\n") { (index, round) ->
                                 val date = DateTimeFormat.SHORT_DATE.format(round.shoot.dateShot)
                                 "No Round - $date\nHits: 1, Score: ${index + 1}, 10s+: 0"
                             }
@@ -544,7 +533,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withMultiselect() {
-        shootsNew = List(20) {
+        shoots = List(20) {
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(shootId = it + 1, dateShot = TestUtils.generateDate())
             }
@@ -562,7 +551,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testHelp_withScroll() {
-        shootsNew = List(20) {
+        shoots = List(20) {
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(shootId = it + 1, dateShot = TestUtils.generateDate())
             }
@@ -580,7 +569,7 @@ class ViewScoresInstrumentedTest {
 
     @Test
     fun testFilters() {
-        shootsNew = listOf(
+        shoots = listOf(
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 1, dateShot = "30/10/2020 10:00".parseDate())
                     round = RoundPreviewHelper.wa1440RoundData

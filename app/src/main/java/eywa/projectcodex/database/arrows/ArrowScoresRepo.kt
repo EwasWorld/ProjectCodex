@@ -12,6 +12,8 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
  *  If DAOs have just one or two methods then repositories are often combined
  */
 class ArrowScoresRepo(private val arrowScoreDao: ArrowScoreDao) {
+    val allArrows = arrowScoreDao.getAllArrows()
+
     suspend fun insert(vararg arrowScores: DatabaseArrowScore) {
         arrowScoreDao.insert(*arrowScores)
     }

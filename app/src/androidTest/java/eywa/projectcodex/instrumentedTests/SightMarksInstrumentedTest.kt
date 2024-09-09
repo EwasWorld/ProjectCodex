@@ -126,7 +126,7 @@ class SightMarksInstrumentedTest {
     fun testShiftAndScale() {
         runBlocking {
             sightMarks.forEach {
-                db.sightMarkDao().insert(it.asDatabaseSightMark())
+                db.sightMarkRepo().insert(it.asDatabaseSightMark())
             }
         }
 

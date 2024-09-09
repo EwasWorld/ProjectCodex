@@ -53,19 +53,9 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addArrows
-import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelper.addRound
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.DismissNoEntriesError
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.HelpShowcaseAction
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.IntentHandledSuccessfully
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.NavigateUpHandled
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.OpenError
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.SubmitClicked
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.UpdateBoolean
-import eywa.projectcodex.components.emailScores.EmailScoresIntent.UpdateText
-import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
 
 
 @Composable
@@ -371,14 +361,14 @@ fun EmailScoresScreen_Preview() {
         EmailScoresScreen(
                 state = EmailScoresState(
                         rounds = listOf(
-                                ShootPreviewHelper
-                                        .newFullShootInfo(1)
-                                        .addRound(RoundPreviewHelper.indoorMetricRoundData)
-                                        .addArrows(List(36) { Arrow(7, false) }),
-                                ShootPreviewHelper
-                                        .newFullShootInfo(1)
-                                        .addRound(RoundPreviewHelper.outdoorImperialRoundData)
-                                        .addArrows(List(12) { Arrow(4, false) }),
+                                ShootPreviewHelperDsl.create {
+                                    round = RoundPreviewHelper.indoorMetricRoundData
+                                    addIdenticalArrows(36, 7)
+                                },
+                                ShootPreviewHelperDsl.create {
+                                    round = RoundPreviewHelper.outdoorImperialRoundData
+                                    addIdenticalArrows(12, 4)
+                                },
                         ),
                         error = null,
                         textFields = mapOf(

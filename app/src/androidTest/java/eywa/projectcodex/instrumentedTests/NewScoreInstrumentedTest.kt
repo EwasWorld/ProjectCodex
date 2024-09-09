@@ -9,6 +9,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.asCalendar
@@ -43,7 +44,6 @@ import java.util.Calendar
 import java.util.Date
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class NewScoreInstrumentedTest {
@@ -68,7 +68,7 @@ class NewScoreInstrumentedTest {
     private suspend fun getCurrentShoots() = db.shootsRepo().getFullShootInfo().first()
 
     private suspend fun getShoots(shootId: Int) =
-            db.shootDao().getFullShootInfo(shootId).first()
+            db.shootsRepo().getFullShootInfo(shootId).first()
 
     /**
      * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
@@ -125,9 +125,9 @@ class NewScoreInstrumentedTest {
     fun testAddAnotherRound() = runTest {
         setup()
         val ar = DatabaseShoot(2, TestUtils.generateDate(2020))
-        db.shootDao().insert(ar)
+        db.shootsRepo().insert(ar)
 
-        db.arrowScoreDao().insert(
+        db.arrowScoresRepo().insert(
                 *List(2) { DatabaseArrowScore(it + 1, 1, 6 + it, false) }.toTypedArray()
         )
 
@@ -422,13 +422,7 @@ class NewScoreInstrumentedTest {
         setup()
         scenario.onActivity {
             runBlocking {
-                db.shootDao().insert(
-                        DatabaseShoot(
-                                shootId = 2,
-                                dateShot = Date(2020, 5, 10, 17, 12, 13).asCalendar(),
-//            Calendar.Builder().setDate(2020, 5, 10).setTimeOfDay(17, 12, 13).build().time,
-                        )
-                )
+                db.shootsRepo().insert(DatabaseShoot(shootId = 2, dateShot = "10/05/20 17:12".parseDate()))
             }
         }
 

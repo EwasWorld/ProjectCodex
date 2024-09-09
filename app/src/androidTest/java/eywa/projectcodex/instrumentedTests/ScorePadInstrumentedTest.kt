@@ -5,14 +5,13 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.azimolabs.conditionwatcher.ConditionWatcher
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
-import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
@@ -47,26 +46,26 @@ class ScorePadInstrumentedTest {
     private lateinit var db: ScoresRoomDatabase
 
     private suspend fun addShoot(shootId: Int = 1, roundId: Int? = null, year: Int = 2022) {
-        db.shootDao().insert(
-                DatabaseShoot(
+        db.shootsRepo().insert(
+                shoot = DatabaseShoot(
                         shootId = shootId,
                         dateShot = TestUtils.generateDate(year),
-                )
-        )
-        roundId?.let {
-            db.shootRoundDao().insert(
+                ),
+                shootRound = roundId?.let {
                     DatabaseShootRound(
                             shootId = shootId,
                             roundId = roundId,
                     )
-            )
-        }
+                },
+                shootDetail = null,
+                isScoringNotCounting = true,
+        )
     }
 
     private suspend fun addArrows(indexes: List<Int>, shootId: Int = 1) {
         indexes
                 .mapIndexed { index, it -> TestUtils.ARROWS[it].asArrowScore(shootId, index + 1) }
-                .forEach { db.arrowScoreDao().insert(it) }
+                .forEach { db.arrowScoresRepo().insert(it) }
     }
 
     private fun setupActivity(setupDb: suspend () -> Unit) {
@@ -172,11 +171,16 @@ class ScorePadInstrumentedTest {
         )
 
         setupActivity {
-            db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", false, true))
-            db.roundDao().insert(Round(2, "RoundName2", "Round Name 2", true, false))
-
-            arrowCounts.forEach { db.roundArrowCountDao().insert(it) }
-            roundDistances.forEach { db.roundDistanceDao().insert(it) }
+            db.roundsRepo().updateRounds(
+                    listOf(
+                            listOf(
+                                    Round(1, "RoundName1", "Round Name 1", false, true),
+                                    Round(2, "RoundName2", "Round Name 2", true, false),
+                            ),
+                            arrowCounts,
+                            roundDistances,
+                    ).flatten().associateWith { UpdateType.NEW },
+            )
 
             addShoot(shootId = 1, roundId = 1, year = 2022)
             addArrows(indexes = arrows, shootId = 1)

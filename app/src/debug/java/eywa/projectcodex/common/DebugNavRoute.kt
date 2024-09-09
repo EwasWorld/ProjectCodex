@@ -9,13 +9,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
 import eywa.projectcodex.api.ApiScreen
-import eywa.projectcodex.auth.AuthScreen
 import eywa.projectcodex.coaching.CoachingCrossHairTestScreen
 import eywa.projectcodex.coaching.CoachingScreen
 import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.navigation.TabSwitcherItem
+import eywa.projectcodex.auth.AuthScreen
 import eywa.projectcodex.plotting.PlottingScreen
 import javax.inject.Singleton
 

@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.database.ScoresRoomDatabase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -14,7 +14,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class ArcherTest {
     @get:Rule
@@ -29,7 +28,7 @@ class ArcherTest {
 
     @After
     fun closeDb() {
-        db.close()
+        db.closeDb()
     }
 
     @Test
@@ -38,7 +37,7 @@ class ArcherTest {
         db.archerRepo().insertDefaultArcherIfNotExist()
 
         val handicaps = ArcherHandicapsPreviewHelper.handicaps
-        handicaps.forEach { db.archerHandicapDao().insert(it) }
+        handicaps.forEach { db.archerRepo().insert(it) }
 
         assertEquals(
                 handicaps.take(1).toSet(),

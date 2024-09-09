@@ -2,7 +2,7 @@ package eywa.projectcodex.databaseTests
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.bow.BowRepo
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
@@ -21,7 +21,7 @@ class BowTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var db: ScoresRoomDatabase
+    private lateinit var db: ScoresRoomDatabaseImpl
     private lateinit var bowRepo: BowRepo
 
     @Before

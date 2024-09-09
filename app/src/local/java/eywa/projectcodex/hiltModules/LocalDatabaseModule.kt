@@ -10,12 +10,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
+import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Optional
 import javax.inject.Singleton
 import kotlin.jvm.optionals.getOrNull
 
@@ -24,11 +26,11 @@ import kotlin.jvm.optionals.getOrNull
 @InstallIn(SingletonComponent::class)
 class LocalDatabaseModule {
     companion object {
-        var scoresRoomDatabase: ScoresRoomDatabase? = null
+        var scoresRoomDatabase: ScoresRoomDatabaseImpl? = null
 
         fun createScoresRoomDatabase(context: Context, addFakeData: suspend () -> Unit) {
             scoresRoomDatabase = Room
-                    .inMemoryDatabaseBuilder(context, ScoresRoomDatabase::class.java)
+                    .inMemoryDatabaseBuilder(context, ScoresRoomDatabaseImpl::class.java)
                     .allowMainThreadQueries()
                     .addCallback(
                             object : RoomDatabase.Callback() {
@@ -42,7 +44,7 @@ class LocalDatabaseModule {
                                         addFakeData()
                                     }
                                 }
-                            }
+                            },
                     )
                     .build()
         }
@@ -53,18 +55,20 @@ class LocalDatabaseModule {
         }
 
         suspend fun ScoresRoomDatabase.add(shootInfo: FullShootInfo) {
-            shootDao().insert(shootInfo.shoot)
-            shootInfo.arrows?.let { arrowScoreDao().insert(*it.toTypedArray()) }
-            shootInfo.shootRound?.let { shootRoundDao().insert(it) }
-            shootInfo.shootDetail?.let { shootDetailDao().insert(it) }
-            shootInfo.arrowCounter?.let { arrowCounterDao().insert(it) }
+            shootsRepo().insert(shootInfo.shoot, shootInfo.shootRound, shootInfo.shootDetail, true)
+            shootInfo.arrows?.let { arrowScoresRepo().insert(*it.toTypedArray()) }
+            shootInfo.arrowCounter?.let { arrowCounterRepo().insert(it) }
         }
 
         suspend fun ScoresRoomDatabase.add(roundInfo: FullRoundInfo) {
-            roundDao().insert(roundInfo.round)
-            roundInfo.roundSubTypes?.forEach { roundSubTypeDao().insert(it) }
-            roundInfo.roundArrowCounts?.forEach { roundArrowCountDao().insert(it) }
-            roundInfo.roundDistances?.forEach { roundDistanceDao().insert(it) }
+            roundsRepo().updateRounds(
+                    listOfNotNull(
+                            listOf(roundInfo.round),
+                            roundInfo.roundSubTypes,
+                            roundInfo.roundArrowCounts,
+                            roundInfo.roundDistances,
+                    ).flatten().associateWith { UpdateType.NEW }
+            )
         }
     }
 

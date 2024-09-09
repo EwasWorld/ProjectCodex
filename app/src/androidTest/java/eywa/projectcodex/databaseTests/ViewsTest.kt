@@ -6,6 +6,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ArrowScoresPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
@@ -29,7 +30,7 @@ class ViewsTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var db: ScoresRoomDatabase
+    private lateinit var db: ScoresRoomDatabaseImpl
 
     @Before
     fun createDb() {

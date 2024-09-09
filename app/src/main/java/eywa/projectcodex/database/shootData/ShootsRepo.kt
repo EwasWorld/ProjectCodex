@@ -120,8 +120,8 @@ class ShootsRepo(
                     FROM ${ShootWithScore.TABLE_NAME} as shoot
                     LEFT JOIN ${PersonalBest.TABLE_NAME} as personalBest
                             ON shoot.roundId = personalBest.roundId AND shoot.nonNullSubTypeId = personalBest.roundSubTypeId
-                    $wheresString
                     LEFT JOIN ${DatabaseBow.TABLE_NAME} as bow ON bow.bowId = $DEFAULT_BOW_ID
+                    $wheresString
                 """,
                 params.toTypedArray()
         )
@@ -131,6 +131,8 @@ class ShootsRepo(
 
     fun getFullShootInfo(shootIds: List<Int>) = shootDao.getFullShootInfo(shootIds)
     fun getFullShootInfo(shootId: Int) = shootDao.getFullShootInfo(shootId)
+
+    fun getJoinedFullShoots(shootId: Int) = shootDao.getJoinedFullShoots(shootId)
 
     /**
      * Grabs all data from the month of [date], plus 8 days before and after

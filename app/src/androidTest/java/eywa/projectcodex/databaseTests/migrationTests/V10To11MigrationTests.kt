@@ -12,6 +12,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.migrations.MIGRATION_10_11
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -24,8 +25,8 @@ class V10To11MigrationTests {
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),
-            ScoresRoomDatabase::class.java,
-            listOf<AutoMigrationSpec>(),
+            ScoresRoomDatabaseImpl::class.java,
+            listOf(),
             FrameworkSQLiteOpenHelperFactory(),
     )
 

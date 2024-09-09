@@ -15,6 +15,7 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.logMessage
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -95,9 +96,9 @@ class ZLargeScaleInstrumentedTest {
         val shoot = DatabaseShoot(1, TestUtils.generateDate())
         scenario.onActivity {
             runBlocking {
-                db.shootDao().insert(shoot)
+                db.shootsRepo().insert(shoot)
                 for (arrow in arrows) {
-                    db.arrowScoreDao().insert(arrow)
+                    db.arrowScoresRepo().insert(arrow)
                 }
                 addSightMarkToDb()
             }
@@ -106,7 +107,7 @@ class ZLargeScaleInstrumentedTest {
 
     private suspend fun addSightMarkToDb() {
         db.insertDefaults()
-        db.sightMarkDao().insert(sightMark)
+        db.sightMarkRepo().insert(sightMark)
     }
 
     /**
@@ -116,11 +117,15 @@ class ZLargeScaleInstrumentedTest {
     fun mainTest() {
         scenario.onActivity {
             runBlocking {
-                db.roundDao().insert(Round(1, "RoundName1", "Round Name 1", true, true))
-                db.roundArrowCountDao().insert(RoundArrowCount(1, 1, 1.0, 18))
-                db.roundArrowCountDao().insert(RoundArrowCount(1, 2, 1.0, 18))
-                db.roundDistanceDao().insert(RoundDistance(1, 1, 1, 60))
-                db.roundDistanceDao().insert(RoundDistance(1, 2, 1, 50))
+                db.roundsRepo().updateRounds(
+                        listOf(
+                                Round(1, "RoundName1", "Round Name 1", true, true),
+                                RoundArrowCount(1, 1, 1.0, 18),
+                                RoundArrowCount(1, 2, 1.0, 18),
+                                RoundDistance(1, 1, 1, 60),
+                                RoundDistance(1, 2, 1, 50),
+                        ).associateWith { UpdateType.NEW },
+                )
             }
         }
 

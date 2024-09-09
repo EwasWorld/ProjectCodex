@@ -10,6 +10,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.migrations.DatabaseMigrations
 import eywa.projectcodex.database.migrations.MIGRATION_10_11
 import kotlinx.coroutines.CoroutineScope
@@ -25,12 +26,12 @@ class DatabaseModule {
     @Singleton
     @Provides
     fun providesRoomDatabase(@ApplicationContext context: Context): ScoresRoomDatabase {
-        var scoresRoomDatabase: ScoresRoomDatabase? = null
+        var scoresRoomDatabase: ScoresRoomDatabaseImpl? = null
         scoresRoomDatabase = Room
                 .databaseBuilder(
                         context,
-                        ScoresRoomDatabase::class.java,
-                        ScoresRoomDatabase.DATABASE_NAME,
+                        ScoresRoomDatabaseImpl::class.java,
+                        ScoresRoomDatabaseImpl.DATABASE_NAME,
                 )
                 .addMigrations(
                         DatabaseMigrations.MIGRATION_1_2,
@@ -47,7 +48,7 @@ class DatabaseModule {
                                     scoresRoomDatabase!!.insertDefaults()
                                 }
                             }
-                        }
+                        },
                 )
                 .build()
 

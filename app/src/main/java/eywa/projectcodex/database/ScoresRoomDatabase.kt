@@ -4,20 +4,58 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import eywa.projectcodex.database.archer.*
-import eywa.projectcodex.database.arrows.*
+import eywa.projectcodex.database.archer.ArcherDao
+import eywa.projectcodex.database.archer.ArcherHandicapDao
+import eywa.projectcodex.database.archer.ArcherRepo
+import eywa.projectcodex.database.archer.DatabaseArcher
+import eywa.projectcodex.database.archer.DatabaseArcherHandicap
+import eywa.projectcodex.database.arrows.ArrowCounterDao
+import eywa.projectcodex.database.arrows.ArrowCounterRepo
+import eywa.projectcodex.database.arrows.ArrowScoreDao
+import eywa.projectcodex.database.arrows.ArrowScoresRepo
+import eywa.projectcodex.database.arrows.DatabaseArrowCounter
+import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.BowDao
 import eywa.projectcodex.database.bow.BowRepo
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.migrations.DatabaseMigrations
-import eywa.projectcodex.database.rounds.*
-import eywa.projectcodex.database.shootData.*
+import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.rounds.RoundArrowCount
+import eywa.projectcodex.database.rounds.RoundArrowCountDao
+import eywa.projectcodex.database.rounds.RoundDao
+import eywa.projectcodex.database.rounds.RoundDistance
+import eywa.projectcodex.database.rounds.RoundDistanceDao
+import eywa.projectcodex.database.rounds.RoundRepo
+import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.rounds.RoundSubTypeDao
+import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.database.shootData.DatabaseShootDetail
+import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.database.shootData.ShootDao
+import eywa.projectcodex.database.shootData.ShootDetailDao
+import eywa.projectcodex.database.shootData.ShootRoundDao
+import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
 import eywa.projectcodex.database.sightMarks.SightMarkRepo
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.database.views.TestViewDao
+
+interface ScoresRoomDatabase {
+    fun clearAllData()
+    fun closeDb()
+
+    suspend fun insertDefaults()
+
+    fun roundsRepo(): RoundRepo
+    fun shootsRepo(): ShootsRepo
+    fun arrowScoresRepo(): ArrowScoresRepo
+    fun archerRepo(): ArcherRepo
+    fun bowRepo(): BowRepo
+    fun arrowCounterRepo(): ArrowCounterRepo
+    fun sightMarkRepo(): SightMarkRepo
+}
 
 @Database(
         entities = [
@@ -42,7 +80,7 @@ import eywa.projectcodex.database.views.TestViewDao
         exportSchema = true, // Needs a schema location in the build.gradle too to export!
 )
 @TypeConverters(DatabaseConverters::class)
-abstract class ScoresRoomDatabase : RoomDatabase() {
+abstract class ScoresRoomDatabaseImpl : RoomDatabase(), ScoresRoomDatabase {
 
     abstract fun archerDao(): ArcherDao
     abstract fun archerHandicapDao(): ArcherHandicapDao
@@ -59,18 +97,22 @@ abstract class ScoresRoomDatabase : RoomDatabase() {
     abstract fun arrowCounterDao(): ArrowCounterDao
     abstract fun testViewDao(): TestViewDao
 
-    fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
-    fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao(), arrowCounterRepo())
-    fun arrowScoresRepo() = ArrowScoresRepo(arrowScoreDao())
-    fun archerRepo() = ArcherRepo(archerDao(), archerHandicapDao())
-    fun bowRepo() = BowRepo(bowDao())
-    fun arrowCounterRepo() = ArrowCounterRepo(arrowCounterDao())
-    fun sightMarkRepo() = SightMarkRepo(sightMarkDao())
+    override fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
+    override fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao(), arrowCounterRepo())
+    override fun arrowScoresRepo() = ArrowScoresRepo(arrowScoreDao())
+    override fun archerRepo() = ArcherRepo(archerDao(), archerHandicapDao())
+    override fun bowRepo() = BowRepo(bowDao())
+    override fun arrowCounterRepo() = ArrowCounterRepo(arrowCounterDao())
+    override fun sightMarkRepo() = SightMarkRepo(sightMarkDao())
 
-    suspend fun insertDefaults() {
+    override suspend fun insertDefaults() {
         bowRepo().insertDefaultBowIfNotExist()
         archerRepo().insertDefaultArcherIfNotExist()
     }
+
+    override fun clearAllData() = clearAllTables()
+
+    override fun closeDb() = close()
 
     companion object {
         const val DATABASE_NAME = "scores_database"
