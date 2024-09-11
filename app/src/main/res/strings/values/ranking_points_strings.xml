@@ -15,5 +15,5 @@
     <string name="ranking_points__tier_2_title">Tier 2</string>
     <string name="ranking_points__tier_3_title">Tier 3</string>
 
-    <string name="ranking_points__content_description">%.2f points. %s. Rank %d</string> <!-- 300 points. Tier 1. Rank 5 -->
+    <string name="ranking_points__content_description">%s points. %s. Rank %d</string> <!-- 300 points. Tier 1. Rank 5 -->
 </resources>
