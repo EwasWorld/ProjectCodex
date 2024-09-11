@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -82,9 +81,9 @@ fun ViewScoresListItem(
                                             !isInMultiSelectMode -> entry.getSingleClickAction().title
                                             entry.isSelected -> R.string.view_scores__deselect_entry
                                             else -> R.string.view_scores__select_entry
-                                        }
+                                        },
                                 ),
-                                action = { listener(ViewScoresIntent.EntryClicked(entry.id)); true }
+                                action = { listener(ViewScoresIntent.EntryClicked(entry.id)); true },
                         )
 
                         customActions = dropdownMenuItems?.map {
@@ -111,11 +110,11 @@ fun ViewScoresListItem(
                 if (item.shouldShow == null || item.shouldShow.invoke(entry)) {
                     DropdownMenuItem(
                             onClick = { listener(ViewScoresIntent.DropdownMenuClicked(item, entry.id)) },
-                            modifier = Modifier.testTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM.getTestTag())
+                            modifier = Modifier.testTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
                     ) {
                         Text(
                                 text = stringResource(id = item.title),
-                                style = CodexTypography.NORMAL
+                                style = CodexTypography.NORMAL,
                         )
                     }
                 }

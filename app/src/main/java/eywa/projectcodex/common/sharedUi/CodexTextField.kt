@@ -9,7 +9,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TextFieldColors
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
@@ -79,7 +82,6 @@ fun CodexTextField(
         onValueChange = state.onValueChange,
         placeholderText = placeholderText,
         labelText = labelText,
-        modifier = modifier.modifierIfNotNull(state.testTag) { Modifier.testTag(it.getTestTag()) },
         singleLine = singleLine,
         error = error,
         trailingIcon = trailingIcon,
@@ -91,6 +93,7 @@ fun CodexTextField(
         selectAllTextOnFocus = selectAllOnFocus,
         contentDescription = contentDescription,
         helpState = helpState,
+        modifier = modifier.modifierIfNotNull(state.testTag) { Modifier.testTag(it) },
 )
 
 @OptIn(ExperimentalMaterialApi::class)

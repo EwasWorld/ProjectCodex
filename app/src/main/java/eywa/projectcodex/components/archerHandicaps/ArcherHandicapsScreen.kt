@@ -2,10 +2,25 @@ package eywa.projectcodex.components.archerHandicaps
 
 import android.content.res.Resources
 import androidx.annotation.StringRes
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
@@ -14,11 +29,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -37,10 +57,17 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexFloatingActionButton
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
+import eywa.projectcodex.common.sharedUi.LoadingScreen
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsIntent.*
@@ -74,7 +101,7 @@ fun ArcherHandicapsScreen(
 ) {
     Box(
             contentAlignment = Alignment.BottomEnd,
-            modifier = Modifier.testTag(ArcherHandicapsTestTag.SCREEN.getTestTag())
+            modifier = Modifier.testTag(ArcherHandicapsTestTag.SCREEN)
     ) {
         LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(7.dp, Alignment.CenterVertically),
@@ -147,7 +174,7 @@ private fun HandicapRow(
                     text =
                     stringResource(
                             if (index == 0) R.string.archer_handicaps__current_separator
-                            else R.string.archer_handicaps__past_separator
+                            else R.string.archer_handicaps__past_separator,
                     ),
                     style = CodexTypography.LARGE.copy(color = CodexTheme.colors.onAppBackground),
                     fontWeight = FontWeight.Bold,
@@ -224,7 +251,7 @@ private fun DeleteDialog(
             ?.let {
                 stringResource(
                         R.string.archer_handicap__delete_dialog_body,
-                        DateTimeFormat.SHORT_DATE_TIME.format(it)
+                        DateTimeFormat.SHORT_DATE_TIME.format(it),
                 )
             }
             ?: stringResource(R.string.archer_handicap__delete_dialog_body_generic)
@@ -328,7 +355,7 @@ private enum class ArcherHandicapsMenuItem(
                     tint = CodexTheme.colors.iconButtonOnListItem,
             ),
             onClick = { listener(intent(item)) },
-            modifier = Modifier.testTag(testTag.getTestTag())
+            modifier = Modifier.testTag(testTag)
     )
 }
 
@@ -363,14 +390,13 @@ fun ArcherHandicapsScreen_Preview(
         @PreviewParameter(ArcherHandicapsScreenPreviewParamProvider::class) param: ArcherHandicapsState
 ) {
     var state by remember { mutableStateOf(param) }
-    val context = LocalContext.current
 
     CodexTheme {
         ArcherHandicapsScreen(state) { action ->
             when (action) {
                 is RowClicked ->
                     state = state.copy(
-                            lastClickedId = action.item.archerHandicapId.takeIf { state.lastClickedId != it }
+                            lastClickedId = action.item.archerHandicapId.takeIf { state.lastClickedId != it },
                     )
 
                 else -> Unit // ToastSpamPrevention.displayToast(context, action::class.simpleName.toString())

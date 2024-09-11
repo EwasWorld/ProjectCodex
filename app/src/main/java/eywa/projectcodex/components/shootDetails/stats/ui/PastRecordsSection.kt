@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -89,7 +88,7 @@ internal fun PastRecordsSection(
                     modifier = Modifier.fillMaxWidth()
             ) {
                 CodexTabSwitcher(
-                        items = StatsScreenPastRecordsTabs.values().toList(),
+                        items = StatsScreenPastRecordsTabs.entries,
                         selectedItem = state.pastRoundScoresTab,
                         itemClickedListener = { listener(StatsIntent.PastRecordsTabClicked(it)) },
                         itemColor = CodexTheme.colors.tabSwitcherOnDialogSelected,
@@ -99,7 +98,7 @@ internal fun PastRecordsSection(
 
                 Crossfade(
                         targetState = state.pastRoundScores,
-                        label = "recentBestRecordsTextFade"
+                        label = "recentBestRecordsTextFade",
                 ) { records ->
                     Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -137,7 +136,7 @@ private fun PastScore(
     if (isPb) {
         extraSemanticTextIds.add(
                 if (state.pastRoundScoresPbIsTied) R.string.archer_round_stats__is_tied_pb
-                else R.string.archer_round_stats__is_pb
+                else R.string.archer_round_stats__is_pb,
         )
     }
     if (isCurrentShoot) {
@@ -161,7 +160,7 @@ private fun PastScore(
                     if (shootRecord.isComplete) TextDecoration.None else TextDecoration.LineThrough
                     ),
             modifier = Modifier
-                    .testTag(StatsTestTag.PAST_RECORDS_DIALOG_ITEM.getTestTag())
+                    .testTag(StatsTestTag.PAST_RECORDS_DIALOG_ITEM)
                     .modifierIf(
                             predicate = background != null,
                             modifier = Modifier

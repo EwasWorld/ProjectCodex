@@ -14,7 +14,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -23,11 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 
 @Composable
@@ -54,19 +55,18 @@ fun SettingsScreen(
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
                         .padding(25.dp)
-                        .testTag(SettingsTestTag.SCREEN.getTestTag())
+                        .testTag(SettingsTestTag.SCREEN)
         ) {
             DataRow(
                     title = stringResource(R.string.settings__handicap_system_title),
                     text = stringResource(
                             if (state.use2023System) R.string.settings__handicap_system_agb_2023
-                            else R.string.settings__handicap_system_david_lane
+                            else R.string.settings__handicap_system_david_lane,
                     ),
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_settings__use_2023_system_title),
                             helpBody = stringResource(R.string.help_settings__use_2023_system_body),
-                    ),
+                    ).asHelpState(helpListener),
                     onClick = { listener(SettingsIntent.ToggleUse2023System) },
                     accessibilityRole = Role.Switch,
                     titleStyle = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground),
@@ -81,13 +81,12 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings__use_beta_features),
                         text = stringResource(
                                 if (state.useBetaFeatures) R.string.general_on
-                                else R.string.general_off
+                                else R.string.general_off,
                         ),
-                        helpState = HelpState(
-                                helpListener = helpListener,
+                        helpState = HelpShowcaseItem(
                                 helpTitle = stringResource(R.string.help_settings__use_beta_features_title),
                                 helpBody = stringResource(R.string.help_settings__use_beta_features_body),
-                        ),
+                        ).asHelpState(helpListener),
                         onClick = { listener(SettingsIntent.ToggleUseBetaFeatures) },
                         accessibilityRole = Role.Switch,
                         titleStyle = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground),

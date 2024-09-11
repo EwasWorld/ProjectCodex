@@ -2,7 +2,13 @@ package eywa.projectcodex.common.sharedUi
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -14,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -105,7 +110,7 @@ fun CodexChip(
                 modifier = clickModifier
                         .height(32.dp)
                         .padding(start = 8.dp, end = 16.dp)
-                        .testTag(testTag.getTestTag())
+                        .testTag(testTag)
         ) {
             if (selected) {
                 Icon(
@@ -191,7 +196,7 @@ fun CodexChip_Preview(
                 )
             }
             Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 CodexChip(
                         text = "Chip 3", selected = true, enabled = false,

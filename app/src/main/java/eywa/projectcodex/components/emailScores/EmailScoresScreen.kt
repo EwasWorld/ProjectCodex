@@ -17,7 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Devices
@@ -36,7 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CODEX_CHIP_SPACING
@@ -54,6 +54,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.emailScores.EmailScoresIntent.*
 
@@ -108,7 +109,7 @@ fun EmailScoresScreen(
                 positiveButton = ButtonState(
                         text = stringOrBlank(state.error?.buttonText),
                         onClick = { listener(DismissNoEntriesError) },
-                )
+                ),
         )
     }
 
@@ -116,7 +117,7 @@ fun EmailScoresScreen(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
                     .fillMaxSize()
-                    .testTag(EmailScoresTestTag.Screen.getTestTag())
+                    .testTag(EmailScoresTestTag.Screen)
     ) {
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -153,11 +154,10 @@ private fun ToAndSubject(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     CodexTextFieldRoundedSurface(
-            helpState = HelpState(
-                    helpListener = helpListener,
+            helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_email_scores__to_title),
                     helpBody = stringResource(R.string.help_email_scores__to_body),
-            ),
+            ).asHelpState(helpListener),
     ) {
         CodexTextField(
                 state = EmailScoresTextField.TO.asTextFieldState(state, listener),
@@ -171,11 +171,10 @@ private fun ToAndSubject(
         )
     }
     CodexTextFieldRoundedSurface(
-            helpState = HelpState(
-                    helpListener = helpListener,
+            helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_email_scores__subject_title),
                     helpBody = stringResource(R.string.help_email_scores__subject_body),
-            ),
+            ).asHelpState(helpListener),
     ) {
         CodexTextField(
                 state = EmailScoresTextField.SUBJECT.asTextFieldState(state, listener),
@@ -213,28 +212,26 @@ private fun Attachments(
     ) {
         Text(
                 text = stringResource(R.string.email_scores__attachments_title),
-                style = CodexTypography.SMALL.copy(CodexTheme.colors.onAppBackground)
+                style = CodexTypography.SMALL.copy(CodexTheme.colors.onAppBackground),
         )
         CodexChip(
                 text = stringResource(id = R.string.email_scores__full_score_sheet_as_attachment),
                 state = EmailScoresCheckbox.FULL_SCORE_SHEET.asState(),
-                helpState = HelpState(
-                        helpListener = helpListener,
+                helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_email_scores__full_score_sheet_attachment_title),
                         helpBody = stringResource(R.string.help_email_scores__full_score_sheet_attachment_body),
-                ),
+                ).asHelpState(helpListener),
                 onToggle = { checkboxListener(EmailScoresCheckbox.FULL_SCORE_SHEET) },
         )
         CodexChip(
                 text = stringResource(id = R.string.email_scores__full_score_sheet_with_distance_totals),
                 state = EmailScoresCheckbox.DISTANCE_TOTAL.asState(
-                        state.isChecked(EmailScoresCheckbox.FULL_SCORE_SHEET)
+                        state.isChecked(EmailScoresCheckbox.FULL_SCORE_SHEET),
                 ),
-                helpState = HelpState(
-                        helpListener = helpListener,
+                helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_email_scores__include_distance_totals_title),
                         helpBody = stringResource(R.string.help_email_scores__include_distance_totals_body),
-                ),
+                ).asHelpState(helpListener),
                 onToggle = { checkboxListener(EmailScoresCheckbox.DISTANCE_TOTAL) },
         )
     }
@@ -257,20 +254,18 @@ private fun MessageBody(
                     placeholderText = stringResource(id = R.string.email_scores__message_header_placeholder),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
                     colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_email_scores__message_start_title),
                             helpBody = stringResource(R.string.help_email_scores__message_start_body),
-                    ),
+                    ).asHelpState(helpListener),
                     modifier = Modifier.fillMaxWidth()
             )
             CodexTextFieldRoundedSurface(
                     color = CodexTheme.colors.disabledOnSurfaceOnBackground,
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_email_scores__scores_title),
                             helpBody = stringResource(R.string.help_email_scores__scores_body),
-                    ),
+                    ).asHelpState(helpListener),
                     modifier = Modifier.padding(horizontal = 5.dp)
             ) {
                 // TODO Might be better accessibility-wise if each round was in a separate box?
@@ -281,7 +276,7 @@ private fun MessageBody(
                         modifier = Modifier
                                 .padding(15.dp)
                                 .fillMaxWidth()
-                                .testTag(EmailScoresTestTag.ScoreText.getTestTag())
+                                .testTag(EmailScoresTestTag.ScoreText)
                 )
             }
             CodexTextField(
@@ -289,11 +284,10 @@ private fun MessageBody(
                     placeholderText = stringResource(id = R.string.email_scores__message_footer_placeholder),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None),
                     colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_email_scores__message_end_title),
                             helpBody = stringResource(R.string.help_email_scores__message_end_body),
-                    ),
+                    ).asHelpState(helpListener),
                     modifier = Modifier.fillMaxWidth()
             )
         }
@@ -305,15 +299,14 @@ private fun SendButton(
         listener: (EmailScoresIntent) -> Unit,
 ) {
     val context = LocalContext.current
-    val sendHelpState = HelpState(
-            helpListener = { listener(HelpShowcaseAction(it)) },
+    val sendHelpState = HelpShowcaseItem(
             helpTitle = stringResource(R.string.help_email_scores__send_title),
             helpBody = stringResource(R.string.help_email_scores__send_body),
-    )
+    ).asHelpState { listener(HelpShowcaseAction(it)) }
     sendHelpState.add()
     CodexFloatingActionButton(
             icon = CodexIconInfo.VectorIcon(
-                    imageVector = Icons.Default.Send,
+                    imageVector = Icons.AutoMirrored.Default.Send,
                     contentDescription = stringResource(R.string.email_scores__send)
             ),
             onClick = {
@@ -321,20 +314,20 @@ private fun SendButton(
                         SubmitClicked(
                                 context.getExternalFilesDir(null)
                                         ?: throw IllegalStateException("Unable to access storage")
-                        )
+                        ),
                 )
             },
             modifier = Modifier
                     .padding(15.dp)
                     .updateHelpDialogPosition(sendHelpState)
-                    .testTag(EmailScoresTestTag.SendButton.getTestTag())
+                    .testTag(EmailScoresTestTag.SendButton)
     )
 }
 
 sealed class EmailScoresTestTag : CodexTestTag {
-    object Screen : EmailScoresTestTag()
-    object ScoreText : EmailScoresTestTag()
-    object SendButton : EmailScoresTestTag()
+    data object Screen : EmailScoresTestTag()
+    data object ScoreText : EmailScoresTestTag()
+    data object SendButton : EmailScoresTestTag()
 
     class TextField(private val field: EmailScoresTextField) : EmailScoresTestTag() {
         override fun getElement(): String = "TEXT_FIELD_$field"
@@ -380,7 +373,7 @@ fun EmailScoresScreen_Preview() {
                                 EmailScoresTextField.TO to "",
                         ),
                         booleanFields = setOf(EmailScoresCheckbox.FULL_SCORE_SHEET),
-                )
+                ),
         ) {}
     }
 }

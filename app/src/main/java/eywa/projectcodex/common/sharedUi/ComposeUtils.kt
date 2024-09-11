@@ -15,7 +15,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
 import eywa.projectcodex.common.utils.CodexTestTag
 
-fun Modifier.testTag(testTag: CodexTestTag) = testTag(testTag.getTestTag())
+fun Modifier.testTag(testTag: CodexTestTag) = testTag("${testTag.screenName}_${testTag.getElement()}")
 
 object ComposeUtils {
     fun <K : Any> Modifier.modifierIfNotNull(value: K?, modifier: (K) -> Modifier) =

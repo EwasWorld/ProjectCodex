@@ -9,13 +9,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.utils.CodexTestTag
 
 @Composable
 fun CodexMenuDialog(
@@ -56,6 +56,6 @@ fun CodexMenuDialog(
 
 interface CodexMenuDialogItem {
     val displayName: String
-    val itemTestTag: String
+    val itemTestTag: CodexTestTag
     val onClick: () -> Unit
 }

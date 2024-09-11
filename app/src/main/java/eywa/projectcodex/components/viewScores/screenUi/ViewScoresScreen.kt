@@ -10,7 +10,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,7 +33,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -48,6 +54,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.viewScores.ViewScoresIntent
@@ -104,7 +111,7 @@ private fun handleEffects(
     if (state.multiSelectEmailNoSelection) {
         ToastSpamPrevention.displayToast(
                 context,
-                context.resources.getString(R.string.err_view_score__no_rounds_selected)
+                context.resources.getString(R.string.err_view_score__no_rounds_selected),
         )
         listener(HandledEmailNoSelection)
     }
@@ -134,7 +141,7 @@ private fun handleEffects(
             CustomLogger.customLogger.w(LOG_TAG, "Tried to continue completed round")
             ToastSpamPrevention.displayToast(
                     context,
-                    context.resources.getString(R.string.err_view_score__round_already_complete)
+                    context.resources.getString(R.string.err_view_score__round_already_complete),
             )
         }
         listener(HandledAddEndOnCompletedRound)
@@ -204,7 +211,7 @@ fun ViewScoresScreen(
             modifier = Modifier
                     .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
-                    .testTag(ViewScoresTestTag.SCREEN.getTestTag())
+                    .testTag(ViewScoresTestTag.SCREEN)
     ) {
         // If data has not been loaded
         if (state.isLoading) {
@@ -217,7 +224,7 @@ fun ViewScoresScreen(
                     contentPadding = PaddingValues(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier
-                            .testTag(ViewScoresTestTag.LAZY_COLUMN.getTestTag())
+                            .testTag(ViewScoresTestTag.LAZY_COLUMN)
                             .align(Alignment.TopCenter)
             ) {
                 itemsIndexed(
@@ -281,7 +288,7 @@ fun ViewScoresScreen(
             UnobstructedBox(
                     onGloballyPositioned = {
                         listener(HelpShowcaseAction(SetVisibleScreenSize(ViewScoresHelpBoundaries.LIST.ordinal, it)))
-                    }
+                    },
             ) {
                 ViewScoresActionBar(
                         modifier = Modifier

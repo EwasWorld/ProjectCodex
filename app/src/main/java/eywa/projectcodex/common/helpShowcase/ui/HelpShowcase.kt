@@ -3,7 +3,14 @@ package eywa.projectcodex.common.helpShowcase.ui
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,7 +20,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.AnnotatedString
@@ -27,6 +33,7 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 
 // TODO Better above/below logic - can it default to below unless there isn't enough room rather than taking the larger?
@@ -45,7 +52,7 @@ fun HelpShowcase(
     val overlayColor = CodexTheme.colors.helpShowcaseScrim
 
     Box(
-            contentAlignment = Alignment.TopStart
+            contentAlignment = Alignment.TopStart,
     ) {
         Canvas(
                 modifier = Modifier
@@ -58,7 +65,7 @@ fun HelpShowcase(
             drawRect(
                     color = overlayColor,
                     topLeft = Offset(0f, 0f),
-                    size = this.size
+                    size = this.size,
             )
             state.drawCutout(this, animationState)
         }
@@ -72,12 +79,12 @@ fun HelpShowcaseText(
         @FloatRange(from = 0.0, to = 1.0) animationState: Float = 1f,
 ) {
     Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp, state.textAreaVerticalArrangement),
             modifier = Modifier
                     .offset { state.textAreaTopLeft }
                     .height(with(LocalDensity.current) { state.textAreaHeight.toDp() })
                     .padding(16.dp)
-                    .padding(horizontal = 5.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp, state.textAreaVerticalArrangement),
+                    .padding(horizontal = 5.dp)
     ) {
         Text(
                 text = state.title,
@@ -88,7 +95,7 @@ fun HelpShowcaseText(
                 modifier = Modifier
                         .padding(bottom = 5.dp)
                         .alpha(animationState)
-                        .testTag(ComposeHelpShowcaseTestTag.TITLE.getTestTag())
+                        .testTag(ComposeHelpShowcaseTestTag.TITLE)
         )
         Text(
                 text = state.message,
@@ -104,12 +111,12 @@ fun HelpShowcaseText(
                     onClick = { state.nextItemListener() },
                     style = CodexTypography.NORMAL.copy(
                             fontSize = 22.sp,
-                            color = CodexTheme.colors.helpShowcaseButton
+                            color = CodexTheme.colors.helpShowcaseButton,
                     ),
                     modifier = Modifier
                             .padding(bottom = 5.dp)
                             .alpha(animationState)
-                            .testTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON.getTestTag())
+                            .testTag(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
             )
         }
         ClickableText(
@@ -117,11 +124,11 @@ fun HelpShowcaseText(
                 onClick = { state.closeListener() },
                 style = CodexTypography.NORMAL.copy(
                         fontSize = 18.sp,
-                        color = CodexTheme.colors.helpShowcaseButton
+                        color = CodexTheme.colors.helpShowcaseButton,
                 ),
                 modifier = Modifier
                         .alpha(animationState)
-                        .testTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON.getTestTag())
+                        .testTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
         )
     }
 }
@@ -136,9 +143,9 @@ private fun ComposeHelpShowcasePreview(
         @PreviewParameter(ComposeHelpShowcasePreviewProvider::class) param: ComposeHelpShowcasePreviewParams,
 ) {
     Column(
-            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
     ) {
         CodexButton(text = "Hello") {}
         CodexButton(text = "Hello") {}
@@ -159,7 +166,7 @@ private fun ComposeHelpShowcasePreview(
                                 height = constraints.minHeight.toFloat(),
                                 width = constraints.minWidth.toFloat(),
                         ),
-                )
+                ),
         )
     }
 }

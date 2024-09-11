@@ -19,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -111,7 +110,7 @@ fun NewScoreScreen(
                         .verticalScroll(rememberScrollState())
                         .background(CodexTheme.colors.appBackground)
                         .padding(25.dp)
-                        .testTag(NewScoreTestTag.SCREEN.getTestTag())
+                        .testTag(NewScoreTestTag.SCREEN)
         ) {
             CodexDateTimeSelectorRow(
                     date = state.dateShot,
@@ -139,7 +138,7 @@ private fun ScoringTypeSection(
                 title = stringResource(R.string.create_round__score_type),
                 text = stringResource(
                         if (state.isScoringNotCounting) R.string.create_round__score_type_score
-                        else R.string.create_round__score_type_count
+                        else R.string.create_round__score_type_count,
                 ),
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_create_round__score_type_title),
@@ -172,7 +171,7 @@ private fun RoundSelectionSection(
     Surface(
             shape = RoundedCornerShape(
                     if (isRoundsUpdateCompleteAndNoneSelected) CodexTheme.dimens.smallCornerRounding
-                    else CodexTheme.dimens.cornerRounding
+                    else CodexTheme.dimens.cornerRounding,
             ),
             border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
             color = CodexTheme.colors.appBackground,
@@ -360,7 +359,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                     roundBeingEdited = ShootPreviewHelperDsl.create {
                         this.round = this@NewScoreStatePreviewProvider.round
                         addIdenticalArrows(1000, 1)
-                    }
+                    },
             ),
 
             // Select Round Dialog
@@ -368,7 +367,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                     selectRoundDialogState = SelectRoundDialogState(
                             allRounds = roundsData,
                             isRoundDialogOpen = true,
-                    )
+                    ),
             ),
 
             // Select Subtype Dialog

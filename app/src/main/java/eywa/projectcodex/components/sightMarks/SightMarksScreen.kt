@@ -2,21 +2,44 @@ package eywa.projectcodex.components.sightMarks
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -29,15 +52,29 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.DEFAULT_HELP_PRIORITY
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Add
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent.Remove
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseShape
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.asHelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.sharedUi.*
+import eywa.projectcodex.common.sharedUi.ButtonState
+import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
+import eywa.projectcodex.common.sharedUi.CodexMenuDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksIntent.*
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
@@ -46,7 +83,7 @@ import eywa.projectcodex.components.sightMarks.diagram.SightMarksDiagramHelper
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuDialogItem
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent
 import eywa.projectcodex.model.SightMark
-import java.util.*
+import java.util.Calendar
 
 private val screenPadding = 15.dp
 
@@ -90,10 +127,11 @@ fun SightMarksScreen(
 ) {
     Crossfade(
             targetState = state,
+            label = "SightMarksScreenCrossfade",
             modifier = Modifier
                     .background(CodexTheme.colors.appBackground)
                     .fillMaxSize()
-                    .testTag(SCREEN.getTestTag())
+                    .testTag(SCREEN)
     ) {
         listener(HelpShowcaseAction(HelpShowcaseIntent.Clear))
         when {
@@ -182,14 +220,13 @@ private fun ScalingScreen(
             ) {
                 Shifter(
                         title = stringResource(R.string.sight_marks__preview_shift),
-                        helpState = HelpState(
-                                helpListener = helpListener,
+                        helpState = HelpShowcaseItem(
                                 helpTitle = stringResource(R.string.help_sight_marks__preview_shift_title),
                                 helpBody = stringResource(R.string.help_sight_marks__preview_shift_body),
-                        ),
+                        ).asHelpState(helpListener),
                         onClick = { isAdd, isBig -> listener(ShiftAndScaleIntent.Shift(isAdd, isBig)) },
                         onResetClicked = { listener(ShiftAndScaleIntent.ShiftReset) },
-                        modifier = Modifier.testTag(SAS_SHIFT_BUTTONS.getTestTag())
+                        modifier = Modifier.testTag(SAS_SHIFT_BUTTONS)
                 )
                 Shifter(
                         title = stringResource(R.string.sight_marks__preview_scale),
@@ -200,14 +237,13 @@ private fun ScalingScreen(
                                 else -> state.shiftAndScaleState.canDoSmallScaleDecrease
                             }
                         },
-                        helpState = HelpState(
-                                helpListener = helpListener,
+                        helpState = HelpShowcaseItem(
                                 helpTitle = stringResource(R.string.help_sight_marks__preview_scale_title),
                                 helpBody = stringResource(R.string.help_sight_marks__preview_scale_body),
-                        ),
+                        ).asHelpState(helpListener),
                         onClick = { isAdd, isBig -> listener(ShiftAndScaleIntent.Scale(isAdd, isBig)) },
                         onResetClicked = { listener(ShiftAndScaleIntent.ScaleReset) },
-                        modifier = Modifier.testTag(SAS_SCALE_BUTTONS.getTestTag())
+                        modifier = Modifier.testTag(SAS_SCALE_BUTTONS)
                 )
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -220,25 +256,23 @@ private fun ScalingScreen(
                             text = stringResource(R.string.sight_marks__preview_flip),
                             buttonStyle = CodexButtonDefaults.OutlinedButtonOnAppBackground,
                             onClick = { listener(ShiftAndScaleIntent.FlipClicked) },
-                            helpState = HelpState(
-                                    helpListener = helpListener,
+                            helpState = HelpShowcaseItem(
                                     helpTitle = stringResource(R.string.help_sight_marks__preview_flip_title),
                                     helpBody = stringResource(R.string.help_sight_marks__preview_flip_body),
-                            ),
+                            ).asHelpState(helpListener),
                             modifier = Modifier
-                                    .testTag(SAS_FLIP_BUTTON.getTestTag())
+                                    .testTag(SAS_FLIP_BUTTON)
                     )
                     CodexButton(
                             text = stringResource(R.string.general_complete),
                             onClick = { listener(ShiftAndScaleIntent.SubmitClicked) },
                             buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
-                            helpState = HelpState(
-                                    helpListener = helpListener,
+                            helpState = HelpShowcaseItem(
                                     helpTitle = stringResource(R.string.help_sight_marks__preview_complete_title),
                                     helpBody = stringResource(R.string.help_sight_marks__preview_complete_body),
-                            ),
+                            ).asHelpState(helpListener),
                             modifier = Modifier
-                                    .testTag(SAS_COMPLETE_BUTTON.getTestTag())
+                                    .testTag(SAS_COMPLETE_BUTTON)
                     )
                 }
             }
@@ -284,7 +318,7 @@ private fun Shifter(
         IconButton(
                 enabled = isEnabled,
                 onClick = { onClick(isAdd, isBig) },
-                modifier = Modifier.testTag(testTag.getTestTag())
+                modifier = Modifier.testTag(testTag)
         ) {
             Icon(
                     imageVector = icon,
@@ -306,7 +340,7 @@ private fun Shifter(
             CustomAccessibilityAction(
                     label = stringResource(R.string.sight_marks__preview_reset_description),
                     action = { onResetClicked(); true },
-            )
+            ),
     )
 
     Row(
@@ -335,7 +369,7 @@ private fun Shifter(
         IconButton(
                 onClick = onResetClicked,
                 modifier = Modifier
-                        .testTag(SAS_RESET_BUTTON.getTestTag())
+                        .testTag(SAS_RESET_BUTTON)
                         .clearAndSetSemantics { }
         ) {
             Icon(
@@ -370,7 +404,7 @@ private fun EmptyScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier
                     .padding(top = 10.dp)
-                    .testTag(NO_SIGHT_MARKS_TEXT.getTestTag())
+                    .testTag(NO_SIGHT_MARKS_TEXT)
     )
     listener(HelpShowcaseAction(Remove(stringResource(R.string.help_sight_marks__diagram_title))))
 }
@@ -397,12 +431,11 @@ private fun AddNewSightMarkButton(
                     contentDescription = stringResource(R.string.sight_marks__add_button),
             ),
             captionBelow = stringResource(R.string.sight_marks__add_button),
-            helpState = HelpState(
-                    helpListener = helpListener,
+            helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_sight_marks__add_title),
                     helpBody = stringResource(R.string.help_sight_marks__add_body),
-            ),
-            modifier = Modifier.testTag(ADD_BUTTON.getTestTag())
+            ).asHelpState(helpListener),
+            modifier = Modifier.testTag(ADD_BUTTON)
     )
 }
 
@@ -430,12 +463,11 @@ private fun MainScreen(
                             contentDescription = stringResource(R.string.sight_marks__options_button),
                     ),
                     captionBelow = stringResource(R.string.sight_marks__options_button),
-                    helpState = HelpState(
-                            helpListener = helpListener,
+                    helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_sight_marks__options_title),
                             helpBody = stringResource(R.string.help_sight_marks__options_body),
-                    ),
-                    modifier = Modifier.testTag(OPTIONS_BUTTON.getTestTag())
+                    ).asHelpState(helpListener),
+                    modifier = Modifier.testTag(OPTIONS_BUTTON)
             )
         }
         HelpShowcaseItem(
@@ -446,10 +478,10 @@ private fun MainScreen(
         ).let { helpListener(Add(it)) }
         SightMarksDiagram(
                 state = state,
-                onClick = { listener(SightMarkClicked(it)) }
+                onClick = { listener(SightMarkClicked(it)) },
         )
 
-        val menuItems = SightMarksMenuDialogItem.values().map { item ->
+        val menuItems = SightMarksMenuDialogItem.entries.map { item ->
             item.asCodexMenuItem(LocalContext.current.resources) {
                 if (it == SightMarksMenuIntent.ArchiveAll) {
                     isArchiveConfirmationShown = true

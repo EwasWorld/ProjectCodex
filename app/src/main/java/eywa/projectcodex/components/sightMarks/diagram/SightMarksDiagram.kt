@@ -25,7 +25,6 @@ import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
@@ -45,6 +44,7 @@ import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.sightMarks.SightMarksState
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.database.rounds.getDistanceUnitRes
@@ -92,14 +92,14 @@ fun SightMarksDiagram(
                     Icon(
                             imageVector = Icons.Default.ChevronRight,
                             contentDescription = null,
-                            tint = sightMark.getColour()
+                            tint = sightMark.getColour(),
                     )
                 }
                 state.sightMarks.forEach { sightMark ->
                     Icon(
                             imageVector = Icons.Default.ChevronLeft,
                             contentDescription = null,
-                            tint = sightMark.getColour()
+                            tint = sightMark.getColour(),
                     )
                 }
                 // Horizontal line from chevron & to text
@@ -150,7 +150,7 @@ fun SightMarksDiagram(
         val offsets = Offsets.getOffsetsAndAdjustForScreenSize(
                 indicatorPlaceables = placeables,
                 tapeWidth = tape.width,
-                singleSideThreshold = constraints.maxWidth / 0.9f
+                singleSideThreshold = constraints.maxWidth / 0.9f,
         )
         placeables.calculateAndSetLinePlaceables(tape)
         tape.calculateAndSetOverhangs(placeables)
@@ -214,7 +214,7 @@ private fun List<Pair<SightMarkIndicatorGroup, Boolean>>.place(
 
             indicator.indicatorPlaceable().offsetPlace(
                     x = 0f + horizontal2Start + horizontal2.width + indicator.getPadding(),
-                    y = indicatorTop
+                    y = indicatorTop,
             )
         }
     }
@@ -283,7 +283,7 @@ private fun SightMarkIndicator(
                             R.string.sight_marks__marked.takeIf { sightMark.isMarked },
                             sightMark.note?.let { R.string.sight_marks__has_note_content_descr },
                             R.string.sight_marks__archived.takeIf { sightMark.isArchived },
-                    ).map { stringResource(it) }
+                    ).map { stringResource(it) },
             ).joinToString(". ")
 
     @Composable
@@ -296,7 +296,7 @@ private fun SightMarkIndicator(
                     modifier = Modifier
                             .width(15.dp)
                             .aspectRatio(1f)
-                            .testTag(SightMarksTestTag.DIAGRAM_NOTE_ICON.getTestTag())
+                            .testTag(SightMarksTestTag.DIAGRAM_NOTE_ICON)
             )
         }
     }
@@ -311,7 +311,7 @@ private fun SightMarkIndicator(
                                     .padding(vertical = 3.dp)
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(CodexTheme.colors.sightMarksMarkedBackground)
-                                    .padding(horizontal = 7.dp)
+                                    .padding(horizontal = 7.dp),
                     )
                     .clickable { onClick(sightMark) }
                     .clearAndSetSemantics {
@@ -329,7 +329,7 @@ private fun SightMarkIndicator(
                         ),
                 color = colour,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.testTag(SightMarksTestTag.SIGHT_MARK_TEXT.getTestTag())
+                modifier = Modifier.testTag(SightMarksTestTag.SIGHT_MARK_TEXT)
         )
         if (!isLeft) NoteIcon()
     }

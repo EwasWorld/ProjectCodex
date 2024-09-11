@@ -91,7 +91,7 @@ enum class CodexNavRoute : ScreenNavRoute {
 
         @Composable
         override fun Screen(navController: NavController) {
-            ArcherInfoScreen(navController)
+            ArcherInfoScreen()
         }
     },
     AWARDS {

@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -262,7 +261,7 @@ private fun TitleBar(
                                             helpTitle = stringResource(R.string.help_view_scores__filters_clear_title),
                                             helpBody = stringResource(R.string.help_view_scores__filters_clear_body),
                                             priority = ViewScoresFiltersHelpPriority.BEFORE_ROUNDS.ordinal,
-                                    ).asHelpState(helpShowcaseListener)
+                                    ).asHelpState(helpShowcaseListener),
                             )
             )
 
@@ -350,7 +349,7 @@ private fun ToggleFilter(
             textClickableStyle = LocalTextStyle.current.asClickableStyle(),
             onClick = onClick,
             helpState = helpState,
-            modifier = Modifier.testTag(testTag),
+            modifier = Modifier.testTag(testTag)
     )
 }
 
@@ -368,7 +367,7 @@ private fun ColumnScope.DateFilters(
                             helpTitle = stringResource(R.string.help_view_scores__filters_date_title),
                             helpBody = stringResource(R.string.help_view_scores__filters_date_body),
                             priority = ViewScoresFiltersHelpPriority.BEFORE_ROUNDS.ordinal,
-                    ).asHelpState(helpShowcaseListener)
+                    ).asHelpState(helpShowcaseListener),
             )
     ) {
         Text(
@@ -627,7 +626,7 @@ private fun RoundsFilter(
                                 helpBody = stringResource(R.string.help_view_scores__filters_round_body),
                                 priority = ViewScoresFiltersHelpPriority.ROUNDS.ordinal,
                         ).asHelpState(helpShowcaseListener),
-                ),
+                )
         ) {
             val text =
                     if (roundFilter) selectRoundDialogState.selectedRound?.round?.displayName
@@ -640,10 +639,10 @@ private fun RoundsFilter(
                 DataRow(
                         title = stringResource(R.string.create_round__round),
                         text = text,
-                        modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW.getTestTag()),
                         onClick = { onUpdate(SelectRoundDialogIntent.RoundIntent.OpenRoundDialog) }
                                 .takeIf { !hasNoRounds },
                         textClickableStyle = clickableStyle,
+                        modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_ROUND_ROW)
                 )
                 if (hasNoRounds) {
                     Text(
@@ -699,9 +698,9 @@ private fun SubTypeFilter(
         DataRow(
                 title = stringResource(R.string.create_round__round_sub_type),
                 text = subTypeName ?: stringResource(R.string.view_scores__filters_no_filter),
-                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW.getTestTag()),
                 onClick = { onUpdate(SelectRoundDialogIntent.SubTypeIntent.OpenSubTypeDialog) },
                 textClickableStyle = clickableStyle,
+                modifier = Modifier.testTag(SelectRoundDialogTestTag.SELECTED_SUBTYPE_ROW)
         )
         if (subTypeName != null) {
             ClearIcon(onClear, ViewScoresFiltersTestTag.CLEAR_SUB_ROUND_FILTER_BUTTON)

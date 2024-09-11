@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +25,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.common.utils.openWebPage
@@ -51,7 +51,7 @@ fun AboutScreen(
                 modifier = Modifier
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground)
-                        .testTag(AboutScreenTestTag.SCREEN.getTestTag())
+                        .testTag(AboutScreenTestTag.SCREEN)
         ) {
             Spacer(modifier = Modifier.weight(1f))
             Text(
@@ -97,7 +97,7 @@ fun AboutScreen(
                                 state.displayString.get(),
                         ),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.testTag(AboutScreenTestTag.UPDATE_TASK_STATUS.getTestTag())
+                        modifier = Modifier.testTag(AboutScreenTestTag.UPDATE_TASK_STATUS)
                 )
             }
         }

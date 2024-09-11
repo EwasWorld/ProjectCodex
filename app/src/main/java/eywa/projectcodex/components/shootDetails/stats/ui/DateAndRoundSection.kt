@@ -4,7 +4,6 @@ import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import eywa.projectcodex.R
@@ -19,6 +18,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectFaceRow
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.model.FullShootInfo
@@ -39,12 +39,12 @@ fun DateAndRoundSection(
                         helpTitle = stringResource(R.string.help_archer_round_stats__edit_round_info_title),
                         helpBody = stringResource(R.string.help_archer_round_stats__edit_round_info_body),
                 ).asHelpState(helpListener),
-                modifier = modifier,
+                modifier = modifier
         ) {
             Text(
                     text = DateTimeFormat.LONG_DATE_TIME.format(fullShootInfo.shoot.dateShot),
                     modifier = Modifier
-                            .testTag(StatsTestTag.DATE_TEXT.getTestTag())
+                            .testTag(StatsTestTag.DATE_TEXT)
                             .updateHelpDialogPosition(
                                     helpState = HelpShowcaseItem(
                                             helpTitle = stringResource(R.string.help_archer_round_stats__date_title),
@@ -56,7 +56,7 @@ fun DateAndRoundSection(
                     title = stringResource(R.string.archer_round_stats__round),
                     text = fullShootInfo.displayName
                             ?: stringResource(R.string.archer_round_stats__no_round),
-                    textModifier = Modifier.testTag(StatsTestTag.ROUND_TEXT.getTestTag()),
+                    textModifier = Modifier.testTag(StatsTestTag.ROUND_TEXT),
                     helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_archer_round_stats__round_title),
                             helpBody = stringResource(R.string.help_archer_round_stats__round_body),

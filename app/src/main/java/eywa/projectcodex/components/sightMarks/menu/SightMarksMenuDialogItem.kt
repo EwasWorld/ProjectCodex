@@ -4,6 +4,7 @@ import android.content.res.Resources
 import androidx.annotation.StringRes
 import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.CodexMenuDialogItem
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag.*
 import eywa.projectcodex.components.sightMarks.menu.SightMarksMenuIntent.*
@@ -24,6 +25,6 @@ enum class SightMarksMenuDialogItem(
     ) = object : CodexMenuDialogItem {
         override val displayName: String = resources.getString(displayNameId)
         override val onClick: () -> Unit = { listener(intent) }
-        override val itemTestTag: String = testTag.getTestTag()
+        override val itemTestTag: CodexTestTag = testTag
     }
 }

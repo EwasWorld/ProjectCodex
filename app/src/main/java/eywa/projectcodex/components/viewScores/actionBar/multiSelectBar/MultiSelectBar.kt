@@ -12,7 +12,6 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +25,7 @@ import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.viewScores.actionBar.ViewScoresActionBar
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoreHelpPriority
 import eywa.projectcodex.components.viewScores.screenUi.ViewScoresTestTag
@@ -63,6 +63,7 @@ internal fun MultiSelectBar(
 
     Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
     ) {
         AnimatedVisibility(
                 isInMultiSelectMode,
@@ -88,12 +89,12 @@ internal fun MultiSelectBar(
                                     }
                                     else {
                                         R.string.view_scores__multi_select_all
-                                    }
+                                    },
                             ),
                     ),
                     helpTitle = R.string.help_view_score__select_all_or_none_title,
                     helpBody = R.string.help_view_score__select_all_or_none_body,
-                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_ALL.getTestTag()),
+                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_ALL)
             )
         }
         else {
@@ -105,7 +106,7 @@ internal fun MultiSelectBar(
                     ),
                     helpTitle = R.string.help_view_score__start_multi_select_title,
                     helpBody = R.string.help_view_score__start_multi_select_body,
-                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_START.getTestTag()),
+                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_START)
             )
         }
 
@@ -120,7 +121,7 @@ internal fun MultiSelectBar(
                     ),
                     helpTitle = R.string.help_view_score__action_multi_select_title,
                     helpBody = R.string.help_view_score__action_multi_select_body,
-                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_EMAIL.getTestTag()),
+                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_EMAIL)
             )
         }
 
@@ -135,7 +136,7 @@ internal fun MultiSelectBar(
                     ),
                     helpTitle = R.string.help_view_score__cancel_multi_select_title,
                     helpBody = R.string.help_view_score__cancel_multi_select_body,
-                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_CANCEL.getTestTag()),
+                    modifier = Modifier.testTag(ViewScoresTestTag.MULTI_SELECT_CANCEL)
             )
         }
     }

@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,9 +17,10 @@ import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.model.SightMark
-import java.util.*
+import java.util.Calendar
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -51,7 +51,7 @@ internal fun SightTape(
                             modifier = Modifier
                                     .background(tapeColour)
                                     .padding(horizontal = 2.dp)
-                                    .testTag(SightMarksTestTag.DIAGRAM_TICK_LABEL.getTestTag())
+                                    .testTag(SightMarksTestTag.DIAGRAM_TICK_LABEL)
                     )
                 }
                 // Major tick lines

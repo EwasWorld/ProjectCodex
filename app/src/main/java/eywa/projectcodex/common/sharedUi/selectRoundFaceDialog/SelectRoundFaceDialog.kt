@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -48,6 +47,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent.*
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag.*
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
@@ -79,9 +79,9 @@ fun SelectFaceRow(
                     helpTitle = stringResource(R.string.help_create_round__face_title),
                     helpBody = stringResource(R.string.help_create_round__face_body),
             ).asHelpState(helpListener),
-            modifier = modifier,
             onClick = onClick,
-            textModifier = Modifier.testTag(ROW_TEXT.getTestTag())
+            textModifier = Modifier.testTag(ROW_TEXT),
+            modifier = modifier
     )
 }
 
@@ -117,7 +117,7 @@ fun SelectRoundFaceDialog(
                         text = stringResource(R.string.general_complete),
                         onClick = { listener(Close) },
                 ).takeIf { !state.isSingleMode },
-                modifier = Modifier.testTag(DIALOG.getTestTag())
+                modifier = Modifier.testTag(DIALOG)
         ) {
             Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,7 +145,7 @@ fun SelectRoundFaceDialog(
                     CodexButton(
                             text = stringResource(
                                     if (state.isSingleMode) R.string.create_round__select_a_face_all_diff
-                                    else R.string.create_round__select_a_face_all_same
+                                    else R.string.create_round__select_a_face_all_same,
                             ),
                             buttonStyle = object : OutlinedButton() {
                                 override fun getTextColor(themeColors: CodexThemeColors): Color =
@@ -158,8 +158,8 @@ fun SelectRoundFaceDialog(
                             modifier = Modifier
                                     .padding(vertical = 5.dp)
                                     .testTag(
-                                            if (state.isSingleMode) SWITCH_TO_MULTI_BUTTON.getTestTag()
-                                            else SWITCH_TO_SINGLE_BUTTON.getTestTag()
+                                            if (state.isSingleMode) SWITCH_TO_MULTI_BUTTON
+                                            else SWITCH_TO_SINGLE_BUTTON,
                                     )
                     )
                 }
@@ -174,8 +174,8 @@ private fun Selectors(
         listener: (SelectRoundFaceDialogIntent) -> Unit,
 ) {
     val availableFaces =
-            if (state.round == null) RoundFace.values().toList()
-            else RoundFace.values().filter { it.shouldShow(state.round) }
+            if (state.round == null) RoundFace.entries
+            else RoundFace.entries.filter { it.shouldShow(state.round) }
 
     ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground)) {
         if (state.isSingleMode || state.distances == null || state.distances.size < 2) {
@@ -187,7 +187,7 @@ private fun Selectors(
                                 .clickable { listener(SingleFaceClicked(it)) }
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
-                                .testTag(SINGLE_OPTION.getTestTag())
+                                .testTag(SINGLE_OPTION)
                 )
             }
         }
@@ -229,7 +229,7 @@ private fun IndividualSelectors(
                 helpState = null,
                 modifier = Modifier
                         .padding(vertical = 8.dp)
-                        .testTag(MULTI_OPTION.getTestTag())
+                        .testTag(MULTI_OPTION)
                         .clearAndSetSemantics {
                             contentDescription = "$title $face"
                             role = Role.DropdownList
@@ -253,7 +253,7 @@ private fun IndividualSelectors(
                     ) {
                         Text(
                                 text = stringResource(it.text),
-                                modifier = Modifier.testTag(MULTI_DROPDOWN_OPTION.getTestTag())
+                                modifier = Modifier.testTag(MULTI_DROPDOWN_OPTION)
                         )
                     }
                 }

@@ -16,17 +16,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.DataRow
@@ -34,6 +33,7 @@ import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
@@ -41,7 +41,6 @@ import eywa.projectcodex.database.archer.getGenderString
 
 @Composable
 fun ArcherInfoScreen(
-        navController: NavController,
         viewModel: ArcherInfoViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -61,7 +60,7 @@ fun ArcherInfoScreen(
                     .background(CodexTheme.colors.appBackground)
                     .verticalScroll(rememberScrollState())
                     .padding(vertical = 20.dp)
-                    .testTag(ArcherInfoTestTag.SCREEN.getTestTag())
+                    .testTag(ArcherInfoTestTag.SCREEN)
     ) {
         CategorySelectors(state, listener)
     }
@@ -79,11 +78,10 @@ private fun CategorySelectors(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.updateHelpDialogPosition(
-                    HelpState(
-                            helpListener = helpListener,
+                    HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_classification_tables__categories_title),
                             helpBody = stringResource(R.string.help_classification_tables__categories_body),
-                    ),
+                    ).asHelpState(helpListener),
             )
     ) {
         ProvideTextStyle(value = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground)) {
@@ -95,25 +93,25 @@ private fun CategorySelectors(
                     accessibilityRole = Role.Switch,
                     modifier = Modifier
                             .padding(vertical = 7.dp)
-                            .testTag(ArcherInfoTestTag.GENDER_SELECTOR.getTestTag())
+                            .testTag(ArcherInfoTestTag.GENDER_SELECTOR)
             )
             Input(
                     label = stringResource(R.string.archer_info__age_dialog_title),
                     currentValue = state.age.rawName,
-                    values = ClassificationAge.values().map { it.rawName },
+                    values = ClassificationAge.entries.map { it.rawName },
                     testTag = ArcherInfoTestTag.AGE_SELECTOR,
                     onClick = { listener(ArcherInfoIntent.AgeClicked) },
-                    onItemClick = { listener(ArcherInfoIntent.AgeSelected(ClassificationAge.values()[it])) },
+                    onItemClick = { listener(ArcherInfoIntent.AgeSelected(ClassificationAge.entries[it])) },
                     onDismiss = { listener(ArcherInfoIntent.CloseDropdown) },
                     expanded = state.expanded == ArcherInfoState.Dropdown.AGE,
             )
             Input(
                     label = stringResource(R.string.archer_info__bow_dialog_title),
                     currentValue = state.bow.rawName,
-                    values = ClassificationBow.values().map { it.rawName },
+                    values = ClassificationBow.entries.map { it.rawName },
                     testTag = ArcherInfoTestTag.BOW_SELECTOR,
                     onClick = { listener(ArcherInfoIntent.BowClicked) },
-                    onItemClick = { listener(ArcherInfoIntent.BowSelected(ClassificationBow.values()[it])) },
+                    onItemClick = { listener(ArcherInfoIntent.BowSelected(ClassificationBow.entries[it])) },
                     onDismiss = { listener(ArcherInfoIntent.CloseDropdown) },
                     expanded = state.expanded == ArcherInfoState.Dropdown.BOW,
                     modifier = Modifier.padding(top = 10.dp)
@@ -139,7 +137,7 @@ private fun Input(
             text = currentValue,
             helpState = null,
             onClick = onClick,
-            modifier = modifier.testTag(testTag.getTestTag())
+            modifier = modifier.testTag(testTag)
     )
     SimpleDialog(
             isShown = expanded,
@@ -150,7 +148,7 @@ private fun Input(
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
                         onClick = onDismiss,
-                )
+                ),
         ) {
             Column {
                 values.forEachIndexed { index, value ->
@@ -162,7 +160,7 @@ private fun Input(
                                     .clickable { onItemClick(index) }
                                     .fillMaxWidth()
                                     .padding(10.dp)
-                                    .testTag(ArcherInfoTestTag.SELECTOR_DIALOG_ITEM.getTestTag())
+                                    .testTag(ArcherInfoTestTag.SELECTOR_DIALOG_ITEM)
                     )
                 }
             }
@@ -188,7 +186,5 @@ enum class ArcherInfoTestTag : CodexTestTag {
 @Preview
 @Composable
 fun ArcherInfoScreen_Preview() {
-    ArcherInfoScreen(
-            ArcherInfoState()
-    ) {}
+    ArcherInfoScreen(ArcherInfoState()) {}
 }

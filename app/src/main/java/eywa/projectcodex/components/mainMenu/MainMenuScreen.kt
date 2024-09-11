@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,7 +23,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.asHelpState
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
@@ -33,15 +33,9 @@ import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexThemeColors
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.ExitDialogCloseClicked
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.ExitDialogOkClicked
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.HelpShowcaseAction
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.Navigate
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.NavigateHandled
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.OpenExitDialog
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.WhatsNewClose
-import eywa.projectcodex.components.mainMenu.MainMenuIntent.WhatsNewOpen
+import eywa.projectcodex.components.mainMenu.MainMenuIntent.*
 import kotlin.system.exitProcess
 
 @Composable
@@ -83,7 +77,7 @@ private fun MainMenuScreen(
             modifier = Modifier
                     .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
-                    .testTag(MainMenuTestTag.SCREEN.getTestTag())
+                    .testTag(MainMenuTestTag.SCREEN)
     ) {
         val (iconButtons, defaultButtons) = options.partition { it.buttonTitle == null }
 
@@ -101,12 +95,11 @@ private fun MainMenuScreen(
                                 text = it.buttonTitle!!.get(),
                                 onClick = { listener(Navigate(it.navRoute)) },
                                 buttonStyle = style,
-                                helpState = HelpState(
-                                        helpListener = helpListener,
+                                helpState = HelpShowcaseItem(
                                         helpTitle = it.helpTitle.get(),
                                         helpBody = it.helpBody.get(),
-                                ),
-                                modifier = Modifier.testTag(it.testTag.getTestTag())
+                                ).asHelpState(helpListener),
+                                modifier = Modifier.testTag(it.testTag)
                         )
                     }
                 }
@@ -122,12 +115,11 @@ private fun MainMenuScreen(
                         CodexIconButton(
                                 onClick = { listener(Navigate(it.navRoute)) },
                                 icon = it.icon!!,
-                                helpState = HelpState(
-                                        helpListener = helpListener,
+                                helpState = HelpShowcaseItem(
                                         helpTitle = it.helpTitle.get(),
                                         helpBody = it.helpBody.get(),
-                                ),
-                                modifier = Modifier.testTag(it.testTag.getTestTag())
+                                ).asHelpState(helpListener),
+                                modifier = Modifier.testTag(it.testTag)
                         )
                     }
         }
@@ -182,7 +174,7 @@ enum class MainMenuTestTag : CodexTestTag {
 @Composable
 fun PreviewMainMenuScreen() {
     MainMenuScreen(
-            options = MainMenuDefaultOptions.values().toSet(),
+            options = MainMenuDefaultOptions.entries.toSet(),
             state = MainMenuState(),
             listener = {},
     )
