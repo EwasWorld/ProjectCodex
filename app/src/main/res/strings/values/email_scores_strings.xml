@@ -24,6 +24,8 @@
 
     <string name="email_scores__to">To</string>
     <string name="email_scores__to_placeholder" tools:ignore="Typos">example1@email.com, example2@email.com</string>
+    <string name="email_scores__save_emails_checkbox">Save email(s) for next time</string>
+    <string name="email_scores__remove_email">Remove</string>
     <string name="email_scores__subject">Subject</string>
     <string name="email_scores__message">Message</string>
     <string name="email_scores__message_header_placeholder">Hi,</string>

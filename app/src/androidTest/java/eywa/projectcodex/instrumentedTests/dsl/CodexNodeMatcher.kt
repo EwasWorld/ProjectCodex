@@ -26,7 +26,7 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher = hasText(text, substring)
     }
 
-    object HasSetTextAction : CodexNodeMatcher() {
+    data object HasSetTextAction : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = hasSetTextAction()
     }
 
@@ -40,7 +40,7 @@ sealed class CodexNodeMatcher {
                 }
     }
 
-    object HasNoError : CodexNodeMatcher() {
+    data object HasNoError : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher =
                 SemanticsMatcher(
                         "Has no ${SemanticsProperties.Error.name}"
@@ -55,7 +55,7 @@ sealed class CodexNodeMatcher {
 
     data class HasTestTag(val testTag: CodexTestTag, val substring: Boolean = false) : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher {
-            val text = testTag.getTestTag()
+            val text = "${testTag.screenName}_${testTag.getElement()}"
             return SemanticsMatcher(
                     "${SemanticsProperties.TestTag.name} = '$text' (substring: $substring)"
             ) { node ->
@@ -71,7 +71,7 @@ sealed class CodexNodeMatcher {
      * LazyColumn will cache nodes that have been removed, leaving them in the hierarchy.
      * An update to compose could resolve this issue as outlined in https://issuetracker.google.com/issues/187188981
      */
-    object IsNotCached : CodexNodeMatcher() {
+    data object IsNotCached : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher {
             return SemanticsMatcher("isNotCached") { node -> node.layoutInfo.isPlaced }
         }
@@ -107,19 +107,19 @@ sealed class CodexNodeMatcher {
         override fun getMatcher(): SemanticsMatcher = hasAnyChild(matchers.getMatcher())
     }
 
-    object HasClickAction : CodexNodeMatcher() {
+    data object HasClickAction : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = hasClickAction()
     }
 
-    object HasScrollToIndexAction : CodexNodeMatcher() {
+    data object HasScrollToIndexAction : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = hasScrollToIndexAction()
     }
 
-    object HasScrollAction : CodexNodeMatcher() {
+    data object HasScrollAction : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = hasScrollAction()
     }
 
-    object IsNotSelectable : CodexNodeMatcher() {
+    data object IsNotSelectable : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher = isSelectable().not()
     }
 

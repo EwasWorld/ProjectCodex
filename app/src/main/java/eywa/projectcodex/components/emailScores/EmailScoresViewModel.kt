@@ -3,6 +3,8 @@ package eywa.projectcodex.components.emailScores
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +20,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
+import eywa.projectcodex.datastore.retrieve
 import eywa.projectcodex.exceptions.UserException
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.scorePadData.ScorePadData
@@ -57,19 +60,28 @@ class EmailScoresViewModel @Inject constructor(
                         if (it == null) emptyFlow<List<DatabaseFullShootInfo>?>()
                         else repo.getFullShootInfo(it)
                     }
-                    .combine(datastore.get(DatastoreKey.Use2023HandicapSystem)) { a, b -> a to b }
-                    .collectLatest { (entries, use2023System) ->
+                    .combine(
+                            datastore.get(listOf(DatastoreKey.Use2023HandicapSystem, DatastoreKey.SavedEmails)),
+                    ) { shootInfo, datastoreData -> shootInfo to datastoreData }
+                    .collectLatest { (entries, datastoreData) ->
                         _state.update {
                             if (entries.isNullOrEmpty()) {
                                 it.copy(error = EmailScoresError.NO_SELECTED_ENTRIES)
                             }
                             else {
+                                val use2023System = datastoreData.retrieve(DatastoreKey.Use2023HandicapSystem)
                                 it.copy(
                                         rounds = entries.map { entry -> FullShootInfo(entry, use2023System) },
                                         error = it.error
                                                 .takeIf { error -> error != EmailScoresError.NO_SELECTED_ENTRIES },
                                 )
-                            }
+                            }.copy(
+                                    savedEmails = datastoreData
+                                            .retrieve(DatastoreKey.SavedEmails)
+                                            .split(DatastoreKey.SavedEmails.DELIM)
+                                            .filter { email -> email.isNotBlank() }
+                                            .sorted(),
+                            )
                         }
                     }
         }
@@ -77,10 +89,27 @@ class EmailScoresViewModel @Inject constructor(
 
     fun handle(action: EmailScoresIntent) {
         when (action) {
-            is UpdateText ->
+            is UpdateText -> _state.update { it.copy(textFields = it.textFields.plus(action.type to action.value)) }
+            is UpdateEmail -> _state.update { it.copy(emailField = action.value) }
+
+            is InsertEmail -> {
                 _state.update {
-                    it.copy(textFields = it.textFields.plus(action.type to action.value))
+                    val text = it.emailField.text
+                    var cursor = it.emailField.selection.start
+                    while (cursor > 0 && text[cursor - 1].toString() !in EmailScoresState.emailDelimiters) {
+                        cursor--
+                    }
+                    cursor = cursor.coerceAtLeast(0)
+                    val start = text.take(cursor)
+                    val end = text.drop(cursor + it.currentlyTypingEmail().length)
+                    it.copy(
+                            emailField = TextFieldValue(
+                                    text = start + action.value + end,
+                                    selection = TextRange(cursor + action.value.length),
+                            ),
+                    )
                 }
+            }
 
             is UpdateBoolean ->
                 _state.update {
@@ -115,6 +144,15 @@ class EmailScoresViewModel @Inject constructor(
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.EMAIL_SCORE::class)
             is SubmitClicked -> sendButtonListener(state.value)
             NavigateUpHandled -> _state.update { it.copy(navigateUpTriggered = false) }
+            ToggleSaveEmailsCheckbox -> _state.update { it.copy(saveEmails = !it.saveEmails) }
+            is RemoveEmail -> viewModelScope.launch {
+                datastore.set(
+                        key = DatastoreKey.SavedEmails,
+                        value = _state.value.savedEmails
+                                .minus(action.email)
+                                .joinToString(DatastoreKey.SavedEmails.DELIM),
+                )
+            }
         }
     }
 
@@ -189,8 +227,8 @@ class EmailScoresViewModel @Inject constructor(
                 return
             }
         }
-        val emails = EmailScoresTextField.TO.getText()
-                .split(",", ";", " ")
+        val emails = currentState.emailField.text
+                .split(*EmailScoresState.emailDelimiters)
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
         val message = "%s\n\n%s\n\n%s\n\n\n\n%s".format(
@@ -210,6 +248,17 @@ class EmailScoresViewModel @Inject constructor(
             putExtra(Intent.EXTRA_TEXT, message)
             putExtra(Intent.EXTRA_STREAM, uri)
             selector = emailSelectorIntent
+        }
+
+        if (_state.value.saveEmails) {
+            viewModelScope.launch {
+                datastore.set(
+                        key = DatastoreKey.SavedEmails,
+                        value = (_state.value.savedEmails + emails)
+                                .distinct()
+                                .joinToString(DatastoreKey.SavedEmails.DELIM),
+                )
+            }
         }
 
         _state.update { it.copy(intentWithoutTextExtra = emailIntent) }

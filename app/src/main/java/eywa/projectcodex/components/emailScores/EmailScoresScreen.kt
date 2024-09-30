@@ -8,6 +8,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,13 +17,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Checkbox
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.ExposedDropdownMenuDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -146,30 +159,96 @@ private fun EmailScoresTextField.asTextFieldState(
         testTag = EmailScoresTestTag.TextField(this),
 )
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun ToAndSubject(
+private fun ColumnScope.ToAndSubject(
         state: EmailScoresState,
         listener: (EmailScoresIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-    CodexTextFieldRoundedSurface(
-            helpState = HelpShowcaseItem(
-                    helpTitle = stringResource(R.string.help_email_scores__to_title),
-                    helpBody = stringResource(R.string.help_email_scores__to_body),
-            ).asHelpState(helpListener),
-    ) {
-        CodexTextField(
-                state = EmailScoresTextField.TO.asTextFieldState(state, listener),
-                placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
-                labelText = stringResource(id = R.string.email_scores__to),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-                colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
-                modifier = Modifier
-                        .padding(10.dp)
-                        .fillMaxWidth()
-        )
+    Column {
+        CodexTextFieldRoundedSurface(
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_email_scores__to_title),
+                        helpBody = stringResource(R.string.help_email_scores__to_body),
+                ).asHelpState(helpListener),
+        ) {
+            var expanded by remember { mutableStateOf(false) }
+
+            ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { if (state.savedEmails.isNotEmpty()) expanded = !expanded },
+            ) {
+                CodexTextField(
+                        textFieldValue = state.emailField,
+                        onValueChange = { listener(UpdateEmail(it)) },
+                        placeholderText = stringResource(id = R.string.email_scores__to_placeholder),
+                        labelText = stringResource(id = R.string.email_scores__to),
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                        colors = CodexTextField.transparentOutlinedTextFieldColors(backgroundColor = Color.Transparent),
+                        singleLine = true,
+                        trailingIcon = if (state.savedEmails.isNotEmpty()) {
+                            { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+                        }
+                        else {
+                            null
+                        },
+                        modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth()
+                                .testTag(EmailScoresTestTag.EmailTextField)
+                )
+
+                val filterOpts = state.currentlyTypingEmail().let { currentEmailText ->
+                    state.savedEmails.filter { it.contains(currentEmailText, ignoreCase = true) }
+                }
+                if (filterOpts.isNotEmpty()) {
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        filterOpts.forEach { option ->
+                            DropdownMenuItem(
+                                    onClick = {
+                                        listener(InsertEmail(option))
+                                        expanded = false
+                                    },
+                                    contentPadding = PaddingValues(start = 20.dp, end = 5.dp),
+                                    content = {
+                                        Text(
+                                                text = option,
+                                                modifier = Modifier
+                                                        .weight(1f)
+                                                        .testTag(EmailScoresTestTag.SavedEmailDropdownItem)
+                                        )
+                                        IconButton(onClick = { listener(RemoveEmail(option)) }) {
+                                            Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = stringResource(R.string.email_scores__remove_email),
+                                            )
+                                        }
+                                    },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(
+                    text = stringResource(R.string.email_scores__save_emails_checkbox),
+                    style = CodexTypography.SMALL.copy(CodexTheme.colors.onAppBackground),
+            )
+            Checkbox(
+                    checked = state.saveEmails,
+                    onCheckedChange = { listener(ToggleSaveEmailsCheckbox) },
+                    colors = CodexTheme.colors.getCheckboxColors(),
+            )
+        }
     }
+
     CodexTextFieldRoundedSurface(
             helpState = HelpShowcaseItem(
                     helpTitle = stringResource(R.string.help_email_scores__subject_title),
@@ -328,6 +407,8 @@ sealed class EmailScoresTestTag : CodexTestTag {
     data object Screen : EmailScoresTestTag()
     data object ScoreText : EmailScoresTestTag()
     data object SendButton : EmailScoresTestTag()
+    data object EmailTextField : EmailScoresTestTag()
+    data object SavedEmailDropdownItem : EmailScoresTestTag()
 
     class TextField(private val field: EmailScoresTextField) : EmailScoresTestTag() {
         override fun getElement(): String = "TEXT_FIELD_$field"
@@ -365,12 +446,9 @@ fun EmailScoresScreen_Preview() {
                         ),
                         error = null,
                         textFields = mapOf(
-                                EmailScoresTextField.TO to "",
                                 EmailScoresTextField.SUBJECT to "Archery Scores",
                                 EmailScoresTextField.MESSAGE_HEADER to "Hi, here are my scores",
                                 EmailScoresTextField.MESSAGE_FOOTER to "From",
-                                EmailScoresTextField.TO to "",
-                                EmailScoresTextField.TO to "",
                         ),
                         booleanFields = setOf(EmailScoresCheckbox.FULL_SCORE_SHEET),
                 ),

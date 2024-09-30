@@ -4,7 +4,6 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,6 +30,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.HelpState
 import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
@@ -56,7 +56,7 @@ fun CodexTextFieldRoundedSurface(
             color = color,
             shape = RoundedCornerShape(5.dp),
             content = content,
-            modifier = modifier.updateHelpDialogPosition(helpState),
+            modifier = modifier.updateHelpDialogPosition(helpState)
     )
 }
 
@@ -93,10 +93,9 @@ fun CodexTextField(
         selectAllTextOnFocus = selectAllOnFocus,
         contentDescription = contentDescription,
         helpState = helpState,
-        modifier = modifier.modifierIfNotNull(state.testTag) { Modifier.testTag(it) },
+        modifier = modifier.modifierIfNotNull(state.testTag) { Modifier.testTag(it) }
 )
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CodexTextField(
         text: String,
@@ -129,17 +128,59 @@ fun CodexTextField(
         }
     }
 
+    CodexTextField(
+            textFieldValue = TextFieldValue(text, selection),
+            onValueChange = {
+                onValueChange(it.text)
+                selection = it.selection
+            },
+            placeholderText = placeholderText,
+            labelText = labelText,
+            singleLine = singleLine,
+            error = error,
+            trailingIcon = trailingIcon,
+            textStyle = textStyle,
+            enabled = enabled,
+            colors = colors,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            contentDescription = contentDescription,
+            helpState = helpState,
+            interactionSource = interactionSource,
+            modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun CodexTextField(
+        textFieldValue: TextFieldValue,
+        onValueChange: (TextFieldValue) -> Unit,
+        placeholderText: String?,
+        modifier: Modifier = Modifier,
+        labelText: String? = null,
+        singleLine: Boolean = false,
+        error: String? = null,
+        trailingIcon: (@Composable () -> Unit)? = null,
+        textStyle: TextStyle = TextStyle.Default,
+        enabled: Boolean = true,
+        colors: TextFieldColors = CodexTextField.transparentOutlinedTextFieldColors(),
+        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+        keyboardActions: KeyboardActions = KeyboardActions.Default,
+        contentDescription: String? = null,
+        helpState: HelpState? = null,
+        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+) {
+    FocusClearer(interactionSource)
+
     Surface(
             color = colors.backgroundColor(enabled).value,
             shape = RoundedCornerShape(5.dp),
-            modifier = modifier,
+            modifier = modifier
     ) {
         BasicTextField(
-                value = TextFieldValue(text, selection),
-                onValueChange = {
-                    onValueChange(it.text)
-                    selection = it.selection
-                },
+                value = textFieldValue,
+                onValueChange = onValueChange,
                 interactionSource = interactionSource,
                 enabled = enabled,
                 singleLine = singleLine,
@@ -155,9 +196,8 @@ fun CodexTextField(
                         }
         ) { innerTextField ->
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
-                    value = text,
+                    value = textFieldValue.text,
                     innerTextField = innerTextField,
-                    contentPadding = PaddingValues(10.dp),
                     enabled = enabled,
                     interactionSource = interactionSource,
                     singleLine = singleLine,
@@ -168,6 +208,8 @@ fun CodexTextField(
                             Text(
                                     text = placeholderText,
                                     style = textStyle.asPlaceholderStyle().copy(textAlign = textStyle.textAlign),
+                                    maxLines = if (singleLine) 1 else Int.MAX_VALUE,
+                                    overflow = TextOverflow.Ellipsis,
                             )
                         }
 
@@ -177,6 +219,8 @@ fun CodexTextField(
                             Text(
                                     text = labelText,
                                     style = textStyle,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                             )
                         }
                     },

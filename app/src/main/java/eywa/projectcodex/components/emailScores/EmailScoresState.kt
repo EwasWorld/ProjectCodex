@@ -3,6 +3,7 @@ package eywa.projectcodex.components.emailScores
 import android.content.Intent
 import android.content.res.Resources
 import androidx.annotation.StringRes
+import androidx.compose.ui.text.input.TextFieldValue
 import eywa.projectcodex.R
 import eywa.projectcodex.model.FullShootInfo
 
@@ -18,6 +19,9 @@ data class EmailScoresState(
          */
         val intentWithoutTextExtra: Intent? = null,
         val navigateUpTriggered: Boolean = false,
+        val savedEmails: List<String> = listOf(),
+        val saveEmails: Boolean = true,
+        val emailField: TextFieldValue = TextFieldValue(),
 ) {
     fun isChecked(field: EmailScoresCheckbox) = booleanFields.contains(field)
     fun getText(field: EmailScoresTextField, default: String = "") = textFields[field] ?: default
@@ -25,6 +29,23 @@ data class EmailScoresState(
     fun getRoundsText(resources: Resources) =
             if (rounds.isEmpty()) resources.getString(R.string.email_scores__loading)
             else rounds.joinToString("\n\n") { entry -> entry.getScoreSummary(resources) }
+
+    /**
+     * Get the test of the email at the location of the start of the cursor up to surrounding [emailDelimiters]
+     */
+    fun currentlyTypingEmail(): String {
+        var location = emailField.selection.start
+        val text = emailField.text.split(*emailDelimiters)
+        for (item in text) {
+            if (item.length >= location) return item
+            location -= item.length + 1
+        }
+        return ""
+    }
+
+    companion object {
+        val emailDelimiters = arrayOf(",", ";", " ")
+    }
 }
 
 enum class EmailScoresError(

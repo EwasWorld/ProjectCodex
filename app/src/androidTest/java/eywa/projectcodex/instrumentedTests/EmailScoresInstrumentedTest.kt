@@ -28,11 +28,10 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
-import eywa.projectcodex.database.shootData.DatabaseShoot
-import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
-import eywa.projectcodex.instrumentedTests.robots.EmailScoreRobot
+import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.allOf
@@ -130,6 +129,7 @@ class EmailScoresInstrumentedTest {
 
     @Before
     fun setup() {
+        LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.SavedEmails to EmailTestData.EMAIL_1))
         hiltRule.inject()
         scenario = composeTestRule.activityRule.scenario
         scenario.onActivity {
@@ -161,14 +161,6 @@ class EmailScoresInstrumentedTest {
                 "/emailAttachment.csv"
 
         fun getMessage(scores: String) = "$START_TEXT\n\n$scores\n\n$END_TEXT\n\n\n\nSent from Codex Archery Aide app"
-    }
-
-    private fun EmailScoreRobot.typeInfo() {
-        typeText(EmailScoresTextField.TO, "${EmailTestData.EMAIL_1};${EmailTestData.EMAIL_2}")
-        typeText(EmailScoresTextField.SUBJECT, EmailTestData.FINAL_SUBJECT)
-        typeText(EmailScoresTextField.MESSAGE_HEADER, EmailTestData.START_TEXT)
-        typeText(EmailScoresTextField.MESSAGE_FOOTER, EmailTestData.END_TEXT)
-        Espresso.closeSoftKeyboard()
     }
 
     @Test
@@ -207,7 +199,16 @@ class EmailScoresInstrumentedTest {
                     checkScoreText(scoresString)
                     clickCheckbox(EmailScoresCheckbox.FULL_SCORE_SHEET)
                     checkCheckboxState(EmailScoresCheckbox.FULL_SCORE_SHEET, true)
-                    typeInfo()
+
+                    clickEmailField()
+                    clickEmail(EmailTestData.EMAIL_1)
+                    checkEmailText(EmailTestData.EMAIL_1)
+                    typeEmail("${EmailTestData.EMAIL_1};${EmailTestData.EMAIL_2}")
+
+                    typeText(EmailScoresTextField.SUBJECT, EmailTestData.FINAL_SUBJECT)
+                    typeText(EmailScoresTextField.MESSAGE_HEADER, EmailTestData.START_TEXT)
+                    typeText(EmailScoresTextField.MESSAGE_FOOTER, EmailTestData.END_TEXT)
+                    Espresso.closeSoftKeyboard()
 
                     intending(expected).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
                     clickSend()
