@@ -45,6 +45,7 @@ import eywa.projectcodex.database.views.TestViewDao
 interface ScoresRoomDatabase {
     fun clearAllData()
     fun closeDb()
+    fun checkpoint()
 
     suspend fun insertDefaults()
 
@@ -113,6 +114,19 @@ abstract class ScoresRoomDatabaseImpl : RoomDatabase(), ScoresRoomDatabase {
     override fun clearAllData() = clearAllTables()
 
     override fun closeDb() = close()
+
+    /**
+     * Note from stack overflow answer: the checkpoint function doesn't appear to actually checkpoint
+     * (closing the Database, which would checkpoint the database, results in issues around the Room framework/wrapper).
+     *
+     * Not sure why they include it if it doesn't actually checkpoint the db
+     */
+    override fun checkpoint() {
+        openHelper.writableDatabase.apply {
+            query("PRAGMA wal_checkpoint(FULL);", null)
+            query("PRAGMA wal_checkpoint(TRUNCATE);", null)
+        }
+    }
 
     companion object {
         const val DATABASE_NAME = "scores_database"

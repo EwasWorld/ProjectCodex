@@ -6,32 +6,32 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.settings.SettingsIntent.*
+import eywa.projectcodex.database.DbBackupHelpers
+import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
 import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
 import eywa.projectcodex.datastore.retrieve
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-        val datastore: CodexDatastore,
-        val helpShowcaseUseCase: HelpShowcaseUseCase,
+        private val datastore: CodexDatastore,
+        val database: ScoresRoomDatabase,
+        private val helpShowcaseUseCase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(SettingsState())
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            datastore.get(
-                    listOf(
-                            Use2023HandicapSystem,
-                            UseBetaFeatures,
-                    )
-            ).collect { values ->
+            datastore.get(listOf(Use2023HandicapSystem, UseBetaFeatures)).collect { values ->
                 _state.update {
                     it.copy(
                             use2023System = values.retrieve(Use2023HandicapSystem),
@@ -47,6 +47,61 @@ class SettingsViewModel @Inject constructor(
             ToggleUse2023System -> viewModelScope.launch { datastore.toggle(Use2023HandicapSystem) }
             ToggleUseBetaFeatures -> viewModelScope.launch { datastore.toggle(UseBetaFeatures) }
             is HelpShowcaseAction -> helpShowcaseUseCase.handle(action.action, CodexNavRoute.SETTINGS::class)
+
+            ClickExportDb -> _state.update { it.copy(backupDb = true, dbMessage = Message.BACKUP_IN_PROGRESS) }
+            is ExportDbHandled -> {
+                _state.update {
+                    it.copy(
+                            backupDb = false,
+                            dbMessage = when (action.outcome) {
+                                DbBackupHelpers.DbResult.Success -> Message.BACKUP_SUCCESS
+                                else -> Message.BACKUP_ERROR
+                            },
+                    )
+                }
+            }
+
+            ClickImportDb -> _state.update { it.copy(importDbConfirmDialogIsOpen = true) }
+            ImportDbDialogCancel -> _state.update { it.copy(importDbConfirmDialogIsOpen = false) }
+            ImportDbDialogOk -> {
+                _state.update {
+                    it.copy(
+                            restoreDb = true,
+                            dbMessage = Message.RESTORE_IN_PROGRESS,
+                            importDbConfirmDialogIsOpen = false,
+                    )
+                }
+            }
+
+            is ImportDbHandled -> {
+                _state.update {
+                    it.copy(
+                            restoreDb = false,
+                            dbMessage = when (action.outcome) {
+                                DbBackupHelpers.DbResult.Success -> Message.RESTORE_SUCCESS
+                                DbBackupHelpers.DbResult.NoBackupFound -> Message.RESTORE_FILE_NOT_FOUND_ERROR
+                                else -> Message.RESTORE_ERROR
+                            },
+                    )
+                }
+            }
+
+            ClearDbDialogCancel -> _state.update { it.copy(clearDbConfirmDialogIsOpen = false) }
+            ClickClearDb -> _state.update { it.copy(clearDbConfirmDialogIsOpen = true) }
+            ClearDbDialogOk -> viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    _state.update { it.copy(clearingDb = true, dbMessage = Message.CLEAR_IN_PROGRESS) }
+                    database.clearAllData()
+
+                    _state.update {
+                        it.copy(
+                                clearingDb = false,
+                                dbMessage = Message.CLEAR_SUCCESS,
+                                clearDbConfirmDialogIsOpen = false,
+                        )
+                    }
+                }
+            }
         }
     }
 }

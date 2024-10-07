@@ -33,15 +33,15 @@ class FakeDataImpl(
         check(BuildConfig.DEBUG) { "Should not be used in release builds" }
 
         if (db.shootsRepo().getFullShootInfo().first().isNotEmpty()) {
-            Log.i(ScoresRoomDatabase.LOG_TAG, "Skipped adding fake data")
+            Log.i(LOG_TAG, "Skipped adding fake data")
             return
         }
-        Log.i(ScoresRoomDatabase.LOG_TAG, "Adding fake data")
+        Log.i(LOG_TAG, "Adding fake data")
 
         UpdateDefaultRoundsTaskImpl(db.roundsRepo(), context.resources, datastore, logging).runTask()
 
-        ArcherHandicapsPreviewHelper.handicaps.forEach { db.archerHandicapDao().insert(it) }
-        SightMarksPreviewHelper.sightMarks.forEach { db.sightMarkDao().insert(it) }
+        ArcherHandicapsPreviewHelper.handicaps.forEach { db.archerRepo().insert(it) }
+        SightMarksPreviewHelper.sightMarks.forEach { db.sightMarkRepo().insert(it) }
 
         val round1 = FullRoundInfo(
                 round = Round(101, "metricround", "Metric Round", true, true),
@@ -149,6 +149,10 @@ class FakeDataImpl(
                 },
         )
         shoots.forEach { db.add(it) }
+    }
+
+    companion object {
+        const val LOG_TAG = "ScoresDatabase_FakeData"
     }
 }
 
