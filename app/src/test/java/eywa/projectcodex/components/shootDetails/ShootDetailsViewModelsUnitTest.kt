@@ -24,7 +24,6 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.testUtils.MainCoroutineRule
-import eywa.projectcodex.testUtils.MockSavedStateHandle
 import eywa.projectcodex.testUtils.TestUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -40,7 +39,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ShootDetailsViewModelsUnitTest {
@@ -52,7 +55,6 @@ class ShootDetailsViewModelsUnitTest {
     private val mockDb = mock<ScoresRoomDatabase> {
         on { arrowScoresRepo() } doReturn mockArrowScoresRepo
     }
-    private val savedStateHandle = MockSavedStateHandle().apply { values["shootId"] = 1 }
     private val helpShowcase = mock<HelpShowcaseUseCase> { }
 
     private val jobs = mutableListOf<Job>()
@@ -66,17 +68,18 @@ class ShootDetailsViewModelsUnitTest {
     @Suppress("UNCHECKED_CAST")
     private fun <S : Any, E : Any> setupRepo() = mock<ShootDetailsRepo> {
         on {
-            getState(any(), any(), any<(ShootDetailsState, E) -> S>())
+            getState(any(), any<(ShootDetailsState, E) -> S>())
         } doAnswer {
-            val converter = it.arguments[2] as (ShootDetailsState, E) -> S
+            val converter = it.arguments[1] as (ShootDetailsState, E) -> S
             flow {
                 delay(TestUtils.FLOW_EMIT_DELAY)
                 emit(shootDetailsState)
-            }.combine(it.arguments[1] as StateFlow<E>) { mainA, extra ->
+            }.combine(it.arguments[0] as StateFlow<E>) { mainA, extra ->
                 ShootDetailsResponse.Loaded(
                         data = converter(mainA, extra),
                         shootId = 1,
                         navBarClicked = null,
+                        backClicked = false,
                         isCounting = mainA.fullShootInfo!!.arrowCounter != null,
                 )
             }
@@ -111,7 +114,7 @@ class ShootDetailsViewModelsUnitTest {
         )
 
         val repoMock = setupRepo<AddEndState, AddEndExtras>()
-        val sut = AddEndViewModel(repoMock, savedStateHandle.mock, helpShowcase)
+        val sut = AddEndViewModel(repoMock, helpShowcase)
         val states = mutableListOf<ShootDetailsResponse<AddEndState>>()
         collectState(sut.state, states)
         advanceUntilIdle()
@@ -145,7 +148,7 @@ class ShootDetailsViewModelsUnitTest {
         )
 
         val repoMock = setupRepo<EditEndState, EditEndExtras>()
-        val sut = EditEndViewModel(repoMock, savedStateHandle.mock, helpShowcase)
+        val sut = EditEndViewModel(repoMock, helpShowcase)
         val states = mutableListOf<ShootDetailsResponse<EditEndState>>()
         collectState(sut.state, states)
 
@@ -192,7 +195,7 @@ class ShootDetailsViewModelsUnitTest {
         )
 
         val repoMock = setupRepo<InsertEndState, InsertEndExtras>()
-        val sut = InsertEndViewModel(repoMock, savedStateHandle.mock, helpShowcase)
+        val sut = InsertEndViewModel(repoMock, helpShowcase)
         val states = mutableListOf<ShootDetailsResponse<InsertEndState>>()
         collectState(sut.state, states)
 
@@ -234,7 +237,7 @@ class ShootDetailsViewModelsUnitTest {
         )
 
         val repoMock = setupRepo<ScorePadState, ScorePadExtras>()
-        val sut = ScorePadViewModel(repoMock, savedStateHandle.mock, helpShowcase)
+        val sut = ScorePadViewModel(repoMock, helpShowcase)
         sut.handle(ScorePadIntent.DeleteEndClicked(1))
         val states = mutableListOf<ShootDetailsResponse<ScorePadState>>()
         collectState(sut.state, states)

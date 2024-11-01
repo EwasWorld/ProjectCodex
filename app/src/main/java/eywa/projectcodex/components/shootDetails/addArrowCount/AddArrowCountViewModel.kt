@@ -30,10 +30,7 @@ class AddArrowCountViewModel @Inject constructor(
     private val extraState = MutableStateFlow(AddArrowCountExtras())
     private val isEditingSighters = savedStateHandle.get<Boolean>(NavArgument.IS_SIGHTERS) ?: false
 
-    val state = repo.getState(
-            savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
-            extraState,
-    ) { main, extras -> AddArrowCountState(main, extras, isEditingSighters) }
+    val state = repo.getState(extraState) { main, extras -> AddArrowCountState(main, extras, isEditingSighters) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
@@ -84,7 +81,7 @@ class AddArrowCountViewModel @Inject constructor(
                     val currentCount = currentState.fullShootInfo.shootRound?.sightersCount ?: return
                     viewModelScope.launch {
                         repo.db.shootsRepo().updateShootRound(
-                                currentState.fullShootInfo.shootRound.copy(sightersCount = currentCount + toAdd)
+                                currentState.fullShootInfo.shootRound.copy(sightersCount = currentCount + toAdd),
                         )
                     }
                 }

@@ -504,6 +504,7 @@ fun CompleteAddEndScreen_Preview() {
         AddEndScreen(
                 AddEndState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithFinalScore(1200)
@@ -547,6 +548,7 @@ fun NoRound_AddEndScreen_Preview() {
         AddEndScreen(
                 AddEndState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create { },
                         ).copy(addEndArrows = List(6) { Arrow(10) }),
                         extras = AddEndExtras(),

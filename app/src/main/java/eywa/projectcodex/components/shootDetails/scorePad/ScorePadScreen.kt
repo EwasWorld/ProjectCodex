@@ -331,7 +331,7 @@ fun York_ScorePadScreen_Preview() {
     CodexTheme {
         ScorePadScreen(
                 ScorePadState(
-                        main = ShootDetailsState(fullShootInfo = data),
+                        main = ShootDetailsState(fullShootInfo = data, shootId = 1),
                         extras = ScorePadExtras(),
                 ),
         ) {}
@@ -352,7 +352,7 @@ fun WA70_ScorePadScreen_Preview() {
     CodexTheme {
         ScorePadScreen(
                 ScorePadState(
-                        main = ShootDetailsState(fullShootInfo = data),
+                        main = ShootDetailsState(fullShootInfo = data, shootId = 1),
                         extras = ScorePadExtras(),
                 ),
         ) {}

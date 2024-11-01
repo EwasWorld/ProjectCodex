@@ -41,9 +41,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -63,7 +60,6 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
-import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.core.mainActivity.MainActivityIntent.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -73,16 +69,12 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
 
     @Inject
-    lateinit var shootDetailsRepo: ShootDetailsRepo
-
-    @Inject
     lateinit var navRoutes: Set<@JvmSuppressWildcards ScreenNavRoute>
 
     @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        shootDetailsRepo.connect { lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.RESUMED) { it() } } }
         // TODO Don't re-run on activity recreate
         viewModel.updateDefaultRounds()
 

@@ -10,34 +10,31 @@ import eywa.projectcodex.common.utils.classificationTables.model.ClassificationA
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsPreviewHelper
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.*
+import eywa.projectcodex.components.shootDetails.diShootComponent.ShootComponentManager
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
-import eywa.projectcodex.datastore.DatastoreKey.*
-import eywa.projectcodex.datastore.get
+import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
+import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-
-typealias SimpleState = Pair<Int?, FullShootInfo?>
-typealias SimpleLoaded = ShootDetailsResponse.Loaded<SimpleState>
-typealias SimpleError = ShootDetailsResponse.Error<SimpleState>
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ShootDetailsRepoUnitTest {
@@ -45,9 +42,13 @@ class ShootDetailsRepoUnitTest {
     private val datastore = MockDatastore()
     private val helpShowcase = mock<HelpShowcaseUseCase> { }
 
+    private val context = SupervisorJob()
     private val jobs = mutableListOf<Job>()
 
-    private val shootInfo = createShootInfo(1)
+    private val shootInfo = ShootPreviewHelperDsl.create {
+        shoot = shoot.copy(shootId = 1)
+        addIdenticalArrows(1, 10)
+    }
     private val initialState = ShootDetailsState(
             shootId = 1,
             fullShootInfo = shootInfo,
@@ -59,18 +60,19 @@ class ShootDetailsRepoUnitTest {
             wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
     )
 
-    private fun createShootInfo(id: Int) = ShootPreviewHelperDsl.create {
-        shoot = shoot.copy(shootId = id)
-        addIdenticalArrows(1, 10)
-    }
-
     private fun TestScope.getSut(
             shoots: FullShootInfo? = shootInfo
     ): ShootDetailsRepo {
         shoots?.let { db.shootRepo.fullShoots = listOf(it.asDatabaseFullShootInfo()) }
-        val sut = ShootDetailsRepo(db.mock, datastore.mock, helpShowcase)
+        val sut = ShootDetailsRepo(
+                shootId = 1,
+                shootScope = CoroutineScope(this.coroutineContext + context),
+                shootComponentManager = mock<ShootComponentManager> { },
+                db = db.mock,
+                datastore = datastore.mock,
+                helpShowcase = helpShowcase,
+        )
 
-        sut.connect { jobs.add(launch { it() }) }
         advanceTimeBy(1)
 
         return sut
@@ -78,85 +80,14 @@ class ShootDetailsRepoUnitTest {
 
     private fun teardown() {
         jobs.forEach { it.cancel() }
-    }
-
-    @Test
-    fun testConnectAndGetState() = runTest {
-        val loadingState = ShootDetailsResponse.Loading as ShootDetailsResponse<SimpleState>
-        val shootInfo = createShootInfo(1)
-        val shootInfo2 = createShootInfo(2)
-
-        /*
-         * Initial
-         */
-        val sut = getSut(shootInfo)
-        verify(datastore.mock).get(Use2023HandicapSystem, UseBetaFeatures, UseSimpleStatsView)
-        verify(db.mock, never()).shootsRepo()
-
-        fun startCollectingStateForId(shootId: Int, collection: MutableList<ShootDetailsResponse<SimpleState>>) =
-                jobs.add(
-                        launch {
-                            sut.getState(shootId) { it.shootId to it.fullShootInfo }.collect { collection.add(it) }
-                        }
-                )
-
-        fun FullShootInfo.asLoadedState() =
-                SimpleLoaded(
-                        data = shoot.shootId to this,
-                        shootId = shoot.shootId,
-                        navBarClicked = null,
-                        isCounting = this.arrowCounter != null,
-                )
-
-        /*
-         * getState for id 1
-         */
-        val id1CollectedStates = mutableListOf<ShootDetailsResponse<SimpleState>>()
-        startCollectingStateForId(1, id1CollectedStates)
-        advanceTimeBy(1)
-        verify(db.shootRepo.mock).getFullShootInfo(1)
-        assertEquals(
-                listOf(loadingState, shootInfo.asLoadedState()),
-                id1CollectedStates.toList(),
-        )
-
-        /*
-         * getState for id 2
-         */
-        id1CollectedStates.clear()
-        val id2CollectedStates = mutableListOf<ShootDetailsResponse<SimpleState>>()
-        startCollectingStateForId(2, id2CollectedStates)
-        db.shootRepo.fullShoots = listOf(shootInfo2.asDatabaseFullShootInfo())
-        db.shootRepo.secondFullShoots = listOf()
-        advanceTimeBy(1)
-        verify(db.shootRepo.mock).getFullShootInfo(2)
-        Assert.assertTrue(id1CollectedStates.all { it == loadingState })
-        assertEquals(
-                listOf(loadingState, shootInfo2.asLoadedState()),
-                id2CollectedStates.toList(),
-        )
-
-        /*
-         * db didn't find state
-         */
-        id1CollectedStates.clear()
-        id2CollectedStates.clear()
-        advanceUntilIdle()
-        assertEquals(listOf(SimpleError()), id1CollectedStates.toList())
-        assertEquals(listOf(SimpleError()), id2CollectedStates.toList())
-
-        teardown()
+        context.cancel()
     }
 
     private fun TestScope.collectLatestState(
             sut: ShootDetailsRepo,
             collector: (ShootDetailsResponse<ShootDetailsState>) -> Unit
     ) {
-        jobs.add(
-                launch {
-                    sut.getState(shootInfo.shoot.shootId) { it }.collect(collector)
-                }
-        )
+        jobs.add(launch { sut.getState { it }.collect(collector) })
     }
 
     @Test
@@ -286,7 +217,7 @@ class ShootDetailsRepoUnitTest {
         collectLatestState(sut) {
             latestResponse = it
         }
-        val initialResponse = ShootDetailsResponse.Loaded(initialState, 1, null, false)
+        val initialResponse = ShootDetailsResponse.Loaded(initialState, 1, null, false, false)
         advanceUntilIdle()
         assertEquals(initialResponse, latestResponse)
 

@@ -329,12 +329,13 @@ fun NoRound_StatsScreen_Preview() {
                 StatsState(
                         extras = StatsExtras(),
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addFullSetOfArrows()
                                 },
                         ),
                         classificationTablesUseCase = ClassificationTablesUseCase(listOf()),
-                )
+                ),
         ) {}
     }
 }
@@ -350,6 +351,7 @@ fun RoundIncomplete_StatsScreen_Preview() {
         StatsScreenFull(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     addIdenticalArrows(20, 7)
@@ -367,10 +369,10 @@ fun RoundIncomplete_StatsScreen_Preview() {
                         classificationTablesUseCase = ClassificationTablesUseCase(
                                 data = listOf(
                                         ClassificationTableEntry
-                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!,
                                 ),
                         ),
-                )
+                ),
         ) {}
     }
 }
@@ -386,6 +388,7 @@ fun RoundComplete_StatsScreen_Preview() {
         StatsScreenFull(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     completeRound(arrowScore = 8, isX = false)
@@ -403,10 +406,10 @@ fun RoundComplete_StatsScreen_Preview() {
                         classificationTablesUseCase = ClassificationTablesUseCase(
                                 data = listOf(
                                         ClassificationTableEntry
-                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!,
                                 ),
                         ),
-                )
+                ),
         ) {}
     }
 }
@@ -421,6 +424,7 @@ fun NoArrows_StatsScreen_Preview() {
         StatsScreenFull(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                 },
@@ -436,10 +440,10 @@ fun NoArrows_StatsScreen_Preview() {
                         classificationTablesUseCase = ClassificationTablesUseCase(
                                 data = listOf(
                                         ClassificationTableEntry
-                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!,
                                 ),
                         ),
-                )
+                ),
         ) {}
     }
 }
@@ -454,6 +458,7 @@ fun SimpleRoundIncomplete_StatsScreen_Preview() {
         StatsScreenSimple(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     addIdenticalArrows(20, 7)
@@ -471,10 +476,10 @@ fun SimpleRoundIncomplete_StatsScreen_Preview() {
                         classificationTablesUseCase = ClassificationTablesUseCase(
                                 data = listOf(
                                         ClassificationTableEntry
-                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!,
                                 ),
                         ),
-                )
+                ),
         ) {}
     }
 }
@@ -489,6 +494,7 @@ fun SimpleRoundComplete_StatsScreen_Preview() {
         StatsScreenSimple(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     completeRound(arrowScore = 8, isX = false)
@@ -506,10 +512,10 @@ fun SimpleRoundComplete_StatsScreen_Preview() {
                         classificationTablesUseCase = ClassificationTablesUseCase(
                                 data = listOf(
                                         ClassificationTableEntry
-                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!,
                                 ),
                         ),
-                )
+                ),
         ) {}
     }
 }
@@ -524,6 +530,7 @@ fun SimpleNoArrows_StatsScreen_Preview() {
         StatsScreenSimple(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                 },
@@ -539,10 +546,10 @@ fun SimpleNoArrows_StatsScreen_Preview() {
                         classificationTablesUseCase = ClassificationTablesUseCase(
                                 data = listOf(
                                         ClassificationTableEntry
-                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!
+                                                .fromString("5,Women,Recurve,Senior,WA 1440 (90m),907")!!,
                                 ),
                         ),
-                )
+                ),
         ) {}
     }
 }
@@ -557,6 +564,7 @@ fun PastRecords_StatsScreen_Preview() {
         StatsScreenFull(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.outdoorImperialRoundData
                                     completeRound(arrowScore = 7, isX = false)
@@ -575,7 +583,7 @@ fun PastRecords_StatsScreen_Preview() {
                                 pastRoundScoresTab = StatsScreenPastRecordsTabs.RECENT,
                         ),
                         classificationTablesUseCase = ClassificationTablesUseCase(listOf()),
-                )
+                ),
         ) {}
     }
 }

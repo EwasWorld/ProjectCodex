@@ -198,6 +198,7 @@ fun Closed_PastRecordsSection_Preview() {
         PastRecordsSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     shoot = shoot.copy(shootId = 18)
                                 },
@@ -231,6 +232,7 @@ fun Best_PastRecordsSection_Preview() {
         PastRecordsSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     shoot = shoot.copy(shootId = 18)
                                 },
@@ -264,6 +266,7 @@ fun Recent_PastRecordsSection_Preview() {
         PastRecordsSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     shoot = shoot.copy(shootId = 3)
                                 },

@@ -311,6 +311,7 @@ fun AddArrowCountScreen_Preview() {
         AddArrowCountScreen(
                 AddArrowCountState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addRound(RoundPreviewHelper.yorkRoundData, 12)
                                     addArrowCounter(30)
@@ -318,7 +319,7 @@ fun AddArrowCountScreen_Preview() {
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("6")),
                         isEditingSighters = false,
-                )
+                ),
         ) {}
     }
 }
@@ -333,13 +334,14 @@ fun NoRound_AddArrowCountScreen_Preview() {
         AddArrowCountScreen(
                 AddArrowCountState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addArrowCounter(24)
                                 },
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("6")),
                         isEditingSighters = false,
-                )
+                ),
         ) {}
     }
 }
@@ -354,6 +356,7 @@ fun RoundComplete_AddArrowCountScreen_Preview() {
         AddArrowCountScreen(
                 AddArrowCountState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithCounter()
@@ -361,7 +364,7 @@ fun RoundComplete_AddArrowCountScreen_Preview() {
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("0")),
                         isEditingSighters = false,
-                )
+                ),
         ) {}
     }
 }
@@ -376,6 +379,7 @@ fun Error_AddArrowCountScreen_Preview() {
         AddArrowCountScreen(
                 AddArrowCountState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     addArrowCounter(24)
@@ -383,7 +387,7 @@ fun Error_AddArrowCountScreen_Preview() {
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("hi")),
                         isEditingSighters = false,
-                )
+                ),
         ) {}
     }
 }
@@ -398,6 +402,7 @@ fun Sighters_AddArrowCountScreen_Preview() {
         AddArrowCountScreen(
                 AddArrowCountState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addRound(RoundPreviewHelper.yorkRoundData, 12)
                                     completeRoundWithCounter()
@@ -405,7 +410,7 @@ fun Sighters_AddArrowCountScreen_Preview() {
                         ),
                         extras = AddArrowCountExtras(PartialNumberFieldState("6")),
                         isEditingSighters = true,
-                )
+                ),
         ) {}
     }
 }

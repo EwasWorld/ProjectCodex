@@ -1,15 +1,13 @@
 package eywa.projectcodex.components.shootDetails
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.*
+import eywa.projectcodex.components.shootDetails.diShootComponent.Shoot
+import eywa.projectcodex.components.shootDetails.diShootComponent.ShootComponentManager
+import eywa.projectcodex.components.shootDetails.diShootComponent.ShootScoped
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.archer.DEFAULT_ARCHER_ID
-import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
 import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.*
@@ -31,68 +29,45 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Singleton
+import javax.inject.Inject
 
 private typealias DbShortShoots = List<DatabaseShootShortRecord>
 
 /**
  * Common repo for data needed on all shootDetails screens.
  * Used to minimise loading screens as users will flick between these screens a lot.
- *
- * Usage: [connect] is called from MainActivity, then each view model uses [getState]
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class ShootDetailsRepo(
+@ShootScoped
+class ShootDetailsRepo @Inject constructor(
+        val shootId: Int,
+        @Shoot shootScope: CoroutineScope,
+        private val shootComponentManager: ShootComponentManager,
         val db: ScoresRoomDatabase,
         private val datastore: CodexDatastore,
         private val helpShowcase: HelpShowcaseUseCase,
 ) {
-    private val state: MutableStateFlow<ShootDetailsState> = MutableStateFlow(ShootDetailsState())
+    private val state: MutableStateFlow<ShootDetailsState> = MutableStateFlow(ShootDetailsState(shootId))
 
-    fun handle(
-            action: ShootDetailsIntent,
-            screen: CodexNavRoute,
-            scope: CoroutineScope? = null,
-    ) {
-        when (action) {
-            is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
-            ReturnToMenuClicked -> state.update { it.copy(mainMenuClicked = true) }
-            ReturnToMenuHandled -> state.update { it.copy(mainMenuClicked = false) }
-            ToggleSimpleView -> scope?.launch { datastore.toggle(UseSimpleStatsView) }
-            is SelectScorePadEnd -> state.update { it.copy(scorePadSelectedEnd = action.endNumber) }
-            is NavBarClicked -> state.update { it.copy(navBarClickedItem = action.screen) }
-            is NavBarClickHandled ->
-                state.update {
-                    if (it.navBarClickedItem != action.screen) it
-                    else it.copy(navBarClickedItem = null)
-                }
-
-            is SetInputtedArrows -> state.update { it.copy(addEndArrows = action.arrows) }
-            is SetAddEndEndSize -> state.update { it.copy(addEndArrows = emptyList(), addEndSize = action.size) }
-            is SetScorePadEndSize -> state.update { it.copy(scorePadEndSize = action.size) }
-            ClearState -> state.update { ShootDetailsState(shootId = null).preserveFixedInfo(it) }
-        }
-    }
-
-    fun connect(launch: (block: suspend () -> Unit) -> Unit) {
-        launch {
+    init {
+        shootScope.launch {
             db.archerRepo().getLatestHandicaps(DEFAULT_ARCHER_ID)
                     .combine(db.archerRepo().defaultArcher) { a, b -> a to b }
                     .collectLatest { (handicaps, archerInfo) ->
                         state.update { it.copy(archerHandicaps = handicaps, archerInfo = archerInfo) }
                     }
         }
-        launch {
+        shootScope.launch {
             db.bowRepo().defaultBow
                     .distinctUntilChanged()
                     .collectLatest { bow -> state.update { it.copy(bow = bow) } }
         }
-        launch {
+        shootScope.launch {
             db.roundsRepo().wa1440FullRoundInfo
                     .distinctUntilChanged()
                     .collectLatest { info -> state.update { it.copy(wa1440FullRoundInfo = info) } }
         }
-        launch {
+        shootScope.launch {
             datastore.get(
                     Use2023HandicapSystem,
                     UseBetaFeatures,
@@ -107,35 +82,21 @@ class ShootDetailsRepo(
                 }
             }
         }
-        launch {
-            state
-                    .map { it.shootId }
-                    .distinctUntilChanged()
-                    .flatMapLatest { shootId ->
-                        if (shootId == null) {
-                            return@flatMapLatest flow<Pair<Int?, DatabaseFullShootInfo?>> { emit(null to null) }
-                        }
-                        db.shootsRepo().getFullShootInfo(shootId).map { shootId to it }
-                    }
-                    .collectLatest { (shootId, dbInfo) ->
-                        if (shootId == null) return@collectLatest
-                        if (dbInfo == null) {
-                            state.update {
-                                if (shootId != it.shootId) it
-                                else ShootDetailsState(shootId = shootId, isError = true).preserveFixedInfo(it)
-                            }
-                            return@collectLatest
-                        }
+        shootScope.launch {
+            db.shootsRepo().getFullShootInfo(shootId).collectLatest { dbInfo ->
+                if (dbInfo == null) {
+                    state.update { ShootDetailsState(shootId = shootId, isError = true) }
+                    return@collectLatest
+                }
 
-                        state.update {
-                            if (it.shootId != shootId) return@update it
-                            val system = it.use2023System ?: Use2023HandicapSystem.defaultValue
-                            val info = FullShootInfo(dbInfo, system)
-                            it.copy(fullShootInfo = info)
-                        }
-                    }
+                state.update {
+                    val system = it.use2023System ?: Use2023HandicapSystem.defaultValue
+                    val info = FullShootInfo(dbInfo, system)
+                    it.copy(fullShootInfo = info)
+                }
+            }
         }
-        launch {
+        shootScope.launch {
             state
                     .map { it.fullShootInfo?.shootRound?.let { sr -> sr.roundId to sr.roundSubTypeId } }
                     .distinctUntilChanged()
@@ -147,13 +108,13 @@ class ShootDetailsRepo(
                         db.shootsRepo()
                                 .getMostRecentShootsForRound(10, roundId, subTypeId ?: 1)
                                 .combine(
-                                        db.shootsRepo().getHighestScoreShootsForRound(10, roundId, subTypeId ?: 1)
+                                        db.shootsRepo().getHighestScoreShootsForRound(10, roundId, subTypeId ?: 1),
                                 ) { latest, pbs -> latest to pbs }
                     }.collect { (latest, pbs) ->
                         state.update { it.copy(roundPbs = pbs, pastRoundRecords = latest) }
                     }
         }
-        launch {
+        shootScope.launch {
             state
                     .map {
                         val distance = it.fullShootInfo?.remainingArrowsAtDistances?.firstOrNull()?.second
@@ -170,73 +131,71 @@ class ShootDetailsRepo(
         }
     }
 
+    fun handle(
+            action: ShootDetailsIntent,
+            screen: CodexNavRoute,
+            scope: CoroutineScope? = null,
+    ) {
+        when (action) {
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
+            ReturnToMenuClicked -> {
+                shootComponentManager.exitShootDetails(shootId)
+                state.update { it.copy(mainMenuClicked = true) }
+            }
+
+            ReturnToMenuHandled -> state.update { it.copy(mainMenuClicked = false) }
+            ToggleSimpleView -> scope?.launch { datastore.toggle(UseSimpleStatsView) }
+            is SelectScorePadEnd -> state.update { it.copy(scorePadSelectedEnd = action.endNumber) }
+            is NavBarClicked -> state.update { it.copy(navBarClickedItem = action.screen) }
+            is NavBarClickHandled ->
+                state.update {
+                    if (it.navBarClickedItem != action.screen) it
+                    else it.copy(navBarClickedItem = null)
+                }
+
+            is SetInputtedArrows -> state.update { it.copy(addEndArrows = action.arrows) }
+            is SetAddEndEndSize -> state.update { it.copy(addEndArrows = emptyList(), addEndSize = action.size) }
+            is SetScorePadEndSize -> state.update { it.copy(scorePadEndSize = action.size) }
+            BackClicked -> {
+                shootComponentManager.exitShootDetails(shootId)
+                state.update { it.copy(backClicked = true) }
+            }
+
+            BackHandled -> state.update { it.copy(backClicked = false) }
+        }
+    }
+
     fun <T : Any> getState(
-            shootId: Int?,
             converter: (ShootDetailsState) -> T,
     ): Flow<ShootDetailsResponse<T>> {
-        setupState(shootId)
-        return state.map { combineStates(shootId, it, null) { s, _ -> converter(s) } }
+        return state.map { combineStates(it, null) { s, _ -> converter(s) } }
     }
 
     fun <T : Any, E> getState(
-            shootId: Int?,
             extraFlow: StateFlow<E>,
             converter: (ShootDetailsState, E) -> T,
     ): Flow<ShootDetailsResponse<T>> {
-        setupState(shootId)
         return state.combine(extraFlow) { main, extra ->
-            combineStates(shootId, main, extra) { s, e -> converter(s, e!!) }
+            combineStates(main, extra) { s, e -> converter(s, e!!) }
         }
     }
 
-    private fun setupState(shootId: Int?) {
-        when {
-            shootId == null -> state.update { ShootDetailsState(isError = true).preserveFixedInfo(it) }
-
-            state.value.shootId != shootId ->
-                state.update { ShootDetailsState(shootId = shootId).preserveFixedInfo(it) }
-        }
-    }
 
     private fun <T : Any, E> combineStates(
-            shootId: Int?,
             state: ShootDetailsState,
             extra: E?,
             converter: (ShootDetailsState, E?) -> T
     ): ShootDetailsResponse<T> =
             when {
-                shootId == null || state.isError -> ShootDetailsResponse.Error(state.mainMenuClicked)
-                shootId != state.shootId || state.fullShootInfo == null || state.fullShootInfo.id != shootId ->
-                    ShootDetailsResponse.Loading
+                state.isError -> ShootDetailsResponse.Error(state.mainMenuClicked)
+                state.fullShootInfo == null -> ShootDetailsResponse.Loading
 
                 else -> ShootDetailsResponse.Loaded(
                         data = converter(state, extra),
                         shootId = state.shootId,
                         navBarClicked = state.navBarClickedItem,
+                        backClicked = state.backClicked,
                         isCounting = state.fullShootInfo.arrowCounter != null,
                 )
             }
-
-    private fun ShootDetailsState.preserveFixedInfo(oldState: ShootDetailsState) =
-            copy(
-                    useBetaFeatures = oldState.useBetaFeatures,
-                    use2023System = oldState.use2023System,
-                    useSimpleView = oldState.useSimpleView,
-                    archerInfo = oldState.archerInfo,
-                    archerHandicaps = oldState.archerHandicaps,
-                    bow = oldState.bow,
-                    wa1440FullRoundInfo = oldState.wa1440FullRoundInfo,
-            )
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-class ShootDetailsModule {
-    @Singleton
-    @Provides
-    fun provideShootDetailsRepo(
-            db: ScoresRoomDatabase,
-            datastore: CodexDatastore,
-            helpShowcase: HelpShowcaseUseCase,
-    ) = ShootDetailsRepo(db, datastore, helpShowcase)
 }

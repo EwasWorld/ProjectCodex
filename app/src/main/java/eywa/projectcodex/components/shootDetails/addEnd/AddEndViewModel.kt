@@ -1,13 +1,10 @@
 package eywa.projectcodex.components.shootDetails.addEnd
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.NavBarClicked
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent.SetInputtedArrows
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
@@ -25,16 +22,12 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEndViewModel @Inject constructor(
         private val repo: ShootDetailsRepo,
-        savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val screen = CodexNavRoute.SHOOT_DETAILS_ADD_END
     private val extraState = MutableStateFlow(AddEndExtras())
 
-    val state = repo.getState(
-            savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
-            extraState,
-    ) { main, extras -> AddEndState(main, extras) }
+    val state = repo.getState(extraState) { main, extras -> AddEndState(main, extras) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),

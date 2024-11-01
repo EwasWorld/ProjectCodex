@@ -1,13 +1,10 @@
 package eywa.projectcodex.components.shootDetails.stats
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
@@ -21,17 +18,13 @@ import javax.inject.Inject
 @HiltViewModel
 class StatsViewModel @Inject constructor(
         private val repo: ShootDetailsRepo,
-        savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
         private val classificationTables: ClassificationTablesUseCase,
 ) : ViewModel() {
     private val screen = CodexNavRoute.SHOOT_DETAILS_STATS
     private val extraState = MutableStateFlow(StatsExtras())
 
-    val state = repo.getState(
-            savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
-            extraState,
-    ) { main, extras -> StatsState(main, extras, classificationTables) }
+    val state = repo.getState(extraState) { main, extras -> StatsState(main, extras, classificationTables) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(1000),

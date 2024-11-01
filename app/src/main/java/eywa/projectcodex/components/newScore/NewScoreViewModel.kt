@@ -12,8 +12,6 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogInte
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogIntent
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTask
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
-import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
-import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.Job
@@ -30,7 +28,6 @@ class NewScoreViewModel @Inject constructor(
         updateDefaultRoundsTask: UpdateDefaultRoundsTask,
         private val helpShowcase: HelpShowcaseUseCase,
         savedStateHandle: SavedStateHandle,
-        private val repo: ShootDetailsRepo,
 ) : ViewModel() {
     private val _state = MutableStateFlow(NewScoreState())
     val state = _state.asStateFlow()
@@ -57,7 +54,6 @@ class NewScoreViewModel @Inject constructor(
 
     private fun initialiseRoundBeingEdited(roundBeingEditedId: Int?) {
         if (roundBeingEditedId == null) {
-            repo.handle(ShootDetailsIntent.ClearState, screen = CodexNavRoute.NEW_SCORE)
             _state.update { it.copy(roundBeingEdited = null) }
             return
         }
@@ -97,8 +93,10 @@ class NewScoreViewModel @Inject constructor(
                     else newState
                 }
             }
+
             is SelectFaceDialogAction ->
                 _state.update { it.copy(selectFaceDialogState = action.action.handle(it.selectFaceDialogState)) }
+
             is HelpShowcaseAction -> helpShowcase.handle(action.action, CodexNavRoute.NEW_SCORE::class)
 
             /*
@@ -130,6 +128,7 @@ class NewScoreViewModel @Inject constructor(
                     }
                 }
             }
+
             HandleNavigate -> _state.update { it.copy(navigateToAddEnd = null) }
             HandlePopBackstack -> _state.update { it.copy(popBackstack = false) }
         }

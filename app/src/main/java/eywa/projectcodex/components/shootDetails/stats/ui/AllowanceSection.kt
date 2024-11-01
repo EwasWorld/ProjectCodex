@@ -182,7 +182,7 @@ private fun ConstraintLayoutScope.Handicap(
                             HelpShowcaseItem(
                                     helpTitle = stringResource(R.string.help_archer_round_stats__archer_handicap_title),
                                     helpBody = stringResource(R.string.help_archer_round_stats__archer_handicap_body),
-                            ).asHelpState(helpListener)
+                            ).asHelpState(helpListener),
                     )
                     .testTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
                     .semanticsWithContext {
@@ -231,7 +231,7 @@ private fun ConstraintLayoutScope.RoundAllowance(
                             HelpShowcaseItem(
                                     helpTitle = stringResource(R.string.help_archer_round_stats__allowance_title),
                                     helpBody = stringResource(R.string.help_archer_round_stats__allowance_body),
-                            ).asHelpState(helpListener)
+                            ).asHelpState(helpListener),
                     )
                     .testTag(StatsTestTag.ALLOWANCE_TEXT)
                     .semanticsWithContext {
@@ -321,6 +321,7 @@ private fun AllowanceSection_Preview() {
         AllowanceSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithFinalScore(1000)
@@ -330,7 +331,7 @@ private fun AllowanceSection_Preview() {
                         extras = StatsExtras(),
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(LocalContext.current),
                 ),
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(10.dp)
         ) {}
     }
 }
@@ -345,6 +346,7 @@ private fun Predicted_AllowanceSection_Preview() {
         AllowanceSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     addIdenticalArrows(1, 9)
@@ -354,7 +356,7 @@ private fun Predicted_AllowanceSection_Preview() {
                         extras = StatsExtras(),
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(LocalContext.current),
                 ),
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(10.dp)
         ) {}
     }
 }
@@ -369,6 +371,7 @@ private fun NoHandicap_AllowanceSection_Preview() {
         AllowanceSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     addIdenticalArrows(1, 9)
@@ -377,7 +380,7 @@ private fun NoHandicap_AllowanceSection_Preview() {
                         extras = StatsExtras(),
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(LocalContext.current),
                 ),
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(10.dp)
         ) {}
     }
 }

@@ -59,7 +59,7 @@ internal fun HandicapAndClassificationSection(
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier,
+                modifier = modifier
         ) {
             HandicapSection(state.fullShootInfo.handicap, helpListener, listener)
 
@@ -121,7 +121,7 @@ private fun HandicapSection(
                                         )
                                     }
                             onClick(
-                                    it.getString(R.string.archer_round_stats__handicap_tables_link_cont_desc)
+                                    it.getString(R.string.archer_round_stats__handicap_tables_link_cont_desc),
                             ) { listener(StatsIntent.ExpandHandicapsClicked); true }
                         }
         )
@@ -156,7 +156,7 @@ private fun ClassificationSection(
             when {
                 classification == null || isOfficial -> R.string.archer_round_stats__archer_info_classification_v2
                 else -> R.string.archer_round_stats__archer_info_classification_v2_unofficial
-            }
+            },
     )
     val category = stringResource(
             R.string.archer_round_stats__category,
@@ -222,7 +222,7 @@ private fun ClassificationSection(
                                             title,
                                     )
                             onClick(
-                                    it.getString(R.string.archer_round_stats__classification_tables_link_cont_desc)
+                                    it.getString(R.string.archer_round_stats__classification_tables_link_cont_desc),
                             ) { listener(StatsIntent.ExpandClassificationsClicked); true }
                         }
         )
@@ -259,6 +259,7 @@ fun HandicapAndClassificationSection_Preview() {
                 HandicapAndClassificationSection(
                         state = StatsState(
                                 main = ShootDetailsState(
+                                        shootId = 1,
                                         fullShootInfo = ShootPreviewHelperDsl.create {
                                             round = RoundPreviewHelper.wa1440RoundData
                                             completeRoundWithFinalScore(finalScore + 1)
@@ -310,6 +311,7 @@ fun PredictedUnofficial_HandicapAndClassificationSection_Preview() {
                 HandicapAndClassificationSection(
                         state = StatsState(
                                 main = ShootDetailsState(
+                                        shootId = 1,
                                         fullShootInfo = shootInfo,
                                         archerInfo = DatabaseArcherPreviewHelper.default
                                                 .copy(isGent = false, age = ClassificationAge.OVER_50),
@@ -340,6 +342,7 @@ fun NoArrows_HandicapAndClassificationSection_Preview() {
         HandicapAndClassificationSection(
                 state = StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                 },

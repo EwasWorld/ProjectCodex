@@ -23,6 +23,7 @@ class StatsStateUnitTest {
     fun testNumbersBreakdownRows() {
         val round = RoundPreviewHelper.outdoorImperialRoundData
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = round
                     completeRound(arrowScore = 7)
@@ -89,6 +90,7 @@ class StatsStateUnitTest {
     @Test
     fun testClassification_York() {
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = RoundPreviewHelper.yorkRoundData
                     roundSubTypeId = 1
@@ -109,6 +111,7 @@ class StatsStateUnitTest {
     @Test
     fun testClassification_Hereford() {
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = RoundPreviewHelper.yorkRoundData
                     roundSubTypeId = 2
@@ -129,6 +132,7 @@ class StatsStateUnitTest {
     @Test
     fun testClassification_NoArrowsShot() {
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = RoundPreviewHelper.yorkRoundData
                     roundSubTypeId = 2
@@ -148,6 +152,7 @@ class StatsStateUnitTest {
     @Test
     fun testClassification_NoClassification_ScoreTooLow() {
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = RoundPreviewHelper.yorkRoundData
                     completeRound(arrowScore = 1)
@@ -167,6 +172,7 @@ class StatsStateUnitTest {
     @Test
     fun testClassification_RoughClassification() {
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = RoundPreviewHelper.outdoorImperialRoundData
                     roundSubTypeId = 2
@@ -187,6 +193,7 @@ class StatsStateUnitTest {
     @Test
     fun testClassification_RoughAndTrueMix_UseRough() {
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = RoundPreviewHelper.yorkRoundData
                     roundSubTypeId = 2
@@ -207,6 +214,7 @@ class StatsStateUnitTest {
     @Test
     fun testClassification_RoughAndTrueMix_UseReal() {
         val detailsState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     this.round = RoundPreviewHelper.yorkRoundData
                     roundSubTypeId = 2

@@ -46,7 +46,7 @@ internal fun NumberBreakdownSection(
                 columnMetadata = BreakdownColumn.entries.toList(),
                 extraData = StringResource(distanceUnit),
                 helpListener = helpListener,
-                modifier = modifier.testTag(StatsTestTag.NUMBERS_BREAKDOWN),
+                modifier = modifier.testTag(StatsTestTag.NUMBERS_BREAKDOWN)
         )
     }
 }
@@ -182,6 +182,7 @@ private fun NumberBreakdownSection_Preview() {
         NumberBreakdownSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithFullSet()
@@ -191,7 +192,7 @@ private fun NumberBreakdownSection_Preview() {
                         extras = StatsExtras(),
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(LocalContext.current),
                 ),
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(10.dp)
         )
     }
 }
@@ -207,6 +208,7 @@ private fun SingleDistance_NumberBreakdownSection_Preview() {
         NumberBreakdownSection(
                 StatsState(
                         main = ShootDetailsState(
+                                shootId = 1,
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa25RoundData
                                     completeRoundWithFullSet()
@@ -216,7 +218,7 @@ private fun SingleDistance_NumberBreakdownSection_Preview() {
                         extras = StatsExtras(),
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(LocalContext.current),
                 ),
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(10.dp)
         )
     }
 }

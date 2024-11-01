@@ -1,13 +1,10 @@
 package eywa.projectcodex.components.shootDetails.insertEnd
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
@@ -23,16 +20,12 @@ import javax.inject.Inject
 @HiltViewModel
 class InsertEndViewModel @Inject constructor(
         private val repo: ShootDetailsRepo,
-        savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val screen = CodexNavRoute.SHOOT_DETAILS_INSERT_END
     private val extraState = MutableStateFlow(InsertEndExtras())
 
-    val state = repo.getState(
-            savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
-            extraState,
-    ) { main, extras -> InsertEndState(main, extras) }
+    val state = repo.getState(extraState) { main, extras -> InsertEndState(main, extras) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
@@ -59,7 +52,7 @@ class InsertEndViewModel @Inject constructor(
                     extraState.update {
                         it.copy(
                                 enteredArrows = arrows,
-                                errors = if (error == null) it.errors else it.errors.plus(error)
+                                errors = if (error == null) it.errors else it.errors.plus(error),
                         )
                     }
                 },

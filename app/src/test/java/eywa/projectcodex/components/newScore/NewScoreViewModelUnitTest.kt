@@ -67,7 +67,6 @@ class NewScoreViewModelUnitTest {
                 updateDefaultRoundsTask = updateDefaultRoundsTask,
                 helpShowcase = helpShowcaseUseCase,
                 savedStateHandle = savedStateHandle.mock,
-                repo = mock { },
         )
     }
 

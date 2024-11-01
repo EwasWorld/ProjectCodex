@@ -1,21 +1,15 @@
 package eywa.projectcodex.components.shootDetails.settings
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
-import eywa.projectcodex.common.navigation.NavArgument
-import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.AddEndSizeChanged
-import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.HelpShowcaseAction
-import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.ScorePadEndSizeChanged
-import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.ShootDetailsAction
+import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -26,16 +20,12 @@ import javax.inject.Inject
 @HiltViewModel
 class ShootDetailsSettingsViewModel @Inject constructor(
         private val repo: ShootDetailsRepo,
-        savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val screen = CodexNavRoute.SHOOT_DETAILS_SETTINGS
     private val extraState = MutableStateFlow(ShootDetailsSettingsExtras())
 
-    val state = repo.getState(
-            savedStateHandle.get<Int>(NavArgument.SHOOT_ID),
-            extraState,
-    ) { main, extras -> ShootDetailsSettingsState(main, extras) }
+    val state = repo.getState(extraState) { main, extras -> ShootDetailsSettingsState(main, extras) }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
@@ -70,6 +60,7 @@ class ShootDetailsSettingsViewModel @Inject constructor(
                 }
                 extraState.update { it.copy(addEndSizePartial = new) }
             }
+
             is ScorePadEndSizeChanged -> {
                 val currentState = state.value.getData()?.scorePadEndSizePartial ?: return
                 val new = currentState.onTextChanged(action.endSize)

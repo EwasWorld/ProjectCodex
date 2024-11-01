@@ -16,7 +16,7 @@ import eywa.projectcodex.model.scorePadData.ScorePadRow
 const val DEFAULT_END_SIZE = 6
 
 data class ShootDetailsState(
-        val shootId: Int? = null,
+        val shootId: Int,
 
         /*
          * Pulled from repos
@@ -38,6 +38,7 @@ data class ShootDetailsState(
          */
         val isError: Boolean = false,
         val mainMenuClicked: Boolean = false,
+        val backClicked: Boolean = false,
         val navBarClickedItem: CodexNavRoute? = null,
 
         /*

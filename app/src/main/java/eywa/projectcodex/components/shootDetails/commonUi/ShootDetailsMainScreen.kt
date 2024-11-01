@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.shootDetails.commonUi
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,9 +56,17 @@ fun <T : Any> HandleMainEffects(
 ) {
     val mainMenuClicked = (state as? ShootDetailsResponse.Error<T>)?.mainMenuClicked ?: false
     val navBarClickedItem = (state as? ShootDetailsResponse.Loaded<T>)?.navBarClicked
+    val backClicked = (state as? ShootDetailsResponse.Loaded<T>)?.backClicked ?: false
     val countingShootId = (state as? ShootDetailsResponse.Loaded<T>)?.let { if (it.isCounting) it.shootId else null }
 
-    LaunchedEffect(mainMenuClicked, navBarClickedItem, countingShootId) {
+    /**
+     * Using a handler so the viewmodel can exit the shoot scope
+     */
+    BackHandler {
+        listener(ShootDetailsIntent.BackClicked)
+    }
+
+    LaunchedEffect(mainMenuClicked, navBarClickedItem, countingShootId, backClicked) {
         if (mainMenuClicked) {
             navController.popBackStack(CodexNavRoute.MAIN_MENU.routeBase, false)
             listener(ShootDetailsIntent.ReturnToMenuHandled)
@@ -76,6 +85,10 @@ fun <T : Any> HandleMainEffects(
                     mapOf(NavArgument.SHOOT_ID to countingShootId.toString()),
                     popCurrentRoute = true,
             )
+        }
+        if (backClicked) {
+            navController.popBackStack()
+            listener(ShootDetailsIntent.BackHandled)
         }
     }
 }

@@ -14,6 +14,7 @@ class ShootDetailsStateUnitTest {
         }
 
         val baseState = ShootDetailsState(
+                shootId = 1,
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     addIdenticalArrows(60, 7)
                     round = RoundPreviewHelper.outdoorImperialRoundData
