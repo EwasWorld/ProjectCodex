@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
@@ -73,6 +74,7 @@ fun CodexChip(
         enabled: Boolean = true,
         colours: ChipColours = ChipColours.Defaults.onPrimary(),
         helpState: HelpState? = null,
+        style: TextStyle = CodexTypography.SMALL,
         onToggle: () -> Unit
 ) {
     val surfaceColor = when {
@@ -125,7 +127,8 @@ fun CodexChip(
             }
             Text(
                     text = text,
-                    style = CodexTypography.SMALL.copy(color = onColor),
+                    style = style,
+                    color = onColor,
             )
         }
     }

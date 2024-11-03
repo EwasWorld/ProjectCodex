@@ -25,6 +25,22 @@ abstract class ResOrActual<T> {
         }
     }
 
+    data class JoinToStringResource(
+            val strings: List<ResOrActual<String>>,
+            @StringRes val delimiter: Int,
+    ) : ResOrActual<String>() {
+        @Composable
+        override fun get(): String {
+            val list = strings.map { it.get() }
+            return list.joinToString(stringResource(delimiter))
+        }
+
+        override fun get(resources: Resources): String {
+            val list = strings.map { it.get(resources) }
+            return list.joinToString(resources.getString(delimiter))
+        }
+    }
+
     @Composable
     abstract fun get(): T
     abstract fun get(resources: Resources): T

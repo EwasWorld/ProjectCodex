@@ -79,6 +79,7 @@
     <string name="general_delete">Delete</string>
     <string name="general_colon_separator">:</string>
     <string name="general_comma_separator">,\u0020</string>
+    <string name="general_comma_new_line_separator">,\n</string>
     <string name="general_error">Error</string>
     <string name="general_loading">Loading…</string>
     <string name="general_on">On</string>

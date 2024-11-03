@@ -34,7 +34,6 @@ import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.endAsAccessibilityString
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ArrowInputs(
         state: ArrowInputsState,
@@ -74,7 +73,7 @@ fun ArrowInputs(
                         .plus(
                                 List(state.endSize - state.enteredArrows.size) {
                                     stringResource(R.string.end_to_string_arrow_placeholder)
-                                }
+                                },
                         )
                         .joinToString(stringResource(R.string.end_to_string_arrow_deliminator)),
                 style = CodexTypography.X_LARGE,
@@ -110,52 +109,62 @@ fun ArrowInputs(
                 )
         )
 
-        FlowRow {
-            if (showResetButton) {
-                CodexButton(
-                        text = stringResource(R.string.general__reset_edits),
-                        buttonStyle = CodexButtonDefaults.DefaultTextButton,
-                        onClick = { listener(ResetArrowsInputted) },
-                        modifier = Modifier
-                                .testTag(ArrowInputsTestTag.RESET_BUTTON)
-                                .updateHelpDialogPosition(
-                                        HelpShowcaseItem(
-                                                helpTitle = stringResource(R.string.help_input_end__end_inputs_reset_title),
-                                                helpBody = stringResource(R.string.help_input_end__end_inputs_reset_body),
-                                        ).asHelpState(helpListener)
-                                )
-                                .align(Alignment.CenterVertically)
-                )
-            }
+        ArrowInputEditButtons(showResetButton, helpListener, listener)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ArrowInputEditButtons(
+        showResetButton: Boolean,
+        helpListener: (HelpShowcaseIntent) -> Unit,
+        listener: (ArrowInputsIntent) -> Unit,
+) {
+    FlowRow {
+        if (showResetButton) {
             CodexButton(
-                    text = stringResource(R.string.input_end__clear),
+                    text = stringResource(R.string.general__reset_edits),
                     buttonStyle = CodexButtonDefaults.DefaultTextButton,
-                    onClick = { listener(ClearArrowsInputted) },
+                    onClick = { listener(ResetArrowsInputted) },
                     modifier = Modifier
-                            .testTag(ArrowInputsTestTag.CLEAR_BUTTON)
+                            .testTag(ArrowInputsTestTag.RESET_BUTTON)
                             .updateHelpDialogPosition(
                                     HelpShowcaseItem(
-                                            helpTitle = stringResource(R.string.help_input_end__end_inputs_clear_title),
-                                            helpBody = stringResource(R.string.help_input_end__end_inputs_clear_body),
-                                    ).asHelpState(helpListener)
-                            )
-                            .align(Alignment.CenterVertically)
-            )
-            CodexButton(
-                    text = stringResource(R.string.input_end__backspace),
-                    buttonStyle = CodexButtonDefaults.DefaultTextButton,
-                    onClick = { listener(BackspaceArrowsInputted) },
-                    modifier = Modifier
-                            .testTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
-                            .updateHelpDialogPosition(
-                                    HelpShowcaseItem(
-                                            helpTitle = stringResource(R.string.help_input_end__end_inputs_backspace_title),
-                                            helpBody = stringResource(R.string.help_input_end__end_inputs_backspace_body),
-                                    ).asHelpState(helpListener)
+                                            helpTitle = stringResource(R.string.help_input_end__end_inputs_reset_title),
+                                            helpBody = stringResource(R.string.help_input_end__end_inputs_reset_body),
+                                    ).asHelpState(helpListener),
                             )
                             .align(Alignment.CenterVertically)
             )
         }
+        CodexButton(
+                text = stringResource(R.string.input_end__clear),
+                buttonStyle = CodexButtonDefaults.DefaultTextButton,
+                onClick = { listener(ClearArrowsInputted) },
+                modifier = Modifier
+                        .testTag(ArrowInputsTestTag.CLEAR_BUTTON)
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_input_end__end_inputs_clear_title),
+                                        helpBody = stringResource(R.string.help_input_end__end_inputs_clear_body),
+                                ).asHelpState(helpListener),
+                        )
+                        .align(Alignment.CenterVertically)
+        )
+        CodexButton(
+                text = stringResource(R.string.input_end__backspace),
+                buttonStyle = CodexButtonDefaults.DefaultTextButton,
+                onClick = { listener(BackspaceArrowsInputted) },
+                modifier = Modifier
+                        .testTag(ArrowInputsTestTag.BACKSPACE_BUTTON)
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_input_end__end_inputs_backspace_title),
+                                        helpBody = stringResource(R.string.help_input_end__end_inputs_backspace_body),
+                                ).asHelpState(helpListener),
+                        )
+                        .align(Alignment.CenterVertically)
+        )
     }
 }
 

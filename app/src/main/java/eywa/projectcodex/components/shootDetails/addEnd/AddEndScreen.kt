@@ -304,11 +304,27 @@ fun SightMark(
         helpListener: (HelpShowcaseIntent) -> Unit,
         onEditClicked: () -> Unit,
         onExpandClicked: () -> Unit,
-) {
-    val distance = fullShootInfo.remainingArrowsAtDistances?.firstOrNull()?.second
-            ?: fullShootInfo.roundDistances?.minOfOrNull { it.distance }
-    val isMetric = fullShootInfo.round?.isMetric
+) = SightMark(
+        distance = fullShootInfo.remainingArrowsAtDistances?.firstOrNull()?.second
+                ?: fullShootInfo.roundDistances?.minOfOrNull { it.distance },
+        isMetric = fullShootInfo.round?.isMetric,
+        sightMark = sightMark,
+        helpListener = helpListener,
+        onEditClicked = onEditClicked,
+        onExpandClicked = onExpandClicked,
+        modifier = modifier
+)
 
+@Composable
+fun SightMark(
+        distance: Int?,
+        isMetric: Boolean?,
+        sightMark: SightMark?,
+        modifier: Modifier = Modifier,
+        helpListener: (HelpShowcaseIntent) -> Unit,
+        onEditClicked: () -> Unit,
+        onExpandClicked: () -> Unit,
+) {
     val distanceUnit = isMetric?.let { stringResource(getDistanceUnitRes(it)!!) }
 
     Column(
@@ -414,7 +430,7 @@ fun RemainingArrowsIndicator(
         modifier: Modifier = Modifier,
 ) {
     fullShootInfo.remainingArrowsAtDistances?.let {
-        val delimiter = stringResource(R.string.general_comma_separator)
+        val delimiter = stringResource(R.string.general_comma_new_line_separator)
         val remainingStrings = it.map { (count, distance) ->
             stringResource(
                     R.string.input_end__round_indicator_at,

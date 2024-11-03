@@ -46,6 +46,13 @@ enum class DebugMainMenuOptions(
             DebugNavRoute.AUTH,
             ResOrActual.Actual("Auth Title"),
             ResOrActual.Actual("Auth Body"),
+            shouldShow = { false },
+    ),
+    H2H(
+            ResOrActual.Actual("H2H"),
+            DebugNavRoute.H2H,
+            ResOrActual.Actual("H2h Title"),
+            ResOrActual.Actual("H2h Body"),
     ),
     ;
 
