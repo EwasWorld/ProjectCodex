@@ -2,7 +2,12 @@ package eywa.projectcodex.components.viewScores.screenUi
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -25,7 +30,10 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import eywa.projectcodex.R
-import eywa.projectcodex.common.helpShowcase.*
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
+import eywa.projectcodex.common.helpShowcase.HelpState
+import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
@@ -41,7 +49,7 @@ import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvid
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.setTiedPersonalBests
 import eywa.projectcodex.components.viewScores.data.ViewScoresRoundNameInfo
 import eywa.projectcodex.model.getOverallPbString
-import java.util.*
+import java.util.Calendar
 
 internal val columnVerticalArrangement = Arrangement.spacedBy(2.dp)
 
@@ -60,8 +68,8 @@ internal fun ViewScoresEntryRow(
         entries = ViewScoresEntryList(entry),
         entryIndex = entryIndex,
         showPbs = showPbs,
-        modifier = modifier,
         helpListener = helpListener,
+        modifier = modifier
 )
 
 /**
@@ -266,7 +274,7 @@ private fun HsgColumn(
         Text(
                 text = stringResource(R.string.view_score__hsg, stringResource(entries.goldsType.shortStringId)),
                 style = CodexTypography.SMALL.copy(
-                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
+                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f),
                 ),
                 modifier = Modifier.clearAndSetSemantics { }
         )
@@ -295,7 +303,7 @@ private fun HandicapColumn(
                     helpTitle = stringResource(R.string.help_view_score__handicap_title),
                     helpBody = stringResource(
                             if (entries.use2023System) R.string.help_view_score__handicap_2023_body
-                            else R.string.help_view_score__handicap_old_body
+                            else R.string.help_view_score__handicap_old_body,
                     ),
                     priority = ViewScoreHelpPriority.SPECIFIC_ROW_ACTION.ordinal,
                     boundsId = ViewScoresHelpBoundaries.LIST.ordinal,
@@ -314,12 +322,12 @@ private fun HandicapColumn(
         Text(
                 text = stringResource(R.string.view_score__handicap),
                 style = CodexTypography.SMALL.copy(
-                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
+                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f),
                 ),
                 modifier = Modifier.clearAndSetSemantics { }
         )
         Box(
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
         ) {
             Text(
                     text = entries.handicap?.toString()

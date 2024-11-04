@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="head_to_head_add_end__title">H2H Add End</string>
+    <string name="head_to_head_score_pad__title">H2H Score Pad</string>
 
 </resources>

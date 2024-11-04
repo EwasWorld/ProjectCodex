@@ -79,8 +79,8 @@ data class ViewScoresEntryList(
 
     val allRoundsIdentical
         get() = entries
-                .map { it.info.shootRound }
-                .distinctBy { it?.roundId to (it?.roundSubTypeId ?: 1) }
+                .map { it.info.shootRound to (it.info.h2h == null) }
+                .distinctBy { (round, isH2h) -> round?.roundId to (round?.roundSubTypeId ?: 1) to isH2h }
                 .size == 1
 
     private fun allHaveRounds() = entries.all { it.info.round != null }

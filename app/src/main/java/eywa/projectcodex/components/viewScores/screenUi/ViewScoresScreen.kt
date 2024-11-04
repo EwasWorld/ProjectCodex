@@ -126,6 +126,16 @@ private fun handleEffects(
         listener(HandledScorePadOpened)
     }
 
+    if (state.openH2hScorePadClicked) {
+        if (state.lastClickedEntryId != null) {
+            CodexNavRoute.HEAD_TO_HEAD_SCORE_PAD.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
+            )
+        }
+        listener(HandledScorePadOpened)
+    }
+
     if (state.openAddCountClicked) {
         if (state.lastClickedEntryId != null) {
             CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
@@ -155,6 +165,16 @@ private fun handleEffects(
             )
         }
         listener(HandledAddEndOpened)
+    }
+
+    if (state.openH2hAddEndClicked) {
+        if (state.lastClickedEntryId != null) {
+            CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
+            )
+        }
+        listener(HandledScorePadOpened)
     }
 
     if (state.openEditInfoClicked) {

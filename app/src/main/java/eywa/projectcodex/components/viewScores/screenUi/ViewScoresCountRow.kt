@@ -87,7 +87,7 @@ private fun ArrowsShotColumn(
         Text(
                 text = title,
                 style = CodexTypography.SMALL.copy(
-                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f)
+                        color = CodexTheme.colors.onListItemAppOnBackground.copy(alpha = 0.55f),
                 ),
         )
         Text(

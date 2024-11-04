@@ -9,4 +9,7 @@ data class FullHeadToHead(
 
     val arrowsShot: Int
         get() = 0
+
+    val isComplete: Boolean
+        get() = false
 }

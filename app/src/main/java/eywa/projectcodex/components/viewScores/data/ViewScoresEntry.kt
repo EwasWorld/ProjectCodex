@@ -50,10 +50,12 @@ data class ViewScoresEntry(
     val isCount: Boolean
         get() = info.arrowCounter != null
 
-    fun isRoundComplete(): Boolean {
-        if (info.roundArrowCounts.isNullOrEmpty()) return false
-        return info.roundArrowCounts.sumOf { it.arrowCount } == info.arrowsShot
-    }
+    fun isRoundComplete(): Boolean =
+            when {
+                info.h2h != null -> info.h2h.isComplete
+                info.roundArrowCounts.isNullOrEmpty() -> false
+                else -> info.roundArrowCounts.sumOf { it.arrowCount } == info.arrowsShot
+            }
 
     fun getSingleClickAction() =
             if (isCount) ViewScoresDropdownMenuItem.VIEW

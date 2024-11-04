@@ -81,7 +81,7 @@ data class FullShootInfo(
         }
     }
 
-    val displayName by lazy { roundSubType?.name ?: round?.displayName }
+    val displayName by lazy { if (h2h != null) "Head to head" else (roundSubType?.name ?: round?.displayName) }
 
     val distanceUnit by lazy { round?.getDistanceUnitRes() }
 

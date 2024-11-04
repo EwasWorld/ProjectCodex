@@ -16,17 +16,23 @@ enum class ViewScoresDropdownMenuItem(
 ) {
     SCORE_PAD(
             title = R.string.view_scores_menu__score_pad,
-            handleClick = { copy(openScorePadClicked = true) },
+            handleClick = {
+                val entry = data?.find { it.id == lastClickedEntryId }
+                when {
+                    entry?.info?.h2h != null -> copy(openH2hScorePadClicked = true)
+                    else -> copy(openScorePadClicked = true)
+                }
+            },
             shouldShow = { !it.isCount },
     ),
     CONTINUE(
             title = R.string.view_scores_menu__continue,
             handleClick = {
-                if (data?.find { it.id == lastClickedEntryId }?.isRoundComplete() == true) {
-                    copy(openAddEndOnCompletedRound = true)
-                }
-                else {
-                    copy(openAddEndClicked = true)
+                val entry = data?.find { it.id == lastClickedEntryId }
+                when {
+                    entry?.info?.h2h != null -> copy(openH2hAddEndClicked = true)
+                    entry?.isRoundComplete() == true -> copy(openAddEndOnCompletedRound = true)
+                    else -> copy(openAddEndClicked = true)
                 }
             },
             shouldShow = { entry -> !entry.isRoundComplete() }
@@ -58,6 +64,12 @@ enum class ViewScoresDropdownMenuItem(
     ),
     VIEW(
             title = R.string.view_scores_menu__view,
-            handleClick = { copy(openAddCountClicked = true) },
+            handleClick = {
+                val entry = data?.find { it.id == lastClickedEntryId }
+                when {
+                    entry?.info?.h2h != null -> copy(openH2hAddEndClicked = true)
+                    else -> copy(openAddCountClicked = true)
+                }
+            },
     ),
 }
