@@ -8,4 +8,8 @@ class HeadToHeadRepo {
     fun insert(headToHead: DatabaseHeadToHead) {
         TODO()
     }
+
+    fun insert(heat: DatabaseHeadToHeadHeat) {
+        TODO()
+    }
 }

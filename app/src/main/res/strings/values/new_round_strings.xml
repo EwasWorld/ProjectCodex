@@ -44,6 +44,7 @@
     <string name="create_round__h2h_style_recurve">Set points</string>
     <string name="create_round__h2h_style_compound">Score</string>
     <string name="create_round__h2h_team_size">Team size:</string>
+    <string name="create_round__h2h_team_size_placeholder">1</string>
     <string name="create_round__h2h_qualification_rank">Qualification rank:</string>
 
     <string name="err_create_round__too_many_arrows">This score has too many arrows (%1$d) entered to change the type to %2$s (max %3$d)</string> <!-- e.g. ... too many arrows (144) ... the type to FITA (max 36) -->

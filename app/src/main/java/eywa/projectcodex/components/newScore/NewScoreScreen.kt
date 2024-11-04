@@ -183,7 +183,7 @@ private fun HeadToHeadSection(
                     fieldTestTag = NewScoreTestTag.H2H_TEAM_SIZE_INPUT,
                     errorMessageTestTag = NewScoreTestTag.H2H_TEAM_SIZE_ERROR,
                     errorMessage = state.h2hTeamSize.error,
-                    placeholder = "1",
+                    placeholder = stringResource(R.string.create_round__h2h_team_size_placeholder),
                     onValueChanged = { listener(H2hTeamSizeChanged(it)) },
                     helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_create_round__h2h_team_size_title),
@@ -196,7 +196,7 @@ private fun HeadToHeadSection(
                     fieldTestTag = NewScoreTestTag.H2H_QUALI_RANK_INPUT,
                     errorMessageTestTag = NewScoreTestTag.H2H_QUALI_RANK_ERROR,
                     errorMessage = state.h2hQualificationRank.error,
-                    placeholder = "15",
+                    placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
                     onValueChanged = { listener(H2hTeamSizeChanged(it)) },
                     helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_create_round__h2h_quali_rank_title),

@@ -8,6 +8,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGr
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridState
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import eywa.projectcodex.model.SightMark
 
 data class HeadToHeadAddEndState(
@@ -23,8 +24,8 @@ data class HeadToHeadAddEndState(
         val teamScore: Int = 0,
         val opponentScore: Int = 2,
         val isSetPoints: Boolean = true,
-        val isShootOff: Boolean = false,
-        val isShootOffWin: Boolean = false,
+        val heat: DatabaseHeadToHeadHeat? = null,
+        val setNumber: Int = 0,
 ) {
     val result: HeadToHeadResult
         get() {
@@ -40,14 +41,16 @@ data class HeadToHeadAddEndState(
             }
         }
 
-    fun toGridState() = HeadToHeadGridState(
-            enteredArrows = listOf(enteredArrows),
-            endSize = endSize,
-            teamSize = teamSize,
-            selected = selected,
-            isSingleEditableSet = true,
-            hasShootOff = isShootOff,
-            isShootOffWin = isShootOffWin,
-    )
+    fun toGridState() = heat?.let {
+        HeadToHeadGridState(
+                enteredArrows = listOf(enteredArrows),
+                endSize = endSize,
+                teamSize = teamSize,
+                selected = selected,
+                isSingleEditableSet = true,
+                hasShootOff = it.hasShootOff,
+                isShootOffWin = it.isShootOffWin,
+        )
+    }
 }
 

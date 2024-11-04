@@ -45,7 +45,7 @@ fun DataRow(
             contentDescription = "$text $title"
             onClick?.let { onClick(onClickLabel) { onClick(); true } }
             accessibilityRole?.let { role = accessibilityRole }
-        },
+        }
 ) {
     Text(
             text = text,
@@ -61,8 +61,8 @@ fun DataRow(
 @Composable
 fun DataRow(
         title: String,
-        helpState: HelpState?,
         modifier: Modifier = Modifier,
+        helpState: HelpState? = null,
         titleModifier: Modifier = Modifier,
         style: TextStyle = LocalTextStyle.current,
         content: @Composable FlowRowScope.() -> Unit,

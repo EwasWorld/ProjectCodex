@@ -11,6 +11,9 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object HeadToHeadUseCase {
+    const val MAX_QUALI_RANK = 512
+    const val MAX_HEAT = 8
+
     /**
      * Returns the ranks of the worst-case opponent an archer an archer will face in each round given their qualifying
      * [rank] (null is a bye).

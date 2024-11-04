@@ -10,6 +10,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFil
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
@@ -41,7 +42,7 @@ data class NewScoreState(
         ),
         val h2hQualificationRank: NumberFieldState<Int> = NumberFieldState(
                 TypeValidator.IntValidator,
-                NumberValidator.InRange(1..600),
+                NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
         ),
 
         /*
