@@ -39,6 +39,12 @@
     <string name="create_round__score_type">Type:</string>
     <string name="create_round__score_type_score">Score</string>
     <string name="create_round__score_type_count">Count</string>
+    <string name="create_round__score_type_head_to_head">Head to head</string>
+    <string name="create_round__h2h_style">Style:</string>
+    <string name="create_round__h2h_style_recurve">Set points</string>
+    <string name="create_round__h2h_style_compound">Score</string>
+    <string name="create_round__h2h_team_size">Team size:</string>
+    <string name="create_round__h2h_qualification_rank">Qualification rank:</string>
 
     <string name="err_create_round__too_many_arrows">This score has too many arrows (%1$d) entered to change the type to %2$s (max %3$d)</string> <!-- e.g. ... too many arrows (144) ... the type to FITA (max 36) -->
 
@@ -65,5 +71,11 @@
     <string name="help_create_round__face_title">Face</string>
     <string name="help_create_round__face_body">Select the face being shot at (if in doubt, use \'Full\')</string>
     <string name="help_create_round__score_type_title">Type</string>
-    <string name="help_create_round__score_type_body">Select \'Score\' to score arrows. Select \'Count\' to count how many arrows were shot</string>
+    <string name="help_create_round__score_type_body">Select \'Score\' to score arrows. Select \'Count\' to count how many arrows were shot. Select \'Head to head\' to score a head to head match</string>
+    <string name="help_create_round__h2h_style_title">Style</string>
+    <string name="help_create_round__h2h_style_body">A score match is based on total score after five ends, this is typically the compound match style. All other bow styles typically use set points where each points are given to the highest scorer of each end</string>
+    <string name="help_create_round__h2h_team_size_title">Team size</string>
+    <string name="help_create_round__h2h_team_size_body">The size of each team in the head to head match. For one-on-one matches, this is always 1. For pairs, this is 2, etc.</string>
+    <string name="help_create_round__h2h_quali_rank_title">Qualification rank</string>
+    <string name="help_create_round__h2h_quali_rank_body">The rank achieved by the archer or team in the qualification round which usually precedes a head to head match</string>
 </resources>

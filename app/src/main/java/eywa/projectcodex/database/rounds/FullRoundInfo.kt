@@ -35,4 +35,19 @@ data class FullRoundInfo(
             ?.name
             ?.takeIf { it.isNotBlank() }
             ?: round.displayName
+
+    val isValidWithSingleSubType: Boolean
+        get() {
+            if (roundArrowCounts.isNullOrEmpty() || roundDistances.isNullOrEmpty()) return false
+            if (roundArrowCounts.any { it.roundId != round.roundId }) return false
+
+            if (!roundSubTypes.isNullOrEmpty() && roundSubTypes.size > 1) return false
+            val subType = roundSubTypes?.getOrNull(0)
+
+            if (roundDistances.any { it.roundId == round.roundId && it.subTypeId == (subType?.subTypeId ?: 1) }) {
+                return false
+            }
+
+            return true
+        }
 }

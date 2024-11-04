@@ -7,17 +7,20 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 
 sealed class NewScoreIntent {
     data class DateChanged(val info: UpdateCalendarInfo) : NewScoreIntent()
-    object TypeChanged : NewScoreIntent()
+    data object TypeChanged : NewScoreIntent()
+    data object H2hStyleChanged : NewScoreIntent()
+    data class H2hTeamSizeChanged(val value: String?) : NewScoreIntent()
+    data class H2hQualiRankChanged(val value: String?) : NewScoreIntent()
 
     data class SelectRoundDialogAction(val action: SelectRoundDialogIntent) : NewScoreIntent()
     data class SelectFaceDialogAction(val action: SelectRoundFaceDialogIntent) : NewScoreIntent()
 
-    object Submit : NewScoreIntent()
-    object CancelEditInfo : NewScoreIntent()
-    object ResetEditInfo : NewScoreIntent()
+    data object Submit : NewScoreIntent()
+    data object CancelEditInfo : NewScoreIntent()
+    data object ResetEditInfo : NewScoreIntent()
 
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : NewScoreIntent()
 
-    object HandleNavigate : NewScoreIntent()
-    object HandlePopBackstack : NewScoreIntent()
+    data object HandleNavigate : NewScoreIntent()
+    data object HandlePopBackstack : NewScoreIntent()
 }

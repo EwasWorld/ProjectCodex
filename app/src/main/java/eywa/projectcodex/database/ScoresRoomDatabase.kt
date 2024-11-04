@@ -35,6 +35,9 @@ import eywa.projectcodex.database.shootData.ShootDao
 import eywa.projectcodex.database.shootData.ShootDetailDao
 import eywa.projectcodex.database.shootData.ShootRoundDao
 import eywa.projectcodex.database.shootData.ShootsRepo
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
+import eywa.projectcodex.database.shootData.headToHead.HeadToHeadRepo
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
 import eywa.projectcodex.database.sightMarks.SightMarkRepo
@@ -49,6 +52,7 @@ interface ScoresRoomDatabase {
 
     suspend fun insertDefaults()
 
+    fun h2hRepo(): HeadToHeadRepo
     fun roundsRepo(): RoundRepo
     fun shootsRepo(): ShootsRepo
     fun arrowScoresRepo(): ArrowScoresRepo
@@ -64,7 +68,7 @@ interface ScoresRoomDatabase {
             Round::class, RoundArrowCount::class, RoundSubType::class, RoundDistance::class,
             DatabaseBow::class, DatabaseSightMark::class,
             DatabaseShootRound::class, DatabaseShootDetail::class, DatabaseArrowCounter::class,
-            DatabaseArcherHandicap::class,
+            DatabaseArcherHandicap::class, DatabaseHeadToHead::class, DatabaseHeadToHeadHeat::class,
         ],
         views = [
             ShootWithScore::class, PersonalBest::class,
@@ -98,8 +102,11 @@ abstract class ScoresRoomDatabaseImpl : RoomDatabase(), ScoresRoomDatabase {
     abstract fun arrowCounterDao(): ArrowCounterDao
     abstract fun testViewDao(): TestViewDao
 
+    override fun h2hRepo() = HeadToHeadRepo()
     override fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
-    override fun shootsRepo() = ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao(), arrowCounterRepo())
+    override fun shootsRepo() =
+            ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao(), arrowCounterRepo(), h2hRepo())
+
     override fun arrowScoresRepo() = ArrowScoresRepo(arrowScoreDao())
     override fun archerRepo() = ArcherRepo(archerDao(), archerHandicapDao())
     override fun bowRepo() = BowRepo(bowDao())

@@ -1,13 +1,20 @@
 package eywa.projectcodex.components.newScore
 
+import eywa.projectcodex.R
+import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
+import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogState
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundEnabledFilters
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogState
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.database.rounds.*
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.model.FullShootInfo
 import java.util.*
 
@@ -26,11 +33,16 @@ data class NewScoreState(
          * User-set info
          */
         val dateShot: Calendar = getDefaultDate(),
-
-        /**
-         * True to score arrows, false to count arrows
-         */
-        val isScoringNotCounting: Boolean = true,
+        val type: NewScoreType = NewScoreType.SCORING,
+        val h2hStyleIsRecurve: Boolean = true,
+        val h2hTeamSize: NumberFieldState<Int> = NumberFieldState(
+                text = "1",
+                validators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(1..5)),
+        ),
+        val h2hQualificationRank: NumberFieldState<Int> = NumberFieldState(
+                TypeValidator.IntValidator,
+                NumberValidator.InRange(1..600),
+        ),
 
         /*
          * Dialogs
@@ -100,6 +112,16 @@ data class NewScoreState(
                     face = selectFaceDialogState.selectedFaces.firstOrNull(),
             )
 
+    fun asHeadToHead() =
+            if (type != NewScoreType.HEAD_TO_HEAD) null
+            else if (h2hTeamSize.parsed == null) null
+            else DatabaseHeadToHead(
+                    shootId = roundBeingEdited?.shoot?.shootId ?: 0,
+                    isRecurveStyle = h2hStyleIsRecurve,
+                    teamSize = h2hTeamSize.parsed,
+                    qualificationRank = h2hQualificationRank.parsed,
+            )
+
     companion object {
         private fun getDefaultDate() = Calendar
                 .getInstance(Locale.getDefault())
@@ -108,4 +130,15 @@ data class NewScoreState(
                     set(Calendar.MILLISECOND, 0)
                 }
     }
+}
+
+enum class NewScoreType(
+        val title: ResOrActual<String>,
+) {
+    SCORING(ResOrActual.StringResource(R.string.create_round__score_type_score)),
+    COUNTING(ResOrActual.StringResource(R.string.create_round__score_type_count)),
+    HEAD_TO_HEAD(ResOrActual.StringResource(R.string.create_round__score_type_head_to_head)),
+    ;
+
+    fun next() = entries[(ordinal + 1) % entries.size]
 }

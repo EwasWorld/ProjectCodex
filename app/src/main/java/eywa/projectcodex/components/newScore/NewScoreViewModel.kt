@@ -74,11 +74,15 @@ class NewScoreViewModel @Inject constructor(
 
     fun handle(action: NewScoreIntent) {
         when (action) {
-            is DateChanged ->
-                _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
+            is DateChanged -> _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
 
-            TypeChanged ->
-                _state.update { it.copy(isScoringNotCounting = !it.isScoringNotCounting) }
+            TypeChanged -> _state.update { it.copy(type = it.type.next()) }
+            H2hStyleChanged -> _state.update { it.copy(h2hStyleIsRecurve = !it.h2hStyleIsRecurve) }
+            is H2hQualiRankChanged ->
+                _state.update { it.copy(h2hQualificationRank = it.h2hQualificationRank.onTextChanged(action.value)) }
+
+            is H2hTeamSizeChanged ->
+                _state.update { it.copy(h2hTeamSize = it.h2hTeamSize.onTextChanged(action.value)) }
 
             is SelectRoundDialogAction -> {
                 _state.update {
@@ -113,7 +117,8 @@ class NewScoreViewModel @Inject constructor(
                                 shoot = currentState.asShoot(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
-                                isScoringNotCounting = currentState.isScoringNotCounting,
+                                headToHead = currentState.asHeadToHead(),
+                                type = currentState.type,
                         )
                         _state.update { it.copy(popBackstack = true) }
                     }
@@ -122,7 +127,8 @@ class NewScoreViewModel @Inject constructor(
                                 shoot = currentState.asShoot(),
                                 shootRound = currentState.asShootRound(),
                                 shootDetail = currentState.asShootDetail(),
-                                isScoringNotCounting = currentState.isScoringNotCounting,
+                                headToHead = currentState.asHeadToHead(),
+                                type = currentState.type,
                         )
                         _state.update { it.copy(navigateToAddEnd = newId.toInt()) }
                     }
@@ -153,7 +159,11 @@ class NewScoreViewModel @Inject constructor(
 
         return copy(
                 dateShot = roundBeingEdited.shoot.dateShot,
-                isScoringNotCounting = roundBeingEdited.arrowCounter == null,
+                type = when {
+                    roundBeingEdited.arrowCounter != null -> NewScoreType.COUNTING
+                    roundBeingEdited.h2h != null -> NewScoreType.HEAD_TO_HEAD
+                    else -> NewScoreType.SCORING
+                },
                 selectRoundDialogState = roundsState,
                 selectFaceDialogState = faceAction.handle(selectFaceDialogState)
                         .copy(selectedFaces = faces),

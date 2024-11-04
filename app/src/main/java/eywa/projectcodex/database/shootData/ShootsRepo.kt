@@ -3,11 +3,14 @@ package eywa.projectcodex.database.shootData
 import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.newScore.NewScoreType
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.bow.DatabaseBow
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
+import eywa.projectcodex.database.shootData.headToHead.HeadToHeadRepo
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.model.FullShootInfo
@@ -19,6 +22,7 @@ class ShootsRepo(
         private val shootDetailDao: ShootDetailDao,
         private val shootRoundDao: ShootRoundDao,
         private val arrowCounterRepo: ArrowCounterRepo,
+        private val headToHeadRepo: HeadToHeadRepo,
 ) {
     val mostRecentRoundShot = shootDao.getMostRecentRoundShot()
 
@@ -157,21 +161,27 @@ class ShootsRepo(
             shoot: DatabaseShoot,
             shootRound: DatabaseShootRound?,
             shootDetail: DatabaseShootDetail?,
-            isScoringNotCounting: Boolean,
+            headToHead: DatabaseHeadToHead?,
+            type: NewScoreType,
     ): Long {
         require(
                 listOfNotNull(
                         shoot.shootId,
                         shootRound?.shootId,
                         shootDetail?.shootId,
-                ).distinct().size == 1
+                ).distinct().size == 1,
         ) { "Mismatched shootIds" }
         require(shootRound == null || shootDetail == null) { "Clashing details/round" }
+        require(type != NewScoreType.HEAD_TO_HEAD || headToHead != null)
 
         val id = shootDao.insert(shoot)
         if (shootRound != null) shootRoundDao.insert(shootRound.copy(shootId = id.toInt()))
         if (shootDetail != null) shootDetailDao.insert(shootDetail.copy(shootId = id.toInt()))
-        if (!isScoringNotCounting) arrowCounterRepo.insert(DatabaseArrowCounter(id.toInt(), 0))
+        when (type) {
+            NewScoreType.SCORING -> Unit
+            NewScoreType.COUNTING -> arrowCounterRepo.insert(DatabaseArrowCounter(id.toInt(), 0))
+            NewScoreType.HEAD_TO_HEAD -> headToHeadRepo.insert(headToHead!!.copy(shootId = id.toInt()))
+        }
         return id
     }
 
@@ -189,7 +199,8 @@ class ShootsRepo(
             shoot: DatabaseShoot,
             shootRound: DatabaseShootRound?,
             shootDetail: DatabaseShootDetail?,
-            isScoringNotCounting: Boolean,
+            headToHead: DatabaseHeadToHead?,
+            type: NewScoreType,
     ) {
         require(
                 listOfNotNull(
@@ -197,37 +208,71 @@ class ShootsRepo(
                         shoot.shootId,
                         shootRound?.shootId,
                         shootDetail?.shootId,
-                ).distinct().size == 1
+                        headToHead?.shootId,
+                ).distinct().size == 1,
         ) { "Mismatched shootIds" }
         require(shootRound == null || shootDetail == null) { "Clashing details/round" }
-        require(
-                isScoringNotCounting == (original.arrowCounter == null) || original.arrowsShot == 0
-        ) { "Cannot change type if arrows have been shot" }
 
-        shootDao.update(shoot)
+        val updates = mutableListOf<suspend () -> Unit>()
 
-        if (shootRound != null) {
-            if (original.shootRound != null) shootRoundDao.update(shootRound)
-            else shootRoundDao.insert(shootRound)
+        updates.add {
+            shootDao.update(shoot)
 
-            if (original.shootDetail != null) shootDetailDao.delete(shoot.shootId)
-        }
-        else if (shootDetail != null) {
-            if (original.shootDetail != null) shootDetailDao.update(shootDetail)
-            else shootDetailDao.insert(shootDetail)
+            if (shootRound != null) {
+                if (original.shootRound != null) shootRoundDao.update(shootRound)
+                else shootRoundDao.insert(shootRound)
 
-            if (original.shootRound != null) shootRoundDao.delete(shoot.shootId)
-        }
-        else {
-            shootRoundDao.delete(shoot.shootId)
-            shootDetailDao.delete(shoot.shootId)
+                if (original.shootDetail != null) shootDetailDao.delete(shoot.shootId)
+            }
+            else if (shootDetail != null) {
+                if (original.shootDetail != null) shootDetailDao.update(shootDetail)
+                else shootDetailDao.insert(shootDetail)
+
+                if (original.shootRound != null) shootRoundDao.delete(shoot.shootId)
+            }
+            else {
+                shootRoundDao.delete(shoot.shootId)
+                shootDetailDao.delete(shoot.shootId)
+            }
         }
 
-        if (isScoringNotCounting && original.arrowCounter != null) {
-            arrowCounterRepo.delete(original.arrowCounter)
+        val message = "Cannot change type if arrows have been shot"
+        when (type) {
+            NewScoreType.SCORING -> {
+                if (original.arrowCounter != null) {
+                    require(original.arrowCounter.shotCount == 0) { "$message score/count" }
+                    updates.add { arrowCounterRepo.delete(original.arrowCounter) }
+                }
+                if (original.h2h != null) {
+                    require(!original.h2h.hasStarted) { "$message score/h2h" }
+                    updates.add { headToHeadRepo.delete(original.shoot.shootId) }
+                }
+            }
+
+            NewScoreType.COUNTING -> {
+                require(original.arrowsShot != 0) { "$message count/score" }
+                if (original.arrowCounter == null) {
+                    updates.add { arrowCounterRepo.insert(DatabaseArrowCounter(original.shoot.shootId, 0)) }
+                }
+                if (original.h2h != null) {
+                    require(!original.h2h.hasStarted) { "$message count/h2h" }
+                    updates.add { headToHeadRepo.delete(original.shoot.shootId) }
+                }
+            }
+
+            NewScoreType.HEAD_TO_HEAD -> {
+                require(original.arrowsShot != 0) { "$message h2h/score" }
+                if (original.arrowCounter != null) {
+                    require(original.arrowCounter.shotCount == 0) { "$message h2h/count" }
+                    updates.add { arrowCounterRepo.delete(original.arrowCounter) }
+                }
+                if (original.h2h == null) {
+                    require(headToHead != null) { "h2h info required" }
+                    updates.add { headToHeadRepo.insert(headToHead) }
+                }
+            }
         }
-        else if (!isScoringNotCounting && original.arrowCounter == null) {
-            arrowCounterRepo.insert(DatabaseArrowCounter(original.shoot.shootId, 0))
-        }
+
+        updates.forEach { it() }
     }
 }

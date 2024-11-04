@@ -20,6 +20,7 @@ import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.database.shootData.headToHead.FullHeadToHead
 import eywa.projectcodex.model.scorePadData.ScorePadData
 
 data class FullShootInfo(
@@ -34,6 +35,7 @@ data class FullShootInfo(
         val use2023HandicapSystem: Boolean = false,
         val shootRound: DatabaseShootRound? = null,
         val shootDetail: DatabaseShootDetail? = null,
+        val h2h: FullHeadToHead? = null,
 
         /**
          * When this is null, the arrows are being scored, otherwise they're being counted
@@ -103,7 +105,7 @@ data class FullShootInfo(
     /**
      * Does not include sighters
      */
-    val arrowsShot by lazy { arrowCounter?.shotCount ?: arrows?.size ?: 0 }
+    val arrowsShot by lazy { (arrowCounter?.shotCount ?: 0) + (arrows?.size ?: 0) + (h2h?.arrowsShot ?: 0) }
 
     val remainingArrows by lazy {
         roundArrowCounts

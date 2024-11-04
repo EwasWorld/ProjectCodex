@@ -28,6 +28,7 @@ import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountScreen
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndScreen
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
 import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsScreen
@@ -167,6 +168,21 @@ enum class CodexNavRoute : ScreenNavRoute {
         @Composable
         override fun Screen(navController: NavController) {
             HandicapTablesScreen()
+        }
+    },
+    HEAD_TO_HEAD_ADD_END {
+        override val args: Map<NavArgument, Boolean>
+            get() = mapOf(
+                    NavArgument.SHOOT_ID to true,
+            )
+
+        @Composable
+        override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
+                stringResource(R.string.head_to_head_add_end__title)
+
+        @Composable
+        override fun Screen(navController: NavController) {
+            HeadToHeadAddEndScreen()
         }
     },
     HEAD_TO_HEAD_REF {

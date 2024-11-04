@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.newScore
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberFieldWithErrorMessage
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.selectRoundDialog.RoundsUpdatingWrapper
@@ -71,19 +73,30 @@ private fun handleEffects(
         listener: (NewScoreIntent) -> Unit,
 ) {
     if (state.navigateToAddEnd != null) {
-        if (state.isScoringNotCounting) {
-            CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
-                    navController,
-                    mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
-                    popCurrentRoute = true,
-            )
-        }
-        else {
-            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
-                    navController,
-                    mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
-                    popCurrentRoute = true,
-            )
+        when (state.type) {
+            NewScoreType.SCORING -> {
+                CodexNavRoute.SHOOT_DETAILS_ADD_END.navigate(
+                        navController,
+                        mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
+                        popCurrentRoute = true,
+                )
+            }
+
+            NewScoreType.COUNTING -> {
+                CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                        navController,
+                        mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
+                        popCurrentRoute = true,
+                )
+            }
+
+            NewScoreType.HEAD_TO_HEAD -> {
+                CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                        navController,
+                        mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
+                        popCurrentRoute = true,
+                )
+            }
         }
         listener(HandleNavigate)
     }
@@ -122,8 +135,74 @@ fun NewScoreScreen(
             )
             RoundSelectionSection(state, listener)
             ScoringTypeSection(state, listener)
+            AnimatedVisibility(
+                    visible = state.type == NewScoreType.HEAD_TO_HEAD,
+            ) {
+                HeadToHeadSection(state, listener)
+            }
 
             if (state.isEditing) EditingEndButtons(state, listener) else NewScoreEndButtons(listener)
+        }
+    }
+}
+
+@Composable
+private fun HeadToHeadSection(
+        state: NewScoreState,
+        listener: (NewScoreIntent) -> Unit,
+) {
+    Surface(
+            shape = RoundedCornerShape(CodexTheme.dimens.cornerRounding),
+            border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+            color = CodexTheme.colors.appBackground,
+            modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
+    ) {
+        Column(
+                verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                        .padding(horizontal = 25.dp, vertical = 20.dp)
+                        .padding(bottom = 5.dp)
+        ) {
+            DataRow(
+                    title = stringResource(R.string.create_round__h2h_style),
+                    text = stringResource(
+                            if (state.h2hStyleIsRecurve) R.string.create_round__h2h_style_recurve
+                            else R.string.create_round__h2h_style_compound,
+                    ),
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_create_round__h2h_style_title),
+                            helpBody = stringResource(R.string.help_create_round__h2h_style_body),
+                    ).asHelpState { listener(HelpShowcaseAction(it)) },
+                    onClick = { listener(H2hStyleChanged) }.takeIf { !state.isEditing },
+                    modifier = Modifier.testTag(NewScoreTestTag.H2H_STYLE_SWITCH)
+            )
+            CodexLabelledNumberFieldWithErrorMessage(
+                    title = stringResource(R.string.create_round__h2h_team_size),
+                    currentValue = state.h2hTeamSize.text,
+                    fieldTestTag = NewScoreTestTag.H2H_TEAM_SIZE_INPUT,
+                    errorMessageTestTag = NewScoreTestTag.H2H_TEAM_SIZE_ERROR,
+                    errorMessage = state.h2hTeamSize.error,
+                    placeholder = "1",
+                    onValueChanged = { listener(H2hTeamSizeChanged(it)) },
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_create_round__h2h_team_size_title),
+                            helpBody = stringResource(R.string.help_create_round__h2h_team_size_body),
+                    ).asHelpState { listener(HelpShowcaseAction(it)) },
+            )
+            CodexLabelledNumberFieldWithErrorMessage(
+                    title = stringResource(R.string.create_round__h2h_qualification_rank),
+                    currentValue = state.h2hQualificationRank.text,
+                    fieldTestTag = NewScoreTestTag.H2H_QUALI_RANK_INPUT,
+                    errorMessageTestTag = NewScoreTestTag.H2H_QUALI_RANK_ERROR,
+                    errorMessage = state.h2hQualificationRank.error,
+                    placeholder = "15",
+                    onValueChanged = { listener(H2hTeamSizeChanged(it)) },
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_create_round__h2h_quali_rank_title),
+                            helpBody = stringResource(R.string.help_create_round__h2h_quali_rank_body),
+                    ).asHelpState { listener(HelpShowcaseAction(it)) },
+            )
         }
     }
 }
@@ -133,30 +212,31 @@ private fun ScoringTypeSection(
         state: NewScoreState,
         listener: (NewScoreIntent) -> Unit,
 ) {
-    if (!state.isEditing || state.roundBeingEdited?.arrowsShot == 0) {
+    Column(
+            verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(vertical = 5.dp)
+    ) {
         DataRow(
                 title = stringResource(R.string.create_round__score_type),
-                text = stringResource(
-                        if (state.isScoringNotCounting) R.string.create_round__score_type_score
-                        else R.string.create_round__score_type_count,
-                ),
+                text = state.type.title.get(),
                 helpState = HelpShowcaseItem(
                         helpTitle = stringResource(R.string.help_create_round__score_type_title),
                         helpBody = stringResource(R.string.help_create_round__score_type_body),
                 ).asHelpState { listener(HelpShowcaseAction(it)) },
-                onClick = { listener(TypeChanged) },
+                onClick = { listener(TypeChanged) }.takeIf { !state.isEditing },
                 modifier = Modifier.testTag(NewScoreTestTag.TYPE_SWITCH)
         )
-    }
-    else {
-        Text(
-                text = stringResource(R.string.create_round__score_type_cannot_change),
-                textAlign = TextAlign.Center,
-                fontStyle = FontStyle.Italic,
-                style = CodexTypography.SMALL,
-                color = CodexTheme.colors.onAppBackground,
-                modifier = Modifier.padding(horizontal = 20.dp)
-        )
+        if (state.isEditing) {
+            Text(
+                    text = stringResource(R.string.create_round__score_type_cannot_change),
+                    textAlign = TextAlign.Center,
+                    fontStyle = FontStyle.Italic,
+                    style = CodexTypography.SMALL,
+                    color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+            )
+        }
     }
 }
 
@@ -175,7 +255,7 @@ private fun RoundSelectionSection(
             ),
             border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
             color = CodexTheme.colors.appBackground,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
     ) {
         Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -280,6 +360,11 @@ private fun EditingEndButtons(
 enum class NewScoreTestTag : CodexTestTag {
     SCREEN,
     TYPE_SWITCH,
+    H2H_STYLE_SWITCH,
+    H2H_TEAM_SIZE_INPUT,
+    H2H_TEAM_SIZE_ERROR,
+    H2H_QUALI_RANK_INPUT,
+    H2H_QUALI_RANK_ERROR,
     DATABASE_WARNING,
     SUBMIT_BUTTON,
     CANCEL_BUTTON,
@@ -337,6 +422,11 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
                             selectedRoundId = round.round.roundId,
                             selectedSubTypeId = round.roundSubTypes!!.first().subTypeId,
                     ),
+            ),
+
+            // H2h
+            initialState.copy(
+                    type = NewScoreType.HEAD_TO_HEAD,
             ),
 
             // Editing
