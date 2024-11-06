@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="head_to_head_add_end__title">H2H Add End</string>
-    <string name="head_to_head_add_end__opponent_rank_and_name">Opponent (rank %d):\n%s</string>
-    <string name="head_to_head_add_end__opponent_rank">Opponent:\nrank %d</string>
-    <string name="head_to_head_add_end__opponent_name">Opponent:\n%s</string>
+    <string name="head_to_head_add_end__opponent_rank_and_name">Opponent (rank %1$d):\n%2$s</string> <!-- Opponent (rank 1): Jessica Summers -->
+    <string name="head_to_head_add_end__opponent_rank">Opponent:\nrank %d</string>  <!-- Opponent (rank 1) -->
+    <string name="head_to_head_add_end__opponent_name">Opponent:\n%s</string> <!-- Opponent: Jessica Summers -->
     <string name="head_to_head_add_end__score">Score:</string>
-    <string name="head_to_head_add_end__score_text">%d-%d</string>
-    <string name="head_to_head_add_end__set">Set %d: %s</string>
-    <string name="head_to_head_add_end__shoot_off">Shoot off</string>
+    <string name="head_to_head_add_end__score_text">%1$d-%2$d</string> <!-- 6-0 -->
+    <string name="head_to_head_add_end__set">Set %1$d: %2$s</string> <!-- Set 1: Win -->
+    <string name="head_to_head_add_end__shoot_off">Shoot off: %s</string> <!-- Shoot off: Win -->
     <string name="head_to_head_add_end__shoot_off_win">Win</string>
     <string name="head_to_head_add_end__submit">Add end</string>
-    <string name="head_to_head_add_end__add_heat">Add heat</string>
+    <string name="head_to_head_add_end__add_heat">Start heat</string>
+
+    <string name="head_to_head_add_end__result_win">Win</string>
+    <string name="head_to_head_add_end__result_loss">Loss</string>
+    <string name="head_to_head_add_end__result_tie">Tie</string>
+    <string name="head_to_head_add_end__result_incomplete">Incomplete</string>
 
     <string name="head_to_head_score_pad__title">H2H Score Pad</string>
 
@@ -22,5 +27,5 @@
     <string name="head_to_head_add_heat__opponent_quali_rank">Opponent rank:</string>
     <string name="head_to_head_add_heat__quali_rank_placeholder">15</string>
     <string name="head_to_head_add_heat__bye">Bye:</string>
-    <string name="head_to_head_add_heat__submit">Add</string>
+    <string name="head_to_head_add_heat__submit">Start heat</string>
 </resources>

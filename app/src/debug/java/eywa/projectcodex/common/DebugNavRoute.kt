@@ -16,7 +16,6 @@ import eywa.projectcodex.common.navigation.BottomSheetNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.ScreenNavRoute
 import eywa.projectcodex.common.navigation.TabSwitcherItem
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndScreen
 import eywa.projectcodex.plotting.PlottingScreen
 import javax.inject.Singleton
 
@@ -68,13 +67,6 @@ enum class DebugNavRoute : ScreenNavRoute {
 
         @Composable override fun Screen(navController: NavController) {
             AuthScreen()
-        }
-    },
-    H2H {
-        @Composable override fun getMenuBarTitle(entry: NavBackStackEntry?): String = "H2h"
-
-        @Composable override fun Screen(navController: NavController) {
-            HeadToHeadAddEndScreen()
         }
     },
     ;

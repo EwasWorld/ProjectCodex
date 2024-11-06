@@ -6,7 +6,6 @@ object DatabaseHeadToHeadHeatPreviewHelper {
             heat = 1,
             opponent = "Jessica Summers",
             opponentQualificationRank = 1,
-            hasShootOff = false,
             isShootOffWin = false,
             sightersCount = 6,
             isBye = false,

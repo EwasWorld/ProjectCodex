@@ -2,6 +2,7 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.grid
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,52 +30,36 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.grid.CodexGrid
+import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.testTag
+import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
+import eywa.projectcodex.model.FullHeadToHeadSet
 
-private fun List<HeadToHeadGridRowData>.opponentEndTotal() =
-        filter { it.type == HeadToHeadArcherType.OPPONENT_ARROW }.sumOf { it.totalScore() }
-
-private fun List<HeadToHeadGridRowData>.teamEndTotal() =
-        filter { it.type.isTeam }.sumOf { it.totalScore() }
-
-private fun List<HeadToHeadGridRowData>.result(extraData: HeadToHeadSetData): HeadToHeadResult {
-    val isComplete = all { it.isComplete(teamSize = extraData.teamSize, endSize = extraData.endSize) }
-    if (!isComplete) return HeadToHeadResult.INCOMPLETE
-    return when {
-        extraData.teamEndTotal == extraData.opponentEndTotal -> HeadToHeadResult.TIE
-        extraData.teamEndTotal > extraData.opponentEndTotal -> HeadToHeadResult.WIN
-        else -> HeadToHeadResult.LOSS
-    }
-}
-
-internal fun List<HeadToHeadGridRowData>.showExtraColumnTotal() =
-        map { it.type }.let {
-            it.contains(HeadToHeadArcherType.SELF_ARROW) && it.contains(HeadToHeadArcherType.TEAM_MATE_ARROW)
-        }
+fun List<FullHeadToHeadSet>.anyRow(predicate: (HeadToHeadGridRowData) -> Boolean) =
+        any { set -> set.data.any { predicate(it) } }
 
 @Composable
-fun HeadToHeadAddEndGrid(
+fun HeadToHeadGrid(
         state: HeadToHeadGridState,
         modifier: Modifier = Modifier,
-        rowClicked: (setNumber: Int, type: HeadToHeadArcherType?) -> Unit,
+        rowClicked: (setNumber: Int, type: HeadToHeadArcherType) -> Unit,
+        onTextValueChanged: (type: HeadToHeadArcherType, text: String?) -> Unit,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
 
-    val data = state.enteredArrows
     val columnMetadata = listOfNotNull(
             HeadToHeadGridColumn.SET_NUMBER.takeIf { !state.isSingleEditableSet },
             HeadToHeadGridColumn.TYPE,
             HeadToHeadGridColumn.ARROWS.takeIf {
-                state.enteredArrows.flatten().any { it is HeadToHeadGridRowData.Arrows }
+                state.enteredArrows.anyRow { it is HeadToHeadGridRowData.Arrows }
             },
             HeadToHeadGridColumn.END_TOTAL,
             HeadToHeadGridColumn.TEAM_TOTAL.takeIf { state.showExtraTotalColumn },
             HeadToHeadGridColumn.POINTS.takeIf {
                 !state.isSingleEditableSet
-                        || state.enteredArrows.flatten().any { it.type == HeadToHeadArcherType.TEAM_POINTS }
+                        || state.enteredArrows.anyRow { it.type == HeadToHeadArcherType.RESULT }
             },
     )
 
@@ -109,30 +94,23 @@ fun HeadToHeadAddEndGrid(
         }
 
         val selectedShape = RoundedCornerShape(10.dp)
-        data.forEachIndexed { index, set ->
-            val isShootOff = index == data.lastIndex && state.hasShootOff
+        state.enteredArrows.forEachIndexed { setIndex, set ->
             val extraData = HeadToHeadSetData(
-                    isShootOff = isShootOff,
-                    endSize = if (isShootOff) 1 else state.endSize,
-                    teamSize = state.teamSize,
-                    teamEndTotal = set.teamEndTotal(),
-                    opponentEndTotal = set.opponentEndTotal(),
+                    isShootOff = set.isShootOff,
+                    teamEndTotal = set.teamSetScore ?: 0,
+                    opponentEndTotal = set.opponentSetScore ?: 0,
                     hasSelfAndTeamRows = set.showExtraColumnTotal(),
-                    result = HeadToHeadResult.INCOMPLETE,
-            ).let { extra ->
-                extra.copy(
-                        result = set.result(extra).takeIf { !isShootOff || it != HeadToHeadResult.TIE }
-                                ?: if (state.isShootOffWin) HeadToHeadResult.WIN else HeadToHeadResult.LOSS,
-                )
-            }
+                    result = set.result,
+            )
 
             if (!state.isSingleEditableSet) {
                 item(
                         fillBox = true,
-                        verticalSpan = set.size + 1,
+                        // + 1 for total row
+                        verticalSpan = set.data.size + 1,
                 ) {
                     Text(
-                            text = (index + 1).toString(),
+                            text = (setIndex + 1).toString(),
                             style = CodexTypography.NORMAL_PLUS,
                             color = CodexTheme.colors.onListItemAppOnBackground,
                             textAlign = TextAlign.Center,
@@ -144,17 +122,36 @@ fun HeadToHeadAddEndGrid(
                 }
             }
 
-            set.sortedBy { it.type.ordinal }.forEach { row ->
+            set.data.sortedBy { it.type.ordinal }.forEach { row ->
+                val onClick = { rowClicked(setIndex + 1, row.type) }
+
                 columnMetadata.forEach { column ->
                     val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
                     val value = column.mapping(row, extraData)?.get(resources)
                     val isSelectable = state.isSingleEditableSet && (
-                            (row is HeadToHeadGridRowData.Total && column == HeadToHeadGridColumn.END_TOTAL)
-                                    || (row !is HeadToHeadGridRowData.Total && column == HeadToHeadGridColumn.ARROWS)
+                            (row.isTotalRow && column == HeadToHeadGridColumn.END_TOTAL)
+                                    || (!row.isTotalRow && column == HeadToHeadGridColumn.ARROWS)
                             )
                     val isSelected = isSelectable && row.type == state.selected
 
-                    if (value != null) {
+                    if (value == null) {
+                        // No cell
+                    }
+                    else if (column == HeadToHeadGridColumn.END_TOTAL && row is HeadToHeadGridRowData.EditableTotal) {
+                        item(
+                                fillBox = true,
+                        ) {
+                            CodexNumberField(
+                                    contentDescription = "",
+                                    currentValue = row.text.text,
+                                    testTag = HeadToHeadGridTestTag.END_TOTAL_INPUT,
+                                    placeholder = "",
+                                    errorMessage = row.text.error,
+                                    onValueChanged = { onTextValueChanged(row.type, it) },
+                            )
+                        }
+                    }
+                    else {
                         item(
                                 fillBox = true,
                                 verticalSpan = column.cellVerticalSpan(row, extraData),
@@ -184,6 +181,7 @@ fun HeadToHeadAddEndGrid(
                                             .background(background, backgroundShape)
                                             .padding(horizontal = horizontalPadding, vertical = 3.dp)
                                             .wrapContentHeight(Alignment.CenterVertically)
+                                            .clickable(onClick = onClick)
                                             .semantics {
                                                 column
                                                         .cellContentDescription(row, extraData)
@@ -229,25 +227,18 @@ fun HeadToHeadAddEndGrid(
                 }
             }
         }
-
-        if (state.isSingleEditableSet) {
-            item(
-                    fillBox = true,
-                    horizontalSpan = columnMetadata.size,
-            ) {
-                Text(
-                        text = "+ Add",
-                        style = CodexTypography.NORMAL_PLUS,
-                        color = CodexTheme.colors.onListItemAppOnBackground,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                                .background(CodexTheme.colors.listItemOnAppBackground)
-                                .padding(vertical = 5.dp, horizontal = 10.dp)
-                                .wrapContentHeight(Alignment.CenterVertically)
-                )
-            }
-        }
     }
+}
+
+enum class HeadToHeadGridTestTag : CodexTestTag {
+    SCREEN,
+    END_TOTAL_INPUT,
+    ;
+
+    override val screenName: String
+        get() = "HEAD_TO_HEAD_GRID"
+
+    override fun getElement(): String = name
 }
 
 @Preview(
@@ -257,17 +248,22 @@ fun HeadToHeadAddEndGrid(
 @Composable
 fun Input_HeadToHeadGrid_Preview() {
     CodexTheme {
-        HeadToHeadAddEndGrid(
+        HeadToHeadGrid(
                 state = HeadToHeadGridState(
-                        enteredArrows = listOf(HeadToHeadGridRowDataPreviewHelper.create()),
-                        endSize = 3,
-                        teamSize = 1,
+                        enteredArrows = listOf(
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(isEditable = true),
+                                        teamSize = 1,
+                                        isShootOff = false,
+                                        isShootOffWin = false,
+                                        setNumber = 1,
+                                )
+                        ),
                         selected = null,
                         isSingleEditableSet = true,
-                        hasShootOff = false,
-                        isShootOffWin = false,
                 ),
                 rowClicked = { _, _ -> },
+                onTextValueChanged = { _, _ -> },
                 helpListener = {},
                 modifier = Modifier.padding(vertical = 20.dp)
         )
@@ -282,26 +278,30 @@ fun Input_HeadToHeadGrid_Preview() {
 @Composable
 fun InputTeam_HeadToHeadGrid_Preview() {
     CodexTheme {
-        HeadToHeadAddEndGrid(
+        HeadToHeadGrid(
                 state = HeadToHeadGridState(
                         enteredArrows = listOf(
-                                HeadToHeadGridRowDataPreviewHelper.create(
-                                        teamSize = 2,
-                                        typesToIsTotal = mapOf(
-                                                HeadToHeadArcherType.SELF_ARROW to false,
-                                                HeadToHeadArcherType.TEAM_MATE_ARROW to false,
-                                                HeadToHeadArcherType.OPPONENT_ARROW to true,
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(
+                                                teamSize = 2,
+                                                typesToIsTotal = mapOf(
+                                                        HeadToHeadArcherType.SELF to false,
+                                                        HeadToHeadArcherType.TEAM_MATE to false,
+                                                        HeadToHeadArcherType.OPPONENT to true,
+                                                ),
+                                                isEditable = true,
                                         ),
+                                        teamSize = 2,
+                                        isShootOff = false,
+                                        isShootOffWin = false,
+                                        setNumber = 1,
                                 ),
                         ),
-                        endSize = 3,
-                        teamSize = 2,
                         selected = null,
                         isSingleEditableSet = true,
-                        hasShootOff = false,
-                        isShootOffWin = false,
                 ),
                 rowClicked = { _, _ -> },
+                onTextValueChanged = { _, _ -> },
                 helpListener = {},
                 modifier = Modifier.padding(vertical = 20.dp)
         )
@@ -316,21 +316,36 @@ fun InputTeam_HeadToHeadGrid_Preview() {
 @Composable
 fun ScorePad_HeadToHeadGrid_Preview() {
     CodexTheme {
-        HeadToHeadAddEndGrid(
+        HeadToHeadGrid(
                 state = HeadToHeadGridState(
                         enteredArrows = listOf(
-                                HeadToHeadGridRowDataPreviewHelper.create(),
-                                HeadToHeadGridRowDataPreviewHelper.create(),
-                                HeadToHeadGridRowDataPreviewHelper.create(isShootOff = true),
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
+                                        teamSize = 1,
+                                        isShootOff = false,
+                                        isShootOffWin = false,
+                                        setNumber = 1,
+                                ),
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
+                                        teamSize = 1,
+                                        isShootOff = false,
+                                        isShootOffWin = false,
+                                        setNumber = 2,
+                                ),
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(isShootOff = true),
+                                        teamSize = 1,
+                                        isShootOff = true,
+                                        isShootOffWin = true,
+                                        setNumber = 3,
+                                ),
                         ),
-                        endSize = 3,
-                        teamSize = 1,
                         selected = null,
                         isSingleEditableSet = false,
-                        hasShootOff = true,
-                        isShootOffWin = true,
                 ),
                 rowClicked = { _, _ -> },
+                onTextValueChanged = { _, _ -> },
                 helpListener = {},
                 modifier = Modifier.padding(vertical = 20.dp)
         )

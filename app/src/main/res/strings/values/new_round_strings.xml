@@ -42,7 +42,7 @@
     <string name="create_round__score_type_head_to_head">Head to head</string>
     <string name="create_round__h2h_style">Style:</string>
     <string name="create_round__h2h_style_recurve">Set points</string>
-    <string name="create_round__h2h_style_compound">Score</string>
+    <string name="create_round__h2h_style_compound">Total score</string>
     <string name="create_round__h2h_team_size">Team size:</string>
     <string name="create_round__h2h_team_size_placeholder">1</string>
     <string name="create_round__h2h_qualification_rank">Qualification rank:</string>

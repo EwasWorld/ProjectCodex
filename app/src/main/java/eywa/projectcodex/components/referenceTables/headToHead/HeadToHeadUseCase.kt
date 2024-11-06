@@ -13,6 +13,7 @@ import kotlin.math.roundToInt
 object HeadToHeadUseCase {
     const val MAX_QUALI_RANK = 512
     const val MAX_HEAT = 8
+    const val END_SIZE = 3
 
     /**
      * Returns the ranks of the worst-case opponent an archer an archer will face in each round given their qualifying
@@ -67,4 +68,7 @@ object HeadToHeadUseCase {
         2 -> StringResource(R.string.head_to_head_ref__round_name, listOf(4))
         else -> roundName(round)
     }
+
+    fun shootOffSet(teamSize: Int) = if (teamSize > 1) 5 else 6
+    fun winScore(teamSize: Int) = if (teamSize > 1) 5 else 6
 }

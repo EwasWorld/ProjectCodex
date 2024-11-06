@@ -19,8 +19,9 @@ import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadAddEndGrid
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
+import eywa.projectcodex.model.FullHeadToHeadSet
 
 @Composable
 fun HeadToHeadScorePadScreen() {
@@ -33,22 +34,42 @@ fun HeadToHeadScorePadScreen() {
                             opponent = "Jessica Summers",
                             opponentRank = 1,
                             enteredArrows = listOf(
-                                    HeadToHeadGridRowDataPreviewHelper.create(),
-                                    HeadToHeadGridRowDataPreviewHelper.create(),
+                                    FullHeadToHeadSet(
+                                            data = HeadToHeadGridRowDataPreviewHelper.create(),
+                                            teamSize = 1,
+                                            isShootOff = false,
+                                            isShootOffWin = false,
+                                            setNumber = 1,
+                                    ),
+                                    FullHeadToHeadSet(
+                                            data = HeadToHeadGridRowDataPreviewHelper.create(),
+                                            teamSize = 1,
+                                            isShootOff = false,
+                                            isShootOffWin = false,
+                                            setNumber = 2,
+                                    ),
                             ),
-                            hasShootOff = false,
-                            isShootOffWin = false,
                     ),
                     HeadToHeadScorePadHeatState(
                             heat = 1,
                             opponent = "Jessica Summers",
                             opponentRank = 1,
                             enteredArrows = listOf(
-                                    HeadToHeadGridRowDataPreviewHelper.create(),
-                                    HeadToHeadGridRowDataPreviewHelper.create(),
+                                    FullHeadToHeadSet(
+                                            data = HeadToHeadGridRowDataPreviewHelper.create(),
+                                            teamSize = 1,
+                                            isShootOff = false,
+                                            isShootOffWin = false,
+                                            setNumber = 1,
+                                    ),
+                                    FullHeadToHeadSet(
+                                            data = HeadToHeadGridRowDataPreviewHelper.create(),
+                                            teamSize = 1,
+                                            isShootOff = false,
+                                            isShootOffWin = false,
+                                            setNumber = 2,
+                                    ),
                             ),
-                            hasShootOff = false,
-                            isShootOffWin = false,
                     ),
             ),
     )
@@ -93,9 +114,10 @@ fun HeadToHeadScorePadScreen() {
                                     .padding(horizontal = CodexTheme.dimens.screenPadding)
                     )
                 }
-                HeadToHeadAddEndGrid(
-                        state = entry.toGridState(state.endSize, state.teamSize),
+                HeadToHeadGrid(
+                        state = entry.toGridState(),
                         rowClicked = { _, _ -> },
+                        onTextValueChanged = { _, _ -> },
                         helpListener = helpListener,
                         modifier = Modifier.padding(top = 10.dp)
                 )

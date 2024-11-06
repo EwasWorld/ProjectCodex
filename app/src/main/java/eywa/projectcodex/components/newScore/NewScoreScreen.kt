@@ -197,7 +197,7 @@ private fun HeadToHeadSection(
                     errorMessageTestTag = NewScoreTestTag.H2H_QUALI_RANK_ERROR,
                     errorMessage = state.h2hQualificationRank.error,
                     placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
-                    onValueChanged = { listener(H2hTeamSizeChanged(it)) },
+                    onValueChanged = { listener(H2hQualiRankChanged(it)) },
                     helpState = HelpShowcaseItem(
                             helpTitle = stringResource(R.string.help_create_round__h2h_quali_rank_title),
                             helpBody = stringResource(R.string.help_create_round__h2h_quali_rank_body),

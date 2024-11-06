@@ -7,14 +7,16 @@ import kotlin.random.Random
 
 object HeadToHeadGridRowDataPreviewHelper {
     val selfAndOneTeamMateWithOpponent = listOf(
-            HeadToHeadGridRowData.Arrows(HeadToHeadArcherType.SELF_ARROW, listOf(10, 10, 10).toArrows()),
-            HeadToHeadGridRowData.Arrows(HeadToHeadArcherType.TEAM_MATE_ARROW, listOf(10, 10, 10).toArrows()),
-            HeadToHeadGridRowData.Total(HeadToHeadArcherType.OPPONENT_ARROW, 59),
+            HeadToHeadGridRowData.Arrows(HeadToHeadArcherType.SELF, 3, listOf(10, 10, 10).toArrows()),
+            HeadToHeadGridRowData.Arrows(HeadToHeadArcherType.TEAM_MATE, 3, listOf(10, 10, 10).toArrows()),
+            HeadToHeadGridRowData.Total(HeadToHeadArcherType.OPPONENT, 6, 59),
     )
 
     val selfAndOpponent = listOf(
-            HeadToHeadGridRowData.Arrows(HeadToHeadArcherType.SELF_ARROW, listOf(10, 10, 10).toArrows()),
-            HeadToHeadGridRowData.Total(HeadToHeadArcherType.OPPONENT_ARROW, 29),
+            HeadToHeadGridRowData.Arrows(HeadToHeadArcherType.SELF, 3, listOf(10, 10, 10).toArrows()),
+            HeadToHeadGridRowData.EditableTotal(HeadToHeadArcherType.OPPONENT, 3).let {
+                it.copy(text = it.text.onTextChanged("29"))
+            },
     )
 
     fun create(
@@ -22,15 +24,16 @@ object HeadToHeadGridRowDataPreviewHelper {
             isShootOff: Boolean = false,
             result: HeadToHeadResult = HeadToHeadResult.WIN,
             typesToIsTotal: Map<HeadToHeadArcherType, Boolean> = mapOf(
-                    HeadToHeadArcherType.SELF_ARROW to false,
-                    HeadToHeadArcherType.OPPONENT_ARROW to true,
+                    HeadToHeadArcherType.SELF to false,
+                    HeadToHeadArcherType.OPPONENT to true,
             ),
+            isEditable: Boolean = false,
     ): List<HeadToHeadGridRowData> {
         require(result != HeadToHeadResult.INCOMPLETE)
 
         val endSize = if (isShootOff) 1 else 3
 
-        val winnerTotal = Random.nextInt(if (isShootOff) 1 else teamSize * 10, teamSize * endSize * 10 + 1)
+        val winnerTotal = Random.nextInt(if (isShootOff) 5 else teamSize * 10, teamSize * endSize * 10 + 1)
         val loserTotal = winnerTotal - Random.nextInt(1, winnerTotal - 1)
 
         val teamTotal =
@@ -41,17 +44,30 @@ object HeadToHeadGridRowDataPreviewHelper {
 
         return typesToIsTotal.map { (type, isTotal) ->
             val total = when (type) {
-                HeadToHeadArcherType.SELF_ARROW -> selfTotal
-                HeadToHeadArcherType.OPPONENT_ARROW -> opponentTotal
-                HeadToHeadArcherType.TEAM_MATE_ARROW -> teamTotal - selfTotal
-                HeadToHeadArcherType.TEAM_ARROW -> teamTotal
-                HeadToHeadArcherType.TEAM_POINTS -> result.defaultPoints
+                HeadToHeadArcherType.SELF -> selfTotal
+                HeadToHeadArcherType.OPPONENT -> opponentTotal
+                HeadToHeadArcherType.TEAM_MATE -> teamTotal - selfTotal
+                HeadToHeadArcherType.TEAM -> teamTotal
+                HeadToHeadArcherType.RESULT -> result.defaultPoints
             }
-            if (type == HeadToHeadArcherType.TEAM_POINTS || isTotal) HeadToHeadGridRowData.Total(type, total)
-            else HeadToHeadGridRowData.Arrows(
-                    type = type,
-                    arrows = createArrows(type.expectedArrowCount(endSize, teamSize), total).toArrows(),
-            )
+            val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
+            if (type == HeadToHeadArcherType.RESULT || isTotal) {
+                if (isEditable) {
+                    HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount).let {
+                        it.copy(text = it.text.onTextChanged(total.toString()))
+                    }
+                }
+                else {
+                    HeadToHeadGridRowData.Total(type, expectedArrowCount, total)
+                }
+            }
+            else {
+                HeadToHeadGridRowData.Arrows(
+                        type = type,
+                        expectedArrowCount = expectedArrowCount,
+                        arrows = createArrows(expectedArrowCount, total).toArrows(),
+                )
+            }
         }
     }
 

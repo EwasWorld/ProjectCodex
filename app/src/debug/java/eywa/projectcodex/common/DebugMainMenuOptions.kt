@@ -48,12 +48,6 @@ enum class DebugMainMenuOptions(
             ResOrActual.Actual("Auth Body"),
             shouldShow = { false },
     ),
-    H2H(
-            ResOrActual.Actual("H2H"),
-            DebugNavRoute.H2H,
-            ResOrActual.Actual("H2h Title"),
-            ResOrActual.Actual("H2h Body"),
-    ),
     ;
 
     override val testTag: CodexTestTag

@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import eywa.projectcodex.components.newScore.NewScoreType
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.UpdateType
@@ -55,7 +56,13 @@ class LocalDatabaseModule {
         }
 
         suspend fun ScoresRoomDatabase.add(shootInfo: FullShootInfo) {
-            shootsRepo().insert(shootInfo.shoot, shootInfo.shootRound, shootInfo.shootDetail, true)
+            shootsRepo().insert(
+                    shootInfo.shoot,
+                    shootInfo.shootRound,
+                    shootInfo.shootDetail,
+                    shootInfo.h2h?.headToHead,
+                    NewScoreType.SCORING,
+            )
             shootInfo.arrows?.let { arrowScoresRepo().insert(*it.toTypedArray()) }
             shootInfo.arrowCounter?.let { arrowCounterRepo().insert(it) }
         }

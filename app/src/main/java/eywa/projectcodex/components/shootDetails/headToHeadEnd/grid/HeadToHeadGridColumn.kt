@@ -27,9 +27,9 @@ enum class HeadToHeadGridColumn {
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.Actual("Arrows")
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
-            get() = { data, extra ->
+            get() = { data, _ ->
                 if (data is HeadToHeadGridRowData.Arrows) {
-                    val missing = data.type.expectedArrowCount(extra.endSize, extra.teamSize) - data.arrows.size
+                    val missing = data.expectedArrowCount - data.arrows.size
                     val text = data.arrows.map { it.asString() }
                             .plus(
                                     List(missing) {
@@ -48,7 +48,7 @@ enum class HeadToHeadGridColumn {
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.Actual("S")
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
-            get() = { data, _ -> ResOrActual.Actual(data.totalScore().toString()) }
+            get() = { data, _ -> ResOrActual.Actual(data.totalScore.toString()) }
     },
 
     TEAM_TOTAL {
@@ -57,14 +57,14 @@ enum class HeadToHeadGridColumn {
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
             get() = { data, extra ->
                 when (data.type) {
-                    HeadToHeadArcherType.SELF_ARROW -> ResOrActual.Actual(extra.teamEndTotal.toString())
-                    HeadToHeadArcherType.OPPONENT_ARROW -> ResOrActual.Actual(extra.opponentEndTotal.toString())
+                    HeadToHeadArcherType.SELF -> ResOrActual.Actual(extra.teamEndTotal.toString())
+                    HeadToHeadArcherType.OPPONENT -> ResOrActual.Actual(extra.opponentEndTotal.toString())
                     else -> null
                 }
             }
 
         override fun cellVerticalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int {
-            return if (row.type == HeadToHeadArcherType.SELF_ARROW) 2 else 1
+            return if (row.type == HeadToHeadArcherType.SELF) 2 else 1
         }
     },
 
@@ -81,14 +81,14 @@ enum class HeadToHeadGridColumn {
                             ResOrActual.Actual((if (extra.isShootOff) shootOffPoints else defaultPoints).toString())
 
                     when (data.type) {
-                        HeadToHeadArcherType.SELF_ARROW -> extra.result.getPoints()
+                        HeadToHeadArcherType.SELF -> extra.result.getPoints()
 
-                        HeadToHeadArcherType.TEAM_MATE_ARROW ->
+                        HeadToHeadArcherType.TEAM_MATE ->
                             if (extra.hasSelfAndTeamRows) null else extra.result.getPoints()
 
-                        HeadToHeadArcherType.TEAM_ARROW -> extra.result.getPoints()
+                        HeadToHeadArcherType.TEAM -> extra.result.getPoints()
 
-                        HeadToHeadArcherType.OPPONENT_ARROW -> {
+                        HeadToHeadArcherType.OPPONENT -> {
                             val opponent = when (extra.result) {
                                 HeadToHeadResult.WIN -> HeadToHeadResult.LOSS
                                 HeadToHeadResult.LOSS -> HeadToHeadResult.WIN
@@ -97,14 +97,14 @@ enum class HeadToHeadGridColumn {
                             opponent.getPoints()
                         }
 
-                        HeadToHeadArcherType.TEAM_POINTS ->
+                        HeadToHeadArcherType.RESULT ->
                             ResOrActual.Actual((data as HeadToHeadGridRowData.Total).total.toString())
                     }
                 }
             }
 
         override fun cellVerticalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int {
-            return if (row.type == HeadToHeadArcherType.SELF_ARROW && extra.hasSelfAndTeamRows) 2 else 1
+            return if (row.type == HeadToHeadArcherType.SELF && extra.hasSelfAndTeamRows) 2 else 1
         }
     },
     ;

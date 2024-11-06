@@ -1,9 +1,8 @@
-package eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat
+package eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,9 +14,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -26,17 +22,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.navigation.BottomSheetNavRoute
-import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.ChipColours
 import eywa.projectcodex.common.sharedUi.CodexButton
-import eywa.projectcodex.common.sharedUi.CodexButtonDefaults
 import eywa.projectcodex.common.sharedUi.CodexChip
 import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.DataRow
@@ -50,39 +40,13 @@ import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatIntent.*
-
-object HeadToHeadAddHeatBottomSheet : BottomSheetNavRoute {
-    override val sheetRouteBase = "head_to_head_add_heat"
-
-    override val args: Map<NavArgument, Boolean> = emptyMap()
-
-    @Composable override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
-            stringResource(R.string.head_to_head_add_heat__title)
-
-    @Composable
-    override fun ColumnScope.SheetContent(navController: NavController) {
-        val viewModel: HeadToHeadAddHeatViewModel = hiltViewModel()
-
-        val state by viewModel.state.collectAsState()
-        HeadToHeadAddHeatContent(
-                state = state,
-                listener = { viewModel.handle(it) },
-        )
-
-        LaunchedEffect(state.shouldCloseScreen) {
-            if (state.shouldCloseScreen) {
-                navController.popBackStack()
-                viewModel.handle(ShouldCloseScreenHandled)
-            }
-        }
-    }
-}
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddHeatIntent.*
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HeadToHeadAddHeatContent(
-        state: HeadToHeadAddHeatState,
+        state: HeadToHeadAddState.AddHeat,
+        modifier: Modifier = Modifier,
         listener: (HeadToHeadAddHeatIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
@@ -118,13 +82,9 @@ fun HeadToHeadAddHeatContent(
     Column(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                    .fillMaxWidth()
-//                    .verticalScroll(rememberScrollState())
-                    .padding(vertical = CodexTheme.dimens.screenPadding)
-                    .padding(top = CodexTheme.dimens.cornerRounding)
+            modifier = modifier
     ) {
-        ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onDialogBackground)) {
+        ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
             Row(
                     horizontalArrangement = Arrangement.spacedBy(20.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -139,7 +99,7 @@ fun HeadToHeadAddHeatContent(
                             style = LocalTextStyle.current
                                     .asClickableStyle()
                                     .copy(
-                                            color = if (state.showHeatRequiredError) CodexTheme.colors.warningOnDialog
+                                            color = if (state.showHeatRequiredError) CodexTheme.colors.warningOnAppBackground
                                             else CodexTheme.colors.linkText,
                                     ),
                             textAlign = TextAlign.Center,
@@ -156,7 +116,7 @@ fun HeadToHeadAddHeatContent(
                         Icon(
                                 imageVector = Icons.Default.WarningAmber,
                                 contentDescription = null,
-                                tint = CodexTheme.colors.warningOnDialog,
+                                tint = CodexTheme.colors.warningOnAppBackground,
                         )
                     }
                 }
@@ -165,7 +125,7 @@ fun HeadToHeadAddHeatContent(
                         selected = state.isBye,
                         testTag = HeadToHeadAddHeatTestTag.IS_BYE_CHECKBOX,
                         onToggle = { listener(ToggleIsBye) },
-                        colours = ChipColours.Defaults.onDialog(),
+                        colours = ChipColours.Defaults.onPrimary(),
                 )
             }
             DataRow(
@@ -177,7 +137,6 @@ fun HeadToHeadAddHeatContent(
                         enabled = !state.isBye,
                         onValueChange = { listener(OpponentUpdated(it)) },
                         placeholderText = stringResource(R.string.head_to_head_add_heat__opponent_placeholder),
-                        colors = CodexTextField.transparentOutlinedTextFieldColorsOnDialog(),
                 )
             }
             CodexLabelledNumberFieldWithErrorMessage(
@@ -188,16 +147,14 @@ fun HeadToHeadAddHeatContent(
                     errorMessageTestTag = HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_ERROR,
                     placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
                     onValueChanged = { listener(OpponentQualiRankUpdated(it)) },
-                    colors = CodexTextField.transparentOutlinedTextFieldColorsOnDialog(),
             )
 
             CodexButton(
                     text = stringResource(R.string.head_to_head_add_heat__submit),
-                    buttonStyle = CodexButtonDefaults.DefaultOutlinedButton,
                     onClick = { listener(SubmitClicked) },
                     helpState = null,
                     modifier = Modifier
-                            .padding(top = 8.dp, bottom = 20.dp)
+                            .padding(top = 8.dp)
                             .testTag(ArcherHandicapsTestTag.ADD_HANDICAP_SUBMIT)
             )
         }
@@ -223,7 +180,7 @@ enum class HeadToHeadAddHeatTestTag : CodexTestTag {
 fun HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
         HeadToHeadAddHeatContent(
-                state = HeadToHeadAddHeatState(),
+                state = HeadToHeadAddState.AddHeat(),
         ) {}
     }
 }
@@ -233,7 +190,7 @@ fun HeadToHeadAddHeatScreen_Preview() {
 fun Bye_HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
         HeadToHeadAddHeatContent(
-                state = HeadToHeadAddHeatState(isBye = true, showHeatRequiredError = true),
+                state = HeadToHeadAddState.AddHeat(isBye = true, showHeatRequiredError = true),
         ) {}
     }
 }

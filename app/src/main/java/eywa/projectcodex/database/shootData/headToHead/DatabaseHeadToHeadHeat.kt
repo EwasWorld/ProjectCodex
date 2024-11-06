@@ -21,7 +21,6 @@ data class DatabaseHeadToHeadHeat(
         val heat: Int,
         val opponent: String?,
         val opponentQualificationRank: Int?,
-        val hasShootOff: Boolean,
         val isShootOffWin: Boolean,
         val sightersCount: Int,
         val isBye: Boolean,

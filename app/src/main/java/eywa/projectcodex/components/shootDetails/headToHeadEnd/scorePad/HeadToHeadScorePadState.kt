@@ -1,7 +1,7 @@
 package eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad
 
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridState
+import eywa.projectcodex.model.FullHeadToHeadSet
 
 data class HeadToHeadScorePadState(
         val endSize: Int,
@@ -10,20 +10,14 @@ data class HeadToHeadScorePadState(
 )
 
 data class HeadToHeadScorePadHeatState(
-        val enteredArrows: List<List<HeadToHeadGridRowData>>,
-        val hasShootOff: Boolean,
-        val isShootOffWin: Boolean,
+        val enteredArrows: List<FullHeadToHeadSet>,
         val heat: Int,
         val opponent: String,
         val opponentRank: Int,
 ) {
-    fun toGridState(endSize: Int, teamSize: Int) = HeadToHeadGridState(
+    fun toGridState() = HeadToHeadGridState(
             enteredArrows = enteredArrows,
-            endSize = endSize,
-            teamSize = teamSize,
             selected = null,
             isSingleEditableSet = false,
-            hasShootOff = hasShootOff,
-            isShootOffWin = isShootOffWin,
     )
 }

@@ -28,8 +28,7 @@ import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountScreen
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndScreen
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatBottomSheet
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddScreen
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad.HeadToHeadScorePadScreen
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
@@ -178,16 +177,13 @@ enum class CodexNavRoute : ScreenNavRoute {
                     NavArgument.SHOOT_ID to true,
             )
 
-        override val bottomSheets: List<BottomSheetNavRoute>
-            get() = listOf(HeadToHeadAddHeatBottomSheet)
-
         @Composable
         override fun getMenuBarTitle(entry: NavBackStackEntry?): String =
                 stringResource(R.string.head_to_head_add_end__title)
 
         @Composable
         override fun Screen(navController: NavController) {
-            HeadToHeadAddEndScreen()
+            HeadToHeadAddScreen(navController)
         }
     },
     HEAD_TO_HEAD_REF {

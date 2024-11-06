@@ -12,7 +12,7 @@ enum class HeadToHeadArcherType(
     /**
      * The archer alone
      */
-    SELF_ARROW(
+    SELF(
             text = ResOrActual.Actual("Self"),
             isTeam = true,
     ) {
@@ -22,7 +22,7 @@ enum class HeadToHeadArcherType(
     /**
      * The archer's team mates (not including the archer themselves)
      */
-    TEAM_MATE_ARROW(
+    TEAM_MATE(
             text = ResOrActual.Actual("Team"),
             isTeam = true,
     ) {
@@ -32,7 +32,7 @@ enum class HeadToHeadArcherType(
     /**
      * The archer's team (including the archer themselves)
      */
-    TEAM_ARROW(
+    TEAM(
             text = ResOrActual.Actual("Team"),
             isTeam = true,
     ) {
@@ -42,7 +42,7 @@ enum class HeadToHeadArcherType(
     /**
      * The opponent(s)
      */
-    OPPONENT_ARROW(
+    OPPONENT(
             text = ResOrActual.Actual("Opponent"),
             isTeam = false,
     ) {
@@ -51,8 +51,10 @@ enum class HeadToHeadArcherType(
 
     /**
      * Set points for the archer's team (including the archer themselves)
+     * Note this always uses default points within the db, not shoot off points, which are adjusted for later
+     * TODO
      */
-    TEAM_POINTS(
+    RESULT(
             text = ResOrActual.Actual("Points"),
             isTeam = false,
     )
