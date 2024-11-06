@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="head_to_head_add_end__title">H2H Add End</string>
-    <string name="head_to_head_add_end__opponent_rank_and_name">Opponent (rank %1$d):\n%2$s</string> <!-- Opponent (rank 1): Jessica Summers -->
-    <string name="head_to_head_add_end__opponent_rank">Opponent:\nrank %d</string>  <!-- Opponent (rank 1) -->
-    <string name="head_to_head_add_end__opponent_name">Opponent:\n%s</string> <!-- Opponent: Jessica Summers -->
+    <string name="head_to_head_add_end__opponent_rank_and_name_multiline">Opponent (rank %1$d):\n%2$s</string> <!-- Opponent (rank 1): Jessica Summers -->
+    <string name="head_to_head_add_end__opponent_rank_multiline">Opponent:\nrank %d</string>  <!-- Opponent (rank 1) -->
+    <string name="head_to_head_add_end__opponent_name_multiline">Opponent:\n%s</string> <!-- Opponent: Jessica Summers -->
+    <string name="head_to_head_add_end__opponent_rank_and_name">Opponent (rank %1$d): %2$s</string> <!-- Opponent (rank 1): Jessica Summers -->
+    <string name="head_to_head_add_end__opponent_rank">Opponent: rank %d</string>  <!-- Opponent (rank 1) -->
+    <string name="head_to_head_add_end__opponent_name">Opponent: %s</string> <!-- Opponent: Jessica Summers -->
     <string name="head_to_head_add_end__score">Score:</string>
     <string name="head_to_head_add_end__score_text">%1$d-%2$d</string> <!-- 6-0 -->
     <string name="head_to_head_add_end__set">Set %1$d: %2$s</string> <!-- Set 1: Win -->
@@ -11,6 +14,9 @@
     <string name="head_to_head_add_end__shoot_off_win">Win</string>
     <string name="head_to_head_add_end__submit">Add end</string>
     <string name="head_to_head_add_end__add_heat">Start heat</string>
+    <string name="head_to_head_add_end__set_result">Set: %s</string> <!-- Set: Win -->
+    <string name="head_to_head_add_end__final_result">Match result: %s</string> <!-- Match result: Win -->
+    <string name="head_to_head_add_end__running_total">R/T: %s</string> <!-- R/T: 6-0 -->
 
     <string name="head_to_head_add_end__result_win">Win</string>
     <string name="head_to_head_add_end__result_loss">Loss</string>

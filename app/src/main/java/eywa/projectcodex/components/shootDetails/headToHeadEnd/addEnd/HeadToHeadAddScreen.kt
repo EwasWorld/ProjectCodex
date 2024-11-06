@@ -245,32 +245,7 @@ private fun HeatFixedInfo(
         state: HeadToHeadAddState.AddEnd,
         listener: (HeadToHeadAddEndIntent) -> Unit,
 ) {
-    val opponent =
-            when {
-                state.heat.opponentQualificationRank != null && !state.heat.opponent.isNullOrBlank() -> {
-                    stringResource(
-                            R.string.head_to_head_add_end__opponent_rank_and_name,
-                            state.heat.opponentQualificationRank,
-                            state.heat.opponent,
-                    )
-                }
-
-                state.heat.opponentQualificationRank != null -> {
-                    stringResource(
-                            R.string.head_to_head_add_end__opponent_rank,
-                            state.heat.opponentQualificationRank,
-                    )
-                }
-
-                !state.heat.opponent.isNullOrBlank() -> {
-                    stringResource(
-                            R.string.head_to_head_add_end__opponent_name,
-                            state.heat.opponent,
-                    )
-                }
-
-                else -> null
-            }
+    val opponent = state.heat.opponentString(true)?.get()
 
     Column(
             verticalArrangement = Arrangement.spacedBy(0.dp),

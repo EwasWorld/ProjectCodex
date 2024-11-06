@@ -32,6 +32,7 @@ import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
+import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
@@ -175,22 +176,30 @@ enum class HeadToHeadAddHeatTestTag : CodexTestTag {
     override fun getElement(): String = name
 }
 
-@Preview(showBackground = true)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
 @Composable
 fun HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
         HeadToHeadAddHeatContent(
                 state = HeadToHeadAddState.AddHeat(),
+                modifier = Modifier.padding(10.dp)
         ) {}
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
 @Composable
 fun Bye_HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
         HeadToHeadAddHeatContent(
                 state = HeadToHeadAddState.AddHeat(isBye = true, showHeatRequiredError = true),
+                modifier = Modifier.padding(10.dp)
         ) {}
     }
 }

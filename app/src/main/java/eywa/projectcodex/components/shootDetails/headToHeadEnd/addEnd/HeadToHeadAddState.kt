@@ -100,6 +100,8 @@ sealed class HeadToHeadAddState {
                 enteredArrows = listOf(set),
                 selected = selected,
                 isSingleEditableSet = true,
+                runningTotals = null,
+                finalResult = null,
         )
 
         fun toDbDetails(): List<DatabaseHeadToHeadDetail> =

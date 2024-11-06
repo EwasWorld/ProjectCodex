@@ -4,6 +4,7 @@ import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridState
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
@@ -54,7 +55,7 @@ data class FullHeadToHead(
         get() = heats.sumOf { it.arrowsShot }
 
     val isComplete: Boolean
-        get() = heats.all { it.isComplete() }
+        get() = heats.all { it.heatResult() != HeadToHeadResult.INCOMPLETE }
 
     companion object {
         fun List<DatabaseHeadToHeadDetail>.asRowData(
@@ -130,22 +131,52 @@ data class FullHeadToHeadHeat(
         }
     }
 
-    fun isComplete(): Boolean {
-        if (results.lastOrNull() == null) return false
+    fun heatResult(): HeadToHeadResult {
+        if (results.lastOrNull() == null) return HeadToHeadResult.INCOMPLETE
 
-        // Recurve
+        /*
+         * Recurve
+         */
         if (isRecurveMatch) {
             val winScore = HeadToHeadUseCase.winScore(teamSize)
-            return results.last()
-                    .let { scores -> scores != null && (scores.first >= winScore || scores.second >= winScore) }
+
+            // Incomplete sets / not reached required set points
+            val scores = results.last() ?: return HeadToHeadResult.INCOMPLETE
+            if (scores.first < winScore && scores.second < winScore) return HeadToHeadResult.INCOMPLETE
+
+            check(scores.first != scores.second) { "Final result cannot be a tie" }
+            return if (scores.first > scores.second) HeadToHeadResult.WIN else HeadToHeadResult.LOSS
         }
 
-        // Compound
+
+        /*
+         * Compound
+         */
         val shootOffSet = HeadToHeadUseCase.shootOffSet(teamSize)
-        if (sets.size == shootOffSet) return true
-        if (sets.size < shootOffSet - 1) return false
-        return results.last().let { scores -> scores != null && (scores.first != scores.second) }
+
+        // Shoot off outcome
+        if (sets.size == shootOffSet) {
+            val result = sets.last().result
+            check(result != HeadToHeadResult.TIE) { "Final result cannot be a tie" }
+            return result
+        }
+        // Not enough sets (compound always shoot all sets with an optional shoot off)
+        if (sets.size < shootOffSet - 1) return HeadToHeadResult.INCOMPLETE
+
+        val scores = results.last() ?: return HeadToHeadResult.INCOMPLETE
+        // Shoot off required
+        if (scores.first == scores.second) return HeadToHeadResult.INCOMPLETE
+
+        return if (scores.first > scores.second) HeadToHeadResult.WIN else HeadToHeadResult.LOSS
     }
+
+    fun toGridState() = HeadToHeadGridState(
+            enteredArrows = sets,
+            selected = null,
+            isSingleEditableSet = false,
+            runningTotals = results,
+            finalResult = heatResult(),
+    )
 }
 
 data class FullHeadToHeadSet(

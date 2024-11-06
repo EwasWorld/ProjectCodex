@@ -73,7 +73,7 @@ class HeadToHeadAddViewModel @Inject constructor(
                 }
 
                 val scores = heat.results.lastOrNull()
-                if (heat.isComplete()) {
+                if (heat.heatResult() != HeadToHeadResult.INCOMPLETE) {
                     _state.update {
                         AddHeat(
                                 roundCommon = it.roundCommon,

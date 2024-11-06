@@ -24,12 +24,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
@@ -42,6 +44,7 @@ import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.model.FullHeadToHeadSet
 
 fun List<FullHeadToHeadSet>.anyRow(predicate: (HeadToHeadGridRowData) -> Boolean) =
@@ -57,11 +60,14 @@ fun HeadToHeadGrid(
 ) {
     val resources = LocalContext.current.resources
 
-    val focusRequesters = remember(state.isSingleEditableSet, state.enteredArrows[0].data.map { it.type }) {
+    val focusRequesters = remember(
+            state.isSingleEditableSet,
+            state.enteredArrows.firstOrNull()?.data?.map { it.type },
+    ) {
         if (!state.isSingleEditableSet) null
-        else state.enteredArrows[0].data
-                .filter { it.isTotalRow }
-                .associate { it.type to FocusRequester() }
+        else state.enteredArrows.firstOrNull()?.data
+                ?.filter { it.isTotalRow }
+                ?.associate { it.type to FocusRequester() }
     }
 
     val columnMetadata = listOfNotNull(
@@ -244,14 +250,23 @@ fun HeadToHeadGrid(
                                     .wrapContentHeight(Alignment.CenterVertically)
                     ) {
                         Text(
-                                text = "Result: ${extraData.result.title.get()}",
+                                text = stringResource(
+                                        R.string.head_to_head_add_end__set_result,
+                                        extraData.result.title.get(),
+                                ),
                                 style = CodexTypography.NORMAL_PLUS,
                                 color = CodexTheme.colors.onListItemAppOnBackground,
                                 textAlign = TextAlign.End,
                                 modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
                         )
+                        val runningTotals = state.runningTotals?.getOrNull(setIndex)?.let {
+                            stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
+                        }
                         Text(
-                                text = "R/T: 0-2",
+                                text = stringResource(
+                                        R.string.head_to_head_add_end__running_total,
+                                        runningTotals ?: stringResource(R.string.score_pad__running_total_placeholder),
+                                ),
                                 style = CodexTypography.NORMAL_PLUS,
                                 color = CodexTheme.colors.onListItemAppOnBackground,
                                 textAlign = TextAlign.End,
@@ -259,6 +274,28 @@ fun HeadToHeadGrid(
                         )
                     }
                 }
+            }
+        }
+
+        if (!state.isSingleEditableSet && state.finalResult != null) {
+            item(
+                    fillBox = true,
+                    horizontalSpan = columnMetadata.size,
+            ) {
+                Text(
+                        text = stringResource(
+                                R.string.head_to_head_add_end__final_result,
+                                state.finalResult,
+                        ),
+                        style = CodexTypography.NORMAL_PLUS,
+                        color = CodexTheme.colors.onListItemAppOnBackground,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                                .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
+                                .padding(vertical = 5.dp, horizontal = 10.dp)
+                                .wrapContentHeight(Alignment.CenterVertically)
+                )
             }
         }
     }
@@ -305,6 +342,8 @@ fun Input_HeadToHeadGrid_Preview() {
                         ),
                         selected = null,
                         isSingleEditableSet = true,
+                        runningTotals = null,
+                        finalResult = null,
                 ),
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
@@ -343,6 +382,8 @@ fun InputTeam_HeadToHeadGrid_Preview() {
                         ),
                         selected = null,
                         isSingleEditableSet = true,
+                        runningTotals = null,
+                        finalResult = null,
                 ),
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
@@ -387,6 +428,8 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                         ),
                         selected = null,
                         isSingleEditableSet = false,
+                        runningTotals = listOf(2 to 0, 4 to 0, 5 to 0),
+                        finalResult = HeadToHeadResult.WIN,
                 ),
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
