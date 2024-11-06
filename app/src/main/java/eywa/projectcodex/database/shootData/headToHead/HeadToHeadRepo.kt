@@ -30,4 +30,8 @@ class HeadToHeadRepo(
     suspend fun update(vararg details: DatabaseHeadToHeadDetail) {
         headToHeadDetailDao.update(*details)
     }
+
+    suspend fun update(heat: DatabaseHeadToHeadHeat) {
+        headToHeadHeatDao.update(heat)
+    }
 }

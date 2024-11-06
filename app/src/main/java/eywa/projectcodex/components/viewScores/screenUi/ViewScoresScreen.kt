@@ -133,7 +133,7 @@ private fun handleEffects(
                     mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
             )
         }
-        listener(HandledScorePadOpened)
+        listener(HandledH2hScorePadOpened)
     }
 
     if (state.openAddCountClicked) {
@@ -167,14 +167,14 @@ private fun handleEffects(
         listener(HandledAddEndOpened)
     }
 
-    if (state.openH2hAddEndClicked) {
+    if (state.openH2hAddClicked) {
         if (state.lastClickedEntryId != null) {
-            CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+            CodexNavRoute.HEAD_TO_HEAD_ADD.navigate(
                     navController,
                     mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
             )
         }
-        listener(HandledScorePadOpened)
+        listener(HandledH2hAddOpened)
     }
 
     if (state.openEditInfoClicked) {

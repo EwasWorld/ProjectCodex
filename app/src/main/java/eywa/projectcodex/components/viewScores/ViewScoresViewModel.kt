@@ -20,7 +20,14 @@ import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -182,6 +189,8 @@ class ViewScoresViewModel @Inject constructor(
             HandledAddEndOnCompletedRound -> _state.update { it.copy(openAddEndOnCompletedRound = false) }
             HandledAddEndOpened -> _state.update { it.copy(openAddEndClicked = false) }
             HandledNoRoundsDialogOkClicked -> _state.update { it.copy(noRoundsDialogOkClicked = false) }
+            HandledH2hAddOpened -> _state.update { it.copy(openH2hAddClicked = false) }
+            HandledH2hScorePadOpened -> _state.update { it.copy(openH2hScorePadClicked = false) }
         }
     }
 

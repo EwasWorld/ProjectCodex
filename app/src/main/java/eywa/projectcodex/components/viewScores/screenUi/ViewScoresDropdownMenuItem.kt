@@ -30,7 +30,7 @@ enum class ViewScoresDropdownMenuItem(
             handleClick = {
                 val entry = data?.find { it.id == lastClickedEntryId }
                 when {
-                    entry?.info?.h2h != null -> copy(openH2hAddEndClicked = true)
+                    entry?.info?.h2h != null -> copy(openH2hAddClicked = true)
                     entry?.isRoundComplete() == true -> copy(openAddEndOnCompletedRound = true)
                     else -> copy(openAddEndClicked = true)
                 }
@@ -67,7 +67,7 @@ enum class ViewScoresDropdownMenuItem(
             handleClick = {
                 val entry = data?.find { it.id == lastClickedEntryId }
                 when {
-                    entry?.info?.h2h != null -> copy(openH2hAddEndClicked = true)
+                    entry?.info?.h2h != null -> copy(openH2hAddClicked = true)
                     else -> copy(openAddCountClicked = true)
                 }
             },

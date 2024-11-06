@@ -26,8 +26,9 @@ class AddArrowCountViewModel @Inject constructor(
         savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
+    private val heatId = savedStateHandle.get<Int>(NavArgument.HEAT_ID)
     private val screen = CodexNavRoute.SHOOT_DETAILS_ADD_COUNT
-    private val extraState = MutableStateFlow(AddArrowCountExtras())
+    private val extraState = MutableStateFlow(AddArrowCountExtras(heatId = heatId))
     private val isEditingSighters = savedStateHandle.get<Boolean>(NavArgument.IS_SIGHTERS) ?: false
 
     val state = repo.getState(extraState) { main, extras -> AddArrowCountState(main, extras, isEditingSighters) }
@@ -78,17 +79,29 @@ class AddArrowCountViewModel @Inject constructor(
                 }
 
                 if (isEditingSighters) {
-                    val currentCount = currentState.fullShootInfo.shootRound?.sightersCount ?: return
-                    viewModelScope.launch {
-                        repo.db.shootsRepo().updateShootRound(
-                                currentState.fullShootInfo.shootRound.copy(sightersCount = currentCount + toAdd),
-                        )
+                    if (heatId == null) {
+                        val shootRound = currentState.fullShootInfo.shootRound ?: return
+                        val currentCount = shootRound.sightersCount
+                        viewModelScope.launch {
+                            repo.db.shootsRepo()
+                                    .updateShootRound(shootRound.copy(sightersCount = currentCount + toAdd))
+                        }
+                    }
+                    else {
+                        val heat =
+                                currentState.fullShootInfo.h2h?.heats?.find { it.heat.heat == heatId }?.heat ?: return
+                        val currentCount = heat.sightersCount
+                        viewModelScope.launch {
+                            repo.db.h2hRepo()
+                                    .update(heat.copy(sightersCount = currentCount + toAdd))
+                        }
                     }
                 }
                 else {
                     val currentCount = currentState.fullShootInfo.arrowCounter ?: return
                     viewModelScope.launch {
-                        repo.db.arrowCounterRepo().update(currentCount.copy(shotCount = currentCount.shotCount + toAdd))
+                        repo.db.arrowCounterRepo()
+                                .update(currentCount.copy(shotCount = currentCount.shotCount + toAdd))
                     }
                 }
             }

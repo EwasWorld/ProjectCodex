@@ -91,7 +91,7 @@ private fun handleEffects(
             }
 
             NewScoreType.HEAD_TO_HEAD -> {
-                CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                CodexNavRoute.HEAD_TO_HEAD_ADD.navigate(
                         navController,
                         mapOf(NavArgument.SHOOT_ID to state.navigateToAddEnd.toString()),
                         popCurrentRoute = true,

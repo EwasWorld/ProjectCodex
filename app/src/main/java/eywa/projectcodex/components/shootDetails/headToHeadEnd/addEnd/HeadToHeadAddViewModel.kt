@@ -187,7 +187,7 @@ class HeadToHeadAddViewModel @Inject constructor(
     fun handle(action: HeadToHeadAddIntent) {
         when (action) {
             is HeadToHeadAddIntent.HelpShowcaseAction ->
-                helpShowcaseUseCase.handle(action.action, CodexNavRoute.HEAD_TO_HEAD_ADD_END::class)
+                helpShowcaseUseCase.handle(action.action, CodexNavRoute.HEAD_TO_HEAD_ADD::class)
 
             is AddEndAction -> handle(action.action)
             is AddHeatAction -> handle(action.action)
@@ -214,7 +214,7 @@ class HeadToHeadAddViewModel @Inject constructor(
 
         when (action) {
             is HeadToHeadAddEndIntent.HelpShowcaseAction ->
-                helpShowcaseUseCase.handle(action.action, CodexNavRoute.HEAD_TO_HEAD_ADD_END::class)
+                helpShowcaseUseCase.handle(action.action, CodexNavRoute.HEAD_TO_HEAD_ADD::class)
 
             is ArrowInputAction -> {
                 val currentState = state.value as AddEnd
@@ -274,7 +274,7 @@ class HeadToHeadAddViewModel @Inject constructor(
 
         when (action) {
             is HeadToHeadAddHeatIntent.HelpShowcaseAction ->
-                helpShowcaseUseCase.handle(action.action, CodexNavRoute.HEAD_TO_HEAD_ADD_END::class)
+                helpShowcaseUseCase.handle(action.action, CodexNavRoute.HEAD_TO_HEAD_ADD::class)
 
             is OpponentUpdated -> updateState { it.copy(opponent = action.opponent) }
 

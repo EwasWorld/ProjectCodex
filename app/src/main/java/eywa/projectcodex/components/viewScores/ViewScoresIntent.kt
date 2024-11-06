@@ -15,25 +15,27 @@ sealed class ViewScoresIntent {
     data class ConvertScoreAction(val action: ConvertScoreIntent) : ViewScoresIntent()
 
     data class FiltersAction(val action: ViewScoresFiltersIntent) : ViewScoresIntent()
-    object OpenFilters : ViewScoresIntent()
-    object HandledOpenFilters : ViewScoresIntent()
+    data object OpenFilters : ViewScoresIntent()
+    data object HandledOpenFilters : ViewScoresIntent()
 
     data class DropdownMenuClicked(val item: ViewScoresDropdownMenuItem, val shootId: Int) : ViewScoresIntent()
-    object DropdownMenuClosed : ViewScoresIntent()
+    data object DropdownMenuClosed : ViewScoresIntent()
 
-    object NoRoundsDialogOkClicked : ViewScoresIntent()
+    data object NoRoundsDialogOkClicked : ViewScoresIntent()
 
-    object DeleteDialogOkClicked : ViewScoresIntent()
-    object DeleteDialogCancelClicked : ViewScoresIntent()
+    data object DeleteDialogOkClicked : ViewScoresIntent()
+    data object DeleteDialogCancelClicked : ViewScoresIntent()
 
-    object HandledNoRoundsDialogOkClicked : EffectComplete()
-    object HandledEmailNoSelection : EffectComplete()
-    object HandledScorePadOpened : EffectComplete()
-    object HandledAddCountOpened : EffectComplete()
-    object HandledAddEndOpened : EffectComplete()
-    object HandledAddEndOnCompletedRound : EffectComplete()
-    object HandledEmailOpened : EffectComplete()
-    object HandledEditInfoOpened : EffectComplete()
+    data object HandledNoRoundsDialogOkClicked : EffectComplete()
+    data object HandledEmailNoSelection : EffectComplete()
+    data object HandledScorePadOpened : EffectComplete()
+    data object HandledH2hScorePadOpened : EffectComplete()
+    data object HandledH2hAddOpened : EffectComplete()
+    data object HandledAddCountOpened : EffectComplete()
+    data object HandledAddEndOpened : EffectComplete()
+    data object HandledAddEndOnCompletedRound : EffectComplete()
+    data object HandledEmailOpened : EffectComplete()
+    data object HandledEditInfoOpened : EffectComplete()
 
     sealed class EffectComplete : ViewScoresIntent()
 }

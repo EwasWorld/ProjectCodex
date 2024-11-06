@@ -171,7 +171,7 @@ enum class CodexNavRoute : ScreenNavRoute {
             HandicapTablesScreen()
         }
     },
-    HEAD_TO_HEAD_ADD_END {
+    HEAD_TO_HEAD_ADD {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(
                     NavArgument.SHOOT_ID to true,
@@ -278,6 +278,7 @@ enum class CodexNavRoute : ScreenNavRoute {
             get() = mapOf(
                     NavArgument.SHOOT_ID to true,
                     NavArgument.IS_SIGHTERS to false,
+                    NavArgument.HEAT_ID to false,
             )
 
         @Composable

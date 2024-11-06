@@ -62,7 +62,7 @@ fun HeadToHeadAddScreen(
 
     HeadToHeadAddScreen(state, listener)
 
-    LaunchedEffect(state.effects) {
+    LaunchedEffect(state.effects, (state as? HeadToHeadAddState.AddEnd)?.openSighters) {
         if (state.effects.openAllSightMarks) {
             CodexNavRoute.SIGHT_MARKS.navigate(navController)
             listener(HeadToHeadAddIntent.ExpandSightMarkHandled)
@@ -79,6 +79,20 @@ fun HeadToHeadAddScreen(
             }
             CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
             listener(HeadToHeadAddIntent.EditSightMarkHandled)
+        }
+
+        (state as? HeadToHeadAddState.AddEnd)?.let {
+            if (it.openSighters) {
+                CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                        navController,
+                        mapOf(
+                                NavArgument.SHOOT_ID to it.heat.shootId.toString(),
+                                NavArgument.HEAT_ID to it.heat.heat.toString(),
+                                NavArgument.IS_SIGHTERS to true.toString(),
+                        ),
+                )
+                listener(HeadToHeadAddIntent.AddEndAction(HeadToHeadAddEndIntent.SightersHandled))
+            }
         }
     }
 }

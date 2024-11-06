@@ -10,6 +10,9 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import java.util.Calendar
 
 data class DatabaseFullShootInfo(
@@ -92,6 +95,24 @@ data class DatabaseFullShootInfo(
                 ),
         )
         private val allRoundDistances: List<RoundDistance>? = null,
+
+        @Relation(
+                parentColumn = "shootId",
+                entityColumn = "shootId",
+        )
+        val headToHead: DatabaseHeadToHead? = null,
+
+        @Relation(
+                parentColumn = "shootId",
+                entityColumn = "shootId",
+        )
+        val headToHeadHeats: List<DatabaseHeadToHeadHeat>? = null,
+
+        @Relation(
+                parentColumn = "shootId",
+                entityColumn = "shootId",
+        )
+        val headToHeadDetails: List<DatabaseHeadToHeadDetail>? = null,
 
         val isPersonalBest: Boolean? = null,
 
