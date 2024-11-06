@@ -1,30 +1,33 @@
 package eywa.projectcodex.database.shootData.headToHead
 
-import eywa.projectcodex.model.FullHeadToHead
 import kotlinx.coroutines.flow.Flow
 
-class HeadToHeadRepo {
-    fun get(shootId: Int): Flow<FullHeadToHead> {
-        TODO()
+class HeadToHeadRepo(
+        private val headToHeadDao: HeadToHeadDao,
+        private val headToHeadHeatDao: HeadToHeadHeatDao,
+        private val headToHeadDetailDao: HeadToHeadDetailDao,
+) {
+    fun get(shootId: Int): Flow<DatabaseFullHeadToHead?> = headToHeadDao.getFullHeadToHead(shootId)
+
+    suspend fun delete(shootId: Int) {
+        headToHeadDao.delete(shootId)
+        headToHeadHeatDao.delete(shootId)
+        headToHeadDetailDao.delete(shootId)
     }
 
-    fun delete(shootId: Int) {
-        TODO()
+    suspend fun insert(headToHead: DatabaseHeadToHead) {
+        headToHeadDao.insert(headToHead)
     }
 
-    fun insert(headToHead: DatabaseHeadToHead) {
-        TODO()
+    suspend fun insert(heat: DatabaseHeadToHeadHeat) {
+        headToHeadHeatDao.insert(heat)
     }
 
-    fun insert(heat: DatabaseHeadToHeadHeat) {
-        TODO()
+    suspend fun insert(vararg details: DatabaseHeadToHeadDetail) {
+        headToHeadDetailDao.insert(*details)
     }
 
-    fun insert(vararg detail: DatabaseHeadToHeadDetail) {
-        TODO()
-    }
-
-    fun update(vararg detail: DatabaseHeadToHeadDetail) {
-        TODO()
+    suspend fun update(vararg details: DatabaseHeadToHeadDetail) {
+        headToHeadDetailDao.update(*details)
     }
 }

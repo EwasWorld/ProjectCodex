@@ -58,7 +58,7 @@ fun HeadToHeadAddScreen(
         viewModel: HeadToHeadAddViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    val listener = { _: HeadToHeadAddIntent -> }
+    val listener = { it: HeadToHeadAddIntent -> viewModel.handle(it) }
 
     HeadToHeadAddScreen(state, listener)
 
@@ -88,8 +88,23 @@ fun HeadToHeadAddScreen(
         state: HeadToHeadAddState,
         listener: (HeadToHeadAddIntent) -> Unit,
 ) {
-    if (state is HeadToHeadAddState.AddEnd) AddEnd(state, listener)
-    else if (state is HeadToHeadAddState.AddHeat) AddHeat(state, listener)
+    when (state) {
+        is HeadToHeadAddState.AddEnd -> AddEnd(state, listener)
+        is HeadToHeadAddState.AddHeat -> AddHeat(state, listener)
+        else -> {
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(40.dp, alignment = Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .background(CodexTheme.colors.appBackground)
+                            .verticalScroll(rememberScrollState())
+                            .padding(vertical = CodexTheme.dimens.screenPadding)
+            ) {
+                Text(text = state::class.java.simpleName)
+            }
+        }
+    }
 }
 
 @Composable
@@ -218,7 +233,7 @@ private fun HeatFixedInfo(
 ) {
     val opponent =
             when {
-                state.heat.opponentQualificationRank != null && state.heat.opponent != null -> {
+                state.heat.opponentQualificationRank != null && !state.heat.opponent.isNullOrBlank() -> {
                     stringResource(
                             R.string.head_to_head_add_end__opponent_rank_and_name,
                             state.heat.opponentQualificationRank,
@@ -233,7 +248,7 @@ private fun HeatFixedInfo(
                     )
                 }
 
-                state.heat.opponent != null -> {
+                !state.heat.opponent.isNullOrBlank() -> {
                     stringResource(
                             R.string.head_to_head_add_end__opponent_name,
                             state.heat.opponent,
@@ -444,6 +459,16 @@ fun Heat_HeadToHeadAddScreen_Preview() {
                                 opponentRunningTotal = 0,
                         ),
                 ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun Loading_HeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddScreen(
+                state = HeadToHeadAddState.Loading(),
         ) {}
     }
 }

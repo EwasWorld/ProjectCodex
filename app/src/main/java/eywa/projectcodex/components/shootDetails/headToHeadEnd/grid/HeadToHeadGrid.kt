@@ -13,11 +13,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +31,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
+import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIfNotNull
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -48,6 +56,13 @@ fun HeadToHeadGrid(
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
+
+    val focusRequesters = remember(state.isSingleEditableSet, state.enteredArrows[0].data.map { it.type }) {
+        if (!state.isSingleEditableSet) null
+        else state.enteredArrows[0].data
+                .filter { it.isTotalRow }
+                .associate { it.type to FocusRequester() }
+    }
 
     val columnMetadata = listOfNotNull(
             HeadToHeadGridColumn.SET_NUMBER.takeIf { !state.isSingleEditableSet },
@@ -123,7 +138,11 @@ fun HeadToHeadGrid(
             }
 
             set.data.sortedBy { it.type.ordinal }.forEach { row ->
-                val onClick = { rowClicked(setIndex + 1, row.type) }
+                val onClick = {
+                    rowClicked(setIndex + 1, row.type)
+                    focusRequesters?.get(row.type)?.requestFocus()
+                    Unit
+                }
 
                 columnMetadata.forEach { column ->
                     val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
@@ -145,9 +164,24 @@ fun HeadToHeadGrid(
                                     contentDescription = "",
                                     currentValue = row.text.text,
                                     testTag = HeadToHeadGridTestTag.END_TOTAL_INPUT,
-                                    placeholder = "",
+                                    placeholder = "0",
                                     errorMessage = row.text.error,
                                     onValueChanged = { onTextValueChanged(row.type, it) },
+                                    colors = CodexTextField.transparentOutlinedTextFieldColors(
+                                            focussedColor = CodexColors.COLOR_PRIMARY_DARK,
+                                            unfocussedColor = CodexColors.COLOR_ON_PRIMARY_LIGHT,
+                                            backgroundColor = (
+                                                    if (isSelected) Color.White
+                                                    else CodexTheme.colors.listAccentRowItemOnAppBackground
+                                                    ),
+                                    ),
+                                    modifier = Modifier
+                                            .modifierIfNotNull(focusRequesters?.get(row.type)) {
+                                                Modifier.focusRequester(it)
+                                            }
+                                            .onFocusChanged {
+                                                if (it.hasFocus) rowClicked(set.setNumber, row.type)
+                                            }
                             )
                         }
                     }
@@ -226,6 +260,16 @@ fun HeadToHeadGrid(
                     }
                 }
             }
+        }
+    }
+
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(state.selected) {
+        if (state.selected != null) {
+            val requester = focusRequesters?.get(state.selected)
+
+            if (requester != null) requester.requestFocus()
+            else focusManager.clearFocus()
         }
     }
 }

@@ -68,11 +68,14 @@ data class FullHeadToHead(
 
                     if (group[0].isTotal) {
                         require(group.size == 1) { "Cannot have more than one total" }
+
+                        val score = group[0].score
                         if (isEditable) {
                             HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount)
+                                    .let { it.copy(text = it.text.copy(score.toString())) }
                         }
                         else {
-                            HeadToHeadGridRowData.Total(type, expectedArrowCount, group[0].score)
+                            HeadToHeadGridRowData.Total(type, expectedArrowCount, score)
                         }
                     }
                     else {
@@ -128,7 +131,7 @@ data class FullHeadToHeadHeat(
     }
 
     fun isComplete(): Boolean {
-        if (results.last() == null) return false
+        if (results.lastOrNull() == null) return false
 
         // Recurve
         if (isRecurveMatch) {

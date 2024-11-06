@@ -14,7 +14,7 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
                     childColumns = ["shootId"],
                     onDelete = ForeignKey.CASCADE,
             ),
-        ]
+        ],
 )
 data class DatabaseHeadToHeadHeat(
         val shootId: Int,

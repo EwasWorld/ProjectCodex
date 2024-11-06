@@ -15,12 +15,6 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
                     childColumns = ["shootId"],
                     onDelete = ForeignKey.CASCADE,
             ),
-            ForeignKey(
-                    entity = DatabaseHeadToHeadHeat::class,
-                    parentColumns = ["heat"],
-                    childColumns = ["heat"],
-                    onDelete = ForeignKey.CASCADE,
-            ),
         ]
 )
 data class DatabaseHeadToHeadDetail(

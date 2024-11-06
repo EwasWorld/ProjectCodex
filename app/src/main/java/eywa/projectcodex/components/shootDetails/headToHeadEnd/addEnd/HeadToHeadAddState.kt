@@ -23,6 +23,11 @@ sealed class HeadToHeadAddState {
     abstract val roundCommon: RoundCommon?
     abstract val effects: Effects
 
+    data class Error(
+            override val roundCommon: RoundCommon? = null,
+            override val effects: Effects = Effects(),
+    ) : HeadToHeadAddState()
+
     data class Loading(
             override val roundCommon: RoundCommon? = null,
             override val effects: Effects = Effects(),

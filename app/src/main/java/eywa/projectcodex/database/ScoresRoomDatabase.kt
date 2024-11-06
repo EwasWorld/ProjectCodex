@@ -36,7 +36,11 @@ import eywa.projectcodex.database.shootData.ShootDetailDao
 import eywa.projectcodex.database.shootData.ShootRoundDao
 import eywa.projectcodex.database.shootData.ShootsRepo
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
+import eywa.projectcodex.database.shootData.headToHead.HeadToHeadDao
+import eywa.projectcodex.database.shootData.headToHead.HeadToHeadDetailDao
+import eywa.projectcodex.database.shootData.headToHead.HeadToHeadHeatDao
 import eywa.projectcodex.database.shootData.headToHead.HeadToHeadRepo
 import eywa.projectcodex.database.sightMarks.DatabaseSightMark
 import eywa.projectcodex.database.sightMarks.SightMarkDao
@@ -69,6 +73,7 @@ interface ScoresRoomDatabase {
             DatabaseBow::class, DatabaseSightMark::class,
             DatabaseShootRound::class, DatabaseShootDetail::class, DatabaseArrowCounter::class,
             DatabaseArcherHandicap::class, DatabaseHeadToHead::class, DatabaseHeadToHeadHeat::class,
+            DatabaseHeadToHeadDetail::class,
         ],
         views = [
             ShootWithScore::class, PersonalBest::class,
@@ -100,9 +105,12 @@ abstract class ScoresRoomDatabaseImpl : RoomDatabase(), ScoresRoomDatabase {
     abstract fun shootDetailDao(): ShootDetailDao
     abstract fun shootRoundDao(): ShootRoundDao
     abstract fun arrowCounterDao(): ArrowCounterDao
+    abstract fun headToHeadDao(): HeadToHeadDao
+    abstract fun headToHeadHeatDao(): HeadToHeadHeatDao
+    abstract fun headToHeadDetailDao(): HeadToHeadDetailDao
     abstract fun testViewDao(): TestViewDao
 
-    override fun h2hRepo() = HeadToHeadRepo()
+    override fun h2hRepo() = HeadToHeadRepo(headToHeadDao(), headToHeadHeatDao(), headToHeadDetailDao())
     override fun roundsRepo() = RoundRepo(roundDao(), roundArrowCountDao(), roundSubTypeDao(), roundDistanceDao())
     override fun shootsRepo() =
             ShootsRepo(shootDao(), shootDetailDao(), shootRoundDao(), arrowCounterRepo(), h2hRepo())

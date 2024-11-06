@@ -28,9 +28,6 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = arrows.size
         override val isTotalRow: Boolean
             get() = false
-
-        override fun setEditableTotal(teamSize: Int, endSize: Int): HeadToHeadGridRowData =
-                copy(expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize))
     }
 
     data class Total(
@@ -44,9 +41,6 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = total != null
         override val arrowsShot: Int
             get() = if (total == null) 0 else expectedArrowCount
-
-        override fun setEditableTotal(teamSize: Int, endSize: Int): HeadToHeadGridRowData =
-                copy(expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize))
     }
 
     data class EditableTotal(
@@ -65,10 +59,5 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = total != null
         override val arrowsShot: Int
             get() = if (total == null) 0 else expectedArrowCount
-
-        override fun setEditableTotal(teamSize: Int, endSize: Int): HeadToHeadGridRowData =
-                copy(expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize))
     }
-
-    abstract fun setEditableTotal(teamSize: Int, endSize: Int): HeadToHeadGridRowData
 }

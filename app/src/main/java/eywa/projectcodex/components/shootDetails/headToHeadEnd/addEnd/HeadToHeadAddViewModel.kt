@@ -10,14 +10,17 @@ import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddHeatIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddState.*
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.Arrows
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.EditableTotal
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.model.FullHeadToHead
 import eywa.projectcodex.model.FullHeadToHeadSet
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
@@ -47,7 +50,20 @@ class HeadToHeadAddViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            h2hRepo.get(shootId).collectLatest { fullH2hInfo ->
+            h2hRepo.get(shootId).collectLatest { dbFullInfo ->
+                if (dbFullInfo == null) {
+                    _state.update { Error(roundCommon = it.roundCommon, effects = it.effects) }
+                    return@collectLatest
+                }
+
+                val fullH2hInfo = FullHeadToHead(
+                        headToHead = dbFullInfo.headToHead,
+                        heats = dbFullInfo.heats.orEmpty(),
+                        details = dbFullInfo.details.orEmpty(),
+                        isEditable = true,
+                )
+
+                val teamSize = fullH2hInfo.headToHead.teamSize
                 val heat = fullH2hInfo.heats.minByOrNull { it.heat.heat }
                 if (heat == null) {
                     _state.update {
@@ -56,12 +72,13 @@ class HeadToHeadAddViewModel @Inject constructor(
                     return@collectLatest
                 }
 
-                val scores = heat.results.last()
+                val scores = heat.results.lastOrNull()
                 if (heat.isComplete()) {
                     _state.update {
                         AddHeat(
                                 roundCommon = it.roundCommon,
                                 effects = it.effects,
+                                heat = (heat.heat.heat - 1).coerceAtLeast(0),
                                 previousHeat = AddHeat.PreviousHeat(
                                         heat = heat.heat.heat,
                                         result = heat.sets.last().result,
@@ -75,31 +92,25 @@ class HeadToHeadAddViewModel @Inject constructor(
 
                 val lastSet = heat.sets.maxByOrNull { it.setNumber }
                 if (lastSet == null || lastSet.result != HeadToHeadResult.INCOMPLETE) {
-                    val defaultData = if (fullH2hInfo.headToHead.teamSize == 1) {
-                        listOf(
-                                Arrows(type = HeadToHeadArcherType.SELF, expectedArrowCount = 0),
-                                EditableTotal(type = HeadToHeadArcherType.OPPONENT, expectedArrowCount = 0),
-                        )
-                    }
-                    else {
-                        listOf(
-                                Arrows(type = HeadToHeadArcherType.SELF, expectedArrowCount = 0),
-                                EditableTotal(type = HeadToHeadArcherType.TEAM, expectedArrowCount = 0),
-                                EditableTotal(type = HeadToHeadArcherType.OPPONENT, expectedArrowCount = 0),
-                        )
-                    }
-
                     _state.update { s ->
                         val setNumber = (lastSet?.setNumber?.plus(1)) ?: 1
-                        val isShootOff = HeadToHeadUseCase.shootOffSet(fullH2hInfo.headToHead.teamSize) == setNumber
+                        val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
                         val endSize = if (isShootOff) 1 else HeadToHeadUseCase.END_SIZE
 
-                        val set = lastSet ?: FullHeadToHeadSet(
+                        fun getRow(type: HeadToHeadArcherType, isTotal: Boolean): HeadToHeadGridRowData {
+                            val expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
+                            return if (isTotal) EditableTotal(type = type, expectedArrowCount = expectedArrowCount)
+                            else Arrows(type = type, expectedArrowCount = expectedArrowCount)
+                        }
+
+                        val defaultData =
+                                if (teamSize == 1) listOf(getRow(SELF, false), getRow(OPPONENT, true))
+                                else listOf(getRow(SELF, false), getRow(TEAM, true), getRow(OPPONENT, true))
+
+                        val set = FullHeadToHeadSet(
                                 setNumber = setNumber,
-                                data = defaultData.map {
-                                    it.setEditableTotal(teamSize = fullH2hInfo.headToHead.teamSize, endSize = endSize)
-                                },
-                                isShootOff = HeadToHeadUseCase.shootOffSet(fullH2hInfo.headToHead.teamSize) == setNumber,
+                                data = defaultData,
+                                isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber,
                                 teamSize = fullH2hInfo.headToHead.teamSize,
                                 isShootOffWin = false,
                         )
@@ -112,7 +123,7 @@ class HeadToHeadAddViewModel @Inject constructor(
                                 teamRunningTotal = scores?.first ?: 0,
                                 opponentRunningTotal = scores?.second ?: 0,
                                 set = set,
-                                selected = HeadToHeadArcherType.SELF,
+                                selected = SELF,
                         )
                     }
                     return@collectLatest
@@ -166,6 +177,7 @@ class HeadToHeadAddViewModel @Inject constructor(
                                 is AddEnd -> it.copy(roundCommon = common)
                                 is AddHeat -> it.copy(roundCommon = common)
                                 is Loading -> Loading(roundCommon = common)
+                                is Error -> Loading(roundCommon = common)
                             }
                         }
                     }
