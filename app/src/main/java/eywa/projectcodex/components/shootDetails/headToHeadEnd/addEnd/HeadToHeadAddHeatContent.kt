@@ -53,7 +53,7 @@ fun HeadToHeadAddHeatContent(
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     SimpleDialog(
-            isShown = state.showSelectHeatDialog,
+            isShown = state.extras.showSelectHeatDialog,
             onDismissListener = { listener(CloseSelectHeatDialog) },
     ) {
         SimpleDialogContent(
@@ -95,12 +95,12 @@ fun HeadToHeadAddHeatContent(
                 ) {
                     val errorString = stringResource(R.string.err__required_field)
                     Text(
-                            text = state.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
+                            text = state.extras.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
                                     ?: stringResource(R.string.head_to_head_add_heat__heat_null),
                             style = LocalTextStyle.current
                                     .asClickableStyle()
                                     .copy(
-                                            color = if (state.showHeatRequiredError) CodexTheme.colors.warningOnAppBackground
+                                            color = if (state.extras.showHeatRequiredError) CodexTheme.colors.warningOnAppBackground
                                             else CodexTheme.colors.linkText,
                                     ),
                             textAlign = TextAlign.Center,
@@ -108,12 +108,12 @@ fun HeadToHeadAddHeatContent(
                                     .clickable { listener(HeatClicked) }
                                     .align(Alignment.CenterVertically)
                                     .semantics {
-                                        if (state.showHeatRequiredError) {
+                                        if (state.extras.showHeatRequiredError) {
                                             error(errorString)
                                         }
                                     }
                     )
-                    if (state.showHeatRequiredError) {
+                    if (state.extras.showHeatRequiredError) {
                         Icon(
                                 imageVector = Icons.Default.WarningAmber,
                                 contentDescription = null,
@@ -123,7 +123,7 @@ fun HeadToHeadAddHeatContent(
                 }
                 CodexChip(
                         text = stringResource(R.string.head_to_head_ref__bye),
-                        selected = state.isBye,
+                        selected = state.extras.isBye,
                         testTag = HeadToHeadAddHeatTestTag.IS_BYE_CHECKBOX,
                         onToggle = { listener(ToggleIsBye) },
                         colours = ChipColours.Defaults.onPrimary(),
@@ -134,16 +134,16 @@ fun HeadToHeadAddHeatContent(
                     modifier = Modifier.padding(vertical = 10.dp)
             ) {
                 CodexTextField(
-                        text = state.opponent,
-                        enabled = !state.isBye,
+                        text = state.extras.opponent,
+                        enabled = !state.extras.isBye,
                         onValueChange = { listener(OpponentUpdated(it)) },
                         placeholderText = stringResource(R.string.head_to_head_add_heat__opponent_placeholder),
                 )
             }
             CodexLabelledNumberFieldWithErrorMessage(
                     title = stringResource(R.string.head_to_head_add_heat__opponent_quali_rank),
-                    enabled = !state.isBye,
-                    currentValue = state.opponentQualiRank.text,
+                    enabled = !state.extras.isBye,
+                    currentValue = state.extras.opponentQualiRank.text,
                     fieldTestTag = HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_INPUT,
                     errorMessageTestTag = HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_ERROR,
                     placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
@@ -198,7 +198,9 @@ fun HeadToHeadAddHeatScreen_Preview() {
 fun Bye_HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
         HeadToHeadAddHeatContent(
-                state = HeadToHeadAddState.AddHeat(isBye = true, showHeatRequiredError = true),
+                state = HeadToHeadAddState.AddHeat(
+                        extras = HeadToHeadAddExtras.AddHeat(isBye = true, showHeatRequiredError = true),
+                ),
                 modifier = Modifier.padding(10.dp)
         ) {}
     }

@@ -19,6 +19,7 @@ import eywa.projectcodex.common.utils.ResOrActual
 @Composable
 fun ShootDetailsBottomNavBar(
         currentScreen: CodexNavRoute,
+        items: List<ShootDetailsBottomNavBarItem>,
         listener: (CodexNavRoute) -> Unit,
         modifier: Modifier = Modifier,
 ) {
@@ -27,7 +28,7 @@ fun ShootDetailsBottomNavBar(
             contentColor = CodexTheme.colors.onBottomNavBar,
             modifier = modifier
     ) {
-        ShootDetailsBottomNavBarItem.entries.forEach {
+        items.forEach {
             CodexBottomNavItem(
                     icon = it.notSelectedIcon,
                     selectedIcon = it.selectedIcon ?: it.notSelectedIcon,
@@ -41,12 +42,19 @@ fun ShootDetailsBottomNavBar(
     }
 }
 
-enum class ShootDetailsBottomNavBarItem(
-        val navRoute: CodexNavRoute,
-        val notSelectedIcon: CodexIconInfo,
-        val selectedIcon: CodexIconInfo? = null,
-        val label: ResOrActual<String>,
-) : CodexTestTag {
+interface ShootDetailsBottomNavBarItem : CodexTestTag {
+    val navRoute: CodexNavRoute
+    val notSelectedIcon: CodexIconInfo
+    val selectedIcon: CodexIconInfo?
+    val label: ResOrActual<String>
+}
+
+enum class StandardBottomNavBarItem(
+        override val navRoute: CodexNavRoute,
+        override val notSelectedIcon: CodexIconInfo,
+        override val selectedIcon: CodexIconInfo? = null,
+        override val label: ResOrActual<String>,
+) : ShootDetailsBottomNavBarItem {
     ADD_END(
             navRoute = CodexNavRoute.SHOOT_DETAILS_ADD_END,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
@@ -89,6 +97,10 @@ enum class ShootDetailsBottomNavBarItem(
 @Composable
 fun ShootDetailsBottomNavBar_Preview() {
     CodexTheme {
-        ShootDetailsBottomNavBar(currentScreen = CodexNavRoute.SHOOT_DETAILS_SCORE_PAD, listener = {})
+        ShootDetailsBottomNavBar(
+                currentScreen = CodexNavRoute.SHOOT_DETAILS_SCORE_PAD,
+                items = StandardBottomNavBarItem.entries,
+                listener = {},
+        )
     }
 }

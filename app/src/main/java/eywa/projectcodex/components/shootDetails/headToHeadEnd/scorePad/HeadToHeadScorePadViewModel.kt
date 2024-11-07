@@ -5,52 +5,41 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.get
+import eywa.projectcodex.components.shootDetails.ShootDetailsError
+import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
+import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.model.FullHeadToHead
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class HeadToHeadScorePadViewModel @Inject constructor(
         private val db: ScoresRoomDatabase,
+        private val repo: ShootDetailsRepo,
         savedStateHandle: SavedStateHandle,
-        private val helpShowcaseUseCase: HelpShowcaseUseCase,
+        private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
-    private val _state = MutableStateFlow<HeadToHeadScorePadState>(HeadToHeadScorePadState.Loading)
-    val state = _state.asStateFlow()
+    private val screen = CodexNavRoute.HEAD_TO_HEAD_SCORE_PAD
+
+    val state = repo.getState {
+        HeadToHeadScorePadState(it.fullShootInfo!!.h2h?.heats ?: throw ShootDetailsError())
+    }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            ShootDetailsResponse.Loading as ShootDetailsResponse<HeadToHeadScorePadState>,
+    )
 
     private val h2hRepo = db.h2hRepo()
     private val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
 
-    init {
-        viewModelScope.launch {
-            h2hRepo.get(shootId).collectLatest { dbFullInfo ->
-                if (dbFullInfo == null) {
-                    _state.update { HeadToHeadScorePadState.Error }
-                    return@collectLatest
-                }
-
-                val fullH2hInfo = FullHeadToHead(
-                        headToHead = dbFullInfo.headToHead,
-                        heats = dbFullInfo.heats.orEmpty(),
-                        details = dbFullInfo.details.orEmpty(),
-                        isEditable = false,
-                )
-
-                _state.update {
-                    HeadToHeadScorePadState.Loaded(entries = fullH2hInfo.heats)
-                }
-            }
-        }
-    }
-
     fun handle(action: HeadToHeadScorePadIntent) {
-
+        when (action) {
+            is HeadToHeadScorePadIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
+            is HeadToHeadScorePadIntent.ShootDetailsAction -> repo.handle(action.action, screen)
+        }
     }
 }

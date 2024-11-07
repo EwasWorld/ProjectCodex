@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 
@@ -9,6 +10,7 @@ sealed class HeadToHeadAddIntent {
     data object EditSightMarkClicked : HeadToHeadAddIntent()
     data object ExpandSightMarkHandled : HeadToHeadAddIntent()
     data object EditSightMarkHandled : HeadToHeadAddIntent()
+    data class ShootDetailsAction(val action: ShootDetailsIntent) : HeadToHeadAddIntent()
 
     data class AddHeatAction(val action: HeadToHeadAddHeatIntent) : HeadToHeadAddIntent()
     data class AddEndAction(val action: HeadToHeadAddEndIntent) : HeadToHeadAddIntent()

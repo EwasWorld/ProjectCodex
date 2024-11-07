@@ -6,11 +6,9 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -45,9 +43,12 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.addEnd.SightMark
+import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
+import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputEditButtons
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.ArrowInputted
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
+import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeatPreviewHelper
@@ -60,38 +61,72 @@ fun HeadToHeadAddScreen(
     val state by viewModel.state.collectAsState()
     val listener = { it: HeadToHeadAddIntent -> viewModel.handle(it) }
 
-    HeadToHeadAddScreen(state, listener)
+    ShootDetailsMainScreen(
+            currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD,
+            state = state,
+            listener = { listener(HeadToHeadAddIntent.ShootDetailsAction(it)) },
+    ) { it, modifier -> HeadToHeadAddScreen(it, modifier, listener) }
 
-    LaunchedEffect(state.effects, (state as? HeadToHeadAddState.AddEnd)?.openSighters) {
-        if (state.effects.openAllSightMarks) {
-            CodexNavRoute.SIGHT_MARKS.navigate(navController)
-            listener(HeadToHeadAddIntent.ExpandSightMarkHandled)
-        }
+    HandleMainEffects(
+            navController = navController,
+            state = state,
+            listener = { listener(HeadToHeadAddIntent.ShootDetailsAction(it)) },
+    )
 
-        if (state.effects.openEditSightMark) {
-            val args = if (state.roundCommon?.sightMark != null) {
-                mapOf(NavArgument.SIGHT_MARK_ID to state.roundCommon!!.sightMark!!.id.toString())
+    val addEndState = state.getData() as? HeadToHeadAddState.AddEnd
+    LaunchedEffect(addEndState?.extras?.effects, addEndState?.extras?.openSighters) {
+        if (addEndState != null) {
+            if (addEndState.extras.effects.openAllSightMarks) {
+                CodexNavRoute.SIGHT_MARKS.navigate(navController)
+                listener(HeadToHeadAddIntent.ExpandSightMarkHandled)
             }
-            else {
-                val distance = state.roundCommon?.distance ?: DEFAULT_INT_NAV_ARG
-                val isMetric = state.roundCommon?.isMetric ?: true
-                mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
-            }
-            CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
-            listener(HeadToHeadAddIntent.EditSightMarkHandled)
-        }
 
-        (state as? HeadToHeadAddState.AddEnd)?.let {
-            if (it.openSighters) {
+            if (addEndState.extras.effects.openEditSightMark) {
+                val args = if (addEndState.roundCommon?.sightMark != null) {
+                    mapOf(NavArgument.SIGHT_MARK_ID to addEndState.roundCommon.sightMark.id.toString())
+                }
+                else {
+                    val distance = addEndState.roundCommon?.distance ?: DEFAULT_INT_NAV_ARG
+                    val isMetric = addEndState.roundCommon?.isMetric ?: true
+                    mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
+                }
+                CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
+                listener(HeadToHeadAddIntent.EditSightMarkHandled)
+            }
+
+            if (addEndState.extras.openSighters) {
                 CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
                         navController,
                         mapOf(
-                                NavArgument.SHOOT_ID to it.heat.shootId.toString(),
-                                NavArgument.HEAT_ID to it.heat.heat.toString(),
+                                NavArgument.SHOOT_ID to addEndState.heat.shootId.toString(),
+                                NavArgument.HEAT_ID to addEndState.heat.heat.toString(),
                                 NavArgument.IS_SIGHTERS to true.toString(),
                         ),
                 )
                 listener(HeadToHeadAddIntent.AddEndAction(HeadToHeadAddEndIntent.SightersHandled))
+            }
+        }
+    }
+
+    val addHeatState = state.getData() as? HeadToHeadAddState.AddHeat
+    LaunchedEffect(addHeatState?.extras?.effects) {
+        if (addHeatState != null) {
+            if (addHeatState.extras.effects.openAllSightMarks) {
+                CodexNavRoute.SIGHT_MARKS.navigate(navController)
+                listener(HeadToHeadAddIntent.ExpandSightMarkHandled)
+            }
+
+            if (addHeatState.extras.effects.openEditSightMark) {
+                val args = if (addHeatState.roundCommon?.sightMark != null) {
+                    mapOf(NavArgument.SIGHT_MARK_ID to addHeatState.roundCommon.sightMark.id.toString())
+                }
+                else {
+                    val distance = addHeatState.roundCommon?.distance ?: DEFAULT_INT_NAV_ARG
+                    val isMetric = addHeatState.roundCommon?.isMetric ?: true
+                    mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
+                }
+                CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
+                listener(HeadToHeadAddIntent.EditSightMarkHandled)
             }
         }
     }
@@ -100,30 +135,19 @@ fun HeadToHeadAddScreen(
 @Composable
 fun HeadToHeadAddScreen(
         state: HeadToHeadAddState,
+        modifier: Modifier = Modifier,
         listener: (HeadToHeadAddIntent) -> Unit,
 ) {
     when (state) {
-        is HeadToHeadAddState.AddEnd -> AddEnd(state, listener)
-        is HeadToHeadAddState.AddHeat -> AddHeat(state, listener)
-        else -> {
-            Column(
-                    verticalArrangement = Arrangement.spacedBy(40.dp, alignment = Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                            .fillMaxSize()
-                            .background(CodexTheme.colors.appBackground)
-                            .verticalScroll(rememberScrollState())
-                            .padding(vertical = CodexTheme.dimens.screenPadding)
-            ) {
-                Text(text = state::class.java.simpleName)
-            }
-        }
+        is HeadToHeadAddState.AddEnd -> AddEnd(state, modifier, listener)
+        is HeadToHeadAddState.AddHeat -> AddHeat(state, modifier, listener)
     }
 }
 
 @Composable
 fun AddHeat(
         state: HeadToHeadAddState.AddHeat,
+        modifier: Modifier = Modifier,
         listener: (HeadToHeadAddIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadAddIntent.HelpShowcaseAction(it)) }
@@ -131,10 +155,8 @@ fun AddHeat(
     Column(
             verticalArrangement = Arrangement.spacedBy(40.dp, alignment = Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                    .fillMaxSize()
+            modifier = modifier
                     .background(CodexTheme.colors.appBackground)
-                    .verticalScroll(rememberScrollState())
                     .padding(vertical = CodexTheme.dimens.screenPadding)
     ) {
         if (state.roundCommon != null) {
@@ -195,6 +217,7 @@ fun AddHeat(
 @Composable
 fun AddEnd(
         state: HeadToHeadAddState.AddEnd,
+        modifier: Modifier = Modifier,
         listener: (HeadToHeadAddIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadAddIntent.HelpShowcaseAction(it)) }
@@ -203,10 +226,8 @@ fun AddEnd(
     Column(
             verticalArrangement = Arrangement.spacedBy(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                    .fillMaxSize()
+            modifier = modifier
                     .background(CodexTheme.colors.appBackground)
-                    .verticalScroll(rememberScrollState())
                     .padding(vertical = CodexTheme.dimens.screenPadding)
     ) {
         Row(
@@ -327,17 +348,17 @@ private fun SetInfo(
     val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadAddEndIntent.HelpShowcaseAction(it)) }
 
     val setText =
-            if (state.set.isShootOff) {
+            if (state.extras.set.isShootOff) {
                 stringResource(
                         R.string.head_to_head_add_end__shoot_off,
-                        state.set.result.title.get(),
+                        state.extras.set.result.title.get(),
                 )
             }
             else {
                 stringResource(
                         R.string.head_to_head_add_end__set,
-                        state.set.setNumber,
-                        state.set.result.title.get(),
+                        state.extras.set.setNumber,
+                        state.extras.set.result.title.get(),
                 )
             }
 
@@ -366,12 +387,12 @@ private fun SetInfo(
                 helpListener = helpListener,
         )
 
-        if (state.set.isShootOff) {
+        if (state.extras.set.isShootOff) {
             CodexChip(
                     text = stringResource(R.string.head_to_head_add_end__shoot_off_win),
                     selected = state.heat.isShootOffWin,
                     testTag = HeadToHeadAddTestTag.IS_SHOOT_OFF_CHECKBOX,
-                    enabled = state.set.isShootOff,
+                    enabled = state.extras.set.isShootOff,
                     style = CodexTypography.NORMAL,
                     onToggle = { listener(HeadToHeadAddEndIntent.ToggleShootOffWin) },
             )
@@ -448,16 +469,6 @@ fun Heat_HeadToHeadAddScreen_Preview() {
                                 opponentRunningTotal = 0,
                         ),
                 ),
-        ) {}
-    }
-}
-
-@Preview
-@Composable
-fun Loading_HeadToHeadAddScreen_Preview() {
-    CodexTheme {
-        HeadToHeadAddScreen(
-                state = HeadToHeadAddState.Loading(),
         ) {}
     }
 }

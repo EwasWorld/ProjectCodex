@@ -21,45 +21,23 @@ import eywa.projectcodex.model.SightMark
 
 sealed class HeadToHeadAddState {
     abstract val roundCommon: RoundCommon?
-    abstract val effects: Effects
-
-    data class Error(
-            override val roundCommon: RoundCommon? = null,
-            override val effects: Effects = Effects(),
-    ) : HeadToHeadAddState()
-
-    data class Loading(
-            override val roundCommon: RoundCommon? = null,
-            override val effects: Effects = Effects(),
-    ) : HeadToHeadAddState()
 
     data class AddHeat(
             override val roundCommon: RoundCommon? = null,
-            override val effects: Effects = Effects(),
-            /**
-             * 0 is final, 1 is semi, etc.
-             */
-            val heat: Int? = null,
-            val showHeatRequiredError: Boolean = false,
-            val showSelectHeatDialog: Boolean = false,
-            val opponent: String = "",
-            val opponentQualiRank: NumberFieldState<Int> = NumberFieldState(
-                    TypeValidator.IntValidator,
-                    NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
-            ),
-            val isBye: Boolean = false,
             val previousHeat: PreviousHeat? = null,
+
+            val extras: HeadToHeadAddExtras.AddHeat = HeadToHeadAddExtras.AddHeat(),
     ) : HeadToHeadAddState() {
         fun asHeadToHeadHeat(shootId: Int) =
-                if (heat == null) null
+                if (extras.heat == null) null
                 else DatabaseHeadToHeadHeat(
                         shootId = shootId,
-                        heat = heat,
-                        opponent = opponent,
-                        opponentQualificationRank = opponentQualiRank.parsed,
+                        heat = extras.heat,
+                        opponent = extras.opponent,
+                        opponentQualificationRank = extras.opponentQualiRank.parsed,
                         isShootOffWin = false,
                         sightersCount = 0,
-                        isBye = isBye,
+                        isBye = extras.isBye,
                 )
 
         data class PreviousHeat(
@@ -72,33 +50,22 @@ sealed class HeadToHeadAddState {
 
     data class AddEnd(
             override val roundCommon: RoundCommon? = null,
-            override val effects: Effects = Effects(),
-            val set: FullHeadToHeadSet = FullHeadToHeadSet(
-                    data = HeadToHeadGridRowDataPreviewHelper.selfAndOpponent,
-                    teamSize = 1,
-                    isShootOff = false,
-                    isShootOffWin = false,
-                    setNumber = 1,
-            ),
-            val selected: HeadToHeadArcherType? = set.data.map { it.type }.minByOrNull { it.ordinal },
+            val extras: HeadToHeadAddExtras.AddEnd = HeadToHeadAddExtras.AddEnd(),
             val teamRunningTotal: Int = 0,
             val opponentRunningTotal: Int = 2,
             val isRecurveStyle: Boolean = true,
             val heat: DatabaseHeadToHeadHeat = DatabaseHeadToHeadHeatPreviewHelper.data,
-            val arrowInputsError: ArrowInputsError? = null,
-            val incompleteError: Boolean = false,
-            val openSighters: Boolean = false,
             val dbSet: FullHeadToHeadSet? = null,
     ) : HeadToHeadAddState() {
         init {
             if (dbSet != null) {
-                check(set.setNumber == dbSet.setNumber)
+                check(extras.set.setNumber == dbSet.setNumber)
             }
         }
 
         fun toGridState() = HeadToHeadGridState(
-                enteredArrows = listOf(set),
-                selected = selected,
+                enteredArrows = listOf(extras.set),
+                selected = extras.selected,
                 isSingleEditableSet = true,
                 runningTotals = null,
                 finalResult = null,
@@ -109,7 +76,7 @@ sealed class HeadToHeadAddState {
                         headToHeadArrowScoreId = 0,
                         shootId = heat.shootId,
                         heat = heat.heat,
-                        setNumber = set.setNumber,
+                        setNumber = extras.set.setNumber,
 
                         // Dummy values
                         type = HeadToHeadArcherType.TEAM,
@@ -118,7 +85,7 @@ sealed class HeadToHeadAddState {
                         score = 0,
                         isX = false,
                 ).let { mainData ->
-                    set.data.flatMap { rowData ->
+                    extras.set.data.flatMap { rowData ->
                         val typeData = mainData.copy(
                                 type = rowData.type,
                                 isTotal = rowData.isTotalRow,
@@ -151,3 +118,37 @@ sealed class HeadToHeadAddState {
     )
 }
 
+sealed class HeadToHeadAddExtras {
+    abstract val effects: HeadToHeadAddState.Effects
+
+    data class AddEnd(
+            override val effects: HeadToHeadAddState.Effects = HeadToHeadAddState.Effects(),
+            val set: FullHeadToHeadSet = FullHeadToHeadSet(
+                    data = HeadToHeadGridRowDataPreviewHelper.selfAndOpponent,
+                    teamSize = 1,
+                    isShootOff = false,
+                    isShootOffWin = false,
+                    setNumber = 1,
+            ),
+            val selected: HeadToHeadArcherType? = set.data.map { it.type }.minByOrNull { it.ordinal },
+            val arrowInputsError: ArrowInputsError? = null,
+            val incompleteError: Boolean = false,
+            val openSighters: Boolean = false,
+    ) : HeadToHeadAddExtras()
+
+    data class AddHeat(
+            override val effects: HeadToHeadAddState.Effects = HeadToHeadAddState.Effects(),
+            /**
+             * 0 is final, 1 is semi, etc.
+             */
+            val heat: Int? = null,
+            val showHeatRequiredError: Boolean = false,
+            val showSelectHeatDialog: Boolean = false,
+            val opponent: String = "",
+            val opponentQualiRank: NumberFieldState<Int> = NumberFieldState(
+                    TypeValidator.IntValidator,
+                    NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+            ),
+            val isBye: Boolean = false,
+    ) : HeadToHeadAddExtras()
+}

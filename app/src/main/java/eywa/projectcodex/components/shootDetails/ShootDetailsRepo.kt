@@ -33,6 +33,8 @@ import javax.inject.Inject
 
 private typealias DbShortShoots = List<DatabaseShootShortRecord>
 
+class ShootDetailsError : Exception()
+
 /**
  * Common repo for data needed on all shootDetails screens.
  * Used to minimise loading screens as users will flick between these screens a lot.
@@ -180,6 +182,15 @@ class ShootDetailsRepo @Inject constructor(
         }
     }
 
+    fun <T : Any, E> getStateNullableExtra(
+            extraFlow: StateFlow<E>,
+            converter: (ShootDetailsState, E?) -> T,
+    ): Flow<ShootDetailsResponse<T>> {
+        return state.combine(extraFlow) { main, extra ->
+            combineStates(main, extra) { s, e -> converter(s, e) }
+        }
+    }
+
 
     private fun <T : Any, E> combineStates(
             state: ShootDetailsState,
@@ -190,12 +201,19 @@ class ShootDetailsRepo @Inject constructor(
                 state.isError -> ShootDetailsResponse.Error(state.mainMenuClicked)
                 state.fullShootInfo == null -> ShootDetailsResponse.Loading
 
-                else -> ShootDetailsResponse.Loaded(
-                        data = converter(state, extra),
-                        shootId = state.shootId,
-                        navBarClicked = state.navBarClickedItem,
-                        backClicked = state.backClicked,
-                        isCounting = state.fullShootInfo.arrowCounter != null,
-                )
+                else -> {
+                    try {
+                        ShootDetailsResponse.Loaded(
+                                data = converter(state, extra),
+                                shootId = state.shootId,
+                                navBarClicked = state.navBarClickedItem,
+                                backClicked = state.backClicked,
+                                isCounting = state.fullShootInfo.arrowCounter != null,
+                        )
+                    }
+                    catch (e: ShootDetailsError) {
+                        ShootDetailsResponse.Error(state.mainMenuClicked)
+                    }
+                }
             }
 }

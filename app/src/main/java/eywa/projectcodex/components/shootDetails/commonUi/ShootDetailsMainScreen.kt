@@ -26,6 +26,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadBottomNavBarItem
 
 @Composable
 fun <T : Any> ShootDetailsMainScreen(
@@ -108,9 +109,17 @@ private fun <T> ShootDetailsMainScreen(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
         )
-        if (ShootDetailsBottomNavBarItem.isItem(currentScreen)) {
+        if (StandardBottomNavBarItem.isItem(currentScreen)) {
             ShootDetailsBottomNavBar(
                     currentScreen = currentScreen,
+                    items = StandardBottomNavBarItem.entries,
+                    listener = { listener(ShootDetailsIntent.NavBarClicked(it)) },
+            )
+        }
+        else if (HeadToHeadBottomNavBarItem.isItem(currentScreen)) {
+            ShootDetailsBottomNavBar(
+                    currentScreen = currentScreen,
+                    items = HeadToHeadBottomNavBarItem.entries,
                     listener = { listener(ShootDetailsIntent.NavBarClicked(it)) },
             )
         }

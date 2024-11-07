@@ -3,11 +3,8 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,13 +16,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
+import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
+import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
@@ -34,58 +35,29 @@ import eywa.projectcodex.model.FullHeadToHeadSet
 
 @Composable
 fun HeadToHeadScorePadScreen(
+        navController: NavController,
         viewModel: HeadToHeadScorePadViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
     val listener = { it: HeadToHeadScorePadIntent -> viewModel.handle(it) }
 
-    HeadToHeadScorePadScreen(state, listener)
+    ShootDetailsMainScreen(
+            currentScreen = CodexNavRoute.HEAD_TO_HEAD_SCORE_PAD,
+            state = state,
+            listener = { listener(HeadToHeadScorePadIntent.ShootDetailsAction(it)) },
+    ) { it, modifier -> HeadToHeadScorePadScreen(it, modifier, listener) }
+
+    HandleMainEffects(
+            navController = navController,
+            state = state,
+            listener = { listener(HeadToHeadScorePadIntent.ShootDetailsAction(it)) },
+    )
 }
 
 @Composable
 fun HeadToHeadScorePadScreen(
         state: HeadToHeadScorePadState,
-        listener: (HeadToHeadScorePadIntent) -> Unit,
-) {
-    when (state) {
-        is HeadToHeadScorePadState.Loaded -> {
-            if (state.entries.isNotEmpty()) {
-                Loaded(state, listener)
-            }
-            else {
-                Column(
-                        verticalArrangement = Arrangement.spacedBy(40.dp, alignment = Alignment.CenterVertically),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                                .fillMaxSize()
-                                .background(CodexTheme.colors.appBackground)
-                                .verticalScroll(rememberScrollState())
-                                .padding(vertical = CodexTheme.dimens.screenPadding)
-                ) {
-                    Text(text = "Empty")
-                }
-            }
-        }
-
-        else -> {
-            Column(
-                    verticalArrangement = Arrangement.spacedBy(40.dp, alignment = Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                            .fillMaxSize()
-                            .background(CodexTheme.colors.appBackground)
-                            .verticalScroll(rememberScrollState())
-                            .padding(vertical = CodexTheme.dimens.screenPadding)
-            ) {
-                Text(text = state::class.java.simpleName)
-            }
-        }
-    }
-}
-
-@Composable
-private fun Loaded(
-        state: HeadToHeadScorePadState.Loaded,
+        modifier: Modifier = Modifier,
         listener: (HeadToHeadScorePadIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadScorePadIntent.HelpShowcaseAction(it)) }
@@ -93,10 +65,8 @@ private fun Loaded(
     Column(
             verticalArrangement = Arrangement.spacedBy(50.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                    .fillMaxSize()
+            modifier = modifier
                     .background(CodexTheme.colors.appBackground)
-                    .verticalScroll(rememberScrollState())
                     .padding(vertical = CodexTheme.dimens.screenPadding)
     ) {
         state.entries.forEach { entry ->
@@ -159,7 +129,7 @@ enum class HeadToHeadScorePadTestTag : CodexTestTag {
 fun HeadToHeadScorePadScreen_Preview() {
     CodexTheme {
         HeadToHeadScorePadScreen(
-                HeadToHeadScorePadState.Loaded(
+                HeadToHeadScorePadState(
                         entries = listOf(
                                 FullHeadToHeadHeat(
                                         heat = DatabaseHeadToHeadHeat(

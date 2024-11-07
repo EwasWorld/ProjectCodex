@@ -215,7 +215,7 @@ enum class CodexNavRoute : ScreenNavRoute {
 
         @Composable
         override fun Screen(navController: NavController) {
-            HeadToHeadScorePadScreen()
+            HeadToHeadScorePadScreen(navController)
         }
     },
     MAIN_MENU {
