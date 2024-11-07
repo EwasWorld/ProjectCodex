@@ -1,5 +1,7 @@
-package eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd
+package eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,13 +9,18 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -22,8 +29,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
+import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.ChipColours
 import eywa.projectcodex.common.sharedUi.CodexButton
@@ -41,12 +53,144 @@ import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddHeatIntent.*
+import eywa.projectcodex.components.shootDetails.addEnd.SightMark
+import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
+import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
+import eywa.projectcodex.components.shootDetails.getData
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatIntent.*
+
+@Composable
+fun HeadToHeadAddHeatScreen(
+        navController: NavController,
+        viewModel: HeadToHeadAddHeatViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsState()
+    val listener = { it: HeadToHeadAddHeatIntent -> viewModel.handle(it) }
+
+    ShootDetailsMainScreen(
+            currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT,
+            state = state,
+            listener = { listener(ShootDetailsAction(it)) },
+    ) { it, modifier -> HeadToHeadAddHeatScreen(it, modifier, listener) }
+
+    HandleMainEffects(
+            navController = navController,
+            state = state,
+            listener = { listener(ShootDetailsAction(it)) },
+    )
+
+    val data = state.getData()
+    LaunchedEffect(
+            data?.extras?.openAllSightMarks,
+            data?.extras?.openEditSightMark,
+            data?.extras?.openAddEndScreen,
+    ) {
+        if (data != null) {
+            if (data.extras.openAllSightMarks) {
+                CodexNavRoute.SIGHT_MARKS.navigate(navController)
+                listener(ExpandSightMarkHandled)
+            }
+
+            if (data.extras.openEditSightMark) {
+                val args = if (data.headToHeadRoundInfo?.sightMark != null) {
+                    mapOf(NavArgument.SIGHT_MARK_ID to data.headToHeadRoundInfo.sightMark.id.toString())
+                }
+                else {
+                    val distance = data.headToHeadRoundInfo?.distance ?: DEFAULT_INT_NAV_ARG
+                    val isMetric = data.headToHeadRoundInfo?.isMetric ?: true
+                    mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
+                }
+                CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
+                listener(EditSightMarkHandled)
+            }
+
+            if (data.extras.openAddEndScreen) {
+                CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                        navController,
+                        mapOf(NavArgument.SHOOT_ID to viewModel.shootId.toString()),
+                        popCurrentRoute = true,
+                )
+                listener(OpenAddEndScreenHandled)
+            }
+        }
+    }
+}
+
+@Composable
+fun HeadToHeadAddHeatScreen(
+        state: HeadToHeadAddHeatState,
+        modifier: Modifier = Modifier,
+        listener: (HeadToHeadAddHeatIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    Column(
+            verticalArrangement = Arrangement.spacedBy(40.dp, alignment = Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                    .background(CodexTheme.colors.appBackground)
+                    .padding(vertical = CodexTheme.dimens.screenPadding)
+    ) {
+        if (state.headToHeadRoundInfo != null) {
+            SightMark(
+                    distance = state.headToHeadRoundInfo.distance,
+                    isMetric = state.headToHeadRoundInfo.isMetric,
+                    sightMark = state.headToHeadRoundInfo.sightMark,
+                    helpListener = helpListener,
+                    onExpandClicked = { listener(ExpandSightMarkClicked) },
+                    onEditClicked = { listener(EditSightMarkClicked) },
+            )
+        }
+
+        if (state.previousHeat != null) {
+            Surface(
+                    border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+                    color = CodexTheme.colors.appBackground,
+                    modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
+            ) {
+                ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+                    Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp, alignment = Alignment.CenterVertically),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(vertical = 20.dp, horizontal = 25.dp)
+                    ) {
+                        DataRow(
+                                title = stringResource(R.string.head_to_head_add_heat__heat),
+                                text = HeadToHeadUseCase.shortRoundName(state.previousHeat.heat).get(),
+                        )
+                        DataRow(
+                                title = stringResource(
+                                        R.string.head_to_head_add_end__score_text,
+                                        state.previousHeat.teamRunningTotal,
+                                        state.previousHeat.opponentRunningTotal,
+                                ),
+                                text = state.previousHeat.result.title.get(),
+                        )
+                    }
+                }
+            }
+        }
+
+        Surface(
+                shape = RoundedCornerShape(CodexTheme.dimens.cornerRounding),
+                border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
+                color = CodexTheme.colors.appBackground,
+                modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
+        ) {
+            HeadToHeadAddHeatContent(
+                    state = state,
+                    listener = { listener(it) },
+                    modifier = Modifier.padding(vertical = 20.dp, horizontal = 25.dp)
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HeadToHeadAddHeatContent(
-        state: HeadToHeadAddState.AddHeat,
+        state: HeadToHeadAddHeatState,
         modifier: Modifier = Modifier,
         listener: (HeadToHeadAddHeatIntent) -> Unit,
 ) {
@@ -176,6 +320,23 @@ enum class HeadToHeadAddHeatTestTag : CodexTestTag {
     override fun getElement(): String = name
 }
 
+@Preview
+@Composable
+fun Heat_HeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddHeatScreen(
+                state = HeadToHeadAddHeatState(
+                        previousHeat = HeadToHeadAddHeatState.PreviousHeat(
+                                heat = 0,
+                                result = HeadToHeadResult.WIN,
+                                teamRunningTotal = 6,
+                                opponentRunningTotal = 0,
+                        ),
+                ),
+        ) {}
+    }
+}
+
 @Preview(
         showBackground = true,
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
@@ -183,8 +344,8 @@ enum class HeadToHeadAddHeatTestTag : CodexTestTag {
 @Composable
 fun HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
-        HeadToHeadAddHeatContent(
-                state = HeadToHeadAddState.AddHeat(),
+        HeadToHeadAddHeatScreen(
+                state = HeadToHeadAddHeatState(),
                 modifier = Modifier.padding(10.dp)
         ) {}
     }
@@ -197,9 +358,9 @@ fun HeadToHeadAddHeatScreen_Preview() {
 @Composable
 fun Bye_HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
-        HeadToHeadAddHeatContent(
-                state = HeadToHeadAddState.AddHeat(
-                        extras = HeadToHeadAddExtras.AddHeat(isBye = true, showHeatRequiredError = true),
+        HeadToHeadAddHeatScreen(
+                state = HeadToHeadAddHeatState(
+                        extras = HeadToHeadAddHeatExtras(isBye = true, showHeatRequiredError = true),
                 ),
                 modifier = Modifier.padding(10.dp)
         ) {}

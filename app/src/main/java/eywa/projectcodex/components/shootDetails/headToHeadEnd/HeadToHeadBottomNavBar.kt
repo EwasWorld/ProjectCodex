@@ -17,11 +17,23 @@ enum class HeadToHeadBottomNavBarItem(
         override val label: ResOrActual<String>,
 ) : ShootDetailsBottomNavBarItem {
     ADD_END(
-            navRoute = CodexNavRoute.HEAD_TO_HEAD_ADD,
+            navRoute = CodexNavRoute.HEAD_TO_HEAD_ADD_END,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
             label = ResOrActual.StringResource(R.string.input_end__title),
-    ),
+    ) {
+        override fun shouldShow(currentScreen: CodexNavRoute): Boolean =
+                currentScreen != CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT
+    },
+    ADD_HEAT(
+            navRoute = CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT,
+            notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
+            selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
+            label = ResOrActual.StringResource(R.string.input_end__title),
+    ) {
+        override fun shouldShow(currentScreen: CodexNavRoute): Boolean =
+                currentScreen == CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT
+    },
     SCORE_PAD(
             navRoute = CodexNavRoute.HEAD_TO_HEAD_SCORE_PAD,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_outline),
@@ -59,7 +71,19 @@ enum class HeadToHeadBottomNavBarItem(
 fun HeadToHeadBottomNavBar_Preview() {
     CodexTheme {
         ShootDetailsBottomNavBar(
-                currentScreen = CodexNavRoute.SHOOT_DETAILS_SCORE_PAD,
+                currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_END,
+                items = HeadToHeadBottomNavBarItem.entries,
+                listener = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+fun Heat_HeadToHeadBottomNavBar_Preview() {
+    CodexTheme {
+        ShootDetailsBottomNavBar(
+                currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT,
                 items = HeadToHeadBottomNavBarItem.entries,
                 listener = {},
         )

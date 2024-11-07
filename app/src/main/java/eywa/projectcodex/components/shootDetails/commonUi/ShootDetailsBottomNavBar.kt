@@ -29,15 +29,17 @@ fun ShootDetailsBottomNavBar(
             modifier = modifier
     ) {
         items.forEach {
-            CodexBottomNavItem(
-                    icon = it.notSelectedIcon,
-                    selectedIcon = it.selectedIcon ?: it.notSelectedIcon,
-                    label = it.label.get(),
-                    contentDescription = it.label.get(),
-                    isCurrentDestination = currentScreen == it.navRoute,
-                    modifier = Modifier.testTag(it),
-                    onClick = { listener(it.navRoute) },
-            )
+            if (it.shouldShow(currentScreen)) {
+                CodexBottomNavItem(
+                        icon = it.notSelectedIcon,
+                        selectedIcon = it.selectedIcon ?: it.notSelectedIcon,
+                        label = it.label.get(),
+                        contentDescription = it.label.get(),
+                        isCurrentDestination = currentScreen == it.navRoute,
+                        modifier = Modifier.testTag(it),
+                        onClick = { listener(it.navRoute) },
+                )
+            }
         }
     }
 }
@@ -47,6 +49,8 @@ interface ShootDetailsBottomNavBarItem : CodexTestTag {
     val notSelectedIcon: CodexIconInfo
     val selectedIcon: CodexIconInfo?
     val label: ResOrActual<String>
+
+    fun shouldShow(currentScreen: CodexNavRoute): Boolean = true
 }
 
 enum class StandardBottomNavBarItem(

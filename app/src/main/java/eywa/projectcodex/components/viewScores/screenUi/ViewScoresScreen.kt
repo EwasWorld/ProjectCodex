@@ -169,7 +169,7 @@ private fun handleEffects(
 
     if (state.openH2hAddClicked) {
         if (state.lastClickedEntryId != null) {
-            CodexNavRoute.HEAD_TO_HEAD_ADD.navigate(
+            CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
                     navController,
                     mapOf(NavArgument.SHOOT_ID to state.lastClickedEntryId.toString()),
             )
