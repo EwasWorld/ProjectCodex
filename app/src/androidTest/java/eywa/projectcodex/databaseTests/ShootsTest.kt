@@ -373,7 +373,9 @@ class ShootsTest {
                     addArrowCounter(12)
                 }
             }
-        }.plus(
+        }.forEach { db.add(it) }
+
+        listOf(
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(
                             shootId = 13,
@@ -381,8 +383,7 @@ class ShootsTest {
                     )
                     addArrowCounter(24)
                     addRound(TestUtils.ROUNDS[0], 6)
-                }
-        ).plus(
+                },
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(
                             shootId = 14,
@@ -390,13 +391,29 @@ class ShootsTest {
                     )
                     addIdenticalArrows(24, 1)
                     addRound(TestUtils.ROUNDS[0], 6)
-                }
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(
+                            shootId = 15,
+                            dateShot = "8/3/20 10:00".parseDate(),
+                    )
+                    addH2h {
+                        addHeat {
+                            addSet {
+                                addRows(winnerScore = 30, loserScore = 29, selfScore = 0)
+                            }
+                            addSet {
+                                addRows(winnerScore = 30, loserScore = 29, selfScore = 0)
+                            }
+                        }
+                    }
+                },
         ).forEach { db.add(it) }
 
         assertEquals(
                 listOf(
                         DatabaseArrowCountCalendarData("07-03", 3),
-                        DatabaseArrowCountCalendarData("08-03", 33),
+                        DatabaseArrowCountCalendarData("08-03", 39),
                         DatabaseArrowCountCalendarData("09-03", 33),
                         DatabaseArrowCountCalendarData("10-03", 3),
                         DatabaseArrowCountCalendarData("11-03", 12),

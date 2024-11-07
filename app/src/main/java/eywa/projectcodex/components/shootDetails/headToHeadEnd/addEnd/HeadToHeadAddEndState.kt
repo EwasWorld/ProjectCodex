@@ -3,7 +3,6 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridState
 import eywa.projectcodex.database.RoundFace
@@ -37,36 +36,7 @@ data class HeadToHeadAddEndState(
             finalResult = null,
     )
 
-    fun toDbDetails(): List<DatabaseHeadToHeadDetail> =
-            DatabaseHeadToHeadDetail(
-                    headToHeadArrowScoreId = 0,
-                    shootId = heat.shootId,
-                    heat = heat.heat,
-                    setNumber = extras.set.setNumber,
-
-                    // Dummy values
-                    type = HeadToHeadArcherType.TEAM,
-                    isTotal = false,
-                    arrowNumber = 0,
-                    score = 0,
-                    isX = false,
-            ).let { mainData ->
-                extras.set.data.flatMap { rowData ->
-                    val typeData = mainData.copy(
-                            type = rowData.type,
-                            isTotal = rowData.isTotalRow,
-                    )
-
-                    if (rowData is HeadToHeadGridRowData.Arrows) {
-                        rowData.arrows.mapIndexed { index, arrow ->
-                            typeData.copy(arrowNumber = index + 1, score = arrow.score, isX = arrow.isX)
-                        }
-                    }
-                    else {
-                        listOf(typeData.copy(arrowNumber = 1, score = rowData.totalScore, isX = false))
-                    }
-                }
-            }
+    fun toDbDetails(): List<DatabaseHeadToHeadDetail> = extras.set.asDatabaseDetails(heat.shootId, heat.heat)
 }
 
 data class HeadToHeadRoundInfo(

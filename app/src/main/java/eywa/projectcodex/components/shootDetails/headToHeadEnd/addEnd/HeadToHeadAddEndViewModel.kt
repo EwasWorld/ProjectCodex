@@ -104,7 +104,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     isShootOffWin = false,
             )
 
-            if (extraState.value == null) {
+            if (extras == null || extras.set.setNumber <= (lastSet?.setNumber ?: 0)) {
                 extraState.update { HeadToHeadAddEndExtras(set = set, selected = SELF) }
             }
             return HeadToHeadAddEndState(
@@ -117,7 +117,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             )
         }
 
-        if (extraState.value == null) {
+        if (extras == null || extras.set.setNumber != lastSet.setNumber) {
             extraState.update {
                 HeadToHeadAddEndExtras(
                         set = lastSet,

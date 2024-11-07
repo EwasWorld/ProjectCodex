@@ -9,6 +9,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils
+import eywa.projectcodex.components.newScore.NewScoreType
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.UpdateType
@@ -58,7 +59,8 @@ class ScorePadInstrumentedTest {
                     )
                 },
                 shootDetail = null,
-                isScoringNotCounting = true,
+                headToHead = null,
+                type = NewScoreType.SCORING,
         )
     }
 

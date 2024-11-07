@@ -3,6 +3,7 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsBottomNavBarItem
+import eywa.projectcodex.components.shootDetails.commonUi.StandardBottomNavBarItem
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 
@@ -18,10 +19,10 @@ abstract class ShootDetailsRobot(
 
     private inline fun <reified R : ShootDetailsRobot> clickNavBarItem(noinline block: R.() -> Unit = {}) {
         val screenItem = when (R::class) {
-            ShootDetailsStatsRobot::class -> ShootDetailsBottomNavBarItem.STATS
-            ShootDetailsSettingsRobot::class -> ShootDetailsBottomNavBarItem.SETTINGS
-            AddEndRobot::class -> ShootDetailsBottomNavBarItem.ADD_END
-            ScorePadRobot::class -> ShootDetailsBottomNavBarItem.SCORE_PAD
+            ShootDetailsStatsRobot::class -> StandardBottomNavBarItem.STATS
+            ShootDetailsSettingsRobot::class -> StandardBottomNavBarItem.SETTINGS
+            AddEndRobot::class -> StandardBottomNavBarItem.ADD_END
+            ScorePadRobot::class -> StandardBottomNavBarItem.SCORE_PAD
             else -> throw NotImplementedError()
         }
 

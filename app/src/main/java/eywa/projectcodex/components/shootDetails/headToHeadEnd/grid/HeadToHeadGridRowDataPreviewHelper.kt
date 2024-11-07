@@ -28,17 +28,24 @@ object HeadToHeadGridRowDataPreviewHelper {
                     HeadToHeadArcherType.OPPONENT to true,
             ),
             isEditable: Boolean = false,
+            winnerScore: Int? = null,
+            loserScore: Int? = null,
+            selfScore: Int? = null,
     ): List<HeadToHeadGridRowData> {
         require(result != HeadToHeadResult.INCOMPLETE)
 
         val endSize = if (isShootOff) 1 else 3
+        val maxScore = teamSize * endSize * 10
+        require(winnerScore == null || (winnerScore in 0..maxScore))
+        require(loserScore == null || (loserScore in 0..maxScore))
+        require(selfScore == null || (selfScore in 0..maxScore))
 
-        val winnerTotal = Random.nextInt(if (isShootOff) 5 else teamSize * 10, teamSize * endSize * 10 + 1)
-        val loserTotal = winnerTotal - Random.nextInt(1, winnerTotal - 1)
+        val winnerTotal = winnerScore ?: Random.nextInt(if (isShootOff) 5 else teamSize * 10, maxScore + 1)
+        val loserTotal = loserScore ?: (winnerTotal - Random.nextInt(1, winnerTotal - 1))
 
         val teamTotal =
                 if (result == HeadToHeadResult.WIN || result == HeadToHeadResult.TIE) winnerTotal else loserTotal
-        val selfTotal = if (teamSize == 1) teamTotal else teamTotal - Random.nextInt(1, teamTotal - 1)
+        val selfTotal = selfScore ?: (if (teamSize == 1) teamTotal else teamTotal - Random.nextInt(1, teamTotal - 1))
         val opponentTotal =
                 if (result == HeadToHeadResult.LOSS || result == HeadToHeadResult.TIE) winnerTotal else loserTotal
 
@@ -50,6 +57,7 @@ object HeadToHeadGridRowDataPreviewHelper {
                 HeadToHeadArcherType.TEAM -> teamTotal
                 HeadToHeadArcherType.RESULT -> result.defaultPoints
             }
+            require(total >= 0)
             val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
             if (type == HeadToHeadArcherType.RESULT || isTotal) {
                 if (isEditable) {

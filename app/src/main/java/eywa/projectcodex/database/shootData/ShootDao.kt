@@ -14,6 +14,9 @@ import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.DEFAULT_BOW_ID
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import kotlinx.coroutines.flow.Flow
@@ -157,15 +160,43 @@ interface ShootDao {
             """
                 SELECT
                         strftime("%d-%m", shoot.dateShot / 1000, 'unixepoch') as dateString,
-                        (TOTAL(scores.count) + TOTAL(counts.shotCount) + TOTAL(rounds.sightersCount)) as count
+                        (TOTAL(scores.count) + TOTAL(counts.shotCount) + TOTAL(rounds.sightersCount) + TOTAL(h2hHeats.sightersCount) + TOTAL(h2hDetails.count)) as count
                 FROM $TABLE_NAME as shoot
                 LEFT JOIN (
                     SELECT s.shootId, COUNT(s.rowId) as count
                     FROM ${DatabaseArrowScore.TABLE_NAME} as s
                     GROUP BY s.shootId 
                 ) as scores ON shoot.shootId = scores.shootId
-                LEFT JOIN ${DatabaseArrowCounter.TABLE_NAME} as counts ON shoot.shootId = counts.shootId
-                LEFT JOIN ${DatabaseShootRound.TABLE_NAME} as rounds ON shoot.shootId = rounds.shootId
+                LEFT JOIN (
+                    SELECT a.shootId, a.shotCount 
+                    FROM ${DatabaseArrowCounter.TABLE_NAME} as a
+                    GROUP BY a.shootId
+                ) as counts ON shoot.shootId = counts.shootId
+                LEFT JOIN (
+                    SELECT r.shootId, r.sightersCount 
+                    FROM ${DatabaseShootRound.TABLE_NAME} as r
+                    GROUP BY r.shootId
+                ) as rounds ON shoot.shootId = rounds.shootId
+                LEFT JOIN (
+                    SELECT h.shootId, h.sightersCount 
+                    FROM ${DatabaseHeadToHeadHeat.TABLE_NAME} as h
+                    GROUP BY h.shootId
+                ) as h2hHeats ON shoot.shootId = h2hHeats.shootId
+                LEFT JOIN (
+                    -- Assumes all sets are complete
+                    SELECT 
+                        d.shootId,
+                        COUNT(d.rowId) as setCount,
+                        CASE
+                            WHEN i.teamSize = 1 AND MAX(d.setNumber) = 6 THEN 16 -- 5 sets of 3 arrows + 1 shoot off arrow
+                            WHEN i.teamSize = 1 THEN MAX(d.setNumber) * 3 -- X sets of 3 arrows
+                            WHEN MAX(d.setNumber) = 5 THEN 11 -- 5 sets of 2 arrows + 1 shoot off arrow
+                            ELSE MAX(d.setNumber) * 2 -- X sets of 2 arrows
+                        END as count
+                    FROM ${DatabaseHeadToHeadDetail.TABLE_NAME} as d
+                    LEFT JOIN ${DatabaseHeadToHead.TABLE_NAME} as i ON i.shootId = i.shootId
+                    GROUP BY d.shootId, d.heat
+                ) as h2hDetails ON shoot.shootId = h2hDetails.shootId
                 WHERE shoot.dateShot >= :fromDate AND shoot.dateShot <= :toDate
                 GROUP BY dateString
                 ORDER BY shoot.dateShot, count

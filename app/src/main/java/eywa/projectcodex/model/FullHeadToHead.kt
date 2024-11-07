@@ -257,4 +257,35 @@ data class FullHeadToHeadSet(
 
         return all.sumOf { it.totalScore }
     }
+
+    fun asDatabaseDetails(shootId: Int, heat: Int) =
+            DatabaseHeadToHeadDetail(
+                    headToHeadArrowScoreId = 0,
+                    shootId = shootId,
+                    heat = heat,
+                    setNumber = setNumber,
+
+                    // Dummy values
+                    type = HeadToHeadArcherType.TEAM,
+                    isTotal = false,
+                    arrowNumber = 0,
+                    score = 0,
+                    isX = false,
+            ).let { mainData ->
+                data.flatMap { rowData ->
+                    val typeData = mainData.copy(
+                            type = rowData.type,
+                            isTotal = rowData.isTotalRow,
+                    )
+
+                    if (rowData is HeadToHeadGridRowData.Arrows) {
+                        rowData.arrows.mapIndexed { index, arrow ->
+                            typeData.copy(arrowNumber = index + 1, score = arrow.score, isX = arrow.isX)
+                        }
+                    }
+                    else {
+                        listOf(typeData.copy(arrowNumber = 1, score = rowData.totalScore, isX = false))
+                    }
+                }
+            }
 }

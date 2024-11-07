@@ -11,6 +11,7 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.FullHeadToHead
 import eywa.projectcodex.model.FullShootInfo
 import java.util.Calendar
 
@@ -27,6 +28,11 @@ class ShootPreviewHelperDsl {
     var faces: List<RoundFace>? = null
     var counter: DatabaseArrowCounter? = null
     var sightersCount: Int = 0
+    var h2h: FullHeadToHead? = null
+
+    fun addH2h(config: HeadToHeadPreviewHelperDsl.() -> Unit) {
+        h2h = HeadToHeadPreviewHelperDsl(shoot.shootId).apply(config).asFull()
+    }
 
     fun addRound(round: FullRoundInfo, sightersCount: Int = 0) {
         this.round = round
@@ -146,6 +152,11 @@ class ShootPreviewHelperDsl {
             shootDetail = asDatabaseShootDetail(),
             arrowCounter = counter,
             bow = ClassificationBow.RECURVE,
+            headToHead = h2h?.headToHead,
+            headToHeadHeats = h2h?.heats?.map { it.heat },
+            headToHeadDetails = h2h?.heats?.flatMap { heat ->
+                heat.sets.flatMap { it.asDatabaseDetails(heat = heat.heat.heat, shootId = heat.heat.shootId) }
+            },
     )
 
     fun asFullShootInfo() = FullShootInfo(asDatabaseFullShootInfo(), use2023HandicapSystem)

@@ -10,10 +10,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.components.newScore.NewScoreType
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndExtras
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndState
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.FullRoundInfo
+import eywa.projectcodex.model.FullHeadToHead
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,14 +60,15 @@ class LocalDatabaseModule {
 
         suspend fun ScoresRoomDatabase.add(shootInfo: FullShootInfo) {
             shootsRepo().insert(
-                    shootInfo.shoot,
-                    shootInfo.shootRound,
-                    shootInfo.shootDetail,
-                    shootInfo.h2h?.headToHead,
-                    NewScoreType.SCORING,
+                    shoot = shootInfo.shoot,
+                    shootRound = shootInfo.shootRound,
+                    shootDetail = shootInfo.shootDetail,
+                    headToHead = null, // Added later
+                    type = NewScoreType.SCORING,
             )
             shootInfo.arrows?.let { arrowScoresRepo().insert(*it.toTypedArray()) }
             shootInfo.arrowCounter?.let { arrowCounterRepo().insert(it) }
+            shootInfo.h2h?.let { add(it) }
         }
 
         suspend fun ScoresRoomDatabase.add(roundInfo: FullRoundInfo) {
@@ -76,6 +80,22 @@ class LocalDatabaseModule {
                             roundInfo.roundDistances,
                     ).flatten().associateWith { UpdateType.NEW }
             )
+        }
+
+        suspend fun ScoresRoomDatabase.add(h2hInfo: FullHeadToHead) {
+            h2hRepo().insert(h2hInfo.headToHead)
+            h2hInfo.heats.forEach { heat ->
+                h2hRepo().insert(heat.heat)
+
+                heat.sets.flatMap { set ->
+                    HeadToHeadAddEndState(
+                            extras = HeadToHeadAddEndExtras(set = set),
+                            heat = heat.heat,
+                    ).toDbDetails()
+                }.forEachIndexed { index, detail ->
+                    h2hRepo().insert(detail.copy(headToHeadArrowScoreId = index + 1))
+                }
+            }
         }
     }
 
