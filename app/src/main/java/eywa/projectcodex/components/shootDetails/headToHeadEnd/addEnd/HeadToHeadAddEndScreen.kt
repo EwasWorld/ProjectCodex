@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +40,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.addEnd.SightMark
@@ -47,6 +50,7 @@ import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInput
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.ArrowInputted
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.shootDetails.getData
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeatPreviewHelper
 
@@ -61,26 +65,33 @@ fun HeadToHeadAddEndScreen(
     ShootDetailsMainScreen(
             currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_END,
             state = state,
-            listener = { listener(HeadToHeadAddEndIntent.ShootDetailsAction(it)) },
+            listener = { listener(ShootDetailsAction(it)) },
     ) { it, modifier -> HeadToHeadAddEndScreen(it, modifier, listener) }
 
     HandleMainEffects(
             navController = navController,
             state = state,
-            listener = { listener(HeadToHeadAddEndIntent.ShootDetailsAction(it)) },
+            listener = { listener(ShootDetailsAction(it)) },
     )
 
+    val context = LocalContext.current
     val data = state.getData()
     LaunchedEffect(
             data?.extras?.openAllSightMarks,
             data?.extras?.openEditSightMark,
             data?.extras?.openSighters,
             data?.extras?.openAddHeatScreen,
+            data?.extras?.arrowInputsError,
     ) {
         if (data != null) {
+            data.extras.arrowInputsError.forEach {
+                ToastSpamPrevention.displayToast(context, context.resources.getString(it.messageId))
+                listener(ArrowInputsErrorHandled(it))
+            }
+
             if (data.extras.openAllSightMarks) {
                 CodexNavRoute.SIGHT_MARKS.navigate(navController)
-                listener(HeadToHeadAddEndIntent.ExpandSightMarkHandled)
+                listener(ExpandSightMarkHandled)
             }
 
             if (data.extras.openEditSightMark) {
@@ -93,7 +104,7 @@ fun HeadToHeadAddEndScreen(
                     mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
                 }
                 CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
-                listener(HeadToHeadAddEndIntent.EditSightMarkHandled)
+                listener(EditSightMarkHandled)
             }
 
             if (data.extras.openSighters) {
@@ -105,7 +116,7 @@ fun HeadToHeadAddEndScreen(
                                 NavArgument.IS_SIGHTERS to true.toString(),
                         ),
                 )
-                listener(HeadToHeadAddEndIntent.SightersHandled)
+                listener(SightersHandled)
             }
 
             if (data.extras.openAddHeatScreen) {
@@ -114,7 +125,7 @@ fun HeadToHeadAddEndScreen(
                         mapOf(NavArgument.SHOOT_ID to viewModel.shootId.toString()),
                         popCurrentRoute = true,
                 )
-                listener(HeadToHeadAddEndIntent.OpenAddHeatScreenHandled)
+                listener(OpenAddHeatScreenHandled)
             }
         }
     }
@@ -126,7 +137,7 @@ fun HeadToHeadAddEndScreen(
         modifier: Modifier = Modifier,
         listener: (HeadToHeadAddEndIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadAddEndIntent.HelpShowcaseAction(it)) }
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
             verticalArrangement = Arrangement.spacedBy(40.dp),
@@ -148,8 +159,8 @@ fun HeadToHeadAddEndScreen(
                         isMetric = state.headToHeadRoundInfo.isMetric,
                         sightMark = state.headToHeadRoundInfo.sightMark,
                         helpListener = helpListener,
-                        onExpandClicked = { listener(HeadToHeadAddEndIntent.ExpandSightMarkClicked) },
-                        onEditClicked = { listener(HeadToHeadAddEndIntent.EditSightMarkClicked) },
+                        onExpandClicked = { listener(ExpandSightMarkClicked) },
+                        onEditClicked = { listener(EditSightMarkClicked) },
                 )
                 Text(
                         text = stringResource(R.string.input_end__section_delimiter),
@@ -202,7 +213,7 @@ private fun HeatTransitiveInfo(
         state: HeadToHeadAddEndState,
         listener: (HeadToHeadAddEndIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadAddEndIntent.HelpShowcaseAction(it)) }
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -215,7 +226,7 @@ private fun HeatTransitiveInfo(
                 titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
                 textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
                 textModifier = Modifier.testTag(AddEndTestTag.SIGHTERS),
-                onClick = { listener(HeadToHeadAddEndIntent.SightersClicked) },
+                onClick = { listener(SightersClicked) },
                 modifier = Modifier
                         .updateHelpDialogPosition(
                                 HelpShowcaseItem(
@@ -246,11 +257,11 @@ private fun HeatTransitiveInfo(
 }
 
 @Composable
-private fun SetInfo(
+private fun ColumnScope.SetInfo(
         state: HeadToHeadAddEndState,
         listener: (HeadToHeadAddEndIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadAddEndIntent.HelpShowcaseAction(it)) }
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     val setText =
             if (state.extras.set.isShootOff) {
@@ -268,9 +279,8 @@ private fun SetInfo(
             }
 
     Column(
-            verticalArrangement = Arrangement.spacedBy(15.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
     ) {
         Text(
                 text = setText,
@@ -280,15 +290,9 @@ private fun SetInfo(
 
         HeadToHeadGrid(
                 state = state.toGridState(),
-                rowClicked = { _, row -> listener(HeadToHeadAddEndIntent.GridRowClicked(row)) },
-                onTextValueChanged = { type, text ->
-                    listener(
-                            HeadToHeadAddEndIntent.GridTextValueChanged(
-                                    type,
-                                    text
-                            )
-                    )
-                },
+                errorOnIncompleteRows = state.extras.incompleteError,
+                rowClicked = { _, row -> listener(GridRowClicked(row)) },
+                onTextValueChanged = { type, text -> listener(GridTextValueChanged(type, text)) },
                 helpListener = helpListener,
         )
 
@@ -299,7 +303,7 @@ private fun SetInfo(
                     testTag = HeadToHeadAddTestTag.IS_SHOOT_OFF_CHECKBOX,
                     enabled = state.extras.set.isShootOff,
                     style = CodexTypography.NORMAL,
-                    onToggle = { listener(HeadToHeadAddEndIntent.ToggleShootOffWin) },
+                    onToggle = { listener(ToggleShootOffWin) },
             )
         }
     }
@@ -310,30 +314,32 @@ private fun Buttons(
         state: HeadToHeadAddEndState,
         listener: (HeadToHeadAddEndIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadAddEndIntent.HelpShowcaseAction(it)) }
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        ArrowButtonGroup(
-                round = state.headToHeadRoundInfo?.round,
-                roundFace = state.headToHeadRoundInfo?.face,
-                onClick = { listener(HeadToHeadAddEndIntent.ArrowInputAction(ArrowInputted(it))) },
-                modifier = Modifier.updateHelpDialogPosition(
-                        HelpShowcaseItem(
-                                helpTitle = stringResource(R.string.help_input_end__arrow_inputs_title),
-                                helpBody = stringResource(R.string.help_input_end__arrow_inputs_body),
-                        ).asHelpState(helpListener),
-                )
-        )
+        if (state.extras.selectedData?.isTotalRow == false) {
+            ArrowButtonGroup(
+                    round = state.headToHeadRoundInfo?.round,
+                    roundFace = state.headToHeadRoundInfo?.face,
+                    onClick = { listener(ArrowInputAction(ArrowInputted(it))) },
+                    modifier = Modifier.updateHelpDialogPosition(
+                            HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_input_end__arrow_inputs_title),
+                                    helpBody = stringResource(R.string.help_input_end__arrow_inputs_body),
+                            ).asHelpState(helpListener),
+                    )
+            )
 
-        ArrowInputEditButtons(showResetButton = false, helpListener = helpListener) {
-            listener(HeadToHeadAddEndIntent.ArrowInputAction(it))
+            ArrowInputEditButtons(showResetButton = false, helpListener = helpListener) {
+                listener(ArrowInputAction(it))
+            }
         }
 
         CodexButton(
                 text = stringResource(R.string.head_to_head_add_end__submit),
-                onClick = { listener(HeadToHeadAddEndIntent.SubmitClicked) },
+                onClick = { listener(SubmitClicked) },
         )
     }
 }

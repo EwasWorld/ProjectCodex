@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="head_to_head_add_end__title">H2H Add End</string>
+    <string name="head_to_head_add_end__title">Add end</string>
     <string name="head_to_head_add_end__opponent_rank_and_name_multiline">Opponent (rank %1$d):\n%2$s</string> <!-- Opponent (rank 1): Jessica Summers -->
     <string name="head_to_head_add_end__opponent_rank_multiline">Opponent:\nrank %d</string>  <!-- Opponent (rank 1) -->
     <string name="head_to_head_add_end__opponent_name_multiline">Opponent:\n%s</string> <!-- Opponent: Jessica Summers -->
@@ -13,25 +13,40 @@
     <string name="head_to_head_add_end__shoot_off">Shoot off: %s</string> <!-- Shoot off: Win -->
     <string name="head_to_head_add_end__shoot_off_win">Win</string>
     <string name="head_to_head_add_end__submit">Add end</string>
-    <string name="head_to_head_add_end__add_heat">Start heat</string>
     <string name="head_to_head_add_end__set_result">Set: %s</string> <!-- Set: Win -->
     <string name="head_to_head_add_end__final_result">Match result: %s</string> <!-- Match result: Win -->
     <string name="head_to_head_add_end__running_total">R/T: %s</string> <!-- R/T: 6-0 -->
+
+    <string name="head_to_head_add_end__total_text_placeholder">0</string>
+    <string name="head_to_head_add_end__archer_self">Self</string>
+    <string name="head_to_head_add_end__archer_team_mate">Team</string>
+    <string name="head_to_head_add_end__archer_team">Team</string>
+    <string name="head_to_head_add_end__archer_opponent">Opponent</string>
+    <string name="head_to_head_add_end__archer_result">Result</string>
+
+    <string name="head_to_head_grid__column_type">Type</string>
+    <string name="head_to_head_grid__column_arrows">Arrows</string>
+    <string name="head_to_head_grid__column_end_total">S</string>
+    <string name="head_to_head_grid__column_team_total">T</string>
+    <string name="head_to_head_grid__column_points">P</string>
 
     <string name="head_to_head_add_end__result_win">Win</string>
     <string name="head_to_head_add_end__result_loss">Loss</string>
     <string name="head_to_head_add_end__result_tie">Tie</string>
     <string name="head_to_head_add_end__result_incomplete">Incomplete</string>
 
-    <string name="head_to_head_score_pad__title">H2H Score Pad</string>
+    <string name="head_to_head_score_pad__title">Score pad</string>
+    <string name="head_to_head_score_pad__no_sets">No ends entered</string>
+    <string name="head_to_head_score_pad__no_heats">No matches entered</string>
+    <string name="head_to_head_score_pad__no_heats_button">Add match</string>
 
-    <string name="head_to_head_add_heat__title">H2H Add Heat</string>
-    <string name="head_to_head_add_heat__heat">Heat:</string>
+    <string name="head_to_head_add_heat__title">Add match</string>
+    <string name="head_to_head_add_heat__heat">Match:</string>
     <string name="head_to_head_add_heat__heat_null">Not selected</string>
     <string name="head_to_head_add_heat__opponent">Opponent:</string>
     <string name="head_to_head_add_heat__opponent_placeholder">John Doe</string>
     <string name="head_to_head_add_heat__opponent_quali_rank">Opponent rank:</string>
     <string name="head_to_head_add_heat__quali_rank_placeholder">15</string>
     <string name="head_to_head_add_heat__bye">Bye:</string>
-    <string name="head_to_head_add_heat__submit">Start heat</string>
+    <string name="head_to_head_add_heat__submit">Start match</string>
 </resources>

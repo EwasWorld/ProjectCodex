@@ -32,7 +32,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HeadToHeadAddEndViewModel @Inject constructor(
-        private val db: ScoresRoomDatabase,
+        db: ScoresRoomDatabase,
         private val repo: ShootDetailsRepo,
         savedStateHandle: SavedStateHandle,
         private val helpShowcaseUseCase: HelpShowcaseUseCase,
@@ -156,6 +156,8 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             EditSightMarkHandled -> updateState { it.copy(openEditSightMark = false) }
             ExpandSightMarkHandled -> updateState { it.copy(openAllSightMarks = false) }
             OpenAddHeatScreenHandled -> updateState { it.copy(openAddHeatScreen = false) }
+            is ArrowInputsErrorHandled ->
+                updateState { it.copy(arrowInputsError = it.arrowInputsError.minus(action.error)) }
 
             is ArrowInputAction -> {
                 val currentState = state.value.getData() ?: return
@@ -173,12 +175,13 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                                         .plus(row.copy(arrows = arrows))
                                 s.copy(
                                         set = s.set.copy(data = data),
-                                        arrowInputsError = error,
+                                        arrowInputsError = error?.let { s.arrowInputsError.plus(error) }
+                                                ?: s.arrowInputsError,
                                 )
                             }
                         },
                         onSubmit = { throw NotImplementedError() },
-                        helpListener = { handle(HeadToHeadAddEndIntent.HelpShowcaseAction(it)) }
+                        helpListener = { handle(HelpShowcaseAction(it)) }
                 )
             }
 

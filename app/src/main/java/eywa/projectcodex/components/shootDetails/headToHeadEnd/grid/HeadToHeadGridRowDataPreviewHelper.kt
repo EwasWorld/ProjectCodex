@@ -19,6 +19,32 @@ object HeadToHeadGridRowDataPreviewHelper {
             },
     )
 
+    fun createEmptyRows(
+            teamSize: Int = 1,
+            isShootOff: Boolean = false,
+            typesToIsTotal: Map<HeadToHeadArcherType, Boolean> = mapOf(
+                    HeadToHeadArcherType.SELF to false,
+                    HeadToHeadArcherType.OPPONENT to true,
+            ),
+            isEditable: Boolean = false,
+    ): List<HeadToHeadGridRowData> {
+        val endSize = if (isShootOff) 1 else 3
+        return typesToIsTotal.map { (type, isTotal) ->
+            val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
+            if (type == HeadToHeadArcherType.RESULT || isTotal) {
+                if (isEditable) HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount)
+                else HeadToHeadGridRowData.Total(type, expectedArrowCount, null)
+            }
+            else {
+                HeadToHeadGridRowData.Arrows(
+                        type = type,
+                        expectedArrowCount = expectedArrowCount,
+                        arrows = listOf(),
+                )
+            }
+        }
+    }
+
     fun create(
             teamSize: Int = 1,
             isShootOff: Boolean = false,

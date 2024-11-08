@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.shootDetails.headToHeadEnd
 
+import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 
 enum class HeadToHeadArcherType(
@@ -13,7 +14,7 @@ enum class HeadToHeadArcherType(
      * The archer alone
      */
     SELF(
-            text = ResOrActual.Actual("Self"),
+            text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_self),
             isTeam = true,
     ) {
         override fun expectedArrowCount(endSize: Int, teamSize: Int): Int = endSize
@@ -23,7 +24,7 @@ enum class HeadToHeadArcherType(
      * The archer's team mates (not including the archer themselves)
      */
     TEAM_MATE(
-            text = ResOrActual.Actual("Team"),
+            text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_team_mate),
             isTeam = true,
     ) {
         override fun expectedArrowCount(endSize: Int, teamSize: Int): Int = endSize * (teamSize - 1)
@@ -33,7 +34,7 @@ enum class HeadToHeadArcherType(
      * The archer's team (including the archer themselves)
      */
     TEAM(
-            text = ResOrActual.Actual("Team"),
+            text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_team),
             isTeam = true,
     ) {
         override fun expectedArrowCount(endSize: Int, teamSize: Int): Int = endSize * teamSize
@@ -43,7 +44,7 @@ enum class HeadToHeadArcherType(
      * The opponent(s)
      */
     OPPONENT(
-            text = ResOrActual.Actual("Opponent"),
+            text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_opponent),
             isTeam = false,
     ) {
         override fun expectedArrowCount(endSize: Int, teamSize: Int): Int = endSize * teamSize
@@ -55,7 +56,7 @@ enum class HeadToHeadArcherType(
      * TODO
      */
     RESULT(
-            text = ResOrActual.Actual("Points"),
+            text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_result),
             isTeam = false,
     )
     ;

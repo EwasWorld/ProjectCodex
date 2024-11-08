@@ -60,7 +60,10 @@ data class HeadToHeadAddEndExtras(
                 setNumber = 1,
         ),
         val selected: HeadToHeadArcherType? = set.data.map { it.type }.minByOrNull { it.ordinal },
-        val arrowInputsError: ArrowInputsError? = null,
+        val arrowInputsError: Set<ArrowInputsError> = setOf(),
         val incompleteError: Boolean = false,
         val openSighters: Boolean = false,
-)
+) {
+    val selectedData
+        get() = set.data.find { it.type == selected }
+}

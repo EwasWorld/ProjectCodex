@@ -1,0 +1,1075 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 13,
+    "identityHash": "b0eab5881fa0bbbe592931ed8a91c96a",
+    "entities": [
+      {
+        "tableName": "shoots",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shootId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dateShot` INTEGER NOT NULL, `archerId` INTEGER, `countsTowardsHandicap` INTEGER NOT NULL, `bowId` INTEGER, `goalScore` INTEGER, `shootStatus` TEXT, `joinWithPrevious` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`bowId`) REFERENCES `bows`(`bowId`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`archerId`) REFERENCES `archers`(`archerId`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateShot",
+            "columnName": "dateShot",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archerId",
+            "columnName": "archerId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "countsTowardsHandicap",
+            "columnName": "countsTowardsHandicap",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bowId",
+            "columnName": "bowId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "goalScore",
+            "columnName": "goalScore",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "shootStatus",
+            "columnName": "shootStatus",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "joinWithPrevious",
+            "columnName": "joinWithPrevious",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "shootId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_shoots_archerId",
+            "unique": false,
+            "columnNames": [
+              "archerId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shoots_archerId` ON `${TABLE_NAME}` (`archerId`)"
+          },
+          {
+            "name": "index_shoots_bowId",
+            "unique": false,
+            "columnNames": [
+              "bowId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shoots_bowId` ON `${TABLE_NAME}` (`bowId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "bows",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bowId"
+            ],
+            "referencedColumns": [
+              "bowId"
+            ]
+          },
+          {
+            "table": "archers",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "archerId"
+            ],
+            "referencedColumns": [
+              "archerId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "archers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archerId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `isGent` INTEGER NOT NULL DEFAULT 1, `age` INTEGER NOT NULL DEFAULT 1)",
+        "fields": [
+          {
+            "fieldPath": "archerId",
+            "columnName": "archerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isGent",
+            "columnName": "isGent",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "age",
+            "columnName": "age",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "archerId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "arrow_scores",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shootId` INTEGER NOT NULL, `arrowNumber` INTEGER NOT NULL, `score` INTEGER NOT NULL, `isX` INTEGER NOT NULL, PRIMARY KEY(`shootId`, `arrowNumber`), FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "arrowNumber",
+            "columnName": "arrowNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "score",
+            "columnName": "score",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isX",
+            "columnName": "isX",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shootId",
+            "arrowNumber"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "shoots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "rounds",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roundId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `displayName` TEXT NOT NULL, `isOutdoor` INTEGER NOT NULL, `isMetric` INTEGER NOT NULL, `fiveArrowEnd` INTEGER NOT NULL, `legacyName` TEXT DEFAULT NULL, `defaultRoundId` INTEGER DEFAULT NULL)",
+        "fields": [
+          {
+            "fieldPath": "roundId",
+            "columnName": "roundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isOutdoor",
+            "columnName": "isOutdoor",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isMetric",
+            "columnName": "isMetric",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fiveArrowEnd",
+            "columnName": "fiveArrowEnd",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "legacyName",
+            "columnName": "legacyName",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "defaultRoundId",
+            "columnName": "defaultRoundId",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "roundId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "round_arrow_counts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roundId` INTEGER NOT NULL, `distanceNumber` INTEGER NOT NULL, `faceSizeInCm` REAL NOT NULL, `arrowCount` INTEGER NOT NULL, PRIMARY KEY(`roundId`, `distanceNumber`), FOREIGN KEY(`roundId`) REFERENCES `rounds`(`roundId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "roundId",
+            "columnName": "roundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distanceNumber",
+            "columnName": "distanceNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "faceSizeInCm",
+            "columnName": "faceSizeInCm",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "arrowCount",
+            "columnName": "arrowCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "roundId",
+            "distanceNumber"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "rounds",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roundId"
+            ],
+            "referencedColumns": [
+              "roundId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "round_sub_types",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roundId` INTEGER NOT NULL, `subTypeId` INTEGER NOT NULL, `name` TEXT, `gents` INTEGER, `ladies` INTEGER, PRIMARY KEY(`roundId`, `subTypeId`), FOREIGN KEY(`roundId`) REFERENCES `rounds`(`roundId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "roundId",
+            "columnName": "roundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subTypeId",
+            "columnName": "subTypeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gents",
+            "columnName": "gents",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ladies",
+            "columnName": "ladies",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "roundId",
+            "subTypeId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "rounds",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roundId"
+            ],
+            "referencedColumns": [
+              "roundId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "round_distances",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roundId` INTEGER NOT NULL, `distanceNumber` INTEGER NOT NULL, `subTypeId` INTEGER NOT NULL, `distance` INTEGER NOT NULL, PRIMARY KEY(`roundId`, `distanceNumber`, `subTypeId`), FOREIGN KEY(`roundId`) REFERENCES `rounds`(`roundId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "roundId",
+            "columnName": "roundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distanceNumber",
+            "columnName": "distanceNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subTypeId",
+            "columnName": "subTypeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "roundId",
+            "distanceNumber",
+            "subTypeId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "rounds",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roundId"
+            ],
+            "referencedColumns": [
+              "roundId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "bows",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL DEFAULT 'Default', `description` TEXT DEFAULT NULL, `type` INTEGER NOT NULL, `isSightMarkDiagramHighestAtTop` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "bowId",
+            "columnName": "bowId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'Default'"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSightMarkDiagramHighestAtTop",
+            "columnName": "isSightMarkDiagramHighestAtTop",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "bowId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "sight_marks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sightMarkId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bowId` INTEGER, `distance` INTEGER NOT NULL, `isMetric` INTEGER NOT NULL, `dateSet` INTEGER NOT NULL, `sightMark` REAL NOT NULL, `note` TEXT, `isMarked` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, `useInPredictions` INTEGER NOT NULL, FOREIGN KEY(`bowId`) REFERENCES `bows`(`bowId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "sightMarkId",
+            "columnName": "sightMarkId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bowId",
+            "columnName": "bowId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isMetric",
+            "columnName": "isMetric",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateSet",
+            "columnName": "dateSet",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sightMark",
+            "columnName": "sightMark",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isMarked",
+            "columnName": "isMarked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isArchived",
+            "columnName": "isArchived",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "useInPredictions",
+            "columnName": "useInPredictions",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "sightMarkId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sight_marks_bowId",
+            "unique": false,
+            "columnNames": [
+              "bowId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sight_marks_bowId` ON `${TABLE_NAME}` (`bowId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "bows",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bowId"
+            ],
+            "referencedColumns": [
+              "bowId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "shoot_rounds",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shootId` INTEGER NOT NULL, `roundId` INTEGER NOT NULL, `roundSubTypeId` INTEGER, `faces` TEXT, `sightersCount` INTEGER NOT NULL, PRIMARY KEY(`shootId`), FOREIGN KEY(`roundId`) REFERENCES `rounds`(`roundId`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`roundId`, `roundSubTypeId`) REFERENCES `round_sub_types`(`roundId`, `subTypeId`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roundId",
+            "columnName": "roundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roundSubTypeId",
+            "columnName": "roundSubTypeId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "faces",
+            "columnName": "faces",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sightersCount",
+            "columnName": "sightersCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shootId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_shoot_rounds_roundId",
+            "unique": false,
+            "columnNames": [
+              "roundId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shoot_rounds_roundId` ON `${TABLE_NAME}` (`roundId`)"
+          },
+          {
+            "name": "index_shoot_rounds_roundSubTypeId",
+            "unique": false,
+            "columnNames": [
+              "roundSubTypeId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shoot_rounds_roundSubTypeId` ON `${TABLE_NAME}` (`roundSubTypeId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "rounds",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roundId"
+            ],
+            "referencedColumns": [
+              "roundId"
+            ]
+          },
+          {
+            "table": "round_sub_types",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roundId",
+              "roundSubTypeId"
+            ],
+            "referencedColumns": [
+              "roundId",
+              "subTypeId"
+            ]
+          },
+          {
+            "table": "shoots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "shoot_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shootId` INTEGER NOT NULL, `face` INTEGER, `distance` INTEGER, `isDistanceInMeters` INTEGER NOT NULL, `faceSizeInCm` REAL, PRIMARY KEY(`shootId`), FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "face",
+            "columnName": "face",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isDistanceInMeters",
+            "columnName": "isDistanceInMeters",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "faceSizeInCm",
+            "columnName": "faceSizeInCm",
+            "affinity": "REAL",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shootId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "shoots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "arrow_counters",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shootId` INTEGER NOT NULL, `shotCount` INTEGER NOT NULL, PRIMARY KEY(`shootId`), FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shotCount",
+            "columnName": "shotCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shootId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "shoots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "archer_handicaps",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archerHandicapId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `archerId` INTEGER NOT NULL, `bowStyle` INTEGER NOT NULL, `handicapType` INTEGER NOT NULL, `handicap` INTEGER NOT NULL, `dateSet` INTEGER NOT NULL, `shootId` INTEGER, FOREIGN KEY(`archerId`) REFERENCES `archers`(`archerId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "archerHandicapId",
+            "columnName": "archerHandicapId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archerId",
+            "columnName": "archerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bowStyle",
+            "columnName": "bowStyle",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "handicapType",
+            "columnName": "handicapType",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "handicap",
+            "columnName": "handicap",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateSet",
+            "columnName": "dateSet",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "archerHandicapId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_archer_handicaps_archerId",
+            "unique": false,
+            "columnNames": [
+              "archerId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_archer_handicaps_archerId` ON `${TABLE_NAME}` (`archerId`)"
+          },
+          {
+            "name": "index_archer_handicaps_shootId",
+            "unique": false,
+            "columnNames": [
+              "shootId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_archer_handicaps_shootId` ON `${TABLE_NAME}` (`shootId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "archers",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "archerId"
+            ],
+            "referencedColumns": [
+              "archerId"
+            ]
+          },
+          {
+            "table": "shoots",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "head_to_head",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shootId` INTEGER NOT NULL, `isRecurveStyle` INTEGER NOT NULL, `teamSize` INTEGER NOT NULL, `qualificationRank` INTEGER, PRIMARY KEY(`shootId`), FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isRecurveStyle",
+            "columnName": "isRecurveStyle",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "teamSize",
+            "columnName": "teamSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "qualificationRank",
+            "columnName": "qualificationRank",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shootId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "shoots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "head_to_head_heat",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shootId` INTEGER NOT NULL, `heat` INTEGER NOT NULL, `opponent` TEXT, `opponentQualificationRank` INTEGER, `isShootOffWin` INTEGER NOT NULL, `sightersCount` INTEGER NOT NULL, `isBye` INTEGER NOT NULL, PRIMARY KEY(`shootId`, `heat`), FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "heat",
+            "columnName": "heat",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "opponent",
+            "columnName": "opponent",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "opponentQualificationRank",
+            "columnName": "opponentQualificationRank",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isShootOffWin",
+            "columnName": "isShootOffWin",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sightersCount",
+            "columnName": "sightersCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isBye",
+            "columnName": "isBye",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shootId",
+            "heat"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "shoots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "head_to_head_detail",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`headToHeadArrowScoreId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `shootId` INTEGER NOT NULL, `heat` INTEGER NOT NULL, `type` TEXT NOT NULL, `isTotal` INTEGER NOT NULL, `setNumber` INTEGER NOT NULL, `arrowNumber` INTEGER NOT NULL, `score` INTEGER NOT NULL, `isX` INTEGER NOT NULL, FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "headToHeadArrowScoreId",
+            "columnName": "headToHeadArrowScoreId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shootId",
+            "columnName": "shootId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "heat",
+            "columnName": "heat",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isTotal",
+            "columnName": "isTotal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "setNumber",
+            "columnName": "setNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "arrowNumber",
+            "columnName": "arrowNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "score",
+            "columnName": "score",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isX",
+            "columnName": "isX",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "headToHeadArrowScoreId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "shoots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shootId"
+            ],
+            "referencedColumns": [
+              "shootId"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [
+      {
+        "viewName": "shoots_with_score",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT \n                    shoot.*, \n                    arrows.score,\n                    shootRound.roundId,\n                    (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,\n                    counter.shotCount as counterCount,\n                    arrows.shotCount as scoringArrowCount,\n                    roundCount.count as roundCount,\n                    ( \n                        -- Find the latest date earlier than or equal to this one that doesn't join with previous\n                        -- This will be the first round (inclusive) in the sequence\n                        SELECT MAX(dateShot)\n                        FROM shoots\n                        WHERE dateShot <= shoot.dateShot AND NOT joinWithPrevious\n                    ) as joinedDate\n                FROM shoots as shoot\n                LEFT JOIN shoot_rounds as shootRound \n                        ON shootRound.shootId = shoot.shootId\n                LEFT JOIN (\n                    SELECT SUM(arrowCount) as count, roundId\n                    FROM round_arrow_counts\n                    GROUP BY roundId\n                ) as roundCount ON shootRound.roundId = roundCount.roundId\n                LEFT JOIN (\n                    SELECT \n                        COUNT(*) as shotCount, \n                        SUM(score) as score,\n                        shootId\n                    FROM arrow_scores\n                    GROUP BY shootId\n                ) as arrows ON shoot.shootId = arrows.shootId\n                LEFT JOIN (\n                    SELECT shotCount, shootId\n                    FROM arrow_counters\n                    GROUP BY shootId\n                ) as counter ON shoot.shootId = counter.shootId"
+      },
+      {
+        "viewName": "personal_bests",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT\n                    pbs.roundId as roundId,\n                    pbs.roundSubTypeId as roundSubTypeId,\n                    pbs.pbScore as score,\n                    COUNT(*) > 1 as isTiedPb\n                FROM shoots_with_score as shoot\n                LEFT JOIN (\n                    SELECT\n                        roundId,\n                        nonNullSubTypeId as roundSubTypeId,\n                        MAX(score) as pbScore\n                    FROM shoots_with_score\n                    WHERE scoringArrowCount = roundCount AND NOT roundId IS NULL\n                    GROUP BY roundId, roundSubTypeId\n                ) as pbs ON shoot.roundId = pbs.roundId AND shoot.nonNullSubTypeId = pbs.roundSubTypeId\n                WHERE shoot.score = pbs.pbScore\n                GROUP BY pbs.roundId, pbs.roundSubTypeId"
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b0eab5881fa0bbbe592931ed8a91c96a')"
+    ]
+  }
+}

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,6 +21,8 @@ import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -27,6 +30,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
+import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
@@ -52,6 +56,18 @@ fun HeadToHeadScorePadScreen(
             state = state,
             listener = { listener(HeadToHeadScorePadIntent.ShootDetailsAction(it)) },
     )
+
+    val data = state.getData()
+    LaunchedEffect(data?.extras?.openAddHeat) {
+        if (data?.extras?.openAddHeat == true) {
+            CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT.navigate(
+                    navController,
+                    mapOf(NavArgument.SHOOT_ID to viewModel.shootId.toString()),
+                    popCurrentRoute = true,
+            )
+            listener(HeadToHeadScorePadIntent.GoToAddEndHandled)
+        }
+    }
 }
 
 @Composable
@@ -62,20 +78,39 @@ fun HeadToHeadScorePadScreen(
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadScorePadIntent.HelpShowcaseAction(it)) }
 
-    Column(
-            verticalArrangement = Arrangement.spacedBy(50.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                    .background(CodexTheme.colors.appBackground)
-                    .padding(vertical = CodexTheme.dimens.screenPadding)
-    ) {
-        state.entries.forEach { entry ->
+    ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+        if (state.entries.isEmpty()) {
             Column(
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = modifier
+                            .background(CodexTheme.colors.appBackground)
+                            .padding(CodexTheme.dimens.screenPadding)
             ) {
-                ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+                Text(
+                        text = stringResource(R.string.head_to_head_score_pad__no_heats),
+                )
+                CodexButton(
+                        text = stringResource(R.string.head_to_head_score_pad__no_heats_button),
+                        onClick = { listener(HeadToHeadScorePadIntent.GoToAddEnd) }
+                )
+            }
+            return@ProvideTextStyle
+        }
+
+        Column(
+                verticalArrangement = Arrangement.spacedBy(50.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier
+                        .background(CodexTheme.colors.appBackground)
+                        .padding(vertical = CodexTheme.dimens.screenPadding)
+        ) {
+            state.entries.forEach { entry ->
+                Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                ) {
                     DataRow(
                             title = stringResource(R.string.head_to_head_add_heat__heat),
                             text = HeadToHeadUseCase.roundName(entry.heat.heat).get(),
@@ -101,14 +136,25 @@ fun HeadToHeadScorePadScreen(
                                     .align(Alignment.Start)
                                     .padding(horizontal = CodexTheme.dimens.screenPadding)
                     )
+                    if (entry.sets.isEmpty()) {
+                        Text(
+                                text = stringResource(R.string.head_to_head_score_pad__no_sets),
+                                modifier = Modifier
+                                        .padding(horizontal = CodexTheme.dimens.screenPadding)
+                                        .padding(top = 10.dp)
+                        )
+                    }
+                    else {
+                        HeadToHeadGrid(
+                                state = entry.toGridState(),
+                                errorOnIncompleteRows = false,
+                                rowClicked = { _, _ -> },
+                                onTextValueChanged = { _, _ -> },
+                                helpListener = helpListener,
+                                modifier = Modifier.padding(top = 10.dp)
+                        )
+                    }
                 }
-                HeadToHeadGrid(
-                        state = entry.toGridState(),
-                        rowClicked = { _, _ -> },
-                        onTextValueChanged = { _, _ -> },
-                        helpListener = helpListener,
-                        modifier = Modifier.padding(top = 10.dp)
-                )
             }
         }
     }
@@ -131,6 +177,20 @@ fun HeadToHeadScorePadScreen_Preview() {
         HeadToHeadScorePadScreen(
                 HeadToHeadScorePadState(
                         entries = listOf(
+                                FullHeadToHeadHeat(
+                                        heat = DatabaseHeadToHeadHeat(
+                                                heat = 1,
+                                                opponent = "Jessica Summers",
+                                                opponentQualificationRank = 1,
+                                                shootId = 1,
+                                                sightersCount = 0,
+                                                isBye = false,
+                                                isShootOffWin = false,
+                                        ),
+                                        isRecurveMatch = true,
+                                        teamSize = 1,
+                                        sets = listOf(),
+                                ),
                                 FullHeadToHeadHeat(
                                         heat = DatabaseHeadToHeadHeat(
                                                 heat = 1,
@@ -192,5 +252,13 @@ fun HeadToHeadScorePadScreen_Preview() {
                         ),
                 )
         ) {}
+    }
+}
+
+@Preview
+@Composable
+fun Empty_HeadToHeadScorePadScreen_Preview() {
+    CodexTheme {
+        HeadToHeadScorePadScreen(HeadToHeadScorePadState(entries = listOf())) {}
     }
 }

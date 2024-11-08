@@ -43,6 +43,7 @@ import eywa.projectcodex.common.sharedUi.grid.CodexGrid
 import eywa.projectcodex.common.sharedUi.numberField.CodexNumberField
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.model.FullHeadToHeadSet
@@ -53,6 +54,7 @@ fun List<FullHeadToHeadSet>.anyRow(predicate: (HeadToHeadGridRowData) -> Boolean
 @Composable
 fun HeadToHeadGrid(
         state: HeadToHeadGridState,
+        errorOnIncompleteRows: Boolean,
         modifier: Modifier = Modifier,
         rowClicked: (setNumber: Int, type: HeadToHeadArcherType) -> Unit,
         onTextValueChanged: (type: HeadToHeadArcherType, text: String?) -> Unit,
@@ -143,6 +145,8 @@ fun HeadToHeadGrid(
                 }
             }
 
+            val incompleteError =
+                    if (errorOnIncompleteRows) ResOrActual.StringResource(R.string.err__required_field) else null
             set.data.sortedBy { it.type.ordinal }.forEach { row ->
                 val onClick = {
                     rowClicked(setIndex + 1, row.type)
@@ -163,15 +167,13 @@ fun HeadToHeadGrid(
                         // No cell
                     }
                     else if (column == HeadToHeadGridColumn.END_TOTAL && row is HeadToHeadGridRowData.EditableTotal) {
-                        item(
-                                fillBox = true,
-                        ) {
+                        item(fillBox = true) {
                             CodexNumberField(
-                                    contentDescription = "",
+                                    contentDescription = row.type.text.get(),
                                     currentValue = row.text.text,
                                     testTag = HeadToHeadGridTestTag.END_TOTAL_INPUT,
-                                    placeholder = "0",
-                                    errorMessage = row.text.error,
+                                    placeholder = stringResource(R.string.head_to_head_add_end__total_text_placeholder),
+                                    errorMessage = row.text.error ?: incompleteError?.takeIf { !row.isComplete },
                                     onValueChanged = { onTextValueChanged(row.type, it) },
                                     colors = CodexTextField.transparentOutlinedTextFieldColors(
                                             focussedColor = CodexColors.COLOR_PRIMARY_DARK,
@@ -203,6 +205,7 @@ fun HeadToHeadGrid(
                             val backgroundShape = if (isSelectable) selectedShape else RectangleShape
                             val borderColor =
                                     if (isSelected) CodexColors.COLOR_PRIMARY_DARK
+                                    else if (isSelectable && incompleteError != null) CodexTheme.colors.errorOnAppBackground
                                     else if (isSelectable) CodexColors.COLOR_ON_PRIMARY_LIGHT
                                     else CodexTheme.colors.listItemOnAppBackground
 
@@ -285,7 +288,7 @@ fun HeadToHeadGrid(
                 Text(
                         text = stringResource(
                                 R.string.head_to_head_add_end__final_result,
-                                state.finalResult,
+                                state.finalResult.title.get(),
                         ),
                         style = CodexTypography.NORMAL_PLUS,
                         color = CodexTheme.colors.onListItemAppOnBackground,
@@ -345,6 +348,7 @@ fun Input_HeadToHeadGrid_Preview() {
                         runningTotals = null,
                         finalResult = null,
                 ),
+                errorOnIncompleteRows = false,
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
                 helpListener = {},
@@ -385,6 +389,7 @@ fun InputTeam_HeadToHeadGrid_Preview() {
                         runningTotals = null,
                         finalResult = null,
                 ),
+                errorOnIncompleteRows = false,
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
                 helpListener = {},
@@ -431,6 +436,39 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                         runningTotals = listOf(2 to 0, 4 to 0, 5 to 0),
                         finalResult = HeadToHeadResult.WIN,
                 ),
+                errorOnIncompleteRows = false,
+                rowClicked = { _, _ -> },
+                onTextValueChanged = { _, _ -> },
+                helpListener = {},
+                modifier = Modifier.padding(vertical = 20.dp)
+        )
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun Error_HeadToHeadGrid_Preview() {
+    CodexTheme {
+        HeadToHeadGrid(
+                state = HeadToHeadGridState(
+                        enteredArrows = listOf(
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.createEmptyRows(isEditable = true),
+                                        teamSize = 1,
+                                        isShootOff = false,
+                                        isShootOffWin = false,
+                                        setNumber = 1,
+                                )
+                        ),
+                        selected = null,
+                        isSingleEditableSet = true,
+                        runningTotals = null,
+                        finalResult = null,
+                ),
+                errorOnIncompleteRows = true,
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
                 helpListener = {},

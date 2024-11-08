@@ -2,10 +2,12 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd
 
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
+import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 
 sealed class HeadToHeadAddEndIntent {
+    data class ArrowInputsErrorHandled(val error: ArrowInputsError) : HeadToHeadAddEndIntent()
     data object OpenAddHeatScreenHandled : HeadToHeadAddEndIntent()
     data object SubmitClicked : HeadToHeadAddEndIntent()
     data object SightersClicked : HeadToHeadAddEndIntent()

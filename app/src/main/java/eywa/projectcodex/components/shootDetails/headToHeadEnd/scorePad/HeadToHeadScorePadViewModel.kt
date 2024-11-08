@@ -12,8 +12,10 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsError
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.database.ScoresRoomDatabase
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,9 +26,13 @@ class HeadToHeadScorePadViewModel @Inject constructor(
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
     private val screen = CodexNavRoute.HEAD_TO_HEAD_SCORE_PAD
+    private val extraState = MutableStateFlow(HeadToHeadScorePadExtras())
 
-    val state = repo.getState {
-        HeadToHeadScorePadState(it.fullShootInfo!!.h2h?.heats ?: throw ShootDetailsError())
+    val state = repo.getState(extraState) { main, extras ->
+        HeadToHeadScorePadState(
+                entries = main.fullShootInfo!!.h2h?.heats ?: throw ShootDetailsError(),
+                extras = extras,
+        )
     }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
@@ -34,12 +40,14 @@ class HeadToHeadScorePadViewModel @Inject constructor(
     )
 
     private val h2hRepo = db.h2hRepo()
-    private val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
+    val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
 
     fun handle(action: HeadToHeadScorePadIntent) {
         when (action) {
             is HeadToHeadScorePadIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
             is HeadToHeadScorePadIntent.ShootDetailsAction -> repo.handle(action.action, screen)
+            HeadToHeadScorePadIntent.GoToAddEnd -> extraState.update { it.copy(openAddHeat = true) }
+            HeadToHeadScorePadIntent.GoToAddEndHandled -> extraState.update { it.copy(openAddHeat = false) }
         }
     }
 }

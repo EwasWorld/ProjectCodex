@@ -18,14 +18,14 @@ enum class HeadToHeadGridColumn {
 
     TYPE {
         override val primaryTitle: ResOrActual<String>
-            get() = ResOrActual.Actual("Archer")
+            get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_type)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
             get() = { data, _ -> data.type.text }
     },
 
     ARROWS {
         override val primaryTitle: ResOrActual<String>
-            get() = ResOrActual.Actual("Arrows")
+            get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_arrows)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
             get() = { data, _ ->
                 if (data is HeadToHeadGridRowData.Arrows) {
@@ -46,14 +46,14 @@ enum class HeadToHeadGridColumn {
 
     END_TOTAL {
         override val primaryTitle: ResOrActual<String>
-            get() = ResOrActual.Actual("S")
+            get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_end_total)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
             get() = { data, _ -> ResOrActual.Actual(data.totalScore.toString()) }
     },
 
     TEAM_TOTAL {
         override val primaryTitle: ResOrActual<String>
-            get() = ResOrActual.Actual("T")
+            get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_team_total)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
             get() = { data, extra ->
                 when (data.type) {
@@ -70,7 +70,7 @@ enum class HeadToHeadGridColumn {
 
     POINTS {
         override val primaryTitle: ResOrActual<String>
-            get() = ResOrActual.Actual("P")
+            get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_points)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
             get() = { data, extra ->
                 if (extra.result == HeadToHeadResult.INCOMPLETE) {

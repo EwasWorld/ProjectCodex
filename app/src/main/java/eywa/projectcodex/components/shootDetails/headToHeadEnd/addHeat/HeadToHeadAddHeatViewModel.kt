@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HeadToHeadAddHeatViewModel @Inject constructor(
-        private val db: ScoresRoomDatabase,
+        db: ScoresRoomDatabase,
         private val repo: ShootDetailsRepo,
         savedStateHandle: SavedStateHandle,
         private val helpShowcaseUseCase: HelpShowcaseUseCase,
