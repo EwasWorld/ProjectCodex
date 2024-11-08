@@ -78,7 +78,7 @@ interface ScoresRoomDatabase {
         views = [
             ShootWithScore::class, PersonalBest::class,
         ],
-        version = 12,
+        version = 13,
         autoMigrations = [
             AutoMigration(from = 5, to = 6),
             AutoMigration(from = 6, to = 7),
@@ -86,6 +86,7 @@ interface ScoresRoomDatabase {
             AutoMigration(from = 8, to = 9, spec = DatabaseMigrations.Migration8To9::class),
             AutoMigration(from = 9, to = 10, spec = DatabaseMigrations.Migration9To10::class),
             AutoMigration(from = 11, to = 12),
+            AutoMigration(from = 12, to = 13),
         ],
         exportSchema = true, // Needs a schema location in the build.gradle too to export!
 )
