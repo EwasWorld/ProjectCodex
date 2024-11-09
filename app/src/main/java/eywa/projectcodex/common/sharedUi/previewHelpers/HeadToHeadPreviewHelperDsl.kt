@@ -24,6 +24,8 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
                 teamSize = headToHead.teamSize,
                 isRecurveStyle = headToHead.isRecurveStyle,
         ).apply(config).asFull()
+
+        require(heats.distinctBy { it.heat.heat }.size == heats.size) { "Duplicate heat" }
     }
 
     fun asFull() = FullHeadToHead(headToHead = headToHead, heats = heats)
@@ -47,11 +49,13 @@ class HeadToHeadHeatPreviewHelperDsl(
     private var sets = listOf<FullHeadToHeadSet>()
 
     fun addSet(config: HeadToHeadSetPreviewHelperDsl.() -> Unit) {
-        sets = sets + HeadToHeadSetPreviewHelperDsl(
+        val set = HeadToHeadSetPreviewHelperDsl(
                 setNumber = sets.size + 1,
                 teamSize = teamSize,
                 isShootOffWin = heat.isShootOffWin,
         ).apply(config).asFull()
+        require(!set.isShootOff || (set.result == HeadToHeadResult.WIN) == heat.isShootOffWin) { "isShootOffWin mismatch" }
+        sets = sets + set
     }
 
     fun asFull() =
@@ -83,6 +87,8 @@ class HeadToHeadSetPreviewHelperDsl(
             loserScore: Int,
             selfScore: Int,
     ) {
+        require(result != HeadToHeadResult.INCOMPLETE) { "Cannot have an incomplete set" }
+
         HeadToHeadGridRowDataPreviewHelper.create(
                 teamSize = teamSize,
                 isShootOff = isShootOff,

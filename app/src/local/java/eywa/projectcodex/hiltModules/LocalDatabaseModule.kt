@@ -31,6 +31,7 @@ import kotlin.jvm.optionals.getOrNull
 class LocalDatabaseModule {
     companion object {
         var scoresRoomDatabase: ScoresRoomDatabaseImpl? = null
+        private var headToHeadArrowScoreId: Int = 1
 
         fun createScoresRoomDatabase(context: Context, addFakeData: suspend () -> Unit) {
             scoresRoomDatabase = Room
@@ -87,14 +88,9 @@ class LocalDatabaseModule {
             h2hInfo.heats.forEach { heat ->
                 h2hRepo().insert(heat.heat)
 
-                heat.sets.flatMap { set ->
-                    HeadToHeadAddEndState(
-                            extras = HeadToHeadAddEndExtras(set = set),
-                            heat = heat.heat,
-                    ).toDbDetails()
-                }.forEachIndexed { index, detail ->
-                    h2hRepo().insert(detail.copy(headToHeadArrowScoreId = index + 1))
-                }
+                heat.sets.flatMap {
+                    HeadToHeadAddEndState(extras = HeadToHeadAddEndExtras(set = it), heat = heat.heat).toDbDetails()
+                }.forEach { h2hRepo().insert(it.copy(headToHeadArrowScoreId = headToHeadArrowScoreId++)) }
             }
         }
     }

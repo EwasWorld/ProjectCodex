@@ -160,7 +160,11 @@ interface ShootDao {
             """
                 SELECT
                         strftime("%d-%m", shoot.dateShot / 1000, 'unixepoch') as dateString,
-                        (TOTAL(scores.count) + TOTAL(counts.shotCount) + TOTAL(rounds.sightersCount) + TOTAL(h2hHeats.sightersCount) + TOTAL(h2hDetails.count)) as count
+                        (TOTAL(scores.count) 
+                            + TOTAL(counts.shotCount)
+                            + TOTAL(rounds.sightersCount) 
+                            + TOTAL(h2hHeats.count)
+                            + TOTAL(h2hDetails.count)) as count
                 FROM $TABLE_NAME as shoot
                 LEFT JOIN (
                     SELECT s.shootId, COUNT(s.rowId) as count
@@ -178,24 +182,26 @@ interface ShootDao {
                     GROUP BY r.shootId
                 ) as rounds ON shoot.shootId = rounds.shootId
                 LEFT JOIN (
-                    SELECT h.shootId, h.sightersCount 
+                    SELECT h.shootId, SUM(h.sightersCount) as count
                     FROM ${DatabaseHeadToHeadHeat.TABLE_NAME} as h
                     GROUP BY h.shootId
                 ) as h2hHeats ON shoot.shootId = h2hHeats.shootId
                 LEFT JOIN (
-                    -- Assumes all sets are complete
-                    SELECT 
-                        d.shootId,
-                        COUNT(d.rowId) as setCount,
-                        CASE
-                            WHEN i.teamSize = 1 AND MAX(d.setNumber) = 6 THEN 16 -- 5 sets of 3 arrows + 1 shoot off arrow
-                            WHEN i.teamSize = 1 THEN MAX(d.setNumber) * 3 -- X sets of 3 arrows
-                            WHEN MAX(d.setNumber) = 5 THEN 11 -- 5 sets of 2 arrows + 1 shoot off arrow
-                            ELSE MAX(d.setNumber) * 2 -- X sets of 2 arrows
-                        END as count
-                    FROM ${DatabaseHeadToHeadDetail.TABLE_NAME} as d
-                    LEFT JOIN ${DatabaseHeadToHead.TABLE_NAME} as i ON i.shootId = i.shootId
-                    GROUP BY d.shootId, d.heat
+                    SELECT x.shootId, SUM(x.count) as count
+                    FROM (
+                        SELECT 
+                            d.shootId,
+                            -- Assumes all sets are complete
+                            CASE
+                                WHEN i.teamSize = 1 AND MAX(d.setNumber) = 6 THEN 16 -- 5 sets of 3 arrows + 1 shoot off arrow
+                                WHEN i.teamSize = 1 THEN MAX(d.setNumber) * 3 -- X sets of 3 arrows
+                                WHEN MAX(d.setNumber) = 5 THEN 11 -- 5 sets of 2 arrows + 1 shoot off arrow
+                                ELSE MAX(d.setNumber) * 2 -- X sets of 2 arrows
+                            END as count
+                        FROM ${DatabaseHeadToHeadDetail.TABLE_NAME} as d
+                        LEFT JOIN ${DatabaseHeadToHead.TABLE_NAME} as i ON i.shootId = i.shootId
+                        GROUP BY d.shootId, d.heat
+                    ) as x
                 ) as h2hDetails ON shoot.shootId = h2hDetails.shootId
                 WHERE shoot.dateShot >= :fromDate AND shoot.dateShot <= :toDate
                 GROUP BY dateString
