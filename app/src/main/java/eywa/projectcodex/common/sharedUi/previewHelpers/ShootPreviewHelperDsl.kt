@@ -138,7 +138,7 @@ class ShootPreviewHelperDsl {
                 )
             }
 
-    fun asDatabaseFullShootInfo() = DatabaseFullShootInfo(
+    private fun asDatabaseFullShootInfo() = DatabaseFullShootInfo(
             shoot = shoot,
             round = round?.round,
             roundArrowCounts = round?.roundArrowCounts,
@@ -152,14 +152,9 @@ class ShootPreviewHelperDsl {
             shootDetail = asDatabaseShootDetail(),
             arrowCounter = counter,
             bow = ClassificationBow.RECURVE,
-            headToHead = h2h?.headToHead,
-            headToHeadHeats = h2h?.heats?.map { it.heat },
-            headToHeadDetails = h2h?.heats?.flatMap { heat ->
-                heat.sets.flatMap { it.asDatabaseDetails(heat = heat.heat.heat, shootId = heat.heat.shootId) }
-            },
     )
 
-    fun asFullShootInfo() = FullShootInfo(asDatabaseFullShootInfo(), use2023HandicapSystem)
+    fun asFullShootInfo() = FullShootInfo(asDatabaseFullShootInfo(), use2023HandicapSystem).copy(h2h = h2h)
 
     companion object {
         fun create(config: ShootPreviewHelperDsl.() -> Unit) =

@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.shootData.DatabaseArrowCountCalendarData
@@ -362,10 +363,7 @@ class ShootsTest {
 
         List(12) {
             ShootPreviewHelperDsl.create {
-                shoot = shoot.copy(
-                        shootId = 1 + it,
-                        dateShot = "${5 + it}/3/20 10:00".parseDate(),
-                )
+                shoot = shoot.copy(shootId = 1 + it, dateShot = "${5 + it}/3/20 10:00".parseDate())
                 if (it < 6) {
                     addIdenticalArrows(3, 1)
                 }
@@ -377,26 +375,17 @@ class ShootsTest {
 
         listOf(
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(
-                            shootId = 13,
-                            dateShot = "8/3/20 10:00".parseDate(),
-                    )
+                    shoot = shoot.copy(shootId = 13, dateShot = "8/3/20 10:00".parseDate())
                     addArrowCounter(24)
                     addRound(TestUtils.ROUNDS[0], 6)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(
-                            shootId = 14,
-                            dateShot = "9/3/20 10:00".parseDate(),
-                    )
+                    shoot = shoot.copy(shootId = 14, dateShot = "9/3/20 10:00".parseDate())
                     addIdenticalArrows(24, 1)
                     addRound(TestUtils.ROUNDS[0], 6)
                 },
                 ShootPreviewHelperDsl.create {
-                    shoot = shoot.copy(
-                            shootId = 15,
-                            dateShot = "8/3/20 10:00".parseDate(),
-                    )
+                    shoot = shoot.copy(shootId = 15, dateShot = "8/3/20 10:00".parseDate())
                     addH2h {
                         addHeat {
                             addSet {
@@ -422,6 +411,134 @@ class ShootsTest {
                 ),
                 db.shootDao().getCountsForCalendar(
                         fromDate = "7/3/20 02:00".parseDate(),
+                        toDate = "13/3/20 13:00".parseDate(),
+                ).first()
+        )
+    }
+
+    @Test
+    fun testGetCountsForCalendar_DaoAllTypes() = runTest {
+        db.add(TestUtils.ROUNDS[0])
+
+        listOf(
+                // Empty shoot
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = "2/3/20 10:00".parseDate())
+                },
+                // Scoring
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = "3/3/20 10:00".parseDate())
+                    addIdenticalArrows(24, 1)
+                    addRound(TestUtils.ROUNDS[0], 0)
+                },
+                // Scoring with sighters
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3, dateShot = "4/3/20 10:00".parseDate())
+                    addIdenticalArrows(24, 1)
+                    addRound(TestUtils.ROUNDS[0], 6)
+                },
+                // Counter
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4, dateShot = "5/3/20 10:00".parseDate())
+                    addArrowCounter(24)
+                    addRound(TestUtils.ROUNDS[0], 0)
+                },
+                // Counter with sighters
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 5, dateShot = "6/3/20 10:00".parseDate())
+                    addArrowCounter(24)
+                    addRound(TestUtils.ROUNDS[0], 6)
+                },
+                // H2h with empty heat
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 6, dateShot = "7/3/20 10:00".parseDate())
+                    addH2h {
+                        addHeat {}
+                    }
+                },
+                // Full 6-0 and 6-5 h2h with heat with sighters
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 7, dateShot = "8/3/20 10:00".parseDate())
+                    addH2h {
+                        addHeat {
+                            heat = heat.copy(heat = 1, sightersCount = 4)
+                            addSet {
+                                addRows(winnerScore = 30, loserScore = 29, selfScore = 30)
+                            }
+                            addSet {
+                                addRows(winnerScore = 30, loserScore = 29, selfScore = 30)
+                            }
+                            addSet {
+                                addRows(winnerScore = 30, loserScore = 29, selfScore = 30)
+                            }
+                        }
+                        addHeat {
+                            heat = heat.copy(heat = 0, sightersCount = 0, isShootOffWin = true)
+                            addSet {
+                                addRows(
+                                        winnerScore = 30,
+                                        loserScore = 29,
+                                        selfScore = 30,
+                                        result = HeadToHeadResult.WIN,
+                                )
+                            }
+                            addSet {
+                                addRows(
+                                        winnerScore = 30,
+                                        loserScore = 29,
+                                        selfScore = 29,
+                                        result = HeadToHeadResult.LOSS,
+                                )
+                            }
+                            addSet {
+                                addRows(
+                                        winnerScore = 30,
+                                        loserScore = 29,
+                                        selfScore = 29,
+                                        result = HeadToHeadResult.LOSS,
+                                )
+                            }
+                            addSet {
+                                addRows(
+                                        winnerScore = 30,
+                                        loserScore = 29,
+                                        selfScore = 30,
+                                        result = HeadToHeadResult.WIN,
+                                )
+                            }
+                            addSet {
+                                addRows(
+                                        winnerScore = 30,
+                                        loserScore = 29,
+                                        selfScore = 30,
+                                        result = HeadToHeadResult.TIE,
+                                )
+                            }
+                            addSet {
+                                addRows(
+                                        winnerScore = 10,
+                                        loserScore = 9,
+                                        selfScore = 10,
+                                        result = HeadToHeadResult.WIN,
+                                )
+                            }
+                        }
+                    }
+                },
+        ).forEach { db.add(it) }
+
+        assertEquals(
+                listOf(
+                        DatabaseArrowCountCalendarData("02-03", 0),
+                        DatabaseArrowCountCalendarData("03-03", 24),
+                        DatabaseArrowCountCalendarData("04-03", 30),
+                        DatabaseArrowCountCalendarData("05-03", 24),
+                        DatabaseArrowCountCalendarData("06-03", 30),
+                        DatabaseArrowCountCalendarData("07-03", 0),
+                        DatabaseArrowCountCalendarData("08-03", 29),
+                ),
+                db.shootDao().getCountsForCalendar(
+                        fromDate = "1/3/20 02:00".parseDate(),
                         toDate = "13/3/20 13:00".parseDate(),
                 ).first()
         )
