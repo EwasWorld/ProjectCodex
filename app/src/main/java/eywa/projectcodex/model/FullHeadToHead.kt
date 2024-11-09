@@ -132,6 +132,7 @@ data class FullHeadToHeadHeat(
     }
 
     fun heatResult(): HeadToHeadResult {
+        if (heat.isBye) return HeadToHeadResult.WIN
         if (results.lastOrNull() == null) return HeadToHeadResult.INCOMPLETE
 
         /*

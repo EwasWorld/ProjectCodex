@@ -21,6 +21,7 @@ import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddHeatRobot
 import java.util.Calendar
 
 class NewScoreRobot(
@@ -87,21 +88,31 @@ class NewScoreRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
-    fun checkType(isScoring: Boolean = true) {
-        val expected = if (isScoring) "Score" else "Count"
-        perform {
+    fun checkType(expectedType: Type) {
+        performV2Single {
             matchDataRowValue(NewScoreTestTag.TYPE_SWITCH)
-            +CodexNodeInteraction.AssertTextEquals(expected)
+            +CodexNodeInteraction.AssertTextEquals(expectedType.text)
         }
     }
 
-    fun clickType(becomesIsScoring: Boolean = true) {
-        val expected = if (becomesIsScoring) "Score" else "Count"
-        perform {
+    fun clickType(expectedType: Type) {
+        performV2Single {
             matchDataRowValue(NewScoreTestTag.TYPE_SWITCH)
             +CodexNodeInteraction.PerformClick()
-            +CodexNodeInteraction.AssertTextEquals(expected)
+            +CodexNodeInteraction.AssertTextEquals(expectedType.text)
         }
+    }
+
+    fun checkIsSetPoints(isSetPoints: Boolean) {
+        TODO()
+    }
+
+    fun clickSetPoints(isSetPoints: Boolean) {
+        TODO("Click and check")
+    }
+
+    fun setHeadToHeadFields(teamSize: Int, qualiRank: Int) {
+        TODO()
     }
 
     fun clickSubmitNewScore(block: AddEndRobot.() -> Unit = {}) {
@@ -112,6 +123,11 @@ class NewScoreRobot(
     fun clickSubmitNewScoreCount(block: AddCountRobot.() -> Unit = {}) {
         clickElement(NewScoreTestTag.SUBMIT_BUTTON)
         createRobot(AddCountRobot::class, block)
+    }
+
+    fun clickSubmitNewScoreHeadToHead(block: HeadToHeadAddHeatRobot.() -> Unit = {}) {
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
+        createRobot(HeadToHeadAddHeatRobot::class, block)
     }
 
     fun clickSubmitEditScore() {
@@ -134,5 +150,11 @@ class NewScoreRobot(
 
     fun clickCancel() {
         clickElement(NewScoreTestTag.CANCEL_BUTTON)
+    }
+
+    enum class Type(val text: String) {
+        SCORE("Score"),
+        COUNT("Count"),
+        HEAD_TO_HEAD("Head to head"),
     }
 }

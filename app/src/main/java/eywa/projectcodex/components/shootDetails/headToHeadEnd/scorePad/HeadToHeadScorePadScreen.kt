@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -138,13 +139,20 @@ fun HeadToHeadScorePadScreen(
                     )
                     if (entry.sets.isEmpty()) {
                         Text(
-                                text = stringResource(R.string.head_to_head_score_pad__no_sets),
+                                text = stringResource(
+                                        if (entry.heat.isBye) R.string.head_to_head_score_pad__is_bye
+                                        else R.string.head_to_head_score_pad__no_sets
+                                ),
+                                style = CodexTypography.NORMAL_PLUS,
+                                color = CodexTheme.colors.onAppBackground,
+                                fontStyle = FontStyle.Italic,
                                 modifier = Modifier
                                         .padding(horizontal = CodexTheme.dimens.screenPadding)
                                         .padding(top = 10.dp)
                         )
                     }
                     else {
+                        check(!entry.heat.isBye) { "Cannot have entries and be a bye" }
                         HeadToHeadGrid(
                                 state = entry.toGridState(),
                                 errorOnIncompleteRows = false,
@@ -170,7 +178,9 @@ enum class HeadToHeadScorePadTestTag : CodexTestTag {
     override fun getElement(): String = name
 }
 
-@Preview
+@Preview(
+        heightDp = 1050
+)
 @Composable
 fun HeadToHeadScorePadScreen_Preview() {
     CodexTheme {

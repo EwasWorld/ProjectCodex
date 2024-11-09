@@ -3,12 +3,14 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
@@ -176,7 +178,9 @@ fun HeadToHeadAddHeatScreen(
                 shape = RoundedCornerShape(CodexTheme.dimens.cornerRounding),
                 border = BorderStroke(1.dp, CodexTheme.colors.listItemOnAppBackground),
                 color = CodexTheme.colors.appBackground,
-                modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
+                modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = CodexTheme.dimens.screenPadding)
         ) {
             HeadToHeadAddHeatContent(
                     state = state,
@@ -244,7 +248,7 @@ fun HeadToHeadAddHeatContent(
                             style = LocalTextStyle.current
                                     .asClickableStyle()
                                     .copy(
-                                            color = if (state.extras.showHeatRequiredError) CodexTheme.colors.warningOnAppBackground
+                                            color = if (state.extras.showHeatRequiredError) CodexTheme.colors.errorOnAppBackground
                                             else CodexTheme.colors.linkText,
                                     ),
                             textAlign = TextAlign.Center,
@@ -261,7 +265,7 @@ fun HeadToHeadAddHeatContent(
                         Icon(
                                 imageVector = Icons.Default.WarningAmber,
                                 contentDescription = null,
-                                tint = CodexTheme.colors.warningOnAppBackground,
+                                tint = CodexTheme.colors.errorOnAppBackground,
                         )
                     }
                 }
@@ -362,7 +366,22 @@ fun Bye_HeadToHeadAddHeatScreen_Preview() {
                 state = HeadToHeadAddHeatState(
                         extras = HeadToHeadAddHeatExtras(isBye = true, showHeatRequiredError = true),
                 ),
-                modifier = Modifier.padding(10.dp)
+        ) {}
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+        widthDp = 350,
+)
+@Composable
+fun Short_HeadToHeadAddHeatScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddHeatScreen(
+                state = HeadToHeadAddHeatState(
+                        extras = HeadToHeadAddHeatExtras(isBye = true, showHeatRequiredError = true),
+                ),
         ) {}
     }
 }

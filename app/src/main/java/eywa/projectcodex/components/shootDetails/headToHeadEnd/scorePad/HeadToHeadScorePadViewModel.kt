@@ -30,7 +30,8 @@ class HeadToHeadScorePadViewModel @Inject constructor(
 
     val state = repo.getState(extraState) { main, extras ->
         HeadToHeadScorePadState(
-                entries = main.fullShootInfo!!.h2h?.heats ?: throw ShootDetailsError(),
+                entries = main.fullShootInfo!!.h2h?.heats?.sortedByDescending { it.heat.heat }
+                        ?: throw ShootDetailsError(),
                 extras = extras,
         )
     }.stateIn(

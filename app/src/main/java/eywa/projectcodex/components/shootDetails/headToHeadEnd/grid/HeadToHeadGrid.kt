@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -86,25 +87,203 @@ fun HeadToHeadGrid(
             },
     )
 
-    CodexGrid(
-            columns = columnMetadata.size,
-            alignment = Alignment.Center,
-            verticalSpacing = 4.dp,
-            horizontalSpacing = 4.dp,
-            modifier = modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = CodexTheme.dimens.screenPadding)
-    ) {
-        columnMetadata.forEach {
-            item(fillBox = true) {
-                if (it.primaryTitle == null) {
-                    Box {}
+    val style = if (state.isSingleEditableSet) CodexTypography.NORMAL_PLUS else CodexTypography.NORMAL
+    ProvideTextStyle(style.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
+        CodexGrid(
+                columns = columnMetadata.size,
+                alignment = Alignment.Center,
+                verticalSpacing = 4.dp,
+                horizontalSpacing = 4.dp,
+                modifier = modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = CodexTheme.dimens.screenPadding)
+        ) {
+            columnMetadata.forEach {
+                item(fillBox = true) {
+                    if (it.primaryTitle == null) {
+                        Box {}
+                    }
+                    else {
+                        Text(
+                                text = it.primaryTitle!!.get(),
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
+                                        .padding(vertical = 5.dp, horizontal = 10.dp)
+                                        .wrapContentHeight(Alignment.CenterVertically)
+                        )
+                    }
                 }
-                else {
+            }
+
+            val selectedShape = RoundedCornerShape(10.dp)
+            state.enteredArrows.forEachIndexed { setIndex, set ->
+                val extraData = HeadToHeadSetData(
+                        isShootOff = set.isShootOff,
+                        teamEndTotal = set.teamSetScore ?: 0,
+                        opponentEndTotal = set.opponentSetScore ?: 0,
+                        hasSelfAndTeamRows = set.showExtraColumnTotal(),
+                        result = set.result,
+                )
+
+                if (!state.isSingleEditableSet) {
+                    item(
+                            fillBox = true,
+                            // + 1 for total row
+                            verticalSpan = set.data.size + 1,
+                    ) {
+                        Text(
+                                text = (setIndex + 1).toString(),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
+                                        .padding(vertical = 5.dp, horizontal = 10.dp)
+                                        .wrapContentHeight(Alignment.CenterVertically)
+                        )
+                    }
+                }
+
+                val incompleteError =
+                        if (errorOnIncompleteRows) ResOrActual.StringResource(R.string.err__required_field) else null
+                set.data.sortedBy { it.type.ordinal }.forEach { row ->
+                    val onClick = {
+                        rowClicked(setIndex + 1, row.type)
+                        focusRequesters?.get(row.type)?.requestFocus()
+                        Unit
+                    }
+
+                    columnMetadata.forEach { column ->
+                        val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
+                        val value = column.mapping(row, extraData)?.get(resources)
+                        val isSelectable = state.isSingleEditableSet && (
+                                (row.isTotalRow && column == HeadToHeadGridColumn.END_TOTAL)
+                                        || (!row.isTotalRow && column == HeadToHeadGridColumn.ARROWS)
+                                )
+                        val isSelected = isSelectable && row.type == state.selected
+
+                        if (value == null) {
+                            // No cell
+                        }
+                        else if (column == HeadToHeadGridColumn.END_TOTAL && row is HeadToHeadGridRowData.EditableTotal) {
+                            item(fillBox = true) {
+                                CodexNumberField(
+                                        contentDescription = row.type.text.get(),
+                                        currentValue = row.text.text,
+                                        testTag = HeadToHeadGridTestTag.END_TOTAL_INPUT,
+                                        placeholder = stringResource(R.string.head_to_head_add_end__total_text_placeholder),
+                                        errorMessage = row.text.error ?: incompleteError?.takeIf { !row.isComplete },
+                                        onValueChanged = { onTextValueChanged(row.type, it) },
+                                        colors = CodexTextField.transparentOutlinedTextFieldColors(
+                                                focussedColor = CodexColors.COLOR_PRIMARY_DARK,
+                                                unfocussedColor = CodexColors.COLOR_ON_PRIMARY_LIGHT,
+                                                backgroundColor = (
+                                                        if (isSelected) Color.White
+                                                        else CodexTheme.colors.listAccentRowItemOnAppBackground
+                                                        ),
+                                        ),
+                                        modifier = Modifier
+                                                .modifierIfNotNull(focusRequesters?.get(row.type)) {
+                                                    Modifier.focusRequester(it)
+                                                }
+                                                .onFocusChanged {
+                                                    if (it.hasFocus) rowClicked(set.setNumber, row.type)
+                                                }
+                                )
+                            }
+                        }
+                        else {
+                            item(
+                                    fillBox = true,
+                                    verticalSpan = column.cellVerticalSpan(row, extraData),
+                            ) {
+                                val background =
+                                        if (isSelected) Color.White
+                                        else if (isSelectable) CodexTheme.colors.listAccentRowItemOnAppBackground
+                                        else CodexTheme.colors.listItemOnAppBackground
+                                val backgroundShape = if (isSelectable) selectedShape else RectangleShape
+                                val borderColor =
+                                        if (isSelected) CodexColors.COLOR_PRIMARY_DARK
+                                        else if (isSelectable && incompleteError != null) CodexTheme.colors.errorOnAppBackground
+                                        else if (isSelectable) CodexColors.COLOR_ON_PRIMARY_LIGHT
+                                        else CodexTheme.colors.listItemOnAppBackground
+
+                                val horizontalPadding = if (column == HeadToHeadGridColumn.TYPE) 8.dp else 15.dp
+
+                                Text(
+                                        text = value,
+                                        textAlign = TextAlign.Center,
+                                        modifier = cellModifier
+                                                .modifierIf(
+                                                        isSelectable,
+                                                        Modifier.border(2.dp, borderColor, selectedShape),
+                                                )
+                                                .background(background, backgroundShape)
+                                                .padding(horizontal = horizontalPadding, vertical = 3.dp)
+                                                .wrapContentHeight(Alignment.CenterVertically)
+                                                .clickable(onClick = onClick)
+                                                .semantics {
+                                                    column
+                                                            .cellContentDescription(row, extraData)
+                                                            ?.get(resources)
+                                                            ?.let {
+                                                                contentDescription = it
+                                                            }
+                                                }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (!state.isSingleEditableSet) {
+                    item(
+                            fillBox = true,
+                            // Ignore set number column
+                            horizontalSpan = columnMetadata.size - 1,
+                    ) {
+                        Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
+                                        .wrapContentHeight(Alignment.CenterVertically)
+                        ) {
+                            Text(
+                                    text = stringResource(
+                                            R.string.head_to_head_add_end__set_result,
+                                            extraData.result.title.get(),
+                                    ),
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
+                            )
+                            val runningTotals = state.runningTotals?.getOrNull(setIndex)?.let {
+                                stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
+                            }
+                            Text(
+                                    text = stringResource(
+                                            R.string.head_to_head_add_end__running_total,
+                                            runningTotals
+                                                    ?: stringResource(R.string.score_pad__running_total_placeholder),
+                                    ),
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (!state.isSingleEditableSet && state.finalResult != null) {
+                item(
+                        fillBox = true,
+                        horizontalSpan = columnMetadata.size,
+                ) {
                     Text(
-                            text = it.primaryTitle!!.get(),
-                            style = CodexTypography.NORMAL_PLUS,
-                            color = CodexTheme.colors.onListItemAppOnBackground,
+                            text = stringResource(
+                                    R.string.head_to_head_add_end__final_result,
+                                    state.finalResult.title.get(),
+                            ),
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -113,192 +292,6 @@ fun HeadToHeadGrid(
                                     .wrapContentHeight(Alignment.CenterVertically)
                     )
                 }
-            }
-        }
-
-        val selectedShape = RoundedCornerShape(10.dp)
-        state.enteredArrows.forEachIndexed { setIndex, set ->
-            val extraData = HeadToHeadSetData(
-                    isShootOff = set.isShootOff,
-                    teamEndTotal = set.teamSetScore ?: 0,
-                    opponentEndTotal = set.opponentSetScore ?: 0,
-                    hasSelfAndTeamRows = set.showExtraColumnTotal(),
-                    result = set.result,
-            )
-
-            if (!state.isSingleEditableSet) {
-                item(
-                        fillBox = true,
-                        // + 1 for total row
-                        verticalSpan = set.data.size + 1,
-                ) {
-                    Text(
-                            text = (setIndex + 1).toString(),
-                            style = CodexTypography.NORMAL_PLUS,
-                            color = CodexTheme.colors.onListItemAppOnBackground,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                    .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                                    .padding(vertical = 5.dp, horizontal = 10.dp)
-                                    .wrapContentHeight(Alignment.CenterVertically)
-                    )
-                }
-            }
-
-            val incompleteError =
-                    if (errorOnIncompleteRows) ResOrActual.StringResource(R.string.err__required_field) else null
-            set.data.sortedBy { it.type.ordinal }.forEach { row ->
-                val onClick = {
-                    rowClicked(setIndex + 1, row.type)
-                    focusRequesters?.get(row.type)?.requestFocus()
-                    Unit
-                }
-
-                columnMetadata.forEach { column ->
-                    val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
-                    val value = column.mapping(row, extraData)?.get(resources)
-                    val isSelectable = state.isSingleEditableSet && (
-                            (row.isTotalRow && column == HeadToHeadGridColumn.END_TOTAL)
-                                    || (!row.isTotalRow && column == HeadToHeadGridColumn.ARROWS)
-                            )
-                    val isSelected = isSelectable && row.type == state.selected
-
-                    if (value == null) {
-                        // No cell
-                    }
-                    else if (column == HeadToHeadGridColumn.END_TOTAL && row is HeadToHeadGridRowData.EditableTotal) {
-                        item(fillBox = true) {
-                            CodexNumberField(
-                                    contentDescription = row.type.text.get(),
-                                    currentValue = row.text.text,
-                                    testTag = HeadToHeadGridTestTag.END_TOTAL_INPUT,
-                                    placeholder = stringResource(R.string.head_to_head_add_end__total_text_placeholder),
-                                    errorMessage = row.text.error ?: incompleteError?.takeIf { !row.isComplete },
-                                    onValueChanged = { onTextValueChanged(row.type, it) },
-                                    colors = CodexTextField.transparentOutlinedTextFieldColors(
-                                            focussedColor = CodexColors.COLOR_PRIMARY_DARK,
-                                            unfocussedColor = CodexColors.COLOR_ON_PRIMARY_LIGHT,
-                                            backgroundColor = (
-                                                    if (isSelected) Color.White
-                                                    else CodexTheme.colors.listAccentRowItemOnAppBackground
-                                                    ),
-                                    ),
-                                    modifier = Modifier
-                                            .modifierIfNotNull(focusRequesters?.get(row.type)) {
-                                                Modifier.focusRequester(it)
-                                            }
-                                            .onFocusChanged {
-                                                if (it.hasFocus) rowClicked(set.setNumber, row.type)
-                                            }
-                            )
-                        }
-                    }
-                    else {
-                        item(
-                                fillBox = true,
-                                verticalSpan = column.cellVerticalSpan(row, extraData),
-                        ) {
-                            val background =
-                                    if (isSelected) Color.White
-                                    else if (isSelectable) CodexTheme.colors.listAccentRowItemOnAppBackground
-                                    else CodexTheme.colors.listItemOnAppBackground
-                            val backgroundShape = if (isSelectable) selectedShape else RectangleShape
-                            val borderColor =
-                                    if (isSelected) CodexColors.COLOR_PRIMARY_DARK
-                                    else if (isSelectable && incompleteError != null) CodexTheme.colors.errorOnAppBackground
-                                    else if (isSelectable) CodexColors.COLOR_ON_PRIMARY_LIGHT
-                                    else CodexTheme.colors.listItemOnAppBackground
-
-                            val horizontalPadding = if (column == HeadToHeadGridColumn.TYPE) 8.dp else 15.dp
-
-                            Text(
-                                    text = value,
-                                    style = CodexTypography.NORMAL_PLUS,
-                                    color = CodexTheme.colors.onListItemAppOnBackground,
-                                    textAlign = TextAlign.Center,
-                                    modifier = cellModifier
-                                            .modifierIf(
-                                                    isSelectable,
-                                                    Modifier.border(2.dp, borderColor, selectedShape),
-                                            )
-                                            .background(background, backgroundShape)
-                                            .padding(horizontal = horizontalPadding, vertical = 3.dp)
-                                            .wrapContentHeight(Alignment.CenterVertically)
-                                            .clickable(onClick = onClick)
-                                            .semantics {
-                                                column
-                                                        .cellContentDescription(row, extraData)
-                                                        ?.get(resources)
-                                                        ?.let {
-                                                            contentDescription = it
-                                                        }
-                                            }
-                            )
-                        }
-                    }
-                }
-            }
-
-            if (!state.isSingleEditableSet) {
-                item(
-                        fillBox = true,
-                        // Ignore set number column
-                        horizontalSpan = columnMetadata.size - 1,
-                ) {
-                    Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                    .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                                    .wrapContentHeight(Alignment.CenterVertically)
-                    ) {
-                        Text(
-                                text = stringResource(
-                                        R.string.head_to_head_add_end__set_result,
-                                        extraData.result.title.get(),
-                                ),
-                                style = CodexTypography.NORMAL_PLUS,
-                                color = CodexTheme.colors.onListItemAppOnBackground,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
-                        )
-                        val runningTotals = state.runningTotals?.getOrNull(setIndex)?.let {
-                            stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
-                        }
-                        Text(
-                                text = stringResource(
-                                        R.string.head_to_head_add_end__running_total,
-                                        runningTotals ?: stringResource(R.string.score_pad__running_total_placeholder),
-                                ),
-                                style = CodexTypography.NORMAL_PLUS,
-                                color = CodexTheme.colors.onListItemAppOnBackground,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
-                        )
-                    }
-                }
-            }
-        }
-
-        if (!state.isSingleEditableSet && state.finalResult != null) {
-            item(
-                    fillBox = true,
-                    horizontalSpan = columnMetadata.size,
-            ) {
-                Text(
-                        text = stringResource(
-                                R.string.head_to_head_add_end__final_result,
-                                state.finalResult.title.get(),
-                        ),
-                        style = CodexTypography.NORMAL_PLUS,
-                        color = CodexTheme.colors.onListItemAppOnBackground,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                                .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                                .padding(vertical = 5.dp, horizontal = 10.dp)
-                                .wrapContentHeight(Alignment.CenterVertically)
-                )
             }
         }
     }

@@ -300,7 +300,7 @@ private fun ColumnScope.SetInfo(
             CodexChip(
                     text = stringResource(R.string.head_to_head_add_end__shoot_off_win),
                     selected = state.heat.isShootOffWin,
-                    testTag = HeadToHeadAddTestTag.IS_SHOOT_OFF_CHECKBOX,
+                    testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX,
                     enabled = state.extras.set.isShootOff,
                     style = CodexTypography.NORMAL,
                     onToggle = { listener(ToggleShootOffWin) },
@@ -344,7 +344,7 @@ private fun Buttons(
     }
 }
 
-enum class HeadToHeadAddTestTag : CodexTestTag {
+enum class HeadToHeadAddEndTestTag : CodexTestTag {
     SCREEN,
     IS_SHOOT_OFF_CHECKBOX,
     ;

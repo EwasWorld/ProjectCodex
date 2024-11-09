@@ -61,10 +61,9 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
                         ?: shoot.shootDetail?.isDistanceInMeters,
         )
 
-        val teamSize = fullH2hInfo.headToHead.teamSize
         val heat = fullH2hInfo.heats.minByOrNull { it.heat.heat }
         if (heat == null) {
-            if (extraState.value !is HeadToHeadAddHeatExtras) {
+            if (extraState.value == null) {
                 extraState.update { HeadToHeadAddHeatExtras() }
             }
             return HeadToHeadAddHeatState(
@@ -75,7 +74,7 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
 
         val scores = heat.results.lastOrNull()
         if (heat.heatResult() != HeadToHeadResult.INCOMPLETE) {
-            if (extraState.value !is HeadToHeadAddHeatExtras) {
+            if (extraState.value == null || heat.heat.heat == extraState.value?.heat) {
                 extraState.update { HeadToHeadAddHeatExtras(heat = (heat.heat.heat - 1).coerceAtLeast(0)) }
             }
             return HeadToHeadAddHeatState(
