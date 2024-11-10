@@ -49,6 +49,8 @@ class HeadToHeadScorePadViewModel @Inject constructor(
             is HeadToHeadScorePadIntent.ShootDetailsAction -> repo.handle(action.action, screen)
             HeadToHeadScorePadIntent.GoToAddEnd -> extraState.update { it.copy(openAddHeat = true) }
             HeadToHeadScorePadIntent.GoToAddEndHandled -> extraState.update { it.copy(openAddHeat = false) }
+            is HeadToHeadScorePadIntent.EditHeatInfo -> TODO()
+            is HeadToHeadScorePadIntent.EditSighters -> TODO()
         }
     }
 }

@@ -1,18 +1,25 @@
 package eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +31,8 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
@@ -100,68 +109,81 @@ fun HeadToHeadScorePadScreen(
         }
 
         Column(
-                verticalArrangement = Arrangement.spacedBy(50.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = modifier
                         .background(CodexTheme.colors.appBackground)
                         .padding(vertical = CodexTheme.dimens.screenPadding)
         ) {
             state.entries.forEach { entry ->
-                Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
+                Surface(
+                        border = BorderStroke(1.dp, CodexTheme.colors.onAppBackground),
+                        shape = RoundedCornerShape(CodexTheme.dimens.smallCornerRounding),
+                        color = Color.Transparent,
+                        modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
                 ) {
-                    DataRow(
-                            title = stringResource(R.string.head_to_head_add_heat__heat),
-                            text = HeadToHeadUseCase.roundName(entry.heat.heat).get(),
-                            modifier = Modifier
-                                    .align(Alignment.Start)
-                                    .padding(horizontal = CodexTheme.dimens.screenPadding)
-                    )
+                    Box {
+                        CodexIconButton(
+                                icon = CodexIconInfo.VectorIcon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = stringResource(R.string.head_to_head_score_pad__edit_heat),
+                                ),
+                                onClick = { listener(HeadToHeadScorePadIntent.EditHeatInfo(entry.heat.heat)) },
+                                modifier = Modifier.align(Alignment.BottomEnd)
+                        )
 
-                    entry.heat.opponentString()?.get()?.let {
-                        if (!entry.heat.opponent.isNullOrBlank()) {
-                            Text(
-                                    text = it,
-                                    modifier = Modifier
-                                            .align(Alignment.Start)
-                                            .padding(horizontal = CodexTheme.dimens.screenPadding)
+                        Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                horizontalAlignment = Alignment.Start,
+                                modifier = Modifier
+                                        .padding(horizontal = 15.dp, vertical = 10.dp)
+                                        .fillMaxWidth()
+                        ) {
+                            DataRow(
+                                    title = stringResource(R.string.head_to_head_add_heat__heat),
+                                    text = HeadToHeadUseCase.roundName(entry.heat.heat).get(),
+                            )
+
+                            entry.heat.opponentString()?.get()?.let { opponent ->
+                                if (!entry.heat.opponent.isNullOrBlank()) {
+                                    Text(
+                                            text = opponent,
+                                    )
+                                }
+                            }
+                            DataRow(
+                                    title = stringResource(R.string.add_count__sighters),
+                                    text = entry.heat.sightersCount.toString(),
+                                    onClick = { listener(HeadToHeadScorePadIntent.EditSighters(entry.heat.heat)) },
+                                    modifier = Modifier.padding(top = 8.dp)
                             )
                         }
                     }
-                    DataRow(
-                            title = stringResource(R.string.add_count__sighters),
-                            text = entry.heat.sightersCount.toString(),
+                }
+                if (entry.sets.isEmpty()) {
+                    Text(
+                            text = stringResource(
+                                    if (entry.heat.isBye) R.string.head_to_head_score_pad__is_bye
+                                    else R.string.head_to_head_score_pad__no_sets
+                            ),
+                            style = CodexTypography.NORMAL_PLUS,
+                            color = CodexTheme.colors.onAppBackground,
+                            fontStyle = FontStyle.Italic,
                             modifier = Modifier
-                                    .align(Alignment.Start)
                                     .padding(horizontal = CodexTheme.dimens.screenPadding)
+                                    .padding(top = 5.dp, bottom = 30.dp)
                     )
-                    if (entry.sets.isEmpty()) {
-                        Text(
-                                text = stringResource(
-                                        if (entry.heat.isBye) R.string.head_to_head_score_pad__is_bye
-                                        else R.string.head_to_head_score_pad__no_sets
-                                ),
-                                style = CodexTypography.NORMAL_PLUS,
-                                color = CodexTheme.colors.onAppBackground,
-                                fontStyle = FontStyle.Italic,
-                                modifier = Modifier
-                                        .padding(horizontal = CodexTheme.dimens.screenPadding)
-                                        .padding(top = 10.dp)
-                        )
-                    }
-                    else {
-                        check(!entry.heat.isBye) { "Cannot have entries and be a bye" }
-                        HeadToHeadGrid(
-                                state = entry.toGridState(),
-                                errorOnIncompleteRows = false,
-                                rowClicked = { _, _ -> },
-                                onTextValueChanged = { _, _ -> },
-                                helpListener = helpListener,
-                                modifier = Modifier.padding(top = 10.dp)
-                        )
-                    }
+                }
+                else {
+                    check(!entry.heat.isBye) { "Cannot have entries and be a bye" }
+                    HeadToHeadGrid(
+                            state = entry.toGridState(),
+                            errorOnIncompleteRows = false,
+                            rowClicked = { _, _ -> },
+                            onTextValueChanged = { _, _ -> },
+                            helpListener = helpListener,
+                            modifier = Modifier.padding(top = 10.dp, bottom = 40.dp)
+                    )
                 }
             }
         }
@@ -179,7 +201,7 @@ enum class HeadToHeadScorePadTestTag : CodexTestTag {
 }
 
 @Preview(
-        heightDp = 1050
+        heightDp = 1200,
 )
 @Composable
 fun HeadToHeadScorePadScreen_Preview() {
@@ -204,7 +226,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                 FullHeadToHeadHeat(
                                         heat = DatabaseHeadToHeadHeat(
                                                 heat = 1,
-                                                opponent = "Jessica Summers",
+                                                opponent = "Jessica Summ",
                                                 opponentQualificationRank = 1,
                                                 shootId = 1,
                                                 sightersCount = 0,
@@ -233,8 +255,8 @@ fun HeadToHeadScorePadScreen_Preview() {
                                 FullHeadToHeadHeat(
                                         heat = DatabaseHeadToHeadHeat(
                                                 heat = 1,
-                                                opponent = "Jessica Summers",
-                                                opponentQualificationRank = 1,
+                                                opponent = null,
+                                                opponentQualificationRank = null,
                                                 shootId = 1,
                                                 sightersCount = 0,
                                                 isBye = false,

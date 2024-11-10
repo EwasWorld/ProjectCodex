@@ -40,6 +40,7 @@
     <string name="head_to_head_score_pad__no_heats">No matches entered</string>
     <string name="head_to_head_score_pad__is_bye">Bye</string>
     <string name="head_to_head_score_pad__no_heats_button">Add match</string>
+    <string name="head_to_head_score_pad__edit_heat">Edit heat info</string>
 
     <string name="head_to_head_add_heat__title">Add match</string>
     <string name="head_to_head_add_heat__heat">Match:</string>
