@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.components.viewScores
 
 import eywa.projectcodex.components.viewScores.dialogs.convertScoreDialog.ConvertScoreType
 import eywa.projectcodex.database.arrows.DatabaseArrowScore

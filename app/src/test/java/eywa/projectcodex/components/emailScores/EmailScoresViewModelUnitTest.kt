@@ -1,9 +1,7 @@
-package eywa.projectcodex.emailScores
+package eywa.projectcodex.components.emailScores
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import eywa.projectcodex.components.emailScores.EmailScoresIntent
-import eywa.projectcodex.components.emailScores.EmailScoresViewModel
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase

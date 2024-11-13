@@ -1,4 +1,4 @@
-package eywa.projectcodex
+package eywa.projectcodex.common
 
 import eywa.projectcodex.common.sharedUi.ComposeUtils.orderPreviews
 import org.junit.Assert.assertEquals

@@ -1,4 +1,4 @@
-package eywa.projectcodex.common
+package eywa.projectcodex.model
 
 import android.content.res.Resources
 import eywa.projectcodex.R
@@ -11,11 +11,11 @@ import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
-import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.model.scorePadData.ScorePadData
 import eywa.projectcodex.model.scorePadData.ScorePadData.ScorePadColumnType
 import eywa.projectcodex.model.scorePadData.ScorePadRow
 import eywa.projectcodex.model.scorePadData.ScorePadRow.*
+import eywa.projectcodex.model.scorePadData.ScorePadRow.End
 import eywa.projectcodex.testUtils.TestData
 import eywa.projectcodex.testUtils.TestUtils
 import org.junit.Assert

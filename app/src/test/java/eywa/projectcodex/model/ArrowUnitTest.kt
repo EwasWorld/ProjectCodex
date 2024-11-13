@@ -1,8 +1,5 @@
-package eywa.projectcodex
+package eywa.projectcodex.model
 
-import eywa.projectcodex.model.Arrow
-import eywa.projectcodex.model.getArrowScore
-import eywa.projectcodex.model.isX
 import org.junit.Assert
 import org.junit.Test
 

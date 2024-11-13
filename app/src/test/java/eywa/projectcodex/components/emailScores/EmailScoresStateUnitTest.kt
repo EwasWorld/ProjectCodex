@@ -1,8 +1,7 @@
-package eywa.projectcodex.emailScores
+package eywa.projectcodex.components.emailScores
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import eywa.projectcodex.components.emailScores.EmailScoresState
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
