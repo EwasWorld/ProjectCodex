@@ -8,9 +8,9 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGr
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
-import eywa.projectcodex.model.FullHeadToHead
-import eywa.projectcodex.model.FullHeadToHeadHeat
-import eywa.projectcodex.model.FullHeadToHeadSet
+import eywa.projectcodex.model.headToHead.FullHeadToHead
+import eywa.projectcodex.model.headToHead.FullHeadToHeadHeat
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @CodexPreviewHelperDsl
 class HeadToHeadPreviewHelperDsl(shootId: Int) {
@@ -23,6 +23,7 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
                 shootId = headToHead.shootId,
                 teamSize = headToHead.teamSize,
                 isRecurveStyle = headToHead.isRecurveStyle,
+                heat = heats.minOfOrNull { it.heat.heat }?.minus(1) ?: 3,
         ).apply(config).asFull()
 
         require(heats.distinctBy { it.heat.heat }.size == heats.size) { "Duplicate heat" }
@@ -34,12 +35,13 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
 @CodexPreviewHelperDsl
 class HeadToHeadHeatPreviewHelperDsl(
         shootId: Int,
-        private val teamSize: Int,
-        private val isRecurveStyle: Boolean,
+        val teamSize: Int,
+        val isRecurveStyle: Boolean,
+        heat: Int = 3,
 ) {
     var heat = DatabaseHeadToHeadHeat(
             shootId = shootId,
-            heat = 3,
+            heat = heat,
             opponent = null,
             opponentQualificationRank = null,
             isShootOffWin = false,
@@ -53,8 +55,14 @@ class HeadToHeadHeatPreviewHelperDsl(
                 setNumber = sets.size + 1,
                 teamSize = teamSize,
                 isShootOffWin = heat.isShootOffWin,
+                isRecurveStyle = isRecurveStyle,
         ).apply(config).asFull()
-        require(!set.isShootOff || (set.result == HeadToHeadResult.WIN) == heat.isShootOffWin) { "isShootOffWin mismatch" }
+
+        require(
+                !set.isShootOff || (set.result == HeadToHeadResult.WIN) == heat.isShootOffWin,
+        ) { "isShootOffWin mismatch" }
+        require(sets.distinctBy { it.setNumber }.size == sets.size) { "Duplicate setNumber" }
+
         sets = sets + set
     }
 
@@ -63,7 +71,7 @@ class HeadToHeadHeatPreviewHelperDsl(
                     heat = heat,
                     sets = sets,
                     teamSize = teamSize,
-                    isRecurveMatch = isRecurveStyle,
+                    isRecurveStyle = isRecurveStyle,
             )
 }
 
@@ -72,6 +80,7 @@ class HeadToHeadSetPreviewHelperDsl(
         private val setNumber: Int,
         private val teamSize: Int,
         private val isShootOffWin: Boolean,
+        private val isRecurveStyle: Boolean,
 ) {
     private val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
     private var data = listOf<HeadToHeadGridRowData>()
@@ -79,15 +88,35 @@ class HeadToHeadSetPreviewHelperDsl(
     fun addRows(
             result: HeadToHeadResult = HeadToHeadResult.WIN,
             typesToIsTotal: Map<HeadToHeadArcherType, Boolean> = mapOf(
-                    HeadToHeadArcherType.SELF to false,
+                    HeadToHeadArcherType.TEAM to false,
                     HeadToHeadArcherType.OPPONENT to true,
             ),
             isEditable: Boolean = false,
-            winnerScore: Int,
-            loserScore: Int,
-            selfScore: Int,
+            winnerScore: Int = 30,
+            loserScore: Int = 20,
+            selfScore: Int? = null,
+            dbIds: List<List<Int>>? = null,
     ) {
-        require(result != HeadToHeadResult.INCOMPLETE) { "Cannot have an incomplete set" }
+        if (typesToIsTotal.isEmpty()) return
+
+        val self = selfScore ?: (if (result == HeadToHeadResult.LOSS) loserScore else winnerScore)
+
+        if (result == HeadToHeadResult.UNKNOWN) {
+            HeadToHeadGridRowDataPreviewHelper.create(
+                    teamSize = teamSize,
+                    isShootOff = isShootOff,
+                    result = HeadToHeadResult.INCOMPLETE,
+                    typesToIsTotal = typesToIsTotal
+                            .minus(HeadToHeadArcherType.RESULT)
+                            .minus(HeadToHeadArcherType.OPPONENT),
+                    isEditable = isEditable,
+                    winnerScore = winnerScore,
+                    loserScore = loserScore,
+                    selfScore = self,
+            ).let { data = data + it }
+
+            return
+        }
 
         HeadToHeadGridRowDataPreviewHelper.create(
                 teamSize = teamSize,
@@ -97,7 +126,8 @@ class HeadToHeadSetPreviewHelperDsl(
                 isEditable = isEditable,
                 winnerScore = winnerScore,
                 loserScore = loserScore,
-                selfScore = selfScore,
+                selfScore = self,
+                dbIds = dbIds,
         ).let { data = data + it }
     }
 
@@ -108,5 +138,6 @@ class HeadToHeadSetPreviewHelperDsl(
                     isShootOff = isShootOff,
                     teamSize = teamSize,
                     isShootOffWin = isShootOffWin,
+                    isRecurveStyle = isRecurveStyle,
             )
 }

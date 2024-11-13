@@ -44,8 +44,8 @@ import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
-import eywa.projectcodex.model.FullHeadToHeadHeat
-import eywa.projectcodex.model.FullHeadToHeadSet
+import eywa.projectcodex.model.headToHead.FullHeadToHeadHeat
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @Composable
 fun HeadToHeadScorePadScreen(
@@ -219,7 +219,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 isBye = false,
                                                 isShootOffWin = false,
                                         ),
-                                        isRecurveMatch = true,
+                                        isRecurveStyle = true,
                                         teamSize = 1,
                                         sets = listOf(),
                                 ),
@@ -233,7 +233,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 isBye = false,
                                                 isShootOffWin = false,
                                         ),
-                                        isRecurveMatch = true,
+                                        isRecurveStyle = true,
                                         teamSize = 1,
                                         sets = listOf(
                                                 FullHeadToHeadSet(
@@ -242,6 +242,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                         isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 1,
+                                                        isRecurveStyle = true,
                                                 ),
                                                 FullHeadToHeadSet(
                                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
@@ -249,6 +250,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                         isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 2,
+                                                        isRecurveStyle = true,
                                                 ),
                                         ),
                                 ),
@@ -262,7 +264,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 isBye = false,
                                                 isShootOffWin = false,
                                         ),
-                                        isRecurveMatch = true,
+                                        isRecurveStyle = true,
                                         teamSize = 1,
                                         sets = listOf(
                                                 FullHeadToHeadSet(
@@ -271,6 +273,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                         isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 1,
+                                                        isRecurveStyle = true,
                                                 ),
                                                 FullHeadToHeadSet(
                                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
@@ -278,6 +281,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                         isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 2,
+                                                        isRecurveStyle = true,
                                                 ),
                                         ),
                                 ),

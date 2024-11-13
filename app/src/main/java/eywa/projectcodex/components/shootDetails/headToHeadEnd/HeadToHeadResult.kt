@@ -28,6 +28,11 @@ enum class HeadToHeadResult(
             shootOffPoints = 0,
             title = ResOrActual.StringResource(R.string.head_to_head_add_end__result_incomplete),
     ),
+    UNKNOWN(
+            defaultPoints = 0,
+            shootOffPoints = 0,
+            title = ResOrActual.StringResource(R.string.head_to_head_add_end__result_unknown),
+    ),
     ;
 
     fun opposite(): HeadToHeadResult = when (this) {

@@ -47,7 +47,8 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
-import eywa.projectcodex.model.FullHeadToHeadSet
+import eywa.projectcodex.model.Either
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 fun List<FullHeadToHeadSet>.anyRow(predicate: (HeadToHeadGridRowData) -> Boolean) =
         any { set -> set.data.any { predicate(it) } }
@@ -121,8 +122,8 @@ fun HeadToHeadGrid(
             state.enteredArrows.forEachIndexed { setIndex, set ->
                 val extraData = HeadToHeadSetData(
                         isShootOff = set.isShootOff,
-                        teamEndTotal = set.teamSetScore ?: 0,
-                        opponentEndTotal = set.opponentSetScore ?: 0,
+                        teamEndTotal = set.teamEndScore ?: 0,
+                        opponentEndTotal = set.opponentEndScore ?: 0,
                         hasSelfAndTeamRows = set.showExtraColumnTotal(),
                         result = set.result,
                 )
@@ -257,7 +258,7 @@ fun HeadToHeadGrid(
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
                             )
-                            val runningTotals = state.runningTotals?.getOrNull(setIndex)?.let {
+                            val runningTotals = state.runningTotals?.getOrNull(setIndex)?.left?.let {
                                 stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
                             }
                             Text(
@@ -334,6 +335,7 @@ fun Input_HeadToHeadGrid_Preview() {
                                         isShootOff = false,
                                         isShootOffWin = false,
                                         setNumber = 1,
+                                        isRecurveStyle = true,
                                 )
                         ),
                         selected = null,
@@ -375,6 +377,7 @@ fun InputTeam_HeadToHeadGrid_Preview() {
                                         isShootOff = false,
                                         isShootOffWin = false,
                                         setNumber = 1,
+                                        isRecurveStyle = true,
                                 ),
                         ),
                         selected = null,
@@ -408,6 +411,7 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                                         isShootOff = false,
                                         isShootOffWin = false,
                                         setNumber = 1,
+                                        isRecurveStyle = true,
                                 ),
                                 FullHeadToHeadSet(
                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
@@ -415,6 +419,7 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                                         isShootOff = false,
                                         isShootOffWin = false,
                                         setNumber = 2,
+                                        isRecurveStyle = true,
                                 ),
                                 FullHeadToHeadSet(
                                         data = HeadToHeadGridRowDataPreviewHelper.create(isShootOff = true),
@@ -422,11 +427,12 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                                         isShootOff = true,
                                         isShootOffWin = true,
                                         setNumber = 3,
+                                        isRecurveStyle = true,
                                 ),
                         ),
                         selected = null,
                         isSingleEditableSet = false,
-                        runningTotals = listOf(2 to 0, 4 to 0, 5 to 0),
+                        runningTotals = listOf(2 to 0, 4 to 0, 5 to 0).map { Either.Left(it) },
                         finalResult = HeadToHeadResult.WIN,
                 ),
                 errorOnIncompleteRows = false,
@@ -454,6 +460,7 @@ fun Error_HeadToHeadGrid_Preview() {
                                         isShootOff = false,
                                         isShootOffWin = false,
                                         setNumber = 1,
+                                        isRecurveStyle = true,
                                 )
                         ),
                         selected = null,

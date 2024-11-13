@@ -10,8 +10,8 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeatPreviewHelper
-import eywa.projectcodex.model.FullHeadToHeadSet
 import eywa.projectcodex.model.SightMark
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 data class HeadToHeadAddEndState(
         val headToHeadRoundInfo: HeadToHeadRoundInfo? = null,
@@ -58,6 +58,7 @@ data class HeadToHeadAddEndExtras(
                 isShootOff = false,
                 isShootOffWin = false,
                 setNumber = 1,
+                isRecurveStyle = false,
         ),
         val selected: HeadToHeadArcherType? = set.data.map { it.type }.minByOrNull { it.ordinal },
         val arrowInputsError: Set<ArrowInputsError> = setOf(),

@@ -22,7 +22,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGr
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.Arrows
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.EditableTotal
 import eywa.projectcodex.database.ScoresRoomDatabase
-import eywa.projectcodex.model.FullHeadToHeadSet
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -74,17 +74,17 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
         }
 
-        val scores = heat.results.lastOrNull()
-        if (heat.heatResult() != HeadToHeadResult.INCOMPLETE) {
+        if (heat.result() != HeadToHeadResult.INCOMPLETE) {
             extraState.update { (it ?: HeadToHeadAddEndExtras()).copy(openAddHeatScreen = true) }
             return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
         }
 
+        val scores = heat.runningTotals.lastOrNull()?.left
         val lastSet = heat.sets.maxByOrNull { it.setNumber }
         if (lastSet == null || lastSet.result != HeadToHeadResult.INCOMPLETE) {
             val setNumber = (lastSet?.setNumber?.plus(1)) ?: 1
             val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
-            val endSize = if (isShootOff) 1 else HeadToHeadUseCase.END_SIZE
+            val endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff)
 
             fun getRow(type: HeadToHeadArcherType, isTotal: Boolean): HeadToHeadGridRowData {
                 val expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
@@ -99,9 +99,10 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             val set = FullHeadToHeadSet(
                     setNumber = setNumber,
                     data = defaultData,
-                    isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber,
+                    isShootOff = isShootOff,
                     teamSize = fullH2hInfo.headToHead.teamSize,
                     isShootOffWin = false,
+                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
             )
 
             if (extras == null || extras.set.setNumber <= (lastSet?.setNumber ?: 0)) {

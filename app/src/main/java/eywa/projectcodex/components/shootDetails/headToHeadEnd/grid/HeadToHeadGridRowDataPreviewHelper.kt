@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.shootDetails.headToHeadEnd.grid
 
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.model.Arrow
@@ -50,17 +51,19 @@ object HeadToHeadGridRowDataPreviewHelper {
             isShootOff: Boolean = false,
             result: HeadToHeadResult = HeadToHeadResult.WIN,
             typesToIsTotal: Map<HeadToHeadArcherType, Boolean> = mapOf(
-                    HeadToHeadArcherType.SELF to false,
+                    HeadToHeadArcherType.TEAM to false,
                     HeadToHeadArcherType.OPPONENT to true,
             ),
             isEditable: Boolean = false,
             winnerScore: Int? = null,
             loserScore: Int? = null,
             selfScore: Int? = null,
+            dbIds: List<List<Int>>? = null,
     ): List<HeadToHeadGridRowData> {
-        require(result != HeadToHeadResult.INCOMPLETE)
+        require(result != HeadToHeadResult.UNKNOWN)
+        val isIncomplete = result == HeadToHeadResult.INCOMPLETE
 
-        val endSize = if (isShootOff) 1 else 3
+        val endSize = HeadToHeadUseCase.endSize(teamSize = teamSize, isShootOff = isShootOff)
         val maxScore = teamSize * endSize * 10
         require(winnerScore == null || (winnerScore in 0..maxScore))
         require(loserScore == null || (loserScore in 0..maxScore))
@@ -75,7 +78,7 @@ object HeadToHeadGridRowDataPreviewHelper {
         val opponentTotal =
                 if (result == HeadToHeadResult.LOSS || result == HeadToHeadResult.TIE) winnerTotal else loserTotal
 
-        return typesToIsTotal.map { (type, isTotal) ->
+        return typesToIsTotal.entries.mapIndexed { i, (type, isTotal) ->
             val total = when (type) {
                 HeadToHeadArcherType.SELF -> selfTotal
                 HeadToHeadArcherType.OPPONENT -> opponentTotal
@@ -85,21 +88,24 @@ object HeadToHeadGridRowDataPreviewHelper {
             }
             require(total >= 0)
             val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
+            val indexes = dbIds?.getOrNull(i)
             if (type == HeadToHeadArcherType.RESULT || isTotal) {
+                val index = indexes?.getOrNull(0)
                 if (isEditable) {
-                    HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount).let {
-                        it.copy(text = it.text.onTextChanged(total.toString()))
+                    HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount, dbId = index).let {
+                        if (isIncomplete) it else it.copy(text = it.text.onTextChanged(total.toString()))
                     }
                 }
                 else {
-                    HeadToHeadGridRowData.Total(type, expectedArrowCount, total)
+                    HeadToHeadGridRowData.Total(type, expectedArrowCount, total.takeIf { !isIncomplete }, dbId = index)
                 }
             }
             else {
                 HeadToHeadGridRowData.Arrows(
                         type = type,
                         expectedArrowCount = expectedArrowCount,
-                        arrows = createArrows(expectedArrowCount, total).toArrows(),
+                        arrows = if (isIncomplete) listOf() else createArrows(expectedArrowCount, total).toArrows(),
+                        dbIds = indexes,
                 )
             }
         }

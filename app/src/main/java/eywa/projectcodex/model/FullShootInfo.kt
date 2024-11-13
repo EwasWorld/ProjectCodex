@@ -20,6 +20,7 @@ import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
+import eywa.projectcodex.model.headToHead.FullHeadToHead
 import eywa.projectcodex.model.scorePadData.ScorePadData
 
 data class FullShootInfo(

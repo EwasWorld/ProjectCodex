@@ -2,7 +2,9 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.grid
 
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
-import eywa.projectcodex.model.FullHeadToHeadSet
+import eywa.projectcodex.model.Either
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
+import eywa.projectcodex.model.headToHead.HeadToHeadNoResult
 
 data class HeadToHeadGridState(
         val enteredArrows: List<FullHeadToHeadSet>,
@@ -20,7 +22,7 @@ data class HeadToHeadGridState(
         /**
          * Only used when [isSingleEditableSet] is false
          */
-        val runningTotals: List<Pair<Int, Int>?>?,
+        val runningTotals: List<Either<Pair<Int, Int>, HeadToHeadNoResult>>?,
 
         /**
          * Only used when [isSingleEditableSet] is false

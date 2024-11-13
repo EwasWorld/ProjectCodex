@@ -72,8 +72,8 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             )
         }
 
-        val scores = heat.results.lastOrNull()
-        if (heat.heatResult() != HeadToHeadResult.INCOMPLETE) {
+        val scores = heat.runningTotals.lastOrNull()?.left
+        if (heat.result() != HeadToHeadResult.INCOMPLETE) {
             if (extraState.value == null || heat.heat.heat == extraState.value?.heat) {
                 extraState.update { HeadToHeadAddHeatExtras(heat = (heat.heat.heat - 1).coerceAtLeast(0)) }
             }

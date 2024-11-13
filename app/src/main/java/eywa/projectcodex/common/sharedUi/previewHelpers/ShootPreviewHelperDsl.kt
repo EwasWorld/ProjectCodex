@@ -11,8 +11,8 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootDetail
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.model.Arrow
-import eywa.projectcodex.model.FullHeadToHead
 import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.model.headToHead.FullHeadToHead
 import java.util.Calendar
 
 

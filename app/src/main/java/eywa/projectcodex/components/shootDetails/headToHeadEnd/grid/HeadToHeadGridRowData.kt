@@ -19,6 +19,7 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             override val type: HeadToHeadArcherType,
             override val expectedArrowCount: Int,
             val arrows: List<Arrow> = emptyList(),
+            val dbIds: List<Int>? = null,
     ) : HeadToHeadGridRowData() {
         override val totalScore: Int
             get() = arrows.sumOf { it.score }
@@ -34,6 +35,7 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             override val type: HeadToHeadArcherType,
             override val expectedArrowCount: Int,
             val total: Int? = null,
+            val dbId: Int? = null,
     ) : HeadToHeadGridRowData() {
         override val totalScore: Int
             get() = total ?: 0
@@ -50,6 +52,7 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
                     typeValidator = TypeValidator.IntValidator,
                     NumberValidator.InRange(0..expectedArrowCount * 10),
             ),
+            val dbId: Int? = null,
     ) : HeadToHeadGridRowData() {
         val total: Int? = text.parsed
 
