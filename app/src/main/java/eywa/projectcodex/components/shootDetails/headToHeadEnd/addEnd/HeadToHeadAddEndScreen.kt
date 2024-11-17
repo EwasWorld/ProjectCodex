@@ -95,12 +95,12 @@ fun HeadToHeadAddEndScreen(
             }
 
             if (data.extras.openEditSightMark) {
-                val args = if (data.headToHeadRoundInfo?.sightMark != null) {
-                    mapOf(NavArgument.SIGHT_MARK_ID to data.headToHeadRoundInfo.sightMark.id.toString())
+                val args = if (data.roundInfo?.sightMark != null) {
+                    mapOf(NavArgument.SIGHT_MARK_ID to data.roundInfo.sightMark.id.toString())
                 }
                 else {
-                    val distance = data.headToHeadRoundInfo?.distance ?: DEFAULT_INT_NAV_ARG
-                    val isMetric = data.headToHeadRoundInfo?.isMetric ?: true
+                    val distance = data.roundInfo?.distance ?: DEFAULT_INT_NAV_ARG
+                    val isMetric = data.roundInfo?.isMetric ?: true
                     mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
                 }
                 CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
@@ -153,11 +153,11 @@ fun HeadToHeadAddEndScreen(
                         .horizontalScroll(rememberScrollState())
                         .padding(horizontal = CodexTheme.dimens.screenPadding)
         ) {
-            if (state.headToHeadRoundInfo != null) {
+            if (state.roundInfo != null) {
                 SightMark(
-                        distance = state.headToHeadRoundInfo.distance,
-                        isMetric = state.headToHeadRoundInfo.isMetric,
-                        sightMark = state.headToHeadRoundInfo.sightMark,
+                        distance = state.roundInfo.distance,
+                        isMetric = state.roundInfo.isMetric,
+                        sightMark = state.roundInfo.sightMark,
                         helpListener = helpListener,
                         onExpandClicked = { listener(ExpandSightMarkClicked) },
                         onEditClicked = { listener(EditSightMarkClicked) },
@@ -321,8 +321,8 @@ private fun Buttons(
     ) {
         if (state.extras.selectedData?.isTotalRow == false) {
             ArrowButtonGroup(
-                    round = state.headToHeadRoundInfo?.round,
-                    roundFace = state.headToHeadRoundInfo?.face,
+                    round = state.roundInfo?.round,
+                    roundFace = state.roundInfo?.face,
                     onClick = { listener(ArrowInputAction(ArrowInputted(it))) },
                     modifier = Modifier.updateHelpDialogPosition(
                             HelpShowcaseItem(

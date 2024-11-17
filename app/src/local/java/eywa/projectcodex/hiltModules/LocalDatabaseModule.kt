@@ -16,8 +16,8 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.UpdateType
 import eywa.projectcodex.database.rounds.FullRoundInfo
-import eywa.projectcodex.model.FullHeadToHead
 import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.model.headToHead.FullHeadToHead
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -52,4 +52,5 @@
     <string name="head_to_head_add_heat__quali_rank_placeholder">15</string>
     <string name="head_to_head_add_heat__bye">Bye:</string>
     <string name="head_to_head_add_heat__submit">Start match</string>
+    <string name="head_to_head_add_heat__result">Result:</string>
 </resources>

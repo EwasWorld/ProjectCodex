@@ -82,8 +82,11 @@ class HeadToHeadSetPreviewHelperDsl(
         private val isShootOffWin: Boolean,
         private val isRecurveStyle: Boolean,
 ) {
-    private val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
     private var data = listOf<HeadToHeadGridRowData>()
+        set(value) {
+            check(value.distinctBy { it.type }.size == value.size) { "Duplicate type" }
+            field = value
+        }
 
     fun addRows(
             result: HeadToHeadResult = HeadToHeadResult.WIN,
@@ -99,6 +102,7 @@ class HeadToHeadSetPreviewHelperDsl(
     ) {
         if (typesToIsTotal.isEmpty()) return
 
+        val isShootOff = setNumber == HeadToHeadUseCase.shootOffSet(teamSize)
         val self = selfScore ?: (if (result == HeadToHeadResult.LOSS) loserScore else winnerScore)
 
         if (result == HeadToHeadResult.UNKNOWN) {
@@ -131,11 +135,14 @@ class HeadToHeadSetPreviewHelperDsl(
         ).let { data = data + it }
     }
 
+    fun removeRow(type: HeadToHeadArcherType) {
+        data = data.filter { it.type == type }
+    }
+
     fun asFull() =
             FullHeadToHeadSet(
                     setNumber = setNumber,
                     data = data,
-                    isShootOff = isShootOff,
                     teamSize = teamSize,
                     isShootOffWin = isShootOffWin,
                     isRecurveStyle = isRecurveStyle,

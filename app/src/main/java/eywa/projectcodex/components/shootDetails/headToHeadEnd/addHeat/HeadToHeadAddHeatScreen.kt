@@ -95,12 +95,12 @@ fun HeadToHeadAddHeatScreen(
             }
 
             if (data.extras.openEditSightMark) {
-                val args = if (data.headToHeadRoundInfo?.sightMark != null) {
-                    mapOf(NavArgument.SIGHT_MARK_ID to data.headToHeadRoundInfo.sightMark.id.toString())
+                val args = if (data.roundInfo?.sightMark != null) {
+                    mapOf(NavArgument.SIGHT_MARK_ID to data.roundInfo.sightMark.id.toString())
                 }
                 else {
-                    val distance = data.headToHeadRoundInfo?.distance ?: DEFAULT_INT_NAV_ARG
-                    val isMetric = data.headToHeadRoundInfo?.isMetric ?: true
+                    val distance = data.roundInfo?.distance ?: DEFAULT_INT_NAV_ARG
+                    val isMetric = data.roundInfo?.isMetric ?: true
                     mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
                 }
                 CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
@@ -134,11 +134,11 @@ fun HeadToHeadAddHeatScreen(
                     .background(CodexTheme.colors.appBackground)
                     .padding(vertical = CodexTheme.dimens.screenPadding)
     ) {
-        if (state.headToHeadRoundInfo != null) {
+        if (state.roundInfo != null) {
             SightMark(
-                    distance = state.headToHeadRoundInfo.distance,
-                    isMetric = state.headToHeadRoundInfo.isMetric,
-                    sightMark = state.headToHeadRoundInfo.sightMark,
+                    distance = state.roundInfo.distance,
+                    isMetric = state.roundInfo.isMetric,
+                    sightMark = state.roundInfo.sightMark,
                     helpListener = helpListener,
                     onExpandClicked = { listener(ExpandSightMarkClicked) },
                     onEditClicked = { listener(EditSightMarkClicked) },
@@ -161,12 +161,19 @@ fun HeadToHeadAddHeatScreen(
                                 title = stringResource(R.string.head_to_head_add_heat__heat),
                                 text = HeadToHeadUseCase.shortRoundName(state.previousHeat.heat).get(),
                         )
+                        val setScore =
+                                if (state.previousHeat.runningTotal != null) {
+                                    stringResource(
+                                            R.string.head_to_head_add_end__score_text,
+                                            state.previousHeat.runningTotal.first,
+                                            state.previousHeat.runningTotal.second,
+                                    )
+                                }
+                                else {
+                                    stringResource(R.string.head_to_head_add_heat__result)
+                                }
                         DataRow(
-                                title = stringResource(
-                                        R.string.head_to_head_add_end__score_text,
-                                        state.previousHeat.teamRunningTotal,
-                                        state.previousHeat.opponentRunningTotal,
-                                ),
+                                title = setScore,
                                 text = state.previousHeat.result.title.get(),
                         )
                     }
@@ -333,8 +340,7 @@ fun Heat_HeadToHeadAddScreen_Preview() {
                         previousHeat = HeadToHeadAddHeatState.PreviousHeat(
                                 heat = 0,
                                 result = HeadToHeadResult.WIN,
-                                teamRunningTotal = 6,
-                                opponentRunningTotal = 0,
+                                runningTotal = 6 to 0,
                         ),
                 ),
         ) {}

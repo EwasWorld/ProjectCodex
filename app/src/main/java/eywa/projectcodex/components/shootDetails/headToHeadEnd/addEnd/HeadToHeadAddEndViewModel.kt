@@ -16,7 +16,6 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType.*
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.Arrows
@@ -57,14 +56,13 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         val shoot = main.fullShootInfo!!
         val fullH2hInfo = shoot.h2h ?: throw ShootDetailsError()
 
-        val common = HeadToHeadRoundInfo(
+        val roundInfo = HeadToHeadRoundInfo(
                 round = shoot.fullRoundInfo?.round,
                 face = shoot.faces?.first(),
                 distance = shoot.fullRoundInfo?.roundDistances?.maxOfOrNull { it.distance }
                         ?: shoot.shootDetail?.distance,
-                sightMark = null,
-                isMetric = shoot.fullRoundInfo?.round?.isMetric
-                        ?: shoot.shootDetail?.isDistanceInMeters,
+                sightMark = main.sightMark,
+                isMetric = shoot.fullRoundInfo?.round?.isMetric ?: shoot.shootDetail?.isDistanceInMeters,
         )
 
         val teamSize = fullH2hInfo.headToHead.teamSize
@@ -74,14 +72,14 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
         }
 
-        if (heat.result() != HeadToHeadResult.INCOMPLETE) {
+        if (heat.isComplete) {
             extraState.update { (it ?: HeadToHeadAddEndExtras()).copy(openAddHeatScreen = true) }
             return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
         }
 
-        val scores = heat.runningTotals.lastOrNull()?.left
         val lastSet = heat.sets.maxByOrNull { it.setNumber }
-        if (lastSet == null || lastSet.result != HeadToHeadResult.INCOMPLETE) {
+        // Creating new set
+        if (lastSet == null || lastSet.isComplete) {
             val setNumber = (lastSet?.setNumber?.plus(1)) ?: 1
             val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
             val endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff)
@@ -99,7 +97,6 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             val set = FullHeadToHeadSet(
                     setNumber = setNumber,
                     data = defaultData,
-                    isShootOff = isShootOff,
                     teamSize = fullH2hInfo.headToHead.teamSize,
                     isShootOffWin = false,
                     isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
@@ -108,35 +105,32 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             if (extras == null || extras.set.setNumber <= (lastSet?.setNumber ?: 0)) {
                 extraState.update { HeadToHeadAddEndExtras(set = set, selected = SELF) }
             }
-            return HeadToHeadAddEndState(
-                    headToHeadRoundInfo = common,
-                    extras = extras ?: HeadToHeadAddEndExtras(),
-                    heat = heat.heat,
-                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
-                    teamRunningTotal = scores?.first ?: 0,
-                    opponentRunningTotal = scores?.second ?: 0,
-            )
         }
-
-        if (extras == null || extras.set.setNumber != lastSet.setNumber) {
+        // Editing old set
+        else if (extras == null || extras.set.setNumber != lastSet.setNumber) {
             extraState.update {
                 HeadToHeadAddEndExtras(
                         set = lastSet,
-                        selected = lastSet
-                                .data
-                                .sortedBy { it.type.ordinal }
-                                .first { !it.isComplete }
-                                .type,
+                        selected = (
+                                lastSet
+                                        .data
+                                        .sortedBy { it.type.ordinal }
+                                        .firstOrNull { !it.isComplete }
+                                        ?: lastSet.data.firstOrNull()
+                                )?.type,
                 )
             }
         }
+
+        val scores = heat.runningTotals.lastOrNull()?.left
         return HeadToHeadAddEndState(
-                headToHeadRoundInfo = common,
+                roundInfo = roundInfo,
                 extras = extras ?: HeadToHeadAddEndExtras(),
                 heat = heat.heat,
                 isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
                 teamRunningTotal = scores?.first ?: 0,
                 opponentRunningTotal = scores?.second ?: 0,
+                dbSet = lastSet?.takeIf { it.setNumber == extras?.set?.setNumber },
         )
     }
 
@@ -195,7 +189,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     return
                 }
 
-                if (state.extras.set.result == HeadToHeadResult.INCOMPLETE) {
+                if (!state.extras.set.isComplete) {
                     updateState { it.copy(incompleteError = true) }
                     return
                 }

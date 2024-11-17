@@ -1,7 +1,6 @@
 package eywa.projectcodex.model.headToHead
 
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.*
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
@@ -27,18 +26,16 @@ data class FullHeadToHead(
                             sets = (grouped[heat.heat] ?: emptyList())
                                     .groupBy { it.setNumber }
                                     .map { (setNumber, details) ->
-                                        val isShootOff = setNumber == shootOffSet
                                         FullHeadToHeadSet(
                                                 setNumber = setNumber,
                                                 data = details.asRowData(
                                                         endSize = HeadToHeadUseCase.endSize(
                                                                 teamSize = headToHead.teamSize,
-                                                                isShootOff = isShootOff,
+                                                                isShootOff = setNumber == shootOffSet,
                                                         ),
                                                         teamSize = headToHead.teamSize,
                                                         isEditable = isEditable,
                                                 ),
-                                                isShootOff = isShootOff,
                                                 teamSize = headToHead.teamSize,
                                                 isShootOffWin = heat.isShootOffWin,
                                                 isRecurveStyle = headToHead.isRecurveStyle,
@@ -59,7 +56,7 @@ data class FullHeadToHead(
 
     val isComplete: Boolean
         get() = heats.all { heat ->
-            heat.result().let { it != HeadToHeadResult.INCOMPLETE && it != HeadToHeadResult.UNKNOWN }
+            heat.result.isComplete
         }
 
     companion object {
@@ -81,7 +78,9 @@ data class FullHeadToHead(
                                     type = type,
                                     expectedArrowCount = expectedArrowCount,
                                     dbId = group[0].headToHeadArrowScoreId.takeIf { it != 0 },
-                            ).let { it.copy(text = it.text.copy(score.toString())) }
+                            ).let {
+                                if (score == null) it else it.copy(text = it.text.copy(score.toString()))
+                            }
                         }
                         else {
                             Total(
@@ -96,7 +95,7 @@ data class FullHeadToHead(
                         Arrows(
                                 type = type,
                                 expectedArrowCount = expectedArrowCount,
-                                arrows = group.map { Arrow(it.score, it.isX) },
+                                arrows = group.mapNotNull { dbArrow -> dbArrow.score?.let { Arrow(it, dbArrow.isX) } },
                                 dbIds = group.map { it.headToHeadArrowScoreId }
                                         .takeWhile { it != 0 }.takeIf { it.isNotEmpty() },
                         )

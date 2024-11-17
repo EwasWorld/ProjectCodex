@@ -12,17 +12,19 @@ enum class HeadToHeadNoResult { INCOMPLETE, UNKNOWN }
 data class FullHeadToHeadSet(
         val setNumber: Int,
         val data: List<HeadToHeadGridRowData>,
-        val isShootOff: Boolean,
         val teamSize: Int,
         val isShootOffWin: Boolean,
         val isRecurveStyle: Boolean,
 ) {
     val endSize
         get() = HeadToHeadUseCase.endSize(teamSize, isShootOff)
+    val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
 
     init {
         check(data.distinctBy { it.type }.size == data.size) { "Duplicate types found" }
         check(teamSize > 0) { "Team size must be > 0" }
+        // <= teamSize rather than 1 because in a team of 3 the OPPONENT size will be 3 (1 for each archer)
+        check(!isShootOff || data.all { it.expectedArrowCount <= teamSize }) { "expectedArrowCount incorrect" }
     }
 
     private val team = getTeamTotal()
@@ -35,6 +37,9 @@ data class FullHeadToHeadSet(
 
     val arrowsShot: Int
         get() = if (result == HeadToHeadResult.INCOMPLETE) 0 else endSize
+
+    val isComplete
+        get() = result.isComplete || data.all { it.isComplete }
 
     fun showExtraColumnTotal() = data
             .map { it.type }
@@ -129,22 +134,35 @@ data class FullHeadToHeadSet(
                     )
 
                     when (rowData) {
-                        is HeadToHeadGridRowData.Arrows ->
-                            rowData.arrows.mapIndexed { index, arrow ->
-                                typeData.copy(
-                                        headToHeadArrowScoreId = rowData.dbIds?.getOrNull(index) ?: 0,
-                                        arrowNumber = index + 1,
-                                        score = arrow.score,
-                                        isX = arrow.isX,
+                        is HeadToHeadGridRowData.Arrows -> {
+                            if (rowData.arrows.isNotEmpty()) {
+                                rowData.arrows.mapIndexed { index, arrow ->
+                                    typeData.copy(
+                                            headToHeadArrowScoreId = rowData.dbIds?.getOrNull(index) ?: 0,
+                                            arrowNumber = index + 1,
+                                            score = arrow.score,
+                                            isX = arrow.isX,
+                                    )
+                                }
+                            }
+                            else {
+                                listOf(
+                                        typeData.copy(
+                                                headToHeadArrowScoreId = rowData.dbIds?.firstOrNull() ?: 0,
+                                                arrowNumber = 1,
+                                                score = null,
+                                                isX = false,
+                                        )
                                 )
                             }
+                        }
 
                         is HeadToHeadGridRowData.Total ->
                             listOf(
                                     typeData.copy(
                                             headToHeadArrowScoreId = rowData.dbId ?: 0,
                                             arrowNumber = 1,
-                                            score = rowData.totalScore,
+                                            score = rowData.total,
                                             isX = false,
                                     )
                             )
@@ -154,7 +172,7 @@ data class FullHeadToHeadSet(
                                     typeData.copy(
                                             headToHeadArrowScoreId = rowData.dbId ?: 0,
                                             arrowNumber = 1,
-                                            score = rowData.totalScore,
+                                            score = rowData.total,
                                             isX = false,
                                     )
                             )

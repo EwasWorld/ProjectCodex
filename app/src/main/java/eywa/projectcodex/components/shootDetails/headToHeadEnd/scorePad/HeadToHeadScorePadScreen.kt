@@ -239,7 +239,6 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 FullHeadToHeadSet(
                                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
                                                         teamSize = 1,
-                                                        isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 1,
                                                         isRecurveStyle = true,
@@ -247,7 +246,6 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 FullHeadToHeadSet(
                                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
                                                         teamSize = 1,
-                                                        isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 2,
                                                         isRecurveStyle = true,
@@ -270,7 +268,6 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 FullHeadToHeadSet(
                                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
                                                         teamSize = 1,
-                                                        isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 1,
                                                         isRecurveStyle = true,
@@ -278,7 +275,6 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 FullHeadToHeadSet(
                                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
                                                         teamSize = 1,
-                                                        isShootOff = false,
                                                         isShootOffWin = false,
                                                         setNumber = 2,
                                                         isRecurveStyle = true,

@@ -51,14 +51,13 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
         val shoot = main.fullShootInfo!!
         val fullH2hInfo = shoot.h2h ?: throw ShootDetailsError()
 
-        val common = HeadToHeadRoundInfo(
+        val roundInfo = HeadToHeadRoundInfo(
                 round = shoot.fullRoundInfo?.round,
                 face = shoot.faces?.first(),
                 distance = shoot.fullRoundInfo?.roundDistances?.maxOfOrNull { it.distance }
                         ?: shoot.shootDetail?.distance,
-                sightMark = null,
-                isMetric = shoot.fullRoundInfo?.round?.isMetric
-                        ?: shoot.shootDetail?.isDistanceInMeters,
+                sightMark = main.sightMark,
+                isMetric = shoot.fullRoundInfo?.round?.isMetric ?: shoot.shootDetail?.isDistanceInMeters,
         )
 
         val heat = fullH2hInfo.heats.minByOrNull { it.heat.heat }
@@ -66,31 +65,26 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             if (extraState.value == null) {
                 extraState.update { HeadToHeadAddHeatExtras() }
             }
-            return HeadToHeadAddHeatState(
-                    headToHeadRoundInfo = common,
-                    extras = extras ?: HeadToHeadAddHeatExtras(),
-            )
         }
-
-        val scores = heat.runningTotals.lastOrNull()?.left
-        if (heat.result() != HeadToHeadResult.INCOMPLETE) {
+        else if (heat.isComplete) {
             if (extraState.value == null || heat.heat.heat == extraState.value?.heat) {
                 extraState.update { HeadToHeadAddHeatExtras(heat = (heat.heat.heat - 1).coerceAtLeast(0)) }
             }
-            return HeadToHeadAddHeatState(
-                    headToHeadRoundInfo = common,
-                    extras = extras ?: HeadToHeadAddHeatExtras(),
-                    previousHeat = HeadToHeadAddHeatState.PreviousHeat(
-                            heat = heat.heat.heat,
-                            result = heat.sets.last().result,
-                            teamRunningTotal = scores!!.first,
-                            opponentRunningTotal = scores.second,
-                    ),
-            )
         }
-
-        extraState.update { (it ?: HeadToHeadAddHeatExtras()).copy(openAddEndScreen = true) }
-        return HeadToHeadAddHeatState(extras = extras ?: HeadToHeadAddHeatExtras())
+        else {
+            extraState.update { (it ?: HeadToHeadAddHeatExtras()).copy(openAddEndScreen = true) }
+        }
+        return HeadToHeadAddHeatState(
+                roundInfo = roundInfo,
+                extras = extras ?: HeadToHeadAddHeatExtras(),
+                previousHeat = heat?.let {
+                    HeadToHeadAddHeatState.PreviousHeat(
+                            heat = it.heat.heat,
+                            result = it.sets.lastOrNull()?.result ?: HeadToHeadResult.INCOMPLETE,
+                            runningTotal = heat.runningTotals.lastOrNull()?.left,
+                    )
+                },
+        )
     }
 
     fun handle(action: HeadToHeadAddHeatIntent) {

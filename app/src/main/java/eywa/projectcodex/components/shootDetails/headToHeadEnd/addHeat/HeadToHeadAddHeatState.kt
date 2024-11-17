@@ -9,7 +9,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 
 data class HeadToHeadAddHeatState(
-        val headToHeadRoundInfo: HeadToHeadRoundInfo? = null,
+        val roundInfo: HeadToHeadRoundInfo? = null,
         val previousHeat: PreviousHeat? = null,
 
         val extras: HeadToHeadAddHeatExtras = HeadToHeadAddHeatExtras(),
@@ -29,8 +29,7 @@ data class HeadToHeadAddHeatState(
     data class PreviousHeat(
             val heat: Int,
             val result: HeadToHeadResult,
-            val teamRunningTotal: Int,
-            val opponentRunningTotal: Int,
+            val runningTotal: Pair<Int, Int>?,
     )
 }
 

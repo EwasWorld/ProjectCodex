@@ -19,12 +19,16 @@ data class FullHeadToHeadHeat(
     }
 
     val runningTotals = runningTotals()
+    val result = result()
 
     val hasStarted: Boolean
         get() = sets.isNotEmpty()
 
     val arrowsShot: Int
         get() = sets.sumOf { it.arrowsShot }
+
+    val isComplete
+        get() = result.isComplete || (sets.lastOrNull()?.let { it.isShootOff && it.isComplete } == true)
 
     /**
      * @return for each set in [sets], provide cumulative team/opponent score.
@@ -67,7 +71,7 @@ data class FullHeadToHeadHeat(
         }
     }
 
-    fun result(): HeadToHeadResult {
+    private fun result(): HeadToHeadResult {
         if (heat.isBye) {
             check(runningTotals.isEmpty()) { "Byes cannot have sets" }
             return HeadToHeadResult.WIN

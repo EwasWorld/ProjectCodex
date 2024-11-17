@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 13,
-    "identityHash": "b0eab5881fa0bbbe592931ed8a91c96a",
+    "identityHash": "a1a57964dffd7f718ad910af261d7e20",
     "entities": [
       {
         "tableName": "shoots",
@@ -978,7 +978,7 @@
       },
       {
         "tableName": "head_to_head_detail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`headToHeadArrowScoreId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `shootId` INTEGER NOT NULL, `heat` INTEGER NOT NULL, `type` TEXT NOT NULL, `isTotal` INTEGER NOT NULL, `setNumber` INTEGER NOT NULL, `arrowNumber` INTEGER NOT NULL, `score` INTEGER NOT NULL, `isX` INTEGER NOT NULL, FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`headToHeadArrowScoreId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `shootId` INTEGER NOT NULL, `heat` INTEGER NOT NULL, `type` TEXT NOT NULL, `isTotal` INTEGER NOT NULL, `setNumber` INTEGER NOT NULL, `arrowNumber` INTEGER NOT NULL, `score` INTEGER, `isX` INTEGER NOT NULL, FOREIGN KEY(`shootId`) REFERENCES `shoots`(`shootId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "headToHeadArrowScoreId",
@@ -1026,7 +1026,7 @@
             "fieldPath": "score",
             "columnName": "score",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "isX",
@@ -1069,7 +1069,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b0eab5881fa0bbbe592931ed8a91c96a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a1a57964dffd7f718ad910af261d7e20')"
     ]
   }
 }

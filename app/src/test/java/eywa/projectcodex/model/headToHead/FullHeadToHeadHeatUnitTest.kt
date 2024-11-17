@@ -229,13 +229,13 @@ class FullHeadToHeadHeatUnitTest {
 
         listOf(1 to true, 2 to true, 1 to false, 2 to false).forEach { (teamSize, isRecurve) ->
             getData(isRecurve) { dsl(teamSize, isRecurve) }.forEachIndexed { i, (dsl, expected) ->
-                assertEquals("$teamSize $isRecurve $i", expected, dsl.asFull().result())
+                assertEquals("$teamSize $isRecurve $i", expected, dsl.asFull().result)
             }
             assertThrows(IllegalStateException::class.java) {
                 dsl(teamSize, isRecurve).apply {
                     heat = heat.copy(isBye = true)
                     addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
-                }.asFull().result()
+                }.asFull().result
             }
         }
     }

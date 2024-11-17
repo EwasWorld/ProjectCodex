@@ -1,5 +1,6 @@
 package eywa.projectcodex.model.headToHead
 
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
@@ -16,15 +17,16 @@ class FullHeadToHeadSetUnitTest {
             isShootOff: Boolean = false,
             isShootOffWin: Boolean = false,
             isRecurveStyle: Boolean = true,
-    ) =
-            FullHeadToHeadSet(
-                    setNumber = 1,
-                    data = map { (type, total) -> HeadToHeadGridRowData.Total(type, 1, total) },
-                    isShootOff = isShootOff,
-                    teamSize = if (isTeam) 2 else 1,
-                    isShootOffWin = isShootOffWin,
-                    isRecurveStyle = isRecurveStyle,
-            )
+    ): FullHeadToHeadSet {
+        val teamSize = if (isTeam) 2 else 1
+        return FullHeadToHeadSet(
+                setNumber = if (!isShootOff) 1 else HeadToHeadUseCase.shootOffSet(teamSize),
+                data = map { (type, total) -> HeadToHeadGridRowData.Total(type, 1, total) },
+                teamSize = teamSize,
+                isShootOffWin = isShootOffWin,
+                isRecurveStyle = isRecurveStyle,
+        )
+    }
 
     @Test
     fun testTeamTotal() {
@@ -245,7 +247,6 @@ class FullHeadToHeadSetUnitTest {
                     FullHeadToHeadSet(
                             setNumber = 1,
                             data = listOf(input),
-                            isShootOff = false,
                             teamSize = 1,
                             isShootOffWin = false,
                             isRecurveStyle = true,
@@ -276,7 +277,6 @@ class FullHeadToHeadSetUnitTest {
                                         total = 25,
                                 ),
                         ),
-                        isShootOff = false,
                         teamSize = 1,
                         isShootOffWin = false,
                         isRecurveStyle = true,

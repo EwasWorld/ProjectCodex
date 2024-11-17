@@ -1,6 +1,5 @@
 package eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd
 
-import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
@@ -14,7 +13,7 @@ import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 data class HeadToHeadAddEndState(
-        val headToHeadRoundInfo: HeadToHeadRoundInfo? = null,
+        val roundInfo: HeadToHeadRoundInfo? = null,
         val extras: HeadToHeadAddEndExtras = HeadToHeadAddEndExtras(),
         val teamRunningTotal: Int = 0,
         val opponentRunningTotal: Int = 2,
@@ -40,12 +39,12 @@ data class HeadToHeadAddEndState(
 }
 
 data class HeadToHeadRoundInfo(
-        val distance: Int? = 70,
-        val isMetric: Boolean? = true,
+        val distance: Int? = null,
+        val isMetric: Boolean? = null,
         val sightMark: SightMark? = null,
 
-        val round: Round? = RoundPreviewHelper.wa70RoundData.round,
-        val face: RoundFace? = RoundFace.FULL,
+        val round: Round? = null,
+        val face: RoundFace? = null,
 )
 
 data class HeadToHeadAddEndExtras(
@@ -55,7 +54,6 @@ data class HeadToHeadAddEndExtras(
         val set: FullHeadToHeadSet = FullHeadToHeadSet(
                 data = HeadToHeadGridRowDataPreviewHelper.selfAndOpponent,
                 teamSize = 1,
-                isShootOff = false,
                 isShootOffWin = false,
                 setNumber = 1,
                 isRecurveStyle = false,
