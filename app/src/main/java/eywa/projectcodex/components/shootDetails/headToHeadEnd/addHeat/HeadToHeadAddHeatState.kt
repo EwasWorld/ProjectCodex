@@ -11,6 +11,8 @@ import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 data class HeadToHeadAddHeatState(
         val roundInfo: HeadToHeadRoundInfo? = null,
         val previousHeat: PreviousHeat? = null,
+        val editing: DatabaseHeadToHeadHeat? = null,
+        val existingHeats: List<Int> = emptyList(),
 
         val extras: HeadToHeadAddHeatExtras = HeadToHeadAddHeatExtras(),
 ) {

@@ -12,6 +12,8 @@ sealed class HeadToHeadAddHeatIntent {
     data class SelectHeatDialogItemClicked(val heat: Int) : HeadToHeadAddHeatIntent()
     data object CloseSelectHeatDialog : HeadToHeadAddHeatIntent()
     data object SubmitClicked : HeadToHeadAddHeatIntent()
+    data object DeleteClicked : HeadToHeadAddHeatIntent()
+    data object ResetClicked : HeadToHeadAddHeatIntent()
 
     data object ExpandSightMarkClicked : HeadToHeadAddHeatIntent()
     data object EditSightMarkClicked : HeadToHeadAddHeatIntent()

@@ -62,6 +62,7 @@ data class HeadToHeadAddEndExtras(
         val arrowInputsError: Set<ArrowInputsError> = setOf(),
         val incompleteError: Boolean = false,
         val openSighters: Boolean = false,
+        val openCreateNextMatch: Boolean = false,
 ) {
     val selectedData
         get() = set.data.find { it.type == selected }

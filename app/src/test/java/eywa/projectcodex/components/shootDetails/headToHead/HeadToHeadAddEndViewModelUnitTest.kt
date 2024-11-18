@@ -276,6 +276,11 @@ class HeadToHeadAddEndViewModelUnitTest {
                         }
                     }
                 },
+                HeadToHeadPreviewHelperDsl(1).apply {
+                    addHeat {
+                        heat = heat.copy(isBye = true)
+                    }
+                },
         ).map { it.asFull() }
 
         inputs.forEachIndexed { index, h2h ->

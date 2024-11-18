@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,7 @@ import eywa.projectcodex.common.sharedUi.CodexChip
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadSetPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ToastSpamPrevention
@@ -50,6 +52,8 @@ import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInput
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsIntent.ArrowInputted
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.arrowButton.ArrowButtonGroup
 import eywa.projectcodex.components.shootDetails.getData
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeatPreviewHelper
@@ -82,6 +86,7 @@ fun HeadToHeadAddEndScreen(
             data?.extras?.openSighters,
             data?.extras?.openAddHeatScreen,
             data?.extras?.arrowInputsError,
+            data?.extras?.openCreateNextMatch,
     ) {
         if (data != null) {
             data.extras.arrowInputsError.forEach {
@@ -123,6 +128,18 @@ fun HeadToHeadAddEndScreen(
                 CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT.navigate(
                         navController,
                         mapOf(NavArgument.SHOOT_ID to viewModel.shootId.toString()),
+                        popCurrentRoute = true,
+                )
+                listener(OpenAddHeatScreenHandled)
+            }
+
+            if (data.extras.openCreateNextMatch) {
+                CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT.navigate(
+                        navController,
+                        mapOf(
+                                NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                NavArgument.HEAT_ID to (data.heat.heat - 1).toString(),
+                        ),
                         popCurrentRoute = true,
                 )
                 listener(OpenAddHeatScreenHandled)
@@ -171,9 +188,23 @@ fun HeadToHeadAddEndScreen(
             HeatFixedInfo(state, listener)
         }
 
-        HeatTransitiveInfo(state, listener)
-        SetInfo(state, listener)
-        Buttons(state, listener)
+        if (state.heat.isBye) {
+            Sighters(state, listener)
+            Text(
+                    text = stringResource(R.string.head_to_head_score_pad__is_bye),
+                    style = CodexTypography.NORMAL_PLUS,
+                    color = CodexTheme.colors.onAppBackground,
+            )
+            CodexButton(
+                    text = stringResource(R.string.head_to_head_add_end__next_match),
+                    onClick = { listener(CreateNextMatchClicked) },
+            )
+        }
+        else {
+            HeatTransitiveInfo(state, listener)
+            SetInfo(state, listener)
+            Buttons(state, listener)
+        }
     }
 }
 
@@ -209,6 +240,28 @@ private fun HeatFixedInfo(
 }
 
 @Composable
+private fun Sighters(
+        state: HeadToHeadAddEndState,
+        listener: (HeadToHeadAddEndIntent) -> Unit,
+) {
+    DataRow(
+            title = stringResource(R.string.add_count__sighters),
+            text = state.heat.sightersCount.toString(),
+            titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
+            textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
+            textModifier = Modifier.testTag(AddEndTestTag.SIGHTERS),
+            onClick = { listener(SightersClicked) },
+            modifier = Modifier
+                    .updateHelpDialogPosition(
+                            HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_input_end__sighters_title),
+                                    helpBody = stringResource(R.string.help_input_end__sighters_body),
+                            ).asHelpState { listener(HelpShowcaseAction(it)) },
+                    )
+    )
+}
+
+@Composable
 private fun HeatTransitiveInfo(
         state: HeadToHeadAddEndState,
         listener: (HeadToHeadAddEndIntent) -> Unit,
@@ -220,21 +273,7 @@ private fun HeatTransitiveInfo(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
     ) {
-        DataRow(
-                title = stringResource(R.string.add_count__sighters),
-                text = state.heat.sightersCount.toString(),
-                titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
-                textStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                textModifier = Modifier.testTag(AddEndTestTag.SIGHTERS),
-                onClick = { listener(SightersClicked) },
-                modifier = Modifier
-                        .updateHelpDialogPosition(
-                                HelpShowcaseItem(
-                                        helpTitle = stringResource(R.string.help_input_end__sighters_title),
-                                        helpBody = stringResource(R.string.help_input_end__sighters_body),
-                                ).asHelpState(helpListener),
-                        )
-        )
+        Sighters(state, listener)
 
         Surface(
                 color = Color.Transparent,
@@ -262,24 +301,25 @@ private fun ColumnScope.SetInfo(
         listener: (HeadToHeadAddEndIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    val result = state.extras.set.result
 
     val setText =
             if (state.extras.set.isShootOff) {
                 stringResource(
                         R.string.head_to_head_add_end__shoot_off,
-                        state.extras.set.result.title.get(),
+                        result.title.get(),
                 )
             }
             else {
                 stringResource(
                         R.string.head_to_head_add_end__set,
                         state.extras.set.setNumber,
-                        state.extras.set.result.title.get(),
+                        result.title.get(),
                 )
             }
 
     Column(
-            verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -287,6 +327,19 @@ private fun ColumnScope.SetInfo(
                 style = CodexTypography.NORMAL_PLUS,
                 color = CodexTheme.colors.onAppBackground,
         )
+        if (result == HeadToHeadResult.UNKNOWN) {
+            Text(
+                    text = stringResource(
+                            R.string.head_to_head_add_end__unknown_result_warning,
+                            state.extras.set.requiredRowsString.get(),
+                    ),
+                    style = CodexTypography.SMALL_PLUS,
+                    color = CodexTheme.colors.onAppBackground,
+                    textAlign = TextAlign.Center,
+                    fontStyle = FontStyle.Italic,
+                    modifier = Modifier.padding(bottom = 10.dp)
+            )
+        }
 
         HeadToHeadGrid(
                 state = state.toGridState(),
@@ -294,6 +347,7 @@ private fun ColumnScope.SetInfo(
                 rowClicked = { _, row -> listener(GridRowClicked(row)) },
                 onTextValueChanged = { type, text -> listener(GridTextValueChanged(type, text)) },
                 helpListener = helpListener,
+                modifier = Modifier.padding(vertical = 10.dp)
         )
 
         if (state.extras.set.isShootOff) {
@@ -341,6 +395,12 @@ private fun Buttons(
                 text = stringResource(R.string.head_to_head_add_end__submit),
                 onClick = { listener(SubmitClicked) },
         )
+        if (state.extras.set.result == HeadToHeadResult.UNKNOWN && state.extras.set.setNumber >= 3) {
+            CodexButton(
+                    text = stringResource(R.string.head_to_head_add_end__next_match),
+                    onClick = { listener(CreateNextMatchClicked) },
+            )
+        }
     }
 }
 
@@ -362,6 +422,41 @@ fun HeadToHeadAddScreen_Preview() {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
                         heat = DatabaseHeadToHeadHeatPreviewHelper.data,
+                ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun Unknown_HeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddEndScreen(
+                state = HeadToHeadAddEndState(
+                        heat = DatabaseHeadToHeadHeatPreviewHelper.data,
+                        extras = HeadToHeadAddEndExtras(
+                                set = HeadToHeadSetPreviewHelperDsl(
+                                        setNumber = 3,
+                                        teamSize = 1,
+                                        isShootOffWin = false,
+                                        isRecurveStyle = true,
+                                ).apply {
+                                    addRows(HeadToHeadResult.WIN)
+                                    removeRow(HeadToHeadArcherType.OPPONENT)
+                                }.asFull(),
+                        ),
+                ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun ByeHeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddEndScreen(
+                state = HeadToHeadAddEndState(
+                        heat = DatabaseHeadToHeadHeatPreviewHelper.data.copy(isBye = true),
                 ),
         ) {}
     }

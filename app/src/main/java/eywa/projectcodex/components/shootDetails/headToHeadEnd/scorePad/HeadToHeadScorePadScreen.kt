@@ -68,7 +68,11 @@ fun HeadToHeadScorePadScreen(
     )
 
     val data = state.getData()
-    LaunchedEffect(data?.extras?.openAddHeat) {
+    LaunchedEffect(
+            data?.extras?.openAddHeat,
+            data?.extras?.openSightersForHeat,
+            data?.extras?.openEditHeatInfo,
+    ) {
         if (data?.extras?.openAddHeat == true) {
             CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT.navigate(
                     navController,
@@ -76,6 +80,30 @@ fun HeadToHeadScorePadScreen(
                     popCurrentRoute = true,
             )
             listener(HeadToHeadScorePadIntent.GoToAddEndHandled)
+        }
+
+        if (data?.extras?.openSightersForHeat != null) {
+            CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                            NavArgument.HEAT_ID to data.extras.openSightersForHeat.toString(),
+                            NavArgument.IS_SIGHTERS to true.toString(),
+                    ),
+            )
+            listener(HeadToHeadScorePadIntent.EditSightersHandled)
+        }
+
+        if (data?.extras?.openEditHeatInfo != null) {
+            CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                            NavArgument.HEAT_ID to data.extras.openEditHeatInfo.toString(),
+                    ),
+                    popCurrentRoute = true,
+            )
+            listener(HeadToHeadScorePadIntent.EditHeatInfoHandled)
         }
     }
 }

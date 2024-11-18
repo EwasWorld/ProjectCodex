@@ -17,6 +17,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadRoundInfo
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -43,6 +44,7 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
 
     private val h2hRepo = db.h2hRepo()
     val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
+    private val heatId = savedStateHandle.get<Int>(NavArgument.HEAT_ID)
 
     private fun stateConverter(
             main: ShootDetailsState,
@@ -60,20 +62,34 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
                 isMetric = shoot.fullRoundInfo?.round?.isMetric ?: shoot.shootDetail?.isDistanceInMeters,
         )
 
-        val heat = fullH2hInfo.heats.minByOrNull { it.heat.heat }
-        if (heat == null) {
+        val editingHeat = fullH2hInfo.heats.find { it.heat.heat == heatId }?.heat
+        val heat = fullH2hInfo.heats.minByOrNull { it.heat.heat }.takeIf { editingHeat == null }
+        var existingHeats = fullH2hInfo.heats.map { it.heat.heat }
+
+        // Edit heat from database
+        if (heatId != null && editingHeat != null) {
+            existingHeats = existingHeats.minus(editingHeat.heat)
             if (extraState.value == null) {
-                extraState.update { HeadToHeadAddHeatExtras() }
+                extraState.update { (it ?: HeadToHeadAddHeatExtras()).resetEditInfo(editingHeat) }
             }
         }
-        else if (heat.isComplete) {
+        // Create new heat
+        else if (heat == null || heatId != null) {
+            if (extraState.value == null) {
+                extraState.update { HeadToHeadAddHeatExtras(heat = heatId?.coerceAtLeast(0)) }
+            }
+        }
+        // Create next new heat
+        else if (heat.isComplete && !heat.heat.isBye) {
             if (extraState.value == null || heat.heat.heat == extraState.value?.heat) {
                 extraState.update { HeadToHeadAddHeatExtras(heat = (heat.heat.heat - 1).coerceAtLeast(0)) }
             }
         }
+        // Previous heat not completed, jump to add end screen
         else {
             extraState.update { (it ?: HeadToHeadAddHeatExtras()).copy(openAddEndScreen = true) }
         }
+
         return HeadToHeadAddHeatState(
                 roundInfo = roundInfo,
                 extras = extras ?: HeadToHeadAddHeatExtras(),
@@ -84,15 +100,21 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
                             runningTotal = heat.runningTotals.lastOrNull()?.left,
                     )
                 },
+                editing = editingHeat,
+                existingHeats = existingHeats,
         )
     }
 
+    private fun HeadToHeadAddHeatExtras.resetEditInfo(editing: DatabaseHeadToHeadHeat) = HeadToHeadAddHeatExtras(
+            heat = editing.heat,
+            opponent = editing.opponent ?: "",
+            opponentQualiRank = opponentQualiRank.onTextChanged(editing.opponentQualificationRank?.toString() ?: ""),
+            isBye = editing.isBye,
+    )
+
     fun handle(action: HeadToHeadAddHeatIntent) {
         fun updateState(block: (HeadToHeadAddHeatExtras) -> HeadToHeadAddHeatExtras) =
-                extraState.update {
-                    if (it !is HeadToHeadAddHeatExtras) return@update it
-                    block(it)
-                }
+                extraState.update { block(it!!) }
 
         when (action) {
             is ShootDetailsAction -> repo.handle(action.action, screen)
@@ -119,13 +141,33 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             HeatClicked -> updateState { it.copy(showSelectHeatDialog = true) }
             CloseSelectHeatDialog -> updateState { it.copy(showSelectHeatDialog = false) }
 
-            SubmitClicked -> state.value.getData().let { state ->
-                if (state?.extras?.heat == null) {
-                    updateState { it.copy(showHeatRequiredError = true) }
+            SubmitClicked -> state.value.getData()?.let { state ->
+                if (state.extras.heat == null || state.extras.heat in state.existingHeats) {
+                    updateState { it.copy(showHeatRequiredError = state.extras.heat == null) }
                     return
                 }
 
-                viewModelScope.launch { h2hRepo.insert(state.asHeadToHeadHeat(shootId)!!) }
+                val newHeat = state.asHeadToHeadHeat(shootId)!!
+                viewModelScope.launch {
+                    if (state.editing != null) {
+                        if (state.editing.heat == state.extras.heat) h2hRepo.update(newHeat)
+                        else h2hRepo.updateWithHeatIdChange(state.editing.heat, newHeat)
+                    }
+                    else {
+                        h2hRepo.insert(newHeat)
+                    }
+                }
+            }
+
+            DeleteClicked -> state.value.getData()?.let { state ->
+                if (state.editing == null) return
+                viewModelScope.launch {
+                    h2hRepo.delete(shootId = state.editing.shootId, heatId = state.editing.heat)
+                }
+            }
+
+            ResetClicked -> updateState { s ->
+                state.value.getData()?.editing?.let { s.resetEditInfo(it) } ?: s
             }
         }
     }

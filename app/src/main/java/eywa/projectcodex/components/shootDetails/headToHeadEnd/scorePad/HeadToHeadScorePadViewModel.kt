@@ -11,6 +11,7 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsError
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad.HeadToHeadScorePadIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,12 +46,14 @@ class HeadToHeadScorePadViewModel @Inject constructor(
 
     fun handle(action: HeadToHeadScorePadIntent) {
         when (action) {
-            is HeadToHeadScorePadIntent.HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
-            is HeadToHeadScorePadIntent.ShootDetailsAction -> repo.handle(action.action, screen)
-            HeadToHeadScorePadIntent.GoToAddEnd -> extraState.update { it.copy(openAddHeat = true) }
-            HeadToHeadScorePadIntent.GoToAddEndHandled -> extraState.update { it.copy(openAddHeat = false) }
-            is HeadToHeadScorePadIntent.EditHeatInfo -> TODO()
-            is HeadToHeadScorePadIntent.EditSighters -> TODO()
+            is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
+            is ShootDetailsAction -> repo.handle(action.action, screen)
+            GoToAddEnd -> extraState.update { it.copy(openAddHeat = true) }
+            GoToAddEndHandled -> extraState.update { it.copy(openAddHeat = false) }
+            is EditHeatInfo -> extraState.update { it.copy(openEditHeatInfo = action.heat) }
+            is EditSighters -> extraState.update { it.copy(openSightersForHeat = action.heat) }
+            EditHeatInfoHandled -> extraState.update { it.copy(openEditHeatInfo = null) }
+            EditSightersHandled -> extraState.update { it.copy(openSightersForHeat = null) }
         }
     }
 }

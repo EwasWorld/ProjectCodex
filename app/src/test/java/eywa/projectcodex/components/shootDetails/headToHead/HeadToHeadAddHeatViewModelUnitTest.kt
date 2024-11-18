@@ -150,6 +150,7 @@ class HeadToHeadAddHeatViewModelUnitTest {
                                 result = HeadToHeadResult.WIN,
                                 runningTotal = 6 to 0,
                         ),
+                        existingHeats = listOf(3),
                 ),
                 currentState,
         )
@@ -187,6 +188,7 @@ class HeadToHeadAddHeatViewModelUnitTest {
                                 result = HeadToHeadResult.LOSS,
                                 runningTotal = 5 to 6,
                         ),
+                        existingHeats = listOf(3),
                 ),
                 currentState,
         )
@@ -225,6 +227,11 @@ class HeadToHeadAddHeatViewModelUnitTest {
                         addSet { addRows() }
                         addSet { addRows() }
                         addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
+                    }
+                },
+                HeadToHeadPreviewHelperDsl(1).apply {
+                    addHeat {
+                        heat = heat.copy(isBye = true)
                     }
                 },
         ).map { it.asFull() }

@@ -72,7 +72,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
         }
 
-        if (heat.isComplete) {
+        if (heat.isComplete && !heat.heat.isBye) {
             extraState.update { (it ?: HeadToHeadAddEndExtras()).copy(openAddHeatScreen = true) }
             return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
         }
@@ -136,10 +136,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
     fun handle(action: HeadToHeadAddEndIntent) {
         fun updateState(block: (HeadToHeadAddEndExtras) -> HeadToHeadAddEndExtras) =
-                extraState.update {
-                    if (it !is HeadToHeadAddEndExtras) return@update it
-                    block(it)
-                }
+                extraState.update { block(it!!) }
 
         when (action) {
             is HelpShowcaseAction -> helpShowcaseUseCase.handle(action.action, screen::class)
@@ -207,6 +204,9 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 val newData = s.set.data.minus(row).plus(row.copy(text = row.text.onTextChanged(action.text)))
                 s.copy(set = s.set.copy(data = newData))
             }
+
+            CreateNextMatchClicked -> updateState { it.copy(openCreateNextMatch = true) }
+            CreateNextMatchHandled -> updateState { it.copy(openCreateNextMatch = false) }
         }
     }
 }

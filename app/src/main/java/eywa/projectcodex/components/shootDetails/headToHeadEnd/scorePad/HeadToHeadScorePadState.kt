@@ -9,4 +9,6 @@ data class HeadToHeadScorePadState(
 
 data class HeadToHeadScorePadExtras(
         val openAddHeat: Boolean = false,
+        val openSightersForHeat: Int? = null,
+        val openEditHeatInfo: Int? = null,
 )

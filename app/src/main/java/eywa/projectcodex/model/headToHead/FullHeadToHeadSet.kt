@@ -1,5 +1,7 @@
 package eywa.projectcodex.model.headToHead
 
+import eywa.projectcodex.R
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
@@ -40,6 +42,33 @@ data class FullHeadToHeadSet(
 
     val isComplete
         get() = result.isComplete || data.all { it.isComplete }
+
+    val requiredRowsString: ResOrActual<String>
+        get() {
+            check(result == HeadToHeadResult.UNKNOWN)
+
+            val opponentRequired = opponent.right == HeadToHeadNoResult.UNKNOWN
+            return if (team.right != HeadToHeadNoResult.UNKNOWN) {
+                ResOrActual.StringResource(R.string.head_to_head_add_end__unknown_result_warning_opponent)
+            }
+            else {
+                val types = data.map { it.type }
+                val selfRequired = !types.contains(HeadToHeadArcherType.SELF)
+                val teamMatesRequired = !types.contains(HeadToHeadArcherType.TEAM_MATE) && teamSize > 1
+
+                val teamString = ResOrActual.StringResource(
+                        if (!selfRequired) R.string.head_to_head_add_end__unknown_result_warning_team_mates
+                        else if (!teamMatesRequired) R.string.head_to_head_add_end__unknown_result_warning_self
+                        else R.string.head_to_head_add_end__unknown_result_warning_both,
+                )
+
+                if (opponentRequired) ResOrActual.StringResource(
+                        R.string.head_to_head_add_end__unknown_result_warning_connector,
+                        listOf(teamString),
+                )
+                else teamString
+            }
+        }
 
     fun showExtraColumnTotal() = data
             .map { it.type }
