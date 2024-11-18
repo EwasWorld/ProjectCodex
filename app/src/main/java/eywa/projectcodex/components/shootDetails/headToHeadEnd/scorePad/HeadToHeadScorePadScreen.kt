@@ -209,6 +209,7 @@ fun HeadToHeadScorePadScreen(
                             errorOnIncompleteRows = false,
                             rowClicked = { _, _ -> },
                             onTextValueChanged = { _, _ -> },
+                            editTypesClicked = {},
                             helpListener = helpListener,
                             modifier = Modifier.padding(top = 10.dp, bottom = 40.dp)
                     )

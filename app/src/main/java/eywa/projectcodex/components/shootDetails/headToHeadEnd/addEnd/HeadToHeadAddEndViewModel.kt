@@ -207,6 +207,44 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
             CreateNextMatchClicked -> updateState { it.copy(openCreateNextMatch = true) }
             CreateNextMatchHandled -> updateState { it.copy(openCreateNextMatch = false) }
+            EditTypesClicked -> updateState { s ->
+                s.copy(selectRowTypesDialogState = s.set.data.associate { it.type to it.isTotalRow })
+            }
+
+            is EditTypesItemClicked -> updateState {
+                val dialogState = it.selectRowTypesDialogState ?: return@updateState it
+                val item = dialogState[action.item]
+
+                // null -> false -> true -> null
+                when (item) {
+                    null -> it.copy(selectRowTypesDialogState = dialogState.plus(action.item to false))
+                    false -> it.copy(selectRowTypesDialogState = dialogState.plus(action.item to true))
+                    true -> it.copy(selectRowTypesDialogState = dialogState.minus(action.item))
+                }
+            }
+
+            CloseEditTypesDialog -> updateState { it.copy(selectRowTypesDialogState = null) }
+            EditTypesOkClicked -> updateState { s ->
+                s.selectRowTypesDialogState ?: return@updateState s
+
+                val isTeam = s.set.teamSize > 1
+                val types = s.selectRowTypesDialogState.keys.toList()
+                val setData = s.set.data.associateBy { it.type }
+
+                val newSetData = s.selectRowTypesDialogState.map { (type, isTotal) ->
+                    val data = setData[type]
+                    if (data != null && data.isTotalRow == isTotal && type.enabledOnSelectorDialog(isTeam, types)) {
+                        data
+                    }
+                    else {
+                        val arrowCount = type.expectedArrowCount(endSize = s.set.endSize, teamSize = s.set.teamSize)
+                        if (isTotal) EditableTotal(type = type, expectedArrowCount = arrowCount)
+                        else Arrows(type = type, expectedArrowCount = arrowCount)
+                    }
+                }
+
+                s.copy(selectRowTypesDialogState = null, set = s.set.copy(data = newSetData))
+            }
         }
     }
 }

@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -34,11 +36,15 @@ import eywa.projectcodex.common.helpShowcase.updateHelpDialogPosition
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexChip
 import eywa.projectcodex.common.sharedUi.DataRow
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadSetPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
@@ -57,6 +63,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGrid
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeatPreviewHelper
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @Composable
 fun HeadToHeadAddEndScreen(
@@ -296,6 +303,65 @@ private fun HeatTransitiveInfo(
 }
 
 @Composable
+private fun EditRowTypesDialog(
+        state: HeadToHeadAddEndState,
+        listener: (HeadToHeadAddEndIntent) -> Unit,
+) {
+    val dialogState = state.extras.selectRowTypesDialogState
+    SimpleDialog(
+            isShown = dialogState != null,
+            onDismissListener = { listener(CloseEditTypesDialog) },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.head_to_head_add_end__type_dialog_title),
+                message = stringResource(R.string.head_to_head_add_end__type_dialog_message),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { listener(CloseEditTypesDialog) },
+                ),
+        ) {
+            dialogState ?: return@SimpleDialogContent
+            Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+            ) {
+                val isTeam = state.extras.set.teamSize > 1
+                HeadToHeadArcherType.entries.forEach {
+                    if (it.showForSelectorDialog(isTeam)) {
+                        val enabled = it.enabledOnSelectorDialog(isTeam, dialogState.keys.toList())
+                        val text =
+                                if (!enabled) {
+                                    stringResource(R.string.head_to_head_add_end__type_dialog_unavailable)
+                                }
+                                else {
+                                    when (dialogState[it]) {
+                                        true -> stringResource(R.string.head_to_head_add_end__type_dialog_total)
+                                        false -> stringResource(R.string.head_to_head_add_end__type_dialog_arrows)
+                                        null -> stringResource(R.string.head_to_head_add_end__type_dialog_off)
+                                    }
+                                }
+                        val textClickableStyle =
+                                if (enabled) LocalTextStyle.current.asClickableStyle()
+                                else LocalTextStyle.current.asClickableStyle()
+                                        .copy(color = CodexTheme.colors.disabledButton)
+                        DataRow(
+                                title = stringResource(
+                                        R.string.head_to_head_add_end__type_dialog_row_title,
+                                        it.selectorText.get(),
+                                ),
+                                text = text,
+                                onClick = { listener(EditTypesItemClicked(it)) }.takeIf { enabled },
+                                textClickableStyle = textClickableStyle,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun ColumnScope.SetInfo(
         state: HeadToHeadAddEndState,
         listener: (HeadToHeadAddEndIntent) -> Unit,
@@ -317,6 +383,8 @@ private fun ColumnScope.SetInfo(
                         result.title.get(),
                 )
             }
+
+    EditRowTypesDialog(state, listener)
 
     Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
@@ -346,6 +414,7 @@ private fun ColumnScope.SetInfo(
                 errorOnIncompleteRows = state.extras.incompleteError,
                 rowClicked = { _, row -> listener(GridRowClicked(row)) },
                 onTextValueChanged = { type, text -> listener(GridTextValueChanged(type, text)) },
+                editTypesClicked = { listener(EditTypesClicked) },
                 helpListener = helpListener,
                 modifier = Modifier.padding(vertical = 10.dp)
         )
@@ -391,16 +460,16 @@ private fun Buttons(
             }
         }
 
-        CodexButton(
-                text = stringResource(R.string.head_to_head_add_end__submit),
-                onClick = { listener(SubmitClicked) },
-        )
         if (state.extras.set.result == HeadToHeadResult.UNKNOWN && state.extras.set.setNumber >= 3) {
             CodexButton(
                     text = stringResource(R.string.head_to_head_add_end__next_match),
                     onClick = { listener(CreateNextMatchClicked) },
             )
         }
+        CodexButton(
+                text = stringResource(R.string.head_to_head_add_end__submit),
+                onClick = { listener(SubmitClicked) },
+        )
     }
 }
 
@@ -422,6 +491,32 @@ fun HeadToHeadAddScreen_Preview() {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
                         heat = DatabaseHeadToHeadHeatPreviewHelper.data,
+                ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun EditRowTypes_HeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddEndScreen(
+                state = HeadToHeadAddEndState(
+                        heat = DatabaseHeadToHeadHeatPreviewHelper.data,
+                        extras = HeadToHeadAddEndExtras(
+                                set = FullHeadToHeadSet(
+                                        setNumber = 1,
+                                        data = listOf(),
+                                        teamSize = 2,
+                                        isShootOffWin = false,
+                                        isRecurveStyle = false,
+                                ),
+                                selectRowTypesDialogState = mapOf(
+                                        HeadToHeadArcherType.SELF to false,
+                                        HeadToHeadArcherType.TEAM_MATE to true,
+                                        HeadToHeadArcherType.OPPONENT to true,
+                                ),
+                        ),
                 ),
         ) {}
     }

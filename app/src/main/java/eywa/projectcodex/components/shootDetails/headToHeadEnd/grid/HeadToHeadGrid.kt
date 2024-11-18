@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -59,6 +62,7 @@ fun HeadToHeadGrid(
         errorOnIncompleteRows: Boolean,
         modifier: Modifier = Modifier,
         rowClicked: (setNumber: Int, type: HeadToHeadArcherType) -> Unit,
+        editTypesClicked: () -> Unit,
         onTextValueChanged: (type: HeadToHeadArcherType, text: String?) -> Unit,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
@@ -105,15 +109,29 @@ fun HeadToHeadGrid(
                         Box {}
                     }
                     else {
-                        Text(
-                                text = it.primaryTitle!!.get(),
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
+                        val clickable = it == HeadToHeadGridColumn.TYPE && state.isSingleEditableSet
+                        Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                         .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(vertical = 5.dp, horizontal = 10.dp)
                                         .wrapContentHeight(Alignment.CenterVertically)
-                        )
+                                        .modifierIf(clickable, Modifier.clickable { editTypesClicked() })
+                        ) {
+                            Text(
+                                    text = it.primaryTitle!!.get(),
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                            )
+                            if (clickable) {
+                                Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = null,
+                                        tint = CodexTheme.colors.onListItemAppOnBackground,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -345,6 +363,7 @@ fun Input_HeadToHeadGrid_Preview() {
                 errorOnIncompleteRows = false,
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
+                editTypesClicked = {},
                 helpListener = {},
                 modifier = Modifier.padding(vertical = 20.dp)
         )
@@ -386,6 +405,7 @@ fun InputTeam_HeadToHeadGrid_Preview() {
                 errorOnIncompleteRows = false,
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
+                editTypesClicked = {},
                 helpListener = {},
                 modifier = Modifier.padding(vertical = 20.dp)
         )
@@ -433,6 +453,7 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                 errorOnIncompleteRows = false,
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
+                editTypesClicked = {},
                 helpListener = {},
                 modifier = Modifier.padding(vertical = 20.dp)
         )
@@ -465,6 +486,7 @@ fun Error_HeadToHeadGrid_Preview() {
                 errorOnIncompleteRows = true,
                 rowClicked = { _, _ -> },
                 onTextValueChanged = { _, _ -> },
+                editTypesClicked = {},
                 helpListener = {},
                 modifier = Modifier.padding(vertical = 20.dp)
         )

@@ -48,6 +48,7 @@ data class HeadToHeadRoundInfo(
 )
 
 data class HeadToHeadAddEndExtras(
+        val selectRowTypesDialogState: Map<HeadToHeadArcherType, Boolean>? = null,
         val openAddHeatScreen: Boolean = false,
         val openEditSightMark: Boolean = false,
         val openAllSightMarks: Boolean = false,

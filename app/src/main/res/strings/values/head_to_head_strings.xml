@@ -19,17 +19,24 @@
     <string name="head_to_head_add_end__running_total">R/T: %s</string> <!-- R/T: 6-0 -->
     <string name="head_to_head_add_end__unknown_result_warning">Cannot calculate result\nRequires data for: %s</string>
     <string name="head_to_head_add_end__unknown_result_warning_opponent">opponent</string>
-    <string name="head_to_head_add_end__unknown_result_warning_connector">opponent, and %2$s</string>
+    <string name="head_to_head_add_end__unknown_result_warning_connector">opponent, and %s</string>
     <string name="head_to_head_add_end__unknown_result_warning_self">team or self</string>
     <string name="head_to_head_add_end__unknown_result_warning_team_mates">team or team mate(s)</string>
     <string name="head_to_head_add_end__unknown_result_warning_both">team or (self and team mate(s))</string>
 
     <string name="head_to_head_add_end__total_text_placeholder">0</string>
     <string name="head_to_head_add_end__archer_self">Self</string>
-    <string name="head_to_head_add_end__archer_team_mate">Team</string>
+    <string name="head_to_head_add_end__archer_team_mate">Team mate(s)</string>
     <string name="head_to_head_add_end__archer_team">Team</string>
     <string name="head_to_head_add_end__archer_opponent">Opponent</string>
     <string name="head_to_head_add_end__archer_result">Result</string>
+    <string name="head_to_head_add_end__type_dialog_unavailable">Auto</string>
+    <string name="head_to_head_add_end__type_dialog_total">Total</string>
+    <string name="head_to_head_add_end__type_dialog_arrows">Arrows</string>
+    <string name="head_to_head_add_end__type_dialog_off">Off</string>
+    <string name="head_to_head_add_end__type_dialog_row_title">%s:</string>
+    <string name="head_to_head_add_end__type_dialog_title">Select rows</string>
+    <string name="head_to_head_add_end__type_dialog_message">Select the data to input for the current set</string>
 
     <string name="head_to_head_grid__column_type">Type</string>
     <string name="head_to_head_grid__column_arrows">Arrows</string>
