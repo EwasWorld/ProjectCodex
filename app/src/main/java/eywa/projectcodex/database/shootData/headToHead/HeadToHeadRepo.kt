@@ -43,6 +43,10 @@ class HeadToHeadRepo(
         headToHeadHeatDao.update(heat)
     }
 
+    suspend fun update(heat: DatabaseHeadToHead) {
+        headToHeadDao.update(heat)
+    }
+
     @Transaction
     suspend fun updateWithHeatIdChange(oldHeatId: Int, heat: DatabaseHeadToHeadHeat) {
         headToHeadHeatDao.delete(shootId = heat.shootId, heatId = oldHeatId)

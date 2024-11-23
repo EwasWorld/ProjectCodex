@@ -274,10 +274,10 @@ class ShootsRepo(
                     require(original.arrowCounter.shotCount == 0) { "$message h2h/count" }
                     updates.add { arrowCounterRepo.delete(original.arrowCounter) }
                 }
-                if (original.h2h == null) {
-                    require(headToHead != null) { "h2h info required" }
-                    updates.add { headToHeadRepo.insert(headToHead) }
-                }
+
+                require(headToHead != null) { "h2h info required" }
+                if (original.h2h == null) updates.add { headToHeadRepo.insert(headToHead) }
+                else updates.add { headToHeadRepo.update(headToHead) }
             }
         }
 

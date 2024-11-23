@@ -157,17 +157,33 @@ class NewScoreViewModel @Inject constructor(
                 if (roundsState.selectedRound != null) roundBeingEdited.faces
                 else roundBeingEdited.faces?.firstOrNull()?.let { listOf(it) }
 
-        return copy(
+        var newState = copy(
                 dateShot = roundBeingEdited.shoot.dateShot,
                 type = when {
-                    roundBeingEdited.arrowCounter != null -> NewScoreType.COUNTING
                     roundBeingEdited.h2h != null -> NewScoreType.HEAD_TO_HEAD
+                    roundBeingEdited.arrowCounter != null -> NewScoreType.COUNTING
                     else -> NewScoreType.SCORING
                 },
                 selectRoundDialogState = roundsState,
-                selectFaceDialogState = faceAction.handle(selectFaceDialogState)
-                        .copy(selectedFaces = faces),
+                selectFaceDialogState = faceAction.handle(selectFaceDialogState).copy(selectedFaces = faces),
         )
+
+        if (roundBeingEdited.h2h != null) {
+            newState = newState.copy(
+                    h2hStyleIsRecurve = roundBeingEdited.h2h.headToHead.isRecurveStyle,
+                    h2hTeamSize = h2hTeamSize.onTextChanged(roundBeingEdited.h2h.headToHead.teamSize.toString()),
+                    h2hQualificationRank = h2hQualificationRank
+                            .onTextChanged(roundBeingEdited.h2h.headToHead.qualificationRank?.toString() ?: ""),
+            )
+        }
+        else {
+            newState = newState.copy(
+                    h2hStyleIsRecurve = true,
+                    h2hTeamSize = h2hTeamSize.onTextChanged("1"),
+                    h2hQualificationRank = h2hQualificationRank.onTextChanged(""),
+            )
+        }
+
+        return newState
     }
 }
-

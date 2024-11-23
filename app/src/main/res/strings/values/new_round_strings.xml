@@ -35,7 +35,7 @@
     <string name="create_round__select_a_face_all_diff">Click here to use a different face for each distance</string>
     <string name="create_round__select_a_face_title">Face:</string>
     <string name="create_round__face_type_help_button">Face type help</string>
-    <string name="create_round__score_type_cannot_change">Cannot change type as arrows have been entered</string>
+    <string name="create_round__score_type_cannot_change">Cannot change type</string>
     <string name="create_round__score_type">Type:</string>
     <string name="create_round__score_type_score">Score</string>
     <string name="create_round__score_type_count">Count</string>
